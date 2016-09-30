@@ -25,6 +25,10 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.region.AbstractRegion;
@@ -33,11 +37,6 @@ import org.apache.activemq.network.NetworkConnector;
 import org.apache.activemq.util.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>
@@ -107,8 +106,7 @@ public class ThreeBrokerTempDestDemandSubscriptionCleanupTest extends JmsMultipl
                   responseConsumer.close();
                   conn.close();
 
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   fail();
                }
@@ -181,8 +179,7 @@ public class ThreeBrokerTempDestDemandSubscriptionCleanupTest extends JmsMultipl
             //              responseConsumer.close();
             conn.close();
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             fail();
          }
@@ -229,8 +226,7 @@ public class ThreeBrokerTempDestDemandSubscriptionCleanupTest extends JmsMultipl
                producer.send(response);
                producer.close();
 
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
                fail("Could not respond to an echo request");
             }

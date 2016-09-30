@@ -19,6 +19,14 @@
 
 package org.apache.artemis.client.cdi.factory;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -29,14 +37,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
-import java.util.HashMap;
-import java.util.Map;
 
 @ApplicationScoped
 public class ConnectionFactoryProvider {
@@ -58,16 +58,14 @@ public class ConnectionFactoryProvider {
             ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(embeddedConfiguration, false);
             JMSServerManagerImpl jmsServerManager = new JMSServerManagerImpl(activeMQServer);
             jmsServerManager.start();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException("Unable to start embedded JMS", e);
          }
       }
 
       try {
          this.activeMQConnectionFactory = createConnectionFactory();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException("Unable to connect to remote server", e);
       }
    }
@@ -84,16 +82,14 @@ public class ConnectionFactoryProvider {
       final ActiveMQConnectionFactory activeMQConnectionFactory;
       if (configuration.getUrl() != null) {
          activeMQConnectionFactory = ActiveMQJMSClient.createConnectionFactory(configuration.getUrl(), null);
-      }
-      else {
+      } else {
          if (configuration.getHost() != null) {
             params.put(TransportConstants.HOST_PROP_NAME, configuration.getHost());
             params.put(TransportConstants.PORT_PROP_NAME, configuration.getPort());
          }
          if (configuration.isHa()) {
             activeMQConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(configuration.getConnectorFactory(), params));
-         }
-         else {
+         } else {
             activeMQConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(configuration.getConnectorFactory(), params));
          }
       }

@@ -250,8 +250,7 @@ public class JmsContextTest extends JMSTestBase {
       try {
          producer.send(queue1, (Message) null);
          Assert.fail("null msg");
-      }
-      catch (MessageFormatRuntimeException expected) {
+      } catch (MessageFormatRuntimeException expected) {
          // no-op
       }
    }
@@ -263,8 +262,7 @@ public class JmsContextTest extends JMSTestBase {
       try {
          producer.send((Destination) null, msg);
          Assert.fail("null Destination");
-      }
-      catch (InvalidDestinationRuntimeException expected) {
+      } catch (InvalidDestinationRuntimeException expected) {
          // no-op
       }
    }
@@ -302,8 +300,7 @@ public class JmsContextTest extends JMSTestBase {
       try {
          context.setClientID("id");
          Assert.fail("expected exception");
-      }
-      catch (IllegalStateRuntimeException e) {
+      } catch (IllegalStateRuntimeException e) {
          // no op
       }
    }
@@ -339,11 +336,10 @@ public class JmsContextTest extends JMSTestBase {
          try {
             msg.acknowledge();
             Assert.assertEquals("connection should be open on pass 0. It is " + pass, 0, idx);
-         }
-         // HORNETQ-1209 "JMS 2.0" XXX JMSContext javadoc says we must expect a
-         // IllegalStateRuntimeException here. But Message.ack...() says it must throws the
-         // non-runtime variant.
-         catch (javax.jms.IllegalStateException expected) {
+         } catch (javax.jms.IllegalStateException expected) {
+            // HORNETQ-1209 "JMS 2.0" XXX JMSContext javadoc says we must expect a
+            // IllegalStateRuntimeException here. But Message.ack...() says it must throws the
+            // non-runtime variant.
             Assert.assertEquals("we only close the connection on pass " + pass, pass, idx);
          }
       }
@@ -370,8 +366,7 @@ public class JmsContextTest extends JMSTestBase {
       try {
          c2.createMessage();
          Assert.fail("session should be closed...");
-      }
-      catch (JMSRuntimeException expected) {
+      } catch (JMSRuntimeException expected) {
          // expected
       }
       Message m1 = context.createMessage();
@@ -534,8 +529,7 @@ public class JmsContextTest extends JMSTestBase {
          assertTrue(latch.await(5, TimeUnit.SECONDS));
          assertEquals(listener.message.readByte(), (byte) 1);
          assertEquals(listener.message.readInt(), 22);
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -610,8 +604,7 @@ public class JmsContextTest extends JMSTestBase {
       private void stopContext() {
          try {
             context.stop();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             error = t;
          }
       }
@@ -619,8 +612,7 @@ public class JmsContextTest extends JMSTestBase {
       private void closeContext() {
          try {
             context.close();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             error = t;
          }
       }
@@ -642,8 +634,7 @@ public class JmsContextTest extends JMSTestBase {
       public void onCompletion(Message message) {
          try {
             context.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             this.ex = e;
          }
          latch.countDown();

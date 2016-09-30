@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -26,15 +35,6 @@ import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 /**
  * GroupingTest
@@ -105,8 +105,7 @@ public class GroupingTest extends JMSTestBase {
 
                      producer.send(message);
                   }
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   e.printStackTrace();
                }
             }
@@ -137,8 +136,7 @@ public class GroupingTest extends JMSTestBase {
 
             assertEquals(tm.getStringProperty("JMSXGroupID"), "foo");
          }
-      }
-      finally {
+      } finally {
          if (sendConnection != null) {
             sendConnection.close();
          }
@@ -153,8 +151,7 @@ public class GroupingTest extends JMSTestBase {
          try {
             System.out.println("pausing after rollback");
             Thread.sleep(500);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }
          System.out.println("finished pausing after rollback");

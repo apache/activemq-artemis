@@ -77,8 +77,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
       try {
          closeConsumer();
-      }
-      finally {
+      } finally {
          session.removeConsumer(this);
       }
    }
@@ -126,12 +125,10 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
          session.checkStrict();
          if (listener == null) {
             consumer.setMessageListener(null);
-         }
-         else {
+         } else {
             consumer.setMessageListener(wrapMessageListener(listener));
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -175,12 +172,10 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
          if (message == null) {
             return null;
-         }
-         else {
+         } else {
             return wrapMessage(message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -209,12 +204,10 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
          if (message == null) {
             return null;
-         }
-         else {
+         } else {
             return wrapMessage(message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -242,12 +235,10 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
          if (message == null) {
             return null;
-         }
-         else {
+         } else {
             return wrapMessage(message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -278,17 +269,13 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
       if (message instanceof BytesMessage) {
          return new ActiveMQRABytesMessage((BytesMessage) message, session);
-      }
-      else if (message instanceof MapMessage) {
+      } else if (message instanceof MapMessage) {
          return new ActiveMQRAMapMessage((MapMessage) message, session);
-      }
-      else if (message instanceof ObjectMessage) {
+      } else if (message instanceof ObjectMessage) {
          return new ActiveMQRAObjectMessage((ObjectMessage) message, session);
-      }
-      else if (message instanceof StreamMessage) {
+      } else if (message instanceof StreamMessage) {
          return new ActiveMQRAStreamMessage((StreamMessage) message, session);
-      }
-      else if (message instanceof TextMessage) {
+      } else if (message instanceof TextMessage) {
          return new ActiveMQRATextMessage((TextMessage) message, session);
       }
       return new ActiveMQRAMessage(message, session);

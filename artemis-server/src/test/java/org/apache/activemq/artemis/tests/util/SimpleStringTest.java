@@ -16,15 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import org.junit.Test;
-
 import java.util.concurrent.CountDownLatch;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class SimpleStringTest extends Assert {
 
@@ -122,32 +120,28 @@ public class SimpleStringTest extends Assert {
       try {
          s1.charAt(-1);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.charAt(-2);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.charAt(s.length());
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.charAt(s.length() + 1);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
@@ -169,40 +163,35 @@ public class SimpleStringTest extends Assert {
       try {
          s1.subSequence(-1, 2);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.subSequence(-4, -2);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.subSequence(0, s1.length() + 1);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.subSequence(0, s1.length() + 2);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
 
       try {
          s1.subSequence(5, 1);
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
    }
@@ -379,8 +368,7 @@ public class SimpleStringTest extends Assert {
                   if (newhash != initialhash) {
                      failed = true;
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   failed = true;
                }

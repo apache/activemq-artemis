@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -28,6 +24,9 @@ import javax.jms.MessageProducer;
 import javax.jms.ResourceAllocationException;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -101,8 +100,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
                      // will be limited by the network buffers
                      Thread.sleep(200);
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   // with async send, there will be no exceptions
                   e.printStackTrace();
                }
@@ -145,8 +143,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
             while (keepGoing.get()) {
                try {
                   producer.send(session.createTextMessage("Test message"));
-               }
-               catch (JMSException arg0) {
+               } catch (JMSException arg0) {
                   if (arg0 instanceof ResourceAllocationException) {
                      gotResourceException.set(true);
                      exceptionCount.incrementAndGet();

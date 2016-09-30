@@ -29,11 +29,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.core.io.util.FileIOUtil;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
-import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
@@ -117,8 +117,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          FileIOUtil.copyData(this, newFileName, buffer);
          newFileName.close();
          this.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -141,8 +140,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    public final void renameTo(final String newFileName) throws IOException, InterruptedException, ActiveMQException {
       try {
          close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -183,8 +181,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    public final boolean fits(final int size) {
       if (timedBuffer == null) {
          return position.get() + size <= fileSize;
-      }
-      else {
+      } else {
          return timedBuffer.checkSize(size);
       }
    }
@@ -208,8 +205,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       if (timedBuffer != null) {
          bytes.setIndex(0, bytes.capacity());
          timedBuffer.addBytes(bytes, sync, callback);
-      }
-      else {
+      } else {
          ByteBuffer buffer = factory.newBuffer(bytes.capacity());
          buffer.put(bytes.toByteBuffer().array());
          buffer.rewind();
@@ -226,8 +222,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          write(bytes, true, completion);
 
          completion.waitCompletion();
-      }
-      else {
+      } else {
          write(bytes, false, DummyCallback.getInstance());
       }
    }
@@ -236,8 +231,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
       if (timedBuffer != null) {
          timedBuffer.addBytes(bytes, sync, callback);
-      }
-      else {
+      } else {
          ByteBuffer buffer = factory.newBuffer(bytes.getEncodeSize());
 
          // If not using the TimedBuffer, a final copy is necessary
@@ -259,8 +253,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          write(bytes, true, completion);
 
          completion.waitCompletion();
-      }
-      else {
+      } else {
          write(bytes, false, DummyCallback.getInstance());
       }
    }
@@ -282,8 +275,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          for (IOCallback callback : delegates) {
             try {
                callback.done();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
             }
          }
@@ -294,8 +286,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          for (IOCallback callback : delegates) {
             try {
                callback.onError(errorCode, errorMessage);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
             }
          }
@@ -319,8 +310,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
          if (buffer.limit() == 0) {
             factory.releaseBuffer(buffer);
-         }
-         else {
+         } else {
             writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
          }
       }
@@ -334,8 +324,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       public int getRemainingBytes() {
          if (fileSize - position.get() > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
-         }
-         else {
+         } else {
             return (int) (fileSize - position.get());
          }
       }

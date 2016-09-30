@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,12 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
+
+import javax.jms.Destination;
+import javax.jms.MessageConsumer;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -26,12 +32,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.network.NetworkConnector;
 import org.apache.activemq.store.kahadb.KahaDBStore;
 import org.apache.activemq.util.MessageIdList;
-
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 
 public class TwoBrokerVirtualDestDinamicallyIncludedDestTest extends JmsMultipleBrokersTestSupport {
 

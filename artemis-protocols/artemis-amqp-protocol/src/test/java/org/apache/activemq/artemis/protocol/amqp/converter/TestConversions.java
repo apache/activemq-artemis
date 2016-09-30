@@ -28,13 +28,19 @@ import java.util.Map;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.blacklist.ABadClass;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -44,14 +50,8 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 
 public class TestConversions extends Assert {
 
@@ -81,14 +81,13 @@ public class TestConversions extends Assert {
 
       Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
 
-      AmqpValue value = (AmqpValue) ((Message)obj).getBody();
+      AmqpValue value = (AmqpValue) ((Message) obj).getBody();
       assertEquals(value.getValue(), true);
 
    }
 
    @Test
    public void testObjectMessageNotOnWhiteList() throws Exception {
-
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
       ServerMessageImpl message = new ServerMessageImpl(1, 1024);
@@ -104,12 +103,10 @@ public class TestConversions extends Assert {
       try {
          converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
          fail("should throw ClassNotFoundException");
-      }
-      catch (ClassNotFoundException e) {
+      } catch (ClassNotFoundException e) {
          //ignore
       }
    }
-
 
    @Test
    public void testSimpleConversionBytes() throws Exception {

@@ -141,8 +141,7 @@ public class MessageCounterHelper {
 
                if (value == -1) {
                   ret.append("<td></td>");
-               }
-               else {
+               } else {
                   ret.append("<td>" + value + "</td>");
 
                   total += value;
@@ -172,8 +171,7 @@ public class MessageCounterHelper {
    private static String asDate(final long time) {
       if (time > 0) {
          return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date(time));
-      }
-      else {
+      } else {
          return "-";
       }
    }

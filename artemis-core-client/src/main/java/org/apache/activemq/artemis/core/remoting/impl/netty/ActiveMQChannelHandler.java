@@ -97,8 +97,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
          try {
             listener.connectionException(channelId(ctx.channel()), me);
             active = false;
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             ActiveMQClientLogger.LOGGER.errorCallingLifeCycleListener(ex);
          }
       }

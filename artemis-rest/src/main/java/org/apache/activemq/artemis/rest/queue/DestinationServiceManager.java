@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.rest.queue;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
@@ -148,8 +148,7 @@ public abstract class DestinationServiceManager {
       if (sessionFactory == null) {
          try {
             sessionFactory = locator.createSessionFactory();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }

@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
-import org.junit.Test;
-
 import javax.xml.bind.JAXBContext;
 import java.io.StringReader;
+
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.junit.Test;
 
 public class XmlTest {
 

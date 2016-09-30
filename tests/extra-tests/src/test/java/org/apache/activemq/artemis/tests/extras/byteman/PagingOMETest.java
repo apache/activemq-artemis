@@ -159,8 +159,7 @@ public class PagingOMETest extends ActiveMQTestBase {
       try {
          session.commit();
          Assert.fail("exception expected");
-      }
-      catch (Exception expected) {
+      } catch (Exception expected) {
       }
       failureActive = false;
       session.rollback();

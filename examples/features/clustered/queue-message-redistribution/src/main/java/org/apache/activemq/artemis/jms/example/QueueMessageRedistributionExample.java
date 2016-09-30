@@ -129,8 +129,7 @@ public class QueueMessageRedistributionExample {
 
          // Step 18. We ack the messages.
          message0.acknowledge();
-      }
-      finally {
+      } finally {
          // Step 18. Be sure to close our resources!
 
          if (connection0 != null) {

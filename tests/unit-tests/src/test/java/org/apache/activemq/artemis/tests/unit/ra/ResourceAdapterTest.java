@@ -374,8 +374,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       try {
          ra.getConnectionFactory(connectionFactoryProperties);
          Assert.fail("should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // pass
       }
    }
@@ -468,8 +467,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
          locator.close();
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -505,8 +503,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
          ra.stop();
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -548,14 +545,12 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
          try {
             activation.start();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // ignore
          }
 
          assertEquals(0, server.getRemotingService().getConnections().size());
-      }
-      finally {
+      } finally {
          if (activation != null)
             activation.stop();
          if (ra != null)

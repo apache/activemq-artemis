@@ -100,14 +100,12 @@ public class SaslAuthenticator {
                if (response != null && response.length != 0) {
                   sasl.send(response, 0, response.length);
                }
-            }
-            else {
+            } else {
                // TODO - Better error message.
                throw new SecurityException("Could not find a matching SASL mechanism for the remote peer.");
             }
          }
-      }
-      catch (SaslException se) {
+      } catch (SaslException se) {
          // TODO - Better error message.
          SecurityException jmsse = new SecurityException("Exception while processing SASL init.");
          jmsse.initCause(se);
@@ -129,14 +127,11 @@ public class SaslAuthenticator {
          Mechanism mechanism = null;
          if (remoteMechanism.equalsIgnoreCase("PLAIN")) {
             mechanism = new PlainMechanism();
-         }
-         else if (remoteMechanism.equalsIgnoreCase("ANONYMOUS")) {
+         } else if (remoteMechanism.equalsIgnoreCase("ANONYMOUS")) {
             mechanism = new AnonymousMechanism();
-         }
-         else if (remoteMechanism.equalsIgnoreCase("CRAM-MD5")) {
+         } else if (remoteMechanism.equalsIgnoreCase("CRAM-MD5")) {
             mechanism = new CramMD5Mechanism();
-         }
-         else {
+         } else {
             LOG.debug("Unknown remote mechanism {}, skipping", remoteMechanism);
             continue;
          }
@@ -166,8 +161,7 @@ public class SaslAuthenticator {
             byte[] response = mechanism.getChallengeResponse(challenge);
             sasl.send(response, 0, response.length);
          }
-      }
-      catch (SaslException se) {
+      } catch (SaslException se) {
          // TODO - Better error message.
          SecurityException jmsse = new SecurityException("Exception while processing SASL step.");
          jmsse.initCause(se);

@@ -33,8 +33,7 @@ public class SpringBindingRegistry implements BindingRegistry {
       Object obj = null;
       try {
          obj = factory.getBean(name);
-      }
-      catch (NoSuchBeanDefinitionException e) {
+      } catch (NoSuchBeanDefinitionException e) {
          //ignore
       }
       return obj;

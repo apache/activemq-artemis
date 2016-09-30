@@ -64,8 +64,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
          assertEquals("This is the response", m2.getText());
 
          requestor.close();
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }
@@ -96,8 +95,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
             Destination queue = m.getJMSReplyTo();
             Message m2 = sess.createTextMessage("This is the response");
             sender.send(queue, m2);
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             log.error(e);
          }
       }

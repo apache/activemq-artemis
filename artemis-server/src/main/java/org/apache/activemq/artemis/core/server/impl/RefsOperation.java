@@ -101,8 +101,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
                toCancel.addFirst(ref);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorCheckingDLQ(e);
          }
       }
@@ -140,8 +139,7 @@ public class RefsOperation extends TransactionOperationAbstract {
                message.incrementRefCount();
             }
             ackedTX.commit(true);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -165,12 +163,10 @@ public class RefsOperation extends TransactionOperationAbstract {
    private void decrementRefCount(MessageReference refmsg) {
       try {
          refmsg.getMessage().decrementRefCount();
-      }
-      catch (NonExistentPage e) {
+      } catch (NonExistentPage e) {
          // This could happen on after commit, since the page could be deleted on file earlier by another thread
          logger.debug(e);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
    }

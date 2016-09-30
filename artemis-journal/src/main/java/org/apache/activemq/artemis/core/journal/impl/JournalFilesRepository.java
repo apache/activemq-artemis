@@ -88,8 +88,7 @@ public class JournalFilesRepository {
       public void run() {
          try {
             pushOpenedFile();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
          }
       }
@@ -140,8 +139,7 @@ public class JournalFilesRepository {
       for (JournalFile file : openedFiles) {
          try {
             file.getFile().close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorClosingFile(e);
          }
       }
@@ -208,8 +206,7 @@ public class JournalFilesRepository {
    public void openFile(final JournalFile file, final boolean multiAIO) throws Exception {
       if (multiAIO) {
          file.getFile().open();
-      }
-      else {
+      } else {
          file.getFile().open(1, false);
       }
 
@@ -348,15 +345,13 @@ public class JournalFilesRepository {
       long calculatedSize = 0;
       try {
          calculatedSize = file.getFile().size();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage() + " file: " + file);
       }
       if (calculatedSize != fileSize) {
          ActiveMQJournalLogger.LOGGER.deletingFile(file);
          file.getFile().delete();
-      }
-      else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < poolSize) || (poolSize < 0)) {
+      } else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < poolSize) || (poolSize < 0)) {
          // Re-initialise it
 
          if (logger.isTraceEnabled()) {
@@ -371,16 +366,15 @@ public class JournalFilesRepository {
 
          freeFiles.add(jf);
          freeFilesCount.getAndIncrement();
-      }
-      else {
+      } else {
          if (logger.isTraceEnabled()) {
             logger.trace("DataFiles.size() = " + dataFiles.size());
             logger.trace("openedFiles.size() = " + openedFiles.size());
             logger.trace("minfiles = " + minFiles + ", poolSize = " + poolSize);
             logger.trace("Free Files = " + freeFilesCount.get());
             logger.trace("File " + file + " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
-                                            (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
-                                            ") < minFiles (" + minFiles + ")");
+                            (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
+                            ") < minFiles (" + minFiles + ")");
          }
          file.getFile().delete();
       }
@@ -420,8 +414,7 @@ public class JournalFilesRepository {
 
       if (openFilesExecutor == null) {
          pushOpenRunnable.run();
-      }
-      else {
+      } else {
          openFilesExecutor.execute(pushOpenRunnable);
       }
 
@@ -495,8 +488,7 @@ public class JournalFilesRepository {
 
       if (nextFile == null) {
          nextFile = createFile(keepOpened, multiAIO, initFile, tmpCompactExtension, -1);
-      }
-      else {
+      } else {
          if (tmpCompactExtension) {
             SequentialFile sequentialFile = nextFile.getFile();
             sequentialFile.renameTo(sequentialFile.getFileName() + ".cmp");
@@ -535,8 +527,7 @@ public class JournalFilesRepository {
                                   final long fileIdPreSet) throws Exception {
       if (System.getSecurityManager() == null) {
          return createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet);
-      }
-      else {
+      } else {
          try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<JournalFile>() {
                @Override
@@ -544,8 +535,7 @@ public class JournalFilesRepository {
                   return createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet);
                }
             });
-         }
-         catch (PrivilegedActionException e) {
+         } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
       }
@@ -555,11 +545,9 @@ public class JournalFilesRepository {
       Throwable c = e.getCause();
       if (c instanceof RuntimeException) {
          throw (RuntimeException) c;
-      }
-      else if (c instanceof Error) {
+      } else if (c instanceof Error) {
          throw (Error) c;
-      }
-      else {
+      } else {
          throw new RuntimeException(c);
       }
    }
@@ -602,8 +590,7 @@ public class JournalFilesRepository {
       if (keepOpened) {
          if (multiAIO) {
             sequentialFile.open();
-         }
-         else {
+         } else {
             sequentialFile.open(1, false);
          }
          sequentialFile.position(position);
@@ -621,8 +608,7 @@ public class JournalFilesRepository {
       String fileName;
       if (tmpCompact) {
          fileName = filePrefix + "-" + fileID + "." + fileExtension + ".cmp";
-      }
-      else {
+      } else {
          fileName = filePrefix + "-" + fileID + "." + fileExtension;
       }
       return fileName;
@@ -638,8 +624,7 @@ public class JournalFilesRepository {
    private long getFileNameID(final String fileName) {
       try {
          return Long.parseLong(fileName.substring(filePrefix.length() + 1, fileName.indexOf('.')));
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
          return 0;
       }

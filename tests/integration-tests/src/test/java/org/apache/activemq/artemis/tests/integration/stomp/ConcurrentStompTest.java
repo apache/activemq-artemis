@@ -75,8 +75,7 @@ public class ConcurrentStompTest extends StompTestBase {
                      Assert.assertTrue(frame.indexOf("destination:") > 0);
                      System.out.println("<<< " + i++);
                      latch.countDown();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      break;
                   }
                }
@@ -92,8 +91,7 @@ public class ConcurrentStompTest extends StompTestBase {
 
          assertTrue(latch.await(60, TimeUnit.SECONDS));
 
-      }
-      finally {
+      } finally {
          stompSocket_2.close();
          inputBuffer_2.close();
       }
@@ -119,8 +117,7 @@ public class ConcurrentStompTest extends StompTestBase {
          c = is.read();
          if (c < 0) {
             throw new IOException("socket closed.");
-         }
-         else if (c == 0) {
+         } else if (c == 0) {
             c = is.read();
             if (c != '\n') {
                byte[] ba = input.toByteArray();
@@ -130,8 +127,7 @@ public class ConcurrentStompTest extends StompTestBase {
             byte[] ba = input.toByteArray();
             input.reset();
             return new String(ba, StandardCharsets.UTF_8);
-         }
-         else {
+         } else {
             input.write(c);
          }
       }

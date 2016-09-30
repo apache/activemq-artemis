@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -166,24 +166,20 @@ public class NIOSSLConcurrencyTest extends TestCase {
                Message msg = consumer.receive(3000);
                if (msg != null) {
                   LOG.info("Received test message: " + received++);
-               }
-               else {
+               } else {
                   if (breakOnNull) {
                      break;
                   }
                }
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
             failed = true;
-         }
-         finally {
+         } finally {
             if (consumer != null) {
                try {
                   consumer.close();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   e.printStackTrace();
                }
             }
@@ -226,17 +222,14 @@ public class NIOSSLConcurrencyTest extends TestCase {
                   Thread.sleep(sleep);
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             failed = true;
-         }
-         finally {
+         } finally {
             if (producer != null) {
                try {
                   producer.close();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   e.printStackTrace();
                }
             }

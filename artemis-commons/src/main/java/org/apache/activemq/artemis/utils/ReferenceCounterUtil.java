@@ -50,8 +50,7 @@ public class ReferenceCounterUtil implements ReferenceCounter {
       if (value == 0) {
          if (executor != null) {
             executor.execute(runnable);
-         }
-         else {
+         } else {
             runnable.run();
          }
       }

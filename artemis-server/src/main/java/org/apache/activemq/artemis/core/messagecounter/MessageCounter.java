@@ -232,12 +232,10 @@ public class MessageCounter {
 
             // create initial day counter when empty
             bInitialize = dayCounters.isEmpty();
-         }
-         else if (dayCounterMax == 0) {
+         } else if (dayCounterMax == 0) {
             // disable history
             dayCounters.clear();
-         }
-         else {
+         } else {
             // unlimited day history
 
             // create initial day counter when empty
@@ -418,12 +416,10 @@ public class MessageCounter {
             if (i < hour) {
                if (isStartDay) {
                   counters[i] = -1;
-               }
-               else {
+               } else {
                   counters[i] = 0;
                }
-            }
-            else {
+            } else {
                counters[i] = -1;
             }
          }

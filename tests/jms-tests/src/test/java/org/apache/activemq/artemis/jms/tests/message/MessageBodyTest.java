@@ -89,8 +89,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m.writeObject(new Object());
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
          // OK
       }
 
@@ -98,94 +97,81 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readShort();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readChar();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readInt();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readLong();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readFloat();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readDouble();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readUTF();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readUnsignedByte();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.readUnsignedShort();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          byte[] bytes = new byte[333];
          m.readBytes(bytes);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          byte[] bytes = new byte[333];
          m.readBytes(bytes, 111);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
       try {
          m.getBodyLength();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
          // OK
       }
 
@@ -241,88 +227,77 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readByte();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readChar();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readDouble();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readFloat();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readInt();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readLong();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readShort();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readUnsignedByte();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readUnsignedShort();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readUTF();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
@@ -330,81 +305,70 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.writeBoolean(myBool);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeByte(myByte);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeShort(myShort);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeChar(myChar);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
 
       try {
          m2.writeInt(myInt);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeLong(myLong);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeFloat(myFloat);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeDouble(myDouble);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
       try {
          m2.writeUTF(myString);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
 
       try {
          m2.writeBytes(myBytes);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
 
       try {
          m2.writeObject(myString);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
          // OK
       }
 
@@ -430,8 +394,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getBodyLength();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
          // OK
       }
 
@@ -483,8 +446,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m1.setObject("myIllegal", new Object());
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageFormatException e) {
+      } catch (javax.jms.MessageFormatException e) {
       }
 
       queueProducer.send(m1);
@@ -506,57 +468,49 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.setBoolean("myBool", myBool);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setByte("myByte", myByte);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setShort("myShort", myShort);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setInt("myInt", myInt);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setLong("myLong", myLong);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setFloat("myFloat", myFloat);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setDouble("myDouble", myDouble);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setString("myString", myString);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       ProxyAssertSupport.assertTrue(m2.itemExists("myBool"));
@@ -597,43 +551,37 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getByte("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShort("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getInt("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLong("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDouble("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // byte item can be read as short, int, long or String
@@ -646,22 +594,19 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getBoolean("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDouble("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // short item can be read as int, long or String
@@ -673,29 +618,25 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getByte("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBoolean("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDouble("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // int item can be read as long or String
@@ -706,36 +647,31 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getShort("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByte("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBoolean("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDouble("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // long item can be read as String
@@ -745,43 +681,37 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getInt("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShort("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByte("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBoolean("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDouble("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // float can be read as double or String
@@ -792,36 +722,31 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getInt("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShort("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLong("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByte("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBoolean("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // double can be read as String
@@ -831,43 +756,37 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.getFloat("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getInt("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShort("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByte("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBoolean("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloat("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       m2.clearBody();
@@ -899,38 +818,32 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m3.getByte("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getShort("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getInt("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getLong("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getFloat("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getDouble("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
 
    }
@@ -979,8 +892,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m4.setObject(obj);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       m4.clearBody();
@@ -1034,59 +946,50 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m.writeObject(new Object());
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // Reading should not be possible when message is read-write
       try {
          m.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readShort();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readChar();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readInt();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readLong();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readFloat();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          m.readDouble();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
       try {
          byte[] bytes = new byte[333];
          m.readBytes(bytes);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotReadableException e) {
+      } catch (javax.jms.MessageNotReadableException e) {
       }
 
       queueProducer.send(m);
@@ -1145,122 +1048,104 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readByte();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readChar();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readDouble();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readFloat();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readInt();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readLong();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       try {
          m2.readShort();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       // Message should not be writable in read-only mode
       try {
          m2.writeBoolean(myBool);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeByte(myByte);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeShort(myShort);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeChar(myChar);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
 
       try {
          m2.writeInt(myInt);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeLong(myLong);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeFloat(myFloat);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
       try {
          m2.writeDouble(myDouble);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
 
       try {
          m2.writeBytes(myBytes);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
 
       try {
          m2.writeObject(myString);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageNotWriteableException e) {
+      } catch (javax.jms.MessageNotWriteableException e) {
       }
 
       m2.reset();
@@ -1282,8 +1167,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
          // Should now be write only
          m2.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
 
       m2.writeBoolean(myBool);
@@ -1294,8 +1178,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.readBoolean();
          ProxyAssertSupport.fail();
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
 
       // Test that changing the received message doesn't affect the sent message
@@ -1340,8 +1223,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       try {
          m2.setText("Should be read-only");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       m2.clearBody();

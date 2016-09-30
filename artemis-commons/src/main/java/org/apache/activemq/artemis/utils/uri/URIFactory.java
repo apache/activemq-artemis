@@ -73,7 +73,6 @@ public class URIFactory<T, P> {
       schemaFactory.populateObject(uri, bean);
    }
 
-
    public void populateObject(String uri, T bean) throws Exception {
       populateObject(new URI(uri), bean);
    }
@@ -106,8 +105,7 @@ public class URIFactory<T, P> {
          if (factoryQuery != null && factoryQuery.length() > 0) {
             if (connectorURIS[0].contains("?")) {
                builder.append("&").append(factoryQuery.substring(1));
-            }
-            else {
+            } else {
                builder.append(factoryQuery);
             }
          }

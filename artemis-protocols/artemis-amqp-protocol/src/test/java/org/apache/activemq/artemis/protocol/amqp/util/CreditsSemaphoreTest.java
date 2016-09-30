@@ -44,8 +44,7 @@ public class CreditsSemaphoreTest {
                }
                acquired.incrementAndGet();
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
          }

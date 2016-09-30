@@ -21,8 +21,8 @@ import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -56,8 +56,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getAddress();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -68,8 +67,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getDiscoveryGroupName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -80,8 +78,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getMaxHops();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -92,8 +89,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -104,8 +100,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getRetryInterval();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -116,8 +111,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return clusterConnection.getNodeID();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -129,12 +123,10 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
          List<String> staticConnectors = configuration.getStaticConnectors();
          if (staticConnectors == null) {
             return null;
-         }
-         else {
+         } else {
             return staticConnectors.toArray(new String[staticConnectors.size()]);
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -144,8 +136,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return JsonUtil.toJsonArray(configuration.getStaticConnectors()).toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -155,8 +146,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.isDuplicateDetection();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -166,8 +156,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return configuration.getMessageLoadBalancingType().getType();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -177,8 +166,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return clusterConnection.getTopology().describe();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -188,8 +176,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return clusterConnection.getNodes();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -199,8 +186,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       clearIO();
       try {
          return clusterConnection.isStarted();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -211,8 +197,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       try {
          clusterConnection.start();
          clusterConnection.flushExecutor();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -223,8 +208,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       try {
          clusterConnection.stop();
          clusterConnection.flushExecutor();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }

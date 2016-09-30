@@ -32,10 +32,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackExcepti
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
 import org.w3c.dom.Node;
 
 /**

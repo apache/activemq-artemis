@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -31,10 +35,6 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class LiveToLiveFailoverTest extends FailoverTest {
 
@@ -88,8 +88,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
          }
          try {
             Thread.sleep(100);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             fail(e.getMessage());
          }
       }
@@ -157,8 +156,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       if (liveServer.getServer().isStarted()) {
          sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
          sf = (ClientSessionFactoryInternal) locator.createSessionFactory(liveServer.getServer().getNodeID().toString());
-      }
-      else {
+      } else {
          sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
       }
    }
@@ -261,8 +259,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
          try {
             createClientSessionFactory();
             break;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // retrying
             Thread.sleep(100);
          }

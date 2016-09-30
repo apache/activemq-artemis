@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 
 package org.apache.activemq;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -30,6 +28,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -69,8 +68,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       String subject = getClass().getName();
       if (isTopic) {
          return new ActiveMQTopic(subject);
-      }
-      else {
+      } else {
          return new ActiveMQQueue(subject);
       }
    }
@@ -78,8 +76,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
    protected MessageConsumer createConsumer() throws JMSException {
       if (isTopic && isDurable) {
          return consumerSession.createDurableSubscriber((Topic) destination, idGen.generateId());
-      }
-      else {
+      } else {
          return consumerSession.createConsumer(destination);
       }
    }
@@ -96,8 +93,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          if (i % 2 == 0) {
             largeMessageData[i] = 'a';
-         }
-         else {
+         } else {
             largeMessageData[i] = 'z';
          }
       }
@@ -105,8 +101,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       try {
          // allow the broker to start
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new JMSException(e.getMessage());
       }
 
@@ -176,8 +171,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
          if (messageCount.get() % 50 == 0) {
             LOG.info("count = " + messageCount);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }

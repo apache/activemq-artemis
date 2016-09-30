@@ -354,15 +354,13 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
                ((ActiveMQMessage) msg).setInputStream(ActiveMQTestBase.createFakeLargeStream(1024L * 1024L));
                msg.setStringProperty("msg", "message" + i);
                prod.send(msg);
-            }
-            else {
+            } else {
                TextMessage tm = sess.createTextMessage("message" + i);
                prod.send(tm);
             }
 
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -410,8 +408,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
                for (int i = 0; i < 1024; i++) {
                   Assert.assertEquals(1024, bmsg.readBytes(buffRead));
                }
-            }
-            else {
+            } else {
                msgs.add(((TextMessage) tm).getText());
             }
 
@@ -430,16 +427,14 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
             if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE) {
                Assert.assertEquals(numMessages, msgs.size());
             }
-         }
-         else if (qosMode == QualityOfServiceMode.AT_MOST_ONCE) {
+         } else if (qosMode == QualityOfServiceMode.AT_MOST_ONCE) {
             // No *guarantee* that any messages will be received
             // but you still might get some depending on how/where the crash occurred
          }
 
          BridgeTestBase.log.trace("Check complete");
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -475,13 +470,11 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
                for (int j = 0; j < 1024; j++) {
                   Assert.assertEquals(1024, bmsg.readBytes(buffRead));
                }
-            }
-            else {
+            } else {
                Assert.assertEquals("message" + (i + start), ((TextMessage) tm).getText());
             }
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

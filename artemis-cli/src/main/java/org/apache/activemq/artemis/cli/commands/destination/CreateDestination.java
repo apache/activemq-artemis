@@ -17,14 +17,14 @@
 
 package org.apache.activemq.artemis.cli.commands.destination;
 
+import javax.jms.Message;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-
-import javax.jms.Message;
 
 @Command(name = "create", description = "create a queue or topic")
 public class CreateDestination extends DestinationAction {
@@ -47,14 +47,11 @@ public class CreateDestination extends DestinationAction {
 
       if (JMS_QUEUE.equals(destType)) {
          createJmsQueue(context);
-      }
-      else if (CORE_QUEUE.equals(destType)) {
+      } else if (CORE_QUEUE.equals(destType)) {
          createCoreQueue(context);
-      }
-      else if (JMS_TOPIC.equals(destType)) {
+      } else if (JMS_TOPIC.equals(destType)) {
          createJmsTopic(context);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("--type can only be one of " + JMS_QUEUE + ", " + JMS_TOPIC + " and " + CORE_QUEUE);
       }
       return null;
@@ -72,8 +69,7 @@ public class CreateDestination extends DestinationAction {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
                context.out.println("Topic " + getName() + " created successfully.");
-            }
-            else {
+            } else {
                context.err.println("Failed to create topic " + getName() + ".");
             }
          }
@@ -128,8 +124,7 @@ public class CreateDestination extends DestinationAction {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
                context.out.println("Jms queue " + getName() + " created successfully.");
-            }
-            else {
+            } else {
                context.err.println("Failed to create jms queue " + getName() + ".");
             }
          }

@@ -43,12 +43,10 @@ public class TestConfig {
          props.load(ClassLoader.getSystemResourceAsStream(TestConfig.PROP_FILE_NAME));
          System.out.println("Found " + TestConfig.PROP_FILE_NAME);
          tempTimeOut = Long.parseLong(props.getProperty(TestConfig.PROP_NAME, "0"));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          tempTimeOut = 30000;
-      }
-      finally {
+      } finally {
          TIMEOUT = tempTimeOut;
       }
    }

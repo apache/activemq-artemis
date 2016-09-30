@@ -50,8 +50,7 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
 
       if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dgc);
-      }
-      else {
+      } else {
          return ActiveMQClient.createServerLocatorWithoutHA(dgc);
       }
    }

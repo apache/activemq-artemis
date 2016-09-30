@@ -70,8 +70,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       ByteBuffer buffer2 = null;
       try {
          buffer2 = ByteBuffer.allocateDirect(size);
-      }
-      catch (OutOfMemoryError error) {
+      } catch (OutOfMemoryError error) {
          // This is a workaround for the way the JDK will deal with native buffers.
          // the main portion is outside of the VM heap
          // and the JDK will not have any reference about it to take GC into account
@@ -83,8 +82,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
                System.gc();
                Thread.sleep(100);
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
 
          buffer2 = ByteBuffer.allocateDirect(size);

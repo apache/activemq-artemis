@@ -39,8 +39,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverTest {
          for (ClientSession session : sessions) {
             waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
-      }
-      else {
+      } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(waitFailure, sessions);

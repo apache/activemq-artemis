@@ -109,8 +109,7 @@ public class ProtonServerMessage implements ProtonJMessage {
             rawBody = new byte[buffer.limit() - buffer.position()];
             buffer.get(rawBody);
          }
-      }
-      finally {
+      } finally {
          decoder.setByteBuffer(null);
       }
 
@@ -151,14 +150,12 @@ public class ProtonServerMessage implements ProtonJMessage {
             if (parsedFooter != null) {
                encoder.writeObject(parsedFooter);
             }
-         }
-         else if (rawBody != null) {
+         } else if (rawBody != null) {
             writableBuffer.put(rawBody, 0, rawBody.length);
          }
 
          return writableBuffer.position() - firstPosition;
-      }
-      finally {
+      } finally {
          encoder.setByteBuffer((WritableBuffer) null);
       }
    }
@@ -173,12 +170,10 @@ public class ProtonServerMessage implements ProtonJMessage {
       try {
          if (buffer.get() != 0) {
             return EOF;
-         }
-         else {
+         } else {
             return ((Number) decoder.readObject()).intValue();
          }
-      }
-      finally {
+      } finally {
          buffer.position(pos);
       }
    }
@@ -186,8 +181,7 @@ public class ProtonServerMessage implements ProtonJMessage {
    private Section readSection(ByteBuffer buffer, DecoderImpl decoder) {
       if (buffer.hasRemaining()) {
          return (Section) decoder.readObject();
-      }
-      else {
+      } else {
          return null;
       }
    }

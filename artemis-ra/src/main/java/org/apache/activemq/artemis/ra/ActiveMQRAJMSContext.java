@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import javax.jms.ExceptionListener;
+import javax.jms.JMSContext;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSContext;
 import org.apache.activemq.artemis.jms.client.ThreadAwareContext;
-
-import javax.jms.ExceptionListener;
-import javax.jms.JMSContext;
 
 public class ActiveMQRAJMSContext extends ActiveMQJMSContext {
 

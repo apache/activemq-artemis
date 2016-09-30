@@ -1243,8 +1243,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public boolean isCheckForLiveServer() {
       if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
          return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForLiveServer();
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -1500,14 +1499,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (acceptorConfigs == null) {
          if (other.acceptorConfigs != null)
             return false;
-      }
-      else if (!acceptorConfigs.equals(other.acceptorConfigs))
+      } else if (!acceptorConfigs.equals(other.acceptorConfigs))
          return false;
       if (addressesSettings == null) {
          if (other.addressesSettings != null)
             return false;
-      }
-      else if (!addressesSettings.equals(other.addressesSettings))
+      } else if (!addressesSettings.equals(other.addressesSettings))
          return false;
       if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
          return false;
@@ -1515,52 +1512,44 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (bindingsDirectory == null) {
          if (other.bindingsDirectory != null)
             return false;
-      }
-      else if (!bindingsDirectory.equals(other.bindingsDirectory))
+      } else if (!bindingsDirectory.equals(other.bindingsDirectory))
          return false;
       if (bridgeConfigurations == null) {
          if (other.bridgeConfigurations != null)
             return false;
-      }
-      else if (!bridgeConfigurations.equals(other.bridgeConfigurations))
+      } else if (!bridgeConfigurations.equals(other.bridgeConfigurations))
          return false;
       if (broadcastGroupConfigurations == null) {
          if (other.broadcastGroupConfigurations != null)
             return false;
-      }
-      else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
+      } else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
          return false;
       if (clusterConfigurations == null) {
          if (other.clusterConfigurations != null)
             return false;
-      }
-      else if (!clusterConfigurations.equals(other.clusterConfigurations))
+      } else if (!clusterConfigurations.equals(other.clusterConfigurations))
          return false;
       if (clusterPassword == null) {
          if (other.clusterPassword != null)
             return false;
-      }
-      else if (!clusterPassword.equals(other.clusterPassword))
+      } else if (!clusterPassword.equals(other.clusterPassword))
          return false;
       if (clusterUser == null) {
          if (other.clusterUser != null)
             return false;
-      }
-      else if (!clusterUser.equals(other.clusterUser))
+      } else if (!clusterUser.equals(other.clusterUser))
          return false;
       if (connectionTTLOverride != other.connectionTTLOverride)
          return false;
       if (connectorConfigs == null) {
          if (other.connectorConfigs != null)
             return false;
-      }
-      else if (!connectorConfigs.equals(other.connectorConfigs))
+      } else if (!connectorConfigs.equals(other.connectorConfigs))
          return false;
       if (connectorServiceConfigurations == null) {
          if (other.connectorServiceConfigurations != null)
             return false;
-      }
-      else if (!connectorServiceConfigurations.equals(other.connectorServiceConfigurations))
+      } else if (!connectorServiceConfigurations.equals(other.connectorServiceConfigurations))
          return false;
       if (createBindingsDir != other.createBindingsDir)
          return false;
@@ -1569,14 +1558,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (discoveryGroupConfigurations == null) {
          if (other.discoveryGroupConfigurations != null)
             return false;
-      }
-      else if (!discoveryGroupConfigurations.equals(other.discoveryGroupConfigurations))
+      } else if (!discoveryGroupConfigurations.equals(other.discoveryGroupConfigurations))
          return false;
       if (divertConfigurations == null) {
          if (other.divertConfigurations != null)
             return false;
-      }
-      else if (!divertConfigurations.equals(other.divertConfigurations))
+      } else if (!divertConfigurations.equals(other.divertConfigurations))
          return false;
       if (failoverOnServerShutdown != other.failoverOnServerShutdown)
          return false;
@@ -1585,22 +1572,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (groupingHandlerConfiguration == null) {
          if (other.groupingHandlerConfiguration != null)
             return false;
-      }
-      else if (!groupingHandlerConfiguration.equals(other.groupingHandlerConfiguration))
+      } else if (!groupingHandlerConfiguration.equals(other.groupingHandlerConfiguration))
          return false;
       if (idCacheSize != other.idCacheSize)
          return false;
       if (incomingInterceptorClassNames == null) {
          if (other.incomingInterceptorClassNames != null)
             return false;
-      }
-      else if (!incomingInterceptorClassNames.equals(other.incomingInterceptorClassNames))
+      } else if (!incomingInterceptorClassNames.equals(other.incomingInterceptorClassNames))
          return false;
       if (jmxDomain == null) {
          if (other.jmxDomain != null)
             return false;
-      }
-      else if (!jmxDomain.equals(other.jmxDomain))
+      } else if (!jmxDomain.equals(other.jmxDomain))
          return false;
       if (jmxManagementEnabled != other.jmxManagementEnabled)
          return false;
@@ -1619,8 +1603,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (journalDirectory == null) {
          if (other.journalDirectory != null)
             return false;
-      }
-      else if (!journalDirectory.equals(other.journalDirectory))
+      } else if (!journalDirectory.equals(other.journalDirectory))
          return false;
       if (journalFileSize != other.journalFileSize)
          return false;
@@ -1641,22 +1624,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (largeMessagesDirectory == null) {
          if (other.largeMessagesDirectory != null)
             return false;
-      }
-      else if (!largeMessagesDirectory.equals(other.largeMessagesDirectory))
+      } else if (!largeMessagesDirectory.equals(other.largeMessagesDirectory))
          return false;
       if (logJournalWriteRate != other.logJournalWriteRate)
          return false;
       if (managementAddress == null) {
          if (other.managementAddress != null)
             return false;
-      }
-      else if (!managementAddress.equals(other.managementAddress))
+      } else if (!managementAddress.equals(other.managementAddress))
          return false;
       if (managementNotificationAddress == null) {
          if (other.managementNotificationAddress != null)
             return false;
-      }
-      else if (!managementNotificationAddress.equals(other.managementNotificationAddress))
+      } else if (!managementNotificationAddress.equals(other.managementNotificationAddress))
          return false;
       if (maskPassword != other.maskPassword)
          return false;
@@ -1679,21 +1659,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (name == null) {
          if (other.name != null)
             return false;
-      }
-      else if (!name.equals(other.name))
+      } else if (!name.equals(other.name))
          return false;
 
       if (outgoingInterceptorClassNames == null) {
          if (other.outgoingInterceptorClassNames != null)
             return false;
-      }
-      else if (!outgoingInterceptorClassNames.equals(other.outgoingInterceptorClassNames))
+      } else if (!outgoingInterceptorClassNames.equals(other.outgoingInterceptorClassNames))
          return false;
       if (pagingDirectory == null) {
          if (other.pagingDirectory != null)
             return false;
-      }
-      else if (!pagingDirectory.equals(other.pagingDirectory))
+      } else if (!pagingDirectory.equals(other.pagingDirectory))
          return false;
       if (persistDeliveryCountBeforeDelivery != other.persistDeliveryCountBeforeDelivery)
          return false;
@@ -1704,8 +1681,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (queueConfigurations == null) {
          if (other.queueConfigurations != null)
             return false;
-      }
-      else if (!queueConfigurations.equals(other.queueConfigurations))
+      } else if (!queueConfigurations.equals(other.queueConfigurations))
          return false;
       if (runSyncSpeedTest != other.runSyncSpeedTest)
          return false;
@@ -1720,8 +1696,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (securitySettings == null) {
          if (other.securitySettings != null)
             return false;
-      }
-      else if (!securitySettings.equals(other.securitySettings))
+      } else if (!securitySettings.equals(other.securitySettings))
          return false;
       if (serverDumpInterval != other.serverDumpInterval)
          return false;
@@ -1829,8 +1804,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private File subFolder(String subFolder) {
       try {
          return getBrokerInstance().toPath().resolve(subFolder).toFile();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

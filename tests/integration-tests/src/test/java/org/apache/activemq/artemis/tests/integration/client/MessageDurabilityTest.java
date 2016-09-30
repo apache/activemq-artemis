@@ -69,11 +69,9 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       session.start();
       try {
          session.createConsumer(queue);
-      }
-      catch (ActiveMQNonExistentQueueException neqe) {
+      } catch (ActiveMQNonExistentQueueException neqe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

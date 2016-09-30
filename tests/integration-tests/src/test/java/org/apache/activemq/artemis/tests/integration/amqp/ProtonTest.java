@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.contains;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DELAYED_DELIVERY;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PRODUCT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.VERSION;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -63,6 +58,7 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -81,7 +77,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
+
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DELAYED_DELIVERY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PRODUCT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.VERSION;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.contains;
 
 @RunWith(Parameterized.class)
 public class ProtonTest extends ProtonTestBase {
@@ -93,7 +93,6 @@ public class ProtonTest extends ProtonTestBase {
    private static final String userName = "guest";
 
    private static final String password = "guest";
-
 
    private static final String brokerName = "my-broker";
 
@@ -121,8 +120,7 @@ public class ProtonTest extends ProtonTestBase {
       this.protocol = protocol;
       if (protocol == 0 || protocol == 3) {
          this.address = coreAddress;
-      }
-      else {
+      } else {
          this.address = "exampleQueue";
       }
    }
@@ -170,8 +168,7 @@ public class ProtonTest extends ProtonTestBase {
          if (connection != null) {
             connection.close();
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -194,8 +191,7 @@ public class ProtonTest extends ProtonTestBase {
          Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId:myDurSub")));
          session.close();
          connection.close();
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -222,8 +218,7 @@ public class ProtonTest extends ProtonTestBase {
          latch.await(5, TimeUnit.SECONDS);
          bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString("amqp_testtopic"));
          Assert.assertEquals(1, bindingsForAddress.getBindings().size());
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -236,8 +231,7 @@ public class ProtonTest extends ProtonTestBase {
       AmqpConnection amqpConnection = client.connect();
       try {
          assertTrue(brokerName.equals(amqpConnection.getEndpoint().getRemoteContainer()));
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }
@@ -253,8 +247,7 @@ public class ProtonTest extends ProtonTestBase {
             assertTrue("apache-activemq-artemis".equals(properties.get(Symbol.valueOf("product"))));
             assertTrue(VersionLoader.getVersion().getFullVersion().equals(properties.get(Symbol.valueOf("version"))));
          }
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }
@@ -293,8 +286,7 @@ public class ProtonTest extends ProtonTestBase {
       try {
          assertNotNull(connection);
          connection.getStateInspector().assertValid();
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -322,8 +314,7 @@ public class ProtonTest extends ProtonTestBase {
 
          // Shouldn't get this since we delayed the message.
          assertNull(receiver.receive(5, TimeUnit.SECONDS));
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -355,8 +346,7 @@ public class ProtonTest extends ProtonTestBase {
          Long msgDeliveryTime = (Long) received.getMessageAnnotation("x-opt-delivery-time");
          assertNotNull(msgDeliveryTime);
          assertEquals(deliveryTime, msgDeliveryTime.longValue());
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -376,8 +366,7 @@ public class ProtonTest extends ProtonTestBase {
          AmqpSession session = amqpConnection.createSession();
          AmqpSender sender = session.createSender(destinationAddress);
          assertTrue(sender.getSender().getCredit() == 1);
-      }
-      finally {
+      } finally {
          amqpConnection.close();
          maxCreditAllocation.setInt(null, originalMaxCreditAllocation);
       }
@@ -466,7 +455,6 @@ public class ProtonTest extends ProtonTestBase {
       Assert.assertEquals(q.getMessageCount(), 0);
    }
 
-
    @Test
    public void testRollbackConsumer() throws Throwable {
 
@@ -542,8 +530,7 @@ public class ProtonTest extends ProtonTestBase {
       Exception e = null;
       try {
          p.send(session.createBytesMessage());
-      }
-      catch (ResourceAllocationException rae) {
+      } catch (ResourceAllocationException rae) {
          e = rae;
       }
       assertTrue(e instanceof ResourceAllocationException);
@@ -579,8 +566,7 @@ public class ProtonTest extends ProtonTestBase {
 
          long addressSize = server.getPagingManager().getPageStore(new SimpleString(destinationAddress)).getAddressSize();
          assertTrue(addressSize >= maxSizeBytes && addressSize <= maxSizeBytesRejectThreshold);
-      }
-      finally {
+      } finally {
          amqpConnection.close();
          maxCreditAllocation.setInt(null, originalMaxCreditAllocation);
       }
@@ -617,8 +603,7 @@ public class ProtonTest extends ProtonTestBase {
          Thread.sleep(500);
 
          assertTrue(sender.getSender().getCredit() >= 0);
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }
@@ -636,8 +621,7 @@ public class ProtonTest extends ProtonTestBase {
          // Wait for a potential flow frame.
          Thread.sleep(1000);
          assertEquals(0, sender.getSender().getCredit());
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }
@@ -665,11 +649,9 @@ public class ProtonTest extends ProtonTestBase {
          session.begin();
          sender.send(message);
          session.commit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          expectedException = e;
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
 
@@ -680,6 +662,7 @@ public class ProtonTest extends ProtonTestBase {
 
    /**
     * Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
+    *
     * @param address
     * @return
     * @throws Exception
@@ -692,11 +675,9 @@ public class ProtonTest extends ProtonTestBase {
          AmqpSession session = amqpConnection.createSession();
          AmqpSender sender = session.createSender(address);
          sendUntilFull(sender);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          exception = e;
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
 
@@ -724,8 +705,7 @@ public class ProtonTest extends ProtonTestBase {
                   sentMessages.getAndIncrement();
                }
                timeout.countDown();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                errors[0] = e;
             }
          }
@@ -751,8 +731,7 @@ public class ProtonTest extends ProtonTestBase {
       Exception expectedException = null;
       try {
          session.createSender("AnAddressThatDoesNotExist");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          expectedException = e;
       }
 
@@ -814,8 +793,7 @@ public class ProtonTest extends ProtonTestBase {
          assertTrue(((String) value).length() > 0);
          assertTrue(((String) value).contains(destinationAddress));
          response.accept();
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }
@@ -926,8 +904,7 @@ public class ProtonTest extends ProtonTestBase {
 
          if (success) {
             break;
-         }
-         else {
+         } else {
             System.err.println("Had to make it fail!!!");
             tearDown();
             setUp();
@@ -1116,25 +1093,21 @@ public class ProtonTest extends ProtonTestBase {
                      Message m = consumer.receive(5000);
                      Assert.assertNotNull("Could not receive message count=" + count + " on consumer", m);
                      count--;
-                  }
-                  catch (JMSException e) {
+                  } catch (JMSException e) {
                      e.printStackTrace();
                      break;
                   }
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                exceptions.add(e);
                e.printStackTrace();
-            }
-            finally {
+            } finally {
                try {
                   // if the createconnecion wasn't commented out
                   if (connectionConsumer != connection) {
                      connectionConsumer.close();
                   }
-               }
-               catch (Throwable ignored) {
+               } catch (Throwable ignored) {
                   // NO OP
                }
             }
@@ -1441,20 +1414,17 @@ public class ProtonTest extends ProtonTestBase {
          try {
             testConn1.setClientID("client-id2");
             fail("didn't get expected exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             //expected
          }
 
          try {
             testConn2.setClientID("client-id1");
             fail("didn't get expected exception");
-         }
-         catch (InvalidClientIDException e) {
+         } catch (InvalidClientIDException e) {
             //expected
          }
-      }
-      finally {
+      } finally {
          testConn1.close();
          testConn2.close();
       }
@@ -1464,8 +1434,7 @@ public class ProtonTest extends ProtonTestBase {
          testConn2 = createConnection(false);
          testConn1.setClientID("client-id1");
          testConn2.setClientID("client-id2");
-      }
-      finally {
+      } finally {
          testConn1.close();
          testConn2.close();
       }
@@ -1475,8 +1444,7 @@ public class ProtonTest extends ProtonTestBase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
          return session.createQueue(address);
-      }
-      finally {
+      } finally {
          session.close();
       }
    }
@@ -1490,12 +1458,10 @@ public class ProtonTest extends ProtonTestBase {
       if (protocol == 3) {
          factory = new JmsConnectionFactory(amqpConnectionUri);
          connection = factory.createConnection();
-      }
-      else if (protocol == 0) {
+      } else if (protocol == 0) {
          factory = new JmsConnectionFactory(userName, password, amqpConnectionUri);
          connection = factory.createConnection();
-      }
-      else {
+      } else {
          Assert.fail("protocol = " + protocol + " not supported");
          return null; // just to compile, the previous statement will throw an exception
       }
@@ -1525,8 +1491,7 @@ public class ProtonTest extends ProtonTestBase {
          });
          connection.setClientID(clientId);
          connection.start();
-      }
-      else if (protocol == 0) {
+      } else if (protocol == 0) {
          factory = new JmsConnectionFactory(userName, password, amqpConnectionUri);
          connection = factory.createConnection();
          connection.setExceptionListener(new ExceptionListener() {
@@ -1537,15 +1502,13 @@ public class ProtonTest extends ProtonTestBase {
          });
          connection.setClientID(clientId);
          connection.start();
-      }
-      else {
+      } else {
          Assert.fail("protocol = " + protocol + " not supported");
          return null; // just to compile, the previous statement will throw an exception
       }
 
       return connection;
    }
-
 
    private void setAddressFullBlockPolicy() {
       // For BLOCK tests

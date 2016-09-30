@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.Destination;
+import javax.jms.MessageConsumer;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,8 +25,6 @@ import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
 
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.Broker;
@@ -537,8 +537,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
                         LOG.info("Sleeping on first advisory: " + messageDispatch);
                         try {
                            Thread.sleep(2000);
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                            e.printStackTrace();
                         }
                      }

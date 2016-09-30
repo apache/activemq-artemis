@@ -28,6 +28,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 
 public abstract class RestMessageContext implements Closeable {
+
    public static final String KEY_MSG_CREATE = "msg-create";
    public static final String KEY_MSG_CREATE_ID = "msg-create-with-id";
    public static final String KEY_MSG_PULL = "msg-pull-consumers";
@@ -57,7 +58,10 @@ public abstract class RestMessageContext implements Closeable {
       this(restAMQConnection, dest, true, false);
    }
 
-   public RestMessageContext(RestAMQConnection restAMQConnection, String dest, boolean isAutoAck, boolean isPush) throws IOException {
+   public RestMessageContext(RestAMQConnection restAMQConnection,
+                             String dest,
+                             boolean isAutoAck,
+                             boolean isPush) throws IOException {
       this.connection = restAMQConnection;
       this.destination = dest;
       this.autoAck = isAutoAck;
@@ -95,8 +99,7 @@ public abstract class RestMessageContext implements Closeable {
          if (header != null) {
             contextMap.put(KEY_MSG_PUSH_SUB, header.getValue());
          }
-      }
-      finally {
+      } finally {
          response.close();
       }
    }
@@ -112,8 +115,7 @@ public abstract class RestMessageContext implements Closeable {
       String nextMsgUri = contextMap.get(KEY_MSG_CREATE_NEXT);
       if (nextMsgUri == null) {
          postUri = contextMap.get(KEY_MSG_CREATE);
-      }
-      else {
+      } else {
          postUri = nextMsgUri;
       }
       CloseableHttpResponse response = connection.post(postUri, type, content);
@@ -125,13 +127,11 @@ public abstract class RestMessageContext implements Closeable {
             Header redirLoc = response.getFirstHeader("Location");
             contextMap.put(KEY_MSG_CREATE_NEXT, redirLoc.getValue());
             code = postMessage(content, type);// do it again.
-         }
-         else if (code == 201) {
+         } else if (code == 201) {
             Header header = response.getFirstHeader(KEY_MSG_CREATE_NEXT);
             contextMap.put(KEY_MSG_CREATE_NEXT, header.getValue());
          }
-      }
-      finally {
+      } finally {
          response.close();
       }
       return code;
@@ -142,8 +142,7 @@ public abstract class RestMessageContext implements Closeable {
    public boolean acknowledgement(boolean ackValue) throws IOException {
       String ackUri = contextMap.get(KEY_MSG_ACK);
       if (ackUri != null) {
-         CloseableHttpResponse response = connection.post(ackUri, "application/x-www-form-urlencoded",
-                 "acknowledge=" + ackValue);
+         CloseableHttpResponse response = connection.post(ackUri, "application/x-www-form-urlencoded", "acknowledge=" + ackValue);
          int code = ResponseUtil.getHttpCode(response);
          if (code == 200) {
             contextMap.put(KEY_MSG_ACK_NEXT, response.getFirstHeader(KEY_MSG_ACK_NEXT).getValue());
@@ -162,8 +161,7 @@ public abstract class RestMessageContext implements Closeable {
             initPullConsumers();
             msgPullUri = contextMap.get(KEY_MSG_CONSUME_NEXT);
          }
-      }
-      else {
+      } else {
          msgPullUri = contextMap.get(KEY_MSG_ACK_NEXT);
          if (msgPullUri == null) {
             initPullConsumers();
@@ -181,8 +179,7 @@ public abstract class RestMessageContext implements Closeable {
 
             if (len != -1 && len < 1024000) {
                message = EntityUtils.toString(entity);
-            }
-            else {
+            } else {
                // drop message
                System.err.println("Mesage too large, drop it " + len);
             }
@@ -193,17 +190,14 @@ public abstract class RestMessageContext implements Closeable {
             if (!autoAck) {
                header = response.getFirstHeader(KEY_MSG_ACK);
                contextMap.put(KEY_MSG_ACK, header.getValue());
-            }
-            else {
+            } else {
                header = response.getFirstHeader(KEY_MSG_CONSUME_NEXT);
                contextMap.put(KEY_MSG_CONSUME_NEXT, header.getValue());
             }
-         }
-         else if (code == 503) {
+         } else if (code == 503) {
             if (autoAck) {
                contextMap.put(KEY_MSG_CONSUME_NEXT, response.getFirstHeader(KEY_MSG_CONSUME_NEXT).getValue());
-            }
-            else {
+            } else {
                contextMap.put(KEY_MSG_ACK_NEXT, response.getFirstHeader(KEY_MSG_ACK_NEXT).getValue());
             }
 
@@ -212,18 +206,15 @@ public abstract class RestMessageContext implements Closeable {
                long retryDelay = Long.valueOf(response.getFirstHeader("Retry-After").getValue());
                try {
                   Thread.sleep(retryDelay);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   e.printStackTrace();
                }
                message = pullMessage();
             }
-         }
-         else {
+         } else {
             throw new IllegalStateException("error: " + ResponseUtil.getDetails(response));
          }
-      }
-      finally {
+      } finally {
          response.close();
       }
 
@@ -237,11 +228,9 @@ public abstract class RestMessageContext implements Closeable {
          try {
             connection.delete(consumerUri);
             contextMap.remove(KEY_MSG_CONSUMER);
-         }
-         catch (ClientProtocolException e) {
+         } catch (ClientProtocolException e) {
             e.printStackTrace();
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             e.printStackTrace();
          }
       }
@@ -250,10 +239,10 @@ public abstract class RestMessageContext implements Closeable {
    public void setUpPush(String pushTarget) throws Exception {
       String pushLink = this.contextMap.get(KEY_MSG_PUSH);
       String pushRegXml = "<push-registration>" +
-              "<link rel=\"destination\" href=\"" +
-              this.connection.getTargetUri() +
-              this.getPushLink(pushTarget) + "\"/>" +
-              "</push-registration>";
+         "<link rel=\"destination\" href=\"" +
+         this.connection.getTargetUri() +
+         this.getPushLink(pushTarget) + "\"/>" +
+         "</push-registration>";
 
       CloseableHttpResponse response = connection.post(pushLink, "application/xml", pushRegXml);
       int code = ResponseUtil.getHttpCode(response);
@@ -263,8 +252,7 @@ public abstract class RestMessageContext implements Closeable {
             System.out.println("Location: " + pushLink);
             throw new Exception("Failed to register push " + ResponseUtil.getDetails(response));
          }
-      }
-      finally {
+      } finally {
          response.close();
       }
    }

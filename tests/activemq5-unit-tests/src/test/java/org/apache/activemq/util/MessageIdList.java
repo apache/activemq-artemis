@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -113,8 +112,7 @@ public class MessageIdList extends Assert implements MessageListener {
          if (LOG.isDebugEnabled()) {
             LOG.debug("Received message: " + message);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
       if (parent != null) {
@@ -123,8 +121,7 @@ public class MessageIdList extends Assert implements MessageListener {
       if (processingDelay > 0) {
          try {
             Thread.sleep(processingDelay);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
       }
    }
@@ -152,8 +149,7 @@ public class MessageIdList extends Assert implements MessageListener {
                }
 
                semaphore.wait(maximumDuration - duration);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                LOG.info("Caught: " + e);
             }
          }

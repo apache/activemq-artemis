@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -32,14 +27,18 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,14 +103,12 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
             if (counter <= 4) {
                System.out.println("Message Rollback.");
                session.rollback();
-            }
-            else {
+            } else {
                System.out.println("Message Commit.");
                message.acknowledge();
                session.commit();
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.out.println("Error when rolling back transaction");
          }
       }
@@ -140,8 +137,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
 
       // first try.. should get 2 since there is no delay on the
@@ -150,16 +146,14 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // 2nd redeliver (redelivery after 1 sec)
       assertEquals(3, listener.counter);
 
       try {
          Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // 3rd redeliver (redelivery after 2 seconds) - it should give up after
       // that
@@ -171,16 +165,14 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // it should be committed, so no redelivery
       assertEquals(5, listener.counter);
 
       try {
          Thread.sleep(1500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // no redelivery, counter should still be 4
       assertEquals(5, listener.counter);
@@ -211,8 +203,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // first try
@@ -220,8 +211,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // second try (redelivery after 1 sec)
@@ -229,8 +219,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // third try (redelivery after 2 seconds) - it should give up after that
@@ -242,8 +231,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // ignore
       }
       // it should be committed, so no redelivery
@@ -251,8 +239,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
 
       try {
          Thread.sleep(1500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // ignore
       }
       // no redelivery, counter should still be 4
@@ -287,8 +274,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
             System.out.println("Message Received: " + message);
             try {
                received.add(((TextMessage) message).getText());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
                fail(e.toString());
             }

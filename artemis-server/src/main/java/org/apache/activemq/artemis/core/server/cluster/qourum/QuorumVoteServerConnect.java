@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.qourum;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A Qourum Vote for deciding if a replicated backup should become live.
@@ -39,23 +39,22 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
 
    /**
     * live nodes | remaining nodes |  majority   | votes needed
-    *     1      |       0         |     0       |      0
-    *     2      |       1         |     1       |      1
-    *     n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
-    *     3      |       2         |     2.5     |      2
-    *     4      |       3         |      3      |      3
-    *     5      |       4         |     3.5     |      3
-    *     6      |       5         |      4      |      4
+    * 1      |       0         |     0       |      0
+    * 2      |       1         |     1       |      1
+    * n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
+    * 3      |       2         |     2.5     |      2
+    * 4      |       3         |      3      |      3
+    * 5      |       4         |     3.5     |      3
+    * 6      |       5         |      4      |      4
     */
    public QuorumVoteServerConnect(int size, StorageManager storageManager) {
       super(LIVE_FAILOVER_VOTE);
       double majority;
       if (size <= 2) {
-         majority = ((double)size) / 2;
-      }
-      else {
+         majority = ((double) size) / 2;
+      } else {
          //even
-         majority = ((double)size) / 2 + 1;
+         majority = ((double) size) / 2 + 1;
       }
       //votes needed could be say 2.5 so we add 1 in this case
       votesNeeded = (int) majority;
@@ -87,13 +86,13 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
 
    /**
     * live nodes | remaining nodes |  majority   | votes needed
-    *     1      |       0         |     0       |      0
-    *     2      |       1         |     1       |      1
-    *     n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
-    *     3      |       2         |     2.5     |      2
-    *     4      |       3         |      3      |      3
-    *     5      |       4         |     3.5     |      3
-    *     6      |       5         |      4      |      4
+    * 1      |       0         |     0       |      0
+    * 2      |       1         |     1       |      1
+    * n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
+    * 3      |       2         |     2.5     |      2
+    * 4      |       3         |      3      |      3
+    * 5      |       4         |     3.5     |      3
+    * 6      |       5         |      4      |      4
     *
     * @param vote the vote to make.
     */

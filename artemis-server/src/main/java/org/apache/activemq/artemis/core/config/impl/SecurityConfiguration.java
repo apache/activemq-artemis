@@ -18,15 +18,14 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
-
-import org.apache.activemq.artemis.core.security.User;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.activemq.artemis.core.security.User;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 public class SecurityConfiguration extends Configuration {
 
@@ -110,6 +109,6 @@ public class SecurityConfiguration extends Configuration {
       map.put(InVMLoginModule.CONFIG_PROP_NAME, this);
       AppConfigurationEntry appConfigurationEntry = new AppConfigurationEntry(name, AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, map);
 
-      return new AppConfigurationEntry[] {appConfigurationEntry};
+      return new AppConfigurationEntry[]{appConfigurationEntry};
    }
 }

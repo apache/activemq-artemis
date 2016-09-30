@@ -119,11 +119,9 @@ public class ApplicationLayerFailoverExample {
 
             System.out.println("Got message: " + message0.getText());
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          t.printStackTrace();
-      }
-      finally {
+      } finally {
          // Step 14. Be sure to close our resources!
          closeResources();
          ServerUtil.killServer(server0);
@@ -158,8 +156,7 @@ public class ApplicationLayerFailoverExample {
       if (initialContext != null) {
          try {
             initialContext.close();
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             e.printStackTrace();
          }
       }
@@ -167,8 +164,7 @@ public class ApplicationLayerFailoverExample {
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
          }
       }
@@ -180,8 +176,7 @@ public class ApplicationLayerFailoverExample {
       public void onException(final JMSException exception) {
          try {
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             //ignore
          }
          for (int i = 0; i < 10; i++) {
@@ -205,13 +200,11 @@ public class ApplicationLayerFailoverExample {
                failoverLatch.countDown();
 
                return;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                System.out.println("Failed to handle failover, trying again.");
                try {
                   Thread.sleep(500);
-               }
-               catch (InterruptedException e1) {
+               } catch (InterruptedException e1) {
                   //ignored
                }
             }

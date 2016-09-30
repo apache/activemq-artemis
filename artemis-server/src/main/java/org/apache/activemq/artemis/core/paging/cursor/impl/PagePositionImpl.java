@@ -86,17 +86,13 @@ public class PagePositionImpl implements PagePosition {
    public int compareTo(PagePosition o) {
       if (pageNr > o.getPageNr()) {
          return 1;
-      }
-      else if (pageNr < o.getPageNr()) {
+      } else if (pageNr < o.getPageNr()) {
          return -1;
-      }
-      else if (recordID > o.getRecordID()) {
+      } else if (recordID > o.getRecordID()) {
          return 1;
-      }
-      else if (recordID < o.getRecordID()) {
+      } else if (recordID < o.getRecordID()) {
          return -1;
-      }
-      else {
+      } else {
          return 0;
       }
    }

@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.artemis.core.server.cluster.qourum.BooleanVote;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
@@ -77,8 +77,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
       }
       if (size == 1) {
          assertTrue(quorum.getDecision());
-      }
-      else {
+      } else {
          assertFalse(quorum.getDecision());
       }
    }

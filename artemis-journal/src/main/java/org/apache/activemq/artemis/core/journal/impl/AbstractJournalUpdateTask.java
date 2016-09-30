@@ -96,8 +96,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          if (files == null) {
             filesToRename.writeInt(0);
-         }
-         else {
+         } else {
             filesToRename.writeInt(files.size());
 
             for (JournalFile file : files) {
@@ -109,8 +108,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          if (newFiles == null) {
             filesToRename.writeInt(0);
-         }
-         else {
+         } else {
             filesToRename.writeInt(newFiles.size());
 
             for (JournalFile file : newFiles) {
@@ -121,8 +119,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
          // Renames from clean up third
          if (renames == null) {
             filesToRename.writeInt(0);
-         }
-         else {
+         } else {
             filesToRename.writeInt(renames.size());
             for (Pair<String, String> rename : renames) {
                filesToRename.writeUTF(rename.getA());
@@ -147,8 +144,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
          controlFile.writeDirect(writeBuffer, true);
 
          return controlFile;
-      }
-      finally {
+      } finally {
          controlFile.close();
       }
    }

@@ -35,17 +35,14 @@ import org.junit.Before;
  */
 public class AmqpClientTestSupport extends ActiveMQTestBase {
 
-
    ActiveMQServer server;
 
    LinkedList<AmqpConnection> connections = new LinkedList<>();
-
 
    protected AmqpConnection addConnection(AmqpConnection connection) {
       connections.add(connection);
       return connection;
    }
-
 
    @Before
    @Override
@@ -60,11 +57,10 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       super.tearDown();
 
-      for (AmqpConnection conn: connections) {
+      for (AmqpConnection conn : connections) {
          try {
             conn.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             ignored.printStackTrace();
          }
       }
@@ -137,16 +133,13 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
          if (isUseSSL()) {
             if (webSocket) {
                uri = "wss://127.0.0.1:" + port;
-            }
-            else {
+            } else {
                uri = "ssl://127.0.0.1:" + port;
             }
-         }
-         else {
+         } else {
             if (webSocket) {
                uri = "ws://127.0.0.1:" + port;
-            }
-            else {
+            } else {
                uri = "tcp://127.0.0.1:" + port;
             }
          }
@@ -156,8 +149,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
          }
 
          return new URI(uri);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException();
       }
    }

@@ -42,7 +42,10 @@ public abstract class VersionedStompFrameHandler {
    protected final ScheduledExecutorService scheduledExecutorService;
    protected final ExecutorFactory executorFactory;
 
-   public static VersionedStompFrameHandler getHandler(StompConnection connection, StompVersions version, ScheduledExecutorService scheduledExecutorService, ExecutorFactory executorFactory) {
+   public static VersionedStompFrameHandler getHandler(StompConnection connection,
+                                                       StompVersions version,
+                                                       ScheduledExecutorService scheduledExecutorService,
+                                                       ExecutorFactory executorFactory) {
       if (version == StompVersions.V1_0) {
          return new StompFrameHandlerV10(connection, scheduledExecutorService, executorFactory);
       }
@@ -55,7 +58,9 @@ public abstract class VersionedStompFrameHandler {
       return null;
    }
 
-   protected VersionedStompFrameHandler(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory executorFactory) {
+   protected VersionedStompFrameHandler(StompConnection connection,
+                                        ScheduledExecutorService scheduledExecutorService,
+                                        ExecutorFactory executorFactory) {
       this.connection = connection;
       this.scheduledExecutorService = scheduledExecutorService;
       this.executorFactory = executorFactory;
@@ -78,45 +83,33 @@ public abstract class VersionedStompFrameHandler {
 
       if (Stomp.Commands.SEND.equals(request.getCommand())) {
          response = onSend(request);
-      }
-      else if (Stomp.Commands.ACK.equals(request.getCommand())) {
+      } else if (Stomp.Commands.ACK.equals(request.getCommand())) {
          response = onAck(request);
-      }
-      else if (Stomp.Commands.NACK.equals(request.getCommand())) {
+      } else if (Stomp.Commands.NACK.equals(request.getCommand())) {
          response = onNack(request);
-      }
-      else if (Stomp.Commands.BEGIN.equals(request.getCommand())) {
+      } else if (Stomp.Commands.BEGIN.equals(request.getCommand())) {
          response = onBegin(request);
-      }
-      else if (Stomp.Commands.COMMIT.equals(request.getCommand())) {
+      } else if (Stomp.Commands.COMMIT.equals(request.getCommand())) {
          response = onCommit(request);
-      }
-      else if (Stomp.Commands.ABORT.equals(request.getCommand())) {
+      } else if (Stomp.Commands.ABORT.equals(request.getCommand())) {
          response = onAbort(request);
-      }
-      else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand())) {
+      } else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand())) {
          response = onSubscribe(request);
-      }
-      else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand())) {
+      } else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand())) {
          response = onUnsubscribe(request);
-      }
-      else if (Stomp.Commands.CONNECT.equals(request.getCommand())) {
+      } else if (Stomp.Commands.CONNECT.equals(request.getCommand())) {
          response = onConnect(request);
-      }
-      else if (Stomp.Commands.STOMP.equals(request.getCommand())) {
+      } else if (Stomp.Commands.STOMP.equals(request.getCommand())) {
          response = onStomp(request);
-      }
-      else if (Stomp.Commands.DISCONNECT.equals(request.getCommand())) {
+      } else if (Stomp.Commands.DISCONNECT.equals(request.getCommand())) {
          response = onDisconnect(request);
-      }
-      else {
+      } else {
          response = onUnknown(request.getCommand());
       }
 
       if (response == null) {
          response = postprocess(request);
-      }
-      else {
+      } else {
          if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED)) {
             response.addHeader(Stomp.Headers.Response.RECEIPT_ID, request.getHeader(Stomp.Headers.RECEIPT_REQUESTED));
          }
@@ -164,8 +157,7 @@ public abstract class VersionedStompFrameHandler {
 
       try {
          connection.commitTransaction(txID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
       return response;
@@ -188,19 +180,16 @@ public abstract class VersionedStompFrameHandler {
          if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             message.setType(Message.BYTES_TYPE);
             message.getBodyBuffer().writeBytes(frame.getBodyAsBytes());
-         }
-         else {
+         } else {
             message.setType(Message.TEXT_TYPE);
             String text = frame.getBody();
             message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(text));
          }
 
          connection.sendServerMessage(message, txID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQStompException error = BUNDLE.errorHandleSend(e).setHandler(this);
          response = error.getFrame();
       }
@@ -218,12 +207,10 @@ public abstract class VersionedStompFrameHandler {
       if (txID == null) {
          ActiveMQStompException error = BUNDLE.beginTxNoID().setHandler(this);
          response = error.getFrame();
-      }
-      else {
+      } else {
          try {
             connection.beginTransaction(txID);
-         }
-         catch (ActiveMQStompException e) {
+         } catch (ActiveMQStompException e) {
             response = e.getFrame();
          }
       }
@@ -242,8 +229,7 @@ public abstract class VersionedStompFrameHandler {
 
       try {
          connection.abortTransaction(txID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -269,8 +255,7 @@ public abstract class VersionedStompFrameHandler {
 
       try {
          connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -284,8 +269,7 @@ public abstract class VersionedStompFrameHandler {
          if (request.getCommand().equals(Stomp.Commands.DISCONNECT)) {
             response.setNeedsDisconnect(true);
          }
-      }
-      else {
+      } else {
          //request null, disconnect if so.
          if (request.getCommand().equals(Stomp.Commands.DISCONNECT)) {
             this.connection.disconnect(false);
@@ -316,13 +300,11 @@ public abstract class VersionedStompFrameHandler {
       if (serverMessage.containsProperty(Stomp.Headers.CONTENT_LENGTH) || serverMessage.getType() == Message.BYTES_TYPE) {
          frame.addHeader(Headers.CONTENT_LENGTH, String.valueOf(data.length));
          buffer.readBytes(data);
-      }
-      else {
+      } else {
          SimpleString text = buffer.readNullableSimpleString();
          if (text != null) {
             data = text.toString().getBytes(StandardCharsets.UTF_8);
-         }
-         else {
+         } else {
             data = new byte[0];
          }
       }

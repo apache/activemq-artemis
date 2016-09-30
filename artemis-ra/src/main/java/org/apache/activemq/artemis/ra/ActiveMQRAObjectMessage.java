@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
+import java.io.Serializable;
 
 /**
  * A wrapper for a message

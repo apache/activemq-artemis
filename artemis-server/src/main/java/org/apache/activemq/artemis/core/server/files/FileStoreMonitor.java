@@ -30,12 +30,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.jboss.logging.Logger;
 
-/** This will keep a list of fileStores. It will make a comparisson on all file stores registered. if any is over the limit,
- *  all Callbacks will be called with over.
+/**
+ * This will keep a list of fileStores. It will make a comparisson on all file stores registered. if any is over the limit,
+ * all Callbacks will be called with over.
  *
- *  For instance: if Large Messages folder is registered on a different folder and it's over capacity,
- *                the whole system will be waiting it to be released.
- *  */
+ * For instance: if Large Messages folder is registered on a different folder and it's over capacity,
+ * the whole system will be waiting it to be released.
+ */
 public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
    private static final Logger logger = Logger.getLogger(FileStoreMonitor.class);
@@ -71,7 +72,6 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       return this;
    }
 
-
    @Override
    public void run() {
       tick();
@@ -87,12 +87,11 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
          try {
             lastStore = store;
             usage = calculateUsage(store);
-            over = usage  > maxUsage;
+            over = usage > maxUsage;
             if (over) {
                break;
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
          }
       }
@@ -102,8 +101,7 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
          if (over) {
             callback.over(lastStore, usage);
-         }
-         else {
+         } else {
             callback.under(lastStore, usage);
          }
       }
@@ -119,12 +117,15 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    }
 
    protected double calculateUsage(FileStore store) throws IOException {
-      return 1.0 - (double)store.getUsableSpace() / (double)store.getTotalSpace();
+      return 1.0 - (double) store.getUsableSpace() / (double) store.getTotalSpace();
    }
 
    public interface Callback {
+
       void tick(FileStore store, double usage);
+
       void over(FileStore store, double usage);
+
       void under(FileStore store, double usage);
    }
 

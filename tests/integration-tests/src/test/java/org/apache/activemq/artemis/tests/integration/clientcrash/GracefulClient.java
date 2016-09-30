@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
@@ -64,8 +64,7 @@ public class GracefulClient {
          // this should silence any non-daemon thread and allow for graceful exit
          session.close();
          System.exit(0);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          GracefulClient.log.error(t.getMessage(), t);
          System.exit(1);
       }

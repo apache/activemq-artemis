@@ -137,14 +137,12 @@ public class FailoverTest extends FailoverTestBase {
                         latchFailed.await(10, TimeUnit.SECONDS);
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   // this is our retry
                   try {
                      if (!producer.isClosed())
                         producer.send(message);
-                  }
-                  catch (ActiveMQException e1) {
+                  } catch (ActiveMQException e1) {
                      e1.printStackTrace();
                   }
                }
@@ -210,8 +208,7 @@ public class FailoverTest extends FailoverTestBase {
                log.debug("acking message = id = " + message.getMessageID() + ", counter = " +
                             message.getIntProperty("counter"));
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
                return;
             }
@@ -276,8 +273,7 @@ public class FailoverTest extends FailoverTestBase {
                                  ", counter = " +
                                  message.getIntProperty("counter"));
                      message.acknowledge();
-                  }
-                  catch (ActiveMQException e) {
+                  } catch (ActiveMQException e) {
                      e.printStackTrace();
                      continue;
                   }
@@ -293,8 +289,7 @@ public class FailoverTest extends FailoverTestBase {
                      break;
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                Assert.fail("failing due to exception " + e);
             }
 
@@ -308,11 +303,9 @@ public class FailoverTest extends FailoverTestBase {
                      log.info("Returning null message on consuming");
                   }
                   return msg;
-               }
-               catch (ActiveMQObjectClosedException oce) {
+               } catch (ActiveMQObjectClosedException oce) {
                   throw new RuntimeException(oce);
-               }
-               catch (ActiveMQException ignored) {
+               } catch (ActiveMQException ignored) {
                   // retry
                   ignored.printStackTrace();
                }
@@ -362,8 +355,7 @@ public class FailoverTest extends FailoverTestBase {
 
       try {
          session.commit(xid, false);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          //there is still an edge condition that we must deal with
          session.commit(xid, false);
       }
@@ -409,13 +401,11 @@ public class FailoverTest extends FailoverTestBase {
 
       try {
          session.rollback(xid);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          try {
             //there is still an edge condition that we must deal with
             session.rollback(xid);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             log.trace(ignored.getMessage(), ignored);
          }
       }
@@ -674,8 +664,7 @@ public class FailoverTest extends FailoverTestBase {
             FileMoveManager moveManager = new FileMoveManager(backupServer.getServer().getConfiguration().getJournalLocation(), 0);
             Assert.assertEquals(1, moveManager.getNumberOfFolders());
          }
-      }
-      else {
+      } else {
          backupServer.stop();
          beforeRestart(backupServer);
          backupServer.start();
@@ -740,11 +729,9 @@ public class FailoverTest extends FailoverTestBase {
       try {
          session.commit();
          Assert.fail("session must have rolled back on failover");
-      }
-      catch (ActiveMQTransactionRolledBackException trbe) {
+      } catch (ActiveMQTransactionRolledBackException trbe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
 
@@ -823,11 +810,9 @@ public class FailoverTest extends FailoverTestBase {
          session.commit();
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQTransactionRolledBackException trbe) {
+      } catch (ActiveMQTransactionRolledBackException trbe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
 
@@ -864,11 +849,9 @@ public class FailoverTest extends FailoverTestBase {
          session.commit();
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQTransactionRolledBackException trbe) {
+      } catch (ActiveMQTransactionRolledBackException trbe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
 
@@ -926,17 +909,14 @@ public class FailoverTest extends FailoverTestBase {
          session.commit();
 
          session.close();
-      }
-      finally {
+      } finally {
          try {
             liveServer.getServer().stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
          try {
             backupServer.getServer().stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -1008,11 +988,9 @@ public class FailoverTest extends FailoverTestBase {
          session2.commit();
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQTransactionRolledBackException trbe) {
+      } catch (ActiveMQTransactionRolledBackException trbe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -1085,8 +1063,7 @@ public class FailoverTest extends FailoverTestBase {
          session.end(xid, XAResource.TMSUCCESS);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
 
@@ -1124,8 +1101,7 @@ public class FailoverTest extends FailoverTestBase {
          session.end(xid, XAResource.TMSUCCESS);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          //         Assert.assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
 
@@ -1162,8 +1138,7 @@ public class FailoverTest extends FailoverTestBase {
          session.prepare(xid);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
          // XXXX  session.rollback();
       }
@@ -1205,8 +1180,7 @@ public class FailoverTest extends FailoverTestBase {
          session.commit(xid, false);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          Assert.assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
 
@@ -1290,8 +1264,7 @@ public class FailoverTest extends FailoverTestBase {
          session2.end(xid, XAResource.TMSUCCESS);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
@@ -1329,8 +1302,7 @@ public class FailoverTest extends FailoverTestBase {
          session2.end(xid, XAResource.TMSUCCESS);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
       }
 
       // Since the end was not accepted, the messages should be redelivered
@@ -1369,8 +1341,7 @@ public class FailoverTest extends FailoverTestBase {
          session2.prepare(xid);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
@@ -1409,8 +1380,7 @@ public class FailoverTest extends FailoverTestBase {
          session2.commit(xid, false);
 
          Assert.fail("Should throw exception");
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          // it should be rolled back
          Assert.assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
@@ -1437,8 +1407,7 @@ public class FailoverTest extends FailoverTestBase {
          try {
             createClientSessionFactory();
             break;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // retrying
             Thread.sleep(100);
          }
@@ -1574,8 +1543,7 @@ public class FailoverTest extends FailoverTestBase {
          if (repeatMessage != null) {
             message = repeatMessage;
             repeatMessage = null;
-         }
-         else {
+         } else {
             message = consumer.receive(1000);
          }
 
@@ -1669,8 +1637,7 @@ public class FailoverTest extends FailoverTestBase {
 
       if (temporary) {
          session.createTemporaryQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null);
-      }
-      else {
+      } else {
          session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, durable);
       }
 
@@ -1712,8 +1679,7 @@ public class FailoverTest extends FailoverTestBase {
 
             try {
                producer.send(message);
-            }
-            catch (ActiveMQException e1) {
+            } catch (ActiveMQException e1) {
                this.e = e1;
             }
          }
@@ -1779,8 +1745,7 @@ public class FailoverTest extends FailoverTestBase {
                sf.getServerLocator().addIncomingInterceptor(interceptor);
 
                session.commit();
-            }
-            catch (ActiveMQTransactionRolledBackException trbe) {
+            } catch (ActiveMQTransactionRolledBackException trbe) {
                // Ok - now we retry the commit after removing the interceptor
 
                sf.getServerLocator().removeIncomingInterceptor(interceptor);
@@ -1789,12 +1754,10 @@ public class FailoverTest extends FailoverTestBase {
                   session.commit();
 
                   failed = false;
-               }
-               catch (ActiveMQException e2) {
+               } catch (ActiveMQException e2) {
                   throw new RuntimeException(e2);
                }
-            }
-            catch (ActiveMQTransactionOutcomeUnknownException toue) {
+            } catch (ActiveMQTransactionOutcomeUnknownException toue) {
                // Ok - now we retry the commit after removing the interceptor
 
                sf.getServerLocator().removeIncomingInterceptor(interceptor);
@@ -1803,12 +1766,10 @@ public class FailoverTest extends FailoverTestBase {
                   session.commit();
 
                   failed = false;
-               }
-               catch (ActiveMQException e2) {
+               } catch (ActiveMQException e2) {
                   throw new RuntimeException(e2);
                }
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                //ignore
             }
          }
@@ -1859,11 +1820,9 @@ public class FailoverTest extends FailoverTestBase {
       try {
          session2.commit();
          Assert.fail("expecting DUPLICATE_ID_REJECTED exception");
-      }
-      catch (ActiveMQDuplicateIdException dide) {
+      } catch (ActiveMQDuplicateIdException dide) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1901,8 +1860,7 @@ public class FailoverTest extends FailoverTestBase {
                liveServer.addInterceptor(interceptor);
 
                session.commit();
-            }
-            catch (ActiveMQTransactionRolledBackException trbe) {
+            } catch (ActiveMQTransactionRolledBackException trbe) {
                // Ok - now we retry the commit after removing the interceptor
 
                liveServer.removeInterceptor(interceptor);
@@ -1911,11 +1869,9 @@ public class FailoverTest extends FailoverTestBase {
                   session.commit();
 
                   failed = false;
+               } catch (ActiveMQException e2) {
                }
-               catch (ActiveMQException e2) {
-               }
-            }
-            catch (ActiveMQTransactionOutcomeUnknownException toue) {
+            } catch (ActiveMQTransactionOutcomeUnknownException toue) {
                // Ok - now we retry the commit after removing the interceptor
 
                liveServer.removeInterceptor(interceptor);
@@ -1924,11 +1880,9 @@ public class FailoverTest extends FailoverTestBase {
                   session.commit();
 
                   failed = false;
+               } catch (ActiveMQException e2) {
                }
-               catch (ActiveMQException e2) {
-               }
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                //ignore
             }
          }

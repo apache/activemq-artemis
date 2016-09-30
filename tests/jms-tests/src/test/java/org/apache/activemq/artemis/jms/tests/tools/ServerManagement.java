@@ -91,14 +91,12 @@ public class ServerManagement {
       if (i > ServerManagement.servers.size()) {
          ServerManagement.log.error("server " + i +
                                        " has not been created or has already been killed, so it cannot be killed");
-      }
-      else {
+      } else {
          Server server = ServerManagement.servers.get(i);
          ServerManagement.log.info("invoking kill() on server " + i);
          try {
             server.kill();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             // This is likely to throw an exception since the server dies before the response is received
          }
 
@@ -110,8 +108,7 @@ public class ServerManagement {
                ServerManagement.log.debug("server " + i + " still alive ...");
                Thread.sleep(100);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             // Ok
          }
 

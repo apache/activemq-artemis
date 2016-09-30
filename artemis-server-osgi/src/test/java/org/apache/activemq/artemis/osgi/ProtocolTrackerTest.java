@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.osgi;
 
-import static org.easymock.EasyMock.expect;
-
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.easymock.EasyMock;
@@ -25,6 +23,8 @@ import org.easymock.IMocksControl;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
+import static org.easymock.EasyMock.expect;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ProtocolTrackerTest {
@@ -61,6 +61,7 @@ public class ProtocolTrackerTest {
    }
 
    class RefFact {
+
       ServiceReference<ProtocolManagerFactory<Interceptor>> ref;
       ProtocolManagerFactory factory;
 

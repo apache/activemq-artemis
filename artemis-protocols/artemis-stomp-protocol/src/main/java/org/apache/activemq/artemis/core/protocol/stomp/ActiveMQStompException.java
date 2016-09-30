@@ -70,8 +70,7 @@ public class ActiveMQStompException extends Exception {
       StompFrame frame = null;
       if (handler == null) {
          frame = new StompFrame(Stomp.Responses.ERROR);
-      }
-      else {
+      } else {
          frame = handler.createStompFrame(Stomp.Responses.ERROR);
       }
       frame.addHeader(Stomp.Headers.Error.MESSAGE, this.getMessage());
@@ -82,8 +81,7 @@ public class ActiveMQStompException extends Exception {
       if (body != null) {
          frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setByteBody(body.getBytes(StandardCharsets.UTF_8));
-      }
-      else {
+      } else {
          frame.setByteBody(new byte[0]);
       }
       if (disconnect != null) {

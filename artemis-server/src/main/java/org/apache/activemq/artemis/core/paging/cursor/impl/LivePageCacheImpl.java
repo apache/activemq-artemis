@@ -64,8 +64,7 @@ public class LivePageCacheImpl implements LivePageCache {
    public synchronized PagedMessage getMessage(int messageNumber) {
       if (messageNumber < messages.size()) {
          return messages.get(messageNumber);
-      }
-      else {
+      } else {
          return null;
       }
    }

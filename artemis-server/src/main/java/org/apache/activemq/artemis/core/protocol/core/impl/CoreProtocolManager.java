@@ -236,8 +236,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
             // Just send a ping back
             channel0.send(packet);
-         }
-         else if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY || packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
+         } else if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY || packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
             SubscribeClusterTopologyUpdatesMessage msg = (SubscribeClusterTopologyUpdatesMessage) packet;
 
             if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
@@ -259,17 +258,14 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
                               channel0.send(new ClusterTopologyChangeMessage_V3(topologyMember.getUniqueEventID(), nodeID, topologyMember.getBackupGroupName(), topologyMember.getScaleDownGroupName(), connectorPair, last));
-                           }
-                           else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
+                           } else if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                               channel0.send(new ClusterTopologyChangeMessage_V2(topologyMember.getUniqueEventID(), nodeID, topologyMember.getBackupGroupName(), connectorPair, last));
-                           }
-                           else {
+                           } else {
                               channel0.send(new ClusterTopologyChangeMessage(nodeID, connectorPair, last));
                            }
                         }
                      });
-                  }
-                  catch (RejectedExecutionException ignored) {
+                  } catch (RejectedExecutionException ignored) {
                      // this could happen during a shutdown and we don't care, if we lost a nodeDown during a shutdown
                      // what can we do anyways?
                   }
@@ -287,14 +283,12 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                               channel0.send(new ClusterTopologyChangeMessage_V2(uniqueEventID, nodeID));
-                           }
-                           else {
+                           } else {
                               channel0.send(new ClusterTopologyChangeMessage(nodeID));
                            }
                         }
                      });
-                  }
-                  catch (RejectedExecutionException ignored) {
+                  } catch (RejectedExecutionException ignored) {
                      // this could happen during a shutdown and we don't care, if we lost a nodeDown during a shutdown
                      // what can we do anyways?
                   }
@@ -315,8 +309,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                      acceptorUsed.getClusterConnection().removeClusterTopologyListener(listener);
                   }
                });
-            }
-            else {
+            } else {
                // if not clustered, we send a single notification to the client containing the node-id where the server is connected to
                // This is done this way so Recovery discovery could also use the node-id for non-clustered setups
                entry.connectionExecutor.execute(new Runnable() {
@@ -326,8 +319,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                      Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(null, null);
                      if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                         channel0.send(new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(), nodeId, null, emptyConfig, true));
-                     }
-                     else {
+                     } else {
                         channel0.send(new ClusterTopologyChangeMessage(nodeId, emptyConfig, true));
                      }
                   }

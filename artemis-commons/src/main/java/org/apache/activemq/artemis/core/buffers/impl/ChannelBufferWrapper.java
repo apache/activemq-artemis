@@ -35,7 +35,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public static ByteBuf unwrap(ByteBuf buffer) {
       ByteBuf parent;
       while ((parent = buffer.unwrap()) != null && parent != buffer) { // this last part is just in case the semantic
-                                                                       // ever changes where unwrap is returning itself
+         // ever changes where unwrap is returning itself
          buffer = parent;
       }
 
@@ -49,8 +49,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public ChannelBufferWrapper(final ByteBuf buffer, boolean releasable) {
       if (!releasable) {
          this.buffer = Unpooled.unreleasableBuffer(buffer);
-      }
-      else {
+      } else {
          this.buffer = buffer;
       }
       this.releasable = releasable;
@@ -105,11 +104,9 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
             chars[i] = (char) buffer.readShort();
          }
          return new String(chars);
-      }
-      else if (len < 0xfff) {
+      } else if (len < 0xfff) {
          return readUTF();
-      }
-      else {
+      } else {
          return readSimpleStringInternal().toString();
       }
    }
@@ -128,8 +125,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public void writeNullableSimpleString(final SimpleString val) {
       if (val == null) {
          buffer.writeByte(DataConstants.NULL);
-      }
-      else {
+      } else {
          buffer.writeByte(DataConstants.NOT_NULL);
          writeSimpleStringInternal(val);
       }
@@ -139,8 +135,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public void writeNullableString(final String val) {
       if (val == null) {
          buffer.writeByte(DataConstants.NULL);
-      }
-      else {
+      } else {
          buffer.writeByte(DataConstants.NOT_NULL);
          writeStringInternal(val);
       }
@@ -172,12 +167,10 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
          for (int i = 0; i < val.length(); i++) {
             buffer.writeShort((short) val.charAt(i));
          }
-      }
-      else if (length < 0xfff) {
+      } else if (length < 0xfff) {
          // Store as UTF - this is quicker than char by char for most strings
          writeUTF(val);
-      }
-      else {
+      } else {
          // Store as SimpleString, since can't store utf > 0xffff in length
          writeSimpleStringInternal(new SimpleString(val));
       }
@@ -609,23 +602,28 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       buffer.writeShort(value);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b) throws IOException {
       readBytes(b);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b, int off, int len) throws IOException {
       readBytes(b, off, len);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public String readLine() throws IOException {
       return ByteUtil.readLine(this);
    }
-
 
 }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -144,8 +144,7 @@ public class TransportUriTest extends EmbeddedBrokerTestSupport {
       try {
          connection = new ActiveMQConnectionFactory(uri).createConnection();
          connection.start();
-      }
-      catch (Exception unexpected) {
+      } catch (Exception unexpected) {
          fail("Valid options '" + options + "' on URI '" + uri + "' should " + "not have caused an exception to be thrown. " + msg + " Exception: " + unexpected);
       }
    }
@@ -158,8 +157,7 @@ public class TransportUriTest extends EmbeddedBrokerTestSupport {
          connection = new ActiveMQConnectionFactory(uri).createConnection();
          connection.start();
          fail("Invalid options '" + options + "' on URI '" + uri + "' should" + " have caused an exception to be thrown. " + msg);
-      }
-      catch (Exception expected) {
+      } catch (Exception expected) {
       }
    }
 
@@ -175,8 +173,7 @@ public class TransportUriTest extends EmbeddedBrokerTestSupport {
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
          }
       }

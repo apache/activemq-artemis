@@ -118,15 +118,13 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
          if (!subResponse.isExists()) {
             session.createQueue(activation.getAddress(), queueName, selectorString, true);
-         }
-         else {
+         } else {
             // The check for already exists should be done only at the first session
             // As a deployed MDB could set up multiple instances in order to process messages in parallel.
             if (sessionNr == 0 && subResponse.getConsumerCount() > 0) {
                if (!spec.isShareSubscriptions()) {
                   throw new javax.jms.IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
-               }
-               else if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
+               } else if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
                   ActiveMQRALogger.LOGGER.debug("the mdb on destination " + queueName + " already had " +
                                                    subResponse.getConsumerCount() +
                                                    " consumers but the MDB is configured to share subscriptions, so no exceptions are thrown");
@@ -152,16 +150,14 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             }
          }
          consumer = (ClientConsumerInternal) session.createConsumer(queueName, null, false);
-      }
-      else {
+      } else {
          SimpleString tempQueueName;
          if (activation.isTopic()) {
             if (activation.getTopicTemporaryQueue() == null) {
                tempQueueName = new SimpleString(UUID.randomUUID().toString());
                session.createTemporaryQueue(activation.getAddress(), tempQueueName, selectorString);
                activation.setTopicTemporaryQueue(tempQueueName);
-            }
-            else {
+            } else {
                tempQueueName = activation.getTopicTemporaryQueue();
                QueueQuery queueQuery = session.queueQuery(tempQueueName);
                if (!queueQuery.isExists()) {
@@ -170,8 +166,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                   session.createTemporaryQueue(activation.getAddress(), tempQueueName, selectorString);
                }
             }
-         }
-         else {
+         } else {
             tempQueueName = activation.getAddress();
          }
          consumer = (ClientConsumerInternal) session.createConsumer(tempQueueName, selectorString);
@@ -191,8 +186,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
          endpoint = endpointFactory.createEndpoint(xaResource);
          useXA = true;
-      }
-      else {
+      } else {
          endpoint = endpointFactory.createEndpoint(null);
          useXA = false;
       }
@@ -210,8 +204,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          if (consumer != null) {
             return consumer.prepareForClose(future);
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQRALogger.LOGGER.errorInterruptingHandler(endpoint.toString(), consumer.toString(), e);
       }
       return null;
@@ -230,8 +223,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             endpoint.release();
             endpoint = null;
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQRALogger.LOGGER.debug("Error releasing endpoint " + endpoint, t);
       }
 
@@ -249,8 +241,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                   session.deleteQueue(tmpQueue);
                }
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQRALogger.LOGGER.debug("Error closing core-queue consumer", t);
          }
 
@@ -258,27 +249,23 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             if (session != null) {
                session.close();
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQRALogger.LOGGER.debug("Error releasing session " + session, t);
          }
          try {
             if (cf != null) {
                cf.close();
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQRALogger.LOGGER.debug("Error releasing session factory " + session, t);
          }
-      }
-      else {
+      } else {
          //otherwise we just clean up
          try {
             if (cf != null) {
                cf.cleanup();
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQRALogger.LOGGER.debug("Error releasing session factory " + session, t);
          }
 
@@ -325,8 +312,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
          try {
             endpoint.afterDelivery();
-         }
-         catch (ResourceException e) {
+         } catch (ResourceException e) {
             ActiveMQRALogger.LOGGER.unableToCallAfterDelivery(e);
             // If we get here, The TX was already rolled back
             // However we must do some stuff now to make sure the client message buffer is cleared
@@ -341,8 +327,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          if (trace) {
             ActiveMQRALogger.LOGGER.trace("finished onMessage on " + message);
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQRALogger.LOGGER.errorDeliveringMessage(e);
          // we need to call before/afterDelivery as a pair
          if (beforeDelivery) {
@@ -356,8 +341,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                   if (tx != null) {
                      tx.setRollbackOnly();
                   }
-               }
-               catch (Exception e1) {
+               } catch (Exception e1) {
                   ActiveMQRALogger.LOGGER.warn("unnable to clear the transaction", e1);
                }
             }
@@ -368,16 +352,14 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                if (endToUse != null) {
                   endToUse.afterDelivery();
                }
-            }
-            catch (ResourceException e1) {
+            } catch (ResourceException e1) {
                ActiveMQRALogger.LOGGER.unableToCallAfterDelivery(e1);
             }
          }
          if (useLocalTx || !activation.isDeliveryTransacted()) {
             try {
                session.rollback(true);
-            }
-            catch (ActiveMQException e1) {
+            } catch (ActiveMQException e1) {
                ActiveMQRALogger.LOGGER.unableToRollbackTX();
             }
          }
@@ -385,12 +367,10 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          // This is to make sure we will issue a rollback after failures
          // so that would cleanup consumer buffers among other things
          session.markRollbackOnly();
-      }
-      finally {
+      } finally {
          try {
             session.resetIfNeeded();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             ActiveMQRALogger.LOGGER.unableToResetSession(activation.toString(), e);
             activation.startReconnectThread("Reset MessageHandler after Failure Thread");
          }

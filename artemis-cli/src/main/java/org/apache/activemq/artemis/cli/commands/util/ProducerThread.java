@@ -84,8 +84,7 @@ public class ProducerThread extends Thread {
                sendMessage(producer, threadName);
                sentCount.incrementAndGet();
             }
-         }
-         else {
+         } else {
             for (sentCount.set(0); sentCount.get() < messageCount && running; sentCount.incrementAndGet()) {
                paused.await();
                sendMessage(producer, threadName);
@@ -94,8 +93,7 @@ public class ProducerThread extends Thread {
 
          try {
             session.commit();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          System.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
@@ -104,19 +102,16 @@ public class ProducerThread extends Thread {
          System.out.println(threadName + " Elapsed time in second : " + elapsed + " s");
          System.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (finished != null) {
             finished.countDown();
          }
          if (producer != null) {
             try {
                producer.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -154,20 +149,16 @@ public class ProducerThread extends Thread {
       if (payload != null) {
          answer = session.createBytesMessage();
          ((BytesMessage) answer).writeBytes(payload);
-      }
-      else {
+      } else {
          if (textMessageSize > 0) {
             if (messageText == null) {
                messageText = readInputStream(getClass().getResourceAsStream("demo.txt"), textMessageSize, i);
             }
-         }
-         else if (payloadUrl != null) {
+         } else if (payloadUrl != null) {
             messageText = readInputStream(new URL(payloadUrl).openStream(), -1, i);
-         }
-         else if (message != null) {
+         } else if (message != null) {
             messageText = message;
-         }
-         else {
+         } else {
             messageText = createDefaultMessage(i);
          }
          answer = session.createTextMessage(messageText);
@@ -186,8 +177,7 @@ public class ProducerThread extends Thread {
          char[] buffer;
          if (size > 0) {
             buffer = new char[size];
-         }
-         else {
+         } else {
             buffer = new char[1024];
          }
          int count;
@@ -198,8 +188,7 @@ public class ProducerThread extends Thread {
                break;
          }
          return builder.toString();
-      }
-      catch (IOException ioe) {
+      } catch (IOException ioe) {
          return createDefaultMessage(messageNumber);
       }
    }

@@ -43,8 +43,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection {
          this.username = username;
          this.passcode = passcode;
          this.connected = true;
-      }
-      else {
+      } else {
          connected = false;
       }
       return response;
@@ -71,8 +70,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection {
          this.username = username;
          this.passcode = passcode;
          this.connected = true;
-      }
-      else {
+      } else {
          connected = false;
       }
    }
@@ -95,8 +93,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection {
          this.username = username;
          this.passcode = passcode;
          this.connected = true;
-      }
-      else {
+      } else {
          System.out.println("Connection failed with frame " + response);
          connected = false;
       }

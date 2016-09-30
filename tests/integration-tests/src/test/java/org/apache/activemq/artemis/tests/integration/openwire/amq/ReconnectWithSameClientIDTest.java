@@ -47,11 +47,9 @@ public class ReconnectWithSameClientIDTest extends BasicOpenWireTest {
             try {
                useConnection(connection2);
                fail("Should have thrown InvalidClientIDException on attempt" + i);
-            }
-            catch (InvalidClientIDException e) {
+            } catch (InvalidClientIDException e) {
                System.err.println("Caught expected: " + e);
-            }
-            finally {
+            } finally {
                connection2.close();
             }
          }
@@ -61,8 +59,7 @@ public class ReconnectWithSameClientIDTest extends BasicOpenWireTest {
          sameIdConnection.close();
          sameIdConnection = (ActiveMQConnection) factory.createConnection();
          useConnection(connection);
-      }
-      finally {
+      } finally {
          if (sameIdConnection != null) {
             sameIdConnection.close();
          }

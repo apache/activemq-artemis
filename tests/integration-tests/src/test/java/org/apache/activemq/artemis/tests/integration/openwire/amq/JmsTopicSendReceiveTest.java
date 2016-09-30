@@ -53,8 +53,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
       if (topic) {
          consumerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE, getConsumerSubject());
          producerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE, getProducerSubject());
-      }
-      else {
+      } else {
          consumerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE, getConsumerSubject());
          producerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE, getConsumerSubject());
       }
@@ -87,8 +86,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
    protected Session createConsumerSession() throws JMSException {
       if (useSeparateSession) {
          return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      }
-      else {
+      } else {
          return session;
       }
    }

@@ -62,8 +62,7 @@ public class JournalCompleteRecordTX extends JournalInternalRecord {
    public void encode(final ActiveMQBuffer buffer) {
       if (txRecordType == TX_RECORD_TYPE.COMMIT) {
          buffer.writeByte(JournalImpl.COMMIT_RECORD);
-      }
-      else {
+      } else {
          buffer.writeByte(JournalImpl.PREPARE_RECORD);
       }
 
@@ -100,8 +99,7 @@ public class JournalCompleteRecordTX extends JournalInternalRecord {
    public int getEncodeSize() {
       if (txRecordType == TX_RECORD_TYPE.COMMIT) {
          return JournalImpl.SIZE_COMPLETE_TRANSACTION_RECORD + 1;
-      }
-      else {
+      } else {
          return JournalImpl.SIZE_PREPARE_RECORD + (transactionData != null ? transactionData.getEncodeSize() : 0) + 1;
       }
    }

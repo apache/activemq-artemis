@@ -71,8 +71,7 @@ public class ClusterControllerTest extends ClusterTestBase {
          try {
             clusterControl.authorize();
             fail("should throw ActiveMQClusterSecurityException");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             assertTrue("should throw ActiveMQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
          }
       }

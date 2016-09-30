@@ -150,12 +150,10 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          while (open) {
             try {
                receivingSocket.receive(packet);
-            }
-            // TODO: Do we need this?
-            catch (InterruptedIOException e) {
+            } catch (InterruptedIOException e) {
+               // TODO: Do we need this?
                continue;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                if (open) {
                   ActiveMQClientLogger.LOGGER.warn(this + " getting exception when receiving broadcasting.", e);
                }
@@ -176,8 +174,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       public void openBroadcaster() throws Exception {
          if (localBindPort != -1) {
             broadcastingSocket = new DatagramSocket(localBindPort, localAddress);
-         }
-         else {
+         } else {
             if (localAddress != null) {
                for (int i = 0; i < 100; i++) {
                   int nextPort = RandomUtil.randomInterval(3000, 4000);
@@ -185,8 +182,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
                      broadcastingSocket = new DatagramSocket(nextPort, localAddress);
                      ActiveMQClientLogger.LOGGER.broadcastGroupBindError(localAddress.toString() + ":" + nextPort);
                      break;
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      ActiveMQClientLogger.LOGGER.broadcastGroupBindErrorRetry(localAddress.toString() + ":" + nextPort, e);
                   }
                }
@@ -205,14 +201,12 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          if (checkForLinux() || checkForSolaris() || checkForHp()) {
             try {
                receivingSocket = new MulticastSocket(new InetSocketAddress(groupAddress, groupPort));
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                ActiveMQClientLogger.LOGGER.ioDiscoveryError(groupAddress.getHostAddress(), groupAddress instanceof Inet4Address ? "IPv4" : "IPv6");
 
                receivingSocket = new MulticastSocket(groupPort);
             }
-         }
-         else {
+         } else {
             receivingSocket = new MulticastSocket(groupPort);
          }
 
@@ -267,8 +261,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
             tmp = defaultValue;
          }
          return tmp;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.warn(t);
          return defaultValue;
       }
@@ -279,8 +272,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
       try {
          return Integer.parseInt(value);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.warn(t.getMessage(), t);
          return Integer.parseInt(defaultValue);
       }
@@ -308,8 +300,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       if (groupAddress == null) {
          if (other.groupAddress != null)
             return false;
-      }
-      else if (!groupAddress.equals(other.groupAddress))
+      } else if (!groupAddress.equals(other.groupAddress))
          return false;
       if (groupPort != other.groupPort)
          return false;

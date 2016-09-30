@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,6 +25,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
+
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates a colocated server
@@ -106,8 +106,7 @@ public class ScaleDownExample {
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close our resources!
 
          if (connection != null) {

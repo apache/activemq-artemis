@@ -39,7 +39,6 @@ public class LdapServer {
     * Create a single LDAP server.
     *
     * @param ldifFile
-    *
     * @throws Exception
     */
    public LdapServer(String ldifFile) throws Exception {
@@ -68,18 +67,18 @@ public class LdapServer {
       directoryService.shutdown();
    }
 
-   private void importLdif(DirectoryService directoryService, final SchemaManager schemaManager, LdifReader ldifReader) throws Exception {
+   private void importLdif(DirectoryService directoryService,
+                           final SchemaManager schemaManager,
+                           LdifReader ldifReader) throws Exception {
       try {
          for (LdifEntry ldifEntry : ldifReader) {
             checkPartition(ldifEntry);
             directoryService.getAdminSession().add(new DefaultEntry(schemaManager, ldifEntry.getEntry()));
          }
-      }
-      finally {
+      } finally {
          try {
             ldifReader.close();
-         }
-         catch (IOException ioe) {
+         } catch (IOException ioe) {
             // ignore
          }
       }
@@ -90,8 +89,7 @@ public class LdapServer {
       Dn parent = dn.getParent();
       try {
          directoryService.getAdminSession().exists(parent);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          System.out.println("Creating new partition for DN=" + dn + "\n");
          AvlPartition partition = new AvlPartition(directoryService.getSchemaManager());
          partition.setId(dn.getName());

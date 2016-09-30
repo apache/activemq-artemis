@@ -57,8 +57,7 @@ public class EncodeJournal extends LockAbstract {
          }
 
          exportJournal(directory, prefix, suffix, 2, size);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          treatError(e, "data", "encode");
       }
 

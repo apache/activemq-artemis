@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.network;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -32,6 +24,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.net.ServerSocketFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -57,7 +56,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author x22koe
@@ -285,8 +286,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
    private PersistenceAdapter persistenceAdapterFactory(String path) {
       if (useLevelDB) {
          return persistenceAdapterFactory_LevelDB(path);
-      }
-      else {
+      } else {
          return persistenceAdapterFactory_KahaDB(path);
       }
    }
@@ -347,8 +347,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
             log.warn("\n\nclosing connection before response is sent\n\n");
             try {
                ((NIOTransport) next).stop();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                log.error("couldn't stop niotransport", ex);
             }
             // don't send response

@@ -101,7 +101,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    private List<Bootstrap> bootstraps = new ArrayList<>();
 
-//   private Channel channel;
+   //   private Channel channel;
 
    private List<BlockingQueue<String>> priorityQueues = new ArrayList<>();
 
@@ -124,8 +124,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
          if (isSecurityEnabled()) {
             connection = connectionFactory.createConnection("brianm", "wombats");
-         }
-         else {
+         } else {
             connection = connectionFactory.createConnection();
          }
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -158,8 +157,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       try {
          channels.add(index, bootstraps.get(index).connect("localhost", port).sync().channel());
          handshake();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
       }
 
@@ -376,6 +374,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    class StompClientHandler extends SimpleChannelInboundHandler<String> {
+
       int index = 0;
 
       StompClientHandler(int index) {

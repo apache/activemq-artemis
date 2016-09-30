@@ -30,7 +30,6 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.GenericFutureListener;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -71,8 +70,10 @@ public class NettyConnection implements Connection {
 
    private boolean ready = true;
 
-   /** if {@link #isWritable(ReadyListener)} returns false, we add a callback
-    *  here for when the connection (or Netty Channel) becomes available again. */
+   /**
+    * if {@link #isWritable(ReadyListener)} returns false, we add a callback
+    * here for when the connection (or Netty Channel) becomes available again.
+    */
    private final Deque<ReadyListener> readyListeners = new LinkedList<>();
 
    // Static --------------------------------------------------------
@@ -131,7 +132,6 @@ public class NettyConnection implements Connection {
                   break;
                }
 
-
                if (readyToCall == null) {
                   readyToCall = new LinkedList<>();
                }
@@ -145,8 +145,7 @@ public class NettyConnection implements Connection {
          for (ReadyListener readyListener : readyToCall) {
             try {
                readyListener.readyForWriting();
-            }
-            catch (Throwable logOnly) {
+            } catch (Throwable logOnly) {
                ActiveMQClientLogger.LOGGER.warn(logOnly.getMessage(), logOnly);
             }
          }
@@ -158,8 +157,7 @@ public class NettyConnection implements Connection {
       if (channel != null) {
          try {
             channel.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -196,8 +194,7 @@ public class NettyConnection implements Connection {
       //if we are in an event loop we need to close the channel after the writes have finished
       if (!inEventLoop) {
          closeSSLAndChannel(sslHandler, channel, false);
-      }
-      else {
+      } else {
          eventLoop.execute(new Runnable() {
             @Override
             public void run() {
@@ -236,8 +233,7 @@ public class NettyConnection implements Connection {
 
                batchBuffer = createTransportBuffer(BATCHING_BUFFER_SIZE);
             }
-         }
-         finally {
+         } finally {
             writeLock.release();
          }
       }
@@ -276,15 +272,13 @@ public class NettyConnection implements Connection {
                   // If the batch buffer is full or it's flush param or not batched then flush the buffer
 
                   buffer = batchBuffer;
-               }
-               else {
+               } else {
                   return;
                }
 
                if (!batched || flush) {
                   batchBuffer = null;
-               }
-               else {
+               } else {
                   // Create a new buffer
 
                   batchBuffer = ActiveMQBuffers.dynamicBuffer(BATCHING_BUFFER_SIZE);
@@ -297,8 +291,7 @@ public class NettyConnection implements Connection {
             final ChannelPromise promise;
             if (flush || futureListener != null) {
                promise = channel.newPromise();
-            }
-            else {
+            } else {
                promise = channel.voidPromise();
             }
 
@@ -307,12 +300,10 @@ public class NettyConnection implements Connection {
             if (!inEventLoop) {
                if (futureListener != null) {
                   channel.writeAndFlush(buf, promise).addListener(futureListener);
-               }
-               else {
+               } else {
                   channel.writeAndFlush(buf, promise);
                }
-            }
-            else {
+            } else {
                // create a task which will be picked up by the eventloop and trigger the write.
                // This is mainly needed as this method is triggered by different threads for the same channel.
                // if we not do this we may produce out of order writes.
@@ -321,8 +312,7 @@ public class NettyConnection implements Connection {
                   public void run() {
                      if (futureListener != null) {
                         channel.writeAndFlush(buf, promise).addListener(futureListener);
-                     }
-                     else {
+                     } else {
                         channel.writeAndFlush(buf, promise);
                      }
                   }
@@ -342,18 +332,15 @@ public class NettyConnection implements Connection {
                      }
 
                      break;
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      throw new ActiveMQInterruptedException(e);
                   }
                }
             }
-         }
-         finally {
+         } finally {
             writeLock.release();
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new ActiveMQInterruptedException(e);
       }
    }
@@ -390,8 +377,7 @@ public class NettyConnection implements Connection {
    public TransportConfiguration getConnectorConfig() {
       if (configuration != null) {
          return new TransportConfiguration(NettyConnectorFactory.class.getName(), this.configuration);
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -427,12 +413,10 @@ public class NettyConnection implements Connection {
             if (!inEventLoop && !sslCloseFuture.awaitUninterruptibly(10000)) {
                ActiveMQClientLogger.LOGGER.timeoutClosingSSL();
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             // ignore
          }
-      }
-      else {
+      } else {
          ChannelFuture closeFuture = channel.close();
          if (!inEventLoop && !closeFuture.awaitUninterruptibly(10000)) {
             ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();

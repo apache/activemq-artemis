@@ -122,8 +122,7 @@ public class AbstractAdmin implements Admin {
       try {
          result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "createQueue", name, name);
          Assert.assertEquals(true, result.booleanValue());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -134,8 +133,7 @@ public class AbstractAdmin implements Admin {
       try {
          result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyQueue", name);
          Assert.assertEquals(true, result.booleanValue());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -156,8 +154,7 @@ public class AbstractAdmin implements Admin {
       try {
          result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "createTopic", name, name);
          Assert.assertEquals(true, result.booleanValue());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -168,8 +165,7 @@ public class AbstractAdmin implements Admin {
       try {
          result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyTopic", name);
          Assert.assertEquals(true, result.booleanValue());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -208,22 +204,19 @@ public class AbstractAdmin implements Admin {
                         while ((line1 = br.readLine()) != null) {
                            System.out.println("SERVER: " + line1);
                         }
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
                }.start();
                return;
-            }
-            else if ("KO".equals(line.trim())) {
+            } else if ("KO".equals(line.trim())) {
                // something went wrong with the server, destroy it:
                serverProcess.destroy();
                throw new IllegalStateException("Unable to start the spawned server :" + line);
             }
          }
-      }
-      else {
+      } else {
          SpawnedJMSServer.startServer();
       }
    }
@@ -241,8 +234,7 @@ public class AbstractAdmin implements Admin {
          if (exitValue != 0) {
             serverProcess.destroy();
          }
-      }
-      else {
+      } else {
          SpawnedJMSServer.stopServer();
       }
    }
@@ -255,8 +247,7 @@ public class AbstractAdmin implements Admin {
       ClientMessage reply;
       try {
          reply = requestor.request(message, 3000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException("Exception while invoking " + operationName + " on " + resourceName, e);
       }
       if (reply == null) {

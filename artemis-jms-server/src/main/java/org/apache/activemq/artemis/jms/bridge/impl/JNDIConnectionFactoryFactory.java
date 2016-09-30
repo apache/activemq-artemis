@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.bridge.impl;
 
-import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
-
 import java.util.Hashtable;
+
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 
 public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory {
 

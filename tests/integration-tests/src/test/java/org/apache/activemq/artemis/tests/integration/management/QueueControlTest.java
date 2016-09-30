@@ -421,15 +421,13 @@ public class QueueControlTest extends ManagementTestBase {
             public void onMessage(ClientMessage message) {
                try {
                   message.acknowledge();
-               }
-               catch (ActiveMQException e1) {
+               } catch (ActiveMQException e1) {
                   e1.printStackTrace();
                }
                latch1.countDown();
                try {
                   latch2.await(10, TimeUnit.SECONDS);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   e.printStackTrace();
                }
                latch3.countDown();
@@ -458,8 +456,7 @@ public class QueueControlTest extends ManagementTestBase {
          latch3.await(10, TimeUnit.SECONDS);
 
          transSession.commit();
-      }
-      finally {
+      } finally {
          consumer.close();
          transSession.deleteQueue(queue);
          transSession.close();
@@ -935,8 +932,7 @@ public class QueueControlTest extends ManagementTestBase {
       try {
          queueControl.moveMessages(null, unknownQueue.toString());
          Assert.fail("operation must fail if the other queue does not exist");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       Assert.assertEquals(1, getMessageCount(queueControl));
 
@@ -1066,8 +1062,7 @@ public class QueueControlTest extends ManagementTestBase {
       try {
          queueControl.moveMessage(messageID, unknownQueue.toString());
          Assert.fail("operation must fail if the other queue does not exist");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       Assert.assertEquals(1, getMessageCount(queueControl));
 
@@ -1599,8 +1594,7 @@ public class QueueControlTest extends ManagementTestBase {
       try {
          queueControl.changeMessagePriority(messageID, invalidPriority);
          Assert.fail("operation fails when priority value is < 0 or > 9");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       ClientConsumer consumer = session.createConsumer(queue);
@@ -1925,8 +1919,7 @@ public class QueueControlTest extends ManagementTestBase {
          Assert.assertTrue(queueControl.isPaused());
          queueControl.resume();
          Assert.assertFalse(queueControl.isPaused());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
@@ -2155,7 +2148,6 @@ public class QueueControlTest extends ManagementTestBase {
 
       Assert.assertEquals(new String(body), "");
    }
-
 
    // Package protected ---------------------------------------------
 

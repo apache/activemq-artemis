@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,9 +38,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PredefinedQueueTest extends ActiveMQTestBase {
 
@@ -90,33 +90,27 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
          session.createQueue(testAddress, queueName1, null, false);
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQQueueExistsException se) {
+      } catch (ActiveMQQueueExistsException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
          session.createQueue(testAddress, queueName2, null, false);
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQQueueExistsException se) {
+      } catch (ActiveMQQueueExistsException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       try {
          session.createQueue(testAddress, queueName3, null, false);
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQQueueExistsException se) {
+      } catch (ActiveMQQueueExistsException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.BeforeClass;
 
 public class AIOJournalImplTest extends JournalImplTestUnit {

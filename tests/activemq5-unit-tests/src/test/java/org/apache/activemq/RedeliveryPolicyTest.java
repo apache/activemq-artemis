@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -29,6 +25,9 @@ import javax.jms.ServerSession;
 import javax.jms.ServerSessionPool;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
 
@@ -415,8 +414,7 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
          if (i <= maxRedeliveries) {
             assertEquals("1st", m.getText());
             assertEquals(i, m.getRedeliveryCounter());
-         }
-         else {
+         } else {
             assertNull("null on exceeding redelivery count", m);
          }
          connection.close();
@@ -473,8 +471,7 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
                   assertEquals(receivedCount.get(), m.getRedeliveryCounter());
                   receivedCount.incrementAndGet();
                   done.countDown();
-               }
-               catch (Exception ignored) {
+               } catch (Exception ignored) {
                   ignored.printStackTrace();
                }
             }
@@ -482,8 +479,7 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
          if (i <= maxRedeliveries) {
             assertTrue("listener done", done.await(5, TimeUnit.SECONDS));
-         }
-         else {
+         } else {
             // final redlivery gets poisoned before dispatch
             assertFalse("listener done", done.await(1, TimeUnit.SECONDS));
          }
@@ -540,28 +536,27 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
                   assertEquals(receivedCount.get(), m.getRedeliveryCounter());
                   receivedCount.incrementAndGet();
                   done.countDown();
-               }
-               catch (Exception ignored) {
+               } catch (Exception ignored) {
                   ignored.printStackTrace();
                }
             }
          });
 
          connection.createConnectionConsumer(destination, null, new ServerSessionPool() {
-                                                @Override
-                                                public ServerSession getServerSession() throws JMSException {
-                                                   return new ServerSession() {
-                                                      @Override
-                                                      public Session getSession() throws JMSException {
-                                                         return session;
-                                                      }
+            @Override
+            public ServerSession getServerSession() throws JMSException {
+               return new ServerSession() {
+                  @Override
+                  public Session getSession() throws JMSException {
+                     return session;
+                  }
 
-                                                      @Override
-                                                      public void start() throws JMSException {
-                                                      }
-                                                   };
-                                                }
-                                             }, 100, false);
+                  @Override
+                  public void start() throws JMSException {
+                  }
+               };
+            }
+         }, 100, false);
 
          Wait.waitFor(new Wait.Condition() {
             @Override
@@ -573,8 +568,7 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
          if (i <= maxRedeliveries) {
             assertTrue("listener done @" + i, done.await(5, TimeUnit.SECONDS));
-         }
-         else {
+         } else {
             // final redlivery gets poisoned before dispatch
             assertFalse("listener not done @" + i, done.await(1, TimeUnit.SECONDS));
          }

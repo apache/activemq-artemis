@@ -94,8 +94,7 @@ public class QueueSessionTest extends PTPTestCase {
          // .. but this time, it has been redelivered
          Assert.assertEquals(true, msg.getJMSRedelivered());
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }
@@ -109,10 +108,8 @@ public class QueueSessionTest extends PTPTestCase {
       try {
          senderSession.createBrowser(senderQueue, "definitely not a message selector!");
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
-      }
-      catch (InvalidSelectorException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidSelectorException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -126,10 +123,8 @@ public class QueueSessionTest extends PTPTestCase {
       try {
          senderSession.createBrowser((Queue) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
-      }
-      catch (InvalidDestinationException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidDestinationException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }
@@ -143,10 +138,8 @@ public class QueueSessionTest extends PTPTestCase {
       try {
          receiver = senderSession.createReceiver(senderQueue, "definitely not a message selector!");
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
-      }
-      catch (InvalidSelectorException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidSelectorException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -160,11 +153,9 @@ public class QueueSessionTest extends PTPTestCase {
       try {
          receiver = senderSession.createReceiver((Queue) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
-      }
-      catch (InvalidDestinationException e) {
+      } catch (InvalidDestinationException e) {
          // expected
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }

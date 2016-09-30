@@ -105,8 +105,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals(m.getJMSMessageID(), r.getJMSMessageID());
          ProxyAssertSupport.assertEquals("test", r.getText());
-      }
-      finally {
+      } finally {
          if (pconn != null) {
             pconn.close();
          }
@@ -150,8 +149,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals(m.getJMSMessageID(), r.getJMSMessageID());
          ProxyAssertSupport.assertEquals("test", r.getText());
-      }
-      finally {
+      } finally {
          pconn.close();
          cconn.close();
       }
@@ -179,8 +177,7 @@ public class MessageProducerTest extends JMSTestCase {
       public synchronized void run() {
          try {
             prod.send(m);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.error(e);
 
             ex = e;
@@ -233,8 +230,7 @@ public class MessageProducerTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals("test", m2.getText());
 
          t.join();
-      }
-      finally {
+      } finally {
          pconn.close();
          cconn.close();
       }
@@ -263,8 +259,7 @@ public class MessageProducerTest extends JMSTestCase {
             public void run() {
                try {
                   anonProducer.send(ActiveMQServerTestCase.topic2, m1);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   log.error(e);
                }
             }
@@ -274,8 +269,7 @@ public class MessageProducerTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals(m1.getJMSMessageID(), m2.getJMSMessageID());
 
          log.debug("ending test");
-      }
-      finally {
+      } finally {
          pconn.close();
          cconn.close();
       }
@@ -303,8 +297,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals("something", rec.getText());
 
-      }
-      finally {
+      } finally {
          pconn.close();
          cconn.close();
       }
@@ -319,8 +312,7 @@ public class MessageProducerTest extends JMSTestCase {
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
          Destination dest = p.getDestination();
          ProxyAssertSupport.assertEquals(dest, ActiveMQServerTestCase.topic1);
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -337,12 +329,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             p.getDestination();
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -356,12 +346,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             ps.createProducer(ActiveMQJMSClient.createTopic("NoSuchTopic"));
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -379,8 +367,7 @@ public class MessageProducerTest extends JMSTestCase {
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          ProxyAssertSupport.assertFalse(p.getDisableMessageID());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -398,12 +385,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             p.getDisableMessageID();
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -422,8 +407,7 @@ public class MessageProducerTest extends JMSTestCase {
          MessageProducer qp = ps.createProducer(queue1);
          ProxyAssertSupport.assertFalse(tp.getDisableMessageTimestamp());
          ProxyAssertSupport.assertFalse(qp.getDisableMessageTimestamp());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -464,8 +448,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertTrue(timestamp >= t1);
          ProxyAssertSupport.assertTrue(timestamp <= t2);
-      }
-      finally {
+      } finally {
          pconn.close();
          cconn.close();
       }
@@ -484,12 +467,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             p.getDisableMessageTimestamp();
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -509,8 +490,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, tp.getDeliveryMode());
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, qp.getDeliveryMode());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -528,8 +508,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          p.setDeliveryMode(DeliveryMode.PERSISTENT);
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, p.getDeliveryMode());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -547,12 +526,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             p.getDeliveryMode();
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -572,8 +549,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals(4, tp.getPriority());
          ProxyAssertSupport.assertEquals(4, qp.getPriority());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -591,8 +567,7 @@ public class MessageProducerTest extends JMSTestCase {
 
          p.setPriority(0);
          ProxyAssertSupport.assertEquals(0, p.getPriority());
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -610,12 +585,10 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             p.getPriority();
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          pconn.close();
       }
    }
@@ -660,8 +633,7 @@ public class MessageProducerTest extends JMSTestCase {
       try {
          p.setTimeToLive(100L);
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
    }
@@ -744,8 +716,7 @@ public class MessageProducerTest extends JMSTestCase {
       public void onCompletion(Message message) {
          try {
             p.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();
@@ -771,8 +742,7 @@ public class MessageProducerTest extends JMSTestCase {
       public void onCompletion(Message message) {
          try {
             conn.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();
@@ -798,8 +768,7 @@ public class MessageProducerTest extends JMSTestCase {
       public void onCompletion(Message message) {
          try {
             session.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();

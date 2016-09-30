@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import javax.jms.ConnectionMetaData;
 import javax.jms.JMSException;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import org.apache.activemq.artemis.core.version.Version;
 

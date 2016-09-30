@@ -26,12 +26,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 /**
@@ -103,8 +103,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
          if (i % 2 == 0) {
             message.putBooleanProperty("tst-large", false);
             message.getBodyBuffer().writeBytes(bufferSample);
-         }
-         else {
+         } else {
             message.putBooleanProperty("tst-large", true);
             message.setBodyInputStream(createFakeLargeStream(messageSize));
          }

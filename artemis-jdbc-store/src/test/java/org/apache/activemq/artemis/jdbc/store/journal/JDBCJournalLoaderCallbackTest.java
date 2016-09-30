@@ -34,6 +34,7 @@ public class JDBCJournalLoaderCallbackTest {
 
    @Rule
    public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+
    @Test
    public void testAddDeleteRecord() throws Exception {
 
@@ -57,8 +58,7 @@ public class JDBCJournalLoaderCallbackTest {
    public void shutdownDerby() {
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 

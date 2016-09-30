@@ -15,8 +15,8 @@
   limitations under the License.
 -->
 <configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="
                urn:activemq /schema/artemis-server.xsd
                urn:activemq:core /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">

@@ -39,8 +39,7 @@ public class PushConsumerMessageHandler implements MessageHandler {
       try {
          clientMessage.acknowledge();
          ActiveMQRestLogger.LOGGER.debug(this + ": acknowledged " + clientMessage);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e.getMessage(), e);
       }
 
@@ -52,16 +51,13 @@ public class PushConsumerMessageHandler implements MessageHandler {
             ActiveMQRestLogger.LOGGER.debug("Acknowledging: " + clientMessage.getMessageID());
             session.commit();
             return;
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
-      }
-      else {
+      } else {
          try {
             session.rollback();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new RuntimeException(e.getMessage(), e);
          }
          if (pushConsumer.getRegistration().isDisableOnFailure()) {

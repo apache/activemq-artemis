@@ -30,10 +30,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 
 /**
  * The activation spec
@@ -364,8 +364,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (Session.DUPS_OK_ACKNOWLEDGE == acknowledgeMode) {
          return "Dups-ok-acknowledge";
-      }
-      else {
+      } else {
          return "Auto-acknowledge";
       }
    }
@@ -382,11 +381,9 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if ("DUPS_OK_ACKNOWLEDGE".equalsIgnoreCase(value) || "Dups-ok-acknowledge".equalsIgnoreCase(value)) {
          acknowledgeMode = Session.DUPS_OK_ACKNOWLEDGE;
-      }
-      else if ("AUTO_ACKNOWLEDGE".equalsIgnoreCase(value) || "Auto-acknowledge".equalsIgnoreCase(value)) {
+      } else if ("AUTO_ACKNOWLEDGE".equalsIgnoreCase(value) || "Auto-acknowledge".equalsIgnoreCase(value)) {
          acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("Unsupported acknowledgement mode " + value);
       }
    }
@@ -414,8 +411,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (subscriptionDurability) {
          return "Durable";
-      }
-      else {
+      } else {
          return "NonDurable";
       }
    }
@@ -506,8 +502,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (user == null) {
          return ra.getUserName();
-      }
-      else {
+      } else {
          return user;
       }
    }
@@ -537,8 +532,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (password == null) {
          return ra.getPassword();
-      }
-      else {
+      } else {
          return password;
       }
    }
@@ -619,8 +613,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public Boolean isUseLocalTx() {
       if (localTx == null) {
          return ra.getUseLocalTx();
-      }
-      else {
+      } else {
          return localTx;
       }
    }
@@ -644,8 +637,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (setupAttempts == null) {
          return ra.getSetupAttempts();
-      }
-      else {
+      } else {
          return setupAttempts;
       }
    }
@@ -665,8 +657,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (setupInterval == null) {
          return ra.getSetupInterval();
-      }
-      else {
+      } else {
          return setupInterval;
       }
    }
@@ -713,8 +704,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
             propsNotSet.add(new PropertyDescriptor("subscriptionName", ActiveMQActivationSpec.class));
             errorMessages.add("If subscription is durable then subscription name must be specified.");
          }
-      }
-      catch (IntrospectionException e) {
+      } catch (IntrospectionException e) {
          ActiveMQRALogger.LOGGER.unableToValidateProperties(e);
       }
 
@@ -830,41 +820,57 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    @Override
    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      if (!super.equals(o)) return false;
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
+      if (!super.equals(o))
+         return false;
 
       ActiveMQActivationSpec that = (ActiveMQActivationSpec) o;
 
-      if (acknowledgeMode != that.acknowledgeMode) return false;
-      if (subscriptionDurability != that.subscriptionDurability) return false;
-      if (shareSubscriptions != that.shareSubscriptions) return false;
+      if (acknowledgeMode != that.acknowledgeMode)
+         return false;
+      if (subscriptionDurability != that.subscriptionDurability)
+         return false;
+      if (shareSubscriptions != that.shareSubscriptions)
+         return false;
       if (strConnectorClassName != null ? !strConnectorClassName.equals(that.strConnectorClassName) : that.strConnectorClassName != null)
          return false;
       if (strConnectionParameters != null ? !strConnectionParameters.equals(that.strConnectionParameters) : that.strConnectionParameters != null)
          return false;
-      if (ra != null ? !ra.equals(that.ra) : that.ra != null) return false;
+      if (ra != null ? !ra.equals(that.ra) : that.ra != null)
+         return false;
       if (connectionFactoryLookup != null ? !connectionFactoryLookup.equals(that.connectionFactoryLookup) : that.connectionFactoryLookup != null)
          return false;
-      if (destination != null ? !destination.equals(that.destination) : that.destination != null) return false;
+      if (destination != null ? !destination.equals(that.destination) : that.destination != null)
+         return false;
       if (destinationType != null ? !destinationType.equals(that.destinationType) : that.destinationType != null)
          return false;
       if (messageSelector != null ? !messageSelector.equals(that.messageSelector) : that.messageSelector != null)
          return false;
       if (subscriptionName != null ? !subscriptionName.equals(that.subscriptionName) : that.subscriptionName != null)
          return false;
-      if (user != null ? !user.equals(that.user) : that.user != null) return false;
-      if (password != null ? !password.equals(that.password) : that.password != null) return false;
-      if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null) return false;
+      if (user != null ? !user.equals(that.user) : that.user != null)
+         return false;
+      if (password != null ? !password.equals(that.password) : that.password != null)
+         return false;
+      if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null)
+         return false;
       if (transactionTimeout != null ? !transactionTimeout.equals(that.transactionTimeout) : that.transactionTimeout != null)
          return false;
-      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null) return false;
-      if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null) return false;
+      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
+         return false;
+      if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null)
+         return false;
       if (parsedJndiParams != null ? !parsedJndiParams.equals(that.parsedJndiParams) : that.parsedJndiParams != null)
          return false;
-      if (localTx != null ? !localTx.equals(that.localTx) : that.localTx != null) return false;
-      if (rebalanceConnections != null ? !rebalanceConnections.equals(that.rebalanceConnections) : that.rebalanceConnections != null) return false;
-      if (setupAttempts != null ? !setupAttempts.equals(that.setupAttempts) : that.setupAttempts != null) return false;
+      if (localTx != null ? !localTx.equals(that.localTx) : that.localTx != null)
+         return false;
+      if (rebalanceConnections != null ? !rebalanceConnections.equals(that.rebalanceConnections) : that.rebalanceConnections != null)
+         return false;
+      if (setupAttempts != null ? !setupAttempts.equals(that.setupAttempts) : that.setupAttempts != null)
+         return false;
       return !(setupInterval != null ? !setupInterval.equals(that.setupInterval) : that.setupInterval != null);
 
    }

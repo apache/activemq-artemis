@@ -32,16 +32,16 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
-import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -336,8 +336,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
                   }
 
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -525,8 +524,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-      }
-      finally {
+      } finally {
          try {
             if (session != null) {
                session.close();
@@ -534,8 +532,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (sessionB != null) {
                sessionB.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -639,8 +636,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-      }
-      finally {
+      } finally {
          try {
             if (session != null) {
                session.close();
@@ -648,8 +644,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (sessionB != null) {
                sessionB.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -806,8 +801,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          session2 = null;
          Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-      }
-      finally {
+      } finally {
          try {
             if (session1 != null) {
                session1.close();
@@ -815,8 +809,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (session2 != null) {
                session2.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -872,14 +865,12 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          session1 = null;
          Assert.assertEquals(0, getMessageCount(server, ADDRESS.toString()));
 
-      }
-      finally {
+      } finally {
          try {
             if (session1 != null) {
                session1.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -934,8 +925,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          if (isLargeMessage) {
             // something to ensure we are using large messages
             locator.setMinLargeMessageSize(100);
-         }
-         else {
+         } else {
             // To make sure large messages won't kick in, we set anything large
             locator.setMinLargeMessageSize(Integer.MAX_VALUE);
          }
@@ -986,14 +976,12 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             session.commit();
          }
 
-      }
-      finally {
+      } finally {
          try {
             if (session != null) {
                session.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -1071,8 +1059,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
                      latchRead.countDown();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace(); // Hudson / JUnit report
                   failed = true;
                }
@@ -1123,8 +1110,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          Assert.assertFalse("MessageHandler received a failure", handler.failed);
 
-      }
-      finally {
+      } finally {
          try {
             if (session != null) {
                session.close();
@@ -1132,8 +1118,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (sessionB != null) {
                sessionB.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -1214,8 +1199,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
                         failed = true;
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace(); // Hudson / JUnit report
                   failed = true;
                }
@@ -1272,8 +1256,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          Assert.assertFalse("MessageHandler received a failure", handler.failed);
 
-      }
-      finally {
+      } finally {
          try {
             if (session != null) {
                session.close();
@@ -1281,8 +1264,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (sessionB != null) {
                sessionB.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             ignored.printStackTrace();
          }
       }
@@ -1389,8 +1371,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
                               " foundB = " +
                               foundB, foundB);
 
-      }
-      finally {
+      } finally {
          try {
             if (sessionA != null) {
                sessionA.close();
@@ -1398,8 +1379,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             if (sessionB != null) {
                sessionB.close();
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }

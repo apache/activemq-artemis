@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
-
-import java.util.Map;
 
 public final class TopologyMemberImpl implements TopologyMember {
 
@@ -115,8 +115,7 @@ public final class TopologyMemberImpl implements TopologyMember {
    public boolean isMember(TransportConfiguration configuration) {
       if (getConnector().getA() != null && getConnector().getA().isSameParams(configuration) || getConnector().getB() != null && getConnector().getB().isSameParams(configuration)) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }

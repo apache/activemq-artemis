@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.QueueConnection;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -29,10 +33,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
 
 public class JMSServerControlUsingJMSTest extends JMSServerControlTest {
 
@@ -316,6 +316,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest {
          public String listNetworkTopology() throws Exception {
             return null;
          }
+
          @Override
          public String listPreparedTransactionDetailsAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");

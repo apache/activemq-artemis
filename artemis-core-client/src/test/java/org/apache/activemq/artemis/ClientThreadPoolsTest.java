@@ -86,8 +86,7 @@ public class ClientThreadPoolsTest {
             try {
                inUse.countDown();
                neverLeave.await();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                neverLeave.countDown();
             }
@@ -103,11 +102,9 @@ public class ClientThreadPoolsTest {
    public void testInjectPools() throws Exception {
       ActiveMQClient.clearThreadPools();
 
-      ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1,
-                                                               0L, TimeUnit.MILLISECONDS,
-                                                               new LinkedBlockingQueue<Runnable>());
+      ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
-      ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor)Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
+      ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
 
       ActiveMQClient.injectPools(poolExecutor, scheduledThreadPoolExecutor);
 
@@ -121,14 +118,12 @@ public class ClientThreadPoolsTest {
             try {
                inUse.countDown();
                neverLeave.await();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                neverLeave.countDown();
             }
          }
       });
-
 
       Assert.assertTrue(inUse.await(10, TimeUnit.SECONDS));
       poolExecutor.shutdownNow();
@@ -185,7 +180,6 @@ public class ClientThreadPoolsTest {
       final CountDownLatch latchTotal = new CountDownLatch(expectedMax * 3); // we will schedule 3 * max, so all runnables should execute
       final AtomicInteger errors = new AtomicInteger(0);
 
-
       // Set this to true if you need to debug why executions are not being performed.
       final boolean debugExecutions = false;
 
@@ -202,11 +196,9 @@ public class ClientThreadPoolsTest {
                   doneMax.countDown();
                   latch.await();
                   latchTotal.countDown();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   errors.incrementAndGet();
-               }
-               finally {
+               } finally {
                   if (debugExecutions) {
                      System.out.println("done " + localI);
                   }
@@ -218,7 +210,6 @@ public class ClientThreadPoolsTest {
       Assert.assertTrue(doneMax.await(5, TimeUnit.SECONDS));
       latch.countDown();
       Assert.assertTrue(latchTotal.await(5, TimeUnit.SECONDS));
-
 
       ScheduledThreadPoolExecutor scheduledThreadPool = (ScheduledThreadPoolExecutor) scheduledThreadPoolField.get(serverLocator);
 
@@ -232,7 +223,7 @@ public class ClientThreadPoolsTest {
       ServerLocator serverLocator = new ServerLocatorImpl(false);
 
       ThreadPoolExecutor threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
-      ScheduledThreadPoolExecutor scheduledThreadPool =  new ScheduledThreadPoolExecutor(1);
+      ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(1);
       serverLocator.setThreadPools(threadPool, scheduledThreadPool);
 
       Field threadPoolField = ServerLocatorImpl.class.getDeclaredField("threadPool");
@@ -259,6 +250,5 @@ public class ClientThreadPoolsTest {
       ActiveMQClient.initializeGlobalThreadPoolProperties();
       ActiveMQClient.clearThreadPools();
    }
-
 
 }

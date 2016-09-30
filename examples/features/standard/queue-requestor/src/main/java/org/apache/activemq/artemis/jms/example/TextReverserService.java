@@ -82,8 +82,7 @@ public class TextReverserService implements MessageListener {
             // send the reply
             producer.send(reply);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
    }
@@ -95,8 +94,7 @@ public class TextReverserService implements MessageListener {
          try {
             // be sure to close the JMS resources
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
          }
       }

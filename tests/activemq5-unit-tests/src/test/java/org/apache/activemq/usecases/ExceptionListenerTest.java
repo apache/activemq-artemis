@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 import javax.jms.Session;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ConnectionFailedException;
@@ -88,8 +88,7 @@ public class ExceptionListenerTest implements ExceptionListener {
       try {
          connection.start();
          fail("Expect securityException");
-      }
-      catch (JMSSecurityException expected) {
+      } catch (JMSSecurityException expected) {
          expected.printStackTrace();
          assertTrue("nested security exception: " + expected, expected.getCause() instanceof SecurityException);
       }
@@ -109,8 +108,7 @@ public class ExceptionListenerTest implements ExceptionListener {
       try {
          connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          fail("Expect error b/c connection is auto closed on security exception above");
-      }
-      catch (ConnectionFailedException e) {
+      } catch (ConnectionFailedException e) {
       }
    }
 

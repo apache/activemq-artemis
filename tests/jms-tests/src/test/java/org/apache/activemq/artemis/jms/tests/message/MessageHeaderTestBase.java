@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.util.Arrays;
-import java.util.Enumeration;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -32,6 +29,8 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
@@ -88,26 +87,22 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
 
       try {
          corrIDBytes = m1.getJMSCorrelationIDAsBytes();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // correlation ID specified as String
          corrIDString = m1.getJMSCorrelationID();
       }
 
       if (corrIDBytes != null) {
          ProxyAssertSupport.assertTrue(Arrays.equals(corrIDBytes, m2.getJMSCorrelationIDAsBytes()));
-      }
-      else if (corrIDString != null) {
+      } else if (corrIDString != null) {
          ProxyAssertSupport.assertEquals(corrIDString, m2.getJMSCorrelationID());
-      }
-      else {
+      } else {
          // no correlation id
 
          try {
             byte[] corrID2 = m2.getJMSCorrelationIDAsBytes();
             ProxyAssertSupport.assertNull(corrID2);
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // correlatin ID specified as String
             String corrID2 = m2.getJMSCorrelationID();
             ProxyAssertSupport.assertNull(corrID2);
@@ -153,8 +148,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             booleanProperty = m1.getBooleanProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a boolean
          }
 
@@ -167,8 +161,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             byteProperty = m1.getByteProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a byte
          }
 
@@ -181,8 +174,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             shortProperty = m1.getShortProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a short
          }
 
@@ -195,8 +187,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             intProperty = m1.getIntProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not an int
          }
 
@@ -209,8 +200,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             longProperty = m1.getLongProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a long
          }
 
@@ -223,8 +213,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             floatProperty = m1.getFloatProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a float
          }
 
@@ -237,8 +226,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             doubleProperty = m1.getDoubleProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a double
          }
 
@@ -251,8 +239,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             stringProperty = m1.getStringProperty(name);
             found = true;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // not a String
          }
 
@@ -276,16 +263,14 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
       try {
          m1.readByte();
          ProxyAssertSupport.fail("should throw MessageEOFException");
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
 
       try {
          m2.readByte();
          ProxyAssertSupport.fail("should throw MessageEOFException");
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // OK
       }
    }
@@ -319,16 +304,14 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          byte b1, b2;
          try {
             b1 = m1.readByte();
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
             m1eof = true;
             break;
          }
 
          try {
             b2 = m2.readByte();
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
             m2eof = true;
             break;
          }
@@ -340,8 +323,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             m2.readByte();
             ProxyAssertSupport.fail("should throw MessageEOFException");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
             // OK
          }
       }
@@ -350,8 +332,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
          try {
             m1.readByte();
             ProxyAssertSupport.fail("should throw MessageEOFException");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
             // OK
          }
       }

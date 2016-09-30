@@ -164,13 +164,11 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
       buffer.clear();
       if (buffer.isDirect()) {
          BytesUtils.zerosDirect(buffer);
-      }
-      else if (buffer.hasArray()) {
+      } else if (buffer.hasArray()) {
          final byte[] array = buffer.array();
          //SIMD OPTIMIZATION
          Arrays.fill(array, (byte) 0);
-      }
-      else {
+      } else {
          //TODO VERIFY IF IT COULD HAPPENS
          final int capacity = buffer.capacity();
          for (int i = 0; i < capacity; i++) {

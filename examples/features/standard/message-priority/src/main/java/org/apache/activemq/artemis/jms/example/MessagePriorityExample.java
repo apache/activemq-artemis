@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -30,6 +27,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -79,10 +78,8 @@ public class MessagePriorityExample {
                                "with priority: " +
                                sentMessages[2].getJMSPriority());
 
-
          MessageConsumer redConsumer = session.createConsumer(queue);
          redConsumer.setMessageListener(new SimpleMessageListener(msgReceived, result));
-
 
          // Step 10. Start the connection now.
          connection.start();
@@ -100,8 +97,7 @@ public class MessagePriorityExample {
 
          if (!result.get())
             throw new IllegalStateException();
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();
@@ -125,8 +121,7 @@ class SimpleMessageListener implements MessageListener {
       TextMessage textMessage = (TextMessage) msg;
       try {
          System.out.println("Received message : [" + textMessage.getText() + "]");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          result.set(false);
       }
       msgReceived.add(textMessage);

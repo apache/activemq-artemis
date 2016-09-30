@@ -88,8 +88,7 @@ public class ConnectionTest extends JMSTestCase {
       try {
          connection2.setClientID(clientID);
          Assert.fail("setClientID was expected to throw an exception");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // expected
       }
 
@@ -110,16 +109,12 @@ public class ConnectionTest extends JMSTestCase {
          // an attempt to set the client ID now should throw an IllegalStateException
          connection.setClientID("testSetClientID_2");
          ProxyAssertSupport.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          ProxyAssertSupport.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          ProxyAssertSupport.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException");
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -139,8 +134,7 @@ public class ConnectionTest extends JMSTestCase {
       try {
          connection.setClientID(clientID);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          ConnectionTest.log.trace("Caught exception ok");
       }
 
@@ -165,8 +159,7 @@ public class ConnectionTest extends JMSTestCase {
       try {
          connection.setClientID(clientID);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
       connection.close();
 
@@ -175,8 +168,7 @@ public class ConnectionTest extends JMSTestCase {
       try {
          connection.setClientID(clientID);
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
       connection.close();
    }
@@ -271,16 +263,12 @@ public class ConnectionTest extends JMSTestCase {
       try {
          queueConnection.createDurableConnectionConsumer(ActiveMQServerTestCase.topic1, "subscriptionName", "", (ServerSessionPool) null, 1);
          ProxyAssertSupport.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          ProxyAssertSupport.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          ProxyAssertSupport.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
-      }
-      finally {
+      } finally {
          queueConnection.close();
       }
    }

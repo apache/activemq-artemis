@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-
 import javax.jms.JMSException;
 import javax.jms.Queue;
+
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 /**
  * This is just here to avoid all the client checks we need with valid JMS destinations, protocol convertors don't need to
  * adhere to the jms. semantics.
  */
 public class ServerDestination extends ActiveMQDestination implements Queue {
+
    public ServerDestination(String name) {
       super(name, name, false, false, null);
    }

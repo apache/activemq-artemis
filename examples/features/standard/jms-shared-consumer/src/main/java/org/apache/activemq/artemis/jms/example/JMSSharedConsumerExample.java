@@ -70,8 +70,7 @@ public class JMSSharedConsumerExample {
          body = jmsConsumer2.receiveBody(String.class, 5000);
 
          System.out.println("body = " + body);
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

@@ -21,14 +21,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -55,8 +55,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       ActiveMQServer server1 = createServer(true, config);
       if (useAIO) {
          server1.getConfiguration().setJournalType(JournalType.ASYNCIO);
-      }
-      else {
+      } else {
          server1.getConfiguration().setJournalType(JournalType.NIO);
       }
       server1.start();
@@ -64,8 +63,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       final ActiveMQServer server2 = createServer(true, config);
       if (useAIO) {
          server2.getConfiguration().setJournalType(JournalType.ASYNCIO);
-      }
-      else {
+      } else {
          server2.getConfiguration().setJournalType(JournalType.NIO);
       }
       server2.getConfiguration().setJournalLockAcquisitionTimeout(5000);
@@ -77,8 +75,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
          public void run() {
             try {
                server2.start();
-            }
-            catch (final Exception e) {
+            } catch (final Exception e) {
                throw new RuntimeException(e);
             }
          }
@@ -88,8 +85,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
 
       try {
          f.get(15, TimeUnit.SECONDS);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          IntegrationTestLogger.LOGGER.warn("aborting test because server is taking too long to start");
       }
 

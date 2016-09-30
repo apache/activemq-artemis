@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,7 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
       LOG.info("Lets wait: " + delayBeforeStartingBroker + " millis  before creating the broker");
       try {
          Thread.sleep(delayBeforeStartingBroker);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          e.printStackTrace();
       }
 
@@ -50,8 +49,7 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
          broker.setPersistent(false);
          broker.addConnector("tcp://localhost:61616");
          broker.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.info("Caught: " + e);
          errors.add(e);
       }

@@ -94,8 +94,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
             shutdown(consumer);
          }
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -136,8 +135,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
 
          if (autoAck) {
             consumer = createConsumer(selector);
-         }
-         else {
+         } else {
             attributes |= ACKNOWLEDGED;
             consumer = createAcknowledgedConsumer(selector);
          }
@@ -150,18 +148,15 @@ public class ConsumersResource implements TimeoutTask.Callback {
 
          if (autoAck) {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/" + attributesSegment + "/" + consumer.getId(), "-1");
-         }
-         else {
+         } else {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/" + attributesSegment + "/" + consumer.getId(), "-1");
 
          }
          return builder.build();
 
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e);
-      }
-      finally {
+      } finally {
       }
    }
 
@@ -210,13 +205,11 @@ public class ConsumersResource implements TimeoutTask.Callback {
             Acknowledgement ack = ackedConsumer.getAck();
             if (ack == null || ack.wasSet()) {
                AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
-            }
-            else {
+            } else {
                ackedConsumer.setAcknowledgementLink(builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId());
             }
 
-         }
-         else {
+         } else {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
          }
       }
@@ -242,8 +235,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
             QueueConsumer tmp = new AcknowledgedQueueConsumer(sessionFactory, destination, consumerId, serviceManager, null);
             consumer = addReconnectedConsumerToMap(consumerId, tmp);
 
-         }
-         else {
+         } else {
             QueueConsumer tmp = new QueueConsumer(sessionFactory, destination, consumerId, serviceManager, null);
             consumer = addReconnectedConsumerToMap(consumerId, tmp);
          }
@@ -256,8 +248,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
       consumer = queueConsumers.putIfAbsent(consumerId, tmp);
       if (consumer != null) {
          tmp.shutdown();
-      }
-      else {
+      } else {
          consumer = tmp;
          serviceManager.getTimeoutTask().add(this, consumer.getId());
       }

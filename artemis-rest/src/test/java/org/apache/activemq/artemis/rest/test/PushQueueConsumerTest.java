@@ -16,21 +16,20 @@
  */
 package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.artemis.rest.util.Constants;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.apache.activemq.artemis.rest.queue.push.ActiveMQPushStrategy;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.artemis.rest.util.Constants;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
@@ -68,8 +67,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          sendMessage(destination, messageContent);
 
          consumerResponse = consume(destinationForConsumption, messageContent);
-      }
-      finally {
+      } finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
@@ -112,8 +110,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          sendMessage(destinationForSend, messageContent);
 
          consumerResponse = consume(destinationForConsumption, messageContent);
-      }
-      finally {
+      } finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
@@ -150,8 +147,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          sendMessage(destinationForSend, messageContent);
 
          consumerResponse = consume(destinationForConsumption, messageContent);
-      }
-      finally {
+      } finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
@@ -184,8 +180,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          try {
             // sleep here so the concurrent invocations can stack up
             Thread.sleep(1000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
 
@@ -219,8 +214,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          Thread.sleep(100);
 
          Assert.assertEquals(messageContent, MyResource.got_it);
-      }
-      finally {
+      } finally {
          cleanupSubscription(pushSubscription);
       }
    }
@@ -257,8 +251,7 @@ public class PushQueueConsumerTest extends MessageTestBase {
          }
 
          Assert.assertEquals(CONCURRENT, MyConcurrentResource.maxConcurrentInvocations.get());
-      }
-      finally {
+      } finally {
          cleanupSubscription(pushSubscription);
       }
    }
@@ -319,16 +312,13 @@ public class PushQueueConsumerTest extends MessageTestBase {
       if (pushRegistrationType == PushRegistrationType.CLASS) {
          target.setHref(generateURL(Util.getUrlPath(queueToPushTo)));
          target.setClassName(ActiveMQPushStrategy.class.getName());
-      }
-      else if (pushRegistrationType == PushRegistrationType.BRIDGE) {
+      } else if (pushRegistrationType == PushRegistrationType.BRIDGE) {
          target.setHref(generateURL(Util.getUrlPath(queueToPushTo)));
          target.setRelationship("destination");
-      }
-      else if (pushRegistrationType == PushRegistrationType.TEMPLATE) {
+      } else if (pushRegistrationType == PushRegistrationType.TEMPLATE) {
          target.setHref(queueToPushTo);
          target.setRelationship("template");
-      }
-      else if (pushRegistrationType == PushRegistrationType.URI) {
+      } else if (pushRegistrationType == PushRegistrationType.URI) {
          target.setMethod("put");
          target.setHref(queueToPushTo);
       }

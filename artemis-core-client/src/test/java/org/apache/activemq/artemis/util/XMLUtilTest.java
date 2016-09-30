@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.util;
 
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.tests.util.SilentTestCase;
 import org.apache.activemq.artemis.utils.XMLUtil;
+import org.junit.Assert;
+import org.junit.Test;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -123,8 +121,7 @@ public class XMLUtilTest extends SilentTestCase {
       try {
          XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // expected
       }
    }
@@ -161,8 +158,7 @@ public class XMLUtilTest extends SilentTestCase {
       try {
          XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // OK
          e.printStackTrace();
       }

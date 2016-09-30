@@ -123,8 +123,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public void setObject(final String name, final Object value) throws JMSException {
       try {
          TypedProperties.setObjectProperty(new SimpleString(name), value, map);
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -133,8 +132,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public boolean getBoolean(final String name) throws JMSException {
       try {
          return map.getBooleanProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -143,8 +141,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public byte getByte(final String name) throws JMSException {
       try {
          return map.getByteProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -153,8 +150,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public short getShort(final String name) throws JMSException {
       try {
          return map.getShortProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -163,8 +159,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public char getChar(final String name) throws JMSException {
       try {
          return map.getCharProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -173,8 +168,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public int getInt(final String name) throws JMSException {
       try {
          return map.getIntProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -183,8 +177,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public long getLong(final String name) throws JMSException {
       try {
          return map.getLongProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -193,8 +186,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public float getFloat(final String name) throws JMSException {
       try {
          return map.getFloatProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -203,8 +195,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public double getDouble(final String name) throws JMSException {
       try {
          return map.getDoubleProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -215,12 +206,10 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
          SimpleString str = map.getSimpleStringProperty(new SimpleString(name));
          if (str == null) {
             return null;
-         }
-         else {
+         } else {
             return str.toString();
          }
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }
@@ -229,8 +218,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    public byte[] getBytes(final String name) throws JMSException {
       try {
          return map.getBytesProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          throw new MessageFormatException(e.getMessage());
       }
    }

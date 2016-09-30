@@ -70,8 +70,7 @@ public class TransactedSessionTest extends JMSTestCase {
          Long i = getMessageCountForQueue("Queue1");
 
          ProxyAssertSupport.assertEquals(1, i.intValue());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -110,8 +109,7 @@ public class TransactedSessionTest extends JMSTestCase {
          ProxyAssertSupport.assertTrue(mRec1.getJMSRedelivered());
 
          sess1.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -153,8 +151,7 @@ public class TransactedSessionTest extends JMSTestCase {
          ProxyAssertSupport.assertTrue(mRec.getJMSRedelivered());
 
          sess.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -204,8 +201,7 @@ public class TransactedSessionTest extends JMSTestCase {
          ProxyAssertSupport.assertNotNull(mRec2);
 
          ProxyAssertSupport.assertEquals(mRec.getText(), mRec2.getText());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -240,8 +236,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
          Message m = consumer.receive(500);
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -286,8 +281,7 @@ public class TransactedSessionTest extends JMSTestCase {
          }
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -349,8 +343,7 @@ public class TransactedSessionTest extends JMSTestCase {
          Message m = consumer.receive(500);
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -391,8 +384,7 @@ public class TransactedSessionTest extends JMSTestCase {
          Message m = consumer.receive(500);
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -430,8 +422,7 @@ public class TransactedSessionTest extends JMSTestCase {
          ProxyAssertSupport.assertTrue(mRec.getJMSRedelivered());
 
          sess.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -488,8 +479,7 @@ public class TransactedSessionTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
 
          ProxyAssertSupport.assertTrue(tm.getJMSRedelivered());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -573,8 +563,7 @@ public class TransactedSessionTest extends JMSTestCase {
          }
 
          checkEmpty(queue1);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -619,8 +608,7 @@ public class TransactedSessionTest extends JMSTestCase {
          }
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -660,8 +648,7 @@ public class TransactedSessionTest extends JMSTestCase {
                   lastBatchTime = System.currentTimeMillis();
                   producerSess.commit();
                }
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                //ignore connection closed by consumer
             }
 
@@ -669,16 +656,14 @@ public class TransactedSessionTest extends JMSTestCase {
             if (!started) {
                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
                started = true;
-            }
-            else {
+            } else {
                if (myReceiver.failed) {
                   throw myReceiver.e;
                }
             }
          }
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -716,15 +701,13 @@ public class TransactedSessionTest extends JMSTestCase {
                conn.close();
             }
             count++;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
 
             this.e = e;
             failed = true;
             try {
                conn.close();
-            }
-            catch (JMSException e1) {
+            } catch (JMSException e1) {
                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
          }
@@ -746,14 +729,12 @@ public class TransactedSessionTest extends JMSTestCase {
          boolean thrown = false;
          try {
             producerSess.commit();
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             thrown = true;
          }
 
          ProxyAssertSupport.assertTrue(thrown);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -823,8 +804,7 @@ public class TransactedSessionTest extends JMSTestCase {
          }
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -888,8 +868,7 @@ public class TransactedSessionTest extends JMSTestCase {
          Message m = consumer.receive(500);
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -930,8 +909,7 @@ public class TransactedSessionTest extends JMSTestCase {
          Message m = consumer.receive(500);
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -953,8 +931,7 @@ public class TransactedSessionTest extends JMSTestCase {
       boolean thrown = false;
       try {
          producerSess.rollback();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          thrown = true;
       }
 
@@ -1027,8 +1004,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

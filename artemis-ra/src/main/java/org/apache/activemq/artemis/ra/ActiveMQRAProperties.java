@@ -253,8 +253,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
             if (password != null) {
                password = codecInstance.decode(password);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw ActiveMQRABundle.BUNDLE.errorDecodingPassword(e);
          }
 

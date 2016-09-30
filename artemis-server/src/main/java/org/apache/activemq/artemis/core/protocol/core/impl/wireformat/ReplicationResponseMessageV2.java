@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public final class ReplicationResponseMessageV2 extends ReplicationResponseMessage {
+
    boolean synchronizationIsFinishedAcknowledgement = false;
 
    public ReplicationResponseMessageV2(final boolean synchronizationIsFinishedAcknowledgement) {

@@ -99,8 +99,7 @@ public class PagedMessageImpl implements PagedMessage {
          largeMessageLazyData = new byte[largeMessageHeaderSize];
 
          buffer.readBytes(largeMessageLazyData);
-      }
-      else {
+      } else {
          buffer.readInt(); // This value is only used on LargeMessages for now
 
          message = new ServerMessageImpl(-1, 50);

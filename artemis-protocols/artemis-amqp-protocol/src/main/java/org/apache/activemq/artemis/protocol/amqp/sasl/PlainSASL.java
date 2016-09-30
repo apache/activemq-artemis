@@ -32,12 +32,10 @@ public class PlainSASL extends ServerSASLPlain {
          try {
             securityStore.authenticate(user, password, null);
             return true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             return false;
          }
-      }
-      else {
+      } else {
          return true;
       }
    }

@@ -60,8 +60,7 @@ public class FakeConsumer implements Consumer {
          long start = System.currentTimeMillis();
          try {
             wait();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
          timeout -= System.currentTimeMillis() - start;
       }
@@ -105,8 +104,7 @@ public class FakeConsumer implements Consumer {
                notify();
 
                return HandleStatus.HANDLED;
-            }
-            else {
+            } else {
                return HandleStatus.NO_MATCH;
             }
          }
@@ -116,8 +114,7 @@ public class FakeConsumer implements Consumer {
                statusToReturn = newStatus;
 
                newStatus = null;
-            }
-            else {
+            } else {
                delayCountdown--;
             }
          }
@@ -129,8 +126,7 @@ public class FakeConsumer implements Consumer {
          }
 
          return statusToReturn;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          throw new IllegalStateException(e.getMessage(), e);
       }

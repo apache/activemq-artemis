@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * A test that sends/receives text messages to the JMS provider and verifies their integrity.

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.LinkedList;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import java.util.LinkedList;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.broker.BrokerRegistry;
@@ -134,22 +134,19 @@ public class ConsumeTopicPrefetchTest extends ProducerConsumerTestSupport {
                      LOG.info("inflight for : " + target.getName() + ": " + stats.getInflight().getCount());
                      if (greaterOrEqual) {
                         return stats.getInflight().getCount() >= expectedCount;
-                     }
-                     else {
+                     } else {
                         return stats.getInflight().getCount() == expectedCount;
                      }
                   }
                });
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new JMSException(e.toString());
             }
             DestinationStatistics stats = dest.getDestinationStatistics();
             LOG.info("inflight for : " + dest.getName() + ": " + stats.getInflight().getCount());
             if (greaterOrEqual) {
                assertTrue("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " > " + stats.getInflight().getCount(), stats.getInflight().getCount() >= expectedCount);
-            }
-            else {
+            } else {
                assertEquals("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " matches", expectedCount, stats.getInflight().getCount());
             }
          }

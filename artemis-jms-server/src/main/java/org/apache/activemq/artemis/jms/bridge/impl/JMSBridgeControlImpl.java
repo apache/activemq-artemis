@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.bridge.impl;
 
+import javax.management.StandardMBean;
+
 import org.apache.activemq.artemis.jms.bridge.JMSBridge;
 import org.apache.activemq.artemis.jms.bridge.JMSBridgeControl;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
-
-import javax.management.StandardMBean;
 
 public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeControl {
 
@@ -90,8 +90,7 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       QualityOfServiceMode mode = bridge.getQualityOfServiceMode();
       if (mode != null) {
          return mode.name();
-      }
-      else {
+      } else {
          return null;
       }
    }

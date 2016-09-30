@@ -16,13 +16,22 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
-import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -35,17 +44,8 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
-import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-public class AMQPConnectionContext extends ProtonInitializable  {
+public class AMQPConnectionContext extends ProtonInitializable {
 
    private static final Logger log = Logger.getLogger(AMQPConnectionContext.class);
 
@@ -62,8 +62,6 @@ public class AMQPConnectionContext extends ProtonInitializable  {
    private final Map<Session, AMQPSessionContext> sessions = new ConcurrentHashMap<>();
 
    protected LocalListener listener = new LocalListener();
-
-
 
    public AMQPConnectionContext(AMQPConnectionCallback connectionSP,
                                 String containerId,
@@ -138,7 +136,6 @@ public class AMQPConnectionContext extends ProtonInitializable  {
       handler.close();
    }
 
-
    protected AMQPSessionContext getSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionContext sessionExtension = sessions.get(realSession);
       if (sessionExtension == null) {
@@ -149,8 +146,6 @@ public class AMQPConnectionContext extends ProtonInitializable  {
       }
       return sessionExtension;
    }
-
-
 
    protected boolean validateConnection(Connection connection) {
       return connectionCallback.validateConnection(connection, handler.getSASLResult());
@@ -194,12 +189,10 @@ public class AMQPConnectionContext extends ProtonInitializable  {
          if (link.getRemoteTarget() instanceof Coordinator) {
             Coordinator coordinator = (Coordinator) link.getRemoteTarget();
             protonSession.addTransactionHandler(coordinator, receiver);
-         }
-         else {
+         } else {
             protonSession.addReceiver(receiver);
          }
-      }
-      else {
+      } else {
          Sender sender = (Sender) link;
          protonSession.addSender(sender);
          sender.offer(1);
@@ -209,8 +202,6 @@ public class AMQPConnectionContext extends ProtonInitializable  {
    public Symbol[] getConnectionCapabilitiesOffered() {
       return ExtCapability.getCapabilities();
    }
-
-
 
    // This listener will perform a bunch of things here
    class LocalListener implements EventHandler {
@@ -269,8 +260,7 @@ public class AMQPConnectionContext extends ProtonInitializable  {
       public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
          if (sasl) {
             handler.createServerSASL(connectionCallback.getSASLMechnisms());
-         }
-         else {
+         } else {
             if (!connectionCallback.isSupportsAnonymous()) {
                connectionCallback.sendSASLSupported();
                connectionCallback.close();
@@ -289,14 +279,12 @@ public class AMQPConnectionContext extends ProtonInitializable  {
          synchronized (getLock()) {
             try {
                initInternal();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.error("Error init connection", e);
             }
             if (!validateConnection(connection)) {
                connection.close();
-            }
-            else {
+            } else {
                connection.setContext(AMQPConnectionContext.this);
                connection.setContainer(containerId);
                connection.setProperties(connectionProperties);
@@ -365,7 +353,7 @@ public class AMQPConnectionContext extends ProtonInitializable  {
             session.close();
          }
 
-         AMQPSessionContext sessionContext = (AMQPSessionContext)session.getContext();
+         AMQPSessionContext sessionContext = (AMQPSessionContext) session.getContext();
          if (sessionContext != null) {
             sessionContext.close();
             sessions.remove(session);
@@ -411,14 +399,12 @@ public class AMQPConnectionContext extends ProtonInitializable  {
          ProtonDeliveryHandler handler = (ProtonDeliveryHandler) delivery.getLink().getContext();
          if (handler != null) {
             handler.onMessage(delivery);
-         }
-         else {
+         } else {
             // TODO: logs
 
             System.err.println("Handler is null, can't delivery " + delivery);
          }
       }
    }
-
 
 }

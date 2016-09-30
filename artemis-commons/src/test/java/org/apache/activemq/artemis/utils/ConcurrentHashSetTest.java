@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.util.Iterator;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Iterator;
 
 public class ConcurrentHashSetTest extends Assert {
    // Constants -----------------------------------------------------

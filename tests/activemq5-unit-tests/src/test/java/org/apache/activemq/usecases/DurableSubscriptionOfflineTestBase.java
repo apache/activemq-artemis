@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,14 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.MessageListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.TestSupport.PersistenceAdapterChoice;
@@ -36,14 +44,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.MessageListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -127,8 +127,7 @@ public abstract class DurableSubscriptionOfflineTestBase {
       if (broker.getPersistenceAdapter() instanceof JDBCPersistenceAdapter) {
          // ensure it kicks in during tests
          ((JDBCPersistenceAdapter) broker.getPersistenceAdapter()).setCleanupPeriod(2 * 1000);
-      }
-      else if (broker.getPersistenceAdapter() instanceof KahaDBPersistenceAdapter) {
+      } else if (broker.getPersistenceAdapter() instanceof KahaDBPersistenceAdapter) {
          // have lots of journal files
          ((KahaDBPersistenceAdapter) broker.getPersistenceAdapter()).setJournalMaxFileLength(journalMaxFileLength);
       }
@@ -144,8 +143,7 @@ public abstract class DurableSubscriptionOfflineTestBase {
    protected Destination createDestination(String subject) {
       if (isTopic) {
          return new ActiveMQTopic(subject);
-      }
-      else {
+      } else {
          return new ActiveMQQueue(subject);
       }
    }
@@ -221,8 +219,7 @@ class DurableSubscriptionOfflineTestListener implements MessageListener {
       if (id != null) {
          try {
             LOG.info(id + ", " + message.getJMSMessageID());
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }

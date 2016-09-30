@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.broker.artemiswrapper;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,10 +47,8 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.broker.region.virtual.VirtualDestination;
 import org.apache.activemq.command.ActiveMQDestination;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
+
    protected final Map<String, SimpleString> testQueues = new HashMap<>();
    protected JMSServerManagerImpl jmsServer;
    protected MBeanServer mbeanServer;
@@ -224,8 +224,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       String pattern = physicalName.replace(">", "#");
       if (dest.isTopic()) {
          pattern = "jms.topic." + pattern;
-      }
-      else {
+      } else {
          pattern = "jms.queue." + pattern;
       }
 
@@ -238,11 +237,9 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          server.stop();
          testQueues.clear();
          stopped = true;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          //ignore
-      }
-      finally {
+      } finally {
          server = null;
       }
    }
@@ -255,8 +252,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
             try {
                this.server.createQueue(coreQ, coreQ, null, false, false);
                testQueues.put(qname, coreQ);
-            }
-            catch (ActiveMQQueueExistsException e) {
+            } catch (ActiveMQQueueExistsException e) {
                //ignore
             }
          }
@@ -271,8 +267,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       String qname = null;
       if (amq5Dest.isTemporary()) {
          qname = "jms.tempqueue." + amq5Dest.getPhysicalName();
-      }
-      else {
+      } else {
          qname = "jms.queue." + amq5Dest.getPhysicalName();
       }
       Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));

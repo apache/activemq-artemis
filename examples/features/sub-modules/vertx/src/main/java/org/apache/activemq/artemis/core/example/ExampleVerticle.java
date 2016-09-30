@@ -47,8 +47,7 @@ public class ExampleVerticle extends Verticle {
 
       try {
          latch0.await(5000, TimeUnit.MILLISECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.json.JsonArray;
+import java.nio.ByteBuffer;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,9 +38,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.json.JsonArray;
-import java.nio.ByteBuffer;
 
 /**
  * This class contains tests for core management
@@ -121,8 +121,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
          ClientMessage message = session1.createMessage(true);
          if (i % 2 == 0) {
             message.putLongProperty(key, matchingValue);
-         }
-         else {
+         } else {
             message.putLongProperty(key, unmatchingValue);
          }
          producer.send(message);
@@ -241,13 +240,11 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
                producer.send(message);
                try {
                   Thread.sleep(delay);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   //ignore
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             error = e;
          }
       }
@@ -282,13 +279,11 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
                session2.commit();
                try {
                   Thread.sleep(delay);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   //ignore
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             error = e;
          }
       }
@@ -316,13 +311,11 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
                queueControl.listMessagesAsJSON(null);
                try {
                   Thread.sleep(1000);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   //ignore
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             error = e;
          }
       }

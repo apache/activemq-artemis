@@ -138,8 +138,7 @@ public class PersistentPushTopicConsumerTest {
          Assert.assertFalse(query.isExists());
 
          manager.getQueueManager().getPushStore().removeAll();
-      }
-      finally {
+      } finally {
          shutdown();
       }
    }
@@ -196,8 +195,7 @@ public class PersistentPushTopicConsumerTest {
          Assert.assertEquals("1", Receiver.subscriber2);
 
          manager.getTopicManager().getPushStore().removeAll();
-      }
-      finally {
+      } finally {
          shutdown();
       }
    }

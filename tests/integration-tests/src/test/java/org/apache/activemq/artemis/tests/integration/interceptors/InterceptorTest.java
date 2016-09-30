@@ -110,8 +110,7 @@ public class InterceptorTest extends ActiveMQTestBase {
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
             System.out.println("userName = " + userName);
-         }
-         else if (packet.getType() == PacketImpl.SESS_SEND) {
+         } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
@@ -141,8 +140,7 @@ public class InterceptorTest extends ActiveMQTestBase {
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
             System.out.println("userName = " + userName);
-         }
-         else if (packet.getType() == PacketImpl.SESS_SEND) {
+         } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
@@ -785,8 +783,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       try {
          producer.send(message);
          Assert.fail();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // expected exception
          Assert.assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
       }
@@ -1054,7 +1051,6 @@ public class InterceptorTest extends ActiveMQTestBase {
       session.close();
    }
 
-
    @Test
    public void testInterceptorOnURI() throws Exception {
       locator.close();
@@ -1083,7 +1079,6 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       producer.send(session.createTextMessage("HelloMessage"));
 
-
       connection.start();
 
       MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE.toString()));
@@ -1100,7 +1095,6 @@ public class InterceptorTest extends ActiveMQTestBase {
       connection.close();
 
       factory.close();
-
 
    }
 }

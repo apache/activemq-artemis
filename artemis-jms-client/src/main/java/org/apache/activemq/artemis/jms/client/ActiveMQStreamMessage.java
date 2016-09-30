@@ -66,8 +66,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
             Object obj = foreign.readObject();
             writeObject(obj);
          }
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
          // Ignore
       }
    }
@@ -91,11 +90,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadBoolean(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -106,11 +103,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
 
       try {
          return streamReadByte(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -120,11 +115,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadShort(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -134,11 +127,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadChar(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -148,11 +139,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadInteger(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -162,11 +151,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadLong(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -176,11 +163,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadFloat(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -190,11 +175,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadDouble(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -204,11 +187,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadString(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -226,11 +207,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
 
          len = pairRead.getA();
          return pairRead.getB();
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -240,11 +219,9 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
       try {
          return streamReadObject(message.getBodyBuffer());
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -332,38 +309,27 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public void writeObject(final Object value) throws JMSException {
       if (value instanceof String) {
          writeString((String) value);
-      }
-      else if (value instanceof Boolean) {
+      } else if (value instanceof Boolean) {
          writeBoolean((Boolean) value);
-      }
-      else if (value instanceof Byte) {
+      } else if (value instanceof Byte) {
          writeByte((Byte) value);
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          writeShort((Short) value);
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          writeInt((Integer) value);
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          writeLong((Long) value);
-      }
-      else if (value instanceof Float) {
+      } else if (value instanceof Float) {
          writeFloat((Float) value);
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          writeDouble((Double) value);
-      }
-      else if (value instanceof byte[]) {
+      } else if (value instanceof byte[]) {
          writeBytes((byte[]) value);
-      }
-      else if (value instanceof Character) {
+      } else if (value instanceof Character) {
          writeChar((Character) value);
-      }
-      else if (value == null) {
+      } else if (value == null) {
          writeString(null);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid object type: " + value.getClass());
       }
    }

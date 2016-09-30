@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.perf;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,6 +23,8 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -53,8 +53,7 @@ public class PerfProducer implements Runnable {
       this.transacted = transacted;
       if (transacted) {
          session = connection.createSession(true, Session.SESSION_TRANSACTED);
-      }
-      else {
+      } else {
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       }
       producer = session.createProducer(dest);
@@ -117,11 +116,9 @@ public class PerfProducer implements Runnable {
                Thread.sleep(sleep);
             }
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          stopped.countDown();
       }
    }

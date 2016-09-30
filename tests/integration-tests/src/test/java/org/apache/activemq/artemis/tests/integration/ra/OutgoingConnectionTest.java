@@ -153,8 +153,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       try {
          conn = qraConnectionFactory.createConnection("IDont", "Exist");
          fail("Exception was expected");
-      }
-      catch (JMSSecurityException expected) {
+      } catch (JMSSecurityException expected) {
       }
 
       conn = qraConnectionFactory.createConnection("testuser", "testpassword");
@@ -163,8 +162,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       try {
          XAConnection xaconn = qraConnectionFactory.createXAConnection("IDont", "Exist");
          fail("Exception was expected");
-      }
-      catch (JMSSecurityException expected) {
+      } catch (JMSSecurityException expected) {
       }
 
       XAConnection xaconn = qraConnectionFactory.createXAConnection("testuser", "testpassword");
@@ -173,8 +171,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       try {
          TopicConnection topicconn = qraConnectionFactory.createTopicConnection("IDont", "Exist");
          fail("Exception was expected");
-      }
-      catch (JMSSecurityException expected) {
+      } catch (JMSSecurityException expected) {
       }
 
       TopicConnection topicconn = qraConnectionFactory.createTopicConnection("testuser", "testpassword");
@@ -183,8 +180,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       try {
          QueueConnection queueconn = qraConnectionFactory.createQueueConnection("IDont", "Exist");
          fail("Exception was expected");
-      }
-      catch (JMSSecurityException expected) {
+      } catch (JMSSecurityException expected) {
       }
 
       QueueConnection queueconn = qraConnectionFactory.createQueueConnection("testuser", "testpassword");
@@ -207,8 +203,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       try {
          Session s2 = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          fail("should throw javax,jms.IllegalStateException: Only allowed one session per connection. See the J2EE spec, e.g. J2EE1.4 Section 6.6");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
       }
    }
 
@@ -247,8 +242,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
          queueConnection = qraConnectionFactory.createQueueConnection("testuser", "testwrongpassword");
          queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE).close();
          fail("should throw esxception");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          //pass
       }
    }
@@ -265,8 +259,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
          QueueConnection queueConnection = qraConnectionFactory.createQueueConnection("testuser", "testwrongpassword");
          queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE).close();
          fail("should throw esxception");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          //make sure the recovery is null
          assertNull(mcf.getResourceRecovery());
       }
@@ -344,8 +337,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
 
          // we're not testing equality so don't use equals(); we're testing if they are actually the *same* object
          assertTrue(cf1 == cf2);
-      }
-      finally {
+      } finally {
          if (s != null) {
             s.close();
          }
@@ -395,8 +387,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
 
          MessageProducer producer = s2.createProducer(ActiveMQJMSClient.createQueue(MDBQUEUE));
          producer.send(s2.createTextMessage("x"));
-      }
-      finally {
+      } finally {
          if (s != null) {
             s.close();
          }

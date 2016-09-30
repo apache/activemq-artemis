@@ -178,8 +178,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          if (ad > -1) {
             session.commit();
-         }
-         else {
+         } else {
             session.rollback();
             for (int i = 0; i < 100; i++) {
                ClientMessage message2 = consumer.receive(10000);
@@ -834,8 +833,7 @@ public class PagingTest extends ActiveMQTestBase {
             if (ref.refEncoding.queueID == deletedQueueID) {
                deletedQueueReferences.add(new Long(info.id));
             }
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             AckDescribe ref = (AckDescribe) DescribeJournal.newObjectEncoding(info);
 
             if (ref.refEncoding.queueID == deletedQueueID) {
@@ -1479,12 +1477,10 @@ public class PagingTest extends ActiveMQTestBase {
          }
          session.commit();
          session.close();
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
 
@@ -1615,13 +1611,11 @@ public class PagingTest extends ActiveMQTestBase {
          }
 
          session.close();
-      }
-      finally {
+      } finally {
          locator.close();
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
 
@@ -1813,8 +1807,7 @@ public class PagingTest extends ActiveMQTestBase {
                   getMessageCount(queue);
                   Thread.sleep(10);
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                log.info("Thread interrupted");
             }
          }
@@ -1835,8 +1828,7 @@ public class PagingTest extends ActiveMQTestBase {
                session.createQueue(PagingTest.ADDRESS + "-1", PagingTest.ADDRESS + "-1", null, true);
 
                session.createQueue(PagingTest.ADDRESS + "-2", PagingTest.ADDRESS + "-2", null, true);
-            }
-            else {
+            } else {
                session.createQueue(PagingTest.ADDRESS.toString(), PagingTest.ADDRESS + "-1", null, true);
 
                session.createQueue(PagingTest.ADDRESS.toString(), PagingTest.ADDRESS + "-2", null, true);
@@ -1933,8 +1925,7 @@ public class PagingTest extends ActiveMQTestBase {
 
                         try {
                            assertBodiesEqual(body, message2.getBodyBuffer());
-                        }
-                        catch (AssertionError e) {
+                        } catch (AssertionError e) {
                            PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
                            PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
                            throw e;
@@ -1946,8 +1937,7 @@ public class PagingTest extends ActiveMQTestBase {
                      consumer.close();
 
                      session.close();
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                      e.printStackTrace();
                      errors.incrementAndGet();
                   }
@@ -1978,8 +1968,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          assertEquals(0, server.getPagingManager().getTransactions().size());
 
-      }
-      finally {
+      } finally {
          running.set(false);
 
          if (tcount1 != null) {
@@ -1994,8 +1983,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
 
@@ -2098,8 +2086,7 @@ public class PagingTest extends ActiveMQTestBase {
 
                   try {
                      assertBodiesEqual(body, message2.getBodyBuffer());
-                  }
-                  catch (AssertionError e) {
+                  } catch (AssertionError e) {
                      PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
                      PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
                      throw e;
@@ -2111,8 +2098,7 @@ public class PagingTest extends ActiveMQTestBase {
                consumer.close();
 
                session.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -2226,8 +2212,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          try {
             assertBodiesEqual(body, message2.getBodyBuffer());
-         }
-         catch (AssertionError e) {
+         } catch (AssertionError e) {
             PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
             PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
             throw e;
@@ -2518,8 +2503,7 @@ public class PagingTest extends ActiveMQTestBase {
                producerNonTransacted.send(msgSend);
             }
             assertTrue(server.getPagingManager().getPageStore(PagingTest.ADDRESS).isPaging());
-         }
-         else {
+         } else {
             ClientConsumer consumer = sessionNonTX.createConsumer(PagingTest.ADDRESS);
             for (int j = 0; j < 20; j++) {
                ClientMessage msgReceived = consumer.receive(10000);
@@ -2610,18 +2594,15 @@ public class PagingTest extends ActiveMQTestBase {
 
                sessionProducer.commit();
 
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace(); // >> junit report
                errors.incrementAndGet();
-            }
-            finally {
+            } finally {
                try {
                   if (sessionProducer != null) {
                      sessionProducer.close();
                   }
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -2712,18 +2693,15 @@ public class PagingTest extends ActiveMQTestBase {
 
                log.info("Producer gone");
 
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace(); // >> junit report
                errors.incrementAndGet();
-            }
-            finally {
+            } finally {
                try {
                   if (sessionProducer != null) {
                      sessionProducer.close();
                   }
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -2851,8 +2829,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          try {
             assertBodiesEqual(body, message2.getBodyBuffer());
-         }
-         catch (AssertionError e) {
+         } catch (AssertionError e) {
             PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
             PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
             throw e;
@@ -2914,7 +2891,6 @@ public class PagingTest extends ActiveMQTestBase {
       session.close();
    }
 
-
    @Test
    public void testRollbackOnSendThenSendMore() throws Exception {
       clearDataRecreateServerDirs();
@@ -2971,7 +2947,6 @@ public class PagingTest extends ActiveMQTestBase {
 
       ClientSession consumerSession = sf.createSession(false, false);
 
-
       queue.getPageSubscription().getPagingStore().disableCleanup();
 
       queue.getPageSubscription().getPagingStore().getCursorProvider().cleanup();
@@ -2993,10 +2968,8 @@ public class PagingTest extends ActiveMQTestBase {
 
       consumerSession.close();
 
-
       session.close();
       sf.close();
-
 
       server.stop();
    }
@@ -3023,12 +2996,10 @@ public class PagingTest extends ActiveMQTestBase {
          public void cleanup() {
             if (mainCleanup.get()) {
                super.cleanup();
-            }
-            else {
+            } else {
                try {
                   pagingStore.unlock();
-               }
-               catch (Throwable ignored) {
+               } catch (Throwable ignored) {
                }
             }
          }
@@ -3039,7 +3010,10 @@ public class PagingTest extends ActiveMQTestBase {
          protected PagingStoreFactoryNIO getPagingStoreFactory() {
             return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                @Override
-               public PageCursorProvider newCursorProvider(PagingStore store, StorageManager storageManager, AddressSettings addressSettings, Executor executor) {
+               public PageCursorProvider newCursorProvider(PagingStore store,
+                                                           StorageManager storageManager,
+                                                           AddressSettings addressSettings,
+                                                           Executor executor) {
                   return new InterruptedCursorProvider(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
                }
             };
@@ -3049,7 +3023,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       addServer(server);
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes( PagingTest.PAGE_SIZE).setMaxSizeBytes(PagingTest.PAGE_MAX).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PagingTest.PAGE_SIZE).setMaxSizeBytes(PagingTest.PAGE_MAX).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
@@ -3132,13 +3106,11 @@ public class PagingTest extends ActiveMQTestBase {
          }
       }
 
-
       mainCleanup.set(true);
 
       queue = server.locateQueue(ADDRESS);
       queue.getPageSubscription().cleanupEntries(false);
       queue.getPageSubscription().getPagingStore().getCursorProvider().cleanup();
-
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       session.start();
@@ -3153,8 +3125,6 @@ public class PagingTest extends ActiveMQTestBase {
       server.stop();
 
       //      Thread.sleep(5000);
-
-
 
    }
 
@@ -3484,8 +3454,7 @@ public class PagingTest extends ActiveMQTestBase {
          public void onMessage(ClientMessage message1) {
             try {
                Thread.sleep(1);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
 
             }
 
@@ -3497,8 +3466,7 @@ public class PagingTest extends ActiveMQTestBase {
 
             try {
                message1.acknowledge();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -3633,12 +3601,10 @@ public class PagingTest extends ActiveMQTestBase {
 
          server.stop();
 
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          OperationContextImpl.clearContext();
@@ -3915,16 +3881,13 @@ public class PagingTest extends ActiveMQTestBase {
                   }
                }
                sessionConsumer.commit();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
-            }
-            finally {
+            } finally {
                try {
                   sessionConsumer.close();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -4137,12 +4100,10 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
 
          locator.close();
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -4214,12 +4175,10 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
 
          locator.close();
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -4318,12 +4277,10 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
 
          locator.close();
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -4428,8 +4385,7 @@ public class PagingTest extends ActiveMQTestBase {
                   log.info(threadDump("dump"));
                   fail("Couldn't finish large message receiving");
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                log.info("output bytes = " + bytesOutput);
                log.info(threadDump("dump"));
                fail("Couldn't finish large message receiving for id=" + message.getStringProperty("id") +
@@ -4531,15 +4487,13 @@ public class PagingTest extends ActiveMQTestBase {
          assertFalse(pgStoreAddress.isPaging());
 
          session.commit();
-      }
-      finally {
+      } finally {
          session.close();
          sf.close();
          locator.close();
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -4590,8 +4544,7 @@ public class PagingTest extends ActiveMQTestBase {
 
             if (i % 2 == 0) {
                message.setBodyInputStream(createFakeLargeStream(messageSize));
-            }
-            else {
+            } else {
                byte[] bytes = new byte[messageSize];
                for (int s = 0; s < bytes.length; s++) {
                   bytes[s] = getSamplebyte(s);
@@ -4666,13 +4619,11 @@ public class PagingTest extends ActiveMQTestBase {
          assertFalse(pgStoreAddress.isPaging());
 
          session.close();
-      }
-      finally {
+      } finally {
          locator.close();
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -4756,14 +4707,12 @@ public class PagingTest extends ActiveMQTestBase {
                // this send will succeed on the server
                producer.send(message);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             exception = true;
          }
 
          assertTrue("Expected to throw an exception", exception);
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }
@@ -4811,8 +4760,7 @@ public class PagingTest extends ActiveMQTestBase {
       for (int i = 0; i < 50; i++) {
          if (i > 2) {
             validateExceptionOnSending(producer, message);
-         }
-         else {
+         } else {
             producer.send(message);
          }
       }
@@ -4834,8 +4782,7 @@ public class PagingTest extends ActiveMQTestBase {
             // this send will succeed on the server
             producer.send(message);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          exception = true;
       }
 
@@ -4932,8 +4879,7 @@ public class PagingTest extends ActiveMQTestBase {
       try {
          // after the address is full this send should fail (since the address full policy is FAIL)
          producer.send(message);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          expected = e;
       }
 
@@ -5181,8 +5127,7 @@ public class PagingTest extends ActiveMQTestBase {
          session.close();
          locator.close();
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -5267,8 +5212,7 @@ public class PagingTest extends ActiveMQTestBase {
          session.close();
 
          waitForNotPaging(store);
-      }
-      finally {
+      } finally {
          server.stop();
       }
 
@@ -5342,8 +5286,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          if (browsing) {
             cons1 = session.createConsumer("Q1", "color='green'", true);
-         }
-         else {
+         } else {
             cons1 = session.createConsumer("Q1", "color='red'", false);
          }
 
@@ -5360,8 +5303,7 @@ public class PagingTest extends ActiveMQTestBase {
          session.commit();
 
          session.close();
-      }
-      finally {
+      } finally {
          server.stop();
       }
 
@@ -5443,8 +5385,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          session.close();
          waitForNotPaging(store);
-      }
-      finally {
+      } finally {
          server.stop();
       }
 
@@ -5519,8 +5460,7 @@ public class PagingTest extends ActiveMQTestBase {
          session.close();
 
          waitForNotPaging(store);
-      }
-      finally {
+      } finally {
          server.stop();
       }
 
@@ -5654,8 +5594,7 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
 

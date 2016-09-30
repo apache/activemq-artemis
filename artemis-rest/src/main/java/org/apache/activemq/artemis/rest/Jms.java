@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.rest;
 
-import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
-import org.jboss.resteasy.core.Headers;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.jboss.resteasy.util.GenericType;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -30,6 +25,11 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Providers;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
+
+import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
+import org.jboss.resteasy.core.Headers;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.resteasy.util.GenericType;
 
 public class Jms {
 
@@ -43,8 +43,7 @@ public class Jms {
    public static void setHttpHeader(Message message, String name, String value) {
       try {
          message.setStringProperty(HttpHeaderProperty.toPropertyName(name), value);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -59,8 +58,7 @@ public class Jms {
    public static String getHttpHeader(Message message, String name) {
       try {
          return message.getStringProperty(HttpHeaderProperty.toPropertyName(name));
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -110,8 +108,7 @@ public class Jms {
    public static boolean isHttpMessage(Message message) {
       try {
          return message.getBooleanProperty(HttpMessageHelper.POSTED_AS_HTTP_MESSAGE);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          return false;
       }
    }
@@ -135,8 +132,7 @@ public class Jms {
       if (!isHttpMessage(message)) {
          try {
             return (T) ((ObjectMessage) message).getObject();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             throw new RuntimeException(e);
          }
       }
@@ -165,14 +161,12 @@ public class Jms {
          ResteasyProviderFactory.pushContext(Providers.class, factory);
          try {
             return reader.readFrom(type, genericType, null, ct, new Headers<String>(), new ByteArrayInputStream(body));
-         }
-         finally {
+         } finally {
             ResteasyProviderFactory.popContextData(Providers.class);
             if (current != null)
                ResteasyProviderFactory.pushContext(Providers.class, current);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

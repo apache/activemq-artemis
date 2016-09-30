@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import java.io.ByteArrayInputStream;
@@ -27,17 +23,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
-public class ServerJMSObjectMessage  extends ServerJMSMessage implements ObjectMessage {
+public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMessage {
+
    private static final String DEFAULT_WHITELIST;
    private static final String DEFAULT_BLACKLIST;
 
    static {
-      DEFAULT_WHITELIST = System.getProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY,
-                 "java.lang,java.math,javax.security,java.util,org.apache.activemq,org.apache.qpid.proton.amqp");
+      DEFAULT_WHITELIST = System.getProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "java.lang,java.math,javax.security,java.util,org.apache.activemq,org.apache.qpid.proton.amqp");
 
       DEFAULT_BLACKLIST = System.getProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY, null);
    }
+
    public static final byte TYPE = Message.STREAM_TYPE;
 
    private Serializable object;

@@ -56,8 +56,7 @@ public final class RoutingContextImpl implements RoutingContext {
 
       if (queue.isDurable()) {
          listing.getDurableQueues().add(queue);
-      }
-      else {
+      } else {
          listing.getNonDurableQueues().add(queue);
       }
 

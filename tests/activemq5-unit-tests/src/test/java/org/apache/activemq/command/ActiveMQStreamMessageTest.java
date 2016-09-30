@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,60 +74,51 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readLong();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -152,39 +143,33 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -207,46 +192,39 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -265,60 +243,51 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readLong();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -339,53 +308,45 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -404,65 +365,56 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readDouble();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg = new ActiveMQStreamMessage();
          msg.writeObject(new Long("1"));
          // reset so it's readable now
          msg.reset();
          assertEquals(new Long("1"), msg.readObject());
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -483,53 +435,45 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readLong();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -548,60 +492,51 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBoolean();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readLong();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readBytes(new byte[1]);
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -650,8 +585,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException e) {
+         } catch (MessageFormatException e) {
          }
          msg.clearBody();
          msg.writeString("777");
@@ -659,12 +593,10 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readBytes(new byte[3]);
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException e) {
+         } catch (MessageFormatException e) {
          }
 
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -684,8 +616,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          msg.reset();
          assertEquals(bigString, msg.readString());
 
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -709,53 +640,45 @@ public class ActiveMQStreamMessageTest extends TestCase {
          try {
             msg.readByte();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readShort();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readInt();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readLong();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readFloat();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readChar();
             fail("Should have thrown exception");
-         }
-         catch (MessageFormatException mfe) {
+         } catch (MessageFormatException mfe) {
          }
          msg.reset();
          try {
             msg.readString();
             fail("Should have thrown exception");
+         } catch (MessageFormatException mfe) {
          }
-         catch (MessageFormatException mfe) {
-         }
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -822,8 +745,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          msg.reset();
          assertTrue(((Boolean) msg.readObject()).booleanValue());
 
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -838,10 +760,8 @@ public class ActiveMQStreamMessageTest extends TestCase {
          streamMessage.writeObject(new Long(2));
          streamMessage.readObject();
          fail("should throw exception");
-      }
-      catch (MessageNotReadableException mnwe) {
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotReadableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
          fail("should be writeable");
       }
    }
@@ -851,8 +771,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
       try {
          streamMessage.writeDouble(24.5);
          streamMessage.writeLong(311);
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
          fail("should be writeable");
       }
       streamMessage.reset();
@@ -860,15 +779,13 @@ public class ActiveMQStreamMessageTest extends TestCase {
          assertTrue(streamMessage.isReadOnlyBody());
          assertEquals(streamMessage.readDouble(), 24.5, 0);
          assertEquals(streamMessage.readLong(), 311);
-      }
-      catch (MessageNotReadableException mnre) {
+      } catch (MessageNotReadableException mnre) {
          fail("should be readable");
       }
       try {
          streamMessage.writeInt(33);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
    }
 
@@ -887,8 +804,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          message.writeObject("stringobj");
          message.writeShort((short) 1);
          message.writeString("string");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
          fail("Should be writeable");
       }
       message.reset();
@@ -907,81 +823,68 @@ public class ActiveMQStreamMessageTest extends TestCase {
          message.readString();
          message.readShort();
          message.readString();
-      }
-      catch (MessageNotReadableException mnwe) {
+      } catch (MessageNotReadableException mnwe) {
          fail("Should be readable");
       }
       try {
          message.writeBoolean(true);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeByte((byte) 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeBytes(new byte[1]);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeBytes(new byte[3], 0, 2);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeChar('a');
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeDouble(1.5);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeFloat((float) 1.5);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeInt(1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeLong(1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeObject("stringobj");
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeShort((short) 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          message.writeString("string");
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
    }
 
@@ -1001,81 +904,68 @@ public class ActiveMQStreamMessageTest extends TestCase {
          message.writeObject("stringobj");
          message.writeShort((short) 1);
          message.writeString("string");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
          fail("Should be writeable");
       }
       try {
          message.readBoolean();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException mnwe) {
+      } catch (MessageNotReadableException mnwe) {
       }
       try {
          message.readByte();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readBytes(new byte[1]);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readBytes(new byte[2]);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readChar();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readDouble();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readFloat();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readInt();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readLong();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readString();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readShort();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
       try {
          message.readString();
          fail("Should have thrown exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
       }
    }
 
@@ -1092,8 +982,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          message.writeObject(new Long(2L));
          message.writeObject(new Float(2.0f));
          message.writeObject(new Double(2.0d));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.getMessage());
       }
       try {
@@ -1101,11 +990,9 @@ public class ActiveMQStreamMessageTest extends TestCase {
          message.clearBody();
          message.writeObject(new Object());
          fail("should throw an exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.getMessage());
       }
    }

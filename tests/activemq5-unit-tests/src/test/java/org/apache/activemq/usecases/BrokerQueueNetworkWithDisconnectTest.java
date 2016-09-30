@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
@@ -104,8 +103,7 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
                   LOG.info("sleeping for a bit in close impl to simulate load where reconnect fails due to a pending close");
                   TimeUnit.SECONDS.sleep(2);
                }
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
             super.removeConnection(context, info, error);
          }
@@ -205,24 +203,20 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
       if (i == 50 || i == 150) {
          if (simulateStalledNetwork) {
             socketProxy.pause();
-         }
-         else {
+         } else {
             socketProxy.close();
          }
          networkDownTimeStart = System.currentTimeMillis();
-      }
-      else if (networkDownTimeStart > 0) {
+      } else if (networkDownTimeStart > 0) {
          // restart after NETWORK_DOWN_TIME seconds
          if (networkDownTimeStart + NETWORK_DOWN_TIME < System.currentTimeMillis()) {
             if (simulateStalledNetwork) {
                socketProxy.goOn();
-            }
-            else {
+            } else {
                socketProxy.reopen();
             }
             networkDownTimeStart = 0;
-         }
-         else {
+         } else {
             // slow message production to allow bridge to recover and limit message duplication
             sleep(500);
          }
@@ -233,8 +227,7 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
    private void sleep(int milliSecondTime) {
       try {
          Thread.sleep(milliSecondTime);
-      }
-      catch (InterruptedException igonred) {
+      } catch (InterruptedException igonred) {
       }
    }
 
@@ -262,8 +255,7 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
             connector.setDuplex(true);
          }
          return connector;
-      }
-      else {
+      } else {
          throw new Exception("Remote broker has no registered connectors.");
       }
    }

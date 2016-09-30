@@ -16,22 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -90,8 +89,7 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
                }
                System.out.println("acking tm: " + tm.getText());
                tm.acknowledge();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                System.out.println("ack failed!!");
                e.printStackTrace();
             }
@@ -128,8 +126,7 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
                if (counter.get() == 4) {
                   done2.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                System.err.println("Unexpected exception: " + e);
             }
          }

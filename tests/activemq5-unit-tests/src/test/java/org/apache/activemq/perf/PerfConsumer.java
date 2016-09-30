@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,8 +53,7 @@ public class PerfConsumer implements MessageListener {
       Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       if (dest instanceof Topic && consumerName != null && consumerName.length() > 0) {
          consumer = s.createDurableSubscriber((Topic) dest, consumerName);
-      }
-      else {
+      } else {
          consumer = s.createConsumer(dest);
       }
       consumer.setMessageListener(this);
@@ -88,8 +87,7 @@ public class PerfConsumer implements MessageListener {
          if (getInitialDelay() > 0) {
             try {
                Thread.sleep(getInitialDelay());
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
          }
       }
@@ -102,16 +100,14 @@ public class PerfConsumer implements MessageListener {
             LOG.error("Duplicate Message!" + msg);
          }
          lastMsgId = msg.getJMSMessageID();
-      }
-      catch (JMSException e1) {
+      } catch (JMSException e1) {
          e1.printStackTrace();
       }
       try {
          if (sleepDuration != 0) {
             Thread.sleep(sleepDuration);
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
    }
 

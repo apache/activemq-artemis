@@ -34,7 +34,9 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 
 public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
-   public StompFrameHandlerV12(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory factory) {
+   public StompFrameHandlerV12(StompConnection connection,
+                               ScheduledExecutorService scheduledExecutorService,
+                               ExecutorFactory factory) {
       super(connection, scheduledExecutorService, factory);
       decoder = new StompDecoderV12(this);
       decoder.init();
@@ -80,8 +82,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
       try {
          connection.acknowledge(messageID, null);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -110,11 +111,9 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
          //either \n or \r\n
          if (workingBuffer[pos - 2] == NEW_LINE) {
             pos--;
-         }
-         else if (workingBuffer[pos - 2] != CR) {
+         } else if (workingBuffer[pos - 2] != CR) {
             throwInvalid();
-         }
-         else if (workingBuffer[pos - 1] != NEW_LINE) {
+         } else if (workingBuffer[pos - 1] != NEW_LINE) {
             throwInvalid();
          }
       }
@@ -140,8 +139,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
                      //this is a backslash
                      holder.append(b);
                      isEscaping = false;
-                  }
-                  else {
+                  } else {
                      //begin escaping
                      isEscaping = true;
                   }
@@ -166,8 +164,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
                   if (isEscaping) {
                      holder.append(NEW_LINE);
                      isEscaping = false;
-                  }
-                  else {
+                  } else {
                      holder.append(b);
                   }
                   break;
@@ -176,8 +173,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
                   if (isEscaping) {
                      holder.append(CR);
                      isEscaping = false;
-                  }
-                  else {
+                  } else {
                      holder.append(b);
                   }
                   break;
@@ -193,8 +189,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
                   if (isEscaping) {
                      holder.append(StompDecoder.HEADER_SEPARATOR);
                      isEscaping = false;
-                  }
-                  else {
+                  } else {
                      holder.append(b);
                   }
                   break;
@@ -253,8 +248,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
          if (contentLength != -1) {
             if (pos + contentLength + 1 > data) {
                // Need more bytes
-            }
-            else {
+            } else {
                content = new byte[contentLength];
 
                System.arraycopy(workingBuffer, pos, content, 0, contentLength);
@@ -272,8 +266,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
                   }
                }
             }
-         }
-         else {
+         } else {
             // Need to scan for terminating NUL
 
             if (bodyStart == -1) {
@@ -310,8 +303,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
             init();
 
             return ret;
-         }
-         else {
+         } else {
             return null;
          }
       }

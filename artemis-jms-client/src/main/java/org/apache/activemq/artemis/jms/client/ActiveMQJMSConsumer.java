@@ -37,8 +37,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public String getMessageSelector() {
       try {
          return consumer.getMessageSelector();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -47,8 +46,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public MessageListener getMessageListener() throws JMSRuntimeException {
       try {
          return consumer.getMessageListener();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -57,8 +55,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public void setMessageListener(MessageListener listener) throws JMSRuntimeException {
       try {
          consumer.setMessageListener(new MessageListenerWrapper(listener));
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -67,8 +64,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public Message receive() {
       try {
          return context.setLastMessage(this, consumer.receive());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -77,8 +73,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public Message receive(long timeout) {
       try {
          return context.setLastMessage(this, consumer.receive(timeout));
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -87,8 +82,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public Message receiveNoWait() {
       try {
          return context.setLastMessage(this, consumer.receiveNoWait());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -97,8 +91,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
    public void close() {
       try {
          consumer.close();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -109,8 +102,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
          Message message = consumer.receive();
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -121,8 +113,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
          Message message = consumer.receive(timeout);
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -133,8 +124,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
          Message message = consumer.receiveNoWait();
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -154,8 +144,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
          context.getThreadAwareContext().setCurrentThread(false);
          try {
             wrapped.onMessage(message);
-         }
-         finally {
+         } finally {
             context.getThreadAwareContext().clearCurrentThread(false);
          }
       }

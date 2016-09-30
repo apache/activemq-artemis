@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
-import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
@@ -92,8 +92,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       if (autoGroup) {
          this.groupID = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      }
-      else {
+      } else {
          this.groupID = groupID;
       }
 
@@ -101,8 +100,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       if (address != null) {
          producerCredits = session.getCredits(address, false);
-      }
-      else {
+      } else {
          producerCredits = null;
       }
    }
@@ -141,8 +139,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       boolean confirmationWindowEnabled = session.isConfirmationWindowEnabled();
       if (confirmationWindowEnabled) {
          doSend(address1, message, handler, true);
-      }
-      else {
+      } else {
          doSend(address1, message, null, true);
          if (handler != null) {
             session.scheduleConfirmation(handler, message);
@@ -231,15 +228,13 @@ public class ClientProducerImpl implements ClientProducerInternal {
          if (sessionContext.supportsLargeMessage() && (msgI.getBodyInputStream() != null || msgI.isLargeMessage() ||
             msgI.getBodyBuffer().writerIndex() > minLargeMessageSize && !msgI.isServerMessage())) {
             isLarge = true;
-         }
-         else {
+         } else {
             isLarge = false;
          }
 
          if (!isLarge) {
             session.setAddress(msg, sendingAddress);
-         }
-         else {
+         } else {
             msg.setAddress(sendingAddress);
          }
 
@@ -264,12 +259,10 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
          if (isLarge) {
             largeMessageSend(sendBlocking, msgI, theCredits, handler);
-         }
-         else {
+         } else {
             sendRegularMessage(sendingAddress, msgI, sendBlocking, theCredits, handler);
          }
-      }
-      finally {
+      } finally {
          session.endCall();
       }
    }
@@ -330,11 +323,9 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       if (msgI.isServerMessage()) {
          largeMessageSendServer(sendBlocking, msgI, credits, handler);
-      }
-      else if ((input = msgI.getBodyInputStream()) != null) {
+      } else if ((input = msgI.getBodyInputStream()) != null) {
          largeMessageSendStreamed(sendBlocking, msgI, input, credits, handler);
-      }
-      else {
+      } else {
          largeMessageSendBuffered(sendBlocking, msgI, credits, handler);
       }
    }
@@ -391,8 +382,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
             credits.acquireCredits(creditsUsed);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -443,7 +433,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       boolean headerSent = false;
 
-
       int reconnectID = sessionContext.getReconnectID();
       while (!lastPacket) {
          byte[] buff = new byte[minLargeMessageSize];
@@ -457,8 +446,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
             try {
                numberOfBytesRead = input.read(buff, pos, wanted);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                throw ActiveMQClientMessageBundle.BUNDLE.errorReadingBody(e);
             }
 
@@ -494,8 +482,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
                msgI.getBodyBuffer().writeBytes(buff, 0, pos);
                sendRegularMessage(msgI.getAddress(), msgI, sendBlocking, credits, handler);
                return;
-            }
-            else {
+            } else {
                if (!headerSent) {
                   headerSent = true;
                   sendInitialLargeMessageHeader(msgI, credits);
@@ -503,8 +490,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
                int creditsSent = sessionContext.sendLargeMessageChunk(msgI, messageSize.get(), sendBlocking, true, buff, reconnectID, handler);
                credits.acquireCredits(creditsSent);
             }
-         }
-         else {
+         } else {
             if (!headerSent) {
                headerSent = true;
                sendInitialLargeMessageHeader(msgI, credits);
@@ -517,8 +503,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       try {
          input.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errorClosingLargeMessage(e);
       }
    }

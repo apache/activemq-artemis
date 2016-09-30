@@ -121,12 +121,10 @@ public final class XMLUtil {
       if (children.getLength() == 0) {
          if ((textContent = XMLUtil.getTextContent(n)) != null && !"".equals(textContent)) {
             sb.append(textContent).append("</").append(name).append('>');
-         }
-         else {
+         } else {
             sb.append("/>").append('\n');
          }
-      }
-      else {
+      } else {
          sb.append('>').append('\n');
          boolean hasValidChildren = false;
          for (int i = 0; i < children.getLength(); i++) {
@@ -303,8 +301,7 @@ public final class XMLUtil {
 
       try {
          return Long.parseLong(value);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeLong(elem, value);
       }
    }
@@ -314,8 +311,7 @@ public final class XMLUtil {
 
       try {
          return Integer.parseInt(value);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeInteger(elem, value);
       }
    }
@@ -325,8 +321,7 @@ public final class XMLUtil {
 
       try {
          return Boolean.parseBoolean(value);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeBoolean(elem, value);
       }
    }
@@ -336,8 +331,7 @@ public final class XMLUtil {
 
       try {
          return Double.parseDouble(value);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeDouble(elem, value);
       }
    }
@@ -351,8 +345,7 @@ public final class XMLUtil {
       // validate the DOM tree
       try {
          validator.validate(new DOMSource(node));
-      }
-      catch (SAXException e) {
+      } catch (SAXException e) {
          ActiveMQClientLogger.LOGGER.errorOnXMLTransformInvalidConf(e);
 
          throw new IllegalStateException("Invalid configuration", e);

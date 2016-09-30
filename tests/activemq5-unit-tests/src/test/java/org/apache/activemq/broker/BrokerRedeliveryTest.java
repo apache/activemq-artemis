@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.broker;
 
-import java.util.concurrent.TimeUnit;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -92,8 +92,7 @@ public class BrokerRedeliveryTest extends org.apache.activemq.TestSupport {
          assertNotNull("Got message from dql", dlqMessage);
          assertEquals("message matches", message.getStringProperty("data"), dlqMessage.getStringProperty("data"));
          consumerSession.commit();
-      }
-      else {
+      } else {
          // consume/commit ok
          message = consumer.receive(3000);
          assertNotNull("got message", message);

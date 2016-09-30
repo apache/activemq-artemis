@@ -28,11 +28,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -159,8 +159,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
                session = factory.createSession(false, false, false);
                session.start();
                consumer = session.createConsumer(ADDRESS);
-            }
-            else {
+            } else {
                session.rollback();
             }
          }
@@ -323,8 +322,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(factory.createSession(false, false, false));
       try {
          session.createQueue(ADDRESS, ADDRESS, true);
-      }
-      catch (ActiveMQException expected) {
+      } catch (ActiveMQException expected) {
          // in case of restart
       }
 

@@ -34,8 +34,7 @@ public final class ClassloadingUtil {
       try {
          Class<?> clazz = loader.loadClass(className);
          return clazz.newInstance();
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          if (t instanceof InstantiationException) {
             System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
          }
@@ -45,14 +44,11 @@ public final class ClassloadingUtil {
 
          try {
             return loader.loadClass(className).newInstance();
-         }
-         catch (InstantiationException e) {
+         } catch (InstantiationException e) {
             throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
-         }
-         catch (ClassNotFoundException e) {
+         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
-         }
-         catch (IllegalAccessException e) {
+         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
          }
       }
@@ -67,8 +63,7 @@ public final class ClassloadingUtil {
          }
          Class<?> clazz = loader.loadClass(className);
          return clazz.getConstructor(parametersType).newInstance(objs);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          if (t instanceof InstantiationException) {
             System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
          }
@@ -78,14 +73,11 @@ public final class ClassloadingUtil {
 
          try {
             return loader.loadClass(className).newInstance();
-         }
-         catch (InstantiationException e) {
+         } catch (InstantiationException e) {
             throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
-         }
-         catch (ClassNotFoundException e) {
+         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
-         }
-         catch (IllegalAccessException e) {
+         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
          }
       }
@@ -97,8 +89,7 @@ public final class ClassloadingUtil {
          URL resource = loader.getResource(resourceName);
          if (resource != null)
             return resource;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
       }
 
       loader = Thread.currentThread().getContextClassLoader();

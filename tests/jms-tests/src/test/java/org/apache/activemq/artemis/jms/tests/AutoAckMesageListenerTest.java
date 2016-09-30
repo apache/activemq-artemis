@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -26,6 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -75,8 +74,7 @@ public class AutoAckMesageListenerTest extends JMSTestCase {
          if (listener.getPassed() == false) {
             throw new Exception("failed");
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -120,22 +118,19 @@ public class AutoAckMesageListenerTest extends JMSTestCase {
                   log.info("Error: received first message twice");
                   passed = false;
                }
-            }
-            else {
+            } else {
                if (message.getJMSRedelivered() == false) {
                   // received second message for first time
                   log.info("Received second message. Calling recover()");
                   session.recover();
-               }
-               else {
+               } else {
                   // should be redelivered after recover
                   log.info("Received second message again as expected");
                   passed = true;
                   monitor.countDown();
                }
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             log.warn("Exception caught in message listener:\n" + e);
             passed = false;
             monitor.countDown();

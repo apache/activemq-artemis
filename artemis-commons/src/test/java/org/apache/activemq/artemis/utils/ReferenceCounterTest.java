@@ -75,8 +75,7 @@ public class ReferenceCounterTest extends Assert {
 
       if (executor == null) {
          ref = new ReferenceCounterUtil(runner);
-      }
-      else {
+      } else {
          ref = new ReferenceCounterUtil(runner, executor);
       }
 

@@ -71,8 +71,7 @@ public class HttpTransportExample {
 
          System.out.println("Received message: " + messageReceived.getText());
 
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

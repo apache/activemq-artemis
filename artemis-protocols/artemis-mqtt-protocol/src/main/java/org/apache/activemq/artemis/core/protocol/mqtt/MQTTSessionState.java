@@ -84,8 +84,7 @@ public class MQTTSessionState {
          if (qos == 2) {
             if (reverseOutboundReferenceStore.containsKey(address)) {
                reverseOutboundReferenceStore.get(address).put(serverMessageId, mqttId);
-            }
-            else {
+            } else {
                ConcurrentHashMap<Long, Integer> serverToMqttId = new ConcurrentHashMap<>();
                serverToMqttId.put(serverMessageId, mqttId);
                reverseOutboundReferenceStore.put(address, serverToMqttId);
@@ -159,8 +158,7 @@ public class MQTTSessionState {
                subscriptions.put(subscription.topicName(), subscription);
                return true;
             }
-         }
-         else {
+         } else {
             subscriptions.put(subscription.topicName(), subscription);
             return true;
          }

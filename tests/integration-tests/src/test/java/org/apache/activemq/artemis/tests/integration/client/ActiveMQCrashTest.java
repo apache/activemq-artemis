@@ -109,14 +109,12 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
                   public void run() {
                      try {
                         server.stop();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
                }.start();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
 

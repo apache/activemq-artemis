@@ -154,8 +154,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
 
          return cache;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -170,14 +169,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
          List<PagedMessage> pgdMessages = page.read(storageManager);
          cache.setMessages(pgdMessages.toArray(new PagedMessage[pgdMessages.size()]));
-      }
-      finally {
+      } finally {
          try {
             if (page != null) {
                page.close(false);
             }
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
          storageManager.afterPageRead();
       }
@@ -293,8 +290,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                if (cleanupEnabled) {
                   cleanup();
                }
-            }
-            finally {
+            } finally {
                storageManager.clearContext();
                scheduledCleanup.decrementAndGet();
             }
@@ -316,16 +312,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       for (PageSubscription sub : subscriptions) {
          try {
             sub.onPageModeCleared(tx);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn("Error while cleaning paging on queue " + sub.getQueue().getName(), e);
          }
       }
 
       try {
          tx.commit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn("Error while cleaning page, during the commit", e);
       }
    }
@@ -402,27 +396,23 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
             if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
                pagingStore.stopPaging();
-            }
-            else {
+            } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
-                                                       " as numberOfPages == " +
-                                                       pagingStore.getNumberOfPages() +
-                                                       " and currentPage.numberOfMessages = " +
-                                                       pagingStore.getCurrentPage().getNumberOfMessages());
+                                  " as numberOfPages == " +
+                                  pagingStore.getNumberOfPages() +
+                                  " and currentPage.numberOfMessages = " +
+                                  pagingStore.getCurrentPage().getNumberOfMessages());
                }
             }
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
             return;
-         }
-         finally {
+         } finally {
             pagingStore.unlock();
          }
       }
       finishCleanup(depagedPages);
-
 
    }
 
@@ -430,7 +420,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
       if (logger.isDebugEnabled()) {
          logger.debug("Address " + pagingStore.getAddress() +
-                                              " is leaving page mode as all messages are consumed and acknowledged from the page store");
+                         " is leaving page mode as all messages are consumed and acknowledged from the page store");
       }
 
       pagingStore.forceAnotherPage();
@@ -467,20 +457,17 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                try {
                   depagedPage.open();
                   pgdMessagesList = depagedPage.read(storageManager);
-               }
-               finally {
+               } finally {
                   try {
                      depagedPage.close(false);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                   }
 
                   storageManager.afterPageRead();
                }
                depagedPage.close(false);
                pgdMessages = pgdMessagesList.toArray(new PagedMessage[pgdMessagesList.size()]);
-            }
-            else {
+            } else {
                pgdMessages = cache.getMessages();
             }
 
@@ -491,8 +478,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                softCache.remove((long) depagedPage.getPageId());
             }
          }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
          return;
       }
@@ -513,8 +499,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
             complete = false;
             break;
-         }
-         else {
+         } else {
             if (logger.isDebugEnabled()) {
                logger.debug("Cursor " + cursor + " was considered **complete** at pageNr=" + minPage);
             }
@@ -553,8 +538,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          while (!storageManager.waitOnOperations(5000)) {
             ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
          }
-      }
-      finally {
+      } finally {
          for (PageSubscription cursor : cursorList) {
             cursor.enableAutoCleanup();
          }

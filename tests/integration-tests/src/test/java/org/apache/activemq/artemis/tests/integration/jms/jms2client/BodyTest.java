@@ -64,8 +64,7 @@ public class BodyTest extends JMSTestBase {
          try {
             msg.getBody(String.class);
             fail("Exception expected");
-         }
-         catch (MessageFormatException e) {
+         } catch (MessageFormatException e) {
          }
       }
 

@@ -44,7 +44,10 @@ public final class CoreSessionCallback implements SessionCallback {
 
    private String name;
 
-   public CoreSessionCallback(String name, ProtocolManager protocolManager, Channel channel, RemotingConnection connection) {
+   public CoreSessionCallback(String name,
+                              ProtocolManager protocolManager,
+                              Channel channel,
+                              RemotingConnection connection) {
       this.name = name;
       this.protocolManager = protocolManager;
       this.channel = channel;
@@ -62,7 +65,11 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference ref,
+                               ServerMessage message,
+                               ServerConsumer consumer,
+                               long bodySize,
+                               int deliveryCount) {
       Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
 
       channel.send(packet);
@@ -130,8 +137,7 @@ public final class CoreSessionCallback implements SessionCallback {
    public void disconnect(ServerConsumer consumerId, String queueName) {
       if (channel.supports(PacketImpl.DISCONNECT_CONSUMER)) {
          channel.send(new DisconnectConsumerMessage(consumerId.getID()));
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
       }
    }

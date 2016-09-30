@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.command;
 
+import javax.jms.JMSException;
+import javax.jms.MessageFormatException;
+import javax.jms.MessageNotReadableException;
+import javax.jms.MessageNotWriteableException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.MessageFormatException;
-import javax.jms.MessageNotReadableException;
-import javax.jms.MessageNotWriteableException;
 
 import junit.framework.TestCase;
 
@@ -135,8 +134,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setShort(this.name, (short) 1);
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getShort(this.name) == (short) 1);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -148,8 +146,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setChar(this.name, 'a');
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getChar(this.name) == 'a');
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -161,8 +158,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setInt(this.name, 1);
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getInt(this.name) == 1);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -174,8 +170,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setLong(this.name, 1);
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getLong(this.name) == 1);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -187,8 +182,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setFloat(this.name, 1.5f);
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getFloat(this.name) == 1.5f);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -200,8 +194,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setDouble(this.name, 1.5);
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(msg.getDouble(this.name) == 1.5);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -214,8 +207,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setString(this.name, str);
          msg = (ActiveMQMapMessage) msg.copy();
          assertEquals(msg.getString(this.name), str);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -232,8 +224,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg = (ActiveMQMapMessage) msg.copy();
          assertTrue(Arrays.equals(msg.getBytes(this.name), bytes1));
          assertEquals(msg.getBytes(this.name + "2").length, bytes2.length);
-      }
-      catch (JMSException jmsEx) {
+      } catch (JMSException jmsEx) {
          jmsEx.printStackTrace();
          assertTrue(false);
       }
@@ -263,8 +254,7 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.setObject("long", longValue);
          msg.setObject("short", shortValue);
          msg.setObject("string", stringValue);
-      }
-      catch (MessageFormatException mfe) {
+      } catch (MessageFormatException mfe) {
          LOG.warn("Caught: " + mfe);
          mfe.printStackTrace();
          fail("object formats should be correct");
@@ -307,8 +297,7 @@ public class ActiveMQMapMessageTest extends TestCase {
       try {
          msg.setObject("object", new Object());
          fail("should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
    }
@@ -405,81 +394,68 @@ public class ActiveMQMapMessageTest extends TestCase {
          msg.getObject("object");
          msg.getShort("short");
          msg.getString("string");
-      }
-      catch (MessageNotReadableException mnre) {
+      } catch (MessageNotReadableException mnre) {
          fail("should be readable");
       }
       try {
          msg.setBoolean("boolean", true);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setByte("byte", (byte) 1);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setBytes("bytes", new byte[1]);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setBytes("bytes2", new byte[3], 0, 2);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setChar("char", 'a');
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setDouble("double", 1.5);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setFloat("float", 1.5f);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setInt("int", 1);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setLong("long", 1);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setObject("object", "stringObj");
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setShort("short", (short) 1);
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
       try {
          msg.setString("string", "string");
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
    }
 

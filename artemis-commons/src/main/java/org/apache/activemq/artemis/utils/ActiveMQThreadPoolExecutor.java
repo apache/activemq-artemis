@@ -41,8 +41,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * executor is not limited. Only the offer method checks the configured limit.
  */
 public class ActiveMQThreadPoolExecutor extends ThreadPoolExecutor {
+
    @SuppressWarnings("serial")
    private static class ThreadPoolQueue extends LinkedBlockingQueue<Runnable> {
+
       private ActiveMQThreadPoolExecutor executor = null;
 
       public void setExecutor(ActiveMQThreadPoolExecutor executor) {
@@ -75,7 +77,12 @@ public class ActiveMQThreadPoolExecutor extends ThreadPoolExecutor {
    }
 
    // private constructor is needed to inject 'this' into the ThreadPoolQueue instance
-   private ActiveMQThreadPoolExecutor(int coreSize, int maxSize, long keep, TimeUnit keepUnits, ThreadPoolQueue myQueue, ThreadFactory factory) {
+   private ActiveMQThreadPoolExecutor(int coreSize,
+                                      int maxSize,
+                                      long keep,
+                                      TimeUnit keepUnits,
+                                      ThreadPoolQueue myQueue,
+                                      ThreadFactory factory) {
       super(coreSize, Integer.MAX_VALUE, keep, keepUnits, myQueue, factory);
       maxPoolSize = maxSize;
       myQueue.setExecutor(this);

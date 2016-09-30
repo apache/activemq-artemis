@@ -20,12 +20,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import java.nio.ByteBuffer;
+import java.util.UUID;
+
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-
-import java.nio.ByteBuffer;
-import java.util.UUID;
 
 /**
  * Helper class for identifying and converting message-id and correlation-id values between
@@ -73,8 +73,7 @@ public class AMQPMessageIdHelper {
    public String toBaseMessageIdString(Object messageId) {
       if (messageId == null) {
          return null;
-      }
-      else if (messageId instanceof String) {
+      } else if (messageId instanceof String) {
          String stringId = (String) messageId;
 
          // If the given string has a type encoding prefix,
@@ -82,18 +81,14 @@ public class AMQPMessageIdHelper {
          // the existing encoding prefix was also for string)
          if (hasTypeEncodingPrefix(stringId)) {
             return AMQP_STRING_PREFIX + stringId;
-         }
-         else {
+         } else {
             return stringId;
          }
-      }
-      else if (messageId instanceof UUID) {
+      } else if (messageId instanceof UUID) {
          return AMQP_UUID_PREFIX + messageId.toString();
-      }
-      else if (messageId instanceof UnsignedLong) {
+      } else if (messageId instanceof UnsignedLong) {
          return AMQP_ULONG_PREFIX + messageId.toString();
-      }
-      else if (messageId instanceof Binary) {
+      } else if (messageId instanceof Binary) {
          ByteBuffer dup = ((Binary) messageId).asByteBuffer();
 
          byte[] bytes = new byte[dup.remaining()];
@@ -102,8 +97,7 @@ public class AMQPMessageIdHelper {
          String hex = convertBinaryToHexString(bytes);
 
          return AMQP_BINARY_PREFIX + hex;
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("Unsupported type provided: " + messageId.getClass());
       }
    }
@@ -125,25 +119,20 @@ public class AMQPMessageIdHelper {
          if (hasAmqpUuidPrefix(baseId)) {
             String uuidString = strip(baseId, AMQP_UUID_PREFIX_LENGTH);
             return UUID.fromString(uuidString);
-         }
-         else if (hasAmqpUlongPrefix(baseId)) {
+         } else if (hasAmqpUlongPrefix(baseId)) {
             String longString = strip(baseId, AMQP_ULONG_PREFIX_LENGTH);
             return UnsignedLong.valueOf(longString);
-         }
-         else if (hasAmqpStringPrefix(baseId)) {
+         } else if (hasAmqpStringPrefix(baseId)) {
             return strip(baseId, AMQP_STRING_PREFIX_LENGTH);
-         }
-         else if (hasAmqpBinaryPrefix(baseId)) {
+         } else if (hasAmqpBinaryPrefix(baseId)) {
             String hexString = strip(baseId, AMQP_BINARY_PREFIX_LENGTH);
             byte[] bytes = convertHexStringToBinary(hexString);
             return new Binary(bytes);
-         }
-         else {
+         } else {
             // We have a string without any type prefix, transmit it as-is.
             return baseId;
          }
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          throw new ActiveMQAMQPIllegalStateException("Unable to convert ID value");
       }
    }
@@ -213,7 +202,7 @@ public class AMQPMessageIdHelper {
 
    private boolean hasTypeEncodingPrefix(String stringId) {
       return hasAmqpBinaryPrefix(stringId) || hasAmqpUuidPrefix(stringId) ||
-            hasAmqpUlongPrefix(stringId) || hasAmqpStringPrefix(stringId);
+         hasAmqpUlongPrefix(stringId) || hasAmqpStringPrefix(stringId);
    }
 
    private boolean hasAmqpStringPrefix(String stringId) {
@@ -240,13 +229,11 @@ public class AMQPMessageIdHelper {
       if (ch >= '0' && ch <= '9') {
          // subtract '0' to get difference in position as an int
          return ch - '0';
-      }
-      else if (ch >= 'A' && ch <= 'F') {
+      } else if (ch >= 'A' && ch <= 'F') {
          // subtract 'A' to get difference in position as an int
          // and then add 10 for the offset of 'A'
          return ch - 'A' + 10;
-      }
-      else if (ch >= 'a' && ch <= 'f') {
+      } else if (ch >= 'a' && ch <= 'f') {
          // subtract 'a' to get difference in position as an int
          // and then add 10 for the offset of 'a'
          return ch - 'a' + 10;

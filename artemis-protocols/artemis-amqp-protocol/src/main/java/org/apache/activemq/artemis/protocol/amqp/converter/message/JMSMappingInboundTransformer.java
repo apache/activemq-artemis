@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import org.apache.qpid.proton.amqp.Binary;
-import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
-import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.Data;
-import org.apache.qpid.proton.amqp.messaging.Section;
-
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -32,6 +26,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.Section;
 
 public class JMSMappingInboundTransformer extends InboundTransformer {
 
@@ -58,14 +58,12 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
       final Section body = amqp.getBody();
       if (body == null) {
          rc = vendor.createMessage();
-      }
-      else if (body instanceof Data) {
+      } else if (body instanceof Data) {
          Binary d = ((Data) body).getValue();
          BytesMessage m = vendor.createBytesMessage();
          m.writeBytes(d.getArray(), d.getArrayOffset(), d.getLength());
          rc = m;
-      }
-      else if (body instanceof AmqpSequence) {
+      } else if (body instanceof AmqpSequence) {
          AmqpSequence sequence = (AmqpSequence) body;
          StreamMessage m = vendor.createStreamMessage();
          for (Object item : sequence.getValue()) {
@@ -73,8 +71,7 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
          }
          rc = m;
          m.setStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY, AMQPMessageTypes.AMQP_SEQUENCE);
-      }
-      else if (body instanceof AmqpValue) {
+      } else if (body instanceof AmqpValue) {
          Object value = ((AmqpValue) body).getValue();
          if (value == null) {
             rc = vendor.createObjectMessage();
@@ -83,36 +80,31 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
             TextMessage m = vendor.createTextMessage();
             m.setText((String) value);
             rc = m;
-         }
-         else if (value instanceof Binary) {
+         } else if (value instanceof Binary) {
             Binary d = (Binary) value;
             BytesMessage m = vendor.createBytesMessage();
             m.writeBytes(d.getArray(), d.getArrayOffset(), d.getLength());
             rc = m;
-         }
-         else if (value instanceof List) {
+         } else if (value instanceof List) {
             StreamMessage m = vendor.createStreamMessage();
             for (Object item : (List<Object>) value) {
                m.writeObject(item);
             }
             rc = m;
             m.setStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY, AMQPMessageTypes.AMQP_LIST);
-         }
-         else if (value instanceof Map) {
+         } else if (value instanceof Map) {
             MapMessage m = vendor.createMapMessage();
             final Set<Map.Entry<String, Object>> set = ((Map<String, Object>) value).entrySet();
             for (Map.Entry<String, Object> entry : set) {
                m.setObject(entry.getKey(), entry.getValue());
             }
             rc = m;
-         }
-         else {
+         } else {
             ObjectMessage m = vendor.createObjectMessage();
             m.setObject((Serializable) value);
             rc = m;
          }
-      }
-      else {
+      } else {
          throw new RuntimeException("Unexpected body type: " + body.getClass());
       }
       rc.setJMSDeliveryMode(defaultDeliveryMode);

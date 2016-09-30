@@ -130,8 +130,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          publisherConnection.start();
          subscriberConnection.start();
          // end of client step
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          throw new RuntimeException(e);
       }
@@ -149,10 +148,8 @@ public abstract class PubSubTestCase extends JMSTestCase {
 
          admin.deleteTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.deleteTopic(PubSubTestCase.TOPIC_NAME);
-      }
-      catch (Exception ignored) {
-      }
-      finally {
+      } catch (Exception ignored) {
+      } finally {
          publisherTopic = null;
          publisher = null;
          publisherTCF = null;

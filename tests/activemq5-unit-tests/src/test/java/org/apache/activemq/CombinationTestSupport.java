@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -76,8 +76,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       try {
          ProtectionDomain protectionDomain = clazz.getProtectionDomain();
          return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          return new File(".");
       }
    }
@@ -101,8 +100,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       ComboOption co = this.comboOptions.get(attribute);
       if (co == null) {
          this.comboOptions.put(attribute, new ComboOption(attribute, Arrays.asList(options)));
-      }
-      else {
+      } else {
          co.values.addAll(Arrays.asList(options));
       }
    }
@@ -123,16 +121,13 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       ServerSocket socket = null;
       try {
          socket = new ServerSocket(61616);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          fail("61616 port not released");
-      }
-      finally {
+      } finally {
          if (socket != null)
             try {
                socket.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
             }
       }
    }
@@ -141,8 +136,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    public void runBare() throws Throwable {
       if (combosEvaluated) {
          super.runBare();
-      }
-      else {
+      } else {
          CombinationTestSupport[] combinations = getCombinations();
          for (int i = 0; i < combinations.length; i++) {
             CombinationTestSupport test = combinations[i];
@@ -161,8 +155,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
          try {
             Field field = getClass().getField(attribute);
             field.set(this, value);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             try {
                boolean found = false;
                String setterName = "set" + attribute.substring(0, 1).toUpperCase() +
@@ -179,8 +172,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
                   throw new NoSuchMethodError("No setter found for field: " + attribute);
                }
 
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                LOG.info("Could not set field '" + attribute + "' to value '" + value +
                            "', make sure the field exists and is public or has a setter.");
             }
@@ -192,8 +184,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       try {
          Method method = getClass().getMethod("initCombos", (Class[]) null);
          method.invoke(this, (Object[]) null);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
 
       String name = getName().split(" ")[0];
@@ -201,8 +192,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       try {
          Method method = getClass().getMethod(comboSetupMethodName, (Class[]) null);
          method.invoke(this, (Object[]) null);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
 
       try {
@@ -212,8 +202,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
          if (expandedOptions.isEmpty()) {
             combosEvaluated = true;
             return new CombinationTestSupport[]{this};
-         }
-         else {
+         } else {
 
             ArrayList<CombinationTestSupport> result = new ArrayList<>();
             // Run the test case for each possible combination
@@ -228,8 +217,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             result.toArray(rc);
             return rc;
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          combosEvaluated = true;
          return new CombinationTestSupport[]{this};
       }
@@ -242,8 +230,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
          if (comboOptions.size() == optionsLeft.size()) {
             map = new HashMap<>();
             expandedCombos.add(map);
-         }
-         else {
+         } else {
             map = expandedCombos.get(expandedCombos.size() - 1);
          }
 
@@ -252,8 +239,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
          int i = 0;
          if (comboOption.values.isEmpty() && !l.isEmpty()) {
             expandCombinations(l, expandedCombos);
-         }
-         else {
+         } else {
             for (Iterator<Object> iter = comboOption.values.iterator(); iter.hasNext(); ) {
                Object value = iter.next();
                if (i != 0) {
@@ -285,8 +271,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             for (int j = 0; j < combinations.length; j++) {
                suite.addTest(combinations[j]);
             }
-         }
-         else {
+         } else {
             suite.addTest(test);
          }
       }

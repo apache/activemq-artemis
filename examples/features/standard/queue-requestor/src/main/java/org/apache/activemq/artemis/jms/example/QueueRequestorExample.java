@@ -75,14 +75,12 @@ public class QueueRequestorExample {
 
          // Step 13. close the text reverser service
          reverserService.close();
-      }
-      finally {
+      } finally {
          if (connection != null) {
             try {
                // Step 14. Be sure to close the JMS resources!
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }

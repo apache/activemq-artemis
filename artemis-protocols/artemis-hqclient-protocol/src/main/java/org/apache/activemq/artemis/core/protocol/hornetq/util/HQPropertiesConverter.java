@@ -51,7 +51,7 @@ public class HQPropertiesConverter {
 
       d = new HashMap<>();
       // inverting the direction
-      for (Map.Entry<SimpleString, SimpleString> entry: hqAmqDictionary.entrySet()) {
+      for (Map.Entry<SimpleString, SimpleString> entry : hqAmqDictionary.entrySet()) {
          d.put(entry.getValue(), entry.getKey());
       }
 

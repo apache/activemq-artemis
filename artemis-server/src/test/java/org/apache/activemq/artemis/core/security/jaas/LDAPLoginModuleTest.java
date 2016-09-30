@@ -106,11 +106,9 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {
                   ((NameCallback) callbacks[i]).setName("first");
-               }
-               else if (callbacks[i] instanceof PasswordCallback) {
+               } else if (callbacks[i] instanceof PasswordCallback) {
                   ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               }
-               else {
+               } else {
                   throw new UnsupportedCallbackException(callbacks[i]);
                }
             }
@@ -128,11 +126,9 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {
                   ((NameCallback) callbacks[i]).setName("first");
-               }
-               else if (callbacks[i] instanceof PasswordCallback) {
+               } else if (callbacks[i] instanceof PasswordCallback) {
                   ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
-               }
-               else {
+               } else {
                   throw new UnsupportedCallbackException(callbacks[i]);
                }
             }
@@ -140,8 +136,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       });
       try {
          context.login();
-      }
-      catch (LoginException le) {
+      } catch (LoginException le) {
          assertEquals(le.getCause().getMessage(), "Empty password is not allowed");
          return;
       }

@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.bridge.impl;
 
-import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
-
+import javax.jms.Destination;
 import java.util.Hashtable;
 
-import javax.jms.Destination;
+import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 
 public class JNDIDestinationFactory extends JNDIFactorySupport implements DestinationFactory {
 

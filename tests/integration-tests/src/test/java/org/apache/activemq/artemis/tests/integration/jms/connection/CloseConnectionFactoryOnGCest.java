@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -53,8 +52,7 @@ public class CloseConnectionFactoryOnGCest extends JMSTestBase {
             conn = null;
          }
          forceGC();
-      }
-      finally {
+      } finally {
          ServerLocatorImpl.finalizeCallback = null;
       }
 

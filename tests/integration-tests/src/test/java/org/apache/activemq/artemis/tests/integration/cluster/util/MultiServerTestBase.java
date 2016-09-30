@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
 
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.junit.Before;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,10 +25,17 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
 
 public class MultiServerTestBase extends ActiveMQTestBase {
 
@@ -71,8 +70,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
       if (ha) {
          ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(targetConfig);
          return addServerLocator(locator);
-      }
-      else {
+      } else {
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(targetConfig);
          return addServerLocator(locator);
       }
@@ -187,8 +185,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
       if (sharedStorage) {
          server = createInVMFailoverServer(realFiles, configuration, nodeManager, node);
-      }
-      else {
+      } else {
          server = createServer(realFiles, configuration);
       }
 
@@ -229,8 +226,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
       if (useSharedStorage()) {
          server = createInVMFailoverServer(true, configuration, nodeManager, liveNode);
-      }
-      else {
+      } else {
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, useRealFiles()));
       }
       server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");

@@ -32,13 +32,13 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
-import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
 import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
@@ -190,8 +190,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
          assertEquals(5, data1[4]);
 
          receivers[num - 1].close(false);
-      }
-      finally {
+      } finally {
          broadcaster.close(true);
       }
    }
@@ -214,7 +213,6 @@ public class DiscoveryTest extends DiscoveryBaseTest {
          receivers[i] = factory.createBroadcastEndpoint();
          receivers[i].openClient();
       }
-
 
       try {
 
@@ -255,8 +253,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
             assertEquals(5, received[4]);
          }
 
-      }
-      finally {
+      } finally {
          for (int i = 0; i < num; i++) {
             receivers[i].close(false);
          }
@@ -367,16 +364,14 @@ public class DiscoveryTest extends DiscoveryBaseTest {
          for (int i = 0; i < randomBytes.length; i++) {
             assertEquals(randomBytes[i], btreceived[i]);
          }
-      }
-      finally {
+      } finally {
          try {
             if (broadcaster != null)
                broadcaster.close(true);
 
             if (client != null)
                client.close(false);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             ignored.printStackTrace();
          }
       }

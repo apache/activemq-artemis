@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.transport.failover;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -33,6 +26,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TransactionRolledBackException;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -86,8 +85,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
                bs.start();
 
                restarted.set(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -142,8 +140,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
                bs.start();
 
                restarted.set(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -251,19 +248,16 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
             Assert.assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
             try {
                session.commit();
-            }
-            catch (TransactionRolledBackException expectedOnOccasion) {
+            } catch (TransactionRolledBackException expectedOnOccasion) {
                log.info("got rollback: " + expectedOnOccasion);
                i--;
             }
          }
          Assert.assertNull(consumer.receive(500));
-      }
-      catch (Exception eee) {
+      } catch (Exception eee) {
          log.error("got exception", eee);
          throw eee;
-      }
-      finally {
+      } finally {
          consumer.close();
          session.close();
          connection.close();

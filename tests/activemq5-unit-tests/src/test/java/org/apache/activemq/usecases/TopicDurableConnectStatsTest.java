@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.Date;
-import java.util.Vector;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -34,6 +29,10 @@ import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Date;
+import java.util.Vector;
 
 import junit.framework.Test;
 
@@ -133,13 +132,11 @@ public class TopicDurableConnectStatsTest extends org.apache.activemq.TestSuppor
       try {
          if (mbeanServer.isRegistered(objectName)) {
             LOG.info("Bean Registered: " + objectName);
-         }
-         else {
+         } else {
             LOG.info("Couldn't find Mbean! " + objectName);
 
          }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          e.printStackTrace();
       }
       return objectName;
@@ -248,23 +245,20 @@ public class TopicDurableConnectStatsTest extends org.apache.activemq.TestSuppor
          count++;
          try {
             session2.commit();
-         }
-         catch (JMSException e1) {
+         } catch (JMSException e1) {
             e1.printStackTrace();
          }
 
          if (id != null) {
             try {
                LOG.info(id + ", " + message.getJMSMessageID());
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
          }
 
          try {
             Thread.sleep(2);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
       }

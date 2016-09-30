@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelWrapper;
 import org.apache.activemq.artemis.api.core.jgroups.JGroupsReceiver;
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
@@ -49,7 +50,8 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public void broadcast(final byte[] data) throws Exception {
-      if (logger.isTraceEnabled()) logger.trace("Broadcasting: BroadCastOpened=" + broadcastOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled())
+         logger.trace("Broadcasting: BroadCastOpened=" + broadcastOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (broadcastOpened) {
          org.jgroups.Message msg = new org.jgroups.Message();
 
@@ -61,22 +63,22 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public byte[] receiveBroadcast() throws Exception {
-      if (logger.isTraceEnabled()) logger.trace("Receiving Broadcast: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled())
+         logger.trace("Receiving Broadcast: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (clientOpened) {
          return receiver.receiveBroadcast();
-      }
-      else {
+      } else {
          return null;
       }
    }
 
    @Override
    public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
-      if (logger.isTraceEnabled()) logger.trace("Receiving Broadcast2: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled())
+         logger.trace("Receiving Broadcast2: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (clientOpened) {
          return receiver.receiveBroadcast(time, unit);
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -115,8 +117,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
    public synchronized void close(boolean isBroadcast) throws Exception {
       if (isBroadcast) {
          broadcastOpened = false;
-      }
-      else {
+      } else {
          channel.removeReceiver(receiver);
          clientOpened = false;
       }
@@ -126,6 +127,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
    /**
     * Closes the channel used in this JGroups Broadcast.
     * Can be overridden by implementations that use an externally managed channel.
+    *
     * @param channel
     */
    protected synchronized void internalCloseChannel(JChannelWrapper channel) {

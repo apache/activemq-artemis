@@ -92,7 +92,6 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
          }
       }, true);
 
-
       Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
 
       Assert.assertFalse(cache.contains(id));

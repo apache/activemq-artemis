@@ -51,19 +51,18 @@ public class ConnectionTest extends JMSTestBase {
       connectionFactory = serialClone(connectionFactory);
       testThroughNewConnectionFactory(connectionFactory);
 
-
       connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
-                                       "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
-                                       "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
-                                       "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
-                                       "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
-                                       "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
-                                       "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
-                                       "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
-                                       "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
-                                       "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-                                       "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
-                                       "port=61616&host=localhost#");
+                                                           "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
+                                                           "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
+                                                           "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
+                                                           "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
+                                                           "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
+                                                           "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
+                                                           "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
+                                                           "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
+                                                           "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
+                                                           "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+                                                           "port=61616&host=localhost#");
 
       testThroughNewConnectionFactory(connectionFactory);
 
@@ -98,8 +97,7 @@ public class ConnectionTest extends JMSTestBase {
       try {
          conn2.setClientID(id);
          Assert.fail("should not happen.");
-      }
-      catch (InvalidClientIDException expected) {
+      } catch (InvalidClientIDException expected) {
          // expected
       }
    }
@@ -160,8 +158,7 @@ public class ConnectionTest extends JMSTestBase {
          aConn = cf.createConnection();
          newCF = getCFThruSerialization(cf);
          testCreateConnection(newCF);
-      }
-      finally {
+      } finally {
          if (aConn != null) {
             aConn.close();
          }
@@ -193,8 +190,7 @@ public class ConnectionTest extends JMSTestBase {
          session1.close();
          Session session2 = newConn.createSession(true, Session.SESSION_TRANSACTED);
          session2.close();
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }

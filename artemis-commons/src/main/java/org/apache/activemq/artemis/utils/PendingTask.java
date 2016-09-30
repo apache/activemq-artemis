@@ -17,9 +17,11 @@
 
 package org.apache.activemq.artemis.utils;
 
-/** This is similar to a Runnable, except that we throw exceptions.
- *  In certain places we need to complete tasks after deliveries,
- *  and this will take care of those situations. */
+/**
+ * This is similar to a Runnable, except that we throw exceptions.
+ * In certain places we need to complete tasks after deliveries,
+ * and this will take care of those situations.
+ */
 public abstract class PendingTask {
 
    public abstract void run() throws Exception;

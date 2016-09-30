@@ -59,8 +59,7 @@ public class QueueReceiverTest extends JMSTestCase {
          TextMessage rm = (TextMessage) qreceiver.receive(1000);
 
          ProxyAssertSupport.assertEquals("two", rm.getText());
-      }
-      finally {
+      } finally {
          if (qc != null) {
             qc.close();
          }

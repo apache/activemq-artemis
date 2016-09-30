@@ -48,13 +48,10 @@ public class SessionTest extends PTPTestCase {
          Assert.assertEquals(true, senderSession.getTransacted());
          senderSession.recover();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException.\n");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -83,8 +80,7 @@ public class SessionTest extends PTPTestCase {
          TextMessage m = (TextMessage) receiver.receiveNoWait();
          // test that no message has been received
          Assert.assertEquals(null, m);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }
@@ -117,8 +113,7 @@ public class SessionTest extends PTPTestCase {
          m = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertEquals("testCommitTransactedSession", m.getText());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }
@@ -135,13 +130,10 @@ public class SessionTest extends PTPTestCase {
          Assert.assertEquals(false, senderSession.getTransacted());
          senderSession.rollback();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException.\n");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -158,13 +150,10 @@ public class SessionTest extends PTPTestCase {
          Assert.assertEquals(false, senderSession.getTransacted());
          senderSession.commit();
          Assert.fail("Should raise an IllegalStateException, the session is not transacted.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException.\n");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -181,8 +170,7 @@ public class SessionTest extends PTPTestCase {
          // we re-create senderSession as a transacted session
          senderSession = senderConnection.createQueueSession(true, Session.AUTO_ACKNOWLEDGE);
          Assert.assertEquals(true, senderSession.getTransacted());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }
@@ -207,13 +195,10 @@ public class SessionTest extends PTPTestCase {
          receiverSession.close();
          m.acknowledge();
          Assert.fail("sec. 4.4.1 Invoking the acknowledge method of a received message from a closed " + " session must throw an [javax.jms.]IllegalStateException.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("sec. 4.4.1 Invoking the acknowledge method of a received message from a closed " + "session must throw an [javax.jms.]IllegalStateException, " + "[not a java.lang.IllegalStateException]");
       }
    }
@@ -232,8 +217,7 @@ public class SessionTest extends PTPTestCase {
          TextMessage m = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
          receiverSession.close();
          Assert.assertEquals("testUseMessage", m.getText());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("sec. 4.4.1 It is valid to continue to use message objects created or received via " + "the [closed] session.\n");
       }
    }
@@ -248,13 +232,10 @@ public class SessionTest extends PTPTestCase {
          senderSession.close();
          senderSession.createMessage();
          Assert.fail("sec. 4.4.1 An attempt to use [a closed session] must throw a [javax.jms.]IllegalStateException.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException");
       }
    }
@@ -271,8 +252,7 @@ public class SessionTest extends PTPTestCase {
          senderSession.close();
          // we close it a second time
          senderSession.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("sec. 4.4.1 Closing a closed session must NOT throw an exception.\n");
       }
    }

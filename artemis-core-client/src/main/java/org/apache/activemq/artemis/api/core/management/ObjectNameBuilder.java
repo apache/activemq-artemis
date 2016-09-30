@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.ObjectName;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Helper class to build ObjectNames for ActiveMQ Artemis resources.
@@ -50,8 +50,7 @@ public final class ObjectNameBuilder {
    public static ObjectNameBuilder create(final String domain) {
       if (domain == null) {
          return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), null, false);
-      }
-      else {
+      } else {
          return new ObjectNameBuilder(domain, null, false);
       }
    }
@@ -59,8 +58,7 @@ public final class ObjectNameBuilder {
    public static ObjectNameBuilder create(final String domain, String brokerName) {
       if (domain == null) {
          return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      }
-      else {
+      } else {
          return new ObjectNameBuilder(domain, brokerName, true);
       }
    }
@@ -68,8 +66,7 @@ public final class ObjectNameBuilder {
    public static ObjectNameBuilder create(final String domain, String brokerName, boolean jmxUseBrokerName) {
       if (domain == null) {
          return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, jmxUseBrokerName);
-      }
-      else {
+      } else {
          return new ObjectNameBuilder(domain, brokerName, jmxUseBrokerName);
       }
    }
@@ -197,8 +194,7 @@ public final class ObjectNameBuilder {
    private String getBrokerProperties() {
       if (jmxUseBrokerName && brokerName != null) {
          return String.format("type=Broker,brokerName=%s,", ObjectName.quote(brokerName));
-      }
-      else {
+      } else {
          return "";
       }
    }
@@ -206,8 +202,7 @@ public final class ObjectNameBuilder {
    private String getObjectType() {
       if (jmxUseBrokerName && brokerName != null) {
          return "serviceType";
-      }
-      else {
+      } else {
          return "type";
       }
    }

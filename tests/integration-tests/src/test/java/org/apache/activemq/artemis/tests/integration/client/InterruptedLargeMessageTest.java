@@ -185,8 +185,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                }
 
                msg.checkCompletion();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
                expectedErrors.incrementAndGet();
             }
@@ -238,12 +237,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                   unexpectedErrors.incrementAndGet();
                   return;
                }
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                log.debug("This exception was ok as it was expected", e);
                expectedErrors.incrementAndGet();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                log.warn("Captured unexpected exception", e);
                unexpectedErrors.incrementAndGet();
             }
@@ -380,8 +377,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          }
          if (h == 4) {
             session.commit();
-         }
-         else {
+         } else {
             session.rollback();
          }
 
@@ -474,8 +470,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          if (start == 1) {
             session.commit();
-         }
-         else {
+         } else {
             session.rollback();
          }
 

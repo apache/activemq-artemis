@@ -49,8 +49,7 @@ public abstract class SessionContinuationMessage extends PacketImpl {
    public byte[] getBody() {
       if (size <= 0) {
          return new byte[0];
-      }
-      else {
+      } else {
          return body;
       }
    }

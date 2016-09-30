@@ -18,5 +18,6 @@
 package org.apache.activemq.artemis.core.server;
 
 public interface SlowConsumerDetectionListener {
+
    void onSlowConsumer(ServerConsumer consumer);
 }

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,13 +41,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase {
 
@@ -1236,8 +1236,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       public synchronized void onMessage(final ClientMessage message) {
          try {
             message.acknowledge();
-         }
-         catch (ActiveMQException me) {
+         } catch (ActiveMQException me) {
             log.error("Failed to process", me);
          }
 

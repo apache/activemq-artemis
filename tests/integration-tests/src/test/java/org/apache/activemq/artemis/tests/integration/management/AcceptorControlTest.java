@@ -16,15 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
-
 import java.util.HashMap;
 
-import org.junit.Assert;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -34,8 +28,13 @@ import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AcceptorControlTest extends ManagementTestBase {
    // Static --------------------------------------------------------
@@ -88,8 +87,7 @@ public class AcceptorControlTest extends ManagementTestBase {
       try {
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
       }
 
       acceptorControl.start();
@@ -109,8 +107,7 @@ public class AcceptorControlTest extends ManagementTestBase {
       try {
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
       }
 
    }

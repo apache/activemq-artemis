@@ -123,8 +123,7 @@ public class DeliveryOrderTest extends JMSTestCase {
                sess.commit();
                latch.countDown();
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
 
             // Failed

@@ -56,7 +56,7 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 /**
  * StompProtocolManager
  */
-public class StompProtocolManager extends AbstractProtocolManager<StompFrame,StompFrameInterceptor,StompConnection> {
+public class StompProtocolManager extends AbstractProtocolManager<StompFrame, StompFrameInterceptor, StompConnection> {
 
    private static final List<String> websocketRegistryNames = Arrays.asList("v10.stomp", "v11.stomp", "v12.stomp");
 
@@ -136,8 +136,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
 
       if (ttl != -1) {
          return new ConnectionEntry(conn, null, System.currentTimeMillis(), ttl);
-      }
-      else {
+      } else {
          // Default to 1 minute - which is same as core protocol
          return new ConnectionEntry(conn, null, System.currentTimeMillis(), 1 * 60 * 1000);
       }
@@ -157,8 +156,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
          StompFrame request;
          try {
             request = conn.decode(buffer);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDecodingPacket(e);
             return;
          }
@@ -170,8 +168,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
          try {
             invokeInterceptors(this.incomingInterceptors, request, conn);
             conn.handleFrame(request);
-         }
-         finally {
+         } finally {
             server.getStorageManager().clearContext();
          }
       } while (conn.hasBytes());
@@ -214,8 +211,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
 
          try {
             connection.physicalSend(frame);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQStompProtocolLogger.LOGGER.errorSendingFrame(e, frame);
             return false;
          }
@@ -268,8 +264,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
                   session.getSession().stop();
                   session.getSession().rollback(true);
                   session.getSession().close(false);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                }
             }
@@ -283,8 +278,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
                   try {
                      serverSession.rollback(true);
                      serverSession.close(false);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                   }
                   iterator.remove();
@@ -341,11 +335,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
       if (sm != null && server.getConfiguration().isSecurityEnabled()) {
          if (sm instanceof ActiveMQSecurityManager3) {
             validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, certificates) != null;
-         }
-         else if (sm instanceof ActiveMQSecurityManager2) {
+         } else if (sm instanceof ActiveMQSecurityManager2) {
             validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, certificates);
-         }
-         else {
+         } else {
             validated = sm.validateUser(login, passcode);
          }
       }

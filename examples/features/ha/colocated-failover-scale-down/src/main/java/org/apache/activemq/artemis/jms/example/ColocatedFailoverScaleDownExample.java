@@ -116,8 +116,7 @@ public class ColocatedFailoverScaleDownExample {
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close our resources!
 
          if (connection != null) {

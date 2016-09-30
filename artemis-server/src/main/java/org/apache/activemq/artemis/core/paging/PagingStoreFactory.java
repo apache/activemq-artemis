@@ -34,7 +34,10 @@ public interface PagingStoreFactory {
 
    PagingStore newStore(SimpleString address, AddressSettings addressSettings);
 
-   PageCursorProvider newCursorProvider(PagingStore store, StorageManager storageManager, AddressSettings addressSettings, Executor executor);
+   PageCursorProvider newCursorProvider(PagingStore store,
+                                        StorageManager storageManager,
+                                        AddressSettings addressSettings,
+                                        Executor executor);
 
    void stop() throws InterruptedException;
 

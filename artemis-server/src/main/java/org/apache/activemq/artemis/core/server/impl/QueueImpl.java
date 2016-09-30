@@ -254,8 +254,7 @@ public class QueueImpl implements Queue {
       });
       try {
          flush.await(10, TimeUnit.SECONDS);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       synchronized (this) {
@@ -361,16 +360,14 @@ public class QueueImpl implements Queue {
       if (addressSettingsRepository != null) {
          addressSettingsRepositoryListener = new AddressSettingsRepositoryListener();
          addressSettingsRepository.registerListener(addressSettingsRepositoryListener);
-      }
-      else {
+      } else {
          expiryAddress = null;
       }
 
       if (pageSubscription != null) {
          pageSubscription.setQueue(this);
          this.pageIterator = pageSubscription.iterator();
-      }
-      else {
+      } else {
          this.pageIterator = null;
       }
 
@@ -477,8 +474,7 @@ public class QueueImpl implements Queue {
                synchronized (QueueImpl.this) {
                   if (groups.remove(groupIDToRemove) != null) {
                      logger.debug("Removing group after unproposal " + groupID + " from queue " + QueueImpl.this);
-                  }
-                  else {
+                  } else {
                      logger.debug("Couldn't remove Removing group " + groupIDToRemove + " after unproposal on queue " + QueueImpl.this);
                   }
                }
@@ -593,13 +589,11 @@ public class QueueImpl implements Queue {
 
          if (deliveriesInTransit.await(DELIVERY_TIMEOUT)) {
             return true;
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.timeoutFlushInTransit(getName().toString(), getAddress().toString());
             return false;
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
@@ -627,8 +621,7 @@ public class QueueImpl implements Queue {
          scheduledRunners.incrementAndGet();
          try {
             getExecutor().execute(deliverRunner);
-         }
-         catch (RejectedExecutionException ignored) {
+         } catch (RejectedExecutionException ignored) {
             // no-op
             scheduledRunners.decrementAndGet();
          }
@@ -649,8 +642,7 @@ public class QueueImpl implements Queue {
          public void run() {
             try {
                cancelRedistributor();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // nothing that could be done anyway.. just logging
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
@@ -667,8 +659,7 @@ public class QueueImpl implements Queue {
       if (pageSubscription != null && pageSubscription.isPaging()) {
          // When in page mode, we don't want to have concurrent IO on the same PageStore
          return pageSubscription.getExecutor();
-      }
-      else {
+      } else {
          return executor;
       }
    }
@@ -796,8 +787,7 @@ public class QueueImpl implements Queue {
 
             futures.add(redistributorFuture);
          }
-      }
-      else {
+      } else {
          internalAddRedistributor(executor);
       }
    }
@@ -853,8 +843,7 @@ public class QueueImpl implements Queue {
 
          if (filter1 == null) {
             return true;
-         }
-         else {
+         } else {
             if (filter1.match(message)) {
                return true;
             }
@@ -926,8 +915,7 @@ public class QueueImpl implements Queue {
             return messageReferences.size() + getScheduledCount() +
                deliveringCount.get() +
                pageSubscription.getMessageCount();
-         }
-         else {
+         } else {
             return messageReferences.size() + getScheduledCount() + deliveringCount.get();
          }
       }
@@ -975,8 +963,7 @@ public class QueueImpl implements Queue {
       if (ref.isPaged()) {
          pageSubscription.ack((PagedReference) ref);
          postAcknowledge(ref);
-      }
-      else {
+      } else {
          ServerMessage message = ref.getMessage();
 
          boolean durableRef = message.isDurable() && durable;
@@ -989,11 +976,9 @@ public class QueueImpl implements Queue {
 
       if (reason == AckReason.EXPIRED) {
          messagesExpired++;
-      }
-      else if (reason == AckReason.KILLED) {
+      } else if (reason == AckReason.KILLED) {
          messagesKilled++;
-      }
-      else {
+      } else {
          messagesAcknowledged++;
       }
 
@@ -1010,8 +995,7 @@ public class QueueImpl implements Queue {
          pageSubscription.ackTx(tx, (PagedReference) ref);
 
          getRefsOperation(tx).addAck(ref);
-      }
-      else {
+      } else {
          ServerMessage message = ref.getMessage();
 
          boolean durableRef = message.isDurable() && durable;
@@ -1027,11 +1011,9 @@ public class QueueImpl implements Queue {
 
       if (reason == AckReason.EXPIRED) {
          messagesExpired++;
-      }
-      else if (reason == AckReason.KILLED) {
+      } else if (reason == AckReason.KILLED) {
          messagesKilled++;
-      }
-      else {
+      } else {
          messagesAcknowledged++;
       }
    }
@@ -1094,8 +1076,7 @@ public class QueueImpl implements Queue {
          }
 
          resetAllIterators();
-      }
-      else {
+      } else {
          decDelivering();
       }
    }
@@ -1112,8 +1093,7 @@ public class QueueImpl implements Queue {
             logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
          move(null, messageExpiryAddress, ref, false, AckReason.EXPIRED);
-      }
-      else {
+      } else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
@@ -1148,12 +1128,10 @@ public class QueueImpl implements Queue {
    private SimpleString extractAddress(ServerMessage message) {
       if (message.containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
          return message.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS);
-      }
-      else {
+      } else {
          return message.getAddress();
       }
    }
-
 
    @Override
    public SimpleString getExpiryAddress() {
@@ -1186,8 +1164,7 @@ public class QueueImpl implements Queue {
    public long getMessagesAdded() {
       if (pageSubscription != null) {
          return messagesAdded + pageSubscription.getCounter().getValue() - pagedReferences.get();
-      }
-      else {
+      } else {
          return messagesAdded;
       }
    }
@@ -1302,8 +1279,7 @@ public class QueueImpl implements Queue {
                   count++;
                   txCount++;
                   messageAction.actMessage(tx, reference);
-               }
-               else {
+               } else {
                   addTail(reference, false);
                }
 
@@ -1404,8 +1380,7 @@ public class QueueImpl implements Queue {
          }
 
          tx.commit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          tx.rollback();
          throw e;
       }
@@ -1514,8 +1489,7 @@ public class QueueImpl implements Queue {
                         iter.remove();
                         refRemoved(ref);
                      }
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
                   }
 
@@ -1525,12 +1499,10 @@ public class QueueImpl implements Queue {
                if ((!hasElements || expired) && pageIterator != null && pageIterator.hasNext()) {
                   scheduleDepage(true);
                }
-            }
-            finally {
+            } finally {
                try {
                   iter.close();
-               }
-               catch (Throwable ignored) {
+               } catch (Throwable ignored) {
                }
                scannerRunning.decrementAndGet();
             }
@@ -1592,8 +1564,7 @@ public class QueueImpl implements Queue {
                incDelivering();
                try {
                   move(null, toAddress, ref, rejectDuplicate, AckReason.NORMAL);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   decDelivering();
                   throw e;
                }
@@ -1681,8 +1652,7 @@ public class QueueImpl implements Queue {
 
                if (targetQueue != null) {
                   move(originalMessageAddress, tx, ref, false, false, targetQueue.longValue());
-               }
-               else {
+               } else {
                   move(originalMessageAddress, tx, ref, false, false);
 
                }
@@ -1744,8 +1714,7 @@ public class QueueImpl implements Queue {
    public synchronized void pause() {
       try {
          this.flushDeliveriesInTransit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
       paused = true;
@@ -1834,8 +1803,7 @@ public class QueueImpl implements Queue {
    private int getPriority(MessageReference ref) {
       try {
          return ref.getMessage().getPriority();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return 4; // the default one in case of failure
       }
@@ -1939,14 +1907,12 @@ public class QueueImpl implements Queue {
 
             if (holder.iter.hasNext()) {
                ref = holder.iter.next();
-            }
-            else {
+            } else {
                ref = null;
             }
             if (ref == null) {
                noDelivery++;
-            }
-            else {
+            } else {
                if (checkExpired(ref)) {
                   if (logger.isTraceEnabled()) {
                      logger.trace("Reference " + ref + " being expired");
@@ -1993,13 +1959,11 @@ public class QueueImpl implements Queue {
                   }
 
                   handled++;
-               }
-               else if (status == HandleStatus.BUSY) {
+               } else if (status == HandleStatus.BUSY) {
                   holder.iter.repeat();
 
                   noDelivery++;
-               }
-               else if (status == HandleStatus.NO_MATCH) {
+               } else if (status == HandleStatus.NO_MATCH) {
                   // nothing to be done on this case, the iterators will just jump next
                }
             }
@@ -2012,8 +1976,7 @@ public class QueueImpl implements Queue {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
                      ActiveMQServerLogger.LOGGER.nonDeliveryHandled();
-                  }
-                  else {
+                  } else {
                      if (logger.isDebugEnabled()) {
                         logger.debug(this + "::All the consumers were busy, giving up now");
                      }
@@ -2064,13 +2027,11 @@ public class QueueImpl implements Queue {
    private SimpleString extractGroupID(MessageReference ref) {
       if (internalQueue) {
          return null;
-      }
-      else {
+      } else {
          try {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             return null;
          }
@@ -2137,14 +2098,14 @@ public class QueueImpl implements Queue {
 
          if (logger.isDebugEnabled()) {
             logger.debug("Queue Memory Size after depage on queue=" + this.getName() +
-                                                 " is " +
-                                                 queueMemorySize.get() +
-                                                 " with maxSize = " +
-                                                 maxSize +
-                                                 ". Depaged " +
-                                                 depaged +
-                                                 " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() +
-                                                 ", queueDelivering=" + deliveringCount.get());
+                            " is " +
+                            queueMemorySize.get() +
+                            " with maxSize = " +
+                            maxSize +
+                            ". Depaged " +
+                            depaged +
+                            " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() +
+                            ", queueDelivering=" + deliveringCount.get());
 
          }
       }
@@ -2207,8 +2168,7 @@ public class QueueImpl implements Queue {
          sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
 
          return false;
-      }
-      else {
+      } else {
          // Second check Redelivery Delay
          if (!ignoreRedeliveryDelay && redeliveryDelay > 0) {
             redeliveryDelay = calculateRedeliveryDelay(addressSettings, deliveryCount);
@@ -2299,8 +2259,7 @@ public class QueueImpl implements Queue {
 
          if (targetBinding == null) {
             ActiveMQServerLogger.LOGGER.unableToFindTargetQueue(targetNodeID);
-         }
-         else {
+         } else {
             logger.debug("Routing on binding: " + targetBinding);
             targetBinding.route(copyMessage, routingContext);
          }
@@ -2364,8 +2323,7 @@ public class QueueImpl implements Queue {
                            logger.debug("Message now destined for " + remoteQueueBinding.getRoutingName() + " with ID: " + remoteQueueBinding.getRemoteQueueID() + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
                         }
                         break;
-                     }
-                     else {
+                     } else {
                         logger.debug("Failed to match: " + remoteQueueBinding);
                      }
                   }
@@ -2408,12 +2366,10 @@ public class QueueImpl implements Queue {
 
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
-         }
-         else {
+         } else {
             move(expiryAddress, tx, ref, true, true);
          }
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
 
          acknowledge(tx, ref);
@@ -2425,7 +2381,8 @@ public class QueueImpl implements Queue {
       sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
    }
 
-   private void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref,
+   private void sendToDeadLetterAddress(final Transaction tx,
+                                        final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
          Bindings bindingList = postOffice.getBindingsForAddress(deadLetterAddress);
@@ -2433,13 +2390,11 @@ public class QueueImpl implements Queue {
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
             ref.acknowledge(tx, AckReason.KILLED);
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
             move(tx, deadLetterAddress, ref, false, AckReason.KILLED);
          }
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(name);
 
          ref.acknowledge(tx, AckReason.KILLED);
@@ -2455,8 +2410,7 @@ public class QueueImpl implements Queue {
 
       if (originalTX != null) {
          tx = originalTX;
-      }
-      else {
+      } else {
          // if no TX we create a new one to commit at the end
          tx = new TransactionImpl(storageManager);
       }
@@ -2546,8 +2500,7 @@ public class QueueImpl implements Queue {
       try {
          consumer.proceedDeliver(reference);
          deliveriesInTransit.countDown();
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          deliveriesInTransit.countDown();
          ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
@@ -2555,8 +2508,7 @@ public class QueueImpl implements Queue {
             // If the consumer throws an exception we remove the consumer
             try {
                removeConsumer(consumer);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
             }
 
@@ -2576,18 +2528,15 @@ public class QueueImpl implements Queue {
 
             try {
                expire(reference);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorExpiringRef(e);
             }
 
             return true;
-         }
-         else {
+         } else {
             return false;
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
@@ -2597,15 +2546,13 @@ public class QueueImpl implements Queue {
       HandleStatus status;
       try {
          status = consumer.handle(reference);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
          // If the consumer throws an exception we remove the consumer
          try {
             removeConsumer(consumer);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
          }
          return HandleStatus.BUSY;
@@ -2642,20 +2589,19 @@ public class QueueImpl implements Queue {
 
       try {
          message = ref.getMessage();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          message = null;
       }
 
-      if (message == null) return;
+      if (message == null)
+         return;
 
       boolean durableRef = message.isDurable() && queue.durable;
 
       try {
          message.decrementRefCount();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorDecrementingRefCount(e);
       }
 
@@ -2679,8 +2625,7 @@ public class QueueImpl implements Queue {
             // There is a startup check to remove non referenced messages case these deletes fail
             try {
                storageManager.deleteMessage(message.getMessageID());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }
          }
@@ -2787,11 +2732,9 @@ public class QueueImpl implements Queue {
             synchronized (QueueImpl.this.deliverRunner) {
                deliver();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDelivering(e);
-         }
-         finally {
+         } finally {
             scheduledRunners.decrementAndGet();
          }
       }
@@ -2809,8 +2752,7 @@ public class QueueImpl implements Queue {
       public void run() {
          try {
             depage(scheduleExpiry);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDelivering(e);
          }
       }
@@ -2966,12 +2908,10 @@ public class QueueImpl implements Queue {
                logger.debug("Cancelled slow-consumer-reaper thread for queue \"" + getName() + "\"");
             }
          }
-      }
-      else {
+      } else {
          if (slowConsumerReaperRunnable == null) {
             scheduleSlowConsumerReaper(settings);
-         }
-         else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() ||
+         } else if (slowConsumerReaperRunnable.checkPeriod != settings.getSlowConsumerCheckPeriod() ||
             slowConsumerReaperRunnable.threshold != settings.getSlowConsumerThreshold() ||
             !slowConsumerReaperRunnable.policy.equals(settings.getSlowConsumerPolicy())) {
             slowConsumerReaperFuture.cancel(false);
@@ -2987,9 +2927,9 @@ public class QueueImpl implements Queue {
 
       if (logger.isDebugEnabled()) {
          logger.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() +
-                                              "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() +
-                                              ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() +
-                                              ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
+                         "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() +
+                         ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() +
+                         ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
       }
    }
 
@@ -3029,8 +2969,7 @@ public class QueueImpl implements Queue {
                   if (logger.isDebugEnabled()) {
                      logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
                   }
-               }
-               else if (consumerRate < threshold) {
+               } else if (consumerRate < threshold) {
                   RemotingConnection connection = null;
                   ActiveMQServer server = ((PostOfficeImpl) postOffice).getServer();
                   RemotingService remotingService = server.getRemotingService();
@@ -3049,8 +2988,7 @@ public class QueueImpl implements Queue {
                         connection.killMessage(server.getNodeID());
                         remotingService.removeConnection(connection.getID());
                         connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
-                     }
-                     else if (policy.equals(SlowConsumerPolicy.NOTIFY)) {
+                     } else if (policy.equals(SlowConsumerPolicy.NOTIFY)) {
                         TypedProperties props = new TypedProperties();
 
                         props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, getConsumerCount());
@@ -3072,8 +3010,7 @@ public class QueueImpl implements Queue {
                         ManagementService managementService = ((PostOfficeImpl) postOffice).getServer().getManagementService();
                         try {
                            managementService.sendNotification(notification);
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                            ActiveMQServerLogger.LOGGER.failedToSendSlowConsumerNotification(notification, e);
                         }
                      }

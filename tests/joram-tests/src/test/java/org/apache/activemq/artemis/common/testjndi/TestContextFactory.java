@@ -58,8 +58,7 @@ public class TestContextFactory implements InitialContextFactory {
             try {
                ConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
                data.put(jndiName, factory);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                throw new NamingException("Invalid broker URL");
             }

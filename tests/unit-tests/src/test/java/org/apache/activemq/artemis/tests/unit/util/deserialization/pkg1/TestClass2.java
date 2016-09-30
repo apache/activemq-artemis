@@ -19,4 +19,5 @@ package org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1;
 import java.io.Serializable;
 
 public class TestClass2 implements Serializable {
+
 }

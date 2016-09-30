@@ -69,12 +69,7 @@ public class MBeanInfoHelper {
          MBeanAttributeInfo infoToCopy = info1;
          for (MBeanAttributeInfo info2 : tempAttributes) {
             if (info1.getName().equals(info2.getName()) && !info1.equals(info2)) {
-               infoToCopy = new MBeanAttributeInfo(info1.getName(),
-                  info1.getType().equals("void") ? info2.getType() : info1.getType(),
-                  info1.getDescription(),
-                  (info1.isReadable() || info2.isReadable()),
-                  (info1.isWritable() || info2.isWritable()),
-                  (info1.isIs() || info2.isIs()));
+               infoToCopy = new MBeanAttributeInfo(info1.getName(), info1.getType().equals("void") ? info2.getType() : info1.getType(), info1.getDescription(), (info1.isReadable() || info2.isReadable()), (info1.isWritable() || info2.isWritable()), (info1.isIs() || info2.isIs()));
             }
          }
          if (!alreadyAdded.contains(infoToCopy.getName())) {
@@ -107,8 +102,7 @@ public class MBeanInfoHelper {
          method.getParameterTypes().length == 1 &&
          method.getReturnType().equals(void.class)) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -118,8 +112,7 @@ public class MBeanInfoHelper {
          method.getParameterTypes().length == 0 &&
          method.getReturnType().equals(boolean.class)) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -149,7 +142,7 @@ public class MBeanInfoHelper {
          description = operation.getAnnotation(Attribute.class).desc();
       }
 
-      MBeanAttributeInfo info  = new MBeanAttributeInfo(getAttributeName(operation), operation.getReturnType().getName(), description, (isGetterMethod(operation) || isIsBooleanMethod(operation)), isSetterMethod(operation), isIsBooleanMethod(operation));
+      MBeanAttributeInfo info = new MBeanAttributeInfo(getAttributeName(operation), operation.getReturnType().getName(), description, (isGetterMethod(operation) || isIsBooleanMethod(operation)), isSetterMethod(operation), isIsBooleanMethod(operation));
 
       return info;
    }

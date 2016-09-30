@@ -256,10 +256,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          }
 
          Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
-         for (Entry<String, ProtocolManagerFactory> entry: selectedProtocolFactories.entrySet()) {
+         for (Entry<String, ProtocolManagerFactory> entry : selectedProtocolFactories.entrySet()) {
             selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
          }
-
 
          acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
 
@@ -274,8 +273,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
             managementService.registerAcceptor(acceptor, info);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
       }
 
@@ -320,8 +318,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (Acceptor acceptor : acceptors.values()) {
          try {
             acceptor.pause();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
       }
@@ -374,8 +371,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
          try {
             acceptor.pause();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
 
@@ -402,8 +398,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (Acceptor acceptor : acceptors.values()) {
          try {
             acceptor.stop();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
          }
       }
@@ -445,8 +440,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       if (entry != null) {
          return entry.connection;
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
          return null;
@@ -458,8 +452,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       if (entry != null) {
          return entry;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -472,8 +465,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          logger.debug("RemotingServiceImpl::removing connection ID " + remotingConnectionID);
          connectionCountLatch.countDown();
          return entry.connection;
-      }
-      else {
+      } else {
          logger.debug("The connectionID::" + remotingConnectionID + " was already removed by some other module");
 
          return null;
@@ -575,8 +567,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (incomingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -597,8 +588,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (outgoingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -629,8 +619,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
          if (conn != null) {
             conn.connection.bufferReceived(connectionID, buffer);
-         }
-         else {
+         } else {
             if (logger.isTraceEnabled()) {
                logger.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
             }
@@ -659,8 +648,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          if (!criticalError) {
             try {
                join();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
@@ -686,8 +674,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
                            flush = false;
                         }
-                     }
-                     else {
+                     } else {
                         entry.lastCheck = now;
                      }
                   }
@@ -701,8 +688,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                               // as if anything wrong happens on flush
                               // failure detection could be affected
                               conn.flush();
-                           }
-                           catch (Throwable e) {
+                           } catch (Throwable e) {
                               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                            }
 
@@ -729,8 +715,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
                if (latch.await(pauseInterval, TimeUnit.MILLISECONDS))
                   return;
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQServerLogger.LOGGER.errorOnFailureCheck(e);
             }
          }
@@ -749,7 +734,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
     * @param protocolList
     * @param transportConfig
     * @param protocolMap
-     */
+    */
    private void locateProtocols(String protocolList,
                                 Object transportConfig,
                                 Map<String, ProtocolManagerFactory> protocolMap) {
@@ -760,8 +745,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
          if (protocolManagerFactory == null) {
             ActiveMQServerLogger.LOGGER.noProtocolManagerFound(protocolItem, transportConfig.toString());
-         }
-         else {
+         } else {
             protocolMap.put(protocolItem, protocolManagerFactory);
          }
       }
@@ -769,8 +753,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    /**
     * Finds protocol support from a given classloader.
+    *
     * @param loader
-     */
+    */
    private void resolveProtocols(ClassLoader loader) {
       ServiceLoader<ProtocolManagerFactory> serviceLoader = ServiceLoader.load(ProtocolManagerFactory.class, loader);
       loadProtocolManagerFactories(serviceLoader);
@@ -778,8 +763,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    /**
     * Loads the protocols found into a map.
+    *
     * @param protocolManagerFactoryCollection
-     */
+    */
    private void loadProtocolManagerFactories(Iterable<ProtocolManagerFactory> protocolManagerFactoryCollection) {
       for (ProtocolManagerFactory next : protocolManagerFactoryCollection) {
          String[] protocols = next.getProtocols();

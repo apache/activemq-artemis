@@ -77,7 +77,6 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean createTopic(boolean storeConfig, String topicName, String... bindings) throws Exception;
 
    /**
-    *
     * @param storeConfig
     * @param topicName
     * @param autoCreated

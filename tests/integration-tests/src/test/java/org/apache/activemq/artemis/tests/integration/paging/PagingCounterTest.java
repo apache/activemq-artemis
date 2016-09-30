@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
@@ -33,6 +32,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,8 +75,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          storage.waitOnOperations();
 
          assertEquals(1, counter.getValue());
-      }
-      finally {
+      } finally {
          sf.close();
          session.close();
       }
@@ -131,8 +130,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          assertEquals(2100, counter.getValue());
 
-      }
-      finally {
+      } finally {
          sf.close();
          session.close();
       }
@@ -189,8 +187,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          assertEquals(0, counter.getValue());
 
-      }
-      finally {
+      } finally {
          sf.close();
          session.close();
       }

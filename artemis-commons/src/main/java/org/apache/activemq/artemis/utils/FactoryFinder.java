@@ -75,8 +75,7 @@ public class FactoryFinder {
          if (loader != null) {
             try {
                clazz = loader.loadClass(className);
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                // ignore
             }
          }
@@ -108,12 +107,10 @@ public class FactoryFinder {
             Properties properties = new Properties();
             properties.load(reader);
             return properties;
-         }
-         finally {
+         } finally {
             try {
                reader.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
          }
       }

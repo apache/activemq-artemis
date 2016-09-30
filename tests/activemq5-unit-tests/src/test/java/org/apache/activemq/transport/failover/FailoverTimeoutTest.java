@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,12 @@
  */
 package org.apache.activemq.transport.failover;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.net.URI;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -39,6 +34,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class FailoverTimeoutTest extends OpenwireArtemisBaseTest {
 
@@ -77,8 +76,7 @@ public class FailoverTimeoutTest extends OpenwireArtemisBaseTest {
       try {
          connection.start();
          fail("Should have failed to connect");
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
          LOG.info("Caught exception on call to start: {}", ex.getMessage());
       }
 
@@ -106,8 +104,7 @@ public class FailoverTimeoutTest extends OpenwireArtemisBaseTest {
 
          try {
             producer.send(message);
-         }
-         catch (JMSException jmse) {
+         } catch (JMSException jmse) {
             assertEquals("Failover timeout of " + timeout + " ms reached.", jmse.getMessage());
          }
 
@@ -119,8 +116,7 @@ public class FailoverTimeoutTest extends OpenwireArtemisBaseTest {
 
          server.stop();
          server = null;
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -138,8 +134,7 @@ public class FailoverTimeoutTest extends OpenwireArtemisBaseTest {
 
          URI[] bunchOfUnknownAndOneKnown = new URI[]{new URI("tcp://unknownHost:" + tcpUri.getPort()), new URI("tcp://unknownHost2:" + tcpUri.getPort()), new URI("tcp://localhost:2222")};
          failoverTransport.add(false, bunchOfUnknownAndOneKnown);
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

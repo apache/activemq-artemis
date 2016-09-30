@@ -72,10 +72,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueConnection.createDurableConnectionConsumer(topic, "subscriptionName", "", (ServerSessionPool) null, 1);
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -93,10 +91,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueSession.createDurableSubscriber(topic, "subscriptionName");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -114,10 +110,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueSession.createTemporaryTopic();
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -135,10 +129,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueSession.createTopic("topic_name");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -156,10 +148,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueSession.unsubscribe("subscriptionName");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -177,10 +167,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          topicSession.createBrowser(queue);
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -198,10 +186,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          topicSession.createQueue("queue_name");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -219,10 +205,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          topicSession.createTemporaryQueue();
          Assert.fail("Should throw a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.IllegalStateException, not a " + e);
       }
    }
@@ -239,8 +223,7 @@ public class UnifiedSessionTest extends UnifiedTestCase {
 
          queueConnection.start();
          topicConnection.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -251,10 +234,8 @@ public class UnifiedSessionTest extends UnifiedTestCase {
       try {
          queueConnection.close();
          topicConnection.close();
-      }
-      catch (Exception ignored) {
-      }
-      finally {
+      } catch (Exception ignored) {
+      } finally {
          queueConnection = null;
          queueSession = null;
          topicConnection = null;

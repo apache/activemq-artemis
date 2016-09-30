@@ -137,8 +137,7 @@ public class StompTest extends StompTestBase {
 
          // It should encounter the exception on logs
          AssertionLoggerHandler.findText("AMQ119119");
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.clear();
          AssertionLoggerHandler.stopCapture();
       }
@@ -859,7 +858,6 @@ public class StompTest extends StompTestBase {
       sendFrame(frame);
    }
 
-
    @Test
    public void testSubscribeWithAutoAckAndHyphenatedSelector() throws Exception {
 
@@ -995,8 +993,7 @@ public class StompTest extends StompTestBase {
          sendFrame(frame);
          waitForFrameToTakeEffect();
          reconnect();
-      }
-      else {
+      } else {
          reconnect(100);
          waitForFrameToTakeEffect();
       }
@@ -1308,8 +1305,7 @@ public class StompTest extends StompTestBase {
          public boolean isSatisfied() throws Exception {
             if (server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount == 1) {
                return true;
-            }
-            else {
+            } else {
                return false;
             }
          }
@@ -1374,8 +1370,7 @@ public class StompTest extends StompTestBase {
          public boolean isSatisfied() throws Exception {
             if (server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount == 1) {
                return true;
-            }
-            else {
+            } else {
                return false;
             }
          }
@@ -1443,7 +1438,7 @@ public class StompTest extends StompTestBase {
 
       assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
 
-      final Queue subscription = ((LocalQueueBinding)server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue))).getQueue();
+      final Queue subscription = ((LocalQueueBinding) server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue))).getQueue();
 
       assertTrue(Wait.waitFor(new Wait.Condition() {
          @Override

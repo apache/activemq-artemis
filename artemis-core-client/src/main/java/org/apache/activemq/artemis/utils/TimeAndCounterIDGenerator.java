@@ -74,8 +74,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
 
             wrapped = true;
 
-         }
-         else {
+         } else {
             // Else.. no worry... we will just accept the new time portion being added
             // This time-mark would have been generated some time ago, so this is ok.
             // tmMark is just a cache to validate the MaxIDs, so there is no need to make it atomic (synchronized)

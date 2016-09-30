@@ -16,18 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
 import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.Test;
 
 public class TransportConfigurationTest extends ActiveMQTestBase {
 
@@ -127,7 +125,6 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
       Assert.assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
    }
-
 
    @Test
    public void testSameHostInVMTrueDefault() {

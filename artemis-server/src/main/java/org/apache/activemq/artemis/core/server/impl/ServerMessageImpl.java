@@ -50,8 +50,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
 
       if (MemorySize.is64bitArch()) {
          memoryOffset = 352;
-      }
-      else {
+      } else {
          memoryOffset = 232;
       }
    }
@@ -115,8 +114,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
       if (pagingStore != null) {
          if (count == 1) {
             pagingStore.addSize(getMemoryEstimate() + MessageReferenceImpl.getMemoryEstimate());
-         }
-         else {
+         } else {
             pagingStore.addSize(MessageReferenceImpl.getMemoryEstimate());
          }
       }
@@ -136,8 +134,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
                // release the buffer now
                buffer.byteBuf().release();
             }
-         }
-         else {
+         } else {
             pagingStore.addSize(-MessageReferenceImpl.getMemoryEstimate());
          }
       }
@@ -228,8 +225,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
 
       if (originalQueue != null) {
          putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
-      }
-      else if (originalReference != null) {
+      } else if (originalReference != null) {
          putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalReference.getQueue().getName());
       }
 
@@ -237,8 +233,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
          putStringProperty(Message.HDR_ORIGINAL_ADDRESS, other.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS));
 
          putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getLongProperty(Message.HDR_ORIG_MESSAGE_ID));
-      }
-      else {
+      } else {
          putStringProperty(Message.HDR_ORIGINAL_ADDRESS, other.getAddress());
 
          putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getMessageID());
@@ -280,8 +275,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
    public boolean storeIsPaging() {
       if (pagingStore != null) {
          return pagingStore.isPaging();
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -292,8 +286,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
          return "ServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() + ", bodySize=" + this.getBodyBufferDuplicate().capacity() +
             ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
             ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          return "ServerMessage[messageID=" + messageID + "]";
       }
    }
@@ -301,8 +294,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
    private static String toDate(long timestamp) {
       if (timestamp == 0) {
          return "0";
-      }
-      else {
+      } else {
          return new java.util.Date(timestamp).toString();
       }
 
@@ -328,12 +320,10 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
 
       if (duplicateID == null) {
          return null;
-      }
-      else {
+      } else {
          if (duplicateID instanceof SimpleString) {
             return ((SimpleString) duplicateID).getData();
-         }
-         else {
+         } else {
             return (byte[]) duplicateID;
          }
       }

@@ -38,8 +38,7 @@ public final class CompactJournal extends LockAbstract {
          compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
          System.out.println("Compactation succeeded for " + getBinding());
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          treatError(e, "data", "compact");
       }
       return null;

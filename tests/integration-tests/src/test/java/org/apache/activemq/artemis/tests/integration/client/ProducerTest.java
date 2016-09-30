@@ -112,8 +112,7 @@ public class ProducerTest extends ActiveMQTestBase {
                      msg.getBodyBuffer().writeBytes(new byte[1024]);
                      producer.send(QUEUE, msg);
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }

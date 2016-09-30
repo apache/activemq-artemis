@@ -31,6 +31,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 public class RestAMQConnection implements Closeable {
+
    private CloseableHttpClient httpClient = HttpClients.createDefault();
 
    private String targetUri;
@@ -77,8 +78,7 @@ public class RestAMQConnection implements Closeable {
    public CloseableHttpResponse post(String uri, String contentType, String body) throws IOException {
       String fullLink = getFullLink(uri);
       HttpPost post = new HttpPost(fullLink);
-      StringEntity entity = new StringEntity(body,
-              ContentType.create(contentType));
+      StringEntity entity = new StringEntity(body, ContentType.create(contentType));
       post.setEntity(entity);
       CloseableHttpResponse resp = httpClient.execute(post);
       return resp;

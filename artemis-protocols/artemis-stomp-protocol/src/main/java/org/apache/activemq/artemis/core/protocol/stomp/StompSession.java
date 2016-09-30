@@ -124,7 +124,10 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref,
+                          ServerMessage serverMessage,
+                          final ServerConsumer consumer,
+                          int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;
       try {
@@ -183,22 +186,19 @@ public class StompSession implements SessionCallback {
                   }
                });
             }
-         }
-         else {
+         } else {
             messagesToAck.put(newServerMessage.getMessageID(), new Pair<>(consumer.getID(), length));
             // Must send AFTER adding to messagesToAck - or could get acked from client BEFORE it's been added!
             manager.send(connection, frame);
          }
 
          return length;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (ActiveMQStompProtocolLogger.LOGGER.isDebugEnabled()) {
             ActiveMQStompProtocolLogger.LOGGER.debug(e);
          }
          return 0;
-      }
-      finally {
+      } finally {
          if (largeMessage != null) {
             largeMessage.releaseResources();
             largeMessage = null;
@@ -216,7 +216,11 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference ref, ServerMessage msg, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference ref,
+                               ServerMessage msg,
+                               ServerConsumer consumer,
+                               long bodySize,
+                               int deliveryCount) {
       return 0;
    }
 
@@ -260,8 +264,7 @@ public class StompSession implements SessionCallback {
 
       if (sub.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.CLIENT_INDIVIDUAL)) {
          session.individualAcknowledge(consumerID, id);
-      }
-      else {
+      } else {
          session.acknowledge(consumerID, id);
       }
 
@@ -293,14 +296,12 @@ public class StompSession implements SessionCallback {
             if (manager.getServer().locateQueue(queueName) == null) {
                session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), false, true);
             }
-         }
-         else {
+         } else {
             queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
             session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), true, false);
          }
          session.createConsumer(consumerID, queueName, null, false, false, receiveCredits);
-      }
-      else {
+      } else {
          session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, receiveCredits);
       }
 

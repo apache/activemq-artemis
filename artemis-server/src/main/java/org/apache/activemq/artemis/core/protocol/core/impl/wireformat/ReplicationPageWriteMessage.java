@@ -89,8 +89,7 @@ public class ReplicationPageWriteMessage extends PacketImpl {
       if (pagedMessage == null) {
          if (other.pagedMessage != null)
             return false;
-      }
-      else if (!pagedMessage.equals(other.pagedMessage))
+      } else if (!pagedMessage.equals(other.pagedMessage))
          return false;
       return true;
    }

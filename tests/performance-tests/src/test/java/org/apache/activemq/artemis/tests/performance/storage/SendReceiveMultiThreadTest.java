@@ -120,15 +120,12 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
                      Thread.sleep(1000);
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
-            }
-            finally {
+            } finally {
                try {
                   conn.close();
-               }
-               catch (Exception ignored) {
+               } catch (Exception ignored) {
 
                }
             }
@@ -234,8 +231,7 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
             }
             session.commit();
             connection.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             errors++;
          }
@@ -287,12 +283,10 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
             connection.close();
             System.out.println("Send " + numberOfMessages + " messages on thread " + Thread.currentThread().getName());
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             errors.incrementAndGet();
-         }
-         finally {
+         } finally {
             finish.countDown();
          }
       }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.remote;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -30,9 +33,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class PingStressTest extends ActiveMQTestBase {
 
@@ -77,8 +77,7 @@ public class PingStressTest extends ActiveMQTestBase {
             if (packet.getType() == PacketImpl.PING) {
                PingStressTest.log.info("Ignoring Ping packet.. it will be dropped");
                return false;
-            }
-            else {
+            } else {
                return true;
             }
          }
@@ -127,8 +126,7 @@ public class PingStressTest extends ActiveMQTestBase {
                   // them)
                   if (RandomUtil.randomBoolean()) {
                      session = csf1.createSession(false, false, false);
-                  }
-                  else {
+                  } else {
                      session = csf2.createSession(false, false, false);
                   }
 
@@ -141,8 +139,7 @@ public class PingStressTest extends ActiveMQTestBase {
 
                   locator.close();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                failure = e;
             }

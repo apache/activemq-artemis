@@ -500,8 +500,7 @@ public class Create extends InputAbstract {
          if (!created) {
             throw new RuntimeException(String.format("Unable to create the path '%s'.", directory));
          }
-      }
-      else if (!directory.canWrite()) {
+      } else if (!directory.canWrite()) {
          throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
       }
    }
@@ -533,16 +532,14 @@ public class Create extends InputAbstract {
       if (replicated) {
          clustered = true;
          filters.put("${replicated.settings}", applyFilters(readTextFile(ETC_REPLICATED_SETTINGS_TXT), filters));
-      }
-      else {
+      } else {
          filters.put("${replicated.settings}", "");
       }
 
       if (sharedStore) {
          clustered = true;
          filters.put("${shared-store.settings}", applyFilters(readTextFile(ETC_SHARED_STORE_SETTINGS_TXT), filters));
-      }
-      else {
+      } else {
          filters.put("${shared-store.settings}", "");
       }
 
@@ -551,8 +548,7 @@ public class Create extends InputAbstract {
       if (IS_WINDOWS || !supportsLibaio()) {
          aio = false;
          filters.put("${journal.settings}", "NIO");
-      }
-      else {
+      } else {
          aio = true;
          filters.put("${journal.settings}", "ASYNCIO");
       }
@@ -567,8 +563,7 @@ public class Create extends InputAbstract {
             extraWebAttr += " clientAuth=\"true\" trustStorePath=\"" + sslTrust + "\" trustStorePassword=\"" + sslTrustPassword + "\"";
          }
          filters.put("${extra.web.attributes}", extraWebAttr);
-      }
-      else {
+      } else {
          filters.put("${web.protocol}", "http");
          filters.put("${extra.web.attributes}", "");
       }
@@ -601,8 +596,7 @@ public class Create extends InputAbstract {
          filters.put("${cluster.settings}", applyFilters(readTextFile(ETC_CLUSTER_SETTINGS_TXT), filters));
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
-      }
-      else {
+      } else {
          if (name == null) {
             name = getHost();
          }
@@ -643,8 +637,7 @@ public class Create extends InputAbstract {
       if (isAllowAnonymous()) {
          write(ETC_LOGIN_CONFIG_WITH_GUEST, filters, false);
          new File(directory, ETC_LOGIN_CONFIG_WITH_GUEST).renameTo(new File(directory, ETC_LOGIN_CONFIG));
-      }
-      else {
+      } else {
          write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, filters, false);
          new File(directory, ETC_LOGIN_CONFIG_WITHOUT_GUEST).renameTo(new File(directory, ETC_LOGIN_CONFIG));
       }
@@ -670,36 +663,31 @@ public class Create extends InputAbstract {
 
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
-      }
-      else {
+      } else {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
 
       if (noAmqpAcceptor) {
          filters.put("${amqp-acceptor}", "");
-      }
-      else {
+      } else {
          filters.put("${amqp-acceptor}", applyFilters(readTextFile(ETC_AMQP_ACCEPTOR_TXT), filters));
       }
 
       if (noMqttAcceptor) {
          filters.put("${mqtt-acceptor}", "");
-      }
-      else {
+      } else {
          filters.put("${mqtt-acceptor}", applyFilters(readTextFile(ETC_MQTT_ACCEPTOR_TXT), filters));
       }
 
       if (noStompAcceptor) {
          filters.put("${stomp-acceptor}", "");
-      }
-      else {
+      } else {
          filters.put("${stomp-acceptor}", applyFilters(readTextFile(ETC_STOMP_ACCEPTOR_TXT), filters));
       }
 
       if (noHornetQAcceptor) {
          filters.put("${hornetq-acceptor}", "");
-      }
-      else {
+      } else {
          filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
       }
 
@@ -782,8 +770,7 @@ public class Create extends InputAbstract {
    private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder) {
       if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
-      }
-      else {
+      } else {
          try {
             int writes = 250;
             System.out.println("");
@@ -804,8 +791,7 @@ public class Create extends InputAbstract {
 
             filters.put("${journal-buffer.settings}", applyFilters(readTextFile(ETC_JOURNAL_BUFFER_SETTINGS), syncFilter));
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");
             e.printStackTrace();
             System.err.println("Couldn't perform sync calculation, using default values");
@@ -817,20 +803,17 @@ public class Create extends InputAbstract {
       if (forceLibaio) {
          // forcing libaio
          return true;
-      }
-      else if (forceNIO) {
+      } else if (forceNIO) {
          // forcing NIO
          return false;
-      }
-      else if (LibaioContext.isLoaded()) {
+      } else if (LibaioContext.isLoaded()) {
          try (LibaioContext context = new LibaioContext(1, true)) {
             File tmpFile = new File(directory, "validateAIO.bin");
             boolean supportsLibaio = true;
             try {
                LibaioFile file = context.openFile(tmpFile, true);
                file.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                supportsLibaio = false;
             }
             tmpFile.delete();
@@ -839,8 +822,7 @@ public class Create extends InputAbstract {
             }
             return supportsLibaio;
          }
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -852,8 +834,7 @@ public class Create extends InputAbstract {
    private String[] getQueueList() {
       if (queues == null) {
          return new String[0];
-      }
-      else {
+      } else {
          return queues.split(",");
       }
    }
@@ -861,8 +842,7 @@ public class Create extends InputAbstract {
    private String[] getTopicList() {
       if (topics == null) {
          return new String[0];
-      }
-      else {
+      } else {
          return topics.split(",");
       }
    }
@@ -874,8 +854,7 @@ public class Create extends InputAbstract {
    private String path(File value, boolean unixPaths) throws IOException {
       if (unixPaths && IS_CYGWIN) {
          return value.getCanonicalPath();
-      }
-      else {
+      } else {
          return value.getCanonicalPath();
       }
    }

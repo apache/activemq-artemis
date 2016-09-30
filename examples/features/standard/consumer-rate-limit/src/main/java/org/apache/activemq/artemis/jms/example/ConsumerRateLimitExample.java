@@ -100,8 +100,7 @@ public class ConsumerRateLimitExample {
          System.out.println("We consumed " + i + " messages in " + (end - start) + " milliseconds");
 
          System.out.println("Actual consume rate was " + rate + " messages per second");
-      }
-      finally {
+      } finally {
          // Step 9. Be sure to close our resources!
          if (initialContext != null) {
             initialContext.close();

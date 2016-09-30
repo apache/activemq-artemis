@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.api.core.JsonUtil;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
 
 public class JMSConnectionInfo {
 
@@ -43,9 +43,7 @@ public class JMSConnectionInfo {
          String cid = obj.containsKey("clientID") ? obj.getString("clientID") : null;
          String uname = obj.containsKey("principal") ? obj.getString("principal") : null;
 
-         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"),
-               obj.getJsonNumber("creationTime").longValue(),
-               cid, uname);
+         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"), obj.getJsonNumber("creationTime").longValue(), cid, uname);
          infos[i] = info;
       }
       return infos;

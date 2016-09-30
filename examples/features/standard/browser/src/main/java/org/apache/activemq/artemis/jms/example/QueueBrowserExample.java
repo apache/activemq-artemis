@@ -89,8 +89,7 @@ public class QueueBrowserExample {
          System.out.println("Received message: " + messageReceived.getText());
          messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

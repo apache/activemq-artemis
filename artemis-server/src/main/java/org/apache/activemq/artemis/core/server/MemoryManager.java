@@ -61,8 +61,8 @@ public class MemoryManager implements ActiveMQComponent {
    @Override
    public synchronized void start() {
       logger.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
-                                           " FREE_MEMORY_PERCENT: " +
-                                           memoryWarningThreshold);
+                      " FREE_MEMORY_PERCENT: " +
+                      memoryWarningThreshold);
 
       if (started) {
          // Already started
@@ -91,8 +91,7 @@ public class MemoryManager implements ActiveMQComponent {
 
       try {
          thread.join();
-      }
-      catch (InterruptedException ignore) {
+      } catch (InterruptedException ignore) {
       }
    }
 
@@ -107,8 +106,7 @@ public class MemoryManager implements ActiveMQComponent {
                }
 
                Thread.sleep(measureInterval);
-            }
-            catch (InterruptedException ignore) {
+            } catch (InterruptedException ignore) {
                if (!started) {
                   return;
                }
@@ -138,8 +136,7 @@ public class MemoryManager implements ActiveMQComponent {
                ActiveMQServerLogger.LOGGER.memoryError(memoryWarningThreshold, info.toString());
 
                low = true;
-            }
-            else {
+            } else {
                low = false;
             }
 

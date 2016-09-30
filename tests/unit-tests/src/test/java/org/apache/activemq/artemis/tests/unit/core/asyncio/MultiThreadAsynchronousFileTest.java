@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
@@ -27,14 +35,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
@@ -137,8 +137,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
                                                   (endTime - startTime) +
                                                   " total number of records = " +
                                                   MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS * MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
-      }
-      finally {
+      } finally {
          file.close();
          factory.stop();
       }
@@ -229,12 +228,10 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
                assertFalse(callback.errorCalled != 0);
             }
 
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
             failed = e;
-         }
-         finally {
+         } finally {
             synchronized (MultiThreadAsynchronousFileTest.class) {
                LibaioContext.freeBuffer(buffer);
             }

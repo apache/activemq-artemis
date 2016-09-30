@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,20 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -42,6 +28,19 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.advisory.ConsumerEvent;
 import org.apache.activemq.advisory.ConsumerEventSource;
@@ -133,8 +132,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
          localBroker.addNetworkConnector(connector);
          maxSetupTime = 2000;
          return connector;
-      }
-      else {
+      } else {
          throw new Exception("Remote broker has no registered connectors.");
       }
 
@@ -433,8 +431,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
          latch.await(timeout, TimeUnit.MILLISECONDS);
          assertTrue("Expected at least " + count + " consumers to connect, but only " + actualConnected.get() + " connectect within " + timeout + " ms", actualConnected.get() >= count);
 
-      }
-      finally {
+      } finally {
          ces.stop();
          conn.close();
          brokerItem.connections.remove(conn);
@@ -489,8 +486,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
          msg.setText(initText + str);
 
          // Do not pad message text
-      }
-      else {
+      } else {
          msg.setText(initText);
       }
 
@@ -503,8 +499,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
          dest = new ActiveMQTopic(name);
          destinations.put(name, dest);
          return (ActiveMQDestination) dest;
-      }
-      else {
+      } else {
          dest = new ActiveMQQueue(name);
          destinations.put(name, dest);
          return (ActiveMQDestination) dest;
@@ -654,10 +649,8 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
             Connection c = connections.remove(0);
             try {
                c.close();
-            }
-            catch (ConnectionClosedException e) {
-            }
-            catch (JMSException e) {
+            } catch (ConnectionClosedException e) {
+            } catch (JMSException e) {
             }
          }
 

@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.tests.tools.container;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import javax.naming.CompoundName;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
+import java.io.Serializable;
+import java.util.Properties;
 
 public class InVMNameParser implements NameParser, Serializable {
    // Constants -----------------------------------------------------

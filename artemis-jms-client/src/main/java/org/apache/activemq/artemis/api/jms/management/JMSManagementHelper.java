@@ -64,8 +64,7 @@ public class JMSManagementHelper {
                                              final String operationName) throws JMSException {
       try {
          ManagementHelper.putOperationInvocation(JMSManagementHelper.getCoreMessage(message), resourceName, operationName);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw JMSManagementHelper.convertFromException(e);
       }
    }
@@ -94,8 +93,7 @@ public class JMSManagementHelper {
                                              final Object... parameters) throws JMSException {
       try {
          ManagementHelper.putOperationInvocation(JMSManagementHelper.getCoreMessage(message), resourceName, operationName, parameters);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw JMSManagementHelper.convertFromException(e);
       }
    }

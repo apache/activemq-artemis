@@ -58,8 +58,7 @@ public class QueueExample {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

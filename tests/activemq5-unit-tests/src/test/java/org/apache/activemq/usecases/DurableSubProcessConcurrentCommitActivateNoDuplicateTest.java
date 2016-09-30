@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.usecases;
 
-import static org.junit.Assert.assertTrue;
-
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,13 +33,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -54,6 +51,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
 
 public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
@@ -117,8 +116,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                restartBroker();
             }
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          exit("ProcessTest.testProcess failed.", e);
       }
 
@@ -126,8 +124,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
       clientManager.setEnd(true);
       try {
          Thread.sleep(60 * 1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          exit("ProcessTest.testProcess failed.", e);
       }
 
@@ -135,8 +132,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
       try {
          server.join(60 * 1000);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
       processLock.writeLock().lock();
       assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
@@ -153,8 +149,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
          restartCount++;
          LOG.info("Broker restarted. count: " + restartCount);
-      }
-      finally {
+      } finally {
          processLock.writeLock().unlock();
       }
    }
@@ -195,13 +190,11 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                processLock.readLock().lock();
                try {
                   send();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("Server.run failed", e);
          }
       }
@@ -355,8 +348,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                   processLock.readLock().lock();
                   try {
                      createNewClient();
-                  }
-                  finally {
+                  } finally {
                      processLock.readLock().unlock();
                   }
                }
@@ -365,8 +357,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                //sleepRandom(1000, 4000);
                Thread.sleep(100);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("ClientManager.run failed.", e);
          }
       }
@@ -478,8 +469,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                onlineCount.incrementAndGet();
                try {
                   process(online.next());
-               }
-               finally {
+               } finally {
                   onlineCount.decrementAndGet();
                   processLock.readLock().unlock();
                }
@@ -493,8 +483,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                // housekeeper should sweep these abandoned subscriptions
                houseKeeper.abandonedSubscriptions.add(conClientId);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit(toString() + " failed.", e);
          }
 
@@ -547,8 +536,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                      LOG.info("Going offline during transaction commit. messageID=" + message.getIntProperty("ID"));
                      break;
                   }
-               }
-               else {
+               } else {
                   inTransaction = true;
                   transCount++;
                   if (1 == transCount) {
@@ -556,8 +544,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                   }
                }
             } while (true);
-         }
-         finally {
+         } finally {
             sess.close();
             con.close();
 
@@ -575,8 +562,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
          if (Boolean.TRUE.equals(message.getObjectProperty("COMMIT"))) {
             if (Boolean.TRUE.equals(message.getObjectProperty("RELEVANT")))
                waitingList.add(message);
-         }
-         else {
+         } else {
             String messageType = message.getStringProperty("TYPE");
             if (clientType.isRelevant(messageType))
                waitingList.add(message);
@@ -616,8 +602,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                         missingList.append("Missing TRANS=").append(lastTrans).append(", size=").append(transCount).append("\r\n");
                      lastTrans = trans;
                      transCount = 1;
-                  }
-                  else
+                  } else
                      transCount++;
                } while ((nextServerMessage = waitingList.poll()) != null);
 
@@ -630,8 +615,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
             if (processed != null)
                processed.add(receivedId);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("" + this + ".onClientMessage failed.\r\n" + " received: " + message + "\r\n" + "   server: " + serverMessage, e);
          }
       }
@@ -665,8 +649,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
             session.createDurableSubscriber(topic, SUBSCRIPTION_NAME, selector, true);
             session.close();
             con.close();
-         }
-         finally {
+         } finally {
             processLock.readLock().unlock();
          }
       }
@@ -680,8 +663,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
             session.unsubscribe(SUBSCRIPTION_NAME);
             session.close();
             con.close();
-         }
-         finally {
+         } finally {
             processLock.readLock().unlock();
          }
       }
@@ -713,15 +695,12 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                processLock.readLock().lock();
                try {
                   sweep();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                break;
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                Exception log = new Exception("HouseKeeper failed.", e);
                log.printStackTrace();
             }
@@ -740,11 +719,9 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
                sweeped.add(clientId);
                closed++;
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             LOG.info("Ex on destroy sub " + ignored);
-         }
-         finally {
+         } finally {
             abandonedSubscriptions.removeAll(sweeped);
          }
 

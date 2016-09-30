@@ -186,13 +186,14 @@ public interface RemotingConnection extends BufferHandler {
    boolean isWritable(ReadyListener callback);
 
    /**
-    *if slow consumer is killed,send the msessage to client.
+    * if slow consumer is killed,send the msessage to client.
     */
    void killMessage(SimpleString nodeID);
 
    /**
     * This will check if reconnects are supported on the protocol and configuration.
     * In case it's not supported a connection failure could remove messages right away from pending deliveries.
+    *
     * @return
     */
    boolean isSupportReconnect();
@@ -201,6 +202,7 @@ public interface RemotingConnection extends BufferHandler {
     * Return true if the protocol supports flow control.
     * This is because in some cases we may need to hold message producers in cases like disk full.
     * If the protocol doesn't support it we trash the connection and throw exceptions.
+    *
     * @return
     */
    boolean isSupportsFlowControl();

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.net.SocketFactory;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -92,8 +91,7 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
                   LOG.info("delaying close");
                   try {
                      TimeUnit.MILLISECONDS.sleep(500);
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      // TODO Auto-generated catch block
                      e.printStackTrace();
                   }
@@ -177,8 +175,7 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
       if (reconnectInExceptionListener) {
          try {
             makeConsumer();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             reconnectException = e;
          }
 
@@ -197,8 +194,7 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
          try {
             TimeUnit.MILLISECONDS.sleep(500);
             makeConsumer();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             reconnectException = e;
          }
 

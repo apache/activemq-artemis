@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
  */
 public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolManagerFactory {
 
-
    ServerLocator locator;
 
    @Override

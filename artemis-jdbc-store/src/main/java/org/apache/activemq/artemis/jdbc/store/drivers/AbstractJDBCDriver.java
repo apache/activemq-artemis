@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-
-import javax.sql.DataSource;
 
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -82,13 +81,11 @@ public abstract class AbstractJDBCDriver {
    protected void connect() throws Exception {
       if (dataSource != null) {
          connection = dataSource.getConnection();
-      }
-      else {
+      } else {
          try {
             dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
             connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
-         }
-         catch (SQLException e) {
+         } catch (SQLException e) {
             ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
             throw new RuntimeException("Error connecting to database", e);
          }
@@ -102,8 +99,7 @@ public abstract class AbstractJDBCDriver {
             statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }

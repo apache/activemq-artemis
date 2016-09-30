@@ -17,9 +17,10 @@
 
 package org.apache.activemq.artemis.jms.client;
 
-
-/** Common interface to be used to share common parameters between the RA and client JMS.
- *  Initially developed to carry on Serialization packages white list but it could eventually be expanded. */
+/**
+ * Common interface to be used to share common parameters between the RA and client JMS.
+ * Initially developed to carry on Serialization packages white list but it could eventually be expanded.
+ */
 public interface ConnectionFactoryOptions {
 
    String getDeserializationBlackList();

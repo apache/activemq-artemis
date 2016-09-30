@@ -30,8 +30,7 @@ public class BufferHelper {
    public static int sizeOfNullableSimpleString(String str) {
       if (str == null) {
          return DataConstants.SIZE_BOOLEAN;
-      }
-      else {
+      } else {
          return DataConstants.SIZE_BOOLEAN + sizeOfSimpleString(str);
       }
    }
@@ -76,8 +75,7 @@ public class BufferHelper {
 
       if (isNotNull) {
          return buffer.readBoolean();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -117,8 +115,7 @@ public class BufferHelper {
 
       if (isNotNull) {
          return buffer.readLong();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -143,8 +140,7 @@ public class BufferHelper {
 
       if (isNotNull) {
          return buffer.readInt();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -154,8 +150,7 @@ public class BufferHelper {
 
       if (isNotNull) {
          return buffer.readDouble();
-      }
-      else {
+      } else {
          return null;
       }
    }

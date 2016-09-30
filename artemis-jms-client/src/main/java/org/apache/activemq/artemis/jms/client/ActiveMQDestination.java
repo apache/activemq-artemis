@@ -76,14 +76,11 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
    public static ActiveMQDestination createDestination(String name, byte defaultType) {
       if (name.startsWith(QUEUE_QUALIFIED_PREFIX)) {
          return new ActiveMQQueue(name.substring(QUEUE_QUALIFIED_PREFIX.length()));
-      }
-      else if (name.startsWith(TOPIC_QUALIFIED_PREFIX)) {
+      } else if (name.startsWith(TOPIC_QUALIFIED_PREFIX)) {
          return new ActiveMQTopic(name.substring(TOPIC_QUALIFIED_PREFIX.length()));
-      }
-      else if (name.startsWith(TEMP_QUEUE_QUALIFED_PREFIX)) {
+      } else if (name.startsWith(TEMP_QUEUE_QUALIFED_PREFIX)) {
          return new ActiveMQQueue(name.substring(TEMP_QUEUE_QUALIFED_PREFIX.length()), true);
-      }
-      else if (name.startsWith(TEMP_TOPIC_QUALIFED_PREFIX)) {
+      } else if (name.startsWith(TEMP_TOPIC_QUALIFED_PREFIX)) {
          return new ActiveMQTopic(name.substring(TEMP_TOPIC_QUALIFED_PREFIX.length()), true);
       }
 
@@ -106,23 +103,19 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          String name = address.substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
 
          return createQueue(name);
-      }
-      else if (address.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
+      } else if (address.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
          String name = address.substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
 
          return createTopic(name);
-      }
-      else if (address.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
+      } else if (address.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
          String name = address.substring(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
 
          return new ActiveMQTemporaryQueue(address, name, null);
-      }
-      else if (address.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
+      } else if (address.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
          String name = address.substring(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
 
          return new ActiveMQTemporaryTopic(address, name, null);
-      }
-      else {
+      } else {
          throw new JMSRuntimeException("Invalid address " + address);
       }
    }
@@ -134,18 +127,15 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          if (isDurable) {
             return ActiveMQDestination.escape(clientID) + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
-         }
-         else {
+         } else {
             return "nonDurable" + SEPARATOR +
                ActiveMQDestination.escape(clientID) + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
          }
-      }
-      else {
+      } else {
          if (isDurable) {
             return ActiveMQDestination.escape(subscriptionName);
-         }
-         else {
+         } else {
             return "nonDurable" + SEPARATOR +
                ActiveMQDestination.escape(subscriptionName);
          }
@@ -159,8 +149,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
             ActiveMQDestination.escape(clientID) + SEPARATOR +
             ActiveMQDestination.escape(subscriptionName);
-      }
-      else {
+      } else {
          return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
             ActiveMQDestination.escape(subscriptionName);
       }
@@ -314,8 +303,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          }
          if (queue) {
             session.deleteTemporaryQueue(this);
-         }
-         else {
+         } else {
             session.deleteTemporaryTopic(this);
          }
       }

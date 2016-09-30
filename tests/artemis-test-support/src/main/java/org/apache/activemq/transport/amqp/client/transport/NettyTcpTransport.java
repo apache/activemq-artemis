@@ -120,11 +120,9 @@ public class NettyTcpTransport implements NettyTransport {
          public void operationComplete(ChannelFuture future) throws Exception {
             if (future.isSuccess()) {
                handleConnected(future.channel());
-            }
-            else if (future.isCancelled()) {
+            } else if (future.isCancelled()) {
                connectionFailed(future.channel(), new IOException("Connection attempt was cancelled"));
-            }
-            else {
+            } else {
                connectionFailed(future.channel(), IOExceptionSupport.create(future.cause()));
             }
          }
@@ -132,8 +130,7 @@ public class NettyTcpTransport implements NettyTransport {
 
       try {
          connectLatch.await();
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
          LOG.debug("Transport connection was interrupted.");
          Thread.interrupted();
          failureCause = IOExceptionSupport.create(ex);
@@ -151,8 +148,7 @@ public class NettyTcpTransport implements NettyTransport {
          }
 
          throw failureCause;
-      }
-      else {
+      } else {
          // Connected, allow any held async error to fire now and close the transport.
          channel.eventLoop().execute(new Runnable() {
 
@@ -223,8 +219,7 @@ public class NettyTcpTransport implements NettyTransport {
       if (options == null) {
          if (isSSL()) {
             options = NettyTransportSslOptions.INSTANCE;
-         }
-         else {
+         } else {
             options = NettyTransportOptions.INSTANCE;
          }
       }
@@ -260,8 +255,7 @@ public class NettyTcpTransport implements NettyTransport {
       if (port <= 0) {
          if (isSSL()) {
             port = getSslOptions().getDefaultSslPort();
-         }
-         else {
+         } else {
             port = getTransportOptions().getDefaultTcpPort();
          }
       }
@@ -299,8 +293,7 @@ public class NettyTcpTransport implements NettyTransport {
                if (future.isSuccess()) {
                   LOG.trace("SSL Handshake has completed: {}", channel);
                   connectionEstablished(channel);
-               }
-               else {
+               } else {
                   LOG.trace("SSL Handshake has failed: {}", channel);
                   connectionFailed(channel, IOExceptionSupport.create(future.cause()));
                }
@@ -378,12 +371,10 @@ public class NettyTcpTransport implements NettyTransport {
             LOG.trace("Firing onTransportError listener");
             if (pendingFailure != null) {
                listener.onTransportError(pendingFailure);
-            }
-            else {
+            } else {
                listener.onTransportError(cause);
             }
-         }
-         else {
+         } else {
             // Hold the first failure for later dispatch if connect succeeds.
             // This will then trigger disconnect using the first error reported.
             if (pendingFailure != null) {

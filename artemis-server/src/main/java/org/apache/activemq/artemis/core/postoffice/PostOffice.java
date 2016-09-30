@@ -70,24 +70,27 @@ public interface PostOffice extends ActiveMQComponent {
 
    RoutingStatus route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception;
 
-   RoutingStatus route(ServerMessage message, QueueCreator queueCreator, Transaction tx, boolean direct) throws Exception;
+   RoutingStatus route(ServerMessage message,
+                       QueueCreator queueCreator,
+                       Transaction tx,
+                       boolean direct) throws Exception;
 
    RoutingStatus route(ServerMessage message,
-              QueueCreator queueCreator,
-              Transaction tx,
-              boolean direct,
-              boolean rejectDuplicates) throws Exception;
+                       QueueCreator queueCreator,
+                       Transaction tx,
+                       boolean direct,
+                       boolean rejectDuplicates) throws Exception;
 
    RoutingStatus route(ServerMessage message,
-                    QueueCreator queueCreator,
-                    RoutingContext context,
-                    boolean direct) throws Exception;
+                       QueueCreator queueCreator,
+                       RoutingContext context,
+                       boolean direct) throws Exception;
 
    RoutingStatus route(ServerMessage message,
-                    QueueCreator queueCreator,
-                    RoutingContext context,
-                    boolean direct,
-                    boolean rejectDuplicates) throws Exception;
+                       QueueCreator queueCreator,
+                       RoutingContext context,
+                       boolean direct,
+                       boolean rejectDuplicates) throws Exception;
 
    MessageReference reroute(ServerMessage message, Queue queue, Transaction tx) throws Exception;
 

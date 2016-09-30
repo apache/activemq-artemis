@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.ra.recovery;
 
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistryImpl;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
-
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
 
 public final class RecoveryManager {
 
@@ -38,13 +38,15 @@ public final class RecoveryManager {
    public void start(final boolean useAutoRecovery) {
       if (useAutoRecovery) {
          locateRecoveryRegistry();
-      }
-      else {
+      } else {
          registry = null;
       }
    }
 
-   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password,  Map<String, String> properties) {
+   public XARecoveryConfig register(ActiveMQConnectionFactory factory,
+                                    String userName,
+                                    String password,
+                                    Map<String, String> properties) {
       ActiveMQRALogger.LOGGER.debug("registering recovery for factory : " + factory);
 
       XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password, properties);
@@ -80,12 +82,10 @@ public final class RecoveryManager {
             ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class);
             if (sl.iterator().hasNext()) {
                registry = sl.iterator().next();
-            }
-            else {
+            } else {
                registry = ActiveMQRegistryImpl.getInstance();
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQRALogger.LOGGER.debug("unable to load  recovery registry " + locatorClasse, e);
          }
          if (registry != null) {

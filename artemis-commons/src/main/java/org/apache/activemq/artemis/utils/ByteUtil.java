@@ -39,15 +39,13 @@ public class ByteUtil {
 
          try {
             logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
          }
 
          byteIn.readerIndex(location);
       }
    }
-
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {
       StringBuffer buffer = new StringBuffer();
@@ -64,8 +62,7 @@ public class ByteUtil {
                buffer.append(" ");
             }
             buffer.append(Integer.toString(line) + " */ \"");
-         }
-         else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
+         } else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
             buffer.append("\" + \"");
          }
       }
@@ -79,8 +76,7 @@ public class ByteUtil {
    public static String maxString(String value, int size) {
       if (value.length() < size) {
          return value;
-      }
-      else {
+      } else {
          return value.substring(0, size / 2) + " ... " + value.substring(value.length() - size / 2);
       }
    }
@@ -138,7 +134,6 @@ public class ByteUtil {
       return buffer.array();
    }
 
-
    public static String readLine(ActiveMQBuffer buffer) {
       StringBuilder sb = new StringBuilder("");
       char c = buffer.readChar();
@@ -154,8 +149,7 @@ public class ByteUtil {
       if (buffer.hasArray()) {
          byte[] array = buffer.array();
          System.arraycopy(array, buffer.arrayOffset() + buffer.position(), ret, 0, ret.length);
-      }
-      else {
+      } else {
          buffer.slice().get(ret);
       }
       return ret;

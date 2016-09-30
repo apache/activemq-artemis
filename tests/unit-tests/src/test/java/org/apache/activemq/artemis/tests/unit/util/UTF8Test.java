@@ -16,24 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UTF8Util;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class UTF8Test extends ActiveMQTestBase {
 
@@ -111,8 +108,7 @@ public class UTF8Test extends ActiveMQTestBase {
       try {
          UTF8Util.saveUTF(buffer, str);
          Assert.fail("String is too big, supposed to throw an exception");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       Assert.assertEquals("A buffer was supposed to be untouched since the string was too big", 0, buffer.writerIndex());
@@ -128,8 +124,7 @@ public class UTF8Test extends ActiveMQTestBase {
       try {
          UTF8Util.saveUTF(buffer, str);
          Assert.fail("Encoded String is too big, supposed to throw an exception");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       Assert.assertEquals("A buffer was supposed to be untouched since the string was too big", 0, buffer.writerIndex());

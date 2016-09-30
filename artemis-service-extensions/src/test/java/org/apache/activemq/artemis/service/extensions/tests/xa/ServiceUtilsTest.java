@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.xa;
 
-import static org.jgroups.util.Util.assertTrue;
-
 import java.lang.reflect.Method;
 
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.junit.Test;
+
+import static org.jgroups.util.Util.assertTrue;
 
 public class ServiceUtilsTest {
 

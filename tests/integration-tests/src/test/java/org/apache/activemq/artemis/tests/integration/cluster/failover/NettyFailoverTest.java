@@ -16,21 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class NettyFailoverTest extends FailoverTest {
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.network;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -30,6 +23,10 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TopicSubscriber;
 import javax.management.ObjectName;
+import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -45,6 +42,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
 
 public class NetworkBrokerDetachTest {
 
@@ -254,8 +253,7 @@ public class NetworkBrokerDetachTest {
 
                if (destination.isQueue()) {
                   destinations = broker.getAdminView().getQueues();
-               }
-               else {
+               } else {
                   destinations = broker.getAdminView().getTopics();
                }
 
@@ -272,8 +270,7 @@ public class NetworkBrokerDetachTest {
                   }
                }
 
-            }
-            catch (Exception ignoreAndRetry) {
+            } catch (Exception ignoreAndRetry) {
             }
             return result;
          }

@@ -135,8 +135,7 @@ public final class UUIDGenerator {
          // check if we have enough security permissions to create and shutdown an executor
          ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
          executor.shutdownNow();
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // not enough security permission
          return null;
       }
@@ -156,8 +155,7 @@ public final class UUIDGenerator {
             return address;
          }
          return null;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return null;
       }
    }
@@ -179,8 +177,7 @@ public final class UUIDGenerator {
 
       if (address == null) {
          return java.util.UUID.randomUUID().toString();
-      }
-      else {
+      } else {
          return generateTimeBasedUUID(address).toString();
       }
    }
@@ -192,8 +189,7 @@ public final class UUIDGenerator {
       if (bytes.length > 0 && bytes.length <= 6) {
          if (bytes.length == 6) {
             return bytes;
-         }
-         else {
+         } else {
             // pad with zeroes to have a 6-byte array
             byte[] paddedAddress = new byte[6];
             System.arraycopy(bytes, 0, paddedAddress, 0, bytes.length);
@@ -256,8 +252,7 @@ public final class UUIDGenerator {
             ifaces.add(networkInterfaces.nextElement());
          }
          return ifaces;
-      }
-      catch (SocketException e) {
+      } catch (SocketException e) {
          return Collections.emptyList();
       }
    }
@@ -300,11 +295,9 @@ public final class UUIDGenerator {
          // we wait 5 seconds to get the first matching hardware address. After that, we give up and return null
          byte[] address = executor.invokeAny(tasks, 5, TimeUnit.SECONDS);
          return address;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return null;
-      }
-      finally {
+      } finally {
          executor.shutdownNow();
       }
    }

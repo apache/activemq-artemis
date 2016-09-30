@@ -70,8 +70,7 @@ public class ProcessBuilder {
       String[] newArgs;
       if (IS_WINDOWS) {
          newArgs = rebuildArgs(args, "cmd", "/c", "artemis.cmd");
-      }
-      else {
+      } else {
          newArgs = rebuildArgs(args, "./artemis");
       }
 
@@ -147,14 +146,12 @@ public class ProcessBuilder {
                if (print) {
                   if (sendToErr) {
                      System.err.println(logName + "-err:" + line);
-                  }
-                  else {
+                  } else {
                      System.out.println(logName + "-out:" + line);
                   }
                }
             }
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             // ok, stream closed
          }
 

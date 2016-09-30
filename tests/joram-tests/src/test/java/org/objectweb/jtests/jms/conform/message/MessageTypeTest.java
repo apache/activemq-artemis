@@ -16,9 +16,6 @@
  */
 package org.objectweb.jtests.jms.conform.message;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -26,6 +23,8 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -69,8 +68,7 @@ public class MessageTypeTest extends PTPTestCase {
          StreamMessage msg = (StreamMessage) m;
          Assert.assertEquals("pi", msg.readString());
          Assert.assertEquals(3.14159, msg.readDouble(), 0);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -89,8 +87,7 @@ public class MessageTypeTest extends PTPTestCase {
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of StreamMessage.\n", msg instanceof StreamMessage);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -112,8 +109,7 @@ public class MessageTypeTest extends PTPTestCase {
          Assert.assertTrue(msg.getObject("pi") instanceof Double);
          Assert.assertEquals(3.14159, ((Double) msg.getObject("pi")).doubleValue(), 0);
          Assert.assertEquals(3.14159, msg.getDouble("pi"), 0);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -131,10 +127,8 @@ public class MessageTypeTest extends PTPTestCase {
          MapMessage message = senderSession.createMapMessage();
          message.setBoolean(null, true);
          Assert.fail("Should throw an IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
-      }
-      catch (JMSException e) {
+      } catch (IllegalArgumentException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw an IllegalArgumentException, not a" + e);
       }
    }
@@ -152,10 +146,8 @@ public class MessageTypeTest extends PTPTestCase {
          MapMessage message = senderSession.createMapMessage();
          message.setBoolean("", true);
          Assert.fail("Should throw an IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
-      }
-      catch (JMSException e) {
+      } catch (IllegalArgumentException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw an IllegalArgumentException, not a" + e);
       }
    }
@@ -175,8 +167,7 @@ public class MessageTypeTest extends PTPTestCase {
          message.setDouble("pi", 3.14159);
          e = message.getMapNames();
          Assert.assertEquals("pi", e.nextElement());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -200,8 +191,7 @@ public class MessageTypeTest extends PTPTestCase {
          MapMessage msg = (MapMessage) m;
          Assert.assertEquals("pi", msg.getString("name"));
          Assert.assertEquals(3.14159, msg.getDouble("value"), 0);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -220,8 +210,7 @@ public class MessageTypeTest extends PTPTestCase {
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of MapMessage.\n", msg instanceof MapMessage);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -247,8 +236,7 @@ public class MessageTypeTest extends PTPTestCase {
          Assert.assertTrue("The message should be an instance of ObjectMessage.\n", m instanceof ObjectMessage);
          ObjectMessage msg = (ObjectMessage) m;
          Assert.assertEquals(vector, msg.getObject());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -267,8 +255,7 @@ public class MessageTypeTest extends PTPTestCase {
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of ObjectMessage.\n", msg instanceof ObjectMessage);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -295,8 +282,7 @@ public class MessageTypeTest extends PTPTestCase {
          msg.readBytes(receivedBytes);
          Assert.assertEquals(new String(bytes), new String(receivedBytes));
          Assert.assertEquals(3.14159, msg.readDouble(), 0);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -315,8 +301,7 @@ public class MessageTypeTest extends PTPTestCase {
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of BytesMessage.\n", msg instanceof BytesMessage);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -338,8 +323,7 @@ public class MessageTypeTest extends PTPTestCase {
          Assert.assertTrue("The message should be an instance of TextMessage.\n", m instanceof TextMessage);
          TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testTextMessage_2", msg.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -358,8 +342,7 @@ public class MessageTypeTest extends PTPTestCase {
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of TextMessage.\n", msg instanceof TextMessage);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }

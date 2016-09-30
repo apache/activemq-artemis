@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,8 @@ import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-public abstract class LockAbstract  extends DataAbstract implements Action {
+public abstract class LockAbstract extends DataAbstract implements Action {
+
    // There should be one lock per VM
    // These will be locked as long as the VM is running
    private static RandomAccessFile serverLockFile = null;
@@ -35,9 +36,8 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
    protected File getLockPlace() throws Exception {
       String brokerInstance = getBrokerInstance();
       if (brokerInstance != null) {
-         return new File(new File(brokerInstance),"lock");
-      }
-      else {
+         return new File(new File(brokerInstance), "lock");
+      } else {
          return null;
       }
    }
@@ -53,8 +53,7 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
             serverLockLock.close();
             serverLockLock = null;
          }
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 
@@ -65,14 +64,12 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
       if (getBrokerInstance() == null) {
          System.err.println("Warning: You are running a data tool outside of any broker instance. Modifying data on a running server might break the server's data");
          System.err.println();
-      }
-      else {
+      } else {
          lockCLI(getLockPlace());
       }
 
       return null;
    }
-
 
    protected void lockCLI(File lockPlace) throws Exception {
       if (lockPlace != null) {
@@ -87,12 +84,10 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
                throw new CLIException("Error: There is another process using the server at " + lockPlace + ". Cannot start the process!");
             }
             serverLockLock = lock;
-         }
-         catch (OverlappingFileLockException e) {
+         } catch (OverlappingFileLockException e) {
             throw new CLIException("Error: There is another process using the server at " + lockPlace + ". Cannot start the process!");
          }
       }
    }
-
 
 }

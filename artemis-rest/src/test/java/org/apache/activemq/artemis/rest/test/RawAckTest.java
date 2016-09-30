@@ -103,8 +103,7 @@ public class RawAckTest {
             }
             Assert.assertNull(message);
             passed = true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }

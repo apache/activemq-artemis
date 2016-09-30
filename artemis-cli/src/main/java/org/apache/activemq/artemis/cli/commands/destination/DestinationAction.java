@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.cli.commands.destination;
 
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.QueueRequestor;
+import javax.jms.Session;
+
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -31,11 +36,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.QueueRequestor;
-import javax.jms.Session;
 
 public abstract class DestinationAction extends InputAbstract {
 
@@ -58,7 +58,10 @@ public abstract class DestinationAction extends InputAbstract {
    @Option(name = "--name", description = "destination name")
    String name;
 
-   public static void performJmsManagement(String brokerURL, String user, String password, ManagementCallback<Message> cb) throws Exception {
+   public static void performJmsManagement(String brokerURL,
+                                           String user,
+                                           String password,
+                                           ManagementCallback<Message> cb) throws Exception {
 
       try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
            ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
@@ -79,15 +82,16 @@ public abstract class DestinationAction extends InputAbstract {
 
          if (result) {
             cb.requestSuccessful(reply);
-         }
-         else {
+         } else {
             cb.requestFailed(reply);
          }
       }
    }
 
-   public static void performCoreManagement(String brokerURL, String user, String password, ManagementCallback<ClientMessage> cb) throws Exception {
-
+   public static void performCoreManagement(String brokerURL,
+                                            String user,
+                                            String password,
+                                            ManagementCallback<ClientMessage> cb) throws Exception {
 
       try (ServerLocator locator = ServerLocatorImpl.newLocator(brokerURL);
            ClientSessionFactory sessionFactory = locator.createSessionFactory();
@@ -102,8 +106,7 @@ public abstract class DestinationAction extends InputAbstract {
 
          if (ManagementHelper.hasOperationSucceeded(reply)) {
             cb.requestSuccessful(reply);
-         }
-         else {
+         } else {
             cb.requestFailed(reply);
          }
       }
@@ -130,6 +133,7 @@ public abstract class DestinationAction extends InputAbstract {
    }
 
    public interface ManagementCallback<T> {
+
       void setUpInvocation(T message) throws Exception;
 
       void requestSuccessful(T reply) throws Exception;

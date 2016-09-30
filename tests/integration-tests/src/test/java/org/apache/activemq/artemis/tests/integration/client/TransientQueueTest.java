@@ -150,8 +150,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address2, queue, false);
-      }
-      catch (ActiveMQInvalidTransientQueueUseException e) {
+      } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
@@ -162,8 +161,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("a=1"), false);
-      }
-      catch (ActiveMQInvalidTransientQueueUseException e) {
+      } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
@@ -181,8 +179,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("q=2"), false);
-      }
-      catch (ActiveMQInvalidTransientQueueUseException e) {
+      } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
@@ -192,8 +189,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, false);
-      }
-      catch (ActiveMQInvalidTransientQueueUseException e) {
+      } catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 

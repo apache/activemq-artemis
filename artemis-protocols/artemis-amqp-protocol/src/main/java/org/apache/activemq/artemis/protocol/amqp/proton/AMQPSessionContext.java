@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -49,9 +49,7 @@ public class AMQPSessionContext extends ProtonInitializable {
 
    protected boolean closed = false;
 
-   public AMQPSessionContext(AMQPSessionCallback sessionSPI,
-                             AMQPConnectionContext connection,
-                             Session session) {
+   public AMQPSessionContext(AMQPSessionCallback sessionSPI, AMQPConnectionContext connection, Session session) {
       this.connection = connection;
       this.sessionSPI = sessionSPI;
       this.session = session;
@@ -67,8 +65,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          if (sessionSPI != null) {
             try {
                sessionSPI.init(this, connection.getSASLResult());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
@@ -84,14 +81,12 @@ public class AMQPSessionContext extends ProtonInitializable {
       if (protonConsumer != null) {
          try {
             protonConsumer.close(false);
-         }
-         catch (ActiveMQAMQPException e) {
+         } catch (ActiveMQAMQPException e) {
             protonConsumer.getSender().setTarget(null);
             protonConsumer.getSender().setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
          }
       }
    }
-
 
    /**
     * The consumer object from the broker or the key used to store the sender
@@ -129,8 +124,7 @@ public class AMQPSessionContext extends ProtonInitializable {
       for (ProtonServerReceiverContext protonProducer : receiversCopy) {
          try {
             protonProducer.close(false);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.getMessage(), e);
          }
       }
@@ -142,8 +136,7 @@ public class AMQPSessionContext extends ProtonInitializable {
       for (ProtonServerSenderContext protonConsumer : protonSendersClone) {
          try {
             protonConsumer.close(false);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.getMessage(), e);
          }
       }
@@ -152,8 +145,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          if (sessionSPI != null) {
             sessionSPI.close();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.warn(e.getMessage(), e);
       }
       closed = true;
@@ -166,9 +158,7 @@ public class AMQPSessionContext extends ProtonInitializable {
    public void addTransactionHandler(Coordinator coordinator, Receiver receiver) {
       ProtonTransactionHandler transactionHandler = new ProtonTransactionHandler(sessionSPI);
 
-      coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"),
-                                  Symbol.getSymbol("amqp:multi-txns-per-ssn"),
-                                  Symbol.getSymbol("amqp:multi-ssns-per-txn"));
+      coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"), Symbol.getSymbol("amqp:multi-txns-per-ssn"), Symbol.getSymbol("amqp:multi-ssns-per-txn"));
 
       receiver.setContext(transactionHandler);
       receiver.open();
@@ -185,8 +175,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          sender.setContext(protonSender);
          sender.open();
          protonSender.start();
-      }
-      catch (ActiveMQAMQPException e) {
+      } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
@@ -196,7 +185,7 @@ public class AMQPSessionContext extends ProtonInitializable {
 
    public void removeSender(Sender sender) throws ActiveMQAMQPException {
       senders.remove(sender);
-      ProtonServerSenderContext senderRemoved =  senders.remove(sender);
+      ProtonServerSenderContext senderRemoved = senders.remove(sender);
       if (senderRemoved != null) {
          serverSenders.remove(senderRemoved.getBrokerConsumer());
       }
@@ -209,8 +198,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          receivers.put(receiver, protonReceiver);
          receiver.setContext(protonReceiver);
          receiver.open();
-      }
-      catch (ActiveMQAMQPException e) {
+      } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
          receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));

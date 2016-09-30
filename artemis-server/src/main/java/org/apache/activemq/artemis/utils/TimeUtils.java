@@ -23,8 +23,6 @@ import java.util.Locale;
 
 /**
  * Time utils.
- *
- * @version
  */
 public final class TimeUtils {
 

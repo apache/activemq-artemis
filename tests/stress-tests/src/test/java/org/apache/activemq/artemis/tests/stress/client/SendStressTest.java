@@ -105,14 +105,12 @@ public class SendStressTest extends ActiveMQTestBase {
          }
 
          session.commit();
-      }
-      finally {
+      } finally {
          if (session != null) {
             try {
                sf.close();
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

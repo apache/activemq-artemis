@@ -65,8 +65,7 @@ public class SharedConsumerTest extends JMSTestBase {
             System.out.println("msg = " + msg);
          }
 
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -81,8 +80,7 @@ public class SharedConsumerTest extends JMSTestBase {
          con2.close();
          context.unsubscribe("mySharedCon");
          con1 = context.createSharedDurableConsumer(topic2, "mySharedCon");
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -100,8 +98,7 @@ public class SharedConsumerTest extends JMSTestBase {
          binding = server.getPostOffice().getBinding(new SimpleString("nonDurable.mySharedCon"));
          assertNull(binding);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -114,15 +111,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -135,15 +129,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -156,15 +147,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedConsumer(topic1, "mySharedCon");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -177,15 +165,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedDurableConsumer(topic2, "mySharedCon");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -198,15 +183,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -219,15 +201,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }
@@ -240,15 +219,12 @@ public class SharedConsumerTest extends JMSTestBase {
          try {
             context.createSharedDurableConsumer(topic1, "mySharedCon");
             fail("expected JMSRuntimeException");
-         }
-         catch (JMSRuntimeException jmse) {
+         } catch (JMSRuntimeException jmse) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
-      }
-      finally {
+      } finally {
          context.close();
       }
    }

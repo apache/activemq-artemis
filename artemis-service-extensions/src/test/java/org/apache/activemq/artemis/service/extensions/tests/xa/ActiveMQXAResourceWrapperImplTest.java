@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.service.extensions.tests.xa;
 
 import javax.transaction.xa.XAResource;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.TopicSubscriber;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,19 +42,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -127,8 +126,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
                   consumer.setMessageListener(listener);
                   consumers.put(consumer, listener);
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("failed to start consumer", e);
             }
          }
@@ -290,8 +288,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
          msg.setText(initText + str);
 
          // Do not pad message text
-      }
-      else {
+      } else {
          msg.setText(initText);
       }
 
@@ -314,8 +311,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
          Connection conn = iter.next();
          try {
             conn.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
       }
       broker.stop();
@@ -409,8 +405,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
          int priority = 0;
          try {
             priority = message.getJMSPriority();
-         }
-         catch (JMSException ignored) {
+         } catch (JMSException ignored) {
          }
          if (!messageLists.containsKey(priority)) {
             MessageIdList perPriorityList = new MessageIdList();
@@ -422,8 +417,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
             firstReceipt = duration;
             firstReceiptLatch.countDown();
             LOG.info("First receipt in " + firstReceipt + "ms");
-         }
-         else if (count.get() % batchSize == 0) {
+         } else if (count.get() % batchSize == 0) {
             LOG.info("Consumed " + count.get() + " in " + batchReceiptAccumulator + "ms" + ", priority:" + priority);
             batchReceiptAccumulator = 0;
          }
@@ -467,12 +461,10 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
                current.setValue(id);
                if (previous == null) {
                   previous = current.copy();
-               }
-               else {
+               } else {
                   if (current.getProducerSequenceId() - 1 != previous.getProducerSequenceId() && current.getProducerSequenceId() - 10 != previous.getProducerSequenceId()) {
                      return "Missing next after: " + previous + ", got: " + current;
-                  }
-                  else {
+                  } else {
                      previous = current.copy();
                   }
                }

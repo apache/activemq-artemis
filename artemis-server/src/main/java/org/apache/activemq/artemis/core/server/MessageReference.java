@@ -38,12 +38,16 @@ public interface MessageReference {
     */
    int getMessageMemoryEstimate();
 
-   /** To be used on holding protocol specific data during the delivery.
-    *  This will be only valid while the message is on the delivering queue at the consumer  */
+   /**
+    * To be used on holding protocol specific data during the delivery.
+    * This will be only valid while the message is on the delivering queue at the consumer
+    */
    Object getProtocolData();
 
-   /** To be used on holding protocol specific data during the delivery.
-    *  This will be only valid while the message is on the delivering queue at the consumer  */
+   /**
+    * To be used on holding protocol specific data during the delivery.
+    * This will be only valid while the message is on the delivering queue at the consumer
+    */
    void setProtocolData(Object data);
 
    MessageReference copy(Queue queue);

@@ -95,8 +95,7 @@ public class GcFreeJournalLatencyBench implements JLBHTask {
       try {
          journal.start();
          journal.load(new ArrayList<RecordInfo>(), null, null);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
 
@@ -107,8 +106,7 @@ public class GcFreeJournalLatencyBench implements JLBHTask {
       id++;
       try {
          journal.appendAddRecord(id, (byte) 0, encodedRecord, 0, ENCODED_SIZE, false);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       jlbh.sample(System.nanoTime() - startTimeNS);
@@ -121,8 +119,7 @@ public class GcFreeJournalLatencyBench implements JLBHTask {
          for (File journalFile : sequentialFileFactory.getDirectory().listFiles()) {
             journalFile.deleteOnExit();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

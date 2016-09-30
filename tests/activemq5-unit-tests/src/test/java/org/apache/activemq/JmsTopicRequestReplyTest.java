@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.List;
-import java.util.Vector;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -30,6 +27,8 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
+import java.util.List;
+import java.util.Vector;
 
 import org.apache.activemq.test.TestSupport;
 import org.slf4j.Logger;
@@ -91,8 +90,7 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
          LOG.info("Received reply.");
          LOG.info(replyMessage.toString());
          assertEquals("Wrong message content", "Hello: Olivier", replyMessage.getText());
-      }
-      else {
+      } else {
          fail("Should have received a reply by now");
       }
       replyConsumer.close();
@@ -133,15 +131,13 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
          if (dynamicallyCreateProducer) {
             replyProducer = serverSession.createProducer(replyDestination);
             replyProducer.send(replyMessage);
-         }
-         else {
+         } else {
             replyProducer.send(replyDestination, replyMessage);
          }
 
          LOG.info("Sent reply.");
          LOG.info(replyMessage.toString());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          onException(e);
       }
    }
@@ -154,12 +150,10 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
          Message message = requestConsumer.receive(5000);
          if (message != null) {
             onMessage(message);
-         }
-         else {
+         } else {
             LOG.error("No message received");
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          onException(e);
       }
    }
@@ -180,8 +174,7 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
       final MessageConsumer requestConsumer = serverSession.createConsumer(requestDestination);
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);
-      }
-      else {
+      } else {
          Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -225,8 +218,7 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
    protected void deleteTemporaryDestination(Destination dest) throws JMSException {
       if (topic) {
          ((TemporaryTopic) dest).delete();
-      }
-      else {
+      } else {
          ((TemporaryQueue) dest).delete();
       }
    }

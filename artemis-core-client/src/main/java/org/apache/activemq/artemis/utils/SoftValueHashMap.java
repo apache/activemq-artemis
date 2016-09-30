@@ -128,8 +128,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       if (value != null) {
          value.used();
          return value.get();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -148,8 +147,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       newRef.used();
       if (oldRef != null) {
          return oldRef.get();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -190,8 +188,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
          if (k > 0) {
             return 1;
-         }
-         else if (k < 0) {
+         } else if (k < 0) {
             return -1;
          }
 
@@ -199,11 +196,9 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
          if (k > 0) {
             return 1;
-         }
-         else if (k < 0) {
+         } else if (k < 0) {
             return -1;
-         }
-         else {
+         } else {
             return 0;
          }
       }
@@ -219,8 +214,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       AggregatedSoftReference ref = mapDelegate.remove(key);
       if (ref != null) {
          return ref.get();
-      }
-      else {
+      } else {
          return null;
       }
    }

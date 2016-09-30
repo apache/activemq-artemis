@@ -47,8 +47,7 @@ class PageCacheImpl implements PageCache {
    public PagedMessage getMessage(final int messageNumber) {
       if (messageNumber < messages.length) {
          return messages[messageNumber];
-      }
-      else {
+      } else {
          return null;
       }
    }

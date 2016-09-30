@@ -60,8 +60,7 @@ public class AmqpMessage {
     * Creates a new AmqpMessage that wraps the information necessary to handle
     * an outgoing message.
     *
-    * @param message
-    *        the Proton message that is to be sent.
+    * @param message the Proton message that is to be sent.
     */
    public AmqpMessage(Message message) {
       this(null, message, null);
@@ -71,12 +70,9 @@ public class AmqpMessage {
     * Creates a new AmqpMessage that wraps the information necessary to handle
     * an incoming delivery.
     *
-    * @param receiver
-    *        the AmqpReceiver that received this message.
-    * @param message
-    *        the Proton message that was received.
-    * @param delivery
-    *        the Delivery instance that produced this message.
+    * @param receiver the AmqpReceiver that received this message.
+    * @param message  the Proton message that was received.
+    * @param delivery the Delivery instance that produced this message.
     */
    @SuppressWarnings("unchecked")
    public AmqpMessage(AmqpReceiver receiver, Message message, Delivery delivery) {
@@ -142,9 +138,7 @@ public class AmqpMessage {
    /**
     * Accepts the message marking it as consumed on the remote peer.
     *
-    * @param session
-    *      The session that is used to manage acceptance of the message.
-    *
+    * @param session The session that is used to manage acceptance of the message.
     * @throws Exception if an error occurs during the accept.
     */
    public void accept(AmqpSession txnSession) throws Exception {
@@ -158,11 +152,8 @@ public class AmqpMessage {
    /**
     * Marks the message as Modified, indicating whether it failed to deliver and is not deliverable here.
     *
-    * @param deliveryFailed
-    *        indicates that the delivery failed for some reason.
-    * @param undeliverableHere
-    *        marks the delivery as not being able to be process by link it was sent to.
-    *
+    * @param deliveryFailed    indicates that the delivery failed for some reason.
+    * @param undeliverableHere marks the delivery as not being able to be process by link it was sent to.
     * @throws Exception if an error occurs during the process.
     */
    public void modified(Boolean deliveryFailed, Boolean undeliverableHere) throws Exception {
@@ -191,8 +182,7 @@ public class AmqpMessage {
    /**
     * Sets the address which is applied to the AMQP message To field in the message properties
     *
-    * @param address
-    *      The address that should be applied in the Message To field.
+    * @param address The address that should be applied in the Message To field.
     */
    public void setAddress(String address) {
       checkReadOnly();
@@ -216,8 +206,7 @@ public class AmqpMessage {
    /**
     * Sets the MessageId property on an outbound message using the provided String
     *
-    * @param messageId
-    *        the String message ID value to set.
+    * @param messageId the String message ID value to set.
     */
    public void setMessageId(String messageId) {
       checkReadOnly();
@@ -256,8 +245,7 @@ public class AmqpMessage {
    /**
     * Sets the MessageId property on an outbound message using the provided value
     *
-    * @param messageId
-    *        the message ID value to set.
+    * @param messageId the message ID value to set.
     */
    public void setRawMessageId(Object messageId) {
       checkReadOnly();
@@ -268,8 +256,7 @@ public class AmqpMessage {
    /**
     * Sets the CorrelationId property on an outbound message using the provided String
     *
-    * @param correlationId
-    *        the String Correlation ID value to set.
+    * @param correlationId the String Correlation ID value to set.
     */
    public void setCorrelationId(String correlationId) {
       checkReadOnly();
@@ -308,8 +295,7 @@ public class AmqpMessage {
    /**
     * Sets the CorrelationId property on an outbound message using the provided value
     *
-    * @param correlationId
-    *        the correlation ID value to set.
+    * @param correlationId the correlation ID value to set.
     */
    public void setRawCorrelationId(Object correlationId) {
       checkReadOnly();
@@ -320,8 +306,7 @@ public class AmqpMessage {
    /**
     * Sets the GroupId property on an outbound message using the provided String
     *
-    * @param messageId
-    *        the String Group ID value to set.
+    * @param messageId the String Group ID value to set.
     */
    public void setGroupId(String groupId) {
       checkReadOnly();
@@ -346,8 +331,7 @@ public class AmqpMessage {
    /**
     * Sets the durable header on the outgoing message.
     *
-    * @param durable
-    *        the boolean durable value to set.
+    * @param durable the boolean durable value to set.
     */
    public void setDurable(boolean durable) {
       checkReadOnly();
@@ -372,10 +356,8 @@ public class AmqpMessage {
    /**
     * Sets a given application property on an outbound message.
     *
-    * @param key
-    *        the name to assign the new property.
-    * @param value
-    *        the value to set for the named property.
+    * @param key   the name to assign the new property.
+    * @param value the value to set for the named property.
     */
    public void setApplicationProperty(String key, Object value) {
       checkReadOnly();
@@ -387,9 +369,7 @@ public class AmqpMessage {
     * Gets the application property that is mapped to the given name or null
     * if no property has been set with that name.
     *
-    * @param key
-    *        the name used to lookup the property in the application properties.
-    *
+    * @param key the name used to lookup the property in the application properties.
     * @return the property value or null if not set.
     */
    public Object getApplicationProperty(String key) {
@@ -404,10 +384,8 @@ public class AmqpMessage {
     * Perform a proper annotation set on the AMQP Message based on a Symbol key and
     * the target value to append to the current annotations.
     *
-    * @param key
-    *        The name of the Symbol whose value is being set.
-    * @param value
-    *        The new value to set in the annotations of this message.
+    * @param key   The name of the Symbol whose value is being set.
+    * @param value The new value to set in the annotations of this message.
     */
    public void setMessageAnnotation(String key, Object value) {
       checkReadOnly();
@@ -420,9 +398,7 @@ public class AmqpMessage {
     * that annotation name.  If the message annotations have not been created yet
     * then this method will always return null.
     *
-    * @param key
-    *        the Symbol name that should be looked up in the message annotations.
-    *
+    * @param key the Symbol name that should be looked up in the message annotations.
     * @return the value of the annotation if it exists, or null if not set or not accessible.
     */
    public Object getMessageAnnotation(String key) {
@@ -437,10 +413,8 @@ public class AmqpMessage {
     * Perform a proper delivery annotation set on the AMQP Message based on a Symbol
     * key and the target value to append to the current delivery annotations.
     *
-    * @param key
-    *        The name of the Symbol whose value is being set.
-    * @param value
-    *        The new value to set in the delivery annotations of this message.
+    * @param key   The name of the Symbol whose value is being set.
+    * @param value The new value to set in the delivery annotations of this message.
     */
    public void setDeliveryAnnotation(String key, Object value) {
       checkReadOnly();
@@ -453,9 +427,7 @@ public class AmqpMessage {
     * that annotation name.  If the message annotations have not been created yet
     * then this method will always return null.
     *
-    * @param key
-    *        the Symbol name that should be looked up in the message annotations.
-    *
+    * @param key the Symbol name that should be looked up in the message annotations.
     * @return the value of the annotation if it exists, or null if not set or not accessible.
     */
    public Object getDeliveryAnnotation(String key) {
@@ -472,9 +444,7 @@ public class AmqpMessage {
     * Sets a String value into the body of an outgoing Message, throws
     * an exception if this is an incoming message instance.
     *
-    * @param value
-    *        the String value to store in the Message body.
-    *
+    * @param value the String value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
     */
    public void setText(String value) throws IllegalStateException {
@@ -487,9 +457,7 @@ public class AmqpMessage {
     * Sets a byte array value into the body of an outgoing Message, throws
     * an exception if this is an incoming message instance.
     *
-    * @param value
-    *        the byte array value to store in the Message body.
-    *
+    * @param value the byte array value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
     */
    public void setBytes(byte[] bytes) throws IllegalStateException {
@@ -502,9 +470,7 @@ public class AmqpMessage {
     * Sets a byte array value into the body of an outgoing Message, throws
     * an exception if this is an incoming message instance.
     *
-    * @param value
-    *        the byte array value to store in the Message body.
-    *
+    * @param value the byte array value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
     */
    public void setDescribedType(DescribedType described) throws IllegalStateException {
@@ -517,7 +483,6 @@ public class AmqpMessage {
     * Attempts to retrieve the message body as an DescribedType instance.
     *
     * @return an DescribedType instance if one is stored in the message body.
-    *
     * @throws NoSuchElementException if the body does not contain a DescribedType.
     */
    public DescribedType getDescribedType() throws NoSuchElementException {
@@ -525,18 +490,15 @@ public class AmqpMessage {
 
       if (getWrappedMessage().getBody() == null) {
          return null;
-      }
-      else {
+      } else {
          if (getWrappedMessage().getBody() instanceof AmqpValue) {
             AmqpValue value = (AmqpValue) getWrappedMessage().getBody();
 
             if (value.getValue() == null) {
                result = null;
-            }
-            else if (value.getValue() instanceof DescribedType) {
+            } else if (value.getValue() instanceof DescribedType) {
                result = (DescribedType) value.getValue();
-            }
-            else {
+            } else {
                throw new NoSuchElementException("Message does not contain a DescribedType body");
             }
          }

@@ -128,8 +128,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
       try {
          endpoint.close(true);
-      }
-      catch (Exception e1) {
+      } catch (Exception e1) {
          ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e1);
       }
 
@@ -141,8 +140,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.BROADCAST_GROUP_STOPPED, props);
          try {
             notificationService.sendNotification(notification);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e);
          }
       }
@@ -210,14 +208,12 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
       try {
          broadcastConnectors();
          loggedBroadcastException = false;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // only log the exception at ERROR level once, even if it fails multiple times in a row - HORNETQ-919
          if (!loggedBroadcastException) {
             ActiveMQServerLogger.LOGGER.errorBroadcastingConnectorConfigs(e);
             loggedBroadcastException = true;
-         }
-         else {
+         } else {
             logger.debug("Failed to broadcast connector configs...again", e);
          }
       }

@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.unit.util;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;

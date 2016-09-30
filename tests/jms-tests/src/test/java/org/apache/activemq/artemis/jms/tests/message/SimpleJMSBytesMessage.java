@@ -16,19 +16,18 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 
 public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMessage {
    // Static -------------------------------------------------------
@@ -61,11 +60,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readBoolean();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -75,11 +72,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readByte();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -89,11 +84,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readUnsignedByte();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -103,11 +96,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readShort();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -117,11 +108,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readUnsignedShort();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -131,11 +120,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readChar();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -145,11 +132,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readInt();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -159,11 +144,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readLong();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -173,11 +156,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readFloat();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -187,11 +168,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readDouble();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -201,11 +180,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.readUTF();
-      }
-      catch (EOFException e) {
+      } catch (EOFException e) {
          throw new MessageEOFException("");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -215,8 +192,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.read(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -226,8 +202,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       checkRead();
       try {
          return m.read(value, 0, length);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -239,8 +214,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeBoolean(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -252,8 +226,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeByte(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -265,8 +238,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeShort(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -278,8 +250,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeChar(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -291,8 +262,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeInt(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -304,8 +274,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeLong(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -317,8 +286,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeFloat(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -330,8 +298,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeDouble(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -343,8 +310,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.writeUTF(value);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -356,8 +322,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.write(value, 0, value.length);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -369,8 +334,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
       try {
          p.write(value, offset, length);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
@@ -386,36 +350,26 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
          }
          if (value instanceof String) {
             p.writeUTF((String) value);
-         }
-         else if (value instanceof Boolean) {
+         } else if (value instanceof Boolean) {
             p.writeBoolean(((Boolean) value).booleanValue());
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             p.writeByte(((Byte) value).byteValue());
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             p.writeShort(((Short) value).shortValue());
-         }
-         else if (value instanceof Integer) {
+         } else if (value instanceof Integer) {
             p.writeInt(((Integer) value).intValue());
-         }
-         else if (value instanceof Long) {
+         } else if (value instanceof Long) {
             p.writeLong(((Long) value).longValue());
-         }
-         else if (value instanceof Float) {
+         } else if (value instanceof Float) {
             p.writeFloat(((Float) value).floatValue());
-         }
-         else if (value instanceof Double) {
+         } else if (value instanceof Double) {
             p.writeDouble(((Double) value).doubleValue());
-         }
-         else if (value instanceof byte[]) {
+         } else if (value instanceof byte[]) {
             p.write((byte[]) value, 0, ((byte[]) value).length);
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid object for properties");
          }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
 
@@ -434,8 +388,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
          m = null;
          p = null;
          bodyWriteOnly = false;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("IOException");
       }
    }

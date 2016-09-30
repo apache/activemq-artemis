@@ -37,8 +37,7 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
    protected List<P> internalFilterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn) {
       if (listIn == null) {
          return Collections.emptyList();
-      }
-      else {
+      } else {
          CopyOnWriteArrayList<P> listOut = new CopyOnWriteArrayList<>();
          for (BaseInterceptor<?> in : listIn) {
             if (type.isInstance(in)) {

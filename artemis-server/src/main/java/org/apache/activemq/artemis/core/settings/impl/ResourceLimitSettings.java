@@ -17,12 +17,12 @@
 
 package org.apache.activemq.artemis.core.settings.impl;
 
+import java.io.Serializable;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.BufferHelper;
-
-import java.io.Serializable;
 
 public class ResourceLimitSettings implements Serializable, EncodingSupport {
 

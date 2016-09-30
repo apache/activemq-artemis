@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import org.apache.activemq.TestSupport.PersistenceAdapterChoice;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -32,6 +25,13 @@ import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.activemq.TestSupport.PersistenceAdapterChoice;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -410,13 +410,11 @@ public class DurableSubscriptionOffline3Test extends DurableSubscriptionOfflineT
             if (b != null) {
                boolean c = message.getBooleanProperty("$c");
                assertTrue("", c);
-            }
-            else {
+            } else {
                String d = message.getStringProperty("$d");
                assertTrue("", "D1".equals(d) || "D2".equals(d));
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
             exceptions.add(e);
          }

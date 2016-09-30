@@ -86,8 +86,7 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
                session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
                session.close();
                count.countDown();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
             }
          }
       }.start();

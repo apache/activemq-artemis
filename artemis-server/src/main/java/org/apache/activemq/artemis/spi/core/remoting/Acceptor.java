@@ -31,8 +31,10 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
  */
 public interface Acceptor extends ActiveMQComponent {
 
-   /** The name of the acceptor used on the configuration.
-    *  for logging and debug purposes. */
+   /**
+    * The name of the acceptor used on the configuration.
+    * for logging and debug purposes.
+    */
    String getName();
 
    /**
@@ -42,8 +44,8 @@ public interface Acceptor extends ActiveMQComponent {
 
    /**
     * This will update the list of interceptors for each ProtocolManager inside the acceptor.
-    * */
-   void updateInterceptors(List<BaseInterceptor> incomingInterceptors,  List<BaseInterceptor> outgoingInterceptors);
+    */
+   void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors);
 
    /**
     * @return the cluster connection associated with this Acceptor

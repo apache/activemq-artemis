@@ -147,12 +147,10 @@ public class BridgeExample {
 
          if (receivedMessage == null) {
             System.out.println("Didn't receive that message from mincing-machine on node 1");
-         }
-         else {
+         } else {
             throw new IllegalStateException();
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our resources!
 
          if (connection0 != null) {

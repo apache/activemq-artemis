@@ -218,8 +218,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          double rate = 1000 * (double) numMessages / (end - start);
 
          JournalImplTestUnit.log.info("Rate " + rate + " records/sec");
-      }
-      finally {
+      } finally {
          journal.stop();
       }
 

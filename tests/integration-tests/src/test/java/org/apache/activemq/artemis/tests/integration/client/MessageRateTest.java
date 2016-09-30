@@ -177,8 +177,7 @@ public class MessageRateTest extends ActiveMQTestBase {
             try {
                message.acknowledge();
                messages.countDown();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace(); // Hudson report
                failures.incrementAndGet();
             }

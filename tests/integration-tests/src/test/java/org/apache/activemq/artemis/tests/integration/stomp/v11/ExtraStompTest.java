@@ -50,8 +50,7 @@ public class ExtraStompTest extends StompV11TestBase {
       try {
          connV10.disconnect();
          connV11.disconnect();
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }

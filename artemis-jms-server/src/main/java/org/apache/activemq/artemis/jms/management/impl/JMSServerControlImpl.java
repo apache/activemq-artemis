@@ -30,7 +30,6 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -107,20 +106,16 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       if (coreAddress.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "queue";
-      }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
+      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "tempqueue";
-      }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
+      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "topic";
-      }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
+      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "temptopic";
-      }
-      else {
+      } else {
          ActiveMQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestination()" + coreAddress);
          // not related to JMS
          return null;
@@ -170,8 +165,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                throw new IllegalArgumentException("no discovery group name supplied");
             }
             server.createConnectionFactory(name, ha, JMSFactoryType.valueOf(cfType), connectorNames[0], JMSServerControlImpl.convert(bindings));
-         }
-         else {
+         } else {
             List<String> connectorList = new ArrayList<>(connectorNames.length);
 
             for (String str : connectorNames) {
@@ -180,8 +174,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
             server.createConnectionFactory(name, ha, JMSFactoryType.valueOf(cfType), connectorList, JMSServerControlImpl.convert(bindings));
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -270,8 +263,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
          if (useDiscovery) {
             configuration.setDiscoveryGroupName(connectorNames[0]);
-         }
-         else {
+         } else {
             ArrayList<String> connectorNamesList = new ArrayList<>();
             for (String nameC : connectorNames) {
                connectorNamesList.add(nameC);
@@ -284,8 +276,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          }
 
          server.createConnectionFactory(true, configuration, bindings);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -331,8 +322,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.createQueue(true, name, selector, durable, JMSServerControlImpl.toArray(bindings));
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -350,8 +340,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.destroyQueue(name, removeConsumers);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -369,8 +358,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.createTopic(true, topicName, JMSServerControlImpl.toArray(bindings));
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -388,8 +376,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.destroyTopic(name, removeConsumers);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -402,8 +389,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          server.destroyConnectionFactory(name);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -434,8 +420,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             names[i] = queueControl.getName();
          }
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -454,8 +439,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             names[i] = topicControl.getName();
          }
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -474,8 +458,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             names[i] = cfControl.getName();
          }
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -519,8 +502,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listRemoteAddresses();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -533,8 +515,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listRemoteAddresses(ipAddress);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -547,8 +528,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.closeConnectionsForAddress(ipAddress);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -561,8 +541,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.closeConsumerConnectionsForAddress(address);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -575,8 +554,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.closeConnectionsForUser(userName);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -589,8 +567,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listConnectionIDs();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -620,10 +597,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          for (RemotingConnection connection : connections) {
             ServerSession session = jmsSessions.get(connection.getID());
             if (session != null) {
-               JsonObjectBuilder objectBuilder = JsonLoader.createObjectBuilder()
-                  .add("connectionID", connection.getID().toString())
-                  .add("clientAddress", connection.getRemoteAddress())
-                  .add("creationTime", connection.getCreationTime());
+               JsonObjectBuilder objectBuilder = JsonLoader.createObjectBuilder().add("connectionID", connection.getID().toString()).add("clientAddress", connection.getRemoteAddress()).add("creationTime", connection.getCreationTime());
 
                if (session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY) != null) {
                   objectBuilder.add("clientID", session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY));
@@ -637,8 +611,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             }
          }
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -668,8 +641,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             }
          }
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -683,8 +655,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       try {
          JsonArray jsonArray = toJsonArray(server.getActiveMQServer().getSessions());
          return jsonArray.toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -697,8 +668,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listSessions(connectionID);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -711,8 +681,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listPreparedTransactionDetailsAsJSON();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -725,8 +694,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listPreparedTransactionDetailsAsHTML();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -810,8 +778,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try {
          return server.listSessionsAsJSON(connectionID);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -834,8 +801,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                   JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
                   TransportConfiguration live = member.getLive();
                   if (live != null) {
-                     obj.add("nodeID", member.getNodeId())
-                        .add("live", live.getParams().get("host") + ":" + live.getParams().get("port"));
+                     obj.add("nodeID", member.getNodeId()).add("live", live.getParams().get("host") + ":" + live.getParams().get("port"));
                      TransportConfiguration backup = member.getBackup();
                      if (backup != null) {
                         obj.add("backup", backup.getParams().get("host") + ":" + backup.getParams().get("port"));
@@ -846,8 +812,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             }
          }
          return brokers.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -862,32 +827,21 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       if (destinationInfo == null) {
          return null;
       }
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
-         .add("consumerID", consumer.getID())
-         .add("connectionID", consumer.getConnectionID().toString())
-         .add("sessionID", consumer.getSessionID())
-         .add("queueName", consumer.getQueue().getName().toString())
-         .add("browseOnly", consumer.isBrowseOnly())
-         .add("creationTime", consumer.getCreationTime())
-         .add("destinationName", destinationInfo[0])
-         .add("destinationType", destinationInfo[1]);
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("destinationName", destinationInfo[0]).add("destinationType", destinationInfo[1]);
       // JMS consumer with message filter use the queue's filter
       Filter queueFilter = consumer.getQueue().getFilter();
       if (queueFilter != null) {
          obj.add("filter", queueFilter.getFilterString().toString());
       }
 
-
       if (destinationInfo[1].equals("topic")) {
          try {
             ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue().getName().toString());
             obj.add("durable", true);
-         }
-         catch (IllegalArgumentException | JMSRuntimeException e) {
+         } catch (IllegalArgumentException | JMSRuntimeException e) {
             obj.add("durable", false);
          }
-      }
-      else {
+      } else {
          obj.add("durable", false);
       }
 

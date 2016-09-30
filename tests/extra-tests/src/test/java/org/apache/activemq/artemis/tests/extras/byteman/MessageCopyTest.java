@@ -86,15 +86,13 @@ public class MessageCopyTest {
             latchAlign.countDown();
             try {
                latchReady.await();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
 
             for (int i = 0; i < RUNS; i++) {
                try {
                   ServerMessageImpl newMsg = (ServerMessageImpl) msg.copy();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -113,8 +111,7 @@ public class MessageCopyTest {
             latchAlign.countDown();
             try {
                latchReady.await();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
 
             for (int i = 0; i < RUNS; i++) {
@@ -123,8 +120,7 @@ public class MessageCopyTest {
                   ActiveMQBuffer buf = ssm.encode(null);
                   System.out.println("reading at buf = " + buf);
                   simulateRead(buf);
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }

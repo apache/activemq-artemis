@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.HashMap;
-
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -33,6 +31,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
+import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -112,8 +111,7 @@ public class MessageCounterExample {
          counters = queueControl.listMessageCounter();
          messageCounter = MessageCounterInfo.fromJSON(counters);
          displayMessageCounter(messageCounter);
-      }
-      finally {
+      } finally {
          // Step 17. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

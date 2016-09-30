@@ -16,17 +16,6 @@
  */
 package org.apache.activemq.transport.failover;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -35,6 +24,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -44,11 +37,17 @@ import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.junit.After;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.After;
-import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(BMUnitRunner.class)
 public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTest {
@@ -124,8 +123,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
             try {
                consumerSession.commit();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
             commitDoneLatch.countDown();
@@ -141,10 +139,8 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
             LOG.info("producer started");
             try {
                produceMessage(producerSession, destination, prefetch * 2);
-            }
-            catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
-            }
-            catch (JMSException e) {
+            } catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
+            } catch (JMSException e) {
                e.printStackTrace();
                fail("unexpceted ex on producer: " + e);
             }
@@ -152,7 +148,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
          }
       }.start();
 
-   // will be stopped by the plugin
+      // will be stopped by the plugin
       brokerStopLatch.await();
       server.stop();
       server = createBroker();
@@ -167,14 +163,13 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
    @Test
    @BMRules(
-      rules = {
-         @BMRule(
-            name = "set no return response",
-            targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-            targetMethod = "processCommitTransactionOnePhase",
-            targetLocation = "ENTRY",
-            binding = "owconn:OpenWireConnection = $0; context = owconn.getContext()",
-            action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"),
+      rules = {@BMRule(
+         name = "set no return response",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processCommitTransactionOnePhase",
+         targetLocation = "ENTRY",
+         binding = "owconn:OpenWireConnection = $0; context = owconn.getContext()",
+         action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"),
 
          @BMRule(
             name = "stop broker before commit",
@@ -241,8 +236,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
                produceMessage(consumerSession, signalDestination, 1);
                LOG.info("commit session");
                consumerSession.commit();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                LOG.info("commit exception", e);
                gotCommitException.set(true);
             }
@@ -259,10 +253,8 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
             LOG.info("producer started");
             try {
                produceMessage(producerSession, destination, prefetch * 2);
-            }
-            catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
-            }
-            catch (JMSException e) {
+            } catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
+            } catch (JMSException e) {
                e.printStackTrace();
                fail("unexpceted ex on producer: " + e);
             }
@@ -371,11 +363,9 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
                LOG.info("Stopping broker in transaction...");
                try {
                   server.stop();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
-               }
-               finally {
+               } finally {
                   brokerStopLatch.countDown();
                }
             }

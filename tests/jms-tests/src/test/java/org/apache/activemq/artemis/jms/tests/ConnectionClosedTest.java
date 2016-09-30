@@ -144,14 +144,12 @@ public class ConnectionClosedTest extends JMSTestCase {
                if (System.currentTimeMillis() - start >= 2000) {
                   // It timed out
                   failed = "Timed out";
-               }
-               else {
+               } else {
                   if (m != null) {
                      failed = "Message Not null";
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.error(e);
                failed = e.getMessage();
             }
@@ -183,8 +181,7 @@ public class ConnectionClosedTest extends JMSTestCase {
       try {
          connection.getMetaData();
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
    }
@@ -197,8 +194,7 @@ public class ConnectionClosedTest extends JMSTestCase {
       try {
          conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ProxyAssertSupport.fail("Did not throw javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
    }
@@ -225,47 +221,41 @@ public class ConnectionClosedTest extends JMSTestCase {
       try {
          sess.createMessage();
          ProxyAssertSupport.fail("Session is not closed");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
 
       try {
          sess.getAcknowledgeMode();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          sess.getTransacted();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          sess.getMessageListener();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          sess.createProducer(queue1);
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          sess.createConsumer(queue1);
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
@@ -277,39 +267,34 @@ public class ConnectionClosedTest extends JMSTestCase {
       try {
          producer.send(m);
          ProxyAssertSupport.fail("Producer is not closed");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
 
       try {
          producer.getDisableMessageID();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          producer.getPriority();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          producer.getDestination();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          producer.getTimeToLive();
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
@@ -318,24 +303,21 @@ public class ConnectionClosedTest extends JMSTestCase {
       try {
          consumer.getMessageSelector();
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          consumer.getMessageListener();
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 
       try {
          consumer.receive();
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
 

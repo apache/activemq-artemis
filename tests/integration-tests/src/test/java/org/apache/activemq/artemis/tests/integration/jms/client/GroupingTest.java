@@ -16,17 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
-import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
@@ -40,6 +29,17 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.UUID;
+
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * GroupingTest
@@ -96,8 +96,7 @@ public class GroupingTest extends JMSTestBase {
 
          if (jmsxgroupID != null) {
             assertEquals(jmsxgroupID, prop);
-         }
-         else {
+         } else {
             jmsxgroupID = prop;
          }
       }
@@ -254,8 +253,7 @@ public class GroupingTest extends JMSTestBase {
 
          if (jmsxgroupID != null) {
             assertEquals(jmsxgroupID, prop);
-         }
-         else {
+         } else {
             jmsxgroupID = prop;
          }
       }

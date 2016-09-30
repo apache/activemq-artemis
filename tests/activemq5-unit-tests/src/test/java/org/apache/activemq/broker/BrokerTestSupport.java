@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.broker;
 
+import javax.jms.DeliveryMode;
+import javax.jms.MessageNotWriteableException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -24,9 +26,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.DeliveryMode;
-import javax.jms.MessageNotWriteableException;
 
 import org.apache.activemq.CombinationTestSupport;
 import org.apache.activemq.broker.region.RegionBroker;
@@ -147,8 +146,7 @@ public class BrokerTestSupport extends CombinationTestSupport {
       message.setPersistent(false);
       try {
          message.setText("Test Message Payload.");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       return message;
    }
@@ -261,12 +259,10 @@ public class BrokerTestSupport extends CombinationTestSupport {
             if (md.getMessage() != null) {
                i++;
                connection.send(createAck(consumerInfo, md.getMessage(), 1, MessageAck.STANDARD_ACK_TYPE));
-            }
-            else {
+            } else {
                break;
             }
-         }
-         else {
+         } else {
             skipped.add(m);
          }
          m = connection.getDispatchQueue().poll(maxWait, TimeUnit.MILLISECONDS);
@@ -296,8 +292,7 @@ public class BrokerTestSupport extends CombinationTestSupport {
          DestinationInfo info = createTempDestinationInfo(connectionInfo1, destinationType);
          connection.send(info);
          return info.getDestination();
-      }
-      else {
+      } else {
          return ActiveMQDestination.createDestination(queueName, destinationType);
       }
    }

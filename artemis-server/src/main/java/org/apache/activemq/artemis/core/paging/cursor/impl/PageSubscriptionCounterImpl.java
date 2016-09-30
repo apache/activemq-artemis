@@ -118,8 +118,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          long id = storage.storePendingCounter(this.subscriptionID, page.getPageId(), increment);
          pendingInfo = new Pair<>(id, new AtomicInteger(1));
          pendingCounters.put((long) page.getPageId(), pendingInfo);
-      }
-      else {
+      } else {
          pendingInfo.getB().addAndGet(increment);
       }
 
@@ -165,18 +164,15 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          if (persistent) {
             long id = storage.storePageCounterInc(this.subscriptionID, add);
             incrementProcessed(id, add);
-         }
-         else {
+         } else {
             incrementProcessed(-1, add);
          }
-      }
-      else {
+      } else {
          if (persistent) {
             tx.setContainsPersistent();
             long id = storage.storePageCounterInc(tx.getID(), this.subscriptionID, add);
             applyIncrementOnTX(tx, id, add);
-         }
-         else {
+         } else {
             applyIncrementOnTX(tx, -1, add);
          }
       }
@@ -249,8 +245,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
             value.set(0);
             incrementRecords.clear();
          }
-      }
-      finally {
+      } finally {
          storage.readUnLock();
       }
    }
@@ -333,18 +328,15 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          }
 
          storage.commit(txCleanup);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          newRecordID = recordID;
 
          ActiveMQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
          try {
             storage.rollback(txCleanup);
+         } catch (Exception ignored) {
          }
-         catch (Exception ignored) {
-         }
-      }
-      finally {
+      } finally {
          recordID = newRecordID;
       }
    }

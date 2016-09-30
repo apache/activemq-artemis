@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -31,9 +34,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * A MultiThreadConsumerStressTest
@@ -157,8 +157,7 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
       try {
          sess.createQueue(ADDRESS, QUEUE, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       sess.close();
@@ -234,16 +233,13 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
                                   " sent " +
                                   numberOfMessages +
                                   "  messages");
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
             this.e = e;
-         }
-         finally {
+         } finally {
             try {
                session.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
          }
@@ -286,15 +282,12 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
                                   " messages");
 
             session.commit();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             this.e = e;
-         }
-         finally {
+         } finally {
             try {
                session.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
             }
          }

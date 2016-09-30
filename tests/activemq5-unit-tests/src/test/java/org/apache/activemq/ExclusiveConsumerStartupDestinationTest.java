@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -90,8 +90,7 @@ public class ExclusiveConsumerStartupDestinationTest extends EmbeddedBrokerTestS
          // Verify exclusive consumer receives the message.
          assertNotNull(exclusiveConsumer.receive(100));
          assertNull(fallbackConsumer.receive(100));
-      }
-      finally {
+      } finally {
          fallbackSession.close();
          senderSession.close();
          conn.close();
@@ -146,8 +145,7 @@ public class ExclusiveConsumerStartupDestinationTest extends EmbeddedBrokerTestS
          assertNotNull("Should have received a message", exclusiveConsumer2.receive(100));
          assertNull("Should not have received a message", fallbackConsumer.receive(100));
 
-      }
-      finally {
+      } finally {
          fallbackSession.close();
          senderSession.close();
          conn.close();
@@ -196,8 +194,7 @@ public class ExclusiveConsumerStartupDestinationTest extends EmbeddedBrokerTestS
 
          assertNotNull(fallbackConsumer.receive(100));
 
-      }
-      finally {
+      } finally {
          fallbackSession.close();
          senderSession.close();
          conn.close();

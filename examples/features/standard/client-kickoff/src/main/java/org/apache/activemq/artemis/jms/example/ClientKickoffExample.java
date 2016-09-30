@@ -92,8 +92,7 @@ public class ClientKickoffExample {
          System.err.println("----------------------------------");
          exception.get().printStackTrace();
          System.err.println("----------------------------------");
-      }
-      finally {
+      } finally {
          // Step 10. Be sure to close the resources!
          if (initialContext != null) {
             initialContext.close();

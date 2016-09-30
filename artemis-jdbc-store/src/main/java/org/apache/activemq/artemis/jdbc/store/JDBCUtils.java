@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.jdbc.store;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import javax.sql.DataSource;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.mysql.MySQLSQLProvider;
@@ -37,6 +36,7 @@ import org.jboss.logging.Logger;
 public class JDBCUtils {
 
    private static final Logger logger = Logger.getLogger(JDBCUtils.class);
+
    public static Driver getDriver(String className) throws Exception {
 
       try {
@@ -49,18 +49,15 @@ public class JDBCUtils {
                public void run() {
                   try {
                      DriverManager.getConnection("jdbc:derby:;shutdown=true");
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                   }
                }
             });
          }
          return driver;
-      }
-      catch (ClassNotFoundException cnfe) {
+      } catch (ClassNotFoundException cnfe) {
          throw new RuntimeException("Could not find class: " + className);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException("Unable to instantiate driver class: ", e);
       }
    }
@@ -78,8 +75,7 @@ public class JDBCUtils {
             }
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
       }
 
@@ -90,16 +86,13 @@ public class JDBCUtils {
       if (driverClass.contains("derby")) {
          logger.tracef("getSQLProvider Returning Derby SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new DerbySQLProvider.Factory();
-      }
-      else if (driverClass.contains("postgres")) {
+      } else if (driverClass.contains("postgres")) {
          logger.tracef("getSQLProvider Returning postgres SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new PostgresSQLProvider.Factory();
-      }
-      else if (driverClass.contains("mysql")) {
+      } else if (driverClass.contains("mysql")) {
          logger.tracef("getSQLProvider Returning mysql SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new MySQLSQLProvider.Factory();
-      }
-      else {
+      } else {
          logger.tracef("getSQLProvider Returning generic SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new GenericSQLProvider.Factory();
       }
@@ -123,8 +116,7 @@ public class JDBCUtils {
       if (provider instanceof PostgresSQLProvider) {
          dbDriver = new PostgresSequentialSequentialFileDriver();
          dbDriver.setDataSource(dataSource);
-      }
-      else {
+      } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(tableName, dataSource, provider);
       }
       return dbDriver;

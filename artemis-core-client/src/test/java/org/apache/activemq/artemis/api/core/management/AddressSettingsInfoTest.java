@@ -30,27 +30,27 @@ public class AddressSettingsInfoTest {
    @Test
    public void shouldLoadFromJSON() {
       String json = "{\n" +
-            "\"addressFullMessagePolicy\":\"fullPolicy\",\n" +
-            "\"maxSizeBytes\":500,\n" +
-            "\"pageSizeBytes\":200,\n" +
-            "\"pageCacheMaxSize\":3,\n" +
-            "\"maxDeliveryAttempts\":3,\n" +
-            "\"redeliveryDelay\":70000,\n" +
-            "\"redeliveryMultiplier\":1.5,\n" +
-            "\"maxRedeliveryDelay\":100000,\n" +
-            "\"DLA\":\"deadLettersGoHere\",\n" +
-            "\"expiryAddress\":\"\",\n" +
-            "\"lastValueQueue\":true,\n" +
-            "\"redistributionDelay\":10004,\n" +
-            "\"sendToDLAOnNoRoute\":true,\n" +
-            "\"slowConsumerThreshold\":200,\n" +
-            "\"slowConsumerCheckPeriod\":300,\n" +
-            "\"slowConsumerPolicy\":\"retire\",\n" +
-            "\"autoCreateJmsQueues\":true,\n" +
-            "\"autoDeleteJmsQueues\":false,\n" +
-            "\"autoCreateJmsTopics\":true,\n" +
-            "\"autoDeleteJmsTopics\":false\n" +
-            "}";
+         "\"addressFullMessagePolicy\":\"fullPolicy\",\n" +
+         "\"maxSizeBytes\":500,\n" +
+         "\"pageSizeBytes\":200,\n" +
+         "\"pageCacheMaxSize\":3,\n" +
+         "\"maxDeliveryAttempts\":3,\n" +
+         "\"redeliveryDelay\":70000,\n" +
+         "\"redeliveryMultiplier\":1.5,\n" +
+         "\"maxRedeliveryDelay\":100000,\n" +
+         "\"DLA\":\"deadLettersGoHere\",\n" +
+         "\"expiryAddress\":\"\",\n" +
+         "\"lastValueQueue\":true,\n" +
+         "\"redistributionDelay\":10004,\n" +
+         "\"sendToDLAOnNoRoute\":true,\n" +
+         "\"slowConsumerThreshold\":200,\n" +
+         "\"slowConsumerCheckPeriod\":300,\n" +
+         "\"slowConsumerPolicy\":\"retire\",\n" +
+         "\"autoCreateJmsQueues\":true,\n" +
+         "\"autoDeleteJmsQueues\":false,\n" +
+         "\"autoCreateJmsTopics\":true,\n" +
+         "\"autoDeleteJmsTopics\":false\n" +
+         "}";
       AddressSettingsInfo addressSettingsInfo = AddressSettingsInfo.from(json);
       assertEquals("fullPolicy", addressSettingsInfo.getAddressFullMessagePolicy());
       assertEquals(500L, addressSettingsInfo.getMaxSizeBytes());

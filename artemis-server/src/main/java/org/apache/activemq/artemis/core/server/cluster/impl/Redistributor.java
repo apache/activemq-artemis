@@ -22,13 +22,13 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -122,8 +122,7 @@ public class Redistributor implements Consumer {
       try {
          boolean ok = pendingRuns.await(10000);
          return ok;
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
@@ -133,9 +132,8 @@ public class Redistributor implements Consumer {
    public synchronized HandleStatus handle(final MessageReference reference) throws Exception {
       if (!active) {
          return HandleStatus.BUSY;
-      }
-      //we shouldn't redistribute with message groups return NO_MATCH so other messages can be delivered
-      else if (reference.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID) != null) {
+      } else if (reference.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID) != null) {
+         //we shouldn't redistribute with message groups return NO_MATCH so other messages can be delivered
          return HandleStatus.NO_MATCH;
       }
 
@@ -152,8 +150,7 @@ public class Redistributor implements Consumer {
          postOffice.processRoute(routingInfo.getB(), routingInfo.getA(), false);
 
          ackRedistribution(reference, tx);
-      }
-      else {
+      } else {
          active = false;
          executor.execute(new Runnable() {
             @Override
@@ -171,12 +168,10 @@ public class Redistributor implements Consumer {
 
                      queue.deliverAsync();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   try {
                      tx.rollback();
-                  }
-                  catch (Exception e2) {
+                  } catch (Exception e2) {
                      // Nothing much we can do now
 
                      // TODO log
@@ -202,8 +197,7 @@ public class Redistributor implements Consumer {
          public void run() {
             try {
                runnable.run();
-            }
-            finally {
+            } finally {
                pendingRuns.countDown();
             }
          }

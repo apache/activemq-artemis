@@ -51,8 +51,7 @@ public abstract class JournalInternalRecord implements EncodingSupport {
    public void setCompactCount(final short compactCount) {
       if (compactCount > Byte.MAX_VALUE) {
          this.compactCount = Byte.MAX_VALUE;
-      }
-      else {
+      } else {
          this.compactCount = (byte) compactCount;
       }
    }

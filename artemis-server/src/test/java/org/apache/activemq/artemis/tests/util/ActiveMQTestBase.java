@@ -223,11 +223,9 @@ public abstract class ActiveMQTestBase extends Assert {
    public void shutdownDerby() {
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
-
 
    static {
       Random random = new Random();
@@ -261,8 +259,7 @@ public abstract class ActiveMQTestBase extends Assert {
          assertAllClientConsumersAreClosed();
          assertAllClientProducersAreClosed();
          assertAllClientSessionsAreClosed();
-      }
-      finally {
+      } finally {
          synchronized (servers) {
             for (ActiveMQServer server : servers) {
                if (server == null) {
@@ -275,8 +272,7 @@ public abstract class ActiveMQTestBase extends Assert {
                         stopComponent(cc);
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   // no-op
                }
                stopComponentOutputExceptions(server);
@@ -289,8 +285,7 @@ public abstract class ActiveMQTestBase extends Assert {
          ArrayList<Exception> exceptions;
          try {
             exceptions = checkCsfStopped();
-         }
-         finally {
+         } finally {
             cleanupPools();
          }
 
@@ -299,7 +294,6 @@ public abstract class ActiveMQTestBase extends Assert {
          }
          InVMConnector.resetThreadPool();
          assertAllExecutorsFinished();
-
 
          //clean up pools before failing
          if (!exceptions.isEmpty()) {
@@ -323,8 +317,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                    this.getName() +
                                                    " on this following dump"));
                   fail("test '" + getName() + "' left serverlocator running, this could effect other tests");
-               }
-               else if (stackTraceElement.getMethodName().contains("BroadcastGroupImpl.run") && !alreadyFailedThread.contains(thread)) {
+               } else if (stackTraceElement.getMethodName().contains("BroadcastGroupImpl.run") && !alreadyFailedThread.contains(thread)) {
                   alreadyFailedThread.add(thread);
                   System.out.println(threadDump(this.getName() + " has left threads running. Look at thread " +
                                                    thread.getName() +
@@ -424,7 +417,6 @@ public abstract class ActiveMQTestBase extends Assert {
       return configuration;
    }
 
-
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
       ConfigurationImpl configuration = createBasicConfig(serverID).setJMXManagementEnabled(false).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
 
@@ -487,16 +479,13 @@ public abstract class ActiveMQTestBase extends Assert {
                   statement.execute("DROP TABLE " + sqlProvider.getTableName());
                }
                connection.commit();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                connection.rollback();
             }
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -555,8 +544,7 @@ public abstract class ActiveMQTestBase extends Assert {
    public static JournalType getDefaultJournalType() {
       if (LibaioContext.isLoaded()) {
          return JournalType.ASYNCIO;
-      }
-      else {
+      } else {
          return JournalType.NIO;
       }
    }
@@ -564,7 +552,6 @@ public abstract class ActiveMQTestBase extends Assert {
    public static void forceGC() {
       ThreadLeakCheckRule.forceGC();
    }
-
 
    /**
     * Verifies whether weak references are released after a few GCs.
@@ -734,8 +721,7 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          context.lookup(binding);
          Assert.fail("there must be no resource to look up for " + binding);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -770,16 +756,13 @@ public abstract class ActiveMQTestBase extends Assert {
          ServerSocket ssocket = null;
          try {
             ssocket = new ServerSocket(port);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new IllegalStateException("port " + port + " is bound", e);
-         }
-         finally {
+         } finally {
             if (ssocket != null) {
                try {
                   ssocket.close();
-               }
-               catch (IOException e) {
+               } catch (IOException e) {
                }
             }
          }
@@ -798,7 +781,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final String getJDBCClassName() {
-      return System.getProperty("jdbc.driver.class","org.apache.derby.jdbc.EmbeddedDriver");
+      return System.getProperty("jdbc.driver.class", "org.apache.derby.jdbc.EmbeddedDriver");
    }
 
    protected final File getTestDirfile() {
@@ -969,8 +952,7 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          action.run();
          Assert.fail(message);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.assertTrue(e instanceof ActiveMQException);
          Assert.assertEquals(errorCode, ((ActiveMQException) e).getType());
       }
@@ -984,8 +966,7 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          action.run();
          Assert.fail("must throw a XAException with the expected errorCode: " + errorCode);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.assertTrue(e instanceof XAException);
          Assert.assertEquals(errorCode, ((XAException) e).errorCode);
       }
@@ -1015,8 +996,7 @@ public abstract class ActiveMQTestBase extends Assert {
             }
             if (count++ < size) {
                return getSamplebyte(count - 1);
-            }
-            else {
+            } else {
                return -1;
             }
          }
@@ -1044,28 +1024,22 @@ public abstract class ActiveMQTestBase extends Assert {
 
          if (prop.getPropertyType() == String.class) {
             value = RandomUtil.randomString();
-         }
-         else if (prop.getPropertyType() == Integer.class || prop.getPropertyType() == Integer.TYPE) {
+         } else if (prop.getPropertyType() == Integer.class || prop.getPropertyType() == Integer.TYPE) {
             value = RandomUtil.randomInt();
-         }
-         else if (prop.getPropertyType() == Long.class || prop.getPropertyType() == Long.TYPE) {
+         } else if (prop.getPropertyType() == Long.class || prop.getPropertyType() == Long.TYPE) {
             value = RandomUtil.randomLong();
-         }
-         else if (prop.getPropertyType() == Boolean.class || prop.getPropertyType() == Boolean.TYPE) {
+         } else if (prop.getPropertyType() == Boolean.class || prop.getPropertyType() == Boolean.TYPE) {
             value = RandomUtil.randomBoolean();
-         }
-         else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE) {
+         } else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE) {
             value = RandomUtil.randomDouble();
-         }
-         else {
+         } else {
             System.out.println("Can't validate property of type " + prop.getPropertyType() + " on " + prop.getName());
             value = null;
          }
 
          if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null) {
             System.out.println("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
-         }
-         else if (value != null && prop.getWriteMethod() != null &&
+         } else if (value != null && prop.getWriteMethod() != null &&
             prop.getReadMethod() != null &&
             !ignoreSet.contains(prop.getName())) {
             System.out.println("Validating " + prop.getName() + " type = " + prop.getPropertyType());
@@ -1202,8 +1176,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
       if (netty) {
          params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
-      }
-      else {
+      } else {
          params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
       }
 
@@ -1240,16 +1213,13 @@ public abstract class ActiveMQTestBase extends Assert {
       if (netty) {
          if (acceptor) {
             className = NETTY_ACCEPTOR_FACTORY;
-         }
-         else {
+         } else {
             className = NETTY_CONNECTOR_FACTORY;
          }
-      }
-      else {
+      } else {
          if (acceptor) {
             className = INVM_ACCEPTOR_FACTORY;
-         }
-         else {
+         } else {
             className = INVM_CONNECTOR_FACTORY;
          }
       }
@@ -1275,7 +1245,6 @@ public abstract class ActiveMQTestBase extends Assert {
          log.info(threadDump("Server didn't start"));
          fail("server didn't start: " + server);
       }
-
 
       if (activation) {
          if (!server.getHAPolicy().isBackup()) {
@@ -1329,15 +1298,13 @@ public abstract class ActiveMQTestBase extends Assert {
          if (isReplicated) {
             if (activation instanceof SharedNothingBackupActivation) {
                isRemoteUpToDate = backup.isReplicaSync();
-            }
-            else {
+            } else {
                //we may have already failed over and changed the Activation
                if (actualServer.isStarted()) {
                   //let it fail a few time to have time to start stopping in the case of waiting to failback
                   isRemoteUpToDate = loop++ > 10;
-               }
-               //we could be waiting to failback or restart if the server is stopping
-               else {
+               } else {
+                  //we could be waiting to failback or restart if the server is stopping
                   isRemoteUpToDate = false;
                }
             }
@@ -1355,8 +1322,7 @@ public abstract class ActiveMQTestBase extends Assert {
          }
          try {
             Thread.sleep(100);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             fail(e.getMessage());
          }
       }
@@ -1375,24 +1341,24 @@ public abstract class ActiveMQTestBase extends Assert {
          }
          try {
             Thread.sleep(100);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             fail(e.getMessage());
          }
       }
    }
+
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
                                                final long pageSize,
                                                final long maxAddressSize) {
-      return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>)null);
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>) null);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles,
-                                               final Configuration configuration,
-                                               final long pageSize,
-                                               final long maxAddressSize,
-                                               final Map<String, AddressSettings> settings) {
+                                         final Configuration configuration,
+                                         final long pageSize,
+                                         final long maxAddressSize,
+                                         final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
 
       if (settings != null) {
@@ -1436,7 +1402,9 @@ public abstract class ActiveMQTestBase extends Assert {
       return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
 
-   protected ActiveMQServer createServer(final boolean realFiles, boolean isNetty, StoreConfiguration.StoreType storeType) throws Exception {
+   protected ActiveMQServer createServer(final boolean realFiles,
+                                         boolean isNetty,
+                                         StoreConfiguration.StoreType storeType) throws Exception {
       Configuration configuration = storeType == StoreConfiguration.StoreType.DATABASE ? createDefaultJDBCConfig(isNetty) : createDefaultConfig(isNetty);
       return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
@@ -1474,8 +1442,7 @@ public abstract class ActiveMQTestBase extends Assert {
          server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
          return server;
-      }
-      finally {
+      } finally {
          addServer(server);
       }
    }
@@ -1515,8 +1482,7 @@ public abstract class ActiveMQTestBase extends Assert {
          server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
          return server;
-      }
-      finally {
+      } finally {
          addServer(server);
       }
    }
@@ -1541,8 +1507,7 @@ public abstract class ActiveMQTestBase extends Assert {
    protected ServerLocator createFactory(final boolean isNetty) throws Exception {
       if (isNetty) {
          return createNettyNonHALocator();
-      }
-      else {
+      } else {
          return createInVMNonHALocator();
       }
    }
@@ -1553,8 +1518,7 @@ public abstract class ActiveMQTestBase extends Assert {
       ClientSession session = sf.createSession();
       try {
          session.createQueue(address, queue);
-      }
-      finally {
+      } finally {
          session.close();
          closeSessionFactory(sf);
          closeServerLocator(locator);
@@ -1681,14 +1645,12 @@ public abstract class ActiveMQTestBase extends Assert {
          messagesJournal.load(committedRecords, preparedTransactions, null, false);
 
          return new Pair<>(committedRecords, preparedTransactions);
-      }
-      finally {
+      } finally {
          try {
             if (messagesJournal != null) {
                messagesJournal.stop();
             }
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
 
@@ -1744,8 +1706,7 @@ public abstract class ActiveMQTestBase extends Assert {
       if (messageJournal) {
          ff = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
          journal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), 0, 0, ff, "activemq-data", "amq", 1);
-      }
-      else {
+      } else {
          ff = new NIOSequentialFileFactory(config.getBindingsLocation(), null, 1);
          journal = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), ff, "activemq-bindings", "bindings", 1);
       }
@@ -1960,8 +1921,7 @@ public abstract class ActiveMQTestBase extends Assert {
       while (!ClientSessionFactoryImpl.CLOSE_RUNNABLES.isEmpty() && time < waitUntil) {
          try {
             Thread.sleep(50);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             //ignore
          }
          time = System.currentTimeMillis();
@@ -2008,8 +1968,7 @@ public abstract class ActiveMQTestBase extends Assert {
       while (LibaioContext.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout) {
          try {
             Thread.sleep(100);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
 
@@ -2033,16 +1992,14 @@ public abstract class ActiveMQTestBase extends Assert {
       // We shutdown the global pools to give a better isolation between tests
       try {
          ServerLocatorImpl.clearThreadPools();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
 
       try {
          NettyConnector.clearThreadPools();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
@@ -2069,8 +2026,7 @@ public abstract class ActiveMQTestBase extends Assert {
          for (String sub : subs) {
             copyRecursive(new File(from, sub), new File(to, sub));
          }
-      }
-      else {
+      } else {
          try (InputStream in = new BufferedInputStream(new FileInputStream(from));
               OutputStream out = new BufferedOutputStream(new FileOutputStream(to))) {
             int b;
@@ -2210,8 +2166,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return;
       try {
          component.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // no-op
       }
    }
@@ -2221,8 +2176,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return;
       try {
          component.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          System.err.println("Exception closing " + component);
          e.printStackTrace();
       }
@@ -2344,8 +2298,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return;
       try {
          locator.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -2355,8 +2308,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return;
       try {
          sf.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -2387,13 +2339,11 @@ public abstract class ActiveMQTestBase extends Assert {
       ClientSession session = sf.createSession();
       try {
          crashAndWaitForFailure(server, session);
-      }
-      finally {
+      } finally {
          try {
             session.close();
             sf.close();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -2420,8 +2370,7 @@ public abstract class ActiveMQTestBase extends Assert {
          public void run() {
             try {
                runner.run();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                this.t = t;
             }
          }

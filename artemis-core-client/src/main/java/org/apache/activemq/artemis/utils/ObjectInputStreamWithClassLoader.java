@@ -106,8 +106,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    protected Class resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
       if (System.getSecurityManager() == null) {
          return resolveClass0(desc);
-      }
-      else {
+      } else {
          try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
                @Override
@@ -115,8 +114,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
                   return resolveClass0(desc);
                }
             });
-         }
-         catch (PrivilegedActionException e) {
+         } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
       }
@@ -126,8 +124,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    protected Class resolveProxyClass(final String[] interfaces) throws IOException, ClassNotFoundException {
       if (System.getSecurityManager() == null) {
          return resolveProxyClass0(interfaces);
-      }
-      else {
+      } else {
          try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
                @Override
@@ -135,8 +132,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
                   return resolveProxyClass0(interfaces);
                }
             });
-         }
-         catch (PrivilegedActionException e) {
+         } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
       }
@@ -157,8 +153,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
          }
 
          return checkSecurity(clazz);
-      }
-      catch (ClassNotFoundException e) {
+      } catch (ClassNotFoundException e) {
          return checkSecurity(super.resolveClass(desc));
       }
    }
@@ -176,8 +171,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
                if (nonPublicLoader != cl.getClassLoader()) {
                   throw new IllegalAccessError("conflicting non-public interface class loaders");
                }
-            }
-            else {
+            } else {
                nonPublicLoader = cl.getClassLoader();
                hasNonPublicInterface = true;
             }
@@ -186,8 +180,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       }
       try {
          return checkSecurity(Proxy.getProxyClass(hasNonPublicInterface ? nonPublicLoader : latestLoader, classObjs));
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          throw new ClassNotFoundException(null, e);
       }
    }
@@ -196,17 +189,13 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       Throwable c = e.getCause();
       if (c instanceof IOException) {
          throw (IOException) c;
-      }
-      else if (c instanceof ClassNotFoundException) {
+      } else if (c instanceof ClassNotFoundException) {
          throw (ClassNotFoundException) c;
-      }
-      else if (c instanceof RuntimeException) {
+      } else if (c instanceof RuntimeException) {
          throw (RuntimeException) c;
-      }
-      else if (c instanceof Error) {
+      } else if (c instanceof Error) {
          throw (Error) c;
-      }
-      else {
+      } else {
          throw new RuntimeException(c);
       }
    }
@@ -225,8 +214,8 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       if (!target.isPrimitive()) {
          if (!isTrustedType(target)) {
             throw new ClassNotFoundException("Forbidden " + clazz + "! " +
-                    "This class is not trusted to be deserialized under the current configuration. " +
-                    "Please refer to the documentation for more information on how to configure trusted classes.");
+                                                "This class is not trusted to be deserialized under the current configuration. " +
+                                                "Please refer to the documentation for more information on how to configure trusted classes.");
          }
       }
 
@@ -247,8 +236,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       for (String blackListEntry : blackList) {
          if (CATCH_ALL_WILDCARD.equals(blackListEntry)) {
             return false;
-         }
-         else if (isClassOrPackageMatch(className, blackListEntry)) {
+         } else if (isClassOrPackageMatch(className, blackListEntry)) {
             return false;
          }
       }
@@ -256,8 +244,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       for (String whiteListEntry : whiteList) {
          if (CATCH_ALL_WILDCARD.equals(whiteListEntry)) {
             return true;
-         }
-         else if (isClassOrPackageMatch(className, whiteListEntry)) {
+         } else if (isClassOrPackageMatch(className, whiteListEntry)) {
             return true;
          }
       }

@@ -21,6 +21,6 @@ import org.apache.activemq.artemis.ArtemisConstants;
 @Deprecated
 /**
  * @deprecated Use ArtemisConstants instead.
- */
-public final class JournalConstants extends ArtemisConstants {
+ */ public final class JournalConstants extends ArtemisConstants {
+
 }

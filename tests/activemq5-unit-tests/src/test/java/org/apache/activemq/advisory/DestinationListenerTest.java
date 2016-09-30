@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.advisory;
 
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import javax.jms.Session;
-import javax.jms.MessageProducer;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
@@ -34,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.isIn;
 
 /**
  *
@@ -98,8 +97,7 @@ public class DestinationListenerTest extends EmbeddedBrokerTestSupport implement
       if (event.isAddOperation()) {
          LOG.info("Added:   " + destination);
          newDestinations.add(destination);
-      }
-      else {
+      } else {
          LOG.info("Removed: " + destination);
          newDestinations.remove(destination);
       }

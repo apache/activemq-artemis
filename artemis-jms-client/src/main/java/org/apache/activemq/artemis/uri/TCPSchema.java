@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.uri;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.uri.schema.serverLocator.TCPServerLocatorSchema;
 import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
+import org.apache.activemq.artemis.uri.schema.serverLocator.TCPServerLocatorSchema;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 public class TCPSchema extends AbstractCFSchema {
 
@@ -53,8 +53,7 @@ public class TCPSchema extends AbstractCFSchema {
 
       if (options.isHa()) {
          factory = ActiveMQJMSClient.createConnectionFactoryWithHA(options.getFactoryTypeEnum(), tcs);
-      }
-      else {
+      } else {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
       }
 

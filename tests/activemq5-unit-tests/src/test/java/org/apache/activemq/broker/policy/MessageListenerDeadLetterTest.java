@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.broker.policy;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -138,15 +137,13 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
             }
             session.rollback();
 
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             LOG.error("unexpected exception:" + e, e);
             // propagating assertError to execution task will cause a hang
             // at shutdown
             if (e instanceof Error) {
                error[0] = (Error) e;
-            }
-            else {
+            } else {
                fail("unexpected exception: " + e);
             }
 

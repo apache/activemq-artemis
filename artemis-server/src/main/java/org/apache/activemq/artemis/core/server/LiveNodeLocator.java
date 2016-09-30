@@ -70,8 +70,7 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener {
       if (backupQuorum != null) {
          if (alreadyReplicating) {
             backupQuorum.notifyAlreadyReplicating();
-         }
-         else {
+         } else {
             backupQuorum.notifyRegistrationFailed();
          }
       }

@@ -36,7 +36,8 @@ public class JGroupsReceiver extends ReceiverAdapter {
 
    @Override
    public void receive(org.jgroups.Message msg) {
-      if (logger.isTraceEnabled()) logger.trace("sending message " + msg);
+      if (logger.isTraceEnabled())
+         logger.trace("sending message " + msg);
       dequeue.add(msg.getBuffer());
    }
 
@@ -52,8 +53,7 @@ public class JGroupsReceiver extends ReceiverAdapter {
    private void logBytes(String methodName, byte[] bytes) {
       if (bytes != null) {
          logger.trace(methodName + "::" + bytes.length + " bytes");
-      }
-      else {
+      } else {
          logger.trace(methodName + ":: no bytes");
       }
    }

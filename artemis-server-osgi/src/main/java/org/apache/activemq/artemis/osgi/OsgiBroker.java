@@ -50,6 +50,7 @@ import org.osgi.util.tracker.ServiceTracker;
 @SuppressWarnings({"unchecked", "rawtypes"})
 @Component(configurationPid = "org.apache.activemq.artemis", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class OsgiBroker {
+
    private String name;
    private String configurationUrl;
    private String rolePrincipalClass;
@@ -63,7 +64,7 @@ public class OsgiBroker {
       final Dictionary<String, Object> properties = cctx.getProperties();
       configurationUrl = getMandatory(properties, "config");
       name = getMandatory(properties, "name");
-      rolePrincipalClass = (String)properties.get("rolePrincipalClass");
+      rolePrincipalClass = (String) properties.get("rolePrincipalClass");
       String domain = getMandatory(properties, "domain");
       ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
       if (rolePrincipalClass != null) {
@@ -88,7 +89,7 @@ public class OsgiBroker {
 
       components = fileDeploymentManager.buildService(security, ManagementFactory.getPlatformMBeanServer());
 
-      final ActiveMQServer server = (ActiveMQServer)components.get("core");
+      final ActiveMQServer server = (ActiveMQServer) components.get("core");
 
       String[] requiredProtocols = getRequiredProtocols(server.getConfiguration().getAcceptorConfigurations());
       ProtocolTrackerCallBack callback = new ProtocolTrackerCallBack() {
@@ -97,7 +98,6 @@ public class OsgiBroker {
          public void addFactory(ProtocolManagerFactory<Interceptor> pmf) {
             server.addProtocolManagerFactory(pmf);
          }
-
 
          @Override
          public void removeFactory(ProtocolManagerFactory<Interceptor> pmf) {
@@ -140,7 +140,6 @@ public class OsgiBroker {
       }
       return value;
    }
-
 
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
       ArrayList<String> protocols = new ArrayList<>();
@@ -185,7 +184,7 @@ public class OsgiBroker {
       for (Map.Entry<String, ActiveMQComponent> component : getComponents().entrySet()) {
          String[] classes = getInterfaces(component.getValue());
          Hashtable<String, Object> props = new Hashtable<>();
-         for (Enumeration<String> keyEnum = properties.keys(); keyEnum.hasMoreElements();) {
+         for (Enumeration<String> keyEnum = properties.keys(); keyEnum.hasMoreElements(); ) {
             String key = keyEnum.nextElement();
             Object val = properties.get(key);
             props.put(key, val);

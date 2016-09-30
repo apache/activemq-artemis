@@ -138,8 +138,7 @@ public final class ReplicationAddMessage extends PacketImpl {
       if (encodingData == null) {
          if (other.encodingData != null)
             return false;
-      }
-      else if (!encodingData.equals(other.encodingData))
+      } else if (!encodingData.equals(other.encodingData))
          return false;
       if (id != other.id)
          return false;

@@ -17,9 +17,11 @@
 
 package org.apache.activemq.artemis.core.paging.cursor;
 
-/** This is an internal exception.
- *  In certain cases AfterCommit could try to decrease the reference counting on large messages.
- *  But if the whole page is cleaned an exception could happen, which is ok on that path, and we need to identify it. */
+/**
+ * This is an internal exception.
+ * In certain cases AfterCommit could try to decrease the reference counting on large messages.
+ * But if the whole page is cleaned an exception could happen, which is ok on that path, and we need to identify it.
+ */
 public class NonExistentPage extends RuntimeException {
 
    public NonExistentPage() {

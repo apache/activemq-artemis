@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 
 public class NIOJournalImplTest extends JournalImplTestUnit {
 

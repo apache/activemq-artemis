@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -30,6 +26,9 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.management.ObjectName;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Test;
 
@@ -145,8 +144,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                      TimeUnit.SECONDS.sleep(5);
                   }
                }
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -171,8 +169,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
             try {
                LOG.info("enqueue=" + view.getEnqueueCount() + ", dequeue=" + view.getDequeueCount() + ", inflight=" + view.getInFlightCount() + ", expired= " + view.getExpiredCount() + ", size= " + view.getQueueSize());
                return view.getDequeueCount() != 0 && view.getDequeueCount() == view.getExpiredCount() && view.getDequeueCount() == view.getEnqueueCount() && view.getQueueSize() == 0;
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
                LOG.info(ignored.toString());
             }
             return false;
@@ -214,8 +211,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                      tStamp = System.currentTimeMillis();
                   }
                }
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -271,8 +267,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                waitCondition.await(6, TimeUnit.MINUTES);
                LOG.info("acking message: " + message);
                message.acknowledge();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                fail(e.toString());
             }
@@ -294,8 +289,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                      tStamp = System.currentTimeMillis();
                   }
                }
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -389,8 +383,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                   LOG.debug("acking message: " + message);
                }
                message.acknowledge();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                fail(e.toString());
             }
@@ -412,8 +405,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
                      tStamp = System.currentTimeMillis();
                   }
                }
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -561,8 +553,7 @@ public class ExpiredMessagesWithNoConsumerTest extends CombinationTestSupport {
       ObjectName name;
       if (destination.isQueue()) {
          name = new ObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=test");
-      }
-      else {
+      } else {
          name = new ObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Topic,destinationName=test");
       }
 

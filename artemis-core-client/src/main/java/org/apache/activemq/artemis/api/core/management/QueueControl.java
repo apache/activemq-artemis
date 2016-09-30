@@ -246,7 +246,6 @@ public interface QueueControl {
    @Operation(desc = "Remove the message corresponding to the given messageID", impact = MBeanOperationInfo.ACTION)
    boolean expireMessage(@Parameter(name = "messageID", desc = "A message ID") long messageID) throws Exception;
 
-
    /**
     * Retries the message corresponding to the given messageID to the original queue.
     * This is appropriate on dead messages on Dead letter queues only.
@@ -336,14 +335,13 @@ public interface QueueControl {
    int sendMessagesToDeadLetterAddress(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filterStr) throws Exception;
 
    /**
-    *
-    * @param headers the message headers and properties to set. Can only
-    *                container Strings maped to primitive types.
-    * @param body the text to send
+    * @param headers  the message headers and properties to set. Can only
+    *                 container Strings maped to primitive types.
+    * @param body     the text to send
     * @param userID
     * @param durable
-    *@param user
-    * @param password   @return
+    * @param user
+    * @param password @return
     * @throws Exception
     */
    @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
@@ -354,7 +352,6 @@ public interface QueueControl {
                       @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
                       @Parameter(name = "user", desc = "The user to authenticate with") String user,
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
-
 
    /**
     * Changes the message's priority corresponding to the specified message ID to the specified priority.

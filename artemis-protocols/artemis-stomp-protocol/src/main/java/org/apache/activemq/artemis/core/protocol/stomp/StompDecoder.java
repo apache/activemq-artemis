@@ -221,16 +221,14 @@ public class StompDecoder {
       if (contentLength != -1) {
          if (pos + contentLength + 1 > data) {
             // Need more bytes
-         }
-         else {
+         } else {
             content = new byte[contentLength];
 
             System.arraycopy(workingBuffer, pos, content, 0, contentLength);
 
             pos += contentLength + 1;
          }
-      }
-      else {
+      } else {
          // Need to scan for terminating NUL
 
          if (bodyStart == -1) {
@@ -269,8 +267,7 @@ public class StompDecoder {
          init();
 
          return ret;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -371,13 +368,11 @@ public class StompDecoder {
       while (offset < data) {
          if (workingBuffer[offset] == NEW_LINE) {
             nextChar = false;
-         }
-         else if (workingBuffer[offset] == CR) {
+         } else if (workingBuffer[offset] == CR) {
             if (nextChar)
                throw BUNDLE.invalidTwoCRs().setHandler(handler);
             nextChar = true;
-         }
-         else {
+         } else {
             break;
          }
          offset++;
@@ -404,8 +399,7 @@ public class StompDecoder {
 
                // ABORT
                command = COMMAND_ABORT;
-            }
-            else {
+            } else {
                if (!tryIncrement(offset + COMMAND_ACK_LENGTH + 1)) {
                   return false;
                }
@@ -433,18 +427,14 @@ public class StompDecoder {
 
                // COMMIT
                command = COMMAND_COMMIT;
-            }
-            /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
-            else if (workingBuffer[offset + 7] == E) {
+            } else if (workingBuffer[offset + 7] == E) {
                if (!tryIncrement(offset + COMMAND_CONNECTED_LENGTH + 1)) {
                   return false;
                }
 
                // CONNECTED
                command = COMMAND_CONNECTED;
-            }
-            /**** end ****/
-            else {
+            } else {
                if (!tryIncrement(offset + COMMAND_CONNECT_LENGTH + 1)) {
                   return false;
                }
@@ -504,16 +494,14 @@ public class StompDecoder {
 
                // SEND
                command = COMMAND_SEND;
-            }
-            else if (workingBuffer[offset + 1] == T) {
+            } else if (workingBuffer[offset + 1] == T) {
                if (!tryIncrement(offset + COMMAND_STOMP_LENGTH + 1)) {
                   return false;
                }
 
                // STOMP
                command = COMMAND_STOMP;
-            }
-            else {
+            } else {
                if (!tryIncrement(offset + COMMAND_SUBSCRIBE_LENGTH + 1)) {
                   return false;
                }
@@ -594,8 +582,7 @@ public class StompDecoder {
    public boolean tryIncrement(final int length) {
       if (pos + length >= data) {
          return false;
-      }
-      else {
+      } else {
          pos += length;
 
          return true;
@@ -612,8 +599,7 @@ public class StompDecoder {
             //Unreadable characters
 
             str.append(bytes[i]);
-         }
-         else {
+         } else {
             str.append(b);
          }
 

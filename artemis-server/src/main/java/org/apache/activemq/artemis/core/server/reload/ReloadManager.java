@@ -22,8 +22,11 @@ import java.net.URL;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
 public interface ReloadManager extends ActiveMQComponent {
+
    void addCallback(URL uri, ReloadCallback callback);
 
-   /** Callback for the next tick */
+   /**
+    * Callback for the next tick
+    */
    void setTick(Runnable callback);
 }

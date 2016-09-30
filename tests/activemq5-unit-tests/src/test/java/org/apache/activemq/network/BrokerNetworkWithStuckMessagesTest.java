@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.network;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageNotWriteableException;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
+import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -32,16 +35,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageNotWriteableException;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.Session;
-import javax.management.ObjectName;
-
-import javax.management.openmbean.CompositeData;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -74,6 +67,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This class duplicates most of the functionality in {@link NetworkTestSupport}
@@ -496,8 +494,7 @@ public class BrokerNetworkWithStuckMessagesTest {
             list.add(enumn.nextElement());
          }
          messages = list.toArray();
-      }
-      finally {
+      } finally {
          if (session != null) {
             session.close();
          }
@@ -570,8 +567,7 @@ public class BrokerNetworkWithStuckMessagesTest {
          DestinationInfo info = createTempDestinationInfo(connectionInfo1, destinationType);
          connection.send(info);
          return info.getDestination();
-      }
-      else {
+      } else {
          return ActiveMQDestination.createDestination(queueName, destinationType);
       }
    }
@@ -589,8 +585,7 @@ public class BrokerNetworkWithStuckMessagesTest {
       message.setPersistent(false);
       try {
          message.setText("Test Message Payload.");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       return message;
    }

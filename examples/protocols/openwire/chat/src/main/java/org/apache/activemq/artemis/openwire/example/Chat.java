@@ -41,8 +41,7 @@ public class Chat implements javax.jms.MessageListener {
          connect = factory.createConnection(username, password);
          pubSession = connect.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
          subSession = connect.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-      }
-      catch (javax.jms.JMSException jmse) {
+      } catch (javax.jms.JMSException jmse) {
          System.err.println("error: Cannot connect to Broker - " + broker);
          jmse.printStackTrace();
          System.exit(1);
@@ -56,8 +55,7 @@ public class Chat implements javax.jms.MessageListener {
          publisher = pubSession.createProducer(topic);
          // Now that setup is complete, start the Connection
          connect.start();
-      }
-      catch (javax.jms.JMSException jmse) {
+      } catch (javax.jms.JMSException jmse) {
          jmse.printStackTrace();
       }
 
@@ -76,11 +74,9 @@ public class Chat implements javax.jms.MessageListener {
                publisher.send(msg);
             }
          }
-      }
-      catch (java.io.IOException ioe) {
+      } catch (java.io.IOException ioe) {
          ioe.printStackTrace();
-      }
-      catch (javax.jms.JMSException jmse) {
+      } catch (javax.jms.JMSException jmse) {
          jmse.printStackTrace();
       }
    }
@@ -100,12 +96,10 @@ public class Chat implements javax.jms.MessageListener {
          try {
             String string = textMessage.getText();
             System.out.println(string);
-         }
-         catch (javax.jms.JMSException jmse) {
+         } catch (javax.jms.JMSException jmse) {
             jmse.printStackTrace();
          }
-      }
-      catch (java.lang.RuntimeException rte) {
+      } catch (java.lang.RuntimeException rte) {
          rte.printStackTrace();
       }
    }
@@ -116,8 +110,7 @@ public class Chat implements javax.jms.MessageListener {
    private void exit() {
       try {
          connect.close();
-      }
-      catch (javax.jms.JMSException jmse) {
+      } catch (javax.jms.JMSException jmse) {
          jmse.printStackTrace();
       }
 

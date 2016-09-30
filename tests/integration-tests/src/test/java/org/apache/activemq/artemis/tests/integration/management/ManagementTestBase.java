@@ -16,22 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.junit.Before;
-import org.junit.After;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class ManagementTestBase extends ActiveMQTestBase {
 
@@ -58,8 +56,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
          session.commit();
          m = consumer.receiveImmediate();
          Assert.assertNull("received one more message than expected (" + expected + ")", m);
-      }
-      finally {
+      } finally {
          if (consumer != null) {
             consumer.close();
          }

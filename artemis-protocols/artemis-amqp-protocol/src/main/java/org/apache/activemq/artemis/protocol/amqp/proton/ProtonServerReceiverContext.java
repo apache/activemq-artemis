@@ -18,13 +18,13 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
-import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
-import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
@@ -46,7 +46,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    protected String address;
 
    protected final AMQPSessionCallback sessionSPI;
-
 
    /*
     The maximum number of credits we will allocate to clients.
@@ -85,13 +84,11 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
             try {
                sessionSPI.createTemporaryQueue(address);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
             target.setAddress(address);
-         }
-         else {
+         } else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
             address = target.getAddress();
@@ -103,11 +100,9 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                if (!sessionSPI.bindingQuery(address)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                }
-            }
-            catch (ActiveMQAMQPNotFoundException e) {
+            } catch (ActiveMQAMQPNotFoundException e) {
                throw e;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
@@ -152,12 +147,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
                flow(maxCreditAllocation, minCreditRefresh);
             }
-         }
-         finally {
+         } finally {
             buffer.release();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();
@@ -183,8 +176,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
       if (sessionSPI != null) {
          sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
-      }
-      else {
+      } else {
          synchronized (connection.getLock()) {
             receiver.flow(credits);
             connection.flush();

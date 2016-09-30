@@ -482,8 +482,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       if (policyStr != null) {
          addressFullMessagePolicy = AddressFullMessagePolicy.valueOf(policyStr.toString());
-      }
-      else {
+      } else {
          addressFullMessagePolicy = null;
       }
 
@@ -525,8 +524,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       if (policyStr != null) {
          slowConsumerPolicy = SlowConsumerPolicy.valueOf(policyStr.toString());
-      }
-      else {
+      } else {
          slowConsumerPolicy = null;
       }
 
@@ -677,161 +675,135 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (addressFullMessagePolicy == null) {
          if (other.addressFullMessagePolicy != null)
             return false;
-      }
-      else if (!addressFullMessagePolicy.equals(other.addressFullMessagePolicy))
+      } else if (!addressFullMessagePolicy.equals(other.addressFullMessagePolicy))
          return false;
       if (deadLetterAddress == null) {
          if (other.deadLetterAddress != null)
             return false;
-      }
-      else if (!deadLetterAddress.equals(other.deadLetterAddress))
+      } else if (!deadLetterAddress.equals(other.deadLetterAddress))
          return false;
       if (dropMessagesWhenFull == null) {
          if (other.dropMessagesWhenFull != null)
             return false;
-      }
-      else if (!dropMessagesWhenFull.equals(other.dropMessagesWhenFull))
+      } else if (!dropMessagesWhenFull.equals(other.dropMessagesWhenFull))
          return false;
       if (expiryAddress == null) {
          if (other.expiryAddress != null)
             return false;
-      }
-      else if (!expiryAddress.equals(other.expiryAddress))
+      } else if (!expiryAddress.equals(other.expiryAddress))
          return false;
       if (expiryDelay == null) {
          if (other.expiryDelay != null)
             return false;
-      }
-      else if (!expiryDelay.equals(other.expiryDelay))
+      } else if (!expiryDelay.equals(other.expiryDelay))
          return false;
       if (lastValueQueue == null) {
          if (other.lastValueQueue != null)
             return false;
-      }
-      else if (!lastValueQueue.equals(other.lastValueQueue))
+      } else if (!lastValueQueue.equals(other.lastValueQueue))
          return false;
       if (maxDeliveryAttempts == null) {
          if (other.maxDeliveryAttempts != null)
             return false;
-      }
-      else if (!maxDeliveryAttempts.equals(other.maxDeliveryAttempts))
+      } else if (!maxDeliveryAttempts.equals(other.maxDeliveryAttempts))
          return false;
       if (maxSizeBytes == null) {
          if (other.maxSizeBytes != null)
             return false;
-      }
-      else if (!maxSizeBytes.equals(other.maxSizeBytes))
+      } else if (!maxSizeBytes.equals(other.maxSizeBytes))
          return false;
       if (messageCounterHistoryDayLimit == null) {
          if (other.messageCounterHistoryDayLimit != null)
             return false;
-      }
-      else if (!messageCounterHistoryDayLimit.equals(other.messageCounterHistoryDayLimit))
+      } else if (!messageCounterHistoryDayLimit.equals(other.messageCounterHistoryDayLimit))
          return false;
       if (pageSizeBytes == null) {
          if (other.pageSizeBytes != null)
             return false;
-      }
-      else if (!pageSizeBytes.equals(other.pageSizeBytes))
+      } else if (!pageSizeBytes.equals(other.pageSizeBytes))
          return false;
       if (pageMaxCache == null) {
          if (other.pageMaxCache != null)
             return false;
-      }
-      else if (!pageMaxCache.equals(other.pageMaxCache))
+      } else if (!pageMaxCache.equals(other.pageMaxCache))
          return false;
       if (redeliveryDelay == null) {
          if (other.redeliveryDelay != null)
             return false;
-      }
-      else if (!redeliveryDelay.equals(other.redeliveryDelay))
+      } else if (!redeliveryDelay.equals(other.redeliveryDelay))
          return false;
       if (redeliveryMultiplier == null) {
          if (other.redeliveryMultiplier != null)
             return false;
-      }
-      else if (!redeliveryMultiplier.equals(other.redeliveryMultiplier))
+      } else if (!redeliveryMultiplier.equals(other.redeliveryMultiplier))
          return false;
       if (maxRedeliveryDelay == null) {
          if (other.maxRedeliveryDelay != null)
             return false;
-      }
-      else if (!maxRedeliveryDelay.equals(other.maxRedeliveryDelay))
+      } else if (!maxRedeliveryDelay.equals(other.maxRedeliveryDelay))
          return false;
       if (redistributionDelay == null) {
          if (other.redistributionDelay != null)
             return false;
-      }
-      else if (!redistributionDelay.equals(other.redistributionDelay))
+      } else if (!redistributionDelay.equals(other.redistributionDelay))
          return false;
       if (sendToDLAOnNoRoute == null) {
          if (other.sendToDLAOnNoRoute != null)
             return false;
-      }
-      else if (!sendToDLAOnNoRoute.equals(other.sendToDLAOnNoRoute))
+      } else if (!sendToDLAOnNoRoute.equals(other.sendToDLAOnNoRoute))
          return false;
       if (slowConsumerThreshold == null) {
          if (other.slowConsumerThreshold != null)
             return false;
-      }
-      else if (!slowConsumerThreshold.equals(other.slowConsumerThreshold))
+      } else if (!slowConsumerThreshold.equals(other.slowConsumerThreshold))
          return false;
       if (slowConsumerCheckPeriod == null) {
          if (other.slowConsumerCheckPeriod != null)
             return false;
-      }
-      else if (!slowConsumerCheckPeriod.equals(other.slowConsumerCheckPeriod))
+      } else if (!slowConsumerCheckPeriod.equals(other.slowConsumerCheckPeriod))
          return false;
       if (slowConsumerPolicy == null) {
          if (other.slowConsumerPolicy != null)
             return false;
-      }
-      else if (!slowConsumerPolicy.equals(other.slowConsumerPolicy))
+      } else if (!slowConsumerPolicy.equals(other.slowConsumerPolicy))
          return false;
       if (autoCreateJmsQueues == null) {
          if (other.autoCreateJmsQueues != null)
             return false;
-      }
-      else if (!autoCreateJmsQueues.equals(other.autoCreateJmsQueues))
+      } else if (!autoCreateJmsQueues.equals(other.autoCreateJmsQueues))
          return false;
       if (autoDeleteJmsQueues == null) {
          if (other.autoDeleteJmsQueues != null)
             return false;
-      }
-      else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
+      } else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
          return false;
 
       if (autoCreateJmsTopics == null) {
          if (other.autoCreateJmsTopics != null)
             return false;
-      }
-      else if (!autoCreateJmsTopics.equals(other.autoCreateJmsTopics))
+      } else if (!autoCreateJmsTopics.equals(other.autoCreateJmsTopics))
          return false;
       if (autoDeleteJmsTopics == null) {
          if (other.autoDeleteJmsTopics != null)
             return false;
-      }
-      else if (!autoDeleteJmsTopics.equals(other.autoDeleteJmsTopics))
+      } else if (!autoDeleteJmsTopics.equals(other.autoDeleteJmsTopics))
          return false;
 
       if (managementBrowsePageSize == null) {
          if (other.managementBrowsePageSize != null)
             return false;
-      }
-      else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
+      } else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
          return false;
       if (queuePrefetch == null) {
          if (other.queuePrefetch != null)
             return false;
-      }
-      else if (!queuePrefetch.equals(other.queuePrefetch))
+      } else if (!queuePrefetch.equals(other.queuePrefetch))
          return false;
 
       if (maxSizeBytesRejectThreshold == null) {
          if (other.maxSizeBytesRejectThreshold != null)
             return false;
-      }
-      else if (!maxSizeBytesRejectThreshold.equals(other.maxSizeBytesRejectThreshold))
+      } else if (!maxSizeBytesRejectThreshold.equals(other.maxSizeBytesRejectThreshold))
          return false;
       return true;
    }

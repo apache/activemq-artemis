@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.tests.integration.security;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -73,12 +73,10 @@ final class SimpleClient {
             session.close();
             sf.close();
             System.out.println("OK");
-         }
-         finally {
+         } finally {
             locator.close();
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
 
          String allStack = t.getMessage() + "|";
          StackTraceElement[] stackTrace = t.getStackTrace();

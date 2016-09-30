@@ -1,5 +1,4 @@
 /**
- *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -42,7 +41,6 @@ public interface CompositeDataConstants {
    String TIMESTAMP_DESCRIPTION = "The message timestamp";
    String BODY_DESCRIPTION = "The message body";
    String PROPERTIES_DESCRIPTION = "The properties text";
-
 
    // User properties
    String STRING_PROPERTIES = "StringProperties";

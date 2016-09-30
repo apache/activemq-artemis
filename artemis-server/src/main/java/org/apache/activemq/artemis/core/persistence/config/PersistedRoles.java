@@ -232,56 +232,47 @@ public class PersistedRoles implements EncodingSupport {
       if (addressMatch == null) {
          if (other.addressMatch != null)
             return false;
-      }
-      else if (!addressMatch.equals(other.addressMatch))
+      } else if (!addressMatch.equals(other.addressMatch))
          return false;
       if (consumeRoles == null) {
          if (other.consumeRoles != null)
             return false;
-      }
-      else if (!consumeRoles.equals(other.consumeRoles))
+      } else if (!consumeRoles.equals(other.consumeRoles))
          return false;
       if (createDurableQueueRoles == null) {
          if (other.createDurableQueueRoles != null)
             return false;
-      }
-      else if (!createDurableQueueRoles.equals(other.createDurableQueueRoles))
+      } else if (!createDurableQueueRoles.equals(other.createDurableQueueRoles))
          return false;
       if (createNonDurableQueueRoles == null) {
          if (other.createNonDurableQueueRoles != null)
             return false;
-      }
-      else if (!createNonDurableQueueRoles.equals(other.createNonDurableQueueRoles))
+      } else if (!createNonDurableQueueRoles.equals(other.createNonDurableQueueRoles))
          return false;
       if (deleteDurableQueueRoles == null) {
          if (other.deleteDurableQueueRoles != null)
             return false;
-      }
-      else if (!deleteDurableQueueRoles.equals(other.deleteDurableQueueRoles))
+      } else if (!deleteDurableQueueRoles.equals(other.deleteDurableQueueRoles))
          return false;
       if (deleteNonDurableQueueRoles == null) {
          if (other.deleteNonDurableQueueRoles != null)
             return false;
-      }
-      else if (!deleteNonDurableQueueRoles.equals(other.deleteNonDurableQueueRoles))
+      } else if (!deleteNonDurableQueueRoles.equals(other.deleteNonDurableQueueRoles))
          return false;
       if (manageRoles == null) {
          if (other.manageRoles != null)
             return false;
-      }
-      else if (!manageRoles.equals(other.manageRoles))
+      } else if (!manageRoles.equals(other.manageRoles))
          return false;
       if (browseRoles == null) {
          if (other.browseRoles != null)
             return false;
-      }
-      else if (!browseRoles.equals(other.browseRoles))
+      } else if (!browseRoles.equals(other.browseRoles))
          return false;
       if (sendRoles == null) {
          if (other.sendRoles != null)
             return false;
-      }
-      else if (!sendRoles.equals(other.sendRoles))
+      } else if (!sendRoles.equals(other.sendRoles))
          return false;
       if (storeId != other.storeId)
          return false;

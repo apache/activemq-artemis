@@ -121,8 +121,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       try {
          producer.send(mess);
          Assert.fail("Sending a message here should throw a JMSSecurityException");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.assertTrue(e instanceof JMSSecurityException);
       }
 
@@ -211,7 +210,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-//      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
+      //      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
 
       ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic) session.createTemporaryTopic();
 
@@ -233,7 +232,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-//      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
+      //      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
 
       assertNull(server.locateQueue(topicAddress));
    }

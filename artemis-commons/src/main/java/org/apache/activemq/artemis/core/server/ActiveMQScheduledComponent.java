@@ -25,9 +25,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
 
-/** This is for components with a scheduled at a fixed rate. */
+/**
+ * This is for components with a scheduled at a fixed rate.
+ */
 public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, Runnable {
-
 
    private static final Logger logger = Logger.getLogger(ActiveMQScheduledComponent.class);
    private final ScheduledExecutorService scheduledExecutorService;
@@ -69,8 +70,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       }
       if (period >= 0) {
          future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, period, period, timeUnit);
-      }
-      else {
+      } else {
          logger.tracef("did not start scheduled executor on %s because period was configured as %d", this, period);
       }
    }
@@ -79,8 +79,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       int value = delayed.incrementAndGet();
       if (value > 10) {
          delayed.decrementAndGet();
-      }
-      else {
+      } else {
          // We only schedule up to 10 periods upfront.
          // this is to avoid a window where a current one would be running and a next one is coming.
          // in theory just 2 would be enough. I'm using 10 as a precaution here.
@@ -123,7 +122,6 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    public synchronized boolean isStarted() {
       return future != null;
    }
-
 
    // this will restart the schedulped component upon changes
    private void restartIfNeeded() {

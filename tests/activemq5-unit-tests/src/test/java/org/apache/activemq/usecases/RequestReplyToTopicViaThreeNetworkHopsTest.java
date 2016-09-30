@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +17,6 @@
 
 package org.apache.activemq.usecases;
 
-import static org.junit.Assert.assertTrue;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -36,6 +25,14 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQSession;
@@ -46,6 +43,8 @@ import org.apache.activemq.network.NetworkConnector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class RequestReplyToTopicViaThreeNetworkHopsTest {
 
@@ -139,8 +138,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
 
       if (cons_client.getNumMsgReceived() == tot_expected) {
          LOG.debug("Have " + tot_expected + " messages, as-expected");
-      }
-      else {
+      } else {
          testError = true;
 
          if (cons_client.getNumMsgReceived() == 0)
@@ -158,8 +156,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
             LOG.debug("SENDING REQUEST message " + msg);
 
          prod.send(msg);
-      }
-      catch (JMSException jms_exc) {
+      } catch (JMSException jms_exc) {
          System.out.println("AAA: " + jms_exc.getMessage());
          throw jms_exc;
       }
@@ -365,8 +362,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
          public void run() {
             try {
                edge1.start();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error(null, ex);
             }
          }
@@ -377,8 +373,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
          public void run() {
             try {
                edge2.start();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error(null, ex);
             }
          }
@@ -389,8 +384,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
          public void run() {
             try {
                core1.start();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error(null, ex);
             }
          }
@@ -401,8 +395,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
          public void run() {
             try {
                core2.start();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error(null, ex);
             }
          }
@@ -439,8 +432,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
             public void run() {
                try {
                   RequestReplyToTopicViaThreeNetworkHopsTest.this.testTempTopic(edge1.getConnectionUrl(), edge2.getConnectionUrl());
-               }
-               catch (Exception exc) {
+               } catch (Exception exc) {
                   LOG.error("test exception", exc);
                   fatalTestError = true;
                   testError = true;
@@ -507,8 +499,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
 
       if (msg instanceof TextMessage) {
          msg_desc.append(((TextMessage) msg).getText());
-      }
-      else {
+      } else {
          msg_desc.append("[");
          msg_desc.append(msg.getClass().getName());
          msg_desc.append("]");
@@ -613,8 +604,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
          if (queue_f) {
             prefix = "queue";
             excl_dest = ActiveMQDestination.createDestination(">", ActiveMQDestination.TOPIC_TYPE);
-         }
-         else {
+         } else {
             prefix = "topic";
             excl_dest = ActiveMQDestination.createDestination(">", ActiveMQDestination.QUEUE_TYPE);
          }
@@ -661,8 +651,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
             processMessages();
 
             latch.countDown();
-         }
-         catch (Exception exc) {
+         } catch (Exception exc) {
             LOG.error("message client error", exc);
          }
       }
@@ -679,8 +668,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
                latch.await(timeout, TimeUnit.MILLISECONDS);
             else
                LOG.info("echo client shutdown: client does not appear to be active");
-         }
-         catch (InterruptedException int_exc) {
+         } catch (InterruptedException int_exc) {
             LOG.warn("wait for message client shutdown interrupted", int_exc);
          }
       }
@@ -813,17 +801,14 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
                   processorPool.execute(new EchoRequestProcessor(sess, req));
                }
             }
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             LOG.error("error processing echo service requests", ex);
-         }
-         finally {
+         } finally {
             LOG.info("shutting down test echo service");
 
             try {
                jmsConn.stop();
-            }
-            catch (javax.jms.JMSException jms_exc) {
+            } catch (javax.jms.JMSException jms_exc) {
                LOG.warn("error on shutting down JMS connection", jms_exc);
             }
 
@@ -851,12 +836,10 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
                   LOG.info("echo service shutdown complete");
                else
                   LOG.warn("timeout waiting for echo service shutdown");
-            }
-            else {
+            } else {
                LOG.info("echo service shutdown: service does not appear to be active");
             }
-         }
-         catch (InterruptedException int_exc) {
+         } catch (InterruptedException int_exc) {
             LOG.warn("interrupted while waiting for echo service shutdown");
          }
       }
@@ -891,8 +874,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
       public void run() {
          try {
             this.processRequest(this.request);
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             LOG.error("Failed to process request", ex);
          }
       }
@@ -916,8 +898,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
 
             msg_prod.close();
             msg_prod = null;
-         }
-         else {
+         } else {
             LOG.warn("invalid request: no reply-to destination given");
          }
       }
@@ -976,18 +957,15 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
 
                msg = cons.receive(250);
             }
-         }
-         catch (JMSException jms_exc) {
+         } catch (JMSException jms_exc) {
             LOG.warn("traffic generator failed on jms exception", jms_exc);
-         }
-         finally {
+         } finally {
             LOG.info("Shutdown of Topic Traffic Generator; send count = " + send_count);
 
             if (conn1 != null) {
                try {
                   conn1.stop();
-               }
-               catch (JMSException jms_exc) {
+               } catch (JMSException jms_exc) {
                   LOG.warn("failed to shutdown connection", jms_exc);
                }
             }
@@ -995,8 +973,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
             if (conn2 != null) {
                try {
                   conn2.stop();
-               }
-               catch (JMSException jms_exc) {
+               } catch (JMSException jms_exc) {
                   LOG.warn("failed to shutdown connection", jms_exc);
                }
             }

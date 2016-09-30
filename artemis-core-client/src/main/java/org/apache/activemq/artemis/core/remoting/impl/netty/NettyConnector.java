@@ -86,8 +86,8 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
@@ -107,6 +107,7 @@ import org.jboss.logging.Logger;
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
 public class NettyConnector extends AbstractConnector {
+
    private static final Logger logger = Logger.getLogger(NettyConnector.class);
 
    // Constants -----------------------------------------------------
@@ -274,8 +275,7 @@ public class NettyConnector extends AbstractConnector {
          httpMaxClientIdleTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME, TransportConstants.DEFAULT_HTTP_CLIENT_IDLE_TIME, configuration);
          httpClientIdleScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD, TransportConstants.DEFAULT_HTTP_CLIENT_SCAN_PERIOD, configuration);
          httpRequiresSessionId = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_REQUIRES_SESSION_ID, TransportConstants.DEFAULT_HTTP_REQUIRES_SESSION_ID, configuration);
-      }
-      else {
+      } else {
          httpMaxClientIdleTime = 0;
          httpClientIdleScanPeriod = -1;
          httpRequiresSessionId = false;
@@ -311,8 +311,7 @@ public class NettyConnector extends AbstractConnector {
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
-      }
-      else {
+      } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
@@ -367,16 +366,14 @@ public class NettyConnector extends AbstractConnector {
          // Default to number of cores * 3
 
          threadsToUse = Runtime.getRuntime().availableProcessors() * 3;
-      }
-      else {
+      } else {
          threadsToUse = this.nioRemotingThreads;
       }
 
       if (useNioGlobalWorkerPool) {
          channelClazz = NioSocketChannel.class;
          group = SharedNioEventLoopGroup.getInstance(threadsToUse);
-      }
-      else {
+      } else {
          channelClazz = NioSocketChannel.class;
          group = new NioEventLoopGroup(threadsToUse);
       }
@@ -446,15 +443,13 @@ public class NettyConnector extends AbstractConnector {
                realTrustStorePassword = System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME);
             }
             context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             close();
             IllegalStateException ise = new IllegalStateException("Unable to create NettyConnector for " + host + ":" + port);
             ise.initCause(e);
             throw ise;
          }
-      }
-      else {
+      } else {
          context = null; // Unused
       }
 
@@ -471,8 +466,7 @@ public class NettyConnector extends AbstractConnector {
                SSLEngine engine;
                if (verifyHost) {
                   engine = context.createSSLEngine(host, port);
-               }
-               else {
+               } else {
                   engine = context.createSSLEngine();
                }
 
@@ -488,8 +482,7 @@ public class NettyConnector extends AbstractConnector {
                if (enabledCipherSuites != null) {
                   try {
                      engine.setEnabledCipherSuites(SSLSupport.parseCommaSeparatedListIntoArray(enabledCipherSuites));
-                  }
-                  catch (IllegalArgumentException e) {
+                  } catch (IllegalArgumentException e) {
                      ActiveMQClientLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
                      throw e;
                   }
@@ -498,13 +491,11 @@ public class NettyConnector extends AbstractConnector {
                if (enabledProtocols != null) {
                   try {
                      engine.setEnabledProtocols(SSLSupport.parseCommaSeparatedListIntoArray(enabledProtocols));
-                  }
-                  catch (IllegalArgumentException e) {
+                  } catch (IllegalArgumentException e) {
                      ActiveMQClientLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
                      throw e;
                   }
-               }
-               else {
+               } else {
                   engine.setEnabledProtocols(originalProtocols);
                }
 
@@ -602,8 +593,7 @@ public class NettyConnector extends AbstractConnector {
          if (inet6Address.getScopeId() != 0) {
             try {
                remoteDestination = new InetSocketAddress(InetAddress.getByAddress(inet6Address.getAddress()), ((InetSocketAddress) remoteDestination).getPort());
-            }
-            catch (UnknownHostException e) {
+            } catch (UnknownHostException e) {
                throw new IllegalArgumentException(e.getMessage());
             }
          }
@@ -617,13 +607,11 @@ public class NettyConnector extends AbstractConnector {
          SocketAddress localDestination;
          if (localAddress != null) {
             localDestination = new InetSocketAddress(localAddress, localPort);
-         }
-         else {
+         } else {
             localDestination = new InetSocketAddress(localPort);
          }
          future = bootstrap.connect(remoteDestination, localDestination);
-      }
-      else {
+      } else {
          future = bootstrap.connect(remoteDestination);
       }
 
@@ -639,14 +627,12 @@ public class NettyConnector extends AbstractConnector {
                   ChannelPipeline channelPipeline = ch.pipeline();
                   ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
                   channelHandler.active = true;
-               }
-               else {
+               } else {
                   ch.close().awaitUninterruptibly();
                   ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(handshakeFuture.cause());
                   return null;
                }
-            }
-            else {
+            } else {
                //handshakeFuture.setFailure(new SSLException("Handshake was not completed in 30 seconds"));
                ch.close().awaitUninterruptibly();
                return null;
@@ -688,13 +674,11 @@ public class NettyConnector extends AbstractConnector {
                   ch.close().awaitUninterruptibly();
                   return null;
                }
-            }
-            catch (URISyntaxException e) {
+            } catch (URISyntaxException e) {
                ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(e);
                return null;
             }
-         }
-         else {
+         } else {
             ChannelPipeline channelPipeline = ch.pipeline();
             ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
             channelHandler.active = true;
@@ -705,8 +689,7 @@ public class NettyConnector extends AbstractConnector {
          NettyConnection conn = new NettyConnection(configuration, ch, connectionListener, !httpEnabled && batchDelay > 0, false);
          connectionListener.connectionCreated(null, conn, protocolManager);
          return conn;
-      }
-      else {
+      } else {
          Throwable t = future.cause();
 
          if (t != null && !(t instanceof ConnectException)) {
@@ -763,13 +746,11 @@ public class NettyConnector extends AbstractConnector {
                   handshakeComplete = true;
                   ActiveMQChannelHandler channelHandler = pipeline.get(ActiveMQChannelHandler.class);
                   channelHandler.active = true;
-               }
-               else {
+               } else {
                   ActiveMQClientLogger.LOGGER.httpHandshakeFailed(accept, expectedResponse);
                   ctx.close();
                }
-            }
-            else if (response.getStatus().code() == HttpResponseStatus.FORBIDDEN.code()) {
+            } else if (response.getStatus().code() == HttpResponseStatus.FORBIDDEN.code()) {
                ActiveMQClientLogger.LOGGER.httpUpgradeNotSupportedByRemoteAcceptor();
                ctx.close();
             }
@@ -788,8 +769,7 @@ public class NettyConnector extends AbstractConnector {
             if (!latch.await(30000, TimeUnit.MILLISECONDS)) {
                return false;
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             return false;
          }
          return handshakeComplete;
@@ -863,8 +843,7 @@ public class NettyConnector extends AbstractConnector {
             if (httpRequiresSessionId && !active) {
                if (handshaking) {
                   handshaking = true;
-               }
-               else {
+               } else {
                   if (!handShakeFuture.await(5000)) {
                      throw new RuntimeException("Handshake failed after timeout");
                   }
@@ -880,8 +859,7 @@ public class NettyConnector extends AbstractConnector {
             httpRequest.headers().add(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
             ctx.write(httpRequest, promise);
             lastSendTime = System.currentTimeMillis();
-         }
-         else {
+         } else {
             ctx.write(msg, promise);
             lastSendTime = System.currentTimeMillis();
          }
@@ -958,7 +936,7 @@ public class NettyConnector extends AbstractConnector {
 
       @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         NettyConnection connection = (NettyConnection)connections.get(connectionID);
+         NettyConnection connection = (NettyConnection) connections.get(connectionID);
          if (connection != null) {
             connection.fireReady(ready);
          }
@@ -1008,8 +986,7 @@ public class NettyConnector extends AbstractConnector {
          logger.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
 
          result = ip1.equals(ip2);
-      }
-      catch (UnknownHostException e) {
+      } catch (UnknownHostException e) {
          ActiveMQClientLogger.LOGGER.error("Cannot resolve host", e);
       }
 
@@ -1077,8 +1054,7 @@ public class NettyConnector extends AbstractConnector {
          digest.update(concat.getBytes(StandardCharsets.UTF_8));
          final byte[] bytes = digest.digest();
          return encodeBytes(bytes);
-      }
-      catch (NoSuchAlgorithmException e) {
+      } catch (NoSuchAlgorithmException e) {
          throw new IOException(e);
       }
    }

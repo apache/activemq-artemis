@@ -89,8 +89,7 @@ public class XATest extends JMSTestBase {
          // roll it back
          try {
             tm.rollback();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
             // The connection will probably be closed so this may well throw an exception
          }
       }
@@ -160,8 +159,7 @@ public class XATest extends JMSTestBase {
          m2 = (TextMessage) cons.receive(1000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -217,8 +215,7 @@ public class XATest extends JMSTestBase {
          m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -269,8 +266,7 @@ public class XATest extends JMSTestBase {
             tm.commit();
 
             Assert.fail("should not get here");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // We should expect this
          }
 
@@ -280,8 +276,7 @@ public class XATest extends JMSTestBase {
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
          Message m2 = cons.receive(100);
          Assert.assertNull(m2);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -331,8 +326,7 @@ public class XATest extends JMSTestBase {
          Message m2 = cons.receive(100);
          Assert.assertNull(m2);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -404,8 +398,7 @@ public class XATest extends JMSTestBase {
          tx.delistResource(res2, XAResource.TMSUCCESS);
 
          tm.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -477,8 +470,7 @@ public class XATest extends JMSTestBase {
          tx.delistResource(res2, XAResource.TMSUCCESS);
 
          tm.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -555,8 +547,7 @@ public class XATest extends JMSTestBase {
          tx.delistResource(res2, XAResource.TMSUCCESS);
 
          tm.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -632,8 +623,7 @@ public class XATest extends JMSTestBase {
 
          tm.commit();
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -681,8 +671,7 @@ public class XATest extends JMSTestBase {
          m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -746,8 +735,7 @@ public class XATest extends JMSTestBase {
          tx.delistResource(res, XAResource.TMSUCCESS);
 
          tm.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -822,8 +810,7 @@ public class XATest extends JMSTestBase {
 
          tm.commit();
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -894,8 +881,7 @@ public class XATest extends JMSTestBase {
          TextMessage r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -966,8 +952,7 @@ public class XATest extends JMSTestBase {
          TextMessage r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1065,11 +1050,9 @@ public class XATest extends JMSTestBase {
 
          if (r.getText().equals("jellyfish1")) {
             session1First = true;
-         }
-         else if (r.getText().equals("jellyfish3")) {
+         } else if (r.getText().equals("jellyfish3")) {
             session1First = false;
-         }
-         else {
+         } else {
             Assert.fail("Unexpected message");
          }
 
@@ -1092,8 +1075,7 @@ public class XATest extends JMSTestBase {
 
             Assert.assertEquals("jellyfish4", r.getText());
 
-         }
-         else {
+         } else {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1117,8 +1099,7 @@ public class XATest extends JMSTestBase {
 
          Assert.assertNull(r);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1219,11 +1200,9 @@ public class XATest extends JMSTestBase {
 
          if (r.getText().equals("jellyfish1")) {
             session1First = true;
-         }
-         else if (r.getText().equals("jellyfish3")) {
+         } else if (r.getText().equals("jellyfish3")) {
             session1First = false;
-         }
-         else {
+         } else {
             Assert.fail("Unexpected message");
          }
 
@@ -1246,8 +1225,7 @@ public class XATest extends JMSTestBase {
 
             Assert.assertEquals("jellyfish4", r.getText());
 
-         }
-         else {
+         } else {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1270,8 +1248,7 @@ public class XATest extends JMSTestBase {
          r = (TextMessage) cons.receive(100);
 
          Assert.assertNull(r);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1354,8 +1331,7 @@ public class XATest extends JMSTestBase {
          try {
             tm.commit();
             Assert.fail("should not get here");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // We should expect this
          }
 
@@ -1392,8 +1368,7 @@ public class XATest extends JMSTestBase {
          r = (TextMessage) cons.receive(100);
 
          Assert.assertNull(r);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1457,8 +1432,7 @@ public class XATest extends JMSTestBase {
          Assert.assertNotNull(r2);
          Assert.assertEquals("echidna2", r2.getText());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1524,8 +1498,7 @@ public class XATest extends JMSTestBase {
          Assert.assertNotNull(r2);
          Assert.assertEquals("echidna2", r2.getText());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1585,8 +1558,7 @@ public class XATest extends JMSTestBase {
          TextMessage r1 = (TextMessage) cons.receive(100);
          Assert.assertNull(r1);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1644,8 +1616,7 @@ public class XATest extends JMSTestBase {
 
          TextMessage r1 = (TextMessage) cons.receive(100);
          Assert.assertNull(r1);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1724,8 +1695,7 @@ public class XATest extends JMSTestBase {
          tm.resume(suspended);
 
          tm.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1818,8 +1788,7 @@ public class XATest extends JMSTestBase {
          r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1894,8 +1863,7 @@ public class XATest extends JMSTestBase {
          Assert.assertNotNull(r3);
          Assert.assertEquals("kangaroo1", r3.getText());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

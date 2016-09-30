@@ -62,8 +62,7 @@ public class DecodeJournal extends LockAbstract {
             directory = getFileConfiguration().getJournalDirectory();
          }
          importJournal(directory, prefix, suffix, 2, size, input);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          treatError(e, "data", "decode");
       }
 
@@ -145,41 +144,35 @@ public class DecodeJournal extends LockAbstract {
             if (operation.equals("AddRecord")) {
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecord(info.id, info.userRecordType, info.data, false);
-            }
-            else if (operation.equals("AddRecordTX")) {
+            } else if (operation.equals("AddRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
-            }
-            else if (operation.equals("AddRecordTX")) {
+            } else if (operation.equals("AddRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
-            }
-            else if (operation.equals("UpdateTX")) {
+            } else if (operation.equals("UpdateTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecordTransactional(txID, info.id, info.userRecordType, info.data);
-            }
-            else if (operation.equals("Update")) {
+            } else if (operation.equals("Update")) {
                RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecord(info.id, info.userRecordType, info.data, false);
-            }
-            else if (operation.equals("DeleteRecord")) {
+            } else if (operation.equals("DeleteRecord")) {
                long id = parseLong("id", lineProperties);
 
                // If not found it means the append/update records were reclaimed already
                if (journalRecords.get(id) != null) {
                   journal.appendDeleteRecord(id, false);
                }
-            }
-            else if (operation.equals("DeleteRecordTX")) {
+            } else if (operation.equals("DeleteRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                long id = parseLong("id", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
@@ -189,8 +182,7 @@ public class DecodeJournal extends LockAbstract {
                if (journalRecords.get(id) != null) {
                   journal.appendDeleteRecordTransactional(txID, id);
                }
-            }
-            else if (operation.equals("Prepare")) {
+            } else if (operation.equals("Prepare")) {
                long txID = parseLong("txID", lineProperties);
                int numberOfRecords = parseInt("numberOfRecords", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
@@ -198,8 +190,7 @@ public class DecodeJournal extends LockAbstract {
 
                if (counter.get() == numberOfRecords) {
                   journal.appendPrepareRecord(txID, data, false);
-               }
-               else {
+               } else {
                   System.err.println("Transaction " + txID +
                                         " at line " +
                                         lineNumber +
@@ -208,15 +199,13 @@ public class DecodeJournal extends LockAbstract {
                                         " while the import only had " +
                                         counter);
                }
-            }
-            else if (operation.equals("Commit")) {
+            } else if (operation.equals("Commit")) {
                long txID = parseLong("txID", lineProperties);
                int numberOfRecords = parseInt("numberOfRecords", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                if (counter.get() == numberOfRecords) {
                   journal.appendCommitRecord(txID, false);
-               }
-               else {
+               } else {
                   System.err.println("Transaction " + txID +
                                         " at line " +
                                         lineNumber +
@@ -225,16 +214,13 @@ public class DecodeJournal extends LockAbstract {
                                         " while the import only had " +
                                         counter);
                }
-            }
-            else if (operation.equals("Rollback")) {
+            } else if (operation.equals("Rollback")) {
                long txID = parseLong("txID", lineProperties);
                journal.appendRollbackRecord(txID, false);
-            }
-            else {
+            } else {
                System.err.println("Invalid operation " + operation + " at line " + lineNumber);
             }
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             System.err.println("Error at line " + lineNumber + ", operation=" + operation + " msg = " + ex.getMessage());
          }
       }
@@ -317,8 +303,7 @@ public class DecodeJournal extends LockAbstract {
          String[] tuple = el.split("@");
          if (tuple.length == 2) {
             properties.put(tuple[0], tuple[1]);
-         }
-         else {
+         } else {
             properties.put(tuple[0], tuple[0]);
          }
       }

@@ -42,8 +42,7 @@ public class MessageBodyTest extends PTPTestCase {
          message.setStringProperty("prop", "foo");
          message.clearBody();
          Assert.assertEquals("sec. 3.11.1 Clearing a message's body does not clear its property entries.\n", "foo", message.getStringProperty("prop"));
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -58,8 +57,7 @@ public class MessageBodyTest extends PTPTestCase {
          message.setText("bar");
          message.clearBody();
          Assert.assertEquals("sec. 3 .11.1 the clearBody method of Message resets the value of the message body " + "to the 'empty' initial message value as set by the message type's create " + "method provided by Session.\n", null, message.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -80,10 +78,8 @@ public class MessageBodyTest extends PTPTestCase {
          TextMessage msg = (TextMessage) m;
          msg.setText("bar");
          Assert.fail("should raise a MessageNotWriteableException (sec. 3.11.2)");
-      }
-      catch (MessageNotWriteableException e) {
-      }
-      catch (JMSException e) {
+      } catch (MessageNotWriteableException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }

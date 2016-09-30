@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.usecases;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.Test;
-
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +32,15 @@ import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.BrokerFactory;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // see https://issues.apache.org/activemq/browse/AMQ-2985
 // this demonstrated receiving old messages eventually along with validating order receipt
@@ -74,8 +80,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
 
          Thread.sleep(RUNTIME);
          assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          exit("DurableSubProcessTest.testProcess failed.", e);
       }
       LOG.info("DONE.");
@@ -116,8 +121,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
                DurableSubProcessTest.sleepRandom(SERVER_SLEEP);
                send();
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("Server.run failed", e);
          }
       }
@@ -263,8 +267,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
                int size = clients.size();
                sleepRandom(size * 3 * 1000, size * 6 * 1000);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("ClientManager.run failed.", e);
          }
       }
@@ -382,8 +385,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
                // housekeeper should sweep these abandoned subscriptions
                houseKeeper.abandonedSubscriptions.add(conClientId);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit(toString() + " failed.", e);
          }
 
@@ -426,14 +428,12 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
 
                   inTransaction = false;
                   transCount = 0;
-               }
-               else {
+               } else {
                   inTransaction = true;
                   transCount++;
                }
             } while (true);
-         }
-         finally {
+         } finally {
             sess.close();
             con.close();
 
@@ -451,8 +451,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
          if (Boolean.TRUE.equals(message.getObjectProperty("COMMIT"))) {
             if (Boolean.TRUE.equals(message.getObjectProperty("RELEVANT")))
                waitingList.add(message);
-         }
-         else {
+         } else {
             String messageType = message.getStringProperty("TYPE");
             if (clientType.isRelevant(messageType))
                waitingList.add(message);
@@ -478,8 +477,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
                        "   server: " + serverMessage);
 
             checkDeliveryTime(message);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("" + this + ".onClientMessage failed.\r\n" +
                     " received: " + message + "\r\n" +
                     "   server: " + serverMessage, e);
@@ -546,11 +544,9 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
             try {
                Thread.sleep(60 * 1000);
                sweep();
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                break;
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                Exception log = new Exception("HouseKeeper failed.", e);
                log.printStackTrace();
             }
@@ -569,8 +565,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
                broker.getAdminView().destroyDurableSubscriber(clientId, Client.SUBSCRIPTION_NAME);
                closed++;
             }
-         }
-         finally {
+         } finally {
             abandonedSubscriptions.removeAll(sweeped);
          }
 
@@ -661,8 +656,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
          KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
          persistenceAdapter.setDirectory(new File("activemq-data/" + getName()));
          broker.setPersistenceAdapter(persistenceAdapter);
-      }
-      else
+      } else
          broker.setPersistent(false);
 
       broker.addConnector("tcp://localhost:61656");

@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.transactions;
 
-import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -26,6 +24,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
+import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 
 public class DummyTransactionManagerLocator implements TransactionManagerLocator, TransactionManager {
 

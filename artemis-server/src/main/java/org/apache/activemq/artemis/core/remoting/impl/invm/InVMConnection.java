@@ -193,13 +193,11 @@ public class InVMConnection implements Connection {
                         futureListener.operationComplete(null);
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   final String msg = "Failed to write to handler on connector " + this;
                   ActiveMQServerLogger.LOGGER.errorWritingToInvmConnector(e, this);
                   throw new IllegalStateException(msg, e);
-               }
-               finally {
+               } finally {
                   if (logger.isTraceEnabled()) {
                      logger.trace(InVMConnection.this + "::packet sent done");
                   }
@@ -220,13 +218,11 @@ public class InVMConnection implements Connection {
                if (!latch.await(10, TimeUnit.SECONDS)) {
                   ActiveMQServerLogger.LOGGER.timedOutFlushingInvmChannel();
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
-      }
-      catch (RejectedExecutionException e) {
+      } catch (RejectedExecutionException e) {
          // Ignore - this can happen if server/client is shutdown and another request comes in
       }
 

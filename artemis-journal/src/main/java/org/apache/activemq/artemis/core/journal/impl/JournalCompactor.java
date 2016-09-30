@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecordTX;
@@ -81,8 +81,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
          if (records.size() == 0) {
             return null;
-         }
-         else {
+         } else {
             ActiveMQBuffer input = ActiveMQBuffers.wrappedBuffer(records.get(0).data);
 
             int numberDataFiles = input.readInt();
@@ -107,8 +106,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          }
 
          return controlFile;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -197,8 +195,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
             // will need to open a file either way
             openFile();
          }
-      }
-      else {
+      } else {
          if (compactCount >= 0) {
             if (checkCompact(compactCount)) {
                // The file was already moved on this case, no need to check for the size.
@@ -230,8 +227,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          splitted = false;
          openFile();
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -243,8 +239,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       for (CompactCommand command : pendingCommands) {
          try {
             command.execute();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorReplayingCommands(e);
          }
       }
@@ -291,8 +286,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (pendingTransactions.get(transactionID) != null) {
          // Sanity check, this should never happen
          ActiveMQJournalLogger.LOGGER.inconsistencyDuringCompacting(transactionID);
-      }
-      else {
+      } else {
          JournalTransaction newTransaction = newTransactions.remove(transactionID);
          if (newTransaction != null) {
             JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, transactionID, null);
@@ -361,8 +355,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          // Sanity check, this should never happen
          throw new IllegalStateException("Inconsistency during compacting: RollbackRecord ID = " + transactionID +
                                             " for an already rolled back transaction during compacting");
-      }
-      else {
+      } else {
          JournalTransaction newTransaction = newTransactions.remove(transactionID);
          if (newTransaction != null) {
 
@@ -391,8 +384,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
          if (newRecord == null) {
             ActiveMQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
-         }
-         else {
+         } else {
             newRecord.addUpdateFile(currentFile, updateRecord.getEncodeSize());
          }
 
@@ -414,8 +406,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          writeEncoder(updateRecordTX);
 
          newTransaction.addPositive(currentFile, info.id, updateRecordTX.getEncodeSize());
-      }
-      else {
+      } else {
          onReadUpdateRecord(info);
       }
    }
@@ -454,8 +445,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          JournalRecord deleteRecord = journal.getRecords().remove(id);
          if (deleteRecord == null) {
             ActiveMQJournalLogger.LOGGER.noRecordDuringCompactReplay(id);
-         }
-         else {
+         } else {
             deleteRecord.delete(usedFile);
          }
       }

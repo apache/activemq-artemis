@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.QueueConnection;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.jms.TopicSubscriber;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -36,14 +44,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.TopicSubscriber;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
@@ -170,9 +170,9 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       waitForAttributeEqualsValue("messageCount", 3L, 3000, Long.class);
 
       Assert.assertEquals(2, proxy.invokeOperation(Integer.class, "countMessagesForSubscription", clientID, subscriptionName, key + " =" +
-                             matchingValue));
+         matchingValue));
       Assert.assertEquals(1, proxy.invokeOperation(Integer.class, "countMessagesForSubscription", clientID, subscriptionName, key + " =" +
-                             unmatchingValue));
+         unmatchingValue));
 
       connection.close();
    }
@@ -184,8 +184,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       try {
          proxy.invokeOperation("countMessagesForSubscription", clientID, unknownSubscription, null);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -196,8 +195,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       try {
          proxy.invokeOperation("countMessagesForSubscription", unknownClientID, subscriptionName, null);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -227,8 +225,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       try {
          proxy.invokeOperation("dropDurableSubscription", clientID, "this subscription does not exist");
          Assert.fail("should throw an exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
 
       }
 
@@ -298,8 +295,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       try {
          proxy.invokeOperation("listMessagesForSubscription", ActiveMQDestination.createQueueNameForDurableSubscription(true, unknownClientID, subscriptionName));
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -310,8 +306,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       try {
          proxy.invokeOperation("listMessagesForSubscription", ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, unknownSubscription));
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -420,7 +415,10 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       waitForAttributeEqualsValue(attribute, expected, timeout, null);
    }
 
-   private void waitForAttributeEqualsValue(String attribute, Object expected, long timeout, Class desiredType) throws Exception {
+   private void waitForAttributeEqualsValue(String attribute,
+                                            Object expected,
+                                            long timeout,
+                                            Class desiredType) throws Exception {
       long timeToWait = System.currentTimeMillis() + timeout;
       Object actual = null;
 

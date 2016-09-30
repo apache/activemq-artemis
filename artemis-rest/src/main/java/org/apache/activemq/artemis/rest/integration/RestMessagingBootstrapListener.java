@@ -50,8 +50,7 @@ public class RestMessagingBootstrapListener implements ServletContextListener, C
          manager.start();
          registry.addSingletonResource(manager.getQueueManager().getDestination());
          registry.addSingletonResource(manager.getTopicManager().getDestination());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

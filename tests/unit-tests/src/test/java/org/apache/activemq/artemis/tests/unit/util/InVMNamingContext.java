@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.Name;
@@ -36,6 +27,14 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
@@ -91,8 +90,7 @@ public class InVMNamingContext implements Context, Serializable {
          // we only deal with references create by NonSerializableFactory
          String key = (String) refAddr.getContent();
          return NonSerializableFactory.lookup(key);
-      }
-      else {
+      } else {
          return value;
       }
    }
@@ -129,8 +127,7 @@ public class InVMNamingContext implements Context, Serializable {
       boolean terminal = i == -1;
       if (terminal) {
          map.remove(name);
-      }
-      else {
+      } else {
          String tok = name.substring(0, i);
          InVMNamingContext c = (InVMNamingContext) map.get(tok);
          if (c == null) {
@@ -171,8 +168,7 @@ public class InVMNamingContext implements Context, Serializable {
       if (!"".equals(contextName) && !".".equals(contextName)) {
          try {
             return ((InVMNamingContext) lookup(contextName)).listBindings("");
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             throw new NamingException(t.getMessage());
          }
       }

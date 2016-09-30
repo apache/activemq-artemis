@@ -65,12 +65,10 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter {
       while (!check()) {
          if (spin) {
             Thread.yield();
-         }
-         else {
+         } else {
             try {
                Thread.sleep(1);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // Ignore
             }
          }
@@ -96,8 +94,7 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter {
          tokens--;
 
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }

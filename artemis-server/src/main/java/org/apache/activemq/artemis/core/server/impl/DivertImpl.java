@@ -100,8 +100,7 @@ public class DivertImpl implements Divert {
          if (transformer != null) {
             copy = transformer.transform(copy);
          }
-      }
-      else {
+      } else {
          copy = message;
       }
 

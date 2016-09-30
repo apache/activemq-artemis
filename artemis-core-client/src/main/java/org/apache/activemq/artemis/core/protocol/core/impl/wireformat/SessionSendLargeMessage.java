@@ -87,8 +87,7 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
       if (largeMessage == null) {
          if (other.largeMessage != null)
             return false;
-      }
-      else if (!largeMessage.equals(other.largeMessage))
+      } else if (!largeMessage.equals(other.largeMessage))
          return false;
       return true;
    }

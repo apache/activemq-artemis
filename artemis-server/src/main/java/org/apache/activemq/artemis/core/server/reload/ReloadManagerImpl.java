@@ -31,7 +31,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.jboss.logging.Logger;
 
-public class ReloadManagerImpl extends ActiveMQScheduledComponent implements ReloadManager  {
+public class ReloadManagerImpl extends ActiveMQScheduledComponent implements ReloadManager {
+
    private static final Logger logger = Logger.getLogger(ReloadManagerImpl.class);
 
    private volatile Runnable tick;
@@ -83,6 +84,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
    }
 
    class ReloadRegistry {
+
       private final File file;
       private final URL uri;
       private long lastModified;
@@ -95,7 +97,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
          this.uri = uri;
       }
 
-      public void check()  {
+      public void check() {
 
          long fileModified = file.lastModified();
 
@@ -108,8 +110,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
             for (ReloadCallback callback : callbacks) {
                try {
                   callback.reload(uri);
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   ActiveMQServerLogger.LOGGER.configurationReloadFailed(e);
                }
             }
@@ -117,7 +118,6 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
          this.lastModified = fileModified;
       }
-
 
       public List<ReloadCallback> getCallbacks() {
          return callbacks;

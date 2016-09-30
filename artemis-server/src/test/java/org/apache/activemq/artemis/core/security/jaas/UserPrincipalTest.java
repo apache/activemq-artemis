@@ -31,8 +31,7 @@ public class UserPrincipalTest extends Assert {
       try {
          new UserPrincipal(null);
          fail("Should have thrown IllegalArgumentException");
-      }
-      catch (IllegalArgumentException ingore) {
+      } catch (IllegalArgumentException ingore) {
 
       }
    }

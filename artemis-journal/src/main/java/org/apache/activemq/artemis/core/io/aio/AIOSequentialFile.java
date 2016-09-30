@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNativeIOError;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFile;
 import org.apache.activemq.artemis.core.io.DummyCallback;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
@@ -139,8 +139,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
       try {
          aioFile = aioFactory.libaioContext.openFile(getFile(), true);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(e, e.getMessage(), this);
          throw new ActiveMQNativeIOError(e.getMessage(), e);
       }
@@ -164,8 +163,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
          // because we want the buffer available.
          // Sending it through the callback would make it released
          aioFile.read(positionToRead, bytesToRead, bytes, getCallback(callback, null));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(e, e.getMessage(), this);
          throw new ActiveMQNativeIOError(e.getMessage(), e);
       }
@@ -192,8 +190,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
          writeDirect(bytes, true, completion);
 
          completion.waitCompletion();
-      }
-      else {
+      } else {
          writeDirect(bytes, false, DummyCallback.getInstance());
       }
    }
@@ -205,8 +202,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
       try {
          checkOpened();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
          callback.onError(-1, e.getMessage());
          return;
@@ -220,8 +216,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       runnableCallback.initWrite(positionToWrite, bytesToWrite);
       if (writerExecutor != null) {
          writerExecutor.execute(runnableCallback);
-      }
-      else {
+      } else {
          runnableCallback.run();
       }
    }
@@ -244,8 +239,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
          callback.sequentialDone();
          pendingCallbacks.countDown();
          flushCallbacks();
-      }
-      else {
+      } else {
          pendingCallbackList.add(callback);
       }
 
@@ -269,8 +263,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    public long size() throws Exception {
       if (aioFile == null) {
          return getFile().length();
-      }
-      else {
+      } else {
          return aioFile.getSize();
       }
    }

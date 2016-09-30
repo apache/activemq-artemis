@@ -166,8 +166,7 @@ public class TopicTest extends JMSTestCase {
 
          try {
             Wibble2 w = (Wibble2) om.getObject();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
          }
 

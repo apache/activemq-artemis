@@ -526,7 +526,9 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS;
    }
 
-   /** The default Cluster address for the Cluster connection*/
+   /**
+    * The default Cluster address for the Cluster connection
+    */
    public static String getDefaultClusterAddress() {
       return DEFAULT_CLUSTER_ADDRESS;
    }
@@ -733,6 +735,7 @@ public final class ActiveMQDefaultConfiguration {
 
    /**
     * How many journal files can be resued
+    *
     * @return
     */
    public static int getDefaultJournalPoolFiles() {
@@ -1060,13 +1063,13 @@ public final class ActiveMQDefaultConfiguration {
 
    /**
     * if we have to start as a replicated server this is the delay to wait before fail-back occurs
-    * @deprecated  use getDefaultInitialReplicationSyncTimeout()
+    *
+    * @deprecated use getDefaultInitialReplicationSyncTimeout()
     */
    @Deprecated
    public static long getDefaultFailbackDelay() {
       return 5000;
    }
-
 
    /**
     * Will this backup server come live on a normal server shutdown
@@ -1151,7 +1154,9 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD;
    }
 
-   /** The default global max size. -1 = no global max size. */
+   /**
+    * The default global max size. -1 = no global max size.
+    */
    public static long getDefaultMaxGlobalSize() {
       return DEFAULT_GLOBAL_MAX_SIZE;
    }

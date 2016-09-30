@@ -60,8 +60,7 @@ public class ConsumerThread extends Thread {
    public void run() {
       if (browse) {
          browse();
-      }
-      else {
+      } else {
          consume();
       }
    }
@@ -74,8 +73,7 @@ public class ConsumerThread extends Thread {
       try {
          if (filter != null) {
             consumer = session.createBrowser((Queue) destination, filter);
-         }
-         else {
+         } else {
             consumer = session.createBrowser((Queue) destination);
          }
          Enumeration<Message> enumBrowse = consumer.getEnumeration();
@@ -99,8 +97,7 @@ public class ConsumerThread extends Thread {
                if (received >= messageCount) {
                   break;
                }
-            }
-            else {
+            } else {
                break;
             }
 
@@ -111,11 +108,9 @@ public class ConsumerThread extends Thread {
          }
 
          consumer.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (finished != null) {
             finished.countDown();
          }
@@ -123,8 +118,7 @@ public class ConsumerThread extends Thread {
             System.out.println(threadName + " Consumed: " + this.getReceived() + " messages");
             try {
                consumer.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -142,16 +136,13 @@ public class ConsumerThread extends Thread {
          if (durable && destination instanceof Topic) {
             if (filter != null) {
                consumer = session.createDurableSubscriber((Topic) destination, getName(), filter, false);
-            }
-            else {
+            } else {
                consumer = session.createDurableSubscriber((Topic) destination, getName());
             }
-         }
-         else {
+         } else {
             if (filter != null) {
                consumer = session.createConsumer(destination, filter);
-            }
-            else {
+            } else {
                consumer = session.createConsumer(destination);
             }
          }
@@ -169,8 +160,7 @@ public class ConsumerThread extends Thread {
                   System.out.println("Message:" + msg);
                }
                received++;
-            }
-            else {
+            } else {
                if (breakOnNull) {
                   break;
                }
@@ -181,8 +171,7 @@ public class ConsumerThread extends Thread {
                   System.out.println(threadName + " Committing transaction: " + transactions++);
                   session.commit();
                }
-            }
-            else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {
+            } else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {
                if (batchSize > 0 && received > 0 && received % batchSize == 0) {
                   System.out.println("Acknowledging last " + batchSize + " messages; messages so far = " + received);
                   msg.acknowledge();
@@ -196,14 +185,11 @@ public class ConsumerThread extends Thread {
 
          try {
             session.commit();
+         } catch (Throwable ignored) {
          }
-         catch (Throwable ignored) {
-         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (finished != null) {
             finished.countDown();
          }
@@ -211,8 +197,7 @@ public class ConsumerThread extends Thread {
             System.out.println(threadName + " Consumed: " + this.getReceived() + " messages");
             try {
                consumer.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
