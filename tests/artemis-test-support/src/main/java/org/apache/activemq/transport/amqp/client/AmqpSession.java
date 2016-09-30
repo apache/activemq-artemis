@@ -207,10 +207,22 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(Source source) throws Exception {
+      return createReceiver(source, getNextReceiverId());
+   }
+
+   /**
+    * Create a receiver instance using the given Source
+    *
+    * @param source the caller created and configured Source used to create the receiver link.
+    * @param receiverId the receiver id to use.
+    * @return a newly created receiver that is ready for use.
+    * @throws Exception if an error occurs while creating the receiver.
+    */
+   public AmqpReceiver createReceiver(Source source, String receiverId) throws Exception {
       checkClosed();
 
       final ClientFuture request = new ClientFuture();
-      final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, source, getNextReceiverId());
+      final AmqpReceiver receiver = new AmqpReceiver(AmqpSession.this, source, receiverId);
 
       connection.getScheduler().execute(new Runnable() {
 

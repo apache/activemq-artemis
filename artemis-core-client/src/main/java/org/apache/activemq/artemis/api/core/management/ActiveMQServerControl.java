@@ -512,6 +512,13 @@ public interface ActiveMQServerControl {
    void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name) throws Exception;
 
    /**
+    * Destroys the queue corresponding to the specified name.
+    */
+   @Operation(desc = "Destroy a queue", impact = MBeanOperationInfo.ACTION)
+   void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
+                     @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers) throws Exception;
+
+   /**
     * Enables message counters for this server.
     */
    @Operation(desc = "Enable message counters", impact = MBeanOperationInfo.ACTION)

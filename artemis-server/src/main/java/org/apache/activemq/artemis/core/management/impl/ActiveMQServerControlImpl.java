@@ -697,17 +697,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void destroyQueue(final String name) throws Exception {
+   public void destroyQueue(final String name, final boolean removeConsumers) throws Exception {
       checkStarted();
 
       clearIO();
       try {
          SimpleString queueName = new SimpleString(name);
-
-         server.destroyQueue(queueName, null, true);
+         server.destroyQueue(queueName, null, !removeConsumers, removeConsumers);
       } finally {
          blockOnIO();
       }
+   }
+
+   @Override
+   public void destroyQueue(final String name) throws Exception {
+      destroyQueue(name, false);
    }
 
    @Override
