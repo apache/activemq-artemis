@@ -62,13 +62,15 @@ public class ServerJMSObjectMessage  extends ServerJMSMessage implements ObjectM
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       ObjectOutputStream ous = new ObjectOutputStream(out);
       ous.writeObject(object);
-      getInnerMessage().getBodyBuffer().writeBytes(out.toByteArray());
+      byte[] src = out.toByteArray();
+      getInnerMessage().getBodyBuffer().writeInt(src.length);
+      getInnerMessage().getBodyBuffer().writeBytes(src);
    }
 
    @Override
    public void decode() throws Exception {
       super.decode();
-      int size = getInnerMessage().getBodyBuffer().readableBytes();
+      int size = getInnerMessage().getBodyBuffer().readInt();
       byte[] bytes = new byte[size];
       getInnerMessage().getBodyBuffer().readBytes(bytes);
       ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bytes));
