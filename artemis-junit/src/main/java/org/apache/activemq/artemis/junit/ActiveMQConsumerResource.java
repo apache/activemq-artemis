@@ -112,7 +112,7 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
    }
 
    /**
-    * Enable/Disable the automatic creation of non-existant queues.  The default is to automatically create non-existant queues
+    * Enable/Disable the automatic creation of non-existent queues.  The default is to automatically create non-existent queues
     *
     * @param autoCreateQueue
     */

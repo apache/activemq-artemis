@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.jboss.logging.Logger;
 
 /**
- * This will keep a list of fileStores. It will make a comparisson on all file stores registered. if any is over the limit,
+ * This will keep a list of fileStores. It will make a comparison on all file stores registered. if any is over the limit,
  * all Callbacks will be called with over.
  *
  * For instance: if Large Messages folder is registered on a different folder and it's over capacity,
