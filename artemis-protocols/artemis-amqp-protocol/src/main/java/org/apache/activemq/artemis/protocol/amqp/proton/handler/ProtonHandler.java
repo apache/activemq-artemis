@@ -248,6 +248,10 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void flush() {
+      flush(false);
+   }
+
+   private void flush(boolean wait) {
       synchronized (lock) {
          transport.process();
 
@@ -255,14 +259,21 @@ public class ProtonHandler extends ProtonInitializable {
 
       }
 
-      dispatchExecutor.execute(dispatchRunnable);
+      if (wait) {
+         dispatch();
+      } else {
+         dispatchExecutor.execute(dispatchRunnable);
+      }
    }
 
-   public void close() {
+   public void close(ErrorCondition errorCondition) {
       synchronized (lock) {
+         if (errorCondition != null) {
+            connection.setCondition(errorCondition);
+         }
          connection.close();
       }
-      flush();
+      flush(true);
    }
 
    protected void checkServerSASL() {
