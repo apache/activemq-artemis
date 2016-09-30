@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.HashMap;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,8 +36,6 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
 
 /**
  * A PagingFailoverTest

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Enumeration;
-
 import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.QueueBrowser;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -125,18 +124,15 @@ public class BrowseOverNetworkTest extends JmsMultipleBrokersTestSupport {
                         LOG.info(broker + " consumer: " + message.getText() + " " + message.getDestination() + " " + message.getMessageId() + " " + Arrays.toString(message.getBrokerPath()));
                      }
                   }
-               }
-               else {
+               } else {
                   totalCount = count;
                }
                LOG.info("browser '" + broker + "' browsed " + totalCount);
 
                Thread.sleep(1000);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.info("Exception browsing " + e, e);
-            }
-            finally {
+            } finally {
                try {
                   if (browser != null) {
                      browser.close();
@@ -144,8 +140,7 @@ public class BrowseOverNetworkTest extends JmsMultipleBrokersTestSupport {
                   if (consumer != null) {
                      consumer.close();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   LOG.info("Exception closing browser " + e, e);
                }
             }

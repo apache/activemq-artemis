@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
+import javax.jms.TemporaryTopic;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -44,22 +60,6 @@ import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.Session;
-import javax.jms.TemporaryTopic;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class JMSServerControl2Test extends ManagementTestBase {
 
@@ -275,8 +275,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          consumer.close();
 
          connection.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.destroyQueue(queueName);
             serverManager.stop();
@@ -342,8 +341,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          consumer.close();
 
          connection.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.destroyTopic(topicName);
             serverManager.stop();
@@ -428,12 +426,10 @@ public class JMSServerControl2Test extends ManagementTestBase {
          consumer.close();
 
          connection.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          throw e;
-      }
-      finally {
+      } finally {
          try {
             if (connection != null) {
                connection.close();
@@ -443,8 +439,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
                serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
@@ -505,8 +500,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          assertEquals("user", jmsConnectionInfos[0].getUsername());
 
          assertEquals("my-client-id", jmsConnectionInfos[0].getClientID());
-      }
-      finally {
+      } finally {
          if (activation != null)
             activation.stop();
 
@@ -523,8 +517,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
                //serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
@@ -587,8 +580,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          assertEquals("user", jmsConnectionInfos[0].getUsername());
 
          assertEquals("my-client-id", jmsConnectionInfos[0].getClientID());
-      }
-      finally {
+      } finally {
          if (activation != null)
             activation.stop();
 
@@ -605,8 +597,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
                //serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
@@ -650,8 +641,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          connection2.close();
 
          waitForConnectionIDs(0, control);
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -728,8 +718,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          assertNotNull(jsonStr);
          infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(0, infos.length);
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -782,8 +771,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          waitForConnectionIDs(0, control);
 
          Assert.assertEquals(0, control.listConnectionIDs().length);
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -818,8 +806,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          remoteAddresses = control.listRemoteAddresses();
          Assert.assertEquals("got " + Arrays.asList(remoteAddresses), 0, remoteAddresses.length);
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -867,8 +854,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          Assert.assertEquals(0, server.getConnectionCount());
 
          connection.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -916,8 +902,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          connection.close();
 
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -988,8 +973,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          connection.close();
          connection2.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -1079,8 +1063,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
          connection.close();
          connection2.close();
          connection3.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }
@@ -1151,8 +1134,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          connection.close();
          connection2.close();
-      }
-      finally {
+      } finally {
          if (serverManager != null) {
             serverManager.stop();
          }

@@ -67,8 +67,7 @@ public class SessionSendMessage extends MessagePacket {
       if (connection == null) {
          // this is for unit tests only
          bufferWrite = buffer.copy(0, buffer.capacity());
-      }
-      else {
+      } else {
          bufferWrite = connection.createTransportBuffer(buffer.writerIndex() + 1); // 1 for the requireResponse
       }
       bufferWrite.writeBytes(buffer, 0, buffer.writerIndex());

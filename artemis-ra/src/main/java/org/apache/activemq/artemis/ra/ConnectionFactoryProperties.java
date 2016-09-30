@@ -733,200 +733,167 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       if (this.autoGroup == null) {
          if (other.autoGroup != null)
             return false;
-      }
-      else if (!this.autoGroup.equals(other.autoGroup))
+      } else if (!this.autoGroup.equals(other.autoGroup))
          return false;
       if (this.blockOnAcknowledge == null) {
          if (other.blockOnAcknowledge != null)
             return false;
-      }
-      else if (!this.blockOnAcknowledge.equals(other.blockOnAcknowledge))
+      } else if (!this.blockOnAcknowledge.equals(other.blockOnAcknowledge))
          return false;
       if (this.blockOnDurableSend == null) {
          if (other.blockOnDurableSend != null)
             return false;
-      }
-      else if (!this.blockOnDurableSend.equals(other.blockOnDurableSend))
+      } else if (!this.blockOnDurableSend.equals(other.blockOnDurableSend))
          return false;
       if (this.blockOnNonDurableSend == null) {
          if (other.blockOnNonDurableSend != null)
             return false;
-      }
-      else if (!this.blockOnNonDurableSend.equals(other.blockOnNonDurableSend))
+      } else if (!this.blockOnNonDurableSend.equals(other.blockOnNonDurableSend))
          return false;
       if (this.cacheLargeMessagesClient == null) {
          if (other.cacheLargeMessagesClient != null)
             return false;
-      }
-      else if (!this.cacheLargeMessagesClient.equals(other.cacheLargeMessagesClient))
+      } else if (!this.cacheLargeMessagesClient.equals(other.cacheLargeMessagesClient))
          return false;
       if (this.compressLargeMessage == null) {
          if (other.compressLargeMessage != null)
             return false;
-      }
-      else if (!this.compressLargeMessage.equals(other.compressLargeMessage))
+      } else if (!this.compressLargeMessage.equals(other.compressLargeMessage))
          return false;
       if (this.failoverOnInitialConnection == null) {
          if (other.failoverOnInitialConnection != null)
             return false;
-      }
-      else if (!this.failoverOnInitialConnection.equals(other.failoverOnInitialConnection))
+      } else if (!this.failoverOnInitialConnection.equals(other.failoverOnInitialConnection))
          return false;
       if (this.ha == null) {
          if (other.ha != null)
             return false;
-      }
-      else if (!this.ha.equals(other.ha))
+      } else if (!this.ha.equals(other.ha))
          return false;
       if (this.preAcknowledge == null) {
          if (other.preAcknowledge != null)
             return false;
-      }
-      else if (!this.preAcknowledge.equals(other.preAcknowledge))
+      } else if (!this.preAcknowledge.equals(other.preAcknowledge))
          return false;
       if (this.callFailoverTimeout == null) {
          if (other.callFailoverTimeout != null)
             return false;
-      }
-      else if (!this.callFailoverTimeout.equals(other.callFailoverTimeout))
+      } else if (!this.callFailoverTimeout.equals(other.callFailoverTimeout))
          return false;
       if (this.callTimeout == null) {
          if (other.callTimeout != null)
             return false;
-      }
-      else if (!this.callTimeout.equals(other.callTimeout))
+      } else if (!this.callTimeout.equals(other.callTimeout))
          return false;
       if (this.clientFailureCheckPeriod == null) {
          if (other.clientFailureCheckPeriod != null)
             return false;
-      }
-      else if (!this.clientFailureCheckPeriod.equals(other.clientFailureCheckPeriod))
+      } else if (!this.clientFailureCheckPeriod.equals(other.clientFailureCheckPeriod))
          return false;
       if (this.clientID == null) {
          if (other.clientID != null)
             return false;
-      }
-      else if (!this.clientID.equals(other.clientID))
+      } else if (!this.clientID.equals(other.clientID))
          return false;
       if (this.confirmationWindowSize == null) {
          if (other.confirmationWindowSize != null)
             return false;
-      }
-      else if (!this.confirmationWindowSize.equals(other.confirmationWindowSize))
+      } else if (!this.confirmationWindowSize.equals(other.confirmationWindowSize))
          return false;
       if (this.connectionLoadBalancingPolicyClassName == null) {
          if (other.connectionLoadBalancingPolicyClassName != null)
             return false;
-      }
-      else if (!this.connectionLoadBalancingPolicyClassName.equals(other.connectionLoadBalancingPolicyClassName))
+      } else if (!this.connectionLoadBalancingPolicyClassName.equals(other.connectionLoadBalancingPolicyClassName))
          return false;
       if (this.connectionTTL == null) {
          if (other.connectionTTL != null)
             return false;
-      }
-      else if (!this.connectionTTL.equals(other.connectionTTL))
+      } else if (!this.connectionTTL.equals(other.connectionTTL))
          return false;
       if (this.consumerMaxRate == null) {
          if (other.consumerMaxRate != null)
             return false;
-      }
-      else if (!this.consumerMaxRate.equals(other.consumerMaxRate))
+      } else if (!this.consumerMaxRate.equals(other.consumerMaxRate))
          return false;
       if (this.consumerWindowSize == null) {
          if (other.consumerWindowSize != null)
             return false;
-      }
-      else if (!this.consumerWindowSize.equals(other.consumerWindowSize))
+      } else if (!this.consumerWindowSize.equals(other.consumerWindowSize))
          return false;
       if (this.discoveryAddress == null) {
          if (other.discoveryAddress != null)
             return false;
-      }
-      else if (!this.discoveryAddress.equals(other.discoveryAddress))
+      } else if (!this.discoveryAddress.equals(other.discoveryAddress))
          return false;
       if (this.discoveryInitialWaitTimeout == null) {
          if (other.discoveryInitialWaitTimeout != null)
             return false;
-      }
-      else if (!this.discoveryInitialWaitTimeout.equals(other.discoveryInitialWaitTimeout))
+      } else if (!this.discoveryInitialWaitTimeout.equals(other.discoveryInitialWaitTimeout))
          return false;
       if (this.discoveryLocalBindAddress == null) {
          if (other.discoveryLocalBindAddress != null)
             return false;
-      }
-      else if (!this.discoveryLocalBindAddress.equals(other.discoveryLocalBindAddress))
+      } else if (!this.discoveryLocalBindAddress.equals(other.discoveryLocalBindAddress))
          return false;
       if (this.discoveryPort == null) {
          if (other.discoveryPort != null)
             return false;
-      }
-      else if (!this.discoveryPort.equals(other.discoveryPort))
+      } else if (!this.discoveryPort.equals(other.discoveryPort))
          return false;
       if (this.discoveryRefreshTimeout == null) {
          if (other.discoveryRefreshTimeout != null)
             return false;
-      }
-      else if (!this.discoveryRefreshTimeout.equals(other.discoveryRefreshTimeout))
+      } else if (!this.discoveryRefreshTimeout.equals(other.discoveryRefreshTimeout))
          return false;
       if (this.dupsOKBatchSize == null) {
          if (other.dupsOKBatchSize != null)
             return false;
-      }
-      else if (!this.dupsOKBatchSize.equals(other.dupsOKBatchSize))
+      } else if (!this.dupsOKBatchSize.equals(other.dupsOKBatchSize))
          return false;
       if (this.groupID == null) {
          if (other.groupID != null)
             return false;
-      }
-      else if (!this.groupID.equals(other.groupID))
+      } else if (!this.groupID.equals(other.groupID))
          return false;
       if (this.initialConnectAttempts == null) {
          if (other.initialConnectAttempts != null)
             return false;
-      }
-      else if (!this.initialConnectAttempts.equals(other.initialConnectAttempts))
+      } else if (!this.initialConnectAttempts.equals(other.initialConnectAttempts))
          return false;
       if (this.initialMessagePacketSize == null) {
          if (other.initialMessagePacketSize != null)
             return false;
-      }
-      else if (!this.initialMessagePacketSize.equals(other.initialMessagePacketSize))
+      } else if (!this.initialMessagePacketSize.equals(other.initialMessagePacketSize))
          return false;
       if (this.jgroupsChannelName == null) {
          if (other.jgroupsChannelName != null)
             return false;
-      }
-      else if (!this.jgroupsChannelName.equals(other.jgroupsChannelName))
+      } else if (!this.jgroupsChannelName.equals(other.jgroupsChannelName))
          return false;
       if (this.jgroupsFile == null) {
          if (other.jgroupsFile != null)
             return false;
-      }
-      else if (!this.jgroupsFile.equals(other.jgroupsFile))
+      } else if (!this.jgroupsFile.equals(other.jgroupsFile))
          return false;
       if (this.maxRetryInterval == null) {
          if (other.maxRetryInterval != null)
             return false;
-      }
-      else if (!this.maxRetryInterval.equals(other.maxRetryInterval))
+      } else if (!this.maxRetryInterval.equals(other.maxRetryInterval))
          return false;
       if (this.minLargeMessageSize == null) {
          if (other.minLargeMessageSize != null)
             return false;
-      }
-      else if (!this.minLargeMessageSize.equals(other.minLargeMessageSize))
+      } else if (!this.minLargeMessageSize.equals(other.minLargeMessageSize))
          return false;
       if (this.producerMaxRate == null) {
          if (other.producerMaxRate != null)
             return false;
-      }
-      else if (!this.producerMaxRate.equals(other.producerMaxRate))
+      } else if (!this.producerMaxRate.equals(other.producerMaxRate))
          return false;
       if (this.producerWindowSize == null) {
          if (other.producerWindowSize != null)
             return false;
-      }
-      else if (!this.producerWindowSize.equals(other.producerWindowSize))
+      } else if (!this.producerWindowSize.equals(other.producerWindowSize))
          return false;
       else if (!protocolManagerFactoryStr.equals(other.protocolManagerFactoryStr))
          return false;
@@ -937,70 +904,59 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       if (this.reconnectAttempts == null) {
          if (other.reconnectAttempts != null)
             return false;
-      }
-      else if (!this.reconnectAttempts.equals(other.reconnectAttempts))
+      } else if (!this.reconnectAttempts.equals(other.reconnectAttempts))
          return false;
       if (this.retryInterval == null) {
          if (other.retryInterval != null)
             return false;
-      }
-      else if (!this.retryInterval.equals(other.retryInterval))
+      } else if (!this.retryInterval.equals(other.retryInterval))
          return false;
       if (this.retryIntervalMultiplier == null) {
          if (other.retryIntervalMultiplier != null)
             return false;
-      }
-      else if (!this.retryIntervalMultiplier.equals(other.retryIntervalMultiplier))
+      } else if (!this.retryIntervalMultiplier.equals(other.retryIntervalMultiplier))
          return false;
       if (this.scheduledThreadPoolMaxSize == null) {
          if (other.scheduledThreadPoolMaxSize != null)
             return false;
-      }
-      else if (!this.scheduledThreadPoolMaxSize.equals(other.scheduledThreadPoolMaxSize))
+      } else if (!this.scheduledThreadPoolMaxSize.equals(other.scheduledThreadPoolMaxSize))
          return false;
       if (this.threadPoolMaxSize == null) {
          if (other.threadPoolMaxSize != null)
             return false;
-      }
-      else if (!this.threadPoolMaxSize.equals(other.threadPoolMaxSize))
+      } else if (!this.threadPoolMaxSize.equals(other.threadPoolMaxSize))
          return false;
       if (this.transactionBatchSize == null) {
          if (other.transactionBatchSize != null)
             return false;
-      }
-      else if (!this.transactionBatchSize.equals(other.transactionBatchSize))
+      } else if (!this.transactionBatchSize.equals(other.transactionBatchSize))
          return false;
       if (this.useGlobalPools == null) {
          if (other.useGlobalPools != null)
             return false;
-      }
-      else if (!this.useGlobalPools.equals(other.useGlobalPools))
+      } else if (!this.useGlobalPools.equals(other.useGlobalPools))
          return false;
       if (connectorClassName == null) {
          if (other.connectorClassName != null)
             return false;
-      }
-      else if (!connectorClassName.equals(other.connectorClassName))
+      } else if (!connectorClassName.equals(other.connectorClassName))
          return false;
       if (this.connectionParameters == null) {
          if (other.connectionParameters != null)
             return false;
-      }
-      else if (!connectionParameters.equals(other.connectionParameters))
+      } else if (!connectionParameters.equals(other.connectionParameters))
          return false;
 
       if (deserializationBlackList == null) {
          if (other.deserializationBlackList != null)
             return false;
-      }
-      else if (!deserializationBlackList.equals(other.deserializationBlackList))
+      } else if (!deserializationBlackList.equals(other.deserializationBlackList))
          return false;
 
       if (deserializationWhiteList == null) {
          if (other.deserializationWhiteList != null)
             return false;
-      }
-      else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
+      } else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
          return false;
       return true;
    }

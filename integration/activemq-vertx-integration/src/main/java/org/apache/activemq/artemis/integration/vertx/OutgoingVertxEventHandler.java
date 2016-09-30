@@ -92,8 +92,7 @@ class OutgoingVertxEventHandler implements Consumer, ConnectorService {
       System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManagerFactory.class.getName());
       if (quorumSize != -1) {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host, quorumSize, haGroup);
-      }
-      else {
+      } else {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host);
       }
 
@@ -178,8 +177,7 @@ class OutgoingVertxEventHandler implements Consumer, ConnectorService {
          // send to bus
          if (!publish) {
             eventBus.send(vertxAddress, vertxMsgBody);
-         }
-         else {
+         } else {
             eventBus.publish(vertxAddress, vertxMsgBody);
          }
 

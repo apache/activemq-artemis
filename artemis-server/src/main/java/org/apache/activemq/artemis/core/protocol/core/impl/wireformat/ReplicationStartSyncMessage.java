@@ -196,8 +196,7 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       if (nodeID == null) {
          if (other.nodeID != null)
             return false;
-      }
-      else if (!nodeID.equals(other.nodeID))
+      } else if (!nodeID.equals(other.nodeID))
          return false;
       if (synchronizationIsFinished != other.synchronizationIsFinished)
          return false;

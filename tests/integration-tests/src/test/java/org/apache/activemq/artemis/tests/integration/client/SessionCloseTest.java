@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -34,8 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
 
 public class SessionCloseTest extends ActiveMQTestBase {
 

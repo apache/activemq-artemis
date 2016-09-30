@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
+import java.io.Serializable;
 
 public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMessage {
    // Constants -----------------------------------------------------

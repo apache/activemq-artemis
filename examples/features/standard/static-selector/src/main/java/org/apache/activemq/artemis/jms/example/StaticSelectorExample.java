@@ -93,8 +93,7 @@ public class StaticSelectorExample {
 
          if (!result.get())
             throw new IllegalStateException();
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();
@@ -129,8 +128,7 @@ class SimpleMessageListener implements MessageListener {
          if (colorProp != null && !colorProp.equals(name)) {
             result.set(false);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
          result.set(false);
       }

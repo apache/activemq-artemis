@@ -45,8 +45,7 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
 
       try {
          this.serverLocator = ActiveMQClient.createServerLocator(url);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new RuntimeException(String.format("Error creating {} - createServerLocator( {} ) failed", this.getClass().getSimpleName(), url.toString()), ex);
       }
    }
@@ -90,11 +89,9 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       try {
          sessionFactory = serverLocator.createSessionFactory();
          session = sessionFactory.createSession();
-      }
-      catch (RuntimeException runtimeEx) {
+      } catch (RuntimeException runtimeEx) {
          throw runtimeEx;
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new ActiveMQClientResourceException(String.format("%s initialisation failure", this.getClass().getSimpleName()), ex);
       }
 
@@ -102,8 +99,7 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
 
       try {
          session.start();
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("%s startup failure", this.getClass().getSimpleName()), amqEx);
       }
    }
@@ -113,11 +109,9 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
       if (session != null) {
          try {
             session.close();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             log.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
-         }
-         finally {
+         } finally {
             session = null;
          }
       }

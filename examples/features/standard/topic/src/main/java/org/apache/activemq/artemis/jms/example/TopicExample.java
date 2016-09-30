@@ -78,8 +78,7 @@ public class TopicExample {
          messageReceived = (TextMessage) messageConsumer2.receive();
 
          System.out.println("Consumer 2 Received message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 14. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();

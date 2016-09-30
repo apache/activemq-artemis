@@ -64,6 +64,7 @@ public class MySQLSQLProvider extends GenericSQLProvider {
    }
 
    public static class Factory implements SQLProvider.Factory {
+
       @Override
       public SQLProvider create(String tableName) {
          return new MySQLSQLProvider(tableName);

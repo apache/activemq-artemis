@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
 
 public class ConsumedObjectMessage extends ConsumedMessage {
 
@@ -52,8 +52,7 @@ public class ConsumedObjectMessage extends ConsumedMessage {
                   ois.setBlackList(options.getDeserializationBlackList());
                }
                readObject = ois.readObject();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new RuntimeException(e);
             }
          }

@@ -71,8 +71,7 @@ final class GcFreeJournal extends JournalImpl {
       try {
          this.journalRecordBytes.limit(alignedLength);
          sequentialFile.writeDirect(this.journalRecordBytes, sync);
-      }
-      finally {
+      } finally {
          this.journalRecordBytes.clear();
       }
       //TODO AVOID INDEXING WITH CONCURRENT MAP!

@@ -72,7 +72,6 @@ public final class FilterConstants {
     */
    public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
 
-
    private FilterConstants() {
       // Utility class
    }

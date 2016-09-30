@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.command.MessageAck;
-import org.apache.activemq.command.MessagePull;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.MessageAck;
+import org.apache.activemq.command.MessagePull;
 
 public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchange {
 

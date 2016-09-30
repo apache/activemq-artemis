@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -741,8 +742,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
          if (count != null) {
             return count.intValue();
-         }
-         else {
+         } else {
             return 0;
          }
       }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.security;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.JmsTestSupport;
@@ -64,8 +63,7 @@ public class DoSTest extends JmsTestSupport {
                   connection = factory.createConnection("bad", "krap");
                   connection.start();
                   fail("Expected exception.");
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   // ignore exception and don't close
                   e.printStackTrace();
                }

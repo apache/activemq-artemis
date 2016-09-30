@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,20 +25,15 @@ import io.netty.channel.ChannelHandler;
 import io.netty.handler.ssl.SslHandler;
 
 public class CertificateUtil {
+
    public static X509Certificate[] getCertsFromChannel(Channel channel) {
       X509Certificate[] certificates = null;
-      ChannelHandler channelHandler = channel
-         .pipeline()
-         .get("ssl");
+      ChannelHandler channelHandler = channel.pipeline().get("ssl");
       if (channelHandler != null && channelHandler instanceof SslHandler) {
          SslHandler sslHandler = (SslHandler) channelHandler;
          try {
-            certificates = sslHandler
-               .engine()
-               .getSession()
-               .getPeerCertificateChain();
-         }
-         catch (SSLPeerUnverifiedException e) {
+            certificates = sslHandler.engine().getSession().getPeerCertificateChain();
+         } catch (SSLPeerUnverifiedException e) {
             // ignore
          }
       }

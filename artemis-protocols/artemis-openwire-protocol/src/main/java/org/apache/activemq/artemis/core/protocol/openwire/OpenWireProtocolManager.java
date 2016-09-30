@@ -167,8 +167,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                this.connections.remove(context.getConnection());
                this.clientIdSet.remove(clientId);
             }
-         }
-         else {
+         } else {
             throw new InvalidClientIDException("No clientID specified for connection disconnect request");
          }
       }
@@ -193,8 +192,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          ConnectionControl control = newConnectionControl();
          try {
             c.updateClient(control);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             c.sendException(e);
          }
@@ -308,12 +306,10 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
                oldConnection.disconnect(true);
                connections.remove(oldConnection);
                connection.reconnect(context, info);
-            }
-            else {
+            } else {
                throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + context.getConnection().getRemoteAddress());
             }
-         }
-         else {
+         } else {
             //new connection
             context = connection.initContext(info);
             clientIdSet.put(clientId, context);
@@ -379,8 +375,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          if (sess != null) {
             sess.send(producerExchange.getProducerState().getInfo(), advisoryMessage, false);
          }
-      }
-      finally {
+      } finally {
          context.setProducerFlowControl(originalFlowControl);
       }
    }
@@ -389,8 +384,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       if (brokerName == null) {
          try {
             brokerName = InetAddressUtil.getLocalHostName().toLowerCase(Locale.ENGLISH);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             brokerName = server.getNodeID().toString();
          }
       }
@@ -462,8 +456,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       if (sm != null && server.getConfiguration().isSecurityEnabled()) {
          if (sm instanceof ActiveMQSecurityManager3) {
             validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, null) != null;
-         }
-         else {
+         } else {
             validated = sm.validateUser(login, passcode);
          }
       }

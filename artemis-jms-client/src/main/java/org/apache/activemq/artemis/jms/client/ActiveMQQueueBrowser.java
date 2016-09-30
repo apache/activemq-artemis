@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
-
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -71,8 +70,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
       if (consumer != null) {
          try {
             consumer.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
       }
@@ -86,8 +84,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          consumer = session.createConsumer(queue.getSimpleAddress(), filterString, true);
 
          return new BrowserEnumeration();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
@@ -127,8 +124,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          if (current == null) {
             try {
                current = consumer.receiveImmediate();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                return false;
             }
          }
@@ -144,15 +140,13 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
             msg = ActiveMQMessage.createMessage(next, session, options);
             try {
                msg.doBeforeReceive();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQJMSClientLogger.LOGGER.errorCreatingMessage(msg.getCoreMessage().toString(), e);
 
                return null;
             }
             return msg;
-         }
-         else {
+         } else {
             throw new NoSuchElementException();
          }
       }

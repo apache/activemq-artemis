@@ -37,8 +37,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
       if (response.getCommand().equals(CONNECTED_COMMAND)) {
          connected = true;
-      }
-      else {
+      } else {
          System.out.println("Connection failed with: " + response);
          connected = false;
       }
@@ -56,8 +55,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
       if (response.getCommand().equals(CONNECTED_COMMAND)) {
          connected = true;
-      }
-      else {
+      } else {
          System.out.println("Connection failed with: " + response);
          connected = false;
       }

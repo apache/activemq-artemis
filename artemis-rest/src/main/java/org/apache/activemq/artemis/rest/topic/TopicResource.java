@@ -158,20 +158,17 @@ public class TopicResource extends DestinationResource {
 
       try {
          stop();
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       ClientSession session = serviceManager.getSessionFactory().createSession(false, false, false);
       try {
          SimpleString topicName = new SimpleString(destination);
          session.deleteQueue(topicName);
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
 

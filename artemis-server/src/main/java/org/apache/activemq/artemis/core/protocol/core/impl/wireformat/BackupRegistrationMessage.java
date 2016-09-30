@@ -110,20 +110,17 @@ public final class BackupRegistrationMessage extends PacketImpl {
       if (clusterPassword == null) {
          if (other.clusterPassword != null)
             return false;
-      }
-      else if (!clusterPassword.equals(other.clusterPassword))
+      } else if (!clusterPassword.equals(other.clusterPassword))
          return false;
       if (clusterUser == null) {
          if (other.clusterUser != null)
             return false;
-      }
-      else if (!clusterUser.equals(other.clusterUser))
+      } else if (!clusterUser.equals(other.clusterUser))
          return false;
       if (connector == null) {
          if (other.connector != null)
             return false;
-      }
-      else if (!connector.equals(other.connector))
+      } else if (!connector.equals(other.connector))
          return false;
       return true;
    }

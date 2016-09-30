@@ -63,8 +63,7 @@ public class TemporaryTopicTest extends PubSubTestCase {
          Assert.assertTrue(m instanceof TextMessage);
          TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testTemporaryTopic", msg.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }

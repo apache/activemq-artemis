@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.Session;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Session;
-import javax.jms.Topic;
 
 public class TopicControlClusterTest extends JMSClusteredTestBase {
 
@@ -54,8 +54,7 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
 
          assertEquals(2, topicControl1.getSubscriptionCount());
          assertEquals(1, topicControl2.getSubscriptionCount());
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }

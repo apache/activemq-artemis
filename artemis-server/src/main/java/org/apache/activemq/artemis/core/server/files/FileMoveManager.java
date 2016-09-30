@@ -32,6 +32,7 @@ import org.jboss.logging.Logger;
  * We may control the maximum number of folders so we remove old ones.
  */
 public class FileMoveManager {
+
    private static final Logger logger = Logger.getLogger(FileMoveManager.class);
 
    private final File folder;
@@ -46,8 +47,7 @@ public class FileMoveManager {
          if (prefixed) {
             try {
                Integer.parseInt(name.substring(PREFIX.length()));
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                // This function is not really used a lot
                // so I don't really mind about performance here
                // this is good enough for what we need
@@ -65,7 +65,6 @@ public class FileMoveManager {
          return !isPrefix.accept(dir, name);
       }
    };
-
 
    public FileMoveManager(File folder) {
       this(folder, -1);
@@ -105,8 +104,7 @@ public class FileMoveManager {
             logger.tracef("deleting %s", fileFrom);
             deleteTree(fileFrom);
          }
-      }
-      else {
+      } else {
          File folderTo = getFolder(whereToMove);
          folderTo.mkdirs();
 
@@ -157,7 +155,6 @@ public class FileMoveManager {
       return folder.list(notPrefix);
    }
 
-
    public int getNumberOfFolders() {
       return getFolders().length;
    }
@@ -169,10 +166,8 @@ public class FileMoveManager {
          list = new String[0];
       }
 
-
       return list;
    }
-
 
    public int getMinID() {
       int[] list = getIDlist();
@@ -194,7 +189,6 @@ public class FileMoveManager {
       return list[list.length - 1];
    }
 
-
    public int[] getIDlist() {
       String[] list = getFolders();
       int[] ids = new int[list.length];
@@ -211,11 +205,9 @@ public class FileMoveManager {
       return Integer.parseInt(folderName.substring(PREFIX.length()));
    }
 
-
    public File getFolder(int id) {
       return new File(folder, PREFIX + id);
    }
-
 
    private void deleteTree(File file) {
       File[] files = file.listFiles();
@@ -228,6 +220,5 @@ public class FileMoveManager {
 
       file.delete();
    }
-
 
 }

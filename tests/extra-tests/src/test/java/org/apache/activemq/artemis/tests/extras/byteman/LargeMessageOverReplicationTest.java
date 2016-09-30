@@ -54,13 +54,11 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
    private static ActiveMQServer backupServer;
    private static ActiveMQServer liveServer;
 
-
    ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616?minLargeMessageSize=10000&HA=true&retryInterval=100&reconnectAttempts=-1&producerWindowSize=10000");
    ActiveMQConnection connection;
    Session session;
    Queue queue;
    MessageProducer producer;
-
 
    @Override
    @Before
@@ -91,7 +89,6 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
 
       waitForServerToStart(backupServer);
 
-
       // Just to make sure the expression worked
       Assert.assertEquals(10000, factory.getMinLargeMessageSize());
       Assert.assertEquals(10000, factory.getProducerWindowSize());
@@ -114,8 +111,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       if (backupServer != null) {
@@ -131,10 +127,10 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       backupServer = liveServer = null;
    }
 
-    /*
-   * simple test to induce a potential race condition where the server's acceptors are active, but the server's
-   * state != STARTED
-   */
+   /*
+  * simple test to induce a potential race condition where the server's acceptors are active, but the server's
+  * state != STARTED
+  */
    @Test
    @BMRules(
       rules = {@BMRule(
@@ -151,8 +147,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
          producer.send(message);
          Assert.fail("expected an exception");
          //      session.commit();
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
 
       session.rollback();
@@ -194,8 +189,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       try {
          consumer.receive(5000);
          Assert.fail("Expected a failure here");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
 
       session.rollback();
@@ -220,8 +214,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
                try {
                   latch.countDown();
                   liveServer.stop();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -230,8 +223,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
             // just to make sure it's about to be stopped
             // avoiding bootstrapping the thread as a delay
             latch.await(1, TimeUnit.MINUTES);
-         }
-         catch (Throwable ignored ) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -248,8 +240,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
                Logger.get(LargeMessageOverReplicationTest.class).warn("Can't failover server");
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }

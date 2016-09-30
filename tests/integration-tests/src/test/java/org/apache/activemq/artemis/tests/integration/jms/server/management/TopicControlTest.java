@@ -16,8 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSContext;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.TopicSubscriber;
+import javax.json.JsonArray;
+import javax.management.Notification;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
@@ -41,22 +57,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSContext;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.TopicSubscriber;
-import javax.json.JsonArray;
-import javax.management.Notification;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class TopicControlTest extends ManagementTestBase {
 
@@ -297,8 +297,7 @@ public class TopicControlTest extends ManagementTestBase {
       try {
          topicControl.countMessagesForSubscription(clientID, unknownSubscription, null);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -311,8 +310,7 @@ public class TopicControlTest extends ManagementTestBase {
       try {
          topicControl.countMessagesForSubscription(unknownClientID, subscriptionName, null);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -344,8 +342,7 @@ public class TopicControlTest extends ManagementTestBase {
       try {
          topicControl.dropDurableSubscription(clientID, "this subscription does not exist");
          Assert.fail("should throw an exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
 
       }
 
@@ -461,8 +458,7 @@ public class TopicControlTest extends ManagementTestBase {
       try {
          topicControl.listMessagesForSubscription(ActiveMQDestination.createQueueNameForDurableSubscription(true, unknownClientID, subscriptionName));
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -475,8 +471,7 @@ public class TopicControlTest extends ManagementTestBase {
       try {
          topicControl.listMessagesForSubscription(ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, unknownSubscription));
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 

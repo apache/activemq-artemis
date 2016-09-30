@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.example.ldap;
 
+import javax.naming.InvalidNameException;
 import java.net.URL;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
-import javax.naming.InvalidNameException;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;

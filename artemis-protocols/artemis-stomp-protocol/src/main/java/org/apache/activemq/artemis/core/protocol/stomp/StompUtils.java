@@ -43,8 +43,7 @@ public class StompUtils {
       String priority = headers.remove(Stomp.Headers.Send.PRIORITY);
       if (priority != null) {
          msg.setPriority(Byte.parseByte(priority));
-      }
-      else {
+      } else {
          msg.setPriority(Byte.parseByte(DEFAULT_MESSAGE_PRIORITY));
       }
       String persistent = headers.remove(Stomp.Headers.Send.PERSISTENT);

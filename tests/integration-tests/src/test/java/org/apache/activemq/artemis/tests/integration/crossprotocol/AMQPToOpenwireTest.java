@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.Session;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,18 +40,6 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.Session;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-
 
 public class AMQPToOpenwireTest extends ActiveMQTestBase {
 
@@ -107,11 +106,9 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          list = (ArrayList) ois.readObject();
          assertEquals(list.get(0), "aString");
          connection.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

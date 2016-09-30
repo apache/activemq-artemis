@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,14 +29,12 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.management.Notification;
 import javax.management.NotificationListener;
-
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Assert;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -56,6 +51,9 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
 
 public class JMSUtil {
 
@@ -158,8 +156,8 @@ public class JMSUtil {
    }
 
    public static BytesMessage sendByteMessage(final Session session,
-                                                    final Destination destination,
-                                                    final byte[] bytes) throws JMSException {
+                                              final Destination destination,
+                                              final byte[] bytes) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
       BytesMessage message = session.createBytesMessage();
       message.writeBytes(bytes);
@@ -190,8 +188,8 @@ public class JMSUtil {
    }
 
    public static Message sendMessageWithReplyTo(final Session session,
-                                                    final Destination destination,
-                                                    final String replyTo) throws JMSException {
+                                                final Destination destination,
+                                                final String replyTo) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
       Message message = session.createMessage();
       message.setJMSReplyTo(ActiveMQJMSClient.createQueue(replyTo));
@@ -214,8 +212,7 @@ public class JMSUtil {
          }
          m = consumer.receiveNoWait();
          Assert.assertNull("received one more message than expected (" + expected + ")", m);
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -228,8 +225,7 @@ public class JMSUtil {
          Thread.sleep(100);
          if (server.isStarted()) {
             break;
-         }
-         else if (System.currentTimeMillis() > timetowait) {
+         } else if (System.currentTimeMillis() > timetowait) {
             throw new IllegalStateException("server didn't start");
          }
       }

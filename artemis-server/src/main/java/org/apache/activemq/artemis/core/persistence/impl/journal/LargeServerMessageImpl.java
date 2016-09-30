@@ -131,8 +131,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
             bufferOut.writeBytes(bufferRead.array(), 0, bytesRead);
          }
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -159,8 +158,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       delayDeletionCount.incrementAndGet();
       try {
          incrementRefCount();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorIncrementDelayDeletionCount(e);
       }
    }
@@ -190,8 +188,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
          try {
             deleteFile();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.error(e.getMessage(), e);
          }
       }
@@ -244,8 +241,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       if (file != null && file.isOpen()) {
          try {
             file.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }
       }
@@ -281,7 +277,6 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
          validateFile();
 
-
          byte[] bufferBytes = new byte[100 * 1024];
 
          ByteBuffer buffer = ByteBuffer.wrap(bufferBytes);
@@ -300,11 +295,9 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
             byte[] bufferToWrite;
             if (bytesRead <= 0) {
                break;
-            }
-            else if (bytesRead == bufferBytes.length) {
+            } else if (bytesRead == bufferBytes.length) {
                bufferToWrite = bufferBytes;
-            }
-            else {
+            } else {
                bufferToWrite = new byte[bytesRead];
                System.arraycopy(bufferBytes, 0, bufferToWrite, 0, bytesRead);
             }
@@ -325,9 +318,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
          return newMessage;
 
-
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.lareMessageErrorCopying(e, this);
          return null;
       }
@@ -349,13 +340,11 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    private static String toDate(long timestamp) {
       if (timestamp == 0) {
          return "0";
-      }
-      else {
+      } else {
          return new java.util.Date(timestamp).toString();
       }
 
    }
-
 
    // Package protected ---------------------------------------------
 
@@ -382,8 +371,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
             bodySize = file.size();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // TODO: There is an IO_ERROR on trunk now, this should be used here instead
          throw new ActiveMQInternalErrorException(e.getMessage(), e);
       }
@@ -399,8 +387,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    protected void openFile() throws Exception {
       if (file == null) {
          validateFile();
-      }
-      else if (!file.isOpen()) {
+      } else if (!file.isOpen()) {
          file.open();
       }
    }
@@ -425,8 +412,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
             }
             cFile = file.cloneFile();
             cFile.open();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new ActiveMQException(ActiveMQExceptionType.INTERNAL_ERROR, e.getMessage(), e);
          }
       }
@@ -437,8 +423,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
             if (cFile != null) {
                cFile.close();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
@@ -447,8 +432,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
          try {
             return cFile.read(bufferRead);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
@@ -477,8 +461,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          if (bodySize < 0) {
             try {
                bodySize = file.size();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }

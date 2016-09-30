@@ -62,18 +62,15 @@ public class FileIOUtil {
                break;
             }
          }
-      }
-      finally {
+      } finally {
          if (!fromIsOpen) {
             from.close();
-         }
-         else {
+         } else {
             from.position(from.size());
          }
          if (!toIsOpen) {
             to.close();
-         }
-         else {
+         } else {
             to.position(to.size());
          }
       }

@@ -101,64 +101,55 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.setProperty(null, true);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, "string");
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, 1.0);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, 1L);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, 1.10f);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, (byte) 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, (short) 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
       try {
          producer.setProperty(null, new SimpleString("foo"));
          ProxyAssertSupport.fail("expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          //pass
       }
    }
@@ -197,55 +188,45 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getByteProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("did not catch expected Exception -- boolean to byte");
       }
 
       try {
          producer.getShortProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getIntProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getLongProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getFloatProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -253,11 +234,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getDoubleProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -283,22 +262,18 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getBooleanProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getFloatProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
@@ -307,11 +282,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getDoubleProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -333,11 +306,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getBooleanProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
@@ -346,11 +317,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getByteProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
@@ -359,11 +328,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getFloatProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -371,11 +338,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getDoubleProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
@@ -392,11 +357,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getBooleanProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -404,11 +367,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getByteProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -416,33 +377,27 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getShortProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getFloatProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getDoubleProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -453,66 +408,54 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getBooleanProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getByteProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getShortProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getIntProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getFloatProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getDoubleProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -527,44 +470,36 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getBooleanProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getByteProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getShortProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getIntProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -572,11 +507,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
          producer.getLongProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -587,55 +520,45 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getBooleanProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getByteProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getShortProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getIntProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       try {
          producer.getLongProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -643,11 +566,9 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          producer.getFloatProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
-      }
-      catch (MessageFormatRuntimeException me) {
+      } catch (MessageFormatRuntimeException me) {
          //pass
-      }
-      catch (Exception ee) {
+      } catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
@@ -719,43 +640,37 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getByteProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getIntProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLongProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -780,22 +695,19 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getBooleanProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -819,29 +731,25 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getByteProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -864,36 +772,31 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getShortProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -915,43 +818,37 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getIntProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -974,36 +871,31 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getIntProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLongProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -1025,43 +917,37 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getIntProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -1120,38 +1006,32 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
       try {
          m4.getByteProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m4.getShortProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m4.getIntProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m4.getLongProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m4.getFloatProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m4.getDoubleProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 

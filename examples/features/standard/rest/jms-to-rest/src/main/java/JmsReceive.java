@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.artemis.rest.Jms;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -26,6 +22,10 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.rest.Jms;
 
 public class JmsReceive {
 
@@ -38,13 +38,13 @@ public class JmsReceive {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer consumer = session.createConsumer(destination);
          consumer.setMessageListener(new MessageListener() {
-               @Override
-               public void onMessage(Message message) {
-                  System.out.println("Received Message: ");
-                  Order order = Jms.getEntity(message, Order.class);
-                  System.out.println(order);
-               }
-            });
+            @Override
+            public void onMessage(Message message) {
+               System.out.println("Received Message: ");
+               Order order = Jms.getEntity(message, Order.class);
+               System.out.println(order);
+            }
+         });
          conn.start();
          Thread.sleep(1000000);
       }

@@ -103,8 +103,7 @@ public class ClusterController implements ActiveMQComponent {
             ActiveMQServerLogger.LOGGER.noClusterConnectionForReplicationCluster();
             replicationLocator = defaultLocator;
          }
-      }
-      else {
+      } else {
          replicationLocator = defaultLocator;
       }
       //latch so we know once we are connected
@@ -331,22 +330,19 @@ public class ClusterController implements ActiveMQComponent {
 
                if (server.getConfiguration().isSecurityEnabled() && !clusterConnection.verify(msg.getClusterUser(), msg.getClusterPassword())) {
                   clusterChannel.send(new ClusterConnectReplyMessage(false));
-               }
-               else {
+               } else {
                   authorized = true;
                   clusterChannel.send(new ClusterConnectReplyMessage(true));
                }
             }
-         }
-         else {
+         } else {
             if (packet.getType() == PacketImpl.NODE_ANNOUNCE) {
                NodeAnnounceMessage msg = (NodeAnnounceMessage) packet;
 
                Pair<TransportConfiguration, TransportConfiguration> pair;
                if (msg.isBackup()) {
                   pair = new Pair<>(null, msg.getConnector());
-               }
-               else {
+               } else {
                   pair = new Pair<>(msg.getConnector(), msg.getBackupConnector());
                }
                if (logger.isTraceEnabled()) {
@@ -358,30 +354,25 @@ public class ClusterController implements ActiveMQComponent {
                   if (clusterConn != null) {
                      String scaleDownGroupName = msg.getScaleDownGroupName();
                      clusterConn.nodeAnnounced(msg.getCurrentEventID(), msg.getNodeID(), msg.getBackupGroupName(), scaleDownGroupName, pair, msg.isBackup());
-                  }
-                  else {
+                  } else {
                      logger.debug("Cluster connection is null on acceptor = " + acceptorUsed);
                   }
-               }
-               else {
+               } else {
                   logger.debug("there is no acceptor used configured at the CoreProtocolManager " + this);
                }
-            }
-            else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
+            } else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
                QuorumVoteMessage quorumVoteMessage = (QuorumVoteMessage) packet;
                QuorumVoteHandler voteHandler = quorumManager.getVoteHandler(quorumVoteMessage.getHandler());
                quorumVoteMessage.decode(voteHandler);
                Vote vote = quorumManager.vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
                clusterChannel.send(new QuorumVoteReplyMessage(quorumVoteMessage.getHandler(), vote));
-            }
-            else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT) {
+            } else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT) {
                ScaleDownAnnounceMessage message = (ScaleDownAnnounceMessage) packet;
                //we don't really need to check as it should always be true
                if (server.getNodeID().equals(message.getTargetNodeId())) {
                   server.addScaledDownNode(message.getScaledDownNodeId());
                }
-            }
-            else if (channelHandler != null) {
+            } else if (channelHandler != null) {
                channelHandler.handlePacket(packet);
             }
          }
@@ -407,8 +398,7 @@ public class ClusterController implements ActiveMQComponent {
             if (serverLocator == replicationLocator) {
                replicationClusterConnectedLatch.countDown();
             }
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             if (!started) {
                return;
             }

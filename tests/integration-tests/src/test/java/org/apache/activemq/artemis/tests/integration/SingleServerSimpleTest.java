@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.tests.integration;
 
+import java.util.UUID;
+
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.junit.Test;
-
-import java.util.UUID;
 
 /**
  * A simple test-case used for documentation purposes.

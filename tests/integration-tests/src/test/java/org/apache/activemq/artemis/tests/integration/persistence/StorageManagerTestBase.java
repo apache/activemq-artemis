@@ -63,7 +63,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
-      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
       return Arrays.asList(params);
    }
 
@@ -89,8 +89,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       if (journal != null) {
          try {
             journal.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             exception = e;
          }
 
@@ -100,8 +99,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       if (jmsJournal != null) {
          try {
             jmsJournal.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             if (exception != null)
                exception = e;
          }
@@ -111,7 +109,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
       scheduledExecutorService.shutdown();
 
-      destroyTables(Arrays.asList(new String[] {"MESSAGE", "BINDINGS", "LARGE_MESSAGE"}));
+      destroyTables(Arrays.asList(new String[]{"MESSAGE", "BINDINGS", "LARGE_MESSAGE"}));
       super.tearDown();
       if (exception != null)
          throw exception;
@@ -124,8 +122,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          journal = createJDBCJournalStorageManager(createDefaultJDBCConfig(true));
-      }
-      else {
+      } else {
          journal = createJournalStorageManager(createDefaultInVMConfig());
       }
 

@@ -164,8 +164,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
          sessionProducer.close();
          sessionConsumer.close();
-      }
-      finally {
+      } finally {
          releaseConsumers();
       }
    }
@@ -301,8 +300,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
          public void run() {
             try {
                server.destroyQueue(QUEUE);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -314,8 +312,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       try {
          server.createQueue(QUEUE, QUEUE, null, true, false);
-      }
-      catch (Exception expected) {
+      } catch (Exception expected) {
       }
 
       blocked.release();
@@ -411,8 +408,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
          msg.acknowledge();
 
          session.commit();
-      }
-      finally {
+      } finally {
          hangInt.open();
       }
 
@@ -457,12 +453,10 @@ public class HangConsumerTest extends ActiveMQTestBase {
             if (i < 4)
                server.start();
          }
-      }
-      finally {
+      } finally {
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -524,16 +518,14 @@ public class HangConsumerTest extends ActiveMQTestBase {
          inCall.countDown();
          try {
             callbackSemaphore.acquire();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             inCall.countUp();
             return -1;
          }
 
          try {
             return targetCallback.sendMessage(ref, message, consumer, deliveryCount);
-         }
-         finally {
+         } finally {
             callbackSemaphore.release();
             inCall.countUp();
          }
@@ -627,8 +619,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                semaphore.acquire();
                semaphore.release();
                reusableLatch.countUp();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

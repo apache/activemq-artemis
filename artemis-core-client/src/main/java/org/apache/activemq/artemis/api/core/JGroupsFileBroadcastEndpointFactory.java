@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 
 public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFactory {

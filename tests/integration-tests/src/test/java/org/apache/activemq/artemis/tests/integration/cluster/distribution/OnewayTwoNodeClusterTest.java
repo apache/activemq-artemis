@@ -18,13 +18,10 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 

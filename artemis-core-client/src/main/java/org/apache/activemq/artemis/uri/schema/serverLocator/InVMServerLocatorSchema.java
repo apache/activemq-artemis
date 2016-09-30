@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.uri.schema.serverLocator;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.uri.schema.connector.InVMTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
 
 public class InVMServerLocatorSchema extends AbstractServerLocatorSchema {
 

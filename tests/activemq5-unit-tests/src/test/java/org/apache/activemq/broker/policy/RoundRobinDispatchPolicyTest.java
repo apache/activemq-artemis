@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.broker.policy;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.QueueSubscriptionTest;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -24,11 +29,6 @@ import org.apache.activemq.broker.region.policy.RoundRobinDispatchPolicy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
-
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {

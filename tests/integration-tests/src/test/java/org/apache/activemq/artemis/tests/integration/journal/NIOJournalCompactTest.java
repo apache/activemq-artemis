@@ -31,18 +31,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
 import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFileImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
@@ -495,8 +495,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                                                     final Pair<String, String> pair) throws Exception {
             if (createControlFile) {
                return super.createControlFile(files, newFiles, pair);
-            }
-            else {
+            } else {
                throw new IllegalStateException("Simulating a crash during compact creation");
             }
          }
@@ -522,8 +521,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
             System.out.println("Waiting on Compact");
             try {
                ActiveMQTestBase.waitForLatch(latchWait);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
             System.out.println("Done");
@@ -575,8 +573,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          for (int i = 0; i < NIOJournalCompactTest.NUMBER_OF_RECORDS; i++) {
             if (!(i % 10 == 0)) {
                delete(i);
-            }
-            else {
+            } else {
                liveIDs.add((long) i);
             }
          }
@@ -589,8 +586,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          public void run() {
             try {
                journal.testCompact();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -626,8 +622,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          for (Long liveID : liveIDs) {
             if (count++ % 2 == 0) {
                update(liveID);
-            }
-            else {
+            } else {
                // A Total new transaction (that was created after the compact started) to update a record that is being
                // compacted
                updateTx(transactionID, liveID);
@@ -642,8 +637,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
             if (count++ % 2 == 0) {
                System.out.println("Deleting no trans " + liveID);
                delete(liveID);
-            }
-            else {
+            } else {
                System.out.println("Deleting TX " + liveID);
                // A Total new transaction (that was created after the compact started) to delete a record that is being
                // compacted
@@ -672,8 +666,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                if (deleteTransactRecords) {
                   delete(tx.getB());
                }
-            }
-            else {
+            } else {
                rollback(tx.getA());
             }
          }
@@ -706,8 +699,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                if (deleteTransactRecords) {
                   delete(tx.getB());
                }
-            }
-            else {
+            } else {
                rollback(tx.getA());
             }
          }
@@ -1686,8 +1678,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                                  for (long messageID : values) {
                                     storage.deleteMessage(messageID);
                                  }
-                              }
-                              catch (Exception e) {
+                              } catch (Exception e) {
                                  e.printStackTrace();
                                  errors.incrementAndGet();
                               }
@@ -1698,8 +1689,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                   });
 
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -1716,8 +1706,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                   ((JournalImpl) storage.getMessageJournal()).testCompact();
                   ((JournalImpl) storage.getMessageJournal()).checkReclaimStatus();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }

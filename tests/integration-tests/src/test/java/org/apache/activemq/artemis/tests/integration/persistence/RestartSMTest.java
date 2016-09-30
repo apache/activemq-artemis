@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -27,11 +32,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 public class RestartSMTest extends ActiveMQTestBase {
 
@@ -90,13 +90,11 @@ public class RestartSMTest extends ActiveMQTestBase {
          journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
 
          journal.start();
-      }
-      finally {
+      } finally {
 
          try {
             journal.stop();
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             RestartSMTest.log.warn(ex.getMessage(), ex);
          }
       }

@@ -120,18 +120,18 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          int fd = LibaioContext.open(aioTestFile.getAbsolutePath(), true);
          LibaioContext.close(fd);
          aioTestFile.delete();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // try to handle the file using plain Java
          // return false if and only if we can create/remove the file using
          // plain Java but not using AIO
          try {
             if (!aioTestFile.exists()) {
-               if (!aioTestFile.createNewFile()) return true;
+               if (!aioTestFile.createNewFile())
+                  return true;
             }
-            if (!aioTestFile.delete()) return true;
-         }
-         catch (Exception ie) {
+            if (!aioTestFile.delete())
+               return true;
+         } catch (Exception ie) {
             // we can not even create the test file using plain java
             return true;
          }
@@ -236,8 +236,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                if (pollerThread.isAlive()) {
                   ActiveMQJournalLogger.LOGGER.timeoutOnPollerShutdown(new Exception("trace"));
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
@@ -285,8 +284,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       public void run() {
          try {
             libaioFile.write(position, bytes, buffer, this);
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             callback.onError(-1, e.getMessage());
          }
       }
@@ -295,11 +293,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       public int compareTo(AIOSequentialCallback other) {
          if (this == other || this.writeSequence == other.writeSequence) {
             return 0;
-         }
-         else if (other.writeSequence < this.writeSequence) {
+         } else if (other.writeSequence < this.writeSequence) {
             return 1;
-         }
-         else {
+         } else {
             return -1;
          }
       }
@@ -342,8 +338,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          if (error) {
             callback.onError(errorCode, errorMessage);
             errorMessage = null;
-         }
-         else {
+         } else {
             if (callback != null) {
                callback.done();
             }
@@ -368,8 +363,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          while (running.get()) {
             try {
                libaioContext.poll();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
@@ -394,7 +388,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          if (bufferSize > 0 && System.currentTimeMillis() - bufferReuseLastTime > 10000) {
             if (logger.isTraceEnabled()) {
                logger.trace("Clearing reuse buffers queue with " + reuseBuffersQueue.size() +
-                                                 " elements");
+                               " elements");
             }
 
             bufferReuseLastTime = System.currentTimeMillis();
@@ -406,8 +400,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          // buffer.
          if (size > bufferSize) {
             return LibaioContext.newAlignedBuffer(size, 512);
-         }
-         else {
+         } else {
             // We need to allocate buffers following the rules of the storage
             // being used (AIO/NIO)
             int alignedSize = calculateBlockSize(size);
@@ -420,8 +413,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                buffer = LibaioContext.newAlignedBuffer(size, 512);
 
                buffer.limit(alignedSize);
-            }
-            else {
+            } else {
                clearBuffer(buffer);
 
                // set the limit of the buffer to the bufferSize being required
@@ -452,16 +444,14 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
             if (stopped) {
                releaseBuffer(buffer);
-            }
-            else {
+            } else {
                bufferReuseLastTime = System.currentTimeMillis();
 
                // If a buffer has any other than the configured bufferSize, the buffer
                // will be just sent to GC
                if (buffer.capacity() == bufferSize) {
                   reuseBuffersQueue.offer(buffer);
-               }
-               else {
+               } else {
                   releaseBuffer(buffer);
                }
             }

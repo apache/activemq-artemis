@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.Arrays;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -32,8 +34,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class SessionFactoryTest extends ActiveMQTestBase {
 
@@ -169,148 +169,127 @@ public class SessionFactoryTest extends ActiveMQTestBase {
       try {
          cf.getServerLocator().setClientFailureCheckPeriod(clientFailureCheckPeriod);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConnectionTTL(connectionTTL);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setCallTimeout(callTimeout);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setMinLargeMessageSize(minLargeMessageSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConsumerWindowSize(consumerWindowSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConsumerMaxRate(consumerMaxRate);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConfirmationWindowSize(confirmationWindowSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setProducerMaxRate(producerMaxRate);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnAcknowledge(blockOnAcknowledge);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnDurableSend(blockOnDurableSend);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setBlockOnNonDurableSend(blockOnNonDurableSend);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setAutoGroup(autoGroup);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setPreAcknowledge(preAcknowledge);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setAckBatchSize(ackBatchSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setUseGlobalPools(useGlobalPools);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setThreadPoolMaxSize(threadPoolMaxSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setRetryInterval(retryInterval);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setRetryIntervalMultiplier(retryIntervalMultiplier);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.getServerLocator().setReconnectAttempts(reconnectAttempts);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
 
@@ -365,8 +344,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
                                     final int reconnectAttempts) {
       if (staticConnectors == null) {
          Assert.assertTrue("no static connectors", Arrays.equals(new String[]{}, locator.getStaticTransportConfigurations()));
-      }
-      else {
+      } else {
          assertEqualsTransportConfigurations(staticConnectors, locator.getStaticTransportConfigurations());
       }
       Assert.assertEquals(locator.getDiscoveryGroupConfiguration(), discoveryGroupConfiguration);

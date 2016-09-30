@@ -143,8 +143,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          // if delay == 0 we will avoid races between adding the scheduler and finishing it
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
          scheduledExecutor.schedule(runnable, 0, TimeUnit.MILLISECONDS);
-      }
-      else if (!runnables.containsKey(deliveryTime)) {
+      } else if (!runnables.containsKey(deliveryTime)) {
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
 
          if (logger.isTraceEnabled()) {
@@ -153,8 +152,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
          runnables.put(deliveryTime, runnable);
          scheduledExecutor.schedule(runnable, delay, TimeUnit.MILLISECONDS);
-      }
-      else {
+      } else {
          if (logger.isTraceEnabled()) {
             logger.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
          }
@@ -186,8 +184,8 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             // this is basically a hack to work around an OS or JDK bug!
             if (logger.isTraceEnabled()) {
                logger.trace("Scheduler is working around OS imprecisions on " +
-                                                    "timing and re-scheduling an executor. now=" + now +
-                                                    " and deliveryTime=" + deliveryTime);
+                               "timing and re-scheduling an executor. now=" + now +
+                               " and deliveryTime=" + deliveryTime);
             }
             ScheduledDeliveryHandlerImpl.this.scheduleDelivery(deliveryTime);
          }
@@ -281,19 +279,16 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          // Even if ref1 and ref2 have the same delivery time, we only want to return 0 if they are identical
          if (ref1 == ref2) {
             return 0;
-         }
-         else {
+         } else {
 
             if (ref1.isTail() && !ref2.isTail()) {
                return 1;
-            }
-            else if (!ref1.isTail() && ref2.isTail()) {
+            } else if (!ref1.isTail() && ref2.isTail()) {
                return -1;
             }
             if (!ref1.isTail() && !ref2.isTail()) {
                return -1;
-            }
-            else {
+            } else {
                return 1;
             }
          }

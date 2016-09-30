@@ -33,7 +33,9 @@ public class BrokerFactory {
       return createBrokerConfiguration(configURI, null, null);
    }
 
-   public static BrokerDTO createBrokerConfiguration(URI configURI, String artemisHome, String artemisInstance) throws Exception {
+   public static BrokerDTO createBrokerConfiguration(URI configURI,
+                                                     String artemisHome,
+                                                     String artemisInstance) throws Exception {
       if (configURI.getScheme() == null) {
          throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
       }
@@ -42,20 +44,20 @@ public class BrokerFactory {
       try {
          FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
          factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
-      }
-      catch (IOException ioe) {
+      } catch (IOException ioe) {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
 
       return factory.createBroker(configURI, artemisHome, artemisInstance);
    }
 
-
    public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception {
       return createBrokerConfiguration(new URI(configuration), null, null);
    }
 
-   public static BrokerDTO createBrokerConfiguration(String configuration, String artemisHome, String artemisInstance) throws Exception {
+   public static BrokerDTO createBrokerConfiguration(String configuration,
+                                                     String artemisHome,
+                                                     String artemisInstance) throws Exception {
       return createBrokerConfiguration(new URI(configuration), artemisHome, artemisInstance);
    }
 
@@ -75,8 +77,7 @@ public class BrokerFactory {
          try {
             FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/server/");
             handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
-         }
-         catch (IOException ioe) {
+         } catch (IOException ioe) {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }
 

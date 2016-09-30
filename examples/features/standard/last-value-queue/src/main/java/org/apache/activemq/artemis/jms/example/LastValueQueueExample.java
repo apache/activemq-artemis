@@ -93,8 +93,7 @@ public class LastValueQueueExample {
          System.out.format("Received message: %s%n", messageReceived);
 
          cf.close();
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();

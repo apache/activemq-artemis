@@ -58,8 +58,7 @@ public class SecurityExample {
          try {
             failConnection = cf.createConnection();
             result = false;
-         }
-         catch (JMSSecurityException e) {
+         } catch (JMSSecurityException e) {
             System.out.println("Default user cannot get a connection. Details: " + e.getMessage());
          }
 
@@ -67,8 +66,7 @@ public class SecurityExample {
          try {
             billConnection = createConnection("bill", "activemq1", cf);
             result = false;
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.out.println("User bill failed to connect. Details: " + e.getMessage());
          }
 
@@ -125,8 +123,7 @@ public class SecurityExample {
          // Step 18. Check permissions on news.us.usTopic for sam: can't send but can receive
          checkUserReceiveNoSend(usTopic, samConnection, "sam", frankConnection);
          System.out.println("-------------------------------------------------------------------------------------");
-      }
-      finally {
+      } finally {
          // Step 19. Be sure to close our JMS resources!
          if (failConnection != null) {
             failConnection.close();
@@ -170,8 +167,7 @@ public class SecurityExample {
                                             msg.getText() +
                                             "] to topic " +
                                             topic);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic);
       }
 
@@ -184,8 +180,7 @@ public class SecurityExample {
 
       if (receivedMsg != null) {
          System.out.println("User " + user + " can receive message [" + receivedMsg.getText() + "] from topic " + topic);
-      }
-      else {
+      } else {
          throw new IllegalStateException("Security setting is broken! User " + user + " cannot receive message from topic " + topic);
       }
 
@@ -202,8 +197,7 @@ public class SecurityExample {
       MessageProducer producer = session.createProducer(topic);
       try {
          session.createConsumer(topic);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          System.out.println("User " + user + " cannot receive any message from topic " + topic);
       }
 
@@ -216,8 +210,7 @@ public class SecurityExample {
       TextMessage receivedMsg = (TextMessage) goodConsumer.receive(2000);
       if (receivedMsg != null) {
          System.out.println("User " + user + " can send message [" + receivedMsg.getText() + "] to topic " + topic);
-      }
-      else {
+      } else {
          throw new IllegalStateException("Security setting is broken! User " + user +
                                             " cannot send message [" +
                                             msg.getText() +
@@ -238,8 +231,7 @@ public class SecurityExample {
 
       try {
          session.createConsumer(topic);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          System.out.println("User " + user + " cannot create consumer on topic " + topic);
       }
 
@@ -251,8 +243,7 @@ public class SecurityExample {
                                             msg.getText() +
                                             "] to topic " +
                                             topic);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic);
       }
 
@@ -272,8 +263,7 @@ public class SecurityExample {
       if (receivedMsg != null) {
          System.out.println("User " + user + " can send message: [" + msg.getText() + "] to topic: " + topic);
          System.out.println("User " + user + " can receive message: [" + msg.getText() + "] from topic: " + topic);
-      }
-      else {
+      } else {
          throw new IllegalStateException("Error! User " + user + " cannot receive the message! ");
       }
       session.close();

@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.integration.aerogear;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AeroGearConstants {
 

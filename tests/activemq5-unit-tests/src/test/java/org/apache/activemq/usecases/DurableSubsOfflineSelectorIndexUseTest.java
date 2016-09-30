@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
@@ -143,8 +143,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
                }
                sendSession.close();
                sendCon.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.add(e);
             }
          }
@@ -225,8 +224,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
          if (id != null) {
             try {
                LOG.info(id + ", " + message.getJMSMessageID());
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
          }
       }

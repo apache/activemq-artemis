@@ -101,8 +101,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception");
       }
@@ -137,8 +136,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientSession session = cf.createSession();
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception");
       }
@@ -154,8 +152,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          cf.createSession("first", "badpassword", false, true, true, false, 0);
          Assert.fail("should throw exception here");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
    }
@@ -197,8 +194,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          cf.createSession();
          fail("Creating session here should fail due to authentication error.");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          assertTrue(e.getType() == ActiveMQExceptionType.SECURITY_EXCEPTION);
       }
    }
@@ -213,8 +209,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception");
       }
@@ -242,8 +237,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -251,8 +245,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -260,8 +253,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -269,8 +261,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -279,8 +270,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -288,8 +278,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -298,8 +287,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -307,8 +295,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
    }
@@ -338,8 +325,7 @@ public class SecurityTest extends ActiveMQTestBase {
       // client A CONSUME from queue A
       try {
          ClientConsumer consumer = aSession.createConsumer(QUEUE_A);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
@@ -348,16 +334,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer consumer = bSession.createConsumer(QUEUE_A);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          assertTrue(e instanceof ActiveMQSecurityException);
       }
 
       // client B CONSUME from queue B
       try {
          ClientConsumer consumer = bSession.createConsumer(QUEUE_B);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
@@ -366,8 +350,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer consumer = aSession.createConsumer(QUEUE_B);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          assertTrue(e instanceof ActiveMQSecurityException);
       }
    }
@@ -415,8 +398,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -424,8 +406,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -433,8 +414,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -442,8 +422,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -452,8 +431,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -461,8 +439,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -471,8 +448,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -480,8 +456,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
    }
@@ -505,32 +480,28 @@ public class SecurityTest extends ActiveMQTestBase {
       // CREATE_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_DURABLE_QUEUE
       try {
          session.deleteQueue(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CREATE_NON_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_NON_DURABLE_QUEUE
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -540,16 +511,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CONSUME
       try {
          session.createConsumer(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -557,16 +526,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // BROWSE
       try {
          session.createConsumer(DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
    }
@@ -608,32 +575,28 @@ public class SecurityTest extends ActiveMQTestBase {
       // CREATE_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_DURABLE_QUEUE
       try {
          session.deleteQueue(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CREATE_NON_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_NON_DURABLE_QUEUE
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -643,16 +606,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CONSUME
       try {
          session.createConsumer(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -660,16 +621,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // BROWSE
       try {
          session.createConsumer(DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
    }
@@ -693,8 +652,7 @@ public class SecurityTest extends ActiveMQTestBase {
       // CREATE_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
@@ -702,24 +660,21 @@ public class SecurityTest extends ActiveMQTestBase {
       // DELETE_DURABLE_QUEUE
       try {
          session.deleteQueue(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CREATE_NON_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_NON_DURABLE_QUEUE
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -729,16 +684,14 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CONSUME
       try {
          session.createConsumer(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -746,8 +699,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
    }
@@ -765,8 +717,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientSession session = cf.createSession(false, true, true);
 
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception");
       }
    }
@@ -789,11 +740,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          cf.createSession(false, true, true);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -809,11 +758,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          cf.createSession("newuser", "awrongpass", false, true, true, false, -1);
          Assert.fail("should not throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -830,8 +777,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientSession session = cf.createSession("newuser", "apass", false, true, true, false, -1);
 
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception");
       }
    }
@@ -872,11 +818,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -919,11 +863,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -966,11 +908,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -1013,11 +953,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -1078,8 +1016,7 @@ public class SecurityTest extends ActiveMQTestBase {
       boolean failed = false;
       try {
          cp.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          failed = true;
       }
       // This was added to validate https://issues.jboss.org/browse/SOA-3363 ^^^^^
@@ -1107,11 +1044,9 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientProducer cp = session.createProducer(SecurityTest.addressA);
       try {
          cp.send(session.createMessage(false));
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -1194,11 +1129,9 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       try {
          session.createConsumer(SecurityTest.queueA);
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -1233,11 +1166,9 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       try {
          session.createConsumer(SecurityTest.queueA);
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1284,11 +1215,9 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       try {
          session.createConsumer(SecurityTest.queueA);
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1303,11 +1232,9 @@ public class SecurityTest extends ActiveMQTestBase {
 
       try {
          session.createConsumer(SecurityTest.queueA);
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1348,11 +1275,9 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       try {
          session.createConsumer(SecurityTest.queueA);
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1372,8 +1297,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          sendingSession.commit();
          Assert.fail("Expected exception");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // I would expect the commit to fail, since there were failures registered
       }
 
@@ -1392,8 +1316,7 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          sendingSession.prepare(xid);
          Assert.fail("Exception was expected");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
 
@@ -1449,11 +1372,9 @@ public class SecurityTest extends ActiveMQTestBase {
       cp.send(session.createMessage(false));
       try {
          cp.send(session.createMessage(false));
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -1540,11 +1461,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1552,11 +1471,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1671,11 +1588,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1683,11 +1598,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1744,33 +1657,27 @@ public class SecurityTest extends ActiveMQTestBase {
       final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager() {
          @Override
          public boolean validateUser(final String username, final String password) {
-            return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
-               password.equals("frobnicate");
+            return (username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate");
          }
-         @Override
-         public boolean validateUserAndRole(
-            final String username,
-            final String password,
-            final Set<Role> requiredRoles,
-            final CheckType checkType) {
 
-            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) &&
-               password.equals("frobnicate")) {
+         @Override
+         public boolean validateUserAndRole(final String username,
+                                            final String password,
+                                            final Set<Role> requiredRoles,
+                                            final CheckType checkType) {
+
+            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate")) {
 
                if (username.equals("all")) {
                   return true;
-               }
-               else if (username.equals("foo")) {
+               } else if (username.equals("foo")) {
                   return checkType == CheckType.CONSUME || checkType == CheckType.CREATE_NON_DURABLE_QUEUE;
-               }
-               else if (username.equals("bar")) {
+               } else if (username.equals("bar")) {
                   return checkType == CheckType.SEND || checkType == CheckType.CREATE_NON_DURABLE_QUEUE;
-               }
-               else {
+               } else {
                   return false;
                }
-            }
-            else {
+            } else {
                return false;
             }
          }
@@ -1790,11 +1697,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("baz", "frobnicate", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1802,11 +1707,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("foo", "xxx", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1833,52 +1736,48 @@ public class SecurityTest extends ActiveMQTestBase {
             fail("Unexpected call to overridden method");
             return false;
          }
+
          @Override
-         public boolean validateUser(final String username, final String password, final X509Certificate[] certificates) {
-            return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
-               password.equals("frobnicate");
+         public boolean validateUser(final String username,
+                                     final String password,
+                                     final X509Certificate[] certificates) {
+            return (username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate");
          }
+
          @Override
-         public boolean validateUserAndRole(
-            final String username,
-            final String password,
-            final Set<Role> requiredRoles,
-            final CheckType checkType) {
+         public boolean validateUserAndRole(final String username,
+                                            final String password,
+                                            final Set<Role> requiredRoles,
+                                            final CheckType checkType) {
 
             fail("Unexpected call to overridden method");
             return false;
          }
 
          @Override
-         public boolean validateUserAndRole(
-            final String username,
-            final String password,
-            final Set<Role> requiredRoles,
-            final CheckType checkType,
-            final String address,
-            final RemotingConnection connection) {
+         public boolean validateUserAndRole(final String username,
+                                            final String password,
+                                            final Set<Role> requiredRoles,
+                                            final CheckType checkType,
+                                            final String address,
+                                            final RemotingConnection connection) {
 
             if (!(connection.getTransportConnection() instanceof InVMConnection)) {
                return false;
             }
 
-            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) &&
-               password.equals("frobnicate")) {
+            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate")) {
 
                if (username.equals("all")) {
                   return true;
-               }
-               else if (username.equals("foo")) {
+               } else if (username.equals("foo")) {
                   return address.equals("test.queue") && checkType == CheckType.CONSUME;
-               }
-               else if (username.equals("bar")) {
+               } else if (username.equals("bar")) {
                   return address.equals("test.queue") && checkType == CheckType.SEND;
-               }
-               else {
+               } else {
                   return false;
                }
-            }
-            else {
+            } else {
                return false;
             }
          }
@@ -1901,11 +1800,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("baz", "frobnicate", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1913,11 +1810,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("foo", "xxx", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1926,11 +1821,9 @@ public class SecurityTest extends ActiveMQTestBase {
          final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
          checkUserReceiveNoSend(otherQueueName, session, adminSession);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1939,11 +1832,9 @@ public class SecurityTest extends ActiveMQTestBase {
          final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
          checkUserReceiveNoSend(otherQueueName, session, adminSession);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1969,62 +1860,58 @@ public class SecurityTest extends ActiveMQTestBase {
             fail("Unexpected call to overridden method");
             return false;
          }
+
          @Override
-         public String validateUser(final String username, final String password, final X509Certificate[] certificates) {
+         public String validateUser(final String username,
+                                    final String password,
+                                    final X509Certificate[] certificates) {
             if ((username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate")) {
                return username;
-            }
-            else {
+            } else {
                return null;
             }
          }
+
          @Override
-         public boolean validateUserAndRole(
-            final String username,
-            final String password,
-            final Set<Role> requiredRoles,
-            final CheckType checkType) {
+         public boolean validateUserAndRole(final String username,
+                                            final String password,
+                                            final Set<Role> requiredRoles,
+                                            final CheckType checkType) {
 
             fail("Unexpected call to overridden method");
             return false;
          }
 
          @Override
-         public String validateUserAndRole(
-            final String username,
-            final String password,
-            final Set<Role> requiredRoles,
-            final CheckType checkType,
-            final String address,
-            final RemotingConnection connection) {
+         public String validateUserAndRole(final String username,
+                                           final String password,
+                                           final Set<Role> requiredRoles,
+                                           final CheckType checkType,
+                                           final String address,
+                                           final RemotingConnection connection) {
 
             if (!(connection.getTransportConnection() instanceof InVMConnection)) {
                return null;
             }
 
-            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) &&
-               password.equals("frobnicate")) {
+            if ((username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate")) {
 
                if (username.equals("all")) {
                   return username;
-               }
-               else if (username.equals("foo")) {
+               } else if (username.equals("foo")) {
                   if (address.equals("test.queue") && checkType == CheckType.CONSUME)
                      return username;
                   else
                      return null;
-               }
-               else if (username.equals("bar")) {
+               } else if (username.equals("bar")) {
                   if (address.equals("test.queue") && checkType == CheckType.SEND)
                      return username;
                   else
                      return null;
-               }
-               else {
+               } else {
                   return null;
                }
-            }
-            else {
+            } else {
                return null;
             }
          }
@@ -2047,11 +1934,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("baz", "frobnicate", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -2059,11 +1944,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          factory.createSession("foo", "xxx", false, true, true, false, -1);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -2072,11 +1955,9 @@ public class SecurityTest extends ActiveMQTestBase {
          final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
          checkUserReceiveNoSend(otherQueueName, session, adminSession);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -2085,11 +1966,9 @@ public class SecurityTest extends ActiveMQTestBase {
          final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
          checkUserReceiveNoSend(otherQueueName, session, adminSession);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -2118,8 +1997,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientMessage rec = con.receive(1000);
          Assert.assertNotNull(rec);
          rec.acknowledge();
-      }
-      finally {
+      } finally {
          connection.stop();
       }
    }
@@ -2135,8 +2013,7 @@ public class SecurityTest extends ActiveMQTestBase {
          try {
             prod.send(m);
             Assert.fail("should throw exception");
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             // pass
          }
 
@@ -2146,8 +2023,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientMessage rec = con.receive(1000);
          Assert.assertNotNull(rec);
          rec.acknowledge();
-      }
-      finally {
+      } finally {
          connection.stop();
       }
    }
@@ -2162,8 +2038,7 @@ public class SecurityTest extends ActiveMQTestBase {
          try {
             prod.send(m);
             Assert.fail("should throw exception");
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             // pass
          }
 
@@ -2173,12 +2048,10 @@ public class SecurityTest extends ActiveMQTestBase {
          try {
             connection.createConsumer(queue);
             Assert.fail("should throw exception");
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             // pass
          }
-      }
-      finally {
+      } finally {
          connection.stop();
       }
    }
@@ -2192,11 +2065,9 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          connection.createConsumer(queue);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQSecurityException se) {
+      } catch (ActiveMQSecurityException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.broker.policy;
 
-import java.util.Iterator;
-
 import javax.jms.MessageConsumer;
+import java.util.Iterator;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TopicSubscriptionTest;
@@ -30,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class StrictOrderDispatchPolicyTest extends TopicSubscriptionTest {

@@ -59,6 +59,7 @@ public interface SQLProvider {
    boolean closeConnectionOnShutdown();
 
    interface Factory {
+
       SQLProvider create(String tableName);
    }
 }

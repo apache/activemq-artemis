@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -102,8 +102,7 @@ public class AuthorizationMapTest extends TestCase {
          entry.setRead("*");
          entry.setWrite("*");
          entry.setAdmin("admins");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
 
@@ -114,8 +113,7 @@ public class AuthorizationMapTest extends TestCase {
       TempDestinationAuthorizationEntry tEntry = new TempDestinationAuthorizationEntry();
       try {
          tEntry.setAdmin("*");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
 
@@ -136,8 +134,7 @@ public class AuthorizationMapTest extends TestCase {
       entry.setQueue(">");
       try {
          entry.setRead("admins");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
 
@@ -147,8 +144,7 @@ public class AuthorizationMapTest extends TestCase {
       entry.setQueue("USERS.>");
       try {
          entry.setRead("users");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
       entries.add(entry);
@@ -168,8 +164,7 @@ public class AuthorizationMapTest extends TestCase {
       entry.setQueue(">");
       try {
          entry.setRead("admins");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
       entries.add(entry);
@@ -178,8 +173,7 @@ public class AuthorizationMapTest extends TestCase {
       entry.setQueue("USERS.>");
       try {
          entry.setRead("users");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
       entries.add(entry);
@@ -190,8 +184,7 @@ public class AuthorizationMapTest extends TestCase {
       TempDestinationAuthorizationEntry tEntry = new TempDestinationAuthorizationEntry();
       try {
          tEntry.setAdmin("tempDestAdmins");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e.toString());
       }
 

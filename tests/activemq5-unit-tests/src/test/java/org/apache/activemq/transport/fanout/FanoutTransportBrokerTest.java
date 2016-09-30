@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.fanout;
 
+import javax.jms.DeliveryMode;
+import javax.jms.MessageNotWriteableException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -23,9 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.DeliveryMode;
-import javax.jms.MessageNotWriteableException;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
@@ -59,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
+
    public static final boolean FAST_NO_MESSAGE_LEFT_ASSERT = System.getProperty("FAST_NO_MESSAGE_LEFT_ASSERT", "true").equals("true");
 
    protected ArrayList<StubConnection> connections = new ArrayList<>();
@@ -74,15 +74,9 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
    private ActiveMQDestination destination;
    private int deliveryMode;
 
-   @Parameterized.Parameters(name="test-{index}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][]{
-              {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQQueue("TEST")},
-              {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQTopic("TEST")},
-              {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQQueue("TEST")},
-              {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQTopic("TEST")}
-      });
+   @Parameterized.Parameters(name = "test-{index}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQQueue("TEST")}, {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQTopic("TEST")}, {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQQueue("TEST")}, {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQTopic("TEST")}});
    }
 
    public FanoutTransportBrokerTest(int deliveryMode, ActiveMQDestination destination) {
@@ -100,24 +94,22 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
       remoteServer.start();
 
    }
+
    @After
    public void tearDown() throws Exception {
       for (StubConnection conn : connections) {
          try {
             conn.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       try {
          remoteServer.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       try {
          server.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -233,8 +225,7 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
             // Send the message using the fail over publisher.
             try {
                connection3.request(createMessage(producerInfo3, destination, deliveryMode));
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
             publishDone.countDown();
@@ -270,7 +261,6 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
       connections.add(connection);
       return connection;
    }
-
 
    protected StubConnection createConnection() throws Exception {
       Transport transport = TransportFactory.connect(new URI(newURI(0)));
@@ -326,8 +316,7 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
       message.setPersistent(false);
       try {
          message.setText("Test Message Payload.");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       return message;
    }
@@ -368,6 +357,7 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
          }
       }
    }
+
    protected void restartRemoteBroker() throws Exception {
       remoteServer.stop();
       Thread.sleep(2000);

@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.test;
 
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.apache.activemq.artemis.rest.topic.TopicDeployment;
 import org.apache.activemq.artemis.rest.util.Constants;
-import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

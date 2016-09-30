@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import javax.jms.TransactionRolledBackException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jms.TransactionRolledBackException;
-
 import org.apache.activemq.TransactionContext;
-import org.apache.activemq.transaction.Synchronization;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.transaction.Synchronization;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,8 +85,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
       try {
          underTest.commit();
          fail("exepcted rollback exception");
-      }
-      catch (TransactionRolledBackException expected) {
+      } catch (TransactionRolledBackException expected) {
       }
 
       assertEquals("beforeEnd A called once", 1, beforeEndCountA.get());

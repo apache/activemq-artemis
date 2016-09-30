@@ -140,8 +140,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          fileMessage.releaseResources();
 
          message = fileMessage;
-      }
-      else {
+      } else {
          message = session.createMessage(false);
       }
 
@@ -167,8 +166,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount = getMessageCount(snfQueue);
          if (messageCount < TEST_SIZE) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -188,8 +186,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount = getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
          if (messageCount > 0) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -206,8 +203,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount = getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
          if (messageCount < TEST_SIZE) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -292,8 +288,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount = getMessageCount(snfQueue);
          if (messageCount < TEST_SIZE * 2) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -315,8 +310,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount += getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
          if (messageCount > 0) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -337,8 +331,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
          messageCount += getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
          if (messageCount < TEST_SIZE * 2) {
             Thread.sleep(200);
-         }
-         else {
+         } else {
             break;
          }
       }

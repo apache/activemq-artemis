@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.tests.tools.container;
 
-import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
-
-import java.util.Hashtable;
-
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
+import java.util.Hashtable;
+
+import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
 
 public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
    // Constants ------------------------------------------------------------------------------------
@@ -53,20 +52,17 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
 
             try {
                c = Class.forName(icfName);
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                InVMInitialContextFactoryBuilder.log.error("\"" + icfName + "\" cannot be loaded", e);
                throw new NamingException("\"" + icfName + "\" cannot be loaded");
             }
 
             try {
                icf = (InitialContextFactory) c.newInstance();
-            }
-            catch (InstantiationException e) {
+            } catch (InstantiationException e) {
                InVMInitialContextFactoryBuilder.log.error(c.getName() + " cannot be instantiated", e);
                throw new NamingException(c.getName() + " cannot be instantiated");
-            }
-            catch (IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                InVMInitialContextFactoryBuilder.log.error(c.getName() + " instantiation generated an IllegalAccessException", e);
                throw new NamingException(c.getName() + " instantiation generated an IllegalAccessException");
             }

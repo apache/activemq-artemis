@@ -73,14 +73,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
          index = 1;
       }
 
-      ConfigurationImpl configuration = createBasicConfig(index)
-         .setJMXManagementEnabled(false)
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap))
-         .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
-         .addConnectorConfiguration(primaryConnectorName, primaryConnector)
-         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName).setReconnectAttempts(0));
+      ConfigurationImpl configuration = createBasicConfig(index).setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap)).addConnectorConfiguration(secondaryConnectorName, secondaryConnector).addConnectorConfiguration(primaryConnectorName, primaryConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName).setReconnectAttempts(0));
 
       recreateDataDirectories(getTestDir(), index, false);
 

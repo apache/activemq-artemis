@@ -227,8 +227,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          this.twoPhase = twoPhase;
          try {
             session = locator.createSessionFactory().createSession(true, false, false);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             throw new RuntimeException(e);
          }
       }
@@ -243,8 +242,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
             if (twoPhase) {
                currentTX.enlistResource(new DummyXAResource());
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
@@ -270,8 +268,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          afterDeliveryCounts++;
          try {
             currentTX.commit();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             //its unsure as to whether the EJB/JCA layer will handle this or throw it to us,
             // either way we don't do anything else so its fine just to throw.
             // NB this will only happen with 2 phase commit
@@ -305,8 +302,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          try {
             TransactionReaper.terminate(true);
             TxControl.disable(true);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
          tm = null;

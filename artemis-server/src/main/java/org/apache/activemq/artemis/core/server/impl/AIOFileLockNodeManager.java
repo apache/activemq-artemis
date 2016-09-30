@@ -76,12 +76,10 @@ public final class AIOFileLockNodeManager extends FileLockNodeManager {
          FileLock lockFile = tryLock(liveLockPos);
          if (lockFile != null) {
             return lockFile;
-         }
-         else {
+         } else {
             try {
                Thread.sleep(500);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                return null;
             }
 

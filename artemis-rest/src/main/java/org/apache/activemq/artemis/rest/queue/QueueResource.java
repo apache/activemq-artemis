@@ -29,8 +29,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.rest.queue.push.PushConsumerResource;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.push.PushConsumerResource;
 
 public class QueueResource extends DestinationResource {
 
@@ -165,12 +165,10 @@ public class QueueResource extends DestinationResource {
       try {
          SimpleString queueName = new SimpleString(destination);
          session.deleteQueue(queueName);
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }

@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.io.File;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,23 +58,20 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       try {
          load();
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          stopJournal();
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       startJournal();
       try {
          startJournal();
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       stopJournal();
@@ -83,15 +80,13 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       try {
          load();
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          startJournal();
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       stopJournal();
@@ -124,8 +119,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(JournalImpl.MIN_FILE_SIZE - 1, 10, 10, 0, 0, fileFactory, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -133,8 +127,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(10 * 1024, 1, 0, 0, 0, fileFactory, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -142,8 +135,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(10 * 1024, 10, 0, 0, 0, null, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
          // Ok
       }
 
@@ -151,8 +143,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, null, fileExtension, 1);
 
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -160,8 +151,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, filePrefix, null, 1);
 
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -169,8 +159,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, filePrefix, null, 0);
 
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -217,11 +206,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       boolean exceptionHappened = false;
       try {
          load();
-      }
-      catch (ActiveMQIOErrorException ioe) {
+      } catch (ActiveMQIOErrorException ioe) {
          exceptionHappened = true;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("invalid exception type:" + e.getType());
       }
 
@@ -347,8 +334,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          }
 
          stopJournal();
-      }
-      finally {
+      } finally {
          filePrefix = "amq";
 
          fileExtension = "amq";
@@ -467,12 +453,10 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
             if (numberOfRecords < recordsFit) {
                currentPosition = currentPosition + numberOfRecords * recordSize;
                numberOfRecords = 0;
-            }
-            else if (recordsFit > 0) {
+            } else if (recordsFit > 0) {
                currentPosition = currentPosition + recordsFit * recordSize;
                numberOfRecords -= recordsFit;
-            }
-            else {
+            } else {
                totalFiles++;
                currentPosition = headerSize;
             }
@@ -567,7 +551,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       stopJournal();
    }
 
-
    @Test
    public void testOrganicallyGrowNoLimit() throws Exception {
       setup(2, -1, 10 * 1024, true, 50);
@@ -592,15 +575,12 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          journal.forceMoveNextFile();
       }
 
-
       for (int i = 0; i < 200; i++) {
          delete(i);
       }
       journal.forceMoveNextFile();
 
       journal.checkReclaimStatus();
-
-
 
       files1 = fileFactory.listFiles(fileExtension);
       Assert.assertTrue(files1.size() > 200);
@@ -612,7 +592,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          journal.forceMoveNextFile();
       }
       journal.checkReclaimStatus();
-
 
       files1 = fileFactory.listFiles(fileExtension);
       Assert.assertTrue(files1.size() > 200);
@@ -649,7 +628,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       journal.checkReclaimStatus();
-
 
       for (int i = 0; i < 200; i++) {
          delete(i);
@@ -989,8 +967,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       if (commit) {
          commit(1);
-      }
-      else {
+      } else {
          rollback(1);
       }
 
@@ -2665,8 +2642,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       try {
          update(1);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // Ok
       }
 
@@ -2686,8 +2662,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       try {
          delete(1);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // Ok
       }
 
@@ -3045,8 +3020,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       try {
          load();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("Unexpected exception: " + e.toString());
       }
    }

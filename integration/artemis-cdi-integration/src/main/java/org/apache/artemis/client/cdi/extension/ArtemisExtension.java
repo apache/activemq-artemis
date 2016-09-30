@@ -19,14 +19,14 @@
 
 package org.apache.artemis.client.cdi.extension;
 
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
-import org.apache.artemis.client.cdi.logger.ActiveMQCDILogger;
-
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
+
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
+import org.apache.artemis.client.cdi.logger.ActiveMQCDILogger;
 
 public class ArtemisExtension implements Extension {
 
@@ -46,14 +46,12 @@ public class ArtemisExtension implements Extension {
    void afterBeanDiscovery(@Observes AfterBeanDiscovery afterBeanDiscovery) {
       if (!foundConfiguration) {
          afterBeanDiscovery.addBean(new ArtemisClientConfigBean());
-      }
-      else {
+      } else {
          ActiveMQCDILogger.LOGGER.notUsingDefaultConfiguration();
       }
       if (!foundEmbeddedConfig) {
          afterBeanDiscovery.addBean(new ArtemisEmbeddedServerConfigBean());
-      }
-      else {
+      } else {
          ActiveMQCDILogger.LOGGER.notUsingDefaultClientConfiguration();
       }
 

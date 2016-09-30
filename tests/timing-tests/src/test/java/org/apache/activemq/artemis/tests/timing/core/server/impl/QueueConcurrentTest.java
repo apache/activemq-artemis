@@ -188,8 +188,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
          while (System.currentTimeMillis() - start < testTime) {
             if (toggle) {
                consumer.setStatusImmediate(HandleStatus.BUSY);
-            }
-            else {
+            } else {
                consumer.setStatusImmediate(HandleStatus.HANDLED);
 
                queue.deliverNow();

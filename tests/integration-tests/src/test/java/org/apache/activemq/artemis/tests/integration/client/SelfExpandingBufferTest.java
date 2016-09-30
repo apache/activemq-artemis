@@ -119,8 +119,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
          msg2.getBodyBuffer().readBytes(receivedBytes);
 
          ActiveMQTestBase.assertEqualsByteArrays(bytes, receivedBytes);
-      }
-      finally {
+      } finally {
          session.close();
       }
    }

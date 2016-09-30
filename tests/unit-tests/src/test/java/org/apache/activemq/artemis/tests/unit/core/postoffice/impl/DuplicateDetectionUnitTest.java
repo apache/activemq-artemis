@@ -26,9 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
@@ -37,6 +34,9 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
@@ -146,13 +146,11 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
          values = mapDups.get(ADDRESS);
 
          Assert.assertEquals(10, values.size());
-      }
-      finally {
+      } finally {
          if (journal != null) {
             try {
                journal.stop();
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
             }
          }
       }

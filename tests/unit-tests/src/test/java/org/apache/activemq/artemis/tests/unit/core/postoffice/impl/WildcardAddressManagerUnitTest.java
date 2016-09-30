@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
@@ -32,6 +30,8 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 /**
@@ -49,8 +49,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       ad.removeBinding(SimpleString.toSimpleString("one"), null);
       try {
          ad.removeBinding(SimpleString.toSimpleString("two"), null);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          // We are not failing the test here as this test is replicating the exact scenario
          // that was happening under https://issues.jboss.org/browse/HORNETQ-988
          // In which this would be ignored
@@ -59,8 +58,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
       try {
          ad.addBinding(new BindingFake("jms.topic.Topic1", "three"));
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          // We are not failing the test here as this test is replicating the exact scenario
          // that was happening under https://issues.jboss.org/browse/HORNETQ-988
          // In which this would be ignored

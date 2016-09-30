@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.transport.failover;
 
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,12 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -115,12 +115,10 @@ public class ReconnectTest extends OpenwireArtemisBaseTest {
             if (!stopped.await(5, TimeUnit.SECONDS)) {
                connection.close();
                stopped.await(5, TimeUnit.SECONDS);
-            }
-            else {
+            } else {
                connection.close();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -149,11 +147,9 @@ public class ReconnectTest extends OpenwireArtemisBaseTest {
                iterations.incrementAndGet();
             }
             session.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             setError(e);
-         }
-         finally {
+         } finally {
             stopped.countDown();
          }
       }

@@ -78,8 +78,7 @@ public class JournalTransaction {
    public long[] getPositiveArray() {
       if (pos == null) {
          return new long[0];
-      }
-      else {
+      } else {
          int i = 0;
          long[] ids = new long[pos.size()];
          for (JournalUpdate el : pos) {
@@ -220,8 +219,7 @@ public class JournalTransaction {
 
       if (compacting) {
          compactor.addCommandCommit(this, file);
-      }
-      else {
+      } else {
 
          if (pos != null) {
             for (JournalUpdate trUpdate : pos) {
@@ -232,13 +230,11 @@ public class JournalTransaction {
                   // but the commit arrived while compacting was working
                   // We need to cache the counter update, so compacting will take the correct files when it is done
                   compactor.addCommandUpdate(trUpdate.id, trUpdate.file, trUpdate.size);
-               }
-               else if (posFiles == null) {
+               } else if (posFiles == null) {
                   posFiles = new JournalRecord(trUpdate.file, trUpdate.size);
 
                   journal.getRecords().put(trUpdate.id, posFiles);
-               }
-               else {
+               } else {
                   posFiles.addUpdateFile(trUpdate.file, trUpdate.size);
                }
             }
@@ -248,8 +244,7 @@ public class JournalTransaction {
             for (JournalUpdate trDelete : neg) {
                if (compactor != null) {
                   compactor.addCommandDelete(trDelete.id, trDelete.file);
-               }
-               else {
+               } else {
                   JournalRecord posFiles = journal.getRecords().remove(trDelete.id);
 
                   if (posFiles != null) {
@@ -294,8 +289,7 @@ public class JournalTransaction {
 
       if (compacting && compactor != null) {
          compactor.addCommandRollback(this, file);
-      }
-      else {
+      } else {
          // Now add negs for the pos we added in each file in which there were
          // transactional operations
          // Note that we do this on rollback as we do on commit, since we need

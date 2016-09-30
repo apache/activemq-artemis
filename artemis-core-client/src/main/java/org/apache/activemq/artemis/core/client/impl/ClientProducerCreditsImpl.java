@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public class ClientProducerCreditsImpl implements ClientProducerCredits {
 
@@ -94,12 +94,10 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits {
                   // better getting a "null" string than a NPE
                   ActiveMQClientLogger.LOGGER.outOfCreditOnFlowControl("" + address);
                }
-            }
-            catch (InterruptedException interrupted) {
+            } catch (InterruptedException interrupted) {
                Thread.currentThread().interrupt();
                throw new ActiveMQInterruptedException(interrupted);
-            }
-            finally {
+            } finally {
                this.blocked = false;
             }
          }

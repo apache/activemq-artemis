@@ -101,8 +101,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
          protected double calculateUsage(FileStore store) throws IOException {
             if (fakeReturn.get()) {
                return 1f;
-            }
-            else {
+            } else {
                return super.calculateUsage(store);
             }
          }
@@ -151,7 +150,6 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       });
       storeMonitor.start();
 
-
       Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
 
       storeMonitor.stop();
@@ -160,7 +158,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
 
       Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
-//      FileStoreMonitor monitor = new FileStoreMonitor()
+      //      FileStoreMonitor monitor = new FileStoreMonitor()
 
    }
 }

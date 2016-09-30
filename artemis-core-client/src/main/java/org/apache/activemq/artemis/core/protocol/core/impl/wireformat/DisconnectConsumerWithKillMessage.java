@@ -24,7 +24,7 @@ public class DisconnectConsumerWithKillMessage extends PacketImpl {
 
    private SimpleString nodeID;
 
-   public  static final int VERSION_INTRODUCED = 128;
+   public static final int VERSION_INTRODUCED = 128;
 
    public DisconnectConsumerWithKillMessage(final SimpleString nodeID) {
       super(DISCONNECT_CONSUMER_KILL);

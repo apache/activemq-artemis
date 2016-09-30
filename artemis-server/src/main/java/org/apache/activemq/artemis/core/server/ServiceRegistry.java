@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A holder for common services leveraged by the broker.

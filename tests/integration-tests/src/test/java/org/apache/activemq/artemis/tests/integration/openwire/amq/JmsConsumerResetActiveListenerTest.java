@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -30,6 +25,10 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
@@ -62,12 +61,10 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
                try {
                   consumer.setMessageListener(this);
                   results.add(message);
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   results.add(e);
                }
-            }
-            else {
+            } else {
                results.add(message);
             }
             latch.countDown();
@@ -115,12 +112,10 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
                   MessageConsumer anotherConsumer = session.createConsumer(dest);
                   anotherConsumer.setMessageListener(this);
                   results.add(message);
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   results.add(e);
                }
-            }
-            else {
+            } else {
                results.add(message);
             }
             latch.countDown();

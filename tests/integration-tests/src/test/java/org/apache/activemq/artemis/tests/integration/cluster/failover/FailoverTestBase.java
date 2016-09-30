@@ -133,8 +133,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    protected static void setLargeMessageBody(final int i, final ClientMessage message) {
       try {
          message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(LARGE_MESSAGE_SIZE));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -230,15 +229,13 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       try {
          ServerSocket serverSocket = new ServerSocket(61616);
          serverSocket.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw e;
       }
       try {
          ServerSocket serverSocket = new ServerSocket(61617);
          serverSocket.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw e;
       }
    }
@@ -267,8 +264,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backupServer.getServer();
       if (actualServer.getHAPolicy().isSharedStore()) {
          waitForServerToStart(actualServer);
-      }
-      else {
+      } else {
          waitForRemoteBackup(sessionFactory, seconds, true, actualServer);
       }
    }

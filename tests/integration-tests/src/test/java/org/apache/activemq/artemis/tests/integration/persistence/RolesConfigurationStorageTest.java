@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 

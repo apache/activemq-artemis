@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLContext;
+import java.util.concurrent.TimeUnit;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;

@@ -36,15 +36,13 @@ public class CleanupThreadRule extends ExternalResource {
       // We shutdown the global pools to give a better isolation between tests
       try {
          ServerLocatorImpl.clearThreadPools();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
       }
 
       try {
          NettyConnector.clearThreadPools();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
 

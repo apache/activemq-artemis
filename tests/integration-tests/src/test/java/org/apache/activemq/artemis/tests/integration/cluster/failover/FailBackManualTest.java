@@ -185,8 +185,7 @@ public class FailBackManualTest extends FailoverTestBase {
       public void run() {
          try {
             server.start();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }

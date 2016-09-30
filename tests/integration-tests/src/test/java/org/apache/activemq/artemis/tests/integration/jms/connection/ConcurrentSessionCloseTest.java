@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import javax.jms.Connection;
+import javax.jms.Session;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -23,10 +27,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Session;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A ConcurrentSessionCloseTest
@@ -67,8 +67,7 @@ public class ConcurrentSessionCloseTest extends JMSTestBase {
                      Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
                      session.close();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
 
                      failed.set(true);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,16 @@
  */
 package org.apache.activemq.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.util.List;
-
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.sql.DataSource;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -63,6 +57,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ConfigTest {
 
@@ -117,8 +116,7 @@ public class ConfigTest {
          assertTrue(broker.getSystemUsage().getStoreUsage().getStore() instanceof JournalPersistenceAdapter);
 
          LOG.info("Success");
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -282,8 +280,7 @@ public class ConfigTest {
 
          LOG.info("Success");
 
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -309,8 +306,7 @@ public class ConfigTest {
          assertTrue("Should have created a journal directory at " + journalFile.getAbsolutePath(), journalFile.exists());
 
          LOG.info("Success");
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -341,8 +337,7 @@ public class ConfigTest {
          assertTrue("Should have not created a journal directory at " + journalFile.getAbsolutePath(), !journalFile.exists());
 
          LOG.info("Success");
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -381,8 +376,7 @@ public class ConfigTest {
          try {
             session.createProducer(topic);
             fail("Should have got an exception on exceeding MAX_PRODUCERS");
-         }
-         catch (JMSException expected) {
+         } catch (JMSException expected) {
          }
 
          try {
@@ -391,13 +385,11 @@ public class ConfigTest {
                assertNotNull(consumer);
             }
             fail("Should have caught an exception");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
          }
 
          LOG.info("Success");
-      }
-      finally {
+      } finally {
          broker.stop();
       }
    }
@@ -409,8 +401,7 @@ public class ConfigTest {
       broker = createBroker(new FileSystemResource(CONF_ROOT + "memory-example.xml"));
       try {
          assertEquals("Broker Config Error (brokerName)", "brokerMemoryConfigTest", broker.getBrokerName());
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -419,8 +410,7 @@ public class ConfigTest {
       broker = createBroker("org/apache/activemq/config/config.xml");
       try {
          assertEquals("Broker Config Error (brokerName)", "brokerXmlConfigHelper", broker.getBrokerName());
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -32,6 +27,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -96,14 +95,12 @@ public class MessageListenerRedeliveryTest extends TestCase {
             if (counter <= 4) {
                LOG.info("Message Rollback.");
                session.rollback();
-            }
-            else {
+            } else {
                LOG.info("Message Commit.");
                message.acknowledge();
                session.commit();
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.error("Error when rolling back transaction");
          }
       }
@@ -129,8 +126,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
 
       // first try.. should get 2 since there is no delay on the
@@ -139,16 +135,14 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // 2nd redeliver (redelivery after 1 sec)
       assertEquals(3, listener.counter);
 
       try {
          Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // 3rd redeliver (redelivery after 2 seconds) - it should give up after
       // that
@@ -160,16 +154,14 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // it should be committed, so no redelivery
       assertEquals(5, listener.counter);
 
       try {
          Thread.sleep(1500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       // no redelivery, counter should still be 4
       assertEquals(5, listener.counter);
@@ -197,8 +189,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // first try
@@ -206,8 +197,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // second try (redelivery after 1 sec)
@@ -215,8 +205,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
 
       }
       // third try (redelivery after 2 seconds) - it should give up after that
@@ -228,8 +217,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // ignore
       }
       // it should be committed, so no redelivery
@@ -237,8 +225,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
 
       try {
          Thread.sleep(1500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // ignore
       }
       // no redelivery, counter should still be 4
@@ -270,8 +257,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
             LOG.info("Message Received: " + message);
             try {
                received.add(((TextMessage) message).getText());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
                fail(e.toString());
             }

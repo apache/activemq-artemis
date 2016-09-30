@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import javax.jms.Connection;
+import javax.jms.Session;
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -27,13 +34,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Session;
-import java.lang.ref.WeakReference;
-import java.util.Iterator;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A CloseConnectionOnGCTest

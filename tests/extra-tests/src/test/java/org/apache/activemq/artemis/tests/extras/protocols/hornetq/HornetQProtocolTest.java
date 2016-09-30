@@ -62,7 +62,6 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
       waitForServerToStart(server);
    }
 
-
    @Override
    @After
    public void tearDown() throws Exception {

@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
-import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
+import org.junit.Test;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
@@ -75,8 +75,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
          assertNotNull(msgReceived);
          assertEquals(msgReceived.getText(), msg.getText());
 
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }
@@ -130,8 +129,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
                System.out.println(received.getText());
             }
          }
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }

@@ -47,6 +47,7 @@ import org.apache.activemq.command.RemoveInfo;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQConsumer {
+
    private AMQSession session;
    private org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private ConsumerInfo info;
@@ -84,8 +85,7 @@ public class AMQConsumer {
       if (openwireDestination.isTopic()) {
          if (openwireDestination.isTemporary()) {
             address = new SimpleString("jms.temptopic." + physicalName);
-         }
-         else {
+         } else {
             address = new SimpleString("jms.topic." + physicalName);
          }
 
@@ -93,8 +93,7 @@ public class AMQConsumer {
 
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
-      }
-      else {
+      } else {
          SimpleString queueName = OpenWireUtil.toCoreAddress(openwireDestination);
          session.getCoreServer().getJMSDestinationCreator().create(queueName);
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
@@ -149,12 +148,10 @@ public class AMQConsumer {
                // Create the new one
                session.getCoreSession().createQueue(address, queueName, selector, false, true);
             }
-         }
-         else {
+         } else {
             session.getCoreSession().createQueue(address, queueName, selector, false, true);
          }
-      }
-      else {
+      } else {
          queueName = new SimpleString(UUID.randomUUID().toString());
 
          session.getCoreSession().createQueue(address, queueName, selector, true, false);
@@ -200,12 +197,10 @@ public class AMQConsumer {
          session.deliverMessage(dispatch);
          currentWindow.decrementAndGet();
          return size;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          e.printStackTrace();
          return 0;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          t.printStackTrace();
          return 0;
       }
@@ -218,10 +213,12 @@ public class AMQConsumer {
       session.deliverMessage(md);
    }
 
-   /** The acknowledgement in openwire is done based on intervals.
-    *  We will iterate through the list of delivering messages at {@link ServerConsumer#getDeliveringReferencesBasedOnProtocol(boolean, Object, Object)}
-    *  and add those to the Transaction.
-    *  Notice that we will start a new transaction on the cases where there is no transaction. */
+   /**
+    * The acknowledgement in openwire is done based on intervals.
+    * We will iterate through the list of delivering messages at {@link ServerConsumer#getDeliveringReferencesBasedOnProtocol(boolean, Object, Object)}
+    * and add those to the Transaction.
+    * Notice that we will start a new transaction on the cases where there is no transaction.
+    */
    public void acknowledge(MessageAck ack) throws Exception {
 
       MessageId first = ack.getFirstMessageId();
@@ -248,8 +245,7 @@ public class AMQConsumer {
 
          if (originalTX == null) {
             transaction = session.getCoreSession().newTransaction();
-         }
-         else {
+         } else {
             transaction = originalTX;
          }
 
@@ -257,8 +253,7 @@ public class AMQConsumer {
             for (MessageReference ref : ackList) {
                ref.acknowledge(transaction);
             }
-         }
-         else if (ack.isPoisonAck()) {
+         } else if (ack.isPoisonAck()) {
             for (MessageReference ref : ackList) {
                Throwable poisonCause = ack.getPoisonCause();
                if (poisonCause != null) {
@@ -340,7 +335,7 @@ public class AMQConsumer {
 
    /**
     * The MessagePullHandler is used with slow consumer policies.
-    * */
+    */
    private class MessagePullHandler {
 
       private long next = -1;
@@ -368,8 +363,7 @@ public class AMQConsumer {
             if (next >= 0) {
                if (timeout <= 0) {
                   latch.countDown();
-               }
-               else {
+               } else {
                   messagePullFuture = scheduledPool.schedule(new Runnable() {
                      @Override
                      public void run() {
@@ -381,8 +375,7 @@ public class AMQConsumer {
                }
             }
             return false;
-         }
-         else {
+         } else {
             next = -1;
             if (messagePullFuture != null) {
                messagePullFuture.cancel(true);

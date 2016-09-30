@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
+
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
 
 public interface ConnectorServiceFactory {
 

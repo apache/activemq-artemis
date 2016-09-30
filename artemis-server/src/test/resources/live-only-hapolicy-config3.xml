@@ -15,9 +15,9 @@
   limitations under the License.
 -->
 <configuration
-      xmlns="urn:activemq"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+        xmlns="urn:activemq"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
       <ha-policy>
          <!--only one of the following-->

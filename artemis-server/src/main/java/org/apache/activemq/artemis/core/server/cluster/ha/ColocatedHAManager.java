@@ -68,8 +68,7 @@ public class ColocatedHAManager implements HAManager {
       for (ActiveMQServer activeMQServer : backupServers.values()) {
          try {
             activeMQServer.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -93,8 +92,7 @@ public class ColocatedHAManager implements HAManager {
       }
       if (haPolicy.getBackupPolicy().isSharedStore()) {
          return activateSharedStoreBackup(journalDirectory, bindingsDirectory, largeMessagesDirectory, pagingDirectory);
-      }
-      else {
+      } else {
          return activateReplicatedBackup(nodeID);
       }
    }
@@ -129,8 +127,7 @@ public class ColocatedHAManager implements HAManager {
          clusterControl.authorize();
          if (replicated) {
             return clusterControl.requestReplicatedBackup(backupSize, server.getNodeID());
-         }
-         else {
+         } else {
             return clusterControl.requestSharedStoreBackup(backupSize, server.getConfiguration().getJournalLocation().getAbsolutePath(), server.getConfiguration().getBindingsLocation().getAbsolutePath(), server.getConfiguration().getLargeMessagesLocation().getAbsolutePath(), server.getConfiguration().getPagingLocation().getAbsolutePath());
 
          }
@@ -154,8 +151,7 @@ public class ColocatedHAManager implements HAManager {
 
          backupServers.put(configuration.getName(), backup);
          backup.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          backup.stop();
          ActiveMQServerLogger.LOGGER.activateSharedStoreSlaveFailed(e);
          return false;
@@ -188,8 +184,7 @@ public class ColocatedHAManager implements HAManager {
          backup.addActivationParam(ActivationParams.REPLICATION_ENDPOINT, member);
          backupServers.put(configuration.getName(), backup);
          backup.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          backup.stop();
          ActiveMQServerLogger.LOGGER.activateReplicatedBackupFailed(e);
          return false;
@@ -267,8 +262,7 @@ public class ColocatedHAManager implements HAManager {
                updatebackupParams(backupConfiguration.getName(), portOffset, entry.getValue().getParams());
             }
          }
-      }
-      else {
+      } else {
          //if we are scaling down then we wont need any acceptors but clear anyway for belts and braces
          backupConfiguration.getAcceptorConfigurations().clear();
       }

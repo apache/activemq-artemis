@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import static org.junit.Assert.assertTrue;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -34,6 +26,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -45,6 +42,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
 
 public class JdbcDurableSubDupTest {
 
@@ -170,19 +169,16 @@ public class JdbcDurableSubDupTest {
                   done.set(true);
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             LOG.error("caught", e);
             exceptions.add(e);
             throw new RuntimeException(e);
-         }
-         finally {
+         } finally {
             if (connection != null) {
                try {
                   LOG.info("consumer done (" + exceptions.isEmpty() + "), closing connection");
                   connection.close();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   e.printStackTrace();
                }
             }
@@ -195,8 +191,7 @@ public class JdbcDurableSubDupTest {
 
          try {
             Thread.sleep(0L);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
 
          try {
@@ -213,13 +208,11 @@ public class JdbcDurableSubDupTest {
                   LOG.error("Duplicate message received at count: " + count + ", id: " + m.getJMSMessageID());
                   exceptions.add(new RuntimeException("Got Duplicate at: " + m.getJMSMessageID()));
 
-               }
-               else {
+               } else {
                   dupChecker[i] = 1;
                }
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.error("caught ", e);
             exceptions.add(e);
          }
@@ -265,8 +258,7 @@ public class JdbcDurableSubDupTest {
                   int priority = 0;
                   if (priorityModulator <= 10) {
                      priority = msgSeqNo % priorityModulator;
-                  }
-                  else {
+                  } else {
                      priority = (msgSeqNo >= priorityModulator) ? 9 : 0;
                   }
                   message.setText(xmlMessage + msgSeqNo + "-" + priority);
@@ -280,15 +272,13 @@ public class JdbcDurableSubDupTest {
                }
                try {
                   Thread.sleep(1000L);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   e.printStackTrace();
                   exceptions.add(e);
                }
             }
 
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.error("caught ", e);
             e.printStackTrace();
             exceptions.add(e);

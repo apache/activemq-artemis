@@ -69,8 +69,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration {
       if (maskPassword) {
          if (passwordCodec != null) {
             codec = PasswordMaskingUtil.getDefaultCodec();
-         }
-         else {
+         } else {
             codec = PasswordMaskingUtil.getCodec(passwordCodec);
          }
       }
@@ -105,8 +104,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration {
          String roles = roleProps.getProperty(username);
          if (roles == null) {
             ActiveMQServerLogger.LOGGER.cannotFindRoleForUser(username);
-         }
-         else {
+         } else {
             String[] split = roles.split(",");
             for (String role : split) {
                addRole(username, role.trim());

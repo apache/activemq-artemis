@@ -117,8 +117,7 @@ public class PropertiesLoginModuleTest extends Assert {
       try {
          context.login();
          fail("Should have thrown a FailedLoginException");
-      }
-      catch (FailedLoginException doNothing) {
+      } catch (FailedLoginException doNothing) {
       }
 
    }
@@ -130,8 +129,7 @@ public class PropertiesLoginModuleTest extends Assert {
       try {
          context.login();
          fail("Should have thrown a FailedLoginException");
-      }
-      catch (FailedLoginException doNothing) {
+      } catch (FailedLoginException doNothing) {
       }
 
    }
@@ -151,11 +149,9 @@ public class PropertiesLoginModuleTest extends Assert {
          for (int i = 0; i < callbacks.length; i++) {
             if (callbacks[i] instanceof NameCallback) {
                ((NameCallback) callbacks[i]).setName(user);
-            }
-            else if (callbacks[i] instanceof PasswordCallback) {
+            } else if (callbacks[i] instanceof PasswordCallback) {
                ((PasswordCallback) callbacks[i]).setPassword(pass.toCharArray());
-            }
-            else {
+            } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
          }

@@ -140,8 +140,7 @@ public class SelectorTest extends MessageTestBase {
          message.setObject(object);
 
          producer.send(message);
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }

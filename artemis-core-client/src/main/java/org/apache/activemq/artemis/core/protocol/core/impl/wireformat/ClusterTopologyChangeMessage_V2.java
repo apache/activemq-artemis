@@ -86,15 +86,13 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          if (pair.getA() != null) {
             buffer.writeBoolean(true);
             pair.getA().encode(buffer);
-         }
-         else {
+         } else {
             buffer.writeBoolean(false);
          }
          if (pair.getB() != null) {
             buffer.writeBoolean(true);
             pair.getB().encode(buffer);
-         }
-         else {
+         } else {
             buffer.writeBoolean(false);
          }
          buffer.writeBoolean(last);
@@ -113,8 +111,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          if (hasLive) {
             a = new TransportConfiguration();
             a.decode(buffer);
-         }
-         else {
+         } else {
             a = null;
          }
          boolean hasBackup = buffer.readBoolean();
@@ -122,8 +119,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          if (hasBackup) {
             b = new TransportConfiguration();
             b.decode(buffer);
-         }
-         else {
+         } else {
             b = null;
          }
          pair = new Pair<>(a, b);
@@ -175,8 +171,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          if (other.backupGroupName != null) {
             return false;
          }
-      }
-      else if (!backupGroupName.equals(other.backupGroupName)) {
+      } else if (!backupGroupName.equals(other.backupGroupName)) {
          return false;
       }
       return true;

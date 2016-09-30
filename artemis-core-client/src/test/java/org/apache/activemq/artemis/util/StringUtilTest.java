@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StringUtilTest extends Assert {
 

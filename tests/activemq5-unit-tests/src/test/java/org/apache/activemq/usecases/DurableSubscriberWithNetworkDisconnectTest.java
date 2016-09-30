@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.List;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -27,6 +25,8 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.util.List;
 
 import junit.framework.Test;
 
@@ -97,8 +97,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
                TextMessage textMsg = (TextMessage) msg;
                receivedMsgs++;
                LOG.info("Received messages (" + receivedMsgs + "): " + textMsg.getText());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -117,24 +116,20 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
          if (i == 50 || i == 150) {
             if (simulateStalledNetwork) {
                socketProxy.pause();
-            }
-            else {
+            } else {
                socketProxy.close();
             }
             networkDownTimeStart = System.currentTimeMillis();
-         }
-         else if (networkDownTimeStart > 0) {
+         } else if (networkDownTimeStart > 0) {
             // restart after NETWORK_DOWN_TIME seconds
             sleep(NETWORK_DOWN_TIME);
             networkDownTimeStart = 0;
             if (simulateStalledNetwork) {
                socketProxy.goOn();
-            }
-            else {
+            } else {
                socketProxy.reopen();
             }
-         }
-         else {
+         } else {
             // slow message production to allow bridge to recover and limit message duplication
             sleep(500);
          }
@@ -196,8 +191,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
    private void sleep(int milliSecondTime) {
       try {
          Thread.sleep(milliSecondTime);
-      }
-      catch (InterruptedException igonred) {
+      } catch (InterruptedException igonred) {
       }
    }
 
@@ -219,14 +213,12 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
          String options = "";
          if (failover) {
             options = "static:(failover:(" + remoteURI;
-         }
-         else {
+         } else {
             options = "static:(" + remoteURI;
          }
          if (inactivity) {
             options += "?wireFormat.maxInactivityDuration=" + inactiveDuration + "&wireFormat.maxInactivityDurationInitalDelay=" + inactiveDuration + ")";
-         }
-         else {
+         } else {
             options += ")";
          }
 
@@ -244,8 +236,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
             connector.setDuplex(true);
          }
          return connector;
-      }
-      else {
+      } else {
          throw new Exception("Remote broker has no registered connectors.");
       }
    }

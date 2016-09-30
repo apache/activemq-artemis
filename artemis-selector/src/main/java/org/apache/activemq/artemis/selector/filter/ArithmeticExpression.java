@@ -45,8 +45,7 @@ public abstract class ArithmeticExpression extends BinaryExpression {
                String text = (String) lvalue;
                String answer = text + rvalue;
                return answer;
-            }
-            else {
+            } else {
                return plus(asNumber(lvalue), asNumber(rvalue));
             }
          }
@@ -161,11 +160,9 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    private int numberType(Number left, Number right) {
       if (isDouble(left) || isDouble(right)) {
          return DOUBLE;
-      }
-      else if (left instanceof Long || right instanceof Long) {
+      } else if (left instanceof Long || right instanceof Long) {
          return LONG;
-      }
-      else {
+      } else {
          return INTEGER;
       }
    }
@@ -177,19 +174,16 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    protected Number asNumber(Object value) {
       if (value instanceof Number) {
          return (Number) value;
-      }
-      else {
+      } else {
          if (convertStringExpressions && value instanceof String) {
             String v = (String) value;
             try {
                if (v.contains(".")) {
                   return new Double(v);
-               }
-               else {
+               } else {
                   return new Long(v);
                }
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                throw new RuntimeException("Cannot convert value: " + value + " into a number");
             }
          }

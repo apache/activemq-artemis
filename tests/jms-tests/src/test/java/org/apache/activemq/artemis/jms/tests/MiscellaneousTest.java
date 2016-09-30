@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import java.util.Enumeration;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
@@ -27,6 +25,7 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Enumeration;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
@@ -79,8 +78,7 @@ public class MiscellaneousTest extends JMSTestCase {
          TextMessage bm = (TextMessage) e.nextElement();
 
          ProxyAssertSupport.assertEquals("message one", bm.getText());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -102,8 +100,7 @@ public class MiscellaneousTest extends JMSTestCase {
          MessageProducer prod = s.createProducer(queue1);
          Message m = s.createMessage();
          prod.send(m);
-      }
-      finally {
+      } finally {
          if (c != null) {
             c.close();
          }
@@ -120,8 +117,7 @@ public class MiscellaneousTest extends JMSTestCase {
             try {
                cons.close();
                result.setSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                result.setFailure(e);
             }
          }
@@ -156,8 +152,7 @@ public class MiscellaneousTest extends JMSTestCase {
          MessageProducer prod = s.createProducer(queue1);
          Message m = s.createMessage();
          prod.send(m);
-      }
-      finally {
+      } finally {
          if (c != null) {
             c.close();
          }
@@ -174,8 +169,7 @@ public class MiscellaneousTest extends JMSTestCase {
             try {
                cons.close();
                result.setSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                result.setFailure(e);
             }
          }
@@ -216,8 +210,7 @@ public class MiscellaneousTest extends JMSTestCase {
          session1.close();
 
          session2.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

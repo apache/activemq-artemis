@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.uri.schema.serverLocator;
 
+import java.io.NotSerializableException;
+import java.net.URI;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
@@ -24,10 +28,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-
-import java.io.NotSerializableException;
-import java.net.URI;
-import java.util.Map;
 
 public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
 
@@ -44,8 +44,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
 
       if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dcConfig);
-      }
-      else {
+      } else {
          return ActiveMQClient.createServerLocatorWithoutHA(dcConfig);
       }
    }
@@ -57,11 +56,9 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
       String auth;
       if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
          auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
-      }
-      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
+      } else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
          auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
-      }
-      else {
+      } else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
       String query = BeanSupport.getData(null, bean, dgc, endpoint);
@@ -75,8 +72,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
       BroadcastEndpointFactory endpointFactory;
       if (query.containsKey("file")) {
          endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(uri.getAuthority());
-      }
-      else {
+      } else {
          endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       }
 

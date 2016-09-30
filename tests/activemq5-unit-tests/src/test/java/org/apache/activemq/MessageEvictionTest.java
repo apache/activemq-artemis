@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -38,6 +25,13 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.broker.BrokerService;
@@ -56,6 +50,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MessageEvictionTest {
 
@@ -131,12 +130,10 @@ public class MessageEvictionTest {
                         assertEquals(++advisoriesReceived, activeMQMessage.getIntProperty(AdvisorySupport.MSG_PROPERTY_DISCARDED_COUNT));
                         message.acknowledge();
                         advisoryIsGood.countDown();
-                     }
-                     catch (JMSException e) {
+                     } catch (JMSException e) {
                         e.printStackTrace();
                         fail(e.toString());
-                     }
-                     finally {
+                     } finally {
                         gotAdvisory.countDown();
                      }
                   }
@@ -145,8 +142,7 @@ public class MessageEvictionTest {
                gotAdvisory.await(120, TimeUnit.SECONDS);
                consumer.close();
                advisorySession.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                fail(e.toString());
             }
@@ -178,12 +174,10 @@ public class MessageEvictionTest {
                         LOG.info("acking: " + message.getJMSMessageID());
                         message.acknowledge();
                         ackDone.countDown();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                         fail(e.toString());
-                     }
-                     finally {
+                     } finally {
                         consumerRegistered.countDown();
                         ackDone.countDown();
                      }
@@ -192,8 +186,7 @@ public class MessageEvictionTest {
                consumerRegistered.countDown();
                ackDone.await(60, TimeUnit.SECONDS);
                consumer.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                fail(e.toString());
             }
@@ -217,8 +210,7 @@ public class MessageEvictionTest {
                }
                producer.close();
                sendDone.countDown();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                sendDone.countDown();
                e.printStackTrace();
                fail(e.toString());

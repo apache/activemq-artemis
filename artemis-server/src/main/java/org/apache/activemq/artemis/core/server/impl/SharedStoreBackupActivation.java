@@ -102,16 +102,14 @@ public final class SharedStoreBackupActivation extends Activation {
                      if (sharedStoreSlavePolicy.isRestartBackup()) {
                         activeMQServer.start();
                      }
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.serverRestartWarning();
                   }
                }
             });
             t.start();
             return;
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.backupServerIsLive();
 
             activeMQServer.getNodeManager().releaseBackup();
@@ -119,16 +117,13 @@ public final class SharedStoreBackupActivation extends Activation {
          if (sharedStoreSlavePolicy.isAllowAutoFailBack()) {
             startFailbackChecker();
          }
-      }
-      catch (ClosedChannelException | InterruptedException e) {
+      } catch (ClosedChannelException | InterruptedException e) {
          // these are ok, we are being stopped
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (!(e.getCause() instanceof InterruptedException)) {
             ActiveMQServerLogger.LOGGER.initializationError(e);
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
@@ -151,8 +146,7 @@ public final class SharedStoreBackupActivation extends Activation {
          if (nodeManagerInUse != null) {
             nodeManagerInUse.stopBackup();
          }
-      }
-      else {
+      } else {
 
          if (nodeManagerInUse != null) {
             // if we are now live, behave as live
@@ -160,8 +154,7 @@ public final class SharedStoreBackupActivation extends Activation {
             // started before the live
             if (sharedStoreSlavePolicy.isFailoverOnServerShutdown() || permanently) {
                nodeManagerInUse.crashLiveServer();
-            }
-            else {
+            } else {
                nodeManagerInUse.pauseLiveServer();
             }
          }
@@ -180,8 +173,7 @@ public final class SharedStoreBackupActivation extends Activation {
                                             ActiveMQServer parentServer) throws ActiveMQException {
       if (sharedStoreSlavePolicy.getScaleDownPolicy() != null && sharedStoreSlavePolicy.getScaleDownPolicy().isEnabled()) {
          return new BackupRecoveryJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer, ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), activeMQServer), activeMQServer.getClusterManager().getClusterController());
-      }
-      else {
+      } else {
          return super.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
       }
    }
@@ -194,6 +186,7 @@ public final class SharedStoreBackupActivation extends Activation {
    }
 
    private class FailbackChecker implements Runnable {
+
       BackupTopologyListener backupListener;
 
       FailbackChecker() {
@@ -233,9 +226,8 @@ public final class SharedStoreBackupActivation extends Activation {
                               logger.debug(activeMQServer + "::Starting backup node now after failback");
                               activeMQServer.start();
                            }
-                        }
-                        catch (Exception e) {
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(),e);
+                        } catch (Exception e) {
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                            ActiveMQServerLogger.LOGGER.serverRestartWarning();
                         }
                      }
@@ -243,8 +235,7 @@ public final class SharedStoreBackupActivation extends Activation {
                   t.start();
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
          }
       }

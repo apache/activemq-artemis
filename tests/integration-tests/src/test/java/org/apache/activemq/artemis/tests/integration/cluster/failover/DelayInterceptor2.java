@@ -41,8 +41,7 @@ public class DelayInterceptor2 implements Interceptor {
          latch.countDown();
 
          return false;
-      }
-      else {
+      } else {
          return true;
       }
    }

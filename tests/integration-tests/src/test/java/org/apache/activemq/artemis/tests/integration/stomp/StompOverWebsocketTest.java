@@ -118,11 +118,9 @@ public class StompOverWebsocketTest extends StompTest {
          if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame dataFrame = (BinaryWebSocketFrame) frame;
             super.channelRead(ctx, dataFrame.content());
-         }
-         else if (frame instanceof PongWebSocketFrame) {
+         } else if (frame instanceof PongWebSocketFrame) {
             System.out.println("WebSocket Client received pong");
-         }
-         else if (frame instanceof CloseWebSocketFrame) {
+         } else if (frame instanceof CloseWebSocketFrame) {
             System.out.println("WebSocket Client received closing");
             ch.close();
          }
@@ -133,23 +131,19 @@ public class StompOverWebsocketTest extends StompTest {
          try {
             if (msg instanceof String) {
                ctx.write(createFrame((String) msg), promise);
-            }
-            else {
+            } else {
                super.write(ctx, msg, promise);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }
       }
    }
 
-
    protected WebSocketFrame createFrame(String msg) {
       if (useBinaryFrames) {
          return new BinaryWebSocketFrame(Unpooled.copiedBuffer(msg, StandardCharsets.UTF_8));
-      }
-      else {
+      } else {
          return new TextWebSocketFrame(msg);
       }
    }

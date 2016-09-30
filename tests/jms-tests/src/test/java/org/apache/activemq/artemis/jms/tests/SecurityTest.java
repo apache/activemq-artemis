@@ -69,8 +69,7 @@ public class SecurityTest extends JMSTestCase {
       try {
          Connection conn1 = createConnection("guest", "not.the.valid.password");
          ProxyAssertSupport.fail();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          // Expected
       }
    }
@@ -84,8 +83,7 @@ public class SecurityTest extends JMSTestCase {
       try {
          Connection conn1 = createConnection("not.the.valid.user", "not.the.valid.password");
          ProxyAssertSupport.fail();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          // Expected
       }
    }
@@ -104,8 +102,7 @@ public class SecurityTest extends JMSTestCase {
          conn = cf.createConnection("guest", "guest");
          String clientID = conn.getClientID();
          ProxyAssertSupport.assertEquals("Invalid ClientID", "dilbert-id", clientID);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -136,11 +133,9 @@ public class SecurityTest extends JMSTestCase {
          conn = cf.createConnection("guest", "guest");
          conn.setClientID("myID");
          ProxyAssertSupport.fail();
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // Expected
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -158,8 +153,7 @@ public class SecurityTest extends JMSTestCase {
       try {
          conn.setClientID("myID");
          ProxyAssertSupport.fail();
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // Expected
       }
    }

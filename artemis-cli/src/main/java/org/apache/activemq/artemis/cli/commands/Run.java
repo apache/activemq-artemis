@@ -127,8 +127,7 @@ public class Run extends LockAbstract {
                try {
                   System.err.println("Halting by user request");
                   fileKill.delete();
-               }
-               catch (Throwable ignored) {
+               } catch (Throwable ignored) {
                }
                Runtime.getRuntime().halt(0);
             }
@@ -136,13 +135,11 @@ public class Run extends LockAbstract {
                try {
                   try {
                      server.stop();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
                   timer.cancel();
-               }
-               finally {
+               } finally {
                   System.out.println("Server stopped!");
                   System.out.flush();
                   latchRunning.countDown();
@@ -159,8 +156,7 @@ public class Run extends LockAbstract {
          public void run() {
             try {
                server.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

@@ -31,16 +31,16 @@
       </xsd:annotation>
       <xsd:complexType>
          <xsd:sequence>
-                <xsd:choice minOccurs="1" maxOccurs="unbounded">
-                   <xsd:any namespace="##other">
-                      <xsd:annotation>
-                         <xsd:documentation>A profile declaration may include configuration
-                            elements from other namespaces for the subsystems that make up the profile.
-                         </xsd:documentation>
-                      </xsd:annotation>
-                   </xsd:any>
-                </xsd:choice>
-             </xsd:sequence>
+            <xsd:choice minOccurs="1" maxOccurs="unbounded">
+               <xsd:any namespace="##other">
+                  <xsd:annotation>
+                     <xsd:documentation>A profile declaration may include configuration
+                        elements from other namespaces for the subsystems that make up the profile.
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:any>
+            </xsd:choice>
+         </xsd:sequence>
       </xsd:complexType>
    </xsd:element>
 </xsd:schema>

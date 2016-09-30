@@ -139,8 +139,7 @@ public class BackupManager implements ActiveMQComponent {
          DiscoveryBackupConnector backupConnector = new DiscoveryBackupConnector(dg, config.getName(), connector, config.getRetryInterval(), clusterManager);
 
          backupConnectors.add(backupConnector);
-      }
-      else {
+      } else {
          TransportConfiguration[] tcConfigs = config.getTransportConfigurations(configuration);
 
          StaticBackupConnector backupConnector = new StaticBackupConnector(tcConfigs, config.getName(), connector, config.getRetryInterval(), clusterManager);
@@ -253,11 +252,9 @@ public class BackupManager implements ActiveMQComponent {
                      ActiveMQServerLogger.LOGGER.backupAnnounced();
                      backupAnnounced = true;
                   }
-               }
-               catch (RejectedExecutionException e) {
+               } catch (RejectedExecutionException e) {
                   // assumption is that the whole server is being stopped. So the exception is ignored.
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   if (scheduledExecutor.isShutdown())
                      return;
                   if (stopping)
@@ -271,8 +268,7 @@ public class BackupManager implements ActiveMQComponent {
                      }
 
                   }, retryInterval, TimeUnit.MILLISECONDS);
-               }
-               finally {
+               } finally {
                   announcingBackup = false;
                }
             }

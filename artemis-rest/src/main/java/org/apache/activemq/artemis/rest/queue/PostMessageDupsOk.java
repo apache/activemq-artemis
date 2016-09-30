@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -30,6 +25,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 /**
  * Implements simple "create" link.  Returns 201 with Location of created resource as per HTTP
@@ -49,12 +49,10 @@ public class PostMessageDupsOk extends PostMessage {
          producer.send(message);
          ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          try {
             pooled.session.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
          addPooled();
          throw ex;
@@ -77,8 +75,7 @@ public class PostMessageDupsOk extends PostMessage {
             isDurable = durable.booleanValue();
          }
          publish(headers, body, isDurable, ttl, expiration, priority);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Response error = Response.serverError().entity("Problem posting message: " + e.getMessage()).type("text/plain").build();
          throw new WebApplicationException(e, error);
       }

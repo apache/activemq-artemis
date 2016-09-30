@@ -63,8 +63,7 @@ public class TemporaryQueueTest extends PTPTestCase {
          Assert.assertTrue(m instanceof TextMessage);
          TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testTemporaryQueue", msg.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }

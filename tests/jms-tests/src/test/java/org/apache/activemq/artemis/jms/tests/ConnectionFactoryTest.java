@@ -97,8 +97,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
          c.setClientID("somethingelse");
          ProxyAssertSupport.fail("should throw exception");
 
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
@@ -160,21 +159,18 @@ public class ConnectionFactoryTest extends JMSTestCase {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          session.createDurableSubscriber(topic, "durableSubscriberChangeSelectorTest", "TEST = 'test'", false);
-      }
-      finally {
+      } finally {
          try {
             if (conn != null) {
                conn.close();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
          try {
             destroyTopic("TestSubscriber");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
@@ -234,8 +230,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
                   while (fast.processed != numMessages - 2) {
                      try {
                         waitLock.wait(20000);
-                     }
-                     catch (InterruptedException e) {
+                     } catch (InterruptedException e) {
                      }
                   }
 
@@ -282,21 +277,18 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
          Assert.assertTrue(fast.processed == numMessages - 2);
 
-      }
-      finally {
+      } finally {
          try {
             if (conn != null) {
                conn.close();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
          try {
             ActiveMQServerTestCase.undeployConnectionFactory("TestSlowConsumersCF");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
@@ -458,15 +450,13 @@ public class ConnectionFactoryTest extends JMSTestCase {
          Assert.assertFalse(conn instanceof XAQueueConnection);
          Assert.assertTrue(conn instanceof TopicConnection);
          Assert.assertFalse(conn instanceof XATopicConnection);
-      }
-      else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type)) {
+      } else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type)) {
          Assert.assertTrue(conn instanceof XAConnection);
          Assert.assertTrue(conn instanceof QueueConnection);
          Assert.assertTrue(conn instanceof XAQueueConnection);
          Assert.assertTrue(conn instanceof TopicConnection);
          Assert.assertTrue(conn instanceof XATopicConnection);
-      }
-      else {
+      } else {
          Assert.fail("Unknown connection type: " + type);
       }
    }

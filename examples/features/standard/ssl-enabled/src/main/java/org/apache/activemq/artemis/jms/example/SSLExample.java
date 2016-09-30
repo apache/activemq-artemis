@@ -72,8 +72,7 @@ public class SSLExample {
          System.out.println("Received message: " + messageReceived.getText());
 
          initialContext.close();
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

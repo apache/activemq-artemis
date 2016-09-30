@@ -61,8 +61,7 @@ public class FileLockTest extends ActiveMQTestBase {
          public void run() {
             try {
                lockManager2.startLiveNode();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

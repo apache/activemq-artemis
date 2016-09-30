@@ -8,6 +8,6 @@
     "url": "https://github.com/apache/activemq-artemis"
   },
   "devDependencies": {
-      "gitbook-cli": "~0.3.6"
+    "gitbook-cli": "~0.3.6"
   }
 }

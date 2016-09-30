@@ -76,7 +76,6 @@ public class RedeployTest extends ActiveMQTestBase {
          Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
          Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
 
-
          ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
          try (Connection connection = factory.createConnection()) {
             Session session = connection.createSession();
@@ -88,8 +87,7 @@ public class RedeployTest extends ActiveMQTestBase {
             Assert.assertNotNull("Divert wasn't redeployed accordingly", consumer.receive(5000));
          }
 
-      }
-      finally {
+      } finally {
          embeddedJMS.stop();
       }
    }
@@ -101,8 +99,7 @@ public class RedeployTest extends ActiveMQTestBase {
          Queue queue = session.createQueue("NewQueue");
          MessageConsumer consumer = session.createConsumer(queue);
          return true;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          return false;
       }
 

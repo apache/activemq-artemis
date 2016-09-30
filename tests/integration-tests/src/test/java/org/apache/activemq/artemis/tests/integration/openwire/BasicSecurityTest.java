@@ -54,8 +54,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
          newConn.close();
 
          newConn = null;
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }
@@ -65,11 +64,9 @@ public class BasicSecurityTest extends BasicOpenWireTest {
       try {
          newConn = factory.createConnection("openwireSender", "WrongPasswD");
          newConn.start();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          //expected
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }
@@ -79,11 +76,9 @@ public class BasicSecurityTest extends BasicOpenWireTest {
       try {
          newConn = factory.createConnection("wronguser", "SeNdEr");
          newConn.start();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          //expected
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }
@@ -93,11 +88,9 @@ public class BasicSecurityTest extends BasicOpenWireTest {
       try {
          newConn = factory.createConnection("wronguser", "wrongpass");
          newConn.start();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          //expected
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }
@@ -107,11 +100,9 @@ public class BasicSecurityTest extends BasicOpenWireTest {
       try {
          newConn = factory.createConnection();
          newConn.start();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          //expected
-      }
-      finally {
+      } finally {
          if (newConn != null) {
             newConn.close();
          }
@@ -119,7 +110,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
    }
 
    @Test
-      public void testSendnReceiveAuthorization() throws Exception {
+   public void testSendnReceiveAuthorization() throws Exception {
       Connection sendingConn = null;
       Connection receivingConn = null;
 
@@ -144,8 +135,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
 
          try {
             producer.send(message);
-         }
-         catch (JMSSecurityException e) {
+         } catch (JMSSecurityException e) {
             //expected
             producer.close();
          }
@@ -157,8 +147,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
          try {
             consumer = sendingSession.createConsumer(dest);
             Assert.fail("exception expected");
-         }
-         catch (JMSSecurityException e) {
+         } catch (JMSSecurityException e) {
             e.printStackTrace();
             //expected
          }
@@ -168,8 +157,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
 
          assertNotNull(received);
          assertEquals("Hello World", received.getText());
-      }
-      finally {
+      } finally {
          if (sendingConn != null) {
             sendingConn.close();
          }
@@ -198,8 +186,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
          try {
             session1.createTemporaryQueue();
             fail("user shouldn't be able to create temp queue");
-         }
-         catch (JMSSecurityException e) {
+         } catch (JMSSecurityException e) {
             //expected
          }
 
@@ -207,8 +194,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
 
          TemporaryQueue q = session2.createTemporaryQueue();
          assertNotNull(q);
-      }
-      finally {
+      } finally {
          if (conn1 != null) {
             conn1.close();
          }

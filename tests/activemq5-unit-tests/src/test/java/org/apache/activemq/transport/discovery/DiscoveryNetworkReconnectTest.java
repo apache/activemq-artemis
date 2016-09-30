@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.transport.discovery;
 
-import static org.junit.Assert.assertTrue;
-
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import java.net.URI;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
@@ -44,6 +41,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
 public class DiscoveryNetworkReconnectTest {

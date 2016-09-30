@@ -110,20 +110,17 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          assertTrue(backupServer.getServer().isStarted());
 
-      }
-      finally {
+      } finally {
          if (sf != null) {
             sf.close();
          }
          try {
             liveServer.getServer().stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
          try {
             backupServer.getServer().stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -139,8 +136,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
          ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
-      }
-      else {
+      } else {
          super.setupHAPolicyConfiguration();
       }
    }
@@ -151,8 +147,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
          for (ClientSession session : sessions) {
             waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
-      }
-      else {
+      } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(waitFailure, sessions);
@@ -164,8 +159,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
          for (ClientSession session : sessions) {
             waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
-      }
-      else {
+      } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(sessions);

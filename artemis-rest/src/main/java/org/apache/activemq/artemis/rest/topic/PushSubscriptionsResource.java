@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.rest.topic;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -38,6 +30,14 @@ import javax.ws.rs.core.UriInfo;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
 
 public class PushSubscriptionsResource {
 
@@ -78,13 +78,11 @@ public class PushSubscriptionsResource {
 
          if (durable) {
             session.createQueue(destination, subscriptionName, true);
-         }
-         else {
+         } else {
             session.createTemporaryQueue(destination, subscriptionName);
          }
          return session;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e);
       }
    }
@@ -102,12 +100,10 @@ public class PushSubscriptionsResource {
       PushSubscription consumer = new PushSubscription(sessionFactory, reg.getDestination(), reg.getId(), reg, pushStore, jmsOptions);
       try {
          consumer.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          consumer.stop();
          throw new Exception("Failed starting push subscriber for " + destination + " of push subscriber: " + reg.getTarget(), e);
-      }
-      finally {
+      } finally {
          closeSession(createSession);
          closeSession(session);
       }
@@ -120,8 +116,7 @@ public class PushSubscriptionsResource {
       if (createSession != null) {
          try {
             createSession.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
       }
    }
@@ -146,8 +141,7 @@ public class PushSubscriptionsResource {
             if (registration.isDurable() && pushStore != null) {
                pushStore.add(registration);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             consumer.stop();
             throw new WebApplicationException(e, Response.serverError().entity("Failed to start consumer.").type("text/plain").build());
          }
@@ -156,8 +150,7 @@ public class PushSubscriptionsResource {
          UriBuilder location = uriInfo.getAbsolutePathBuilder();
          location.path(genId);
          return Response.created(location.build()).build();
-      }
-      finally {
+      } finally {
          closeSession(createSession);
       }
    }
@@ -215,10 +208,8 @@ public class PushSubscriptionsResource {
          session = sessionFactory.createSession();
 
          session.deleteQueue(subscriptionName);
-      }
-      catch (ActiveMQException e) {
-      }
-      finally {
+      } catch (ActiveMQException e) {
+      } finally {
          closeSession(session);
       }
    }

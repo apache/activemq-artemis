@@ -58,8 +58,7 @@ public class ConstantExpression implements Expression {
       Number value;
       try {
          value = new Long(text);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          // The number may be too big to fit in a long.
          value = new BigDecimal(text);
       }

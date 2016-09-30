@@ -88,8 +88,7 @@ public class SessionProducerCreditsMessage extends PacketImpl {
       if (address == null) {
          if (other.address != null)
             return false;
-      }
-      else if (!address.equals(other.address))
+      } else if (!address.equals(other.address))
          return false;
       if (credits != other.credits)
          return false;

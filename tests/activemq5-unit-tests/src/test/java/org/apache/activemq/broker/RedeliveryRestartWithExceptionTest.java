@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.broker;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -27,6 +24,9 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -111,8 +111,7 @@ public class RedeliveryRestartWithExceptionTest extends TestSupport {
             assertTrue("Should not receive the 5th message", i < 4);
             //The first 4 messages will be ok but the 5th one should hit an exception in updateMessage and should not be delivered
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          //Expecting an exception and disconnect on the 5th message
          LOG.info("Got expected:", e);
          expectedException = e;
@@ -175,8 +174,7 @@ public class RedeliveryRestartWithExceptionTest extends TestSupport {
             assertTrue("Should not receive the 5th message", i < 4);
             //The first 4 messages will be ok but the 5th one should hit an exception in updateMessage and should not be delivered
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          //Expecting an exception and disconnect on the 5th message
          LOG.info("Got expected:", e);
          expectedException = e;
@@ -425,16 +423,14 @@ public class RedeliveryRestartWithExceptionTest extends TestSupport {
             if (numBeforeException > 0) {
                numBeforeException--;
                super.updateMessage(message);
-            }
-            else {
+            } else {
                // lets only do it once so we can validate transient store failure
                throwExceptionOnUpdate = false;
 
                //A message that has never been delivered will hit this exception
                throw new IOException("Hit our simulated exception writing the update to disk");
             }
-         }
-         else {
+         } else {
             super.updateMessage(message);
          }
       }
@@ -456,13 +452,11 @@ public class RedeliveryRestartWithExceptionTest extends TestSupport {
             if (numBeforeException > 0) {
                numBeforeException--;
                super.updateMessage(message);
-            }
-            else {
+            } else {
                //A message that has never been delivered will hit this exception
                throw new IOException("Hit our simulated exception writing the update to disk");
             }
-         }
-         else {
+         } else {
             super.updateMessage(message);
          }
       }

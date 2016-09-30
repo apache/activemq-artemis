@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,20 @@
 
 package org.apache.activemq.broker.region;
 
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.ConstantPendingMessageLimitStrategy;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.broker.region.policy.UniquePropertyMessageEvictionStrategy;
-
-import javax.jms.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UniquePropertyMessageEvictionStrategyTest extends EmbeddedBrokerTestSupport {
 
@@ -86,8 +90,7 @@ public class UniquePropertyMessageEvictionStrategyTest extends EmbeddedBrokerTes
          if (i == 0) {
             assertEquals(0, seqI);
             assertEquals(0, seqJ);
-         }
-         else {
+         } else {
             assertEquals(9, seqJ);
             assertEquals(i - 1, seqI);
          }

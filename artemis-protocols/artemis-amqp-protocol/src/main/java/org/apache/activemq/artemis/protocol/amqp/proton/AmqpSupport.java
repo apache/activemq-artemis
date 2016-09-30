@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.util.AbstractMap;
+import java.util.Map;
+
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-
-import java.util.AbstractMap;
-import java.util.Map;
 
 /**
  * Set of useful methods and definitions used in the AMQP protocol handling
@@ -61,14 +61,12 @@ public class AmqpSupport {
    public static final Symbol LIFETIME_POLICY = Symbol.valueOf("lifetime-policy");
 
    public static final Symbol SOLE_CONNECTION_CAPABILITY = Symbol.valueOf("sole-connection-for-container");
+
    /**
     * Search for a given Symbol in a given array of Symbol object.
     *
-    * @param symbols
-    *        the set of Symbols to search.
-    * @param key
-    *        the value to try and find in the Symbol array.
-    *
+    * @param symbols the set of Symbols to search.
+    * @param key     the value to try and find in the Symbol array.
     * @return true if the key is found in the given Symbol array.
     */
    public static boolean contains(Symbol[] symbols, Symbol key) {
@@ -89,11 +87,8 @@ public class AmqpSupport {
     * Search for a particular filter using a set of known indentification values
     * in the Map of filters.
     *
-    * @param filters
-    *        The filters map that should be searched.
-    * @param filterIds
-    *        The aliases for the target filter to be located.
-    *
+    * @param filters   The filters map that should be searched.
+    * @param filterIds The aliases for the target filter to be located.
     * @return the filter if found in the mapping or null if not found.
     */
    public static Map.Entry<Symbol, DescribedType> findFilter(Map<Symbol, Object> filters, Object[] filterIds) {

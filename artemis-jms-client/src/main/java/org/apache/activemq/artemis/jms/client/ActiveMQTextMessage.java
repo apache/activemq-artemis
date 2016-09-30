@@ -80,8 +80,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
 
       if (text != null) {
          this.text = new SimpleString(text);
-      }
-      else {
+      } else {
          this.text = null;
       }
 
@@ -92,8 +91,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
    public String getText() {
       if (text != null) {
          return text.toString();
-      }
-      else {
+      } else {
          return null;
       }
    }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,8 +66,7 @@ public class StubConnection implements Service {
                   shuttingDown = true;
                }
                StubConnection.this.dispatch(command);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                onException(new IOException("" + e));
             }
          }
@@ -106,8 +105,7 @@ public class StubConnection implements Service {
             ExceptionResponse er = (ExceptionResponse) response;
             throw JMSExceptionSupport.create(er.getException());
          }
-      }
-      else if (transport != null) {
+      } else if (transport != null) {
          transport.oneway(command);
       }
    }
@@ -125,8 +123,7 @@ public class StubConnection implements Service {
             throw JMSExceptionSupport.create(er.getException());
          }
          return response;
-      }
-      else if (transport != null) {
+      } else if (transport != null) {
          Response response = (Response) transport.request(command);
          if (response != null && response.isException()) {
             ExceptionResponse er = (ExceptionResponse) response;
@@ -155,8 +152,7 @@ public class StubConnection implements Service {
       if (transport != null) {
          try {
             transport.oneway(new ShutdownInfo());
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
          }
          ServiceSupport.dispose(transport);
       }

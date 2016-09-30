@@ -188,8 +188,7 @@ public abstract class UnifiedTestCase extends JMSTestCase {
          producerConnection.start();
          consumerConnection.start();
          // end of client step
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -210,10 +209,8 @@ public abstract class UnifiedTestCase extends JMSTestCase {
          admin.deleteQueue(UnifiedTestCase.DESTINATION_NAME);
          admin.deleteQueue(UnifiedTestCase.QUEUE_NAME);
          admin.deleteTopic(UnifiedTestCase.TOPIC_NAME);
-      }
-      catch (Exception ignored) {
-      }
-      finally {
+      } catch (Exception ignored) {
+      } finally {
          producerDestination = null;
          producer = null;
          producerCF = null;

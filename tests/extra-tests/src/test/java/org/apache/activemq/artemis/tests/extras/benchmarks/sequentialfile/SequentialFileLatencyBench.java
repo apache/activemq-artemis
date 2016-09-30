@@ -50,6 +50,7 @@ public final class SequentialFileLatencyBench implements JLBHTask {
    private SequentialFile sequentialFile;
    private ByteBuffer message;
    private JLBH jlbh;
+
    public SequentialFileLatencyBench(SequentialFileFactory sequentialFileFactory) {
       this.sequentialFileFactory = sequentialFileFactory;
    }
@@ -58,8 +59,7 @@ public final class SequentialFileLatencyBench implements JLBHTask {
       final File journalDir;
       if (SHM) {
          journalDir = Files.createDirectory(Paths.get("/dev/shm/seq_files")).toFile();
-      }
-      else {
+      } else {
          journalDir = Files.createTempDirectory("seq_files").toFile();
       }
       journalDir.deleteOnExit();
@@ -93,8 +93,7 @@ public final class SequentialFileLatencyBench implements JLBHTask {
          final File file = this.sequentialFile.getJavaFile();
          file.deleteOnExit();
          System.out.println("sequentialFile: " + file);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       this.message = this.sequentialFileFactory.allocateDirectBuffer(JOURNAL_RECORD_SIZE).order(ByteOrder.nativeOrder());
@@ -106,8 +105,7 @@ public final class SequentialFileLatencyBench implements JLBHTask {
       message.position(0);
       try {
          sequentialFile.writeDirect(message, false, DummyCallback.getInstance());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       jlbh.sample(System.nanoTime() - startTimeNS);
@@ -118,8 +116,7 @@ public final class SequentialFileLatencyBench implements JLBHTask {
       sequentialFileFactory.releaseDirectBuffer(message);
       try {
          sequentialFile.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

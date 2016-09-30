@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class UUIDTest extends ActiveMQTestBase {
 

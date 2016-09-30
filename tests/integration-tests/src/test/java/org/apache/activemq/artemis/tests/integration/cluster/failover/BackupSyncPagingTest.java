@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +24,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BackupSyncPagingTest extends BackupSyncJournalTest {
 

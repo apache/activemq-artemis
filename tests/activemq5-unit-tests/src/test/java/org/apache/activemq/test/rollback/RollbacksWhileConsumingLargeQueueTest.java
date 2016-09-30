@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.test.rollback;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -28,6 +24,9 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
@@ -74,8 +73,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
          try {
             onMessage(message);
             session.commit();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             session.rollback();
          }
       }
@@ -157,15 +155,13 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
       try {
          msgId = message.getJMSMessageID();
          msgText = ((TextMessage) message).getText();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          setFailure(e);
       }
 
       try {
          assertEquals("Message: " + ackCounter.get(), msgText);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          setFailure(e);
       }
 

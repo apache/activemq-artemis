@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Vector;
-
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -34,9 +28,14 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Vector;
 
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -170,8 +169,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
          try {
             message.readByte();
             fail("Expected exception not thrown.");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
          }
 
       }
@@ -205,8 +203,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
          try {
             message.readByte();
             fail("Should have received NumberFormatException");
-         }
-         catch (NumberFormatException e) {
+         } catch (NumberFormatException e) {
          }
 
          assertEquals("This is a test to see how it works.", message.readString());
@@ -216,8 +213,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
          try {
             message.readByte();
             fail("Should have received MessageEOFException");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
          }
       }
       assertNull(consumer.receiveNoWait());

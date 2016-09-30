@@ -95,8 +95,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
             storageManager.deleteDuplicateIDTransactional(txID, id.getB());
             deleteCount--;
-         }
-         else {
+         } else {
             ByteArrayHolder bah = new ByteArrayHolder(id.getA());
 
             Pair<ByteArrayHolder, Long> pair = new Pair<>(bah, id.getB());
@@ -155,8 +154,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
    private String describeID(byte[] duplicateID, long id) {
       if (id != 0) {
          return ByteUtil.bytesToHex(duplicateID, 4) + ", simpleString=" + ByteUtil.toSimpleString(duplicateID);
-      }
-      else {
+      } else {
          return ByteUtil.bytesToHex(duplicateID, 4) + ", simpleString=" + ByteUtil.toSimpleString(duplicateID) + ", id=" + id;
       }
    }
@@ -189,8 +187,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             tx.markAsRollbackOnly(new ActiveMQDuplicateIdException());
          }
          return false;
-      }
-      else {
+      } else {
          addToCache(duplID, tx, true);
          return true;
       }
@@ -208,8 +205,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          }
 
          addToCacheInMemory(duplID, recordID);
-      }
-      else {
+      } else {
          if (persist) {
             recordID = storageManager.generateID();
             storageManager.storeDuplicateIDTransactional(tx.getID(), address, duplID, recordID);
@@ -219,8 +215,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
          if (instantAdd) {
             addToCacheInMemory(duplID, recordID);
-         }
-         else {
+         } else {
             if (logger.isTraceEnabled()) {
                logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCache Adding duplicateID TX operation for " + describeID(duplID, recordID) + ", tx=" + tx);
             }
@@ -266,8 +261,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             if (id.getB() != null) {
                try {
                   storageManager.deleteDuplicateID(id.getB());
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorDeletingDuplicateCache(e);
                }
             }
@@ -284,8 +278,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          }
 
          holder.pos = pos;
-      }
-      else {
+      } else {
          id = new Pair<>(holder, recordID >= 0 ? recordID : null);
 
          if (logger.isTraceEnabled()) {
@@ -389,8 +382,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             }
 
             return true;
-         }
-         else {
+         } else {
             return false;
          }
       }

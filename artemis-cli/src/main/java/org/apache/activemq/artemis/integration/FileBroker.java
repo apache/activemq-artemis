@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.integration;
 
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -24,10 +28,6 @@ import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Map;
 
 public class FileBroker implements Broker {
 

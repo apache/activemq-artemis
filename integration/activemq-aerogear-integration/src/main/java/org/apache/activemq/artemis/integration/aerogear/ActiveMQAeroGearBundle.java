@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.integration.aerogear;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
 
 /**
  * Logger Code 23

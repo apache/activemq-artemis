@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,8 +83,7 @@ public class URISupport {
 
          if (host != null && host.length() != 0) {
             sb.append(host);
-         }
-         else {
+         } else {
             sb.append('(');
             for (int i = 0; i < components.length; i++) {
                if (i != 0) {
@@ -127,8 +126,7 @@ public class URISupport {
             parseParameters(rc, uri.split(";"));
          }
          return rc;
-      }
-      catch (UnsupportedEncodingException e) {
+      } catch (UnsupportedEncodingException e) {
          throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
       }
    }
@@ -141,8 +139,7 @@ public class URISupport {
             String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
             String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
             rc.put(name, value);
-         }
-         else {
+         } else {
             rc.put(parameter, null);
          }
       }
@@ -161,8 +158,7 @@ public class URISupport {
    public static Map<String, String> parseParameters(URI uri) throws URISyntaxException {
       if (!isCompositeURI(uri)) {
          return uri.getQuery() == null ? emptyMap() : parseQuery(stripPrefix(uri.getQuery(), "?"));
-      }
-      else {
+      } else {
          CompositeData data = URISupport.parseComposite(uri);
          Map<String, String> parameters = new HashMap<>();
          parameters.putAll(data.getParameters());
@@ -317,8 +313,7 @@ public class URISupport {
          char current = array[index];
          if (current == '(') {
             depth++;
-         }
-         else if (current == ')') {
+         } else if (current == ')') {
             if (--depth == 0) {
                break;
             }
@@ -366,8 +361,7 @@ public class URISupport {
          componentString = ssp.substring(initialParen + 1, p);
          params = ssp.substring(p + 1).trim();
 
-      }
-      else {
+      } else {
          componentString = ssp;
          params = "";
       }
@@ -384,8 +378,7 @@ public class URISupport {
             rc.path = stripPrefix(params.substring(0, p), "/");
          }
          rc.parameters = parseQuery(params.substring(p + 1));
-      }
-      else {
+      } else {
          if (params.length() > 0) {
             rc.path = stripPrefix(params, "/");
          }
@@ -479,8 +472,7 @@ public class URISupport {
             for (String key : keys) {
                if (first) {
                   first = false;
-               }
-               else {
+               } else {
                   rc.append("&");
                }
                String value = (String) options.get(key);
@@ -489,12 +481,10 @@ public class URISupport {
                rc.append(URLEncoder.encode(value, "UTF-8"));
             }
             return rc.toString();
-         }
-         else {
+         } else {
             return "";
          }
-      }
-      catch (UnsupportedEncodingException e) {
+      } catch (UnsupportedEncodingException e) {
          throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
       }
    }

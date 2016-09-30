@@ -155,20 +155,17 @@ public abstract class NodeManager implements ActiveMQComponent {
       while (!serverLockFile.exists()) {
          try {
             fileCreated = serverLockFile.createNewFile();
-         }
-         catch (RuntimeException e) {
+         } catch (RuntimeException e) {
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             /*
             * on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
             * */
             if (count < 5) {
                try {
                   Thread.sleep(100);
-               }
-               catch (InterruptedException e1) {
+               } catch (InterruptedException e1) {
                }
                count++;
                continue;
@@ -216,15 +213,13 @@ public abstract class NodeManager implements ActiveMQComponent {
             id.position(0);
             channel.write(id, 3);
             channel.force(true);
-         }
-         else if (read != 16) {
+         } else if (read != 16) {
             setUUID(UUIDGenerator.getInstance().generateUUID());
             id.put(getUUID().asBytes(), 0, 16);
             id.position(0);
             channel.write(id, 3);
             channel.force(true);
-         }
-         else {
+         } else {
             byte[] bytes = new byte[16];
             id.position(0);
             id.get(bytes);

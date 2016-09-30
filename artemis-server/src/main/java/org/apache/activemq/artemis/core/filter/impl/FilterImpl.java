@@ -17,16 +17,16 @@
 package org.apache.activemq.artemis.core.filter.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.selector.filter.BooleanExpression;
-import org.apache.activemq.artemis.selector.filter.FilterException;
-import org.apache.activemq.artemis.selector.filter.Filterable;
-import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.selector.filter.BooleanExpression;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 
 /**
  * This class implements an ActiveMQ Artemis filter
@@ -76,8 +76,7 @@ public class FilterImpl implements Filter {
       BooleanExpression booleanExpression;
       try {
          booleanExpression = SelectorParser.parse(filterStr.toString());
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(filterStr);
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("Invalid filter", e);
@@ -106,8 +105,7 @@ public class FilterImpl implements Filter {
       try {
          boolean result = booleanExpression.matches(new FilterableServerMessage(message));
          return result;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(sfilterString);
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("Invalid filter", e);
@@ -136,8 +134,7 @@ public class FilterImpl implements Filter {
       if (sfilterString == null) {
          if (other.sfilterString != null)
             return false;
-      }
-      else if (!sfilterString.equals(other.sfilterString))
+      } else if (!sfilterString.equals(other.sfilterString))
          return false;
       return true;
    }
@@ -153,26 +150,19 @@ public class FilterImpl implements Filter {
       if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
          return new SimpleString("ID:" + msg.getUserID());
-      }
-      else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return Integer.valueOf(msg.getPriority());
-      }
-      else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
          return msg.getTimestamp();
-      }
-      else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName)) {
          return msg.isDurable() ? FilterConstants.DURABLE : FilterConstants.NON_DURABLE;
-      }
-      else if (FilterConstants.ACTIVEMQ_EXPIRATION.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_EXPIRATION.equals(fieldName)) {
          return msg.getExpiration();
-      }
-      else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName)) {
          return msg.getEncodeSize();
-      }
-      else if (FilterConstants.ACTIVEMQ_ADDRESS.equals(fieldName)) {
+      } else if (FilterConstants.ACTIVEMQ_ADDRESS.equals(fieldName)) {
          return msg.getAddress();
-      }
-      else {
+      } else {
          return null;
       }
    }

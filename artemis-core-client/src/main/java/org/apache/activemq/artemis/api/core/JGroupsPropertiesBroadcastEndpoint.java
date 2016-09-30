@@ -23,11 +23,13 @@ import org.jgroups.conf.PlainConfigurator;
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
-public final  class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEndpoint {
+public final class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEndpoint {
 
    private String properties;
 
-   public JGroupsPropertiesBroadcastEndpoint(final JChannelManager manager, final String properties, final String channelName) throws Exception {
+   public JGroupsPropertiesBroadcastEndpoint(final JChannelManager manager,
+                                             final String properties,
+                                             final String channelName) throws Exception {
       super(manager, channelName);
       this.properties = properties;
    }

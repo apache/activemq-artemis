@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.broker.ft;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -27,6 +23,10 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TransactionRolledBackException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.broker.BrokerService;
@@ -66,8 +66,7 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
    protected void verifyExpectedBroker(int inflightMessageCount) {
       if (inflightMessageCount == 0) {
          assertEquals("connected to master", master.getBrokerName(), ((ActiveMQConnection) sendConnection).getBrokerName());
-      }
-      else if (inflightMessageCount == failureCount + 10) {
+      } else if (inflightMessageCount == failureCount + 10) {
          assertEquals("connected to slave, count:" + inflightMessageCount, slave.get().getBrokerName(), ((ActiveMQConnection) sendConnection).getBrokerName());
       }
    }
@@ -94,13 +93,11 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
       try {
          receiveSession.commit();
          super.consumeMessage(message, messageList);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          LOG.info("Failed to commit message receipt: " + message, e);
          try {
             receiveSession.rollback();
-         }
-         catch (JMSException ignored) {
+         } catch (JMSException ignored) {
          }
 
          if (e instanceof TransactionRolledBackException) {
@@ -135,19 +132,15 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
                      // message is gone, so lets count it as consumed
                      LOG.info("On TransactionRolledBackException we know that the ack/commit got there b/c message is gone so we count it: " + mqMessage);
                      super.consumeMessage(message, messageList);
-                  }
-                  else {
+                  } else {
                      LOG.info("On TransactionRolledBackException we know that the ack/commit was lost so we expect a replay of: " + mqMessage);
                   }
-               }
-               catch (Exception dbe) {
+               } catch (Exception dbe) {
                   dbe.printStackTrace();
-               }
-               finally {
+               } finally {
                   try {
                      dbConnection.close();
-                  }
-                  catch (SQLException e1) {
+                  } catch (SQLException e1) {
                      e1.printStackTrace();
                   }
                }

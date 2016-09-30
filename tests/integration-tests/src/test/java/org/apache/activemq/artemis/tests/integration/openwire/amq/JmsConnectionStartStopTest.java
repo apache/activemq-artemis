@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Random;
-import java.util.Vector;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -31,6 +24,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.After;
@@ -129,11 +128,9 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                counter.incrementAndGet();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.add(e);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
             }
          }
       };
@@ -145,11 +142,9 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.start();
                stoppedConnection.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.add(e);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
             }
          }
       };

@@ -124,16 +124,14 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
                Process process = SpawnedVMSupport.spawnVM(ValidateTransactionHealthTest.class.getCanonicalName(), type, journalDir, Long.toString(numberOfRecords), Integer.toString(transactionSize), Integer.toString(numberOfThreads));
                process.waitFor();
                Assert.assertEquals(ValidateTransactionHealthTest.OK, process.exitValue());
-            }
-            else {
+            } else {
                JournalImpl journal = ValidateTransactionHealthTest.appendData(type, journalDir, numberOfRecords, transactionSize, numberOfThreads);
                journal.stop();
             }
          }
 
          reload(type, journalDir, numberOfRecords, numberOfThreads);
-      }
-      finally {
+      } finally {
          File file = new File(journalDir);
          deleteDirectory(file);
       }
@@ -250,8 +248,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
          // The test is making sure that committed data can be reloaded fine...
          // i.e. commits are sync on disk as stated on the transaction.
          // The journal shouldn't leave any state impeding reloading the server
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace(System.out);
          System.exit(-1);
       }
@@ -325,11 +322,9 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
    public static SequentialFileFactory getFactory(final String factoryType, final String directory) {
       if (factoryType.equals("aio")) {
          return new AIOSequentialFileFactory(new File(directory), ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, 10, false);
-      }
-      else if (factoryType.equals("nio2")) {
+      } else if (factoryType.equals("nio2")) {
          return new NIOSequentialFileFactory(new File(directory), true, 1);
-      }
-      else {
+      } else {
          return new NIOSequentialFileFactory(new File(directory), false, 1);
       }
    }
@@ -380,8 +375,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
                      transactionCounter = 0;
                      transactionId = nextID.incrementAndGet();
                   }
-               }
-               else {
+               } else {
                   journal.appendAddRecord(id, (byte) 99, buffer.array(), false);
                }
             }
@@ -393,8 +387,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
             if (transactionSize == 0) {
                journal.debugWait();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             this.e = e;
          }
 

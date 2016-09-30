@@ -16,24 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class NettyConnectorTest extends ActiveMQTestBase {
 
@@ -105,8 +103,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          new NettyConnector(params, null, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
          Assert.fail("Should throw Exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
 
@@ -114,8 +111,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          new NettyConnector(params, handler, null, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
          Assert.fail("Should throw Exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // Ok
       }
    }

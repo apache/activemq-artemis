@@ -18,13 +18,12 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
-
-import java.util.List;
 
 public class BridgeControlImpl extends AbstractControl implements BridgeControl {
 
@@ -56,8 +55,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       try {
          List<String> staticConnectors = configuration.getStaticConnectors();
          return staticConnectors.toArray(new String[staticConnectors.size()]);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -67,8 +65,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getForwardingAddress();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -78,8 +75,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getQueueName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -89,8 +85,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getDiscoveryGroupName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -100,8 +95,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getFilterString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -111,8 +105,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getReconnectAttempts();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -122,8 +115,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -133,8 +125,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getRetryInterval();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -144,8 +135,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getRetryIntervalMultiplier();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -155,8 +145,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.getTransformerClassName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -166,8 +155,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return bridge.isStarted();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -177,8 +165,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.isUseDuplicateDetection();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -188,8 +175,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          return configuration.isHA();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -199,8 +185,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       clearIO();
       try {
          bridge.start();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -211,8 +196,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       try {
          bridge.stop();
          bridge.flushExecutor();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }

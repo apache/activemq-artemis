@@ -77,7 +77,6 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
       server.start();
 
-
       internalTest(MAX_MESSAGES, MY_ADDRESS, MY_QUEUE, server);
    }
 
@@ -113,12 +112,10 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
          try {
             future.get(3, TimeUnit.SECONDS);
             sendCount++;
-         }
-         catch (TimeoutException ex) {
+         } catch (TimeoutException ex) {
             // message sending has been blocked
             break;
-         }
-         finally {
+         } finally {
             future.cancel(true); // may or may not desire this
          }
       }

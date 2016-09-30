@@ -80,8 +80,7 @@ public class ArtemisTest {
 
       if (original == null) {
          System.clearProperty("java.security.auth.login.config");
-      }
-      else {
+      } else {
          System.setProperty("java.security.auth.login.config", original);
       }
 
@@ -97,8 +96,7 @@ public class ArtemisTest {
    public void invalidPathDoesntThrowException() {
       if (isWindows()) {
          testCli("create", "zzzzz:/rawr", "--silent");
-      }
-      else {
+      } else {
          testCli("create", "/rawr", "--silent");
       }
    }
@@ -132,7 +130,7 @@ public class ArtemisTest {
       File bootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
       Document config = parseXml(bootstrapFile);
-      Element webElem = (Element)config.getElementsByTagName("web").item(0);
+      Element webElem = (Element) config.getElementsByTagName("web").item(0);
 
       String bindAttr = webElem.getAttribute("bind");
       String bindStr = "http://localhost:" + Create.HTTP_PORT;
@@ -151,7 +149,7 @@ public class ArtemisTest {
       bootstrapFile = new File(new File(instance2, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
       config = parseXml(bootstrapFile);
-      webElem = (Element)config.getElementsByTagName("web").item(0);
+      webElem = (Element) config.getElementsByTagName("web").item(0);
 
       bindAttr = webElem.getAttribute("bind");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
@@ -168,9 +166,7 @@ public class ArtemisTest {
 
       //instance3: https with clientAuth
       File instance3 = new File(temporaryFolder.getRoot(), "instance3");
-      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore",
-              "--ssl-key-password", "password1",
-              "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2");
+      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2");
       bootstrapFile = new File(new File(instance3, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
 
@@ -179,7 +175,7 @@ public class ArtemisTest {
       System.out.println("confg: " + cfgText);
 
       config = parseXml(bootstrapFile);
-      webElem = (Element)config.getElementsByTagName("web").item(0);
+      webElem = (Element) config.getElementsByTagName("web").item(0);
 
       bindAttr = webElem.getAttribute("bind");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
@@ -227,8 +223,7 @@ public class ArtemisTest {
          try {
             Artemis.internalExecute("data", "print");
             Assert.fail("Exception expected");
-         }
-         catch (CLIException expected) {
+         } catch (CLIException expected) {
          }
          Artemis.internalExecute("data", "print", "--f");
 
@@ -268,8 +263,7 @@ public class ArtemisTest {
 
          // Checking it was acked before
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
-      }
-      finally {
+      } finally {
          stopServer();
       }
    }
@@ -287,8 +281,7 @@ public class ArtemisTest {
       try {
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100"));
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--message-count", "100"));
-      }
-      finally {
+      } finally {
          stopServer();
       }
    }
@@ -296,8 +289,7 @@ public class ArtemisTest {
    private void testCli(String... args) {
       try {
          Artemis.main(args);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          Assert.fail("Exception caught " + e.getMessage());
       }

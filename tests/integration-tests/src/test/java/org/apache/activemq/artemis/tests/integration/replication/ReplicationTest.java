@@ -44,10 +44,11 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -55,7 +56,6 @@ import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -127,8 +127,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
          liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
          backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
          backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
-      }
-      else {
+      } else {
          liveConnector = TransportConfigurationUtils.getInVMConnector(true);
          backupConnector = TransportConfigurationUtils.getInVMConnector(false);
          backupAcceptor = TransportConfigurationUtils.getInVMAcceptor(false);
@@ -153,8 +152,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       backupServer = createServer(backupConfig);
       if (useNetty) {
          locator = createNettyNonHALocator();
-      }
-      else {
+      } else {
          locator = createInVMNonHALocator();
       }
 
@@ -195,11 +193,9 @@ public final class ReplicationTest extends ActiveMQTestBase {
          addActiveMQComponent(manager);
          manager.start();
          Assert.fail("Exception was expected");
-      }
-      catch (ActiveMQNotConnectedException nce) {
+      } catch (ActiveMQNotConnectedException nce) {
          // ok
-      }
-      catch (ActiveMQException expected) {
+      } catch (ActiveMQException expected) {
          fail("Invalid Exception type:" + expected.getType());
       }
    }
@@ -318,8 +314,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
             Assert.assertEquals(i, msgRcvd.getIntProperty("counter").intValue());
             msgRcvd.acknowledge();
          }
-      }
-      finally {
+      } finally {
          TestInterceptor.value.set(false);
          if (!session.isClosed())
             session.close();

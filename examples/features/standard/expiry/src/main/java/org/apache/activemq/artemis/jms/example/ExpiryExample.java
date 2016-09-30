@@ -106,8 +106,7 @@ public class ExpiryExample {
          System.out.println("*Origin destination* of the expired message: " + messageReceived.getStringProperty("_AMQ_ORIG_ADDRESS"));
          // Step 21. the actual expiration time is stored in the _AMQ_ACTUAL_EXPIRY property
          System.out.println("*Actual expiration time* of the expired message: " + messageReceived.getLongProperty("_AMQ_ACTUAL_EXPIRY"));
-      }
-      finally {
+      } finally {
          // Step 22. Be sure to close the resources!
          if (initialContext != null) {
             initialContext.close();

@@ -93,8 +93,7 @@ public class ReattachExample {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 14. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();
@@ -139,8 +138,7 @@ public class ReattachExample {
          JMSManagementHelper.putOperationInvocation(m, "core.acceptor.netty-acceptor", oper);
 
          producer.send(m);
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
-import org.apache.activemq.ActiveMQMessageConsumer;
-import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -36,6 +28,14 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+
+import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.ActiveMQMessageProducer;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * This test covers interactions between core clients and
@@ -197,8 +197,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
             TextMessage msg = session.createTextMessage(text + i);
             producer.send(msg);
          }
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -223,8 +222,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(message);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -251,8 +249,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(bytesMessage);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -271,8 +268,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(objectMessage);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -301,8 +297,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(msg);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -331,8 +326,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(mapMessage);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -350,8 +344,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
 
          producer.send(msg);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -467,8 +460,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          assertEquals(979, genericMessage.getIntProperty("intProperty"));
          assertEquals((short) 1099, genericMessage.getShortProperty("shortProperty"));
          assertEquals("HelloMessage", genericMessage.getStringProperty("stringProperty"));
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }
@@ -497,8 +489,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
             assertEquals(txtMessage.getJMSDestination(), queue);
             assertEquals(text + i, txtMessage.getText());
          }
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }

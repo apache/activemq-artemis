@@ -104,22 +104,19 @@ public class CoreQueueConfiguration implements Serializable {
       if (address == null) {
          if (other.address != null)
             return false;
-      }
-      else if (!address.equals(other.address))
+      } else if (!address.equals(other.address))
          return false;
       if (durable != other.durable)
          return false;
       if (filterString == null) {
          if (other.filterString != null)
             return false;
-      }
-      else if (!filterString.equals(other.filterString))
+      } else if (!filterString.equals(other.filterString))
          return false;
       if (name == null) {
          if (other.name != null)
             return false;
-      }
-      else if (!name.equals(other.name))
+      } else if (!name.equals(other.name))
          return false;
       return true;
    }

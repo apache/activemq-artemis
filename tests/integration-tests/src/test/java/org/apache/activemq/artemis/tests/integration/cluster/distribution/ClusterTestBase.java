@@ -216,16 +216,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          if (consumer != null) {
             try {
                consumer.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                // ignore
             }
          }
          if (session != null) {
             try {
                session.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                // ignore
             }
          }
@@ -317,17 +315,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               liveServer = server.getIdentity();
                               if (member.getLive() != null) {
                                  liveServer += "(notified)";
-                              }
-                              else {
+                              } else {
                                  liveServer += "(not notified)";
                               }
-                           }
-                           else {
+                           } else {
                               backupServer = server.getIdentity();
                               if (member.getBackup() != null) {
                                  liveServer += "(notified)";
-                              }
-                              else {
+                              } else {
                                  liveServer += "(not notified)";
                               }
                            }
@@ -336,12 +331,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                      topologyDiagram.append("\t").append("|\n").append("\t->").append(liveServer).append("/").append(backupServer).append("\n");
                   }
-               }
-               else {
+               } else {
                   topologyDiagram.append("-> no cluster connections\n");
                }
-            }
-            else {
+            } else {
                topologyDiagram.append("-> stopped\n");
             }
          }
@@ -452,8 +445,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                out.println(debugBindings(activeMQServer, activeMQServer.getConfiguration().getManagementNotificationAddress().toString()));
             }
          }
-      }
-      catch (Throwable dontCare) {
+      } catch (Throwable dontCare) {
       }
 
       logAndSystemOut(writer.toString());
@@ -489,8 +481,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return str.toString();
 
    }
-
-
 
    protected void createQueue(final int node,
                               final String address,
@@ -588,8 +578,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          session.start();
 
          consumers[consumerID] = new ConsumerHolder(consumerID, consumer, session, node);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // Proxy the failure and print a dump into System.out, so it is captured by Jenkins reports
          e.printStackTrace();
          System.out.println(ActiveMQTestBase.threadDump(" - fired by ClusterTestBase::addConsumer"));
@@ -708,8 +697,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          }
 
          session.commit();
-      }
-      finally {
+      } finally {
          session.close();
       }
    }
@@ -753,8 +741,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             producer.send(message);
          }
-      }
-      finally {
+      } finally {
          session.close();
       }
    }
@@ -857,8 +844,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             if (groupIdsReceived.get(id) == null) {
                groupIdsReceived.put(id, i);
-            }
-            else if (groupIdsReceived.get(id) != i) {
+            } else if (groupIdsReceived.get(id) != i) {
                Assert.fail("consumer " + groupIdsReceived.get(id) +
                               " already bound to groupid " +
                               id +
@@ -978,8 +964,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ClusterManager clusterManager = server.getClusterManager();
       if (clusterManager == null) {
          out += "N/A";
-      }
-      else {
+      } else {
          for (ClusterConnection cc : clusterManager.getClusterConnections()) {
             out += cc.describe() + "\n";
             out += cc.getTopology().describe();
@@ -1021,8 +1006,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                log.info("check receive Consumer " + consumerID +
                            " received message " +
                            message.getObjectProperty(ClusterTestBase.COUNT_PROP));
-            }
-            else {
+            } else {
                log.info("check receive Consumer " + consumerID + " null message");
             }
          } while (message != null);
@@ -1334,7 +1318,11 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       setupSessionFactory(node, netty, ha, null, null);
    }
 
-   protected void setupSessionFactory(final int node, final boolean netty, boolean ha, final String user, final String password) throws Exception {
+   protected void setupSessionFactory(final int node,
+                                      final boolean netty,
+                                      boolean ha,
+                                      final String user,
+                                      final String password) throws Exception {
       if (sfs[node] != null) {
          throw new IllegalArgumentException("Already a factory at " + node);
       }
@@ -1345,15 +1333,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       if (netty) {
          serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
-      }
-      else {
+      } else {
          serverTotc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
       }
 
       if (ha) {
          locators[node] = ActiveMQClient.createServerLocatorWithHA(serverTotc);
-      }
-      else {
+      } else {
          locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
       }
 
@@ -1379,8 +1365,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       if (netty) {
          serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
-      }
-      else {
+      } else {
          serverTotc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
       }
 
@@ -1448,8 +1433,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       HAPolicyConfiguration haPolicyConfiguration = null;
       if (liveOnly) {
          haPolicyConfiguration = new LiveOnlyPolicyConfiguration();
-      }
-      else {
+      } else {
          if (sharedStorage)
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
          else
@@ -1463,16 +1447,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (fileStorage) {
          if (sharedStorage) {
             server = createInVMFailoverServer(true, configuration, nodeManagers[node], node);
-         }
-         else {
+         } else {
             server = createServer(configuration);
          }
-      }
-      else {
+      } else {
          if (sharedStorage) {
             server = createInVMFailoverServer(false, configuration, nodeManagers[node], node);
-         }
-         else {
+         } else {
             server = createServer(false, configuration);
          }
       }
@@ -1517,8 +1498,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       if (sharedStorage) {
          server = createInVMFailoverServer(true, configuration, nodeManagers[liveNode], liveNode);
-      }
-      else {
+      } else {
          boolean enablePersistency = fileStorage ? true : configuration.isPersistenceEnabled();
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
@@ -1555,17 +1535,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (fileStorage) {
          if (sharedStorage) {
             server = createInVMFailoverServer(true, configuration, nodeManagers[node], node);
-         }
-         else {
+         } else {
             server = addServer(ActiveMQServers.newActiveMQServer(configuration));
             server.setIdentity("Server " + node);
          }
-      }
-      else {
+      } else {
          if (sharedStorage) {
             server = createInVMFailoverServer(false, configuration, nodeManagers[node], node);
-         }
-         else {
+         } else {
             server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
             server.setIdentity("Server " + node);
          }
@@ -1602,8 +1579,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ActiveMQServer server;
       if (sharedStorage) {
          server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[liveNode], liveNode);
-      }
-      else {
+      } else {
          boolean enablePersistency = fileStorage ? configuration.isPersistenceEnabled() : false;
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
@@ -1692,10 +1668,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       config.getClusterConfigurations().add(clusterConf);
    }
 
-
-   protected void setupClusterConnection(final String name,
-                                         final String uri,
-                                         int server) throws Exception {
+   protected void setupClusterConnection(final String name, final String uri, int server) throws Exception {
       ActiveMQServer serverFrom = servers[server];
 
       if (serverFrom == null) {
@@ -1705,7 +1678,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ClusterConnectionConfiguration configuration = new ClusterConnectionConfiguration(new URI(uri)).setName(name);
 
       serverFrom.getConfiguration().addClusterConfiguration(configuration);
-
 
    }
 
@@ -1873,8 +1845,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                log.info("stopping server " + node);
                servers[node].stop();
                log.info("server " + node + " stopped");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exception = e;
             }
          }

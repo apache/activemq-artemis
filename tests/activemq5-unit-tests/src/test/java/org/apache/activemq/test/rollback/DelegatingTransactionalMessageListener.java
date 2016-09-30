@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,8 +45,7 @@ public class DelegatingTransactionalMessageListener implements MessageListener {
          session = connection.createSession(transacted, ackMode);
          MessageConsumer consumer = session.createConsumer(destination);
          consumer.setMessageListener(this);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new IllegalStateException("Could not listen to " + destination, e);
       }
    }
@@ -56,8 +55,7 @@ public class DelegatingTransactionalMessageListener implements MessageListener {
       try {
          underlyingListener.onMessage(message);
          session.commit();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          rollback();
       }
    }
@@ -65,8 +63,7 @@ public class DelegatingTransactionalMessageListener implements MessageListener {
    private void rollback() {
       try {
          session.rollback();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          LOG.error("Failed to rollback: " + e, e);
       }
    }

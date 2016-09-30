@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.rest.integration;
 
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 public class ActiveMQBootstrapListener implements ServletContextListener {
 
@@ -33,8 +33,7 @@ public class ActiveMQBootstrapListener implements ServletContextListener {
       jms.setRegistry(new ServletContextBindingRegistry(context));
       try {
          jms.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -44,8 +43,7 @@ public class ActiveMQBootstrapListener implements ServletContextListener {
       try {
          if (jms != null)
             jms.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

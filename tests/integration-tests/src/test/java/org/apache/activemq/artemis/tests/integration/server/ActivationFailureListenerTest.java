@@ -49,8 +49,7 @@ public class ActivationFailureListenerTest extends ActiveMQTestBase {
          });
          server.start();
          assertTrue(latch.await(3000, TimeUnit.MILLISECONDS));
-      }
-      finally {
+      } finally {
          s.close();
       }
    }

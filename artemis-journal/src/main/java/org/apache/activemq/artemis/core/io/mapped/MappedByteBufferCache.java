@@ -119,8 +119,7 @@ final class MappedByteBufferCache implements AutoCloseable {
                   }
                }
             }
-         }
-         catch (IOException ioe) {
+         } catch (IOException ioe) {
             throw new IOException("Failed to resize to " + minSize, ioe);
          }
       }
@@ -146,8 +145,7 @@ final class MappedByteBufferCache implements AutoCloseable {
                if (mbb != null) {
                   try {
                      PlatformDependent.freeDirectBuffer(mbb);
-                  }
-                  catch (Throwable t) {
+                  } catch (Throwable t) {
                      //TO_FIX: force releasing of the other buffers
                   }
                }
@@ -165,27 +163,21 @@ final class MappedByteBufferCache implements AutoCloseable {
                         }
                      }
                   }
-               }
-               catch (IOException ioe) {
+               } catch (IOException ioe) {
                   throw new IllegalStateException("Failed to resize to " + length, ioe);
                }
             }
-         }
-         catch (IOException ex) {
+         } catch (IOException ex) {
             throw new IllegalStateException("Failed to get size", ex);
-         }
-         finally {
+         } finally {
             try {
                fileChannel.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                throw new IllegalStateException("Failed to close channel", e);
-            }
-            finally {
+            } finally {
                try {
                   raf.close();
-               }
-               catch (IOException e) {
+               } catch (IOException e) {
                   throw new IllegalStateException("Failed to close RandomAccessFile", e);
                }
             }
@@ -208,8 +200,7 @@ final class MappedByteBufferCache implements AutoCloseable {
                if (mbb != null) {
                   try {
                      PlatformDependent.freeDirectBuffer(mbb);
-                  }
-                  catch (Throwable t) {
+                  } catch (Throwable t) {
                      //TO_FIX: force releasing of the other buffers
                   }
                }
@@ -218,15 +209,12 @@ final class MappedByteBufferCache implements AutoCloseable {
          this.byteBuffers.clear();
          try {
             fileChannel.close();
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             throw new IllegalStateException("Failed to close channel", e);
-         }
-         finally {
+         } finally {
             try {
                raf.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                throw new IllegalStateException("Failed to close RandomAccessFile", e);
             }
          }

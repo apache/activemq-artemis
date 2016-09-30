@@ -53,8 +53,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
          try {
             deploymentManager.readConfiguration();
             fail("parsing should have failed for " + filename);
-         }
-         catch (java.lang.IllegalStateException e) {
+         } catch (java.lang.IllegalStateException e) {
             Throwable cause = e.getCause();
             assertTrue("must have been org.xml.sax.SAXParseException", cause instanceof org.xml.sax.SAXParseException);
          }

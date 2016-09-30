@@ -110,8 +110,7 @@ public final class ReplicationPrepareMessage extends PacketImpl {
          if (other.encodingData != null) {
             return false;
          }
-      }
-      else if (!encodingData.equals(other.encodingData)) {
+      } else if (!encodingData.equals(other.encodingData)) {
          return false;
       }
       if (journalID != other.journalID) {

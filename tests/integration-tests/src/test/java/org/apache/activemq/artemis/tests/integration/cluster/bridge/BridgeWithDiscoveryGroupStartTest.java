@@ -28,12 +28,12 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -76,8 +76,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
       Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", TransportConstants.DEFAULT_PORT + 1);
-      }
-      else {
+      } else {
          server1Params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
       ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
@@ -209,8 +208,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          sf0.close();
 
          sf1.close();
-      }
-      finally {
+      } finally {
          if (locator != null) {
             locator.close();
          }
@@ -227,8 +225,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
    private String getConnector() {
       if (isNetty()) {
          return NettyConnectorFactory.class.getName();
-      }
-      else {
+      } else {
          return InVMConnectorFactory.class.getName();
       }
    }

@@ -68,8 +68,7 @@ public class StompInternalStateTest extends ActiveMQTestBase {
          session.deleteQueue(STOMP_QUEUE_NAME);
 
          assertNull(resultTestStompProtocolManagerLeak);
-      }
-      finally {
+      } finally {
          if (session != null) {
             session.close();
          }
@@ -96,8 +95,7 @@ public class StompInternalStateTest extends ActiveMQTestBase {
          if (!destinations.contains(STOMP_QUEUE_NAME)) {
             resultTestStompProtocolManagerLeak += "didn't save the queue when binding added " + destinations;
          }
-      }
-      else if (noti.getType() == CoreNotificationType.BINDING_REMOVED) {
+      } else if (noti.getType() == CoreNotificationType.BINDING_REMOVED) {
          if (destinations.contains(STOMP_QUEUE_NAME)) {
             resultTestStompProtocolManagerLeak = "didn't remove the queue when binding removed " + destinations;
          }

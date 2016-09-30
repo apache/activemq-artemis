@@ -80,8 +80,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
                   ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mBeanServer);
                   serverControl.closeConnectionsForUser("guest");
                   readyToKill = false;
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -96,8 +95,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
              * back to the caller. It's a bit of a hack, but I couldn't find any other way to simulate it.
              */
             Thread.sleep(1500);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
          }
       }
@@ -107,14 +105,12 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
    * Test for https://bugzilla.redhat.com/show_bug.cgi?id=1193085
    * */
    @Test
-   @BMRules(rules = {
-         @BMRule(
-            name = "rule to kill connection",
-            targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
-            targetMethod = "open(int, boolean)",
-            targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
-            action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();")
-         })
+   @BMRules(rules = {@BMRule(
+      name = "rule to kill connection",
+      targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
+      targetMethod = "open(int, boolean)",
+      targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
+      action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();")})
    public void testKillConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
@@ -140,8 +136,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
             producer.send(message);
          }
          fail("Sending message here should result in failure.");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          IntegrationTestLogger.LOGGER.info("Caught exception: " + e.getMessage());
       }
 

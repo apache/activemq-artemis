@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.security;
 
+import java.util.Set;
+
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.jaas.UserPrincipal;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.junit.Test;
-
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

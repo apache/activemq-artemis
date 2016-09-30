@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import javax.naming.Context;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.DirContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,11 +28,6 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.DirContext;
 
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -49,6 +44,10 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends AbstractLdapTestUnit {
 
@@ -70,8 +69,7 @@ public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends Abstr
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             // Ignore
          }
       }
@@ -316,8 +314,7 @@ public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends Abstr
          public boolean isSatisified() throws Exception {
             if (sync) {
                return !map.isContextAlive();
-            }
-            else {
+            } else {
                return map.context == null;
             }
          }
@@ -385,8 +382,7 @@ public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends Abstr
             while (namingEnum.hasMore()) {
                dns.add(namingEnum.next().getNameInNamespace());
             }
-         }
-         else {
+         } else {
             context.unbind(name);
             dns.remove(dns.size() - 1);
          }
@@ -415,8 +411,7 @@ public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends Abstr
 
       try {
          mainMethod.invoke(null, new Object[]{new String[]{"-v", "-h", ldapHost, "-p", String.valueOf(ldapPort), "-D", ldapUser, "-w", ldapPass, "-a", "-f", file.toString()}});
-      }
-      catch (InvocationTargetException e) {
+      } catch (InvocationTargetException e) {
          if (!(e.getTargetException() instanceof SecurityException)) {
             throw e;
          }

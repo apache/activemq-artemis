@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -104,14 +104,12 @@ public class MQTTPublishManager {
       // This is to allow retries of PubRel.
       if (isManagementConsumer(consumer)) {
          sendPubRelMessage(message);
-      }
-      else {
+      } else {
          int qos = decideQoS(message, consumer);
          if (qos == 0) {
             sendServerMessage((int) message.getMessageID(), (ServerMessageImpl) message, deliveryCount, qos);
             session.getServerSession().acknowledge(consumer.getID(), message.getMessageID());
-         }
-         else {
+         } else {
             String consumerAddress = consumer.getQueue().getAddress().toString();
             Integer mqttid = generateMqttId(qos);
 
@@ -160,8 +158,7 @@ public class MQTTPublishManager {
          public void done() {
             if (qos == 1) {
                session.getProtocolHandler().sendPubAck(messageId);
-            }
-            else if (qos == 2) {
+            } else if (qos == 2) {
                session.getProtocolHandler().sendPubRec(messageId);
             }
          }
@@ -220,8 +217,7 @@ public class MQTTPublishManager {
                payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
                payload.writeBytes(stringPayload);
                break;
-            }
-            catch (UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException e) {
                e.printStackTrace();
                // Do nothing default to sending raw bytes.
             }

@@ -93,8 +93,7 @@ public class ActiveMQExceptionMessage extends PacketImpl {
          if (other.exception != null) {
             return false;
          }
-      }
-      else if (!exception.equals(other.exception)) {
+      } else if (!exception.equals(other.exception)) {
          return false;
       }
       return true;

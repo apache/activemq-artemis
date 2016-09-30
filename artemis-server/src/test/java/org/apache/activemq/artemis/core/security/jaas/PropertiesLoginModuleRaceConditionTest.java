@@ -97,11 +97,9 @@ public class PropertiesLoginModuleRaceConditionTest {
             module.initialize(subject, callback, new HashMap<String, Object>(), options);
             module.login();
             module.commit();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             errors.offer(e);
-         }
-         finally {
+         } finally {
             finished.countDown();
          }
       }

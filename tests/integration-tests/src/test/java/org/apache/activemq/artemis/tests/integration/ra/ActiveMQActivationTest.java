@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
-import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.junit.Test;
-
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Test;
 
 public class ActiveMQActivationTest extends ActiveMQTestBase {
 

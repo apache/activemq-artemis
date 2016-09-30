@@ -94,8 +94,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       if (sizeAfterUpdate == 0 && storageManager != null) {
          try {
             storageManager.deletePageTransactional(this.recordID);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
          }
 
@@ -254,21 +253,18 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
          cursor.addPendingDelivery(cursorPos);
          cursor.redeliver(iterator, cursorPos);
          return true;
-      }
-      else if (committed) {
+      } else if (committed) {
          if (logger.isTraceEnabled()) {
             logger.trace("committed on " + cursor + ", position=" + cursorPos + ", ignoring position");
          }
          return false;
-      }
-      else if (rolledback) {
+      } else if (rolledback) {
          if (logger.isTraceEnabled()) {
             logger.trace("rolled back, position ignored on " + cursor + ", position=" + cursorPos);
          }
          cursor.positionIgnored(cursorPos);
          return true;
-      }
-      else {
+      } else {
          if (logger.isTraceEnabled()) {
             logger.trace("deliverAftercommit/else, marking useRedelivery on " + cursor + ", position " + cursorPos);
          }

@@ -19,13 +19,13 @@
 
 package org.apache.artemis.client.cdi.logger;
 
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
+
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
-
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
 
 /**
  * Logger code 57
@@ -44,8 +44,7 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQCDILogger extends BasicLogger {
 
-   ActiveMQCDILogger LOGGER = Logger.getMessageLogger(ActiveMQCDILogger.class,
-                                                      ActiveMQCDILogger.class.getPackage().getName());
+   ActiveMQCDILogger LOGGER = Logger.getMessageLogger(ActiveMQCDILogger.class, ActiveMQCDILogger.class.getPackage().getName());
 
    @LogMessage
    @Message(id = 571000, value = "Discovered configuration class {0}", format = Message.Format.MESSAGE_FORMAT)

@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.net.URL;
+
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.jgroups.JChannel;
-
-import java.net.URL;
 
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
@@ -28,7 +28,9 @@ public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
 
    private String file;
 
-   public JGroupsFileBroadcastEndpoint(final JChannelManager manager, final String file, final String channelName) throws Exception {
+   public JGroupsFileBroadcastEndpoint(final JChannelManager manager,
+                                       final String file,
+                                       final String channelName) throws Exception {
       super(manager, channelName);
       this.file = file;
    }

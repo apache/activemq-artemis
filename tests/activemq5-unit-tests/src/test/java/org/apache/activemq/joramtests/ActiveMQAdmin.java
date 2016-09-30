@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.joramtests;
 
-import java.io.File;
-import java.net.URI;
-import java.util.Hashtable;
-
 import javax.jms.ConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.io.File;
+import java.net.URI;
+import java.util.Hashtable;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
@@ -46,8 +45,7 @@ public class ActiveMQAdmin implements Admin {
          env.put("java.naming.factory.initial", "org.eclipse.jetty.jndi.InitialContextFactory");
          env.put("java.naming.factory.url.pkgs", "org.eclipse.jetty.jndi");
          context = new InitialContext(env);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -95,8 +93,7 @@ public class ActiveMQAdmin implements Admin {
    public void createQueue(String name) {
       try {
          context.bind(name, new ActiveMQQueue(name));
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -105,8 +102,7 @@ public class ActiveMQAdmin implements Admin {
    public void createTopic(String name) {
       try {
          context.bind(name, new ActiveMQTopic(name));
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -116,8 +112,7 @@ public class ActiveMQAdmin implements Admin {
       // BrokerTestSupport.delete_queue((Broker)base.broker, name);
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -126,8 +121,7 @@ public class ActiveMQAdmin implements Admin {
    public void deleteTopic(String name) {
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -138,8 +132,7 @@ public class ActiveMQAdmin implements Admin {
          final ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
          ((ActiveMQConnectionFactory) factory).setNestedMapAndListEnabled(false);
          context.bind(name, factory);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -148,8 +141,7 @@ public class ActiveMQAdmin implements Admin {
    public void deleteConnectionFactory(String name) {
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }

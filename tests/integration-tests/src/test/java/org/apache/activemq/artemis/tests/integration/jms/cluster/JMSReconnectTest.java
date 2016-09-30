@@ -16,6 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,19 +48,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 public class JMSReconnectTest extends ActiveMQTestBase {
 
@@ -182,8 +182,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
          coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
-      }
-      else {
+      } else {
          dest = sess.createTemporaryQueue();
       }
 

@@ -20,6 +20,7 @@
 package org.apache.activemq.artemis.utils;
 
 public abstract class StringEscapeUtils {
+
    /**
     * Adapted from commons lang StringEscapeUtils, escapes a string
     *
@@ -38,14 +39,11 @@ public abstract class StringEscapeUtils {
          // handle unicode
          if (ch > 0xfff) {
             stringBuilder.append("\\u").append(hex(ch));
-         }
-         else if (ch > 0xff) {
+         } else if (ch > 0xff) {
             stringBuilder.append("\\u0").append(hex(ch));
-         }
-         else if (ch > 0x7f) {
+         } else if (ch > 0x7f) {
             stringBuilder.append("\\u00").append(hex(ch));
-         }
-         else if (ch < 32) {
+         } else if (ch < 32) {
             switch (ch) {
                case '\b':
                   stringBuilder.append('\\').append('b');
@@ -62,17 +60,15 @@ public abstract class StringEscapeUtils {
                case '\r':
                   stringBuilder.append('\\').append('r');
                   break;
-               default :
+               default:
                   if (ch > 0xf) {
                      stringBuilder.append("\\u00").append(hex(ch));
-                  }
-                  else {
+                  } else {
                      stringBuilder.append("\\u000").append(hex(ch));
                   }
                   break;
             }
-         }
-         else {
+         } else {
             switch (ch) {
                case '\'':
                   stringBuilder.append('\\').append('\'');
@@ -86,7 +82,7 @@ public abstract class StringEscapeUtils {
                case '/':
                   stringBuilder.append('\\').append('/');
                   break;
-               default :
+               default:
                   stringBuilder.append(ch);
                   break;
             }

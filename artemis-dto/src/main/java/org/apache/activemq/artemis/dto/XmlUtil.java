@@ -63,8 +63,7 @@ public class XmlUtil {
             String property = props.getProperty(group);
             if (property != null) {
                str = matcher.replaceFirst(Matcher.quoteReplacement(property));
-            }
-            else {
+            } else {
                start = matcher.end();
             }
          }
@@ -79,8 +78,13 @@ public class XmlUtil {
       return decode(clazz, configuration, null, null);
    }
 
-   /** We offer parameters for artemisInstance and artemisHome as they could be coming from the CLI or Maven Plugin */
-   public static <T> T decode(Class<T> clazz, File configuration, String artemisHome, String artemisInstance) throws Exception {
+   /**
+    * We offer parameters for artemisInstance and artemisHome as they could be coming from the CLI or Maven Plugin
+    */
+   public static <T> T decode(Class<T> clazz,
+                              File configuration,
+                              String artemisHome,
+                              String artemisInstance) throws Exception {
       JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.artemis.dto");
 
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();

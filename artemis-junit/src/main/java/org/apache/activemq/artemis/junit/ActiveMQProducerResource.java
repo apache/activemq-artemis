@@ -102,8 +102,7 @@ public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
             session.createQueue(address, address);
          }
          producer = session.createProducer(address);
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Error creating producer for address %s", address.toString()), amqEx);
       }
    }
@@ -113,11 +112,9 @@ public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
       if (producer != null) {
          try {
             producer.close();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             log.warn("ActiveMQException encountered closing InternalClient ClientProducer - ignoring", amqEx);
-         }
-         finally {
+         } finally {
             producer = null;
          }
       }
@@ -231,8 +228,7 @@ public class ActiveMQProducerResource extends AbstractActiveMQClientResource {
    public void sendMessage(ClientMessage message) {
       try {
          producer.send(message);
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Failed to send message to %s", producer.getAddress().toString()), amqEx);
       }
    }

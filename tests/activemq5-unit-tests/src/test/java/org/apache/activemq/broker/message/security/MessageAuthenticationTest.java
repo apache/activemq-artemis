@@ -1,5 +1,4 @@
 /**
- *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,22 +16,21 @@
  */
 package org.apache.activemq.broker.message.security;
 
-import java.io.IOException;
-
 import javax.jms.Connection;
-import javax.jms.Session;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.JMSException;
+import java.io.IOException;
 
+import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
-import org.apache.activemq.command.Message;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.Message;
 import org.apache.activemq.security.MessageAuthorizationPolicy;
-import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.spring.ConsumerBean;
 
 /**
@@ -88,8 +86,7 @@ public class MessageAuthenticationTest extends EmbeddedBrokerTestSupport {
             try {
                Object value = message.getProperty("myHeader");
                return "abc".equals(value);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                System.out.println("Caught: " + e);
                e.printStackTrace();
                return false;

@@ -19,9 +19,9 @@ package org.apache.activemq.artemis.jms.persistence;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public interface JMSStorageManager extends ActiveMQComponent {

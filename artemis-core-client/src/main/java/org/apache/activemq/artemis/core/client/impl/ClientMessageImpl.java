@@ -151,8 +151,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
          getBodyBuffer().readBytes(readBuffer);
          out.write(readBuffer);
          out.flush();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errorSavingBody(e);
       }
    }
@@ -334,8 +333,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
       public long getLargeBodySize() {
          if (isLargeMessage()) {
             return getBodyBuffer().writerIndex();
-         }
-         else {
+         } else {
             return getBodyBuffer().writerIndex() - BODY_OFFSET;
          }
       }

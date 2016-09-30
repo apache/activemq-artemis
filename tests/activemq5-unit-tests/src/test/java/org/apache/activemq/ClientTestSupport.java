@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,13 @@
  */
 package org.apache.activemq;
 
+import javax.jms.JMSException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.JMSException;
 
 import junit.framework.TestCase;
 
@@ -72,11 +71,9 @@ public class ClientTestSupport extends TestCase {
          broker.addConnector(connector);
          broker.start();
 
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new JMSException("Error creating broker " + e);
-      }
-      catch (URISyntaxException e) {
+      } catch (URISyntaxException e) {
          throw new JMSException("Error creating broker " + e);
       }
 

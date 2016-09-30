@@ -28,13 +28,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,8 +54,7 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
          for (Entry<NetworkInterface, InetAddress> entry : set) {
             s.append(entry.getKey().getDisplayName() + ": " + entry.getValue().getHostAddress() + "\n");
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
 
@@ -213,17 +212,14 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
             }
             sf.close();
             System.out.println("connection OK");
-         }
-         else {
+         } else {
             try {
                locator.createSessionFactory();
                Assert.fail("session creation must fail because connector must not be able to connect to the server bound to another network interface");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
          }
-      }
-      finally {
+      } finally {
          messagingService.stop();
       }
    }

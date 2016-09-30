@@ -20,8 +20,8 @@ import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriver;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
+import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriver;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
@@ -52,8 +52,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
             file.setId(keys.getInt(1));
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -69,8 +68,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
             file.setWritePosition(getPostGresLargeObjectSize(file));
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -89,8 +87,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
          largeObject.write(data);
          largeObject.close();
          connection.commit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          connection.rollback();
          throw e;
       }
@@ -108,7 +105,8 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
          int readLength = (int) calculateReadLength(largeObject.size(), bytes.remaining(), file.position());
 
          if (readLength > 0) {
-            if (file.position() > 0) largeObject.seek((int) file.position());
+            if (file.position() > 0)
+               largeObject.seek((int) file.position());
             byte[] data = largeObject.read(readLength);
             bytes.put(data);
          }
@@ -117,8 +115,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
          connection.commit();
 
          return readLength;
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -134,8 +131,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
                file.addMetaData(POSTGRES_OID_KEY, rs.getLong(1));
             }
             connection.commit();
-         }
-         catch (SQLException e) {
+         } catch (SQLException e) {
             connection.rollback();
             throw e;
          }
@@ -158,8 +154,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
             size = largeObject.size();
             largeObject.close();
             connection.commit();
-         }
-         catch (SQLException e) {
+         } catch (SQLException e) {
             connection.rollback();
             throw e;
          }

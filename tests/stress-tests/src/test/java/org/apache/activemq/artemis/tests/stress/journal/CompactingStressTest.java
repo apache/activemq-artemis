@@ -182,8 +182,7 @@ public class CompactingStressTest extends ActiveMQTestBase {
          }
 
          session.commit();
-      }
-      finally {
+      } finally {
          session.close();
       }
 
@@ -229,21 +228,17 @@ public class CompactingStressTest extends ActiveMQTestBase {
                   prod.send(msg);
                }
                sessionSlow.commit();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
-            }
-            finally {
+            } finally {
                try {
                   session.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
                try {
                   sessionSlow.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -273,15 +268,12 @@ public class CompactingStressTest extends ActiveMQTestBase {
                }
 
                Assert.assertNull(cons.receiveImmediate());
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
-            }
-            finally {
+            } finally {
                try {
                   session.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -351,12 +343,10 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
          Assert.assertNull(cons.receiveImmediate());
 
-      }
-      finally {
+      } finally {
          try {
             sess.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -375,20 +365,17 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
       try {
          sess.createQueue(CompactingStressTest.AD1, CompactingStressTest.Q1, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       try {
          sess.createQueue(CompactingStressTest.AD2, CompactingStressTest.Q2, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       try {
          sess.createQueue(CompactingStressTest.AD3, CompactingStressTest.Q3, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       sess.close();

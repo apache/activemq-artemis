@@ -23,8 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.Date;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -46,35 +46,21 @@ public final class EmbeddedExample {
 
    public static void main(final String[] args) throws Exception {
       // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
-      Configuration configuration = new ConfigurationImpl()
-         .setPersistenceEnabled(false)
-         .setJournalDirectory("target/data/journal")
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-         .addConnectorConfiguration("connector", new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal").setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName())).addConnectorConfiguration("connector", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
       // Step 2. Create the JMS configuration
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
 
       // Step 3. Configure the JMS ConnectionFactory
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-         .setName("cf")
-         .setConnectorNames(Arrays.asList("connector"))
-         .setBindings("cf");
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(Arrays.asList("connector")).setBindings("cf");
       jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
       // Step 4. Configure the JMS Queue
-      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
-         .setName("queue1")
-         .setDurable(false)
-         .setBindings("queue/queue1");
+      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl().setName("queue1").setDurable(false).setBindings("queue/queue1");
       jmsConfig.getQueueConfigurations().add(queueConfig);
 
       // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
-      EmbeddedJMS jmsServer = new EmbeddedJMS()
-         .setConfiguration(configuration)
-         .setJmsConfiguration(jmsConfig)
-         .start();
+      EmbeddedJMS jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
       System.out.println("Started Embedded JMS Server");
 
       // Step 6. Lookup JMS resources defined in the configuration
@@ -94,8 +80,7 @@ public final class EmbeddedExample {
          connection.start();
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
          System.out.println("Received message:" + messageReceived.getText());
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

@@ -16,13 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class ClientTestBase extends ActiveMQTestBase {
 

@@ -96,8 +96,7 @@ public class PagedReferenceImpl implements PagedReference {
 
       if (message == null) {
          this.messageEstimate = -1;
-      }
-      else {
+      } else {
          this.messageEstimate = message.getMessage().getMemoryEstimate();
       }
       this.message = new WeakReference<>(message);
@@ -124,8 +123,7 @@ public class PagedReferenceImpl implements PagedReference {
       if (messageEstimate < 0) {
          try {
             messageEstimate = getMessage().getMemoryEstimate();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -144,12 +142,10 @@ public class PagedReferenceImpl implements PagedReference {
             ServerMessage msg = getMessage();
             if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
                deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
-            }
-            else {
+            } else {
                deliveryTime = 0L;
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             return 0L;
          }
@@ -223,8 +219,7 @@ public class PagedReferenceImpl implements PagedReference {
    public void acknowledge(Transaction tx, AckReason reason) throws Exception {
       if (tx == null) {
          getQueue().acknowledge(this, reason);
-      }
-      else {
+      } else {
          getQueue().acknowledge(tx, this, reason);
       }
    }
@@ -237,8 +232,7 @@ public class PagedReferenceImpl implements PagedReference {
       String msgToString;
       try {
          msgToString = getPagedMessage().toString();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          // in case of an exception because of a missing page, we just want toString to return null
          msgToString = "error:" + e.getMessage();
       }

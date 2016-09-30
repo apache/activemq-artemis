@@ -126,8 +126,7 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       if (backupServer != null) {
@@ -175,8 +174,7 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
                try {
                   producer.send(message);
                   session.commit();
-               }
-               catch (JMSException expected) {
+               } catch (JMSException expected) {
                   expected.printStackTrace();
                }
             }
@@ -201,7 +199,6 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
       System.out.println("Thread joined");
 
       Assert.assertFalse(t.isAlive());
-
 
       liveServer.stop(true);
 
@@ -228,8 +225,7 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
       try {
          flagArrived.countDown();
          flagWait.await(10, TimeUnit.SECONDS);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
 

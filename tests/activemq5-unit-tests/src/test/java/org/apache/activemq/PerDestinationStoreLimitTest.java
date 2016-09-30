@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,6 @@
  */
 package org.apache.activemq;
 
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -29,6 +23,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -106,8 +105,7 @@ public class PerDestinationStoreLimitTest extends JmsTestSupport {
                      LOG.info("committed/sent: " + sent.get());
                   }
                   LOG.info("sent: " + i);
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                }
             }
          }
@@ -135,8 +133,7 @@ public class PerDestinationStoreLimitTest extends JmsTestSupport {
                // force the use of the DLQ which will use some more store
                LOG.info("rollback on : " + received);
                consumerSession.rollback();
-            }
-            else {
+            } else {
                LOG.info("commit on : " + received);
                consumerSession.commit();
             }

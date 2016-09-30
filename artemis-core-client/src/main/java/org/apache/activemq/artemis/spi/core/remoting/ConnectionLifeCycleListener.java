@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 
 /**
  * A ConnectionLifeCycleListener is called by the remoting implementation to notify of connection events.
+ *
  * @deprecated use {@link ClientConnectionLifeCycleListener} instead.
  */
 @Deprecated

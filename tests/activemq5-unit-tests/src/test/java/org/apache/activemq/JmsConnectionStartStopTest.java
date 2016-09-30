@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,6 @@
  */
 package org.apache.activemq;
 
-import java.util.Random;
-import java.util.Vector;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -30,6 +24,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -123,8 +122,7 @@ public class JmsConnectionStartStopTest extends TestSupport {
             try {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.add(e);
             }
          }
@@ -137,8 +135,7 @@ public class JmsConnectionStartStopTest extends TestSupport {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.start();
                stoppedConnection.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.add(e);
             }
          }

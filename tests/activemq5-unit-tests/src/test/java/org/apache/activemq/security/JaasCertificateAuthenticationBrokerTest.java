@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,13 @@
 
 package org.apache.activemq.security;
 
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
 
 import junit.framework.TestCase;
 
@@ -107,8 +106,7 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
 
       try {
          authBroker.addConnection(connectionContext, connectionInfo);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Call to addConnection failed: " + e.getMessage());
       }
 
@@ -126,21 +124,17 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
          if (currentPrincipal instanceof UserPrincipal) {
             if (userNames.remove(currentPrincipal.getName())) {
                // Nothing, we did good.
-            }
-            else {
+            } else {
                // Found an unknown userName.
                fail("Unknown UserPrincipal found");
             }
-         }
-         else if (currentPrincipal instanceof GroupPrincipal) {
+         } else if (currentPrincipal instanceof GroupPrincipal) {
             if (groupNames.remove(currentPrincipal.getName())) {
                // Nothing, we did good.
-            }
-            else {
+            } else {
                fail("Unknown GroupPrincipal found.");
             }
-         }
-         else {
+         } else {
             fail("Unexpected Principal subclass found.");
          }
       }
@@ -167,11 +161,9 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
       boolean connectFailed = false;
       try {
          authBroker.addConnection(connectionContext, connectionInfo);
-      }
-      catch (SecurityException e) {
+      } catch (SecurityException e) {
          connectFailed = true;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Failed to connect for unexpected reason: " + e.getMessage());
       }
 

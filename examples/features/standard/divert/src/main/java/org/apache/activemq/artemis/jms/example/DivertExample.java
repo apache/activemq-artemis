@@ -199,8 +199,7 @@ public class DivertExample {
 
          System.out.println("Received forwarded price update on server 2: " + priceUpdate2.getText());
          System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward"));
-      }
-      finally {
+      } finally {
          if (connectionLondon != null) {
             connectionLondon.close();
          }

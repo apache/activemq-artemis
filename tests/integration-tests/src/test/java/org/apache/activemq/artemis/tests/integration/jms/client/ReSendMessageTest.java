@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -38,6 +28,16 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Receive Messages and resend them, like the bridge would do
@@ -157,8 +157,7 @@ public class ReSendMessageTest extends JMSTestBase {
             for (int i = 0; i < copiedBytes.getBodyLength(); i++) {
                Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), copiedBytes.readByte());
             }
-         }
-         else if (copiedMessage instanceof MapMessage) {
+         } else if (copiedMessage instanceof MapMessage) {
             MapMessage copiedMap = (MapMessage) copiedMessage;
             MapMessage originalMap = (MapMessage) originalMessage;
             if (originalMap.getString("str") != null) {
@@ -173,12 +172,10 @@ public class ReSendMessageTest extends JMSTestBase {
             if (originalMap.getObject("object") != null) {
                Assert.assertEquals(originalMap.getObject("object"), copiedMap.getObject("object"));
             }
-         }
-         else if (copiedMessage instanceof ObjectMessage) {
+         } else if (copiedMessage instanceof ObjectMessage) {
             Assert.assertNotSame(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
             Assert.assertEquals(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
-         }
-         else if (copiedMessage instanceof TextMessage) {
+         } else if (copiedMessage instanceof TextMessage) {
             Assert.assertEquals(((TextMessage) originalMessage).getText(), ((TextMessage) copiedMessage).getText());
          }
       }
@@ -215,8 +212,7 @@ public class ReSendMessageTest extends JMSTestBase {
             if (other.txt != null) {
                return false;
             }
-         }
-         else if (!txt.equals(other.txt)) {
+         } else if (!txt.equals(other.txt)) {
             return false;
          }
          return true;

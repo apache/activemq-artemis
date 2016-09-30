@@ -55,8 +55,7 @@ public class InflaterReader extends InputStream {
                return -1;
             }
             pointer = 0;
-         }
-         catch (DataFormatException e) {
+         } catch (DataFormatException e) {
             IOException e2 = new IOException(e.getMessage());
             e2.initCause(e);
             throw e2;
@@ -87,16 +86,14 @@ public class InflaterReader extends InputStream {
          if (n == 0) {
             if (inflater.finished()) {
                break;
-            }
-            else if (inflater.needsInput()) {
+            } else if (inflater.needsInput()) {
                //feeding
                int m = input.read(inputBuffer);
 
                if (m == -1) {
                   //it shouldn't be here, throw exception
                   throw new DataFormatException("Input is over while inflater still expecting data");
-               }
-               else {
+               } else {
                   //feed the data in
                   inflater.setInput(inputBuffer, 0, m);
                   n = inflater.inflate(buf, offset, len);
@@ -106,13 +103,11 @@ public class InflaterReader extends InputStream {
                      len -= n;
                   }
                }
-            }
-            else {
+            } else {
                //it shouldn't be here, throw
                throw new DataFormatException("Inflater is neither finished nor needing input.");
             }
-         }
-         else {
+         } else {
             read += n;
             offset += n;
             len -= n;

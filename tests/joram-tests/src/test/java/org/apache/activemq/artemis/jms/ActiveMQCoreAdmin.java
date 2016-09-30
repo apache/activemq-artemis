@@ -31,8 +31,6 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    Hashtable<String, String> jndiProps = new Hashtable<>();
 
-
-
    public ActiveMQCoreAdmin() {
       super();
       jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
@@ -41,8 +39,7 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
          env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          env.put("java.naming.provider.url", "tcp://localhost:61616");
          context = new InitialContext(env);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          e.printStackTrace();
       }
    }
@@ -68,8 +65,7 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
    private void createConnection(final String name, final int cfType) {
       try {
          invokeSyncOperation(ResourceNames.JMS_SERVER, "createConnectionFactory", name, false, false, cfType, "netty", name);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
 
@@ -109,8 +105,7 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
       try {
          invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyConnectionFactory", name);
          jndiProps.remove("connectionFactory." + name);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }

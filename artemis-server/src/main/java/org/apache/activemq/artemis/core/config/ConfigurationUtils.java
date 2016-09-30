@@ -86,8 +86,7 @@ public final class ConfigurationUtils {
             //if null default to colocated
             if (liveConf == null) {
                livePolicy = new ReplicatedPolicy();
-            }
-            else {
+            } else {
                livePolicy = getHAPolicy(liveConf);
             }
             HAPolicyConfiguration backupConf = pc.getBackupConfig();
@@ -95,20 +94,16 @@ public final class ConfigurationUtils {
             if (backupConf == null) {
                if (livePolicy instanceof ReplicatedPolicy) {
                   backupPolicy = new ReplicaPolicy();
-               }
-               else if (livePolicy instanceof SharedStoreMasterPolicy) {
+               } else if (livePolicy instanceof SharedStoreMasterPolicy) {
                   backupPolicy = new SharedStoreSlavePolicy();
-               }
-               else {
+               } else {
                   throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
                }
-            }
-            else {
+            } else {
                backupPolicy = (BackupPolicy) getHAPolicy(backupConf);
             }
 
-            if ((livePolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) ||
-                  (livePolicy instanceof SharedStoreMasterPolicy && !(backupPolicy instanceof SharedStoreSlavePolicy))) {
+            if ((livePolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) || (livePolicy instanceof SharedStoreMasterPolicy && !(backupPolicy instanceof SharedStoreSlavePolicy))) {
                throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
             }
             return new ColocatedPolicy(pc.isRequestBackup(), pc.getBackupRequestRetries(), pc.getBackupRequestRetryInterval(), pc.getMaxBackups(), pc.getBackupPortOffset(), pc.getExcludedConnectors(), livePolicy, backupPolicy);
@@ -122,8 +117,7 @@ public final class ConfigurationUtils {
       if (scaleDownConfiguration != null) {
          if (scaleDownConfiguration.getDiscoveryGroup() != null) {
             return new ScaleDownPolicy(scaleDownConfiguration.getDiscoveryGroup(), scaleDownConfiguration.getGroupName(), scaleDownConfiguration.getClusterName(), scaleDownConfiguration.isEnabled());
-         }
-         else {
+         } else {
             return new ScaleDownPolicy(scaleDownConfiguration.getConnectors(), scaleDownConfiguration.getGroupName(), scaleDownConfiguration.getClusterName(), scaleDownConfiguration.isEnabled());
          }
       }

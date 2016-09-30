@@ -50,8 +50,7 @@ public class NonDurableSubscriberTest extends JMSTestCase {
       try {
          ts.createSubscriber(null);
          ProxyAssertSupport.fail("this should fail");
-      }
-      catch (javax.jms.InvalidDestinationException e) {
+      } catch (javax.jms.InvalidDestinationException e) {
          // OK
       }
    }
@@ -69,8 +68,7 @@ public class NonDurableSubscriberTest extends JMSTestCase {
       try {
          ts.unsubscribe("invalid-subscription-name");
          ProxyAssertSupport.fail("this should fail");
-      }
-      catch (javax.jms.InvalidDestinationException e) {
+      } catch (javax.jms.InvalidDestinationException e) {
          // OK
       }
    }
@@ -85,8 +83,7 @@ public class NonDurableSubscriberTest extends JMSTestCase {
       try {
          s.createSubscriber(ActiveMQServerTestCase.topic1, "=TEST 'test'", false);
          ProxyAssertSupport.fail("this should fail");
-      }
-      catch (InvalidSelectorException e) {
+      } catch (InvalidSelectorException e) {
          // OK
       }
    }

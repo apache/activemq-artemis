@@ -25,11 +25,9 @@ public class CustomHeaderLinkStrategy implements LinkStrategy {
       String headerName = null;
       if (title != null) {
          headerName = title;
-      }
-      else if (rel != null) {
+      } else if (rel != null) {
          headerName = rel;
-      }
-      else {
+      } else {
          throw new RuntimeException("Cannot figure out header name");
       }
       headerName = "msg-" + headerName;

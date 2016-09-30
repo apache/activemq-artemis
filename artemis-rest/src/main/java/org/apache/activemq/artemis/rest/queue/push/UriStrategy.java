@@ -19,9 +19,12 @@ package org.apache.activemq.artemis.rest.queue.push;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.BasicAuth;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.queue.push.xml.XmlHttpHeader;
 import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -41,9 +44,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
-import org.apache.activemq.artemis.rest.queue.push.xml.XmlHttpHeader;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
@@ -140,16 +140,13 @@ public class UriStrategy implements PushStrategy {
                if (retryAfter != null) {
                   wait = Long.parseLong(retryAfter) * 1000;
                }
-            }
-            else if (status == 307) {
+            } else if (status == 307) {
                uri = res.getLocation().toString();
                wait = 0;
-            }
-            else if ((status >= 200 && status < 299) || status == 303 || status == 304) {
+            } else if ((status >= 200 && status < 299) || status == 303 || status == 304) {
                ActiveMQRestLogger.LOGGER.debug("Success");
                return true;
-            }
-            else if (status >= 400) {
+            } else if (status >= 400) {
                switch (status) {
                   case 400: // these usually mean the message you are trying to send is crap, let dead letter logic take over
                   case 411:
@@ -177,21 +174,18 @@ public class UriStrategy implements PushStrategy {
                      break;
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQRestLogger.LOGGER.debug("failed to push message to " + uri, e);
             e.printStackTrace();
             return false;
-         }
-         finally {
+         } finally {
             if (res != null)
                res.releaseConnection();
          }
          try {
             if (wait > 0)
                Thread.sleep(wait);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted");
          }
       }

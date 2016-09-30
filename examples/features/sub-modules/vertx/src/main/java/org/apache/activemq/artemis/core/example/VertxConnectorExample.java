@@ -75,8 +75,7 @@ public class VertxConnectorExample {
 
          // Step 4 Waiting for the Verticle to process the message
          latch.await(10000, TimeUnit.MILLISECONDS);
-      }
-      finally {
+      } finally {
          if (platformManager != null) {
             platformManager.undeployAll(null);
             platformManager.stop();
@@ -92,8 +91,7 @@ public class VertxConnectorExample {
          System.err.println("###    FAILURE!   ###");
          System.err.println("#####################");
          System.exit(1);
-      }
-      else {
+      } else {
          System.out.println();
          System.out.println("#####################");
          System.out.println("###    SUCCESS!   ###");

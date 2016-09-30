@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -121,18 +121,15 @@ public class BrokerBenchmark extends BrokerTestSupport {
 
                      if (msg != null) {
                         connection.send(createAck(consumerInfo, msg, counter, MessageAck.STANDARD_ACK_TYPE));
-                     }
-                     else if (receiveCounter.get() < consumeCount) {
+                     } else if (receiveCounter.get() < consumeCount) {
                         LOG.info("Consumer stall, waiting for message #" + receiveCounter.get() + 1);
                      }
                   }
 
                   connection.send(closeConsumerInfo(consumerInfo));
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
-               }
-               finally {
+               } finally {
                   consumersFinished.release();
                }
             }
@@ -167,11 +164,9 @@ public class BrokerBenchmark extends BrokerTestSupport {
                      connection.send(message);
                      printer.increment();
                   }
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
-               }
-               finally {
+               } finally {
                   producersFinished.release();
                }
             }

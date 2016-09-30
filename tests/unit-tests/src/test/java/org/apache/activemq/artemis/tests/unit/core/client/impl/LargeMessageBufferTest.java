@@ -16,6 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.client.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -37,19 +50,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LargeMessageBufferTest extends ActiveMQTestBase {
 
@@ -84,8 +84,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       for (int i = 1; i <= 15; i++) {
          try {
             Assert.assertEquals(i, buffer.readByte());
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new Exception("Exception at position " + i, e);
          }
       }
@@ -93,8 +92,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
       }
    }
 
@@ -114,8 +112,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          bytes = new byte[16];
          buffer.getBytes(0, bytes);
          Assert.fail("supposed to throw an exception");
-      }
-      catch (java.lang.IndexOutOfBoundsException e) {
+      } catch (java.lang.IndexOutOfBoundsException e) {
       }
    }
 
@@ -148,8 +145,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
       }
    }
 
@@ -179,8 +175,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
       }
    }
 
@@ -282,13 +277,10 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
             try {
                latchGo.countDown();
                buffer.readBytes(new byte[5]);
-            }
-            catch (IndexOutOfBoundsException ignored) {
-            }
-            catch (IllegalAccessError ignored) {
+            } catch (IndexOutOfBoundsException ignored) {
+            } catch (IllegalAccessError ignored) {
 
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errorCount.incrementAndGet();
             }
@@ -344,8 +336,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          for (int i = 0; i < 10240 * 10; i++) {
             assertEquals("position " + i, getSamplebyte(i), outBuffer.readByte());
          }
-      }
-      finally {
+      } finally {
          outBuffer.close();
       }
 
@@ -384,12 +375,10 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
                      }
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
-            }
-            finally {
+            } finally {
                done1.countDown();
                done2.countDown();
             }
@@ -413,8 +402,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
             try {
                outBuffer.waitCompletion(0);
                waiting.countDown();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -481,8 +469,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       try {
          outBuffer.waitCompletion(0);
          fail("supposed to throw an exception");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
       }
 
       assertTrue("It was supposed to wait at least 1 second", System.currentTimeMillis() - time > 1000);
@@ -511,8 +498,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
                outBuffer.addPacket(new byte[]{0}, 1, true);
                Thread.sleep(200);
                outBuffer.addPacket(new byte[]{0}, 1, false);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
          }
       };
@@ -545,8 +531,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       try {
          outBuffer.readByte();
          Assert.fail("supposed to throw an exception");
-      }
-      catch (IllegalAccessError ignored) {
+      } catch (IllegalAccessError ignored) {
       }
 
       Assert.assertTrue("It waited too much", System.currentTimeMillis() - start < 30000);
@@ -633,8 +618,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
             System.arraycopy(splitElement, 0, newSplit, 0, size);
 
             outBuffer.addPacket(newSplit, 1, input.available() > 0);
-         }
-         else {
+         } else {
             outBuffer.addPacket(splitElement, 1, input.available() > 0);
          }
       }

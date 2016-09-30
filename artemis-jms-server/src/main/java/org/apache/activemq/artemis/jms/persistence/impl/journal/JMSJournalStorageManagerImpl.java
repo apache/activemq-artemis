@@ -26,19 +26,19 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
@@ -90,8 +90,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       if (replicator != null) {
          jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);
-      }
-      else {
+      } else {
          jmsJournal = localJMS;
       }
 
@@ -152,8 +151,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       PersistedBindings currentBindings = mapBindings.get(key);
       if (currentBindings != null) {
          jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
-      }
-      else {
+      } else {
          currentBindings = new PersistedBindings(type, name);
       }
 
@@ -181,8 +179,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       PersistedBindings currentBindings = mapBindings.get(key);
       if (currentBindings == null) {
          return;
-      }
-      else {
+      } else {
          jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
       }
 
@@ -190,8 +187,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       if (currentBindings.getBindings().size() == 0) {
          mapBindings.remove(key);
-      }
-      else {
+      } else {
          long newId = idGenerator.generateID();
          currentBindings.setId(newId);
          jmsJournal.appendAddRecordTransactional(tx, newId, BINDING_RECORD, currentBindings);
@@ -261,21 +257,18 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
             cf.decode(buffer);
             cf.setId(id);
             mapFactories.put(cf.getName(), cf);
-         }
-         else if (rec == DESTINATION_RECORD) {
+         } else if (rec == DESTINATION_RECORD) {
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
             destinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
-         }
-         else if (rec == BINDING_RECORD) {
+         } else if (rec == BINDING_RECORD) {
             PersistedBindings bindings = new PersistedBindings();
             bindings.decode(buffer);
             bindings.setId(id);
             Pair<PersistedType, String> key = new Pair<>(bindings.getType(), bindings.getName());
             mapBindings.put(key, bindings);
-         }
-         else {
+         } else {
             throw new IllegalStateException("Invalid record type " + rec);
          }
 
@@ -296,8 +289,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
             if (!dir.mkdirs()) {
                throw new IllegalStateException("Failed to create directory " + dir);
             }
-         }
-         else {
+         } else {
             throw new IllegalArgumentException("Directory " + dir + " does not exist and will not create it");
          }
       }

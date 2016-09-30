@@ -48,14 +48,11 @@ public enum MessageLoadBalancingType {
    public static MessageLoadBalancingType getType(String string) {
       if (string.equals(OFF.getType())) {
          return MessageLoadBalancingType.OFF;
-      }
-      else if (string.equals(STRICT.getType())) {
+      } else if (string.equals(STRICT.getType())) {
          return MessageLoadBalancingType.STRICT;
-      }
-      else if (string.equals(ON_DEMAND.getType())) {
+      } else if (string.equals(ON_DEMAND.getType())) {
          return MessageLoadBalancingType.ON_DEMAND;
-      }
-      else {
+      } else {
          return null;
       }
    }

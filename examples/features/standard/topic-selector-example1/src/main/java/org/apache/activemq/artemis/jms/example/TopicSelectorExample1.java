@@ -131,8 +131,7 @@ public class TopicSelectorExample1 {
          messageConsumer1.close();
          messageConsumer2.close();
          messageConsumer3.close();
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

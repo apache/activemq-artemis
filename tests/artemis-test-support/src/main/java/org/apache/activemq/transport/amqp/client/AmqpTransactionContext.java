@@ -84,8 +84,7 @@ public class AmqpTransactionContext {
                      try {
                         LOG.info("Attempting to declare TX:[{}]", txId);
                         coordinator.declare(txId, request);
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         request.onFailure(e);
                      }
                   }
@@ -100,13 +99,11 @@ public class AmqpTransactionContext {
                      return request.isComplete();
                   }
                });
-            }
-            else {
+            } else {
                try {
                   LOG.info("Attempting to declare TX:[{}]", txId);
                   coordinator.declare(txId, request);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   request.onFailure(e);
                }
             }
@@ -154,8 +151,7 @@ public class AmqpTransactionContext {
                LOG.info("Attempting to commit TX:[{}]", transactionId);
                coordinator.discharge(transactionId, request, true);
                session.pumpToProtonTransport(request);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -200,8 +196,7 @@ public class AmqpTransactionContext {
                LOG.info("Attempting to roll back TX:[{}]", transactionId);
                coordinator.discharge(transactionId, request, false);
                session.pumpToProtonTransport(request);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,8 +52,7 @@ public class TestSupport extends TestCase {
    protected Destination createDestination(String subject) {
       if (topic) {
          return new ActiveMQTopic(subject);
-      }
-      else {
+      } else {
          return new ActiveMQQueue(subject);
       }
    }
@@ -112,8 +111,7 @@ public class TestSupport extends TestCase {
       assertTrue(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getClass() == m2.getClass());
       if (m1 instanceof TextMessage) {
          assertTextMessageEqual(message, (TextMessage) m1, (TextMessage) m2);
-      }
-      else {
+      } else {
          assertEquals(message, m1, m2);
       }
    }

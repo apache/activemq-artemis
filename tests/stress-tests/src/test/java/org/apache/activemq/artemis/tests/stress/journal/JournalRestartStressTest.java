@@ -67,8 +67,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
          try {
             session.createQueue("slow-queue", "slow-queue");
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
 
          session.start();
@@ -113,8 +112,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
       try {
          sessionSend.createQueue("Queue", "Queue", true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       final ClientSession sessionReceive = sf.createSession(true, true);
@@ -142,8 +140,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
                   }
                   msg.acknowledge();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                errors.add(e);
             }
          }

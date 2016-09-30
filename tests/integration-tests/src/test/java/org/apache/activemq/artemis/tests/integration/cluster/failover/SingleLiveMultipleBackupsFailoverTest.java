@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
@@ -31,9 +34,6 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  */

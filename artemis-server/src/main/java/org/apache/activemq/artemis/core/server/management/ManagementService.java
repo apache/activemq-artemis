@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import javax.management.ObjectName;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,9 +36,9 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
-import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerMessage;

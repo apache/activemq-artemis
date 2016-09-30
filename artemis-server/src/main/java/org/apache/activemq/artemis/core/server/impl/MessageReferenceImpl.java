@@ -57,8 +57,7 @@ public class MessageReferenceImpl implements MessageReference {
 
       if (MemorySize.is64bitArch()) {
          memoryOffset = 48;
-      }
-      else {
+      } else {
          memoryOffset = 32;
       }
    }
@@ -199,8 +198,7 @@ public class MessageReferenceImpl implements MessageReference {
    public void acknowledge(Transaction tx, AckReason reason) throws Exception {
       if (tx == null) {
          getQueue().acknowledge(this, reason);
-      }
-      else {
+      } else {
          getQueue().acknowledge(tx, this, reason);
       }
    }

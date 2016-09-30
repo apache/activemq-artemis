@@ -121,14 +121,11 @@ public class ProtocolHandler {
                ctx.pipeline().remove(this);
                ctx.pipeline().remove("http-handler");
                ctx.fireChannelRead(msg);
-            }
-            // HORNETQ-1391
-            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) {
+            } else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) { // HORNETQ-1391
                // Send the response and close the connection if necessary.
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
             }
-         }
-         else {
+         } else {
             super.channelRead(ctx, msg);
          }
       }

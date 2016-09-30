@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.transport.failover;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -32,6 +24,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -49,17 +46,20 @@ import org.apache.activemq.util.Wait;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.After;
-import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 // see https://issues.apache.org/activemq/browse/AMQ-2573
 @RunWith(BMUnitRunner.class)
 public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
+
    private static final Logger LOG = LoggerFactory.getLogger(FailoverConsumerUnconsumedTest.class);
    private static final String QUEUE_NAME = "FailoverWithUnconsumed";
    private static final AtomicBoolean doByteman = new AtomicBoolean(false);
@@ -88,15 +88,12 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
    @Test
    @BMRules(
-           rules = {
-                   @BMRule(
-                           name = "set no return response and stop the broker",
-                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-                           targetMethod = "processAddConsumer",
-                           targetLocation = "ENTRY",
-                           action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker2($0)")
-           }
-   )
+      rules = {@BMRule(
+         name = "set no return response and stop the broker",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processAddConsumer",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker2($0)")})
    public void testFailoverConsumerDups() throws Exception {
       watchTopicAdvisories.set(true);
       doTestFailoverConsumerDups(true);
@@ -104,15 +101,12 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
    @Test
    @BMRules(
-           rules = {
-                   @BMRule(
-                           name = "set no return response and stop the broker",
-                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-                           targetMethod = "processAddConsumer",
-                           targetLocation = "ENTRY",
-                           action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker2($0)")
-           }
-   )
+      rules = {@BMRule(
+         name = "set no return response and stop the broker",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processAddConsumer",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker2($0)")})
    public void testFailoverConsumerDupsNoAdvisoryWatch() throws Exception {
       watchTopicAdvisories.set(false);
       doTestFailoverConsumerDups(false);
@@ -120,15 +114,12 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
    @Test
    @BMRules(
-           rules = {
-                   @BMRule(
-                           name = "set no return response and stop the broker",
-                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-                           targetMethod = "processAddConsumer",
-                           targetLocation = "ENTRY",
-                           action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker($0)")
-           }
-   )
+      rules = {@BMRule(
+         name = "set no return response and stop the broker",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processAddConsumer",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.transport.failover.FailoverConsumerUnconsumedTest.holdResponseAndStopBroker($0)")})
    public void testFailoverClientAckMissingRedelivery() throws Exception {
       maxConsumers = 2;
       brokerStopLatch = new CountDownLatch(1);
@@ -153,8 +144,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
          public void onMessage(Message message) {
             try {
                LOG.info("onMessage:" + message.getJMSMessageID());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -189,8 +179,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
                   public void onMessage(Message message) {
                      try {
                         LOG.info("onMessage:" + message.getJMSMessageID());
-                     }
-                     catch (JMSException e) {
+                     } catch (JMSException e) {
                         e.printStackTrace();
                      }
                   }
@@ -198,8 +187,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
                testConsumers.add(testConsumer);
                shutdownConsumerAdded.countDown();
                LOG.info("done add last consumer");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -280,8 +268,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
                testConsumers.add(new TestConsumer(consumerSession, destination, connection));
                shutdownConsumerAdded.countDown();
                LOG.info("done add last consumer");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -373,8 +360,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
                   try {
                      broker.stop();
                      brokerStopLatch.countDown();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
                }
@@ -394,8 +380,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
                      broker.stop();
                      Assert.assertEquals(1, brokerStopLatch.getCount());
                      brokerStopLatch.countDown();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
                }

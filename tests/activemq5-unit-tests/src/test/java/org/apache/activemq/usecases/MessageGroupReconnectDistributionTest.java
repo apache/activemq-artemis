@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -31,6 +24,13 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -155,8 +155,7 @@ public class MessageGroupReconnectDistributionTest {
 
                         if (totalConsumed.get() == numMessages) {
                            break;
-                        }
-                        else {
+                        } else {
                            batchSize = getBatchSize();
                            messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
                            batches.incrementAndGet();
@@ -174,8 +173,7 @@ public class MessageGroupReconnectDistributionTest {
                         batches.incrementAndGet();
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }

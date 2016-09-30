@@ -49,8 +49,7 @@ public class StompClientConnectionV12 extends AbstractStompClientConnection {
          this.username = username;
          this.passcode = passcode;
          this.connected = true;
-      }
-      else {
+      } else {
          connected = false;
       }
       return response;
@@ -96,8 +95,7 @@ public class StompClientConnectionV12 extends AbstractStompClientConnection {
          this.username = username;
          this.passcode = passcode;
          this.connected = true;
-      }
-      else {
+      } else {
          connected = false;
       }
    }

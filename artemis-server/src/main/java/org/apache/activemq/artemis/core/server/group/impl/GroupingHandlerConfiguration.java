@@ -138,14 +138,12 @@ public final class GroupingHandlerConfiguration implements Serializable {
       if (address == null) {
          if (other.address != null)
             return false;
-      }
-      else if (!address.equals(other.address))
+      } else if (!address.equals(other.address))
          return false;
       if (name == null) {
          if (other.name != null)
             return false;
-      }
-      else if (!name.equals(other.name))
+      } else if (!name.equals(other.name))
          return false;
       if (timeout != other.timeout)
          return false;

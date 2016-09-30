@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,13 @@
 
 package org.apache.activemq.usecases;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Topic;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -81,8 +80,7 @@ public class CreateTemporaryQueueBeforeStartTest extends TestCase {
                         count.notify();
                      }
                   }
-               }
-               catch (Exception ex) {
+               } catch (Exception ex) {
                   ex.printStackTrace();
                }
             }
@@ -96,8 +94,7 @@ public class CreateTemporaryQueueBeforeStartTest extends TestCase {
          while (count.get() < number) {
             if (waitTime <= 0) {
                break;
-            }
-            else {
+            } else {
                count.wait(waitTime);
                waitTime = maxWaitTime - (System.currentTimeMillis() - start);
             }

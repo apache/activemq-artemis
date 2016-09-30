@@ -127,11 +127,9 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       try {
          session.deleteQueue(queueName);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQNonExistentQueueException neqe) {
+      } catch (ActiveMQNonExistentQueueException neqe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();

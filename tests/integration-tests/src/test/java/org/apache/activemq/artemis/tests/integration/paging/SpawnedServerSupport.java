@@ -62,8 +62,7 @@ public class SpawnedServerSupport {
       if (isBackup) {
          haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
          ((SharedStoreSlavePolicyConfiguration) haPolicyConfiguration).setAllowFailBack(false);
-      }
-      else {
+      } else {
          haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
       }
 
@@ -93,8 +92,7 @@ public class SpawnedServerSupport {
 
       if (acceptor) {
          className = NettyAcceptorFactory.class.getName();
-      }
-      else {
+      } else {
          className = NettyConnectorFactory.class.getName();
       }
       Map<String, Object> serverParams = new HashMap<>();

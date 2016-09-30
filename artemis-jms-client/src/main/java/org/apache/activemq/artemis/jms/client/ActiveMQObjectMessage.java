@@ -58,7 +58,9 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       this.options = options;
    }
 
-   protected ActiveMQObjectMessage(final ClientMessage message, final ClientSession session, ConnectionFactoryOptions options) {
+   protected ActiveMQObjectMessage(final ClientMessage message,
+                                   final ClientSession session,
+                                   ConnectionFactoryOptions options) {
       super(message, session);
       this.options = options;
    }
@@ -66,7 +68,9 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    /**
     * A copy constructor for foreign JMS ObjectMessages.
     */
-   public ActiveMQObjectMessage(final ObjectMessage foreign, final ClientSession session, ConnectionFactoryOptions options) throws JMSException {
+   public ActiveMQObjectMessage(final ObjectMessage foreign,
+                                final ClientSession session,
+                                ConnectionFactoryOptions options) throws JMSException {
       super(foreign, ActiveMQObjectMessage.TYPE, session);
 
       setObject(foreign.getObject());
@@ -98,8 +102,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          int len = message.getBodyBuffer().readInt();
          data = new byte[len];
          message.getBodyBuffer().readBytes(data);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          data = null;
       }
 
@@ -122,8 +125,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
             oos.flush();
 
             data = baos.toByteArray();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             JMSException je = new JMSException("Failed to serialize object");
             je.setLinkedException(e);
             je.initCause(e);
@@ -150,8 +152,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          }
          Serializable object = (Serializable) ois.readObject();
          return object;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          JMSException je = new JMSException(e.getMessage());
          je.setStackTrace(e.getStackTrace());
          throw je;
@@ -169,8 +170,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    protected <T> T getBodyInternal(Class<T> c) throws MessageFormatException {
       try {
          return (T) getObject();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new MessageFormatException("Deserialization error on ActiveMQObjectMessage");
       }
    }
@@ -181,8 +181,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          return true;
       try {
          return Serializable.class == c || Object.class == c || c.isInstance(getObject());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          return false;
       }
    }
@@ -190,8 +189,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    private String getDeserializationBlackList() {
       if (options == null) {
          return null;
-      }
-      else {
+      } else {
          return options.getDeserializationBlackList();
       }
    }
@@ -199,8 +197,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    private String getDeserializationWhiteList() {
       if (options == null) {
          return null;
-      }
-      else {
+      } else {
          return options.getDeserializationWhiteList();
       }
    }

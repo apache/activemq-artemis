@@ -29,7 +29,7 @@ public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint {
 
    private final JChannel jChannel;
 
-   public JGroupsChannelBroadcastEndpoint(JChannelManager manager, JChannel jChannel, final String channelName)  {
+   public JGroupsChannelBroadcastEndpoint(JChannelManager manager, JChannel jChannel, final String channelName) {
       super(manager, channelName);
       this.jChannel = jChannel;
    }

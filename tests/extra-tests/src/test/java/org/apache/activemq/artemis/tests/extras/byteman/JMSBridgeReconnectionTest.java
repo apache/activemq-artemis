@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -31,9 +34,6 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
 public class JMSBridgeReconnectionTest extends BridgeTestBase {
@@ -68,8 +68,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
                try {
                   sendMessages(cf0, sourceQueue, 0, 1, false, false);
                   latch.countDown();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -93,15 +92,13 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
          if (sendMessage.getMessage().containsProperty("__AMQ_CID") && count < 0 && !stopped) {
             try {
                activeMQServer.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
             stopped = true;
             try {
                Thread.sleep(5000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
             stopLatch.countDown();

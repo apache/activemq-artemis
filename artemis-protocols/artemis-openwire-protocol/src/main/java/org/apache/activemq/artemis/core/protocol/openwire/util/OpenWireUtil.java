@@ -46,16 +46,13 @@ public class OpenWireUtil {
       if (dest.isQueue()) {
          if (dest.isTemporary()) {
             return new SimpleString(JMS_TEMP_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
-         }
-         else {
+         } else {
             return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
          }
-      }
-      else {
+      } else {
          if (dest.isTemporary()) {
             return new SimpleString(JMS_TEMP_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
-         }
-         else {
+         } else {
             return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
          }
       }
@@ -72,8 +69,7 @@ public class OpenWireUtil {
       String strippedAddress = address.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
-      }
-      else {
+      } else {
          return new ActiveMQTopic(strippedAddress);
       }
    }
@@ -89,7 +85,7 @@ public class OpenWireUtil {
    }
 
    public static XidImpl toXID(TransactionId xaXid) {
-      return toXID((XATransactionId)xaXid);
+      return toXID((XATransactionId) xaXid);
    }
 
    public static XidImpl toXID(XATransactionId xaXid) {

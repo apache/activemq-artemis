@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.junit.Test;
-
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.Test;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
 

@@ -128,8 +128,7 @@ public final class BatchingIDGenerator implements IDGenerator {
             // If the ID is intended to the journal you would know soon enough
             // so we just ignore this for now
             logger.debug("The journalStorageManager is not loaded. " + "This is probably ok as long as it's a notification being sent after shutdown");
-         }
-         else {
+         } else {
             storeID(counter.getAndIncrement(), nextID);
          }
       }
@@ -146,8 +145,7 @@ public final class BatchingIDGenerator implements IDGenerator {
    private void storeID(final long journalID, final long id) {
       try {
          storageManager.storeID(journalID, id);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.batchingIdError(e);
       }
    }
@@ -155,8 +153,7 @@ public final class BatchingIDGenerator implements IDGenerator {
    private void deleteID(final long journalID) {
       try {
          storageManager.deleteID(journalID);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.batchingIdError(e);
       }
    }

@@ -311,7 +311,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119083, value = "Queue {0} has a different filter than requested", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
 
-    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
+   // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
    @Message(id = 119099, value = "Unable to authenticate cluster user: {0}",
       format = Message.Format.MESSAGE_FORMAT)
    ActiveMQClusterSecurityException unableToValidateClusterUser(String user);

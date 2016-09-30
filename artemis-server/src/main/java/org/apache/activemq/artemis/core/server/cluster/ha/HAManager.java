@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.ha;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-
-import java.util.Map;
 
 /*
 * An HAManager takes care of any colocated backups in a VM.

@@ -49,8 +49,7 @@ public class JMSTest extends JMSTestCase {
             conn.close();
             conn = null;
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -262,8 +261,7 @@ public class JMSTest extends JMSTestCase {
                      latch.countDown();
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.error("receive failed", e);
             }
 

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
-
 import org.junit.Test;
 
 public class ClusterWithBackupTest extends ClusterTestBase {
@@ -70,8 +69,7 @@ public class ClusterWithBackupTest extends ClusterTestBase {
          verifyReceiveRoundRobinInSomeOrder(100, 0, 1, 2);
 
          verifyNotReceive(0, 0, 1, 2);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
          log.error(e.getMessage(), e);
          throw e;

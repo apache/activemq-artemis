@@ -16,20 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jms.DeliveryMode;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.Session;
-
 import org.apache.activemq.ActiveMQMessageConsumer;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

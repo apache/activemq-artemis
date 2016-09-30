@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -36,6 +26,16 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Test;
 
@@ -264,8 +264,7 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
                      consumerDemandExists.countDown();
                      System.err.println("Sleeping on receipt of remove info debug message: " + message);
                      TimeUnit.SECONDS.sleep(2);
-                  }
-                  catch (Exception ignored) {
+                  } catch (Exception ignored) {
                   }
                }
 
@@ -380,27 +379,22 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
                try {
                   LOG.info("SENDER: Got a response from echo service!" + ((TextMessage) incomingMessage).getText());
                   responseReceived.incrementAndGet();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   LOG.error("SENDER: might want to see why i'm getting non-text messages..." + incomingMessage, e);
                }
-            }
-            else {
+            } else {
                LOG.info("SENDER: Did not get a response this time");
             }
 
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.error("SENDER: Could not complete message sending properly: " + e.getMessage());
-         }
-         finally {
+         } finally {
             try {
                producer.close();
                consumer.close();
                session.close();
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -449,22 +443,18 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
                      try {
                         producer.send(replyTo, message);
                         LOG.info("RESPONDENT: sent reply:" + message.getJMSMessageID() + " back to: " + replyTo);
-                     }
-                     catch (JMSException e) {
+                     } catch (JMSException e) {
                         LOG.error("RESPONDENT: could not send reply message: " + e.getLocalizedMessage(), e);
                         respondentSendError.incrementAndGet();
                      }
-                  }
-                  catch (JMSException e) {
+                  } catch (JMSException e) {
                      LOG.error("RESPONDENT: could not create the reply message: " + e.getLocalizedMessage(), e);
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      LOG.info("RESPONDENT could not generate a random number");
                   }
                }
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.info("RESPONDENT: Could not set the message listener on the respondent");
          }
       }

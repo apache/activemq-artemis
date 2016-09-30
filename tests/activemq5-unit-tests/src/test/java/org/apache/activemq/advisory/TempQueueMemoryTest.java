@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.advisory;
-
-import java.util.Vector;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -27,6 +25,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
+import java.util.Vector;
 
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.broker.region.RegionBroker;
@@ -65,8 +64,7 @@ public class TempQueueMemoryTest extends EmbeddedBrokerTestSupport {
                      serverSession.commit();
                   }
                   producer.close();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -103,13 +101,11 @@ public class TempQueueMemoryTest extends EmbeddedBrokerTestSupport {
                   consumer.close();
                   if (deleteTempQueue) {
                      replyTo.delete();
-                  }
-                  else {
+                  } else {
                      // temp queue will be cleaned up on clientConnection.close
                   }
                }
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }

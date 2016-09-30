@@ -16,13 +16,36 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.XAConnection;
+import javax.jms.XAConnectionFactory;
+import javax.jms.XASession;
+import javax.json.JsonArray;
+import javax.naming.NamingException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -52,29 +75,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import javax.jms.XAConnection;
-import javax.jms.XAConnectionFactory;
-import javax.jms.XASession;
-import javax.json.JsonArray;
-import javax.naming.NamingException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class JMSServerControlTest extends ManagementTestBase {
    // Attributes ----------------------------------------------------
@@ -317,12 +317,10 @@ public class JMSServerControlTest extends ManagementTestBase {
          try {
             cons.receive(5000);
             Assert.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -356,8 +354,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          try {
             control.destroyQueue(queueName, false);
             Assert.fail();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
@@ -369,8 +366,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          Assert.assertFalse(cons.isClosed());
 
          Assert.assertNotNull(cons.receive(5000));
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -402,8 +398,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          try {
             control.destroyTopic(topicName, false);
             Assert.fail();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
@@ -412,8 +407,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          Assert.assertFalse(cons.isClosed());
 
          Assert.assertNotNull(cons.receive(5000));
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -453,12 +447,10 @@ public class JMSServerControlTest extends ManagementTestBase {
          try {
             cons.receive(5000);
             Assert.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -504,12 +496,10 @@ public class JMSServerControlTest extends ManagementTestBase {
          try {
             cons.receive(5000);
             Assert.fail("should throw exception");
-         }
-         catch (javax.jms.IllegalStateException e) {
+         } catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -815,8 +805,7 @@ public class JMSServerControlTest extends ManagementTestBase {
       try {
          cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
          Assert.fail("Failure expected");
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
       }
 
    }
@@ -926,8 +915,7 @@ public class JMSServerControlTest extends ManagementTestBase {
 
       try {
          connection2.setClientID("someID");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          failed = true;
       }
 
@@ -942,8 +930,7 @@ public class JMSServerControlTest extends ManagementTestBase {
 
       try {
          connection3.setClientID("someID");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          failed = true;
       }
 

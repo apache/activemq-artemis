@@ -69,8 +69,7 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
       Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
-      }
-      else {
+      } else {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
       ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
@@ -114,8 +113,7 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
          long bridgeTTL = getBridgeTTL(serverWithBridge, BRIDGE_NAME);
 
          assertEquals(BRIDGE_TTL, bridgeTTL);
-      }
-      finally {
+      } finally {
          serverWithBridge.stop();
 
          server1.stop();

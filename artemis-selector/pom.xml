@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -66,65 +67,65 @@
             </configuration>
          </plugin>
          <plugin>
-           <groupId>org.codehaus.mojo</groupId>
-           <artifactId>javacc-maven-plugin</artifactId>
-           <version>2.6</version>
-           <executions>
-             <execution>
-               <phase>generate-sources</phase>
-               <goals>
-                 <goal>javacc</goal>
-               </goals>
-             </execution>
-           </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>javacc-maven-plugin</artifactId>
+            <version>2.6</version>
+            <executions>
+               <execution>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>javacc</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
          <plugin>
-             <groupId>org.codehaus.mojo</groupId>
-             <artifactId>build-helper-maven-plugin</artifactId>
-             <executions>
-                 <execution>
-                     <id>add-source</id>
-                     <phase>generate-sources</phase>
-                     <goals>
-                         <goal>add-source</goal>
-                     </goals>
-                     <configuration>
-                         <sources>
-                             <source>${basedir}/target/generated-sources/javacc</source>
-                         </sources>
-                     </configuration>
-                 </execution>
-             </executions>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>add-source</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>add-source</goal>
+                  </goals>
+                  <configuration>
+                     <sources>
+                        <source>${basedir}/target/generated-sources/javacc</source>
+                     </sources>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
       <pluginManagement>
-      	<plugins>
-      		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-      		<plugin>
-      			<groupId>org.eclipse.m2e</groupId>
-      			<artifactId>lifecycle-mapping</artifactId>
-      			<version>1.0.0</version>
-      			<configuration>
-      				<lifecycleMappingMetadata>
-      					<pluginExecutions>
-      						<pluginExecution>
-      							<pluginExecutionFilter>
-      								<groupId>org.codehaus.mojo</groupId>
-      								<artifactId>javacc-maven-plugin</artifactId>
-      								<versionRange>[2.6,)</versionRange>
-      								<goals>
-      									<goal>javacc</goal>
-      								</goals>
-      							</pluginExecutionFilter>
-      							<action>
-      								<execute />
-      							</action>
-      						</pluginExecution>
-      					</pluginExecutions>
-      				</lifecycleMappingMetadata>
-      			</configuration>
-      		</plugin>
-      	</plugins>
+         <plugins>
+            <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+            <plugin>
+               <groupId>org.eclipse.m2e</groupId>
+               <artifactId>lifecycle-mapping</artifactId>
+               <version>1.0.0</version>
+               <configuration>
+                  <lifecycleMappingMetadata>
+                     <pluginExecutions>
+                        <pluginExecution>
+                           <pluginExecutionFilter>
+                              <groupId>org.codehaus.mojo</groupId>
+                              <artifactId>javacc-maven-plugin</artifactId>
+                              <versionRange>[2.6,)</versionRange>
+                              <goals>
+                                 <goal>javacc</goal>
+                              </goals>
+                           </pluginExecutionFilter>
+                           <action>
+                              <execute/>
+                           </action>
+                        </pluginExecution>
+                     </pluginExecutions>
+                  </lifecycleMappingMetadata>
+               </configuration>
+            </plugin>
+         </plugins>
       </pluginManagement>
    </build>
 

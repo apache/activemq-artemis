@@ -63,12 +63,10 @@ public class URIParserTest {
       myFruit.setFluentName("apples&bananas with &host=3344");
       URI uri = parser.createSchema("fruit", myFruit);
 
-      Fruit newFruit = (Fruit)parser.newObject(uri, "something");
+      Fruit newFruit = (Fruit) parser.newObject(uri, "something");
 
       Assert.assertEquals(myFruit.getHost(), newFruit.getHost());
       Assert.assertEquals(myFruit.getFluentName(), newFruit.getFluentName());
-
-
 
    }
 

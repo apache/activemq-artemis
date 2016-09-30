@@ -57,14 +57,11 @@ public class ConnectionTest extends PTPTestCase {
          receiverConnection.close();
          m.acknowledge();
          Assert.fail("sec. 4.3.5 Invoking the acknowledge method of a received message from a closed " + "connection's session must throw a [javax.jms.]IllegalStateException.\n");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("sec. 4.3.5 Invoking the acknowledge method of a received message from a closed " + "connection's session must throw a [javax.jms.]IllegalStateException, not a " +
                         e);
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("sec. 4.3.5 Invoking the acknowledge method of a received message from a closed " + "connection's session must throw an [javax.jms.]IllegalStateException " + "[not a java.lang.IllegalStateException]");
       }
    }
@@ -79,13 +76,10 @@ public class ConnectionTest extends PTPTestCase {
          senderConnection.close();
          senderConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          Assert.fail("Should raise a javax.jms.IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
-      }
-      catch (JMSException e) {
+      } catch (javax.jms.IllegalStateException e) {
+      } catch (JMSException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
-      }
-      catch (java.lang.IllegalStateException e) {
+      } catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException");
       }
    }
@@ -102,8 +96,7 @@ public class ConnectionTest extends PTPTestCase {
          sender.send(message);
 
          receiver.receive(TestConfig.TIMEOUT);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -119,8 +112,7 @@ public class ConnectionTest extends PTPTestCase {
          senderConnection.close();
          // we close it a second time
          senderConnection.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail("sec. 4.3.5 Closing a closed connection must not throw an exception.\n");
       }
    }
@@ -134,8 +126,7 @@ public class ConnectionTest extends PTPTestCase {
          // senderConnection is already started
          // start it again should be ignored
          senderConnection.start();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -151,8 +142,7 @@ public class ConnectionTest extends PTPTestCase {
          senderConnection.stop();
          // stopping it a second time is ignored
          senderConnection.stop();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -171,8 +161,7 @@ public class ConnectionTest extends PTPTestCase {
                try {
                   Assert.fail("The message must not be received, the consumer connection is stopped");
                   Assert.assertEquals("test", ((TextMessage) m).getText());
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   fail(e);
                }
             }
@@ -184,13 +173,11 @@ public class ConnectionTest extends PTPTestCase {
          synchronized (this) {
             try {
                Thread.sleep(1000);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                fail(e);
             }
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }

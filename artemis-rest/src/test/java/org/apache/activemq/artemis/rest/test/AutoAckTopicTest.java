@@ -172,8 +172,7 @@ public class AutoAckTopicTest extends MessageTestBase {
             System.out.println("NPS response: " + response.getStatus());
             Assert.assertEquals(201, response.getStatus());
             isFinished = true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             System.out.println("Exception " + e);
             failed = true;
          }
@@ -207,8 +206,7 @@ public class AutoAckTopicTest extends MessageTestBase {
             ClientResponse<?> response = req.post();
             response.releaseConnection();
             isFinished = true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
          }
       }

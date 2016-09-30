@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.stress.stomp;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +25,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class StompStressTest extends ActiveMQTestBase {
 
@@ -151,8 +148,7 @@ public class StompStressTest extends ActiveMQTestBase {
          c = is.read();
          if (c < 0) {
             throw new IOException("socket closed.");
-         }
-         else if (c == 0) {
+         } else if (c == 0) {
             c = is.read();
             if (c != '\n') {
                byte[] ba = inputBuffer.toByteArray();
@@ -162,8 +158,7 @@ public class StompStressTest extends ActiveMQTestBase {
             byte[] ba = inputBuffer.toByteArray();
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);
-         }
-         else {
+         } else {
             inputBuffer.write(c);
          }
       }

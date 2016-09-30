@@ -160,8 +160,7 @@ final class MappedSequentialFile implements SequentialFile {
             }
          }
          callback.done();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
@@ -188,8 +187,7 @@ final class MappedSequentialFile implements SequentialFile {
    private ActiveMQBuffer acquiresActiveMQBufferWithAtLeast(int size) {
       if (this.pooledActiveMQBuffer == null || this.pooledActiveMQBuffer.capacity() < size) {
          this.pooledActiveMQBuffer = new ChannelBufferWrapper(Unpooled.directBuffer(size, size).order(ByteOrder.nativeOrder()));
-      }
-      else {
+      } else {
          this.pooledActiveMQBuffer.clear();
       }
       return pooledActiveMQBuffer;
@@ -216,8 +214,7 @@ final class MappedSequentialFile implements SequentialFile {
             }
          }
          callback.done();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
@@ -261,8 +258,7 @@ final class MappedSequentialFile implements SequentialFile {
             }
          }
          callback.done();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
@@ -304,8 +300,7 @@ final class MappedSequentialFile implements SequentialFile {
             return bytesRead;
          }
          return 0;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (this.criticalErrorListener != null) {
             this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
@@ -360,8 +355,7 @@ final class MappedSequentialFile implements SequentialFile {
    public long size() {
       if (this.mappedFile != null) {
          return this.mappedFile.length();
-      }
-      else {
+      } else {
          return this.file.length();
       }
    }
@@ -376,8 +370,7 @@ final class MappedSequentialFile implements SequentialFile {
          final File newFile = new File(this.directory, newFileName);
          if (!file.renameTo(newFile)) {
             throw ActiveMQJournalBundle.BUNDLE.ioRenameFileError(file.getName(), newFileName);
-         }
-         else {
+         } else {
             this.file = newFile;
             this.fileName = newFileName;
             this.absoluteFile = null;

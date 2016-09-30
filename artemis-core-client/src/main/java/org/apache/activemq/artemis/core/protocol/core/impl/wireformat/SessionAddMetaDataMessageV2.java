@@ -119,14 +119,12 @@ public class SessionAddMetaDataMessageV2 extends PacketImpl {
       if (data == null) {
          if (other.data != null)
             return false;
-      }
-      else if (!data.equals(other.data))
+      } else if (!data.equals(other.data))
          return false;
       if (key == null) {
          if (other.key != null)
             return false;
-      }
-      else if (!key.equals(other.key))
+      } else if (!key.equals(other.key))
          return false;
       if (requiresConfirmation != other.requiresConfirmation)
          return false;

@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import org.junit.Test;
-
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.junit.Test;
 
 public class StompConnectionCleanupTest extends StompTestBase {
 

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -25,6 +23,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -75,8 +74,7 @@ public class CompositePublishTest extends JmsSendReceiveTestSupport {
       if (topic) {
          consumerDestination = session.createTopic(getConsumerSubject());
          producerDestination = session.createTopic(getProducerSubject());
-      }
-      else {
+      } else {
          consumerDestination = session.createQueue(getConsumerSubject());
          producerDestination = session.createQueue(getProducerSubject());
       }

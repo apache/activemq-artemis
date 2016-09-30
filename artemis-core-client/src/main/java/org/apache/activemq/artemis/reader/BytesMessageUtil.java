@@ -140,35 +140,25 @@ public class BytesMessageUtil extends MessageUtil {
       }
       if (value instanceof String) {
          bytesWriteUTF(message, (String) value);
-      }
-      else if (value instanceof Boolean) {
+      } else if (value instanceof Boolean) {
          bytesWriteBoolean(message, (Boolean) value);
-      }
-      else if (value instanceof Character) {
+      } else if (value instanceof Character) {
          bytesWriteChar(message, (Character) value);
-      }
-      else if (value instanceof Byte) {
+      } else if (value instanceof Byte) {
          bytesWriteByte(message, (Byte) value);
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          bytesWriteShort(message, (Short) value);
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          bytesWriteInt(message, (Integer) value);
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          bytesWriteLong(message, (Long) value);
-      }
-      else if (value instanceof Float) {
+      } else if (value instanceof Float) {
          bytesWriteFloat(message, (Float) value);
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          bytesWriteDouble(message, (Double) value);
-      }
-      else if (value instanceof byte[]) {
+      } else if (value instanceof byte[]) {
          bytesWriteBytes(message, (byte[]) value);
-      }
-      else {
+      } else {
          return false;
       }
 

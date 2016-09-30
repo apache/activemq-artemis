@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,6 @@
 
 package org.apache.activemq.usecases;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -31,6 +25,11 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ResourceAllocationException;
 import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -125,14 +124,12 @@ public class UnlimitedEnqueueTest {
                message.writeBytes(bytes);
                try {
                   producer.send(message);
-               }
-               catch (ResourceAllocationException e) {
+               } catch (ResourceAllocationException e) {
                   e.printStackTrace();
                }
                session.close();
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // expect interrupted exception on shutdownNow
          }
       }

@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.core.transaction.impl;
 
+import javax.transaction.xa.Xid;
 import java.io.Serializable;
 import java.util.Arrays;
-
-import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.utils.Base64;
 

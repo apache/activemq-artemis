@@ -50,8 +50,7 @@ public class TransportConfigurationUtil {
          if (object != null && object instanceof TransportConfigurationHelper) {
 
             DEFAULTS.put(className, ((TransportConfigurationHelper) object).getDefaults());
-         }
-         else {
+         } else {
             DEFAULTS.put(className, EMPTY_HELPER);
          }
       }
@@ -67,8 +66,7 @@ public class TransportConfigurationUtil {
          public Object run() {
             try {
                return ClassloadingUtil.newInstanceFromClassLoader(className);
-            }
-            catch (IllegalStateException e) {
+            } catch (IllegalStateException e) {
                return null;
             }
          }
@@ -90,8 +88,7 @@ public class TransportConfigurationUtil {
          String port1 = String.valueOf(tc1.getParams().get("port") != null ? tc1.getParams().get("port") : TransportConstants.DEFAULT_PORT);
          String port2 = String.valueOf(tc2.getParams().get("port") != null ? tc2.getParams().get("port") : TransportConstants.DEFAULT_PORT);
          return host1.equals(host2) && port1.equals(port2);
-      }
-      else if ("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory".equals(tc1.getFactoryClassName())) {
+      } else if ("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory".equals(tc1.getFactoryClassName())) {
          String serverId1 = tc1.getParams().get("serverId") != null ? tc1.getParams().get("serverId").toString() : "0";
          String serverId2 = tc2.getParams().get("serverId") != null ? tc2.getParams().get("serverId").toString() : "0";
          return serverId1.equals(serverId2);

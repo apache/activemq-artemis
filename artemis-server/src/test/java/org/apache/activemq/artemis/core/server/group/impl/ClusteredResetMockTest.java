@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.group.impl;
 
+import javax.management.ObjectName;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -53,12 +59,6 @@ import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.management.ObjectName;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * this is testing the case for resending notifications from RemotingGroupHandler
@@ -126,8 +126,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
                throw sni.ex;
             }
          }
-      }
-      finally {
+      } finally {
 
          for (Sender sni : sn) {
             sni.interrupt();
@@ -157,12 +156,10 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
             Response response = handler.propose(proposal);
             if (response == null) {
                ex = new NullPointerException("expected value on " + getName());
-            }
-            else if (!response.getGroupId().equals(code)) {
+            } else if (!response.getGroupId().equals(code)) {
                ex = new IllegalStateException("expected code=" + code + " but it was " + response.getGroupId());
             }
-         }
-         catch (Throwable ex) {
+         } catch (Throwable ex) {
             ex.printStackTrace();
             this.ex = ex;
          }

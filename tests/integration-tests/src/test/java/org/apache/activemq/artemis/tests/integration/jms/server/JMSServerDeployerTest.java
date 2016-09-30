@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.Context;
+
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -31,10 +35,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.Context;
 
 public class JMSServerDeployerTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------

@@ -17,11 +17,9 @@
 package org.apache.activemq.artemis.tests.timing.util;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ReusableLatchTest extends ActiveMQTestBase {
 

@@ -19,25 +19,21 @@
 
 package org.apache.activemq.artemis.spi.core.protocol;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
-import java.util.List;
+public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C extends RemotingConnection> implements ProtocolManager<I> {
 
-public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C extends RemotingConnection>
-      implements ProtocolManager<I> {
-
-   protected void invokeInterceptors(final List<I> interceptors,
-                                     final P message,
-                                     final C connection) {
+   protected void invokeInterceptors(final List<I> interceptors, final P message, final C connection) {
       if (interceptors != null && !interceptors.isEmpty()) {
          for (I interceptor : interceptors) {
             try {
                if (!interceptor.intercept(message, connection)) {
                   break;
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.error(e);
             }
          }

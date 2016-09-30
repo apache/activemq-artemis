@@ -97,8 +97,7 @@ public abstract class ClientAbstract extends Thread {
                   if (!found) {
                      if (pendingCommit) {
                         onCommit();
-                     }
-                     else {
+                     } else {
                         onRollback();
                      }
 
@@ -111,14 +110,12 @@ public abstract class ClientAbstract extends Thread {
             connectClients();
 
             break;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ClientAbstract.log.warn("Can't connect to server, retrying");
             disconnect();
             try {
                Thread.sleep(1000);
-            }
-            catch (InterruptedException ignored) {
+            } catch (InterruptedException ignored) {
                // if an interruption was sent, we will respect it and leave the loop
                break;
             }
@@ -177,8 +174,7 @@ public abstract class ClientAbstract extends Thread {
          if (session != null) {
             session.close();
          }
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
          ignored.printStackTrace();
       }
 

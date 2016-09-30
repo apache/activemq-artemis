@@ -17,10 +17,10 @@
 package org.apache.activemq.artemis.logs;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
 
 /**
  * Logger Code 20

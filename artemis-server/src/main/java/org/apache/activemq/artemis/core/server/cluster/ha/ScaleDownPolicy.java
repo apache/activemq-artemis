@@ -102,16 +102,14 @@ public class ScaleDownPolicy {
                                                              ActiveMQServer activeMQServer) throws ActiveMQException {
       if (!scaleDownPolicy.getConnectors().isEmpty()) {
          return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(connectorNameListToArray(scaleDownPolicy.getConnectors(), activeMQServer));
-      }
-      else if (scaleDownPolicy.getDiscoveryGroup() != null) {
+      } else if (scaleDownPolicy.getDiscoveryGroup() != null) {
          DiscoveryGroupConfiguration dg = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(scaleDownPolicy.getDiscoveryGroup());
 
          if (dg == null) {
             throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
          return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
-      }
-      else {
+      } else {
          Map<String, TransportConfiguration> connectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
          for (TransportConfiguration transportConfiguration : connectorConfigurations.values()) {
             if (transportConfiguration.getFactoryClassName().equals(InVMConnectorFactory.class.getName())) {

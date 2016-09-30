@@ -21,9 +21,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,11 +72,9 @@ public class SessionCreateProducerTest extends ActiveMQTestBase {
       try {
          clientSession.createProducer();
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQObjectClosedException oce) {
+      } catch (ActiveMQObjectClosedException oce) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

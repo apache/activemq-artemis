@@ -61,8 +61,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    public int getEncodeSize() {
       if (bodyBuffer != null) {
          return super.getEncodeSize();
-      }
-      else {
+      } else {
          return DataConstants.SIZE_INT + DataConstants.SIZE_INT + getHeadersAndPropertiesEncodeSize();
       }
    }
@@ -90,8 +89,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
 
       try {
          checkBuffer();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e.getMessage(), e);
       }
 
@@ -113,8 +111,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       if (bodyBuffer != null) {
          // The body was rebuilt on the client, so we need to behave as a regular message on this case
          super.saveToOutputStream(out);
-      }
-      else {
+      } else {
          largeMessageController.saveBuffer(out);
       }
    }
@@ -123,8 +120,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    public ClientLargeMessageImpl setOutputStream(final OutputStream out) throws ActiveMQException {
       if (bodyBuffer != null) {
          super.setOutputStream(out);
-      }
-      else {
+      } else {
          largeMessageController.setOutputStream(out);
       }
 
@@ -135,8 +131,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws ActiveMQException {
       if (bodyBuffer != null) {
          return super.waitOutputStreamCompletion(timeMilliseconds);
-      }
-      else {
+      } else {
          return largeMessageController.waitCompletion(timeMilliseconds);
       }
    }
@@ -145,8 +140,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    public void discardBody() {
       if (bodyBuffer != null) {
          super.discardBody();
-      }
-      else {
+      } else {
          largeMessageController.discardUnusedPackets();
       }
    }

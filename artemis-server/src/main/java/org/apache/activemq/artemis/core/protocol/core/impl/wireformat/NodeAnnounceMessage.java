@@ -114,15 +114,13 @@ public class NodeAnnounceMessage extends PacketImpl {
       if (connector != null) {
          buffer.writeBoolean(true);
          connector.encode(buffer);
-      }
-      else {
+      } else {
          buffer.writeBoolean(false);
       }
       if (backupConnector != null) {
          buffer.writeBoolean(true);
          backupConnector.encode(buffer);
-      }
-      else {
+      } else {
          buffer.writeBoolean(false);
       }
       buffer.writeNullableString(scaleDownGroupName);
@@ -189,16 +187,14 @@ public class NodeAnnounceMessage extends PacketImpl {
          if (other.backupConnector != null) {
             return false;
          }
-      }
-      else if (!backupConnector.equals(other.backupConnector)) {
+      } else if (!backupConnector.equals(other.backupConnector)) {
          return false;
       }
       if (connector == null) {
          if (other.connector != null) {
             return false;
          }
-      }
-      else if (!connector.equals(other.connector)) {
+      } else if (!connector.equals(other.connector)) {
          return false;
       }
       if (currentEventID != other.currentEventID) {
@@ -208,11 +204,9 @@ public class NodeAnnounceMessage extends PacketImpl {
          if (other.nodeID != null) {
             return false;
          }
-      }
-      else if (!nodeID.equals(other.nodeID)) {
+      } else if (!nodeID.equals(other.nodeID)) {
          return false;
-      }
-      else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
+      } else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
          return false;
       }
       return true;

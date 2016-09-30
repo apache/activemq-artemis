@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.net.URI;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -25,10 +29,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Test;
-
-import java.net.URI;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class ProtonMaxFrameSizeTest extends ProtonTestBase {
 
@@ -46,7 +46,6 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
       int nMsgs = 200;
 
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
-
 
       AmqpConnection amqpConnection = client.createConnection();
 
@@ -79,8 +78,7 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
             message.accept();
          }
 
-      }
-      finally {
+      } finally {
          amqpConnection.close();
       }
    }

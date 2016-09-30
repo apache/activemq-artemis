@@ -118,11 +118,9 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       ClientSessionFactoryInternal csf = null;
       try {
          csf = locator.connect();
-      }
-      catch (ActiveMQNotConnectedException nce) {
+      } catch (ActiveMQNotConnectedException nce) {
          //ok
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQException);
          fail("Invalid Exception type:" + ((ActiveMQException) e).getType());
       }
@@ -165,8 +163,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       public void run() {
          try {
             csf = locator.connect();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             this.e = e;
          }
          latch.countDown();

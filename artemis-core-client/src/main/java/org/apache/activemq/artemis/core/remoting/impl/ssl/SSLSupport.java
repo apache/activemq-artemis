@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.ssl;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +30,6 @@ import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.PrivilegedAction;
 import java.security.SecureRandom;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
@@ -83,8 +82,7 @@ public class SSLSupport {
                                                   final String trustStorePassword) throws Exception {
       if (trustStorePath == null && (trustStoreProvider == null || !"PKCS11".equals(trustStoreProvider.toUpperCase()))) {
          return null;
-      }
-      else {
+      } else {
          TrustManagerFactory trustMgrFactory;
          KeyStore trustStore = SSLSupport.loadKeystore(trustStoreProvider, trustStorePath, trustStorePassword);
          trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -104,13 +102,11 @@ public class SSLSupport {
             in = keystoreURL.openStream();
          }
          ks.load(in, keystorePassword == null ? null : keystorePassword.toCharArray());
-      }
-      finally {
+      } finally {
          if (in != null) {
             try {
                in.close();
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored) {
             }
          }
       }
@@ -122,8 +118,7 @@ public class SSLSupport {
                                                final String keystorePassword) throws Exception {
       if (keystorePath == null && (keyStoreProvider == null || !"PKCS11".equals(keyStoreProvider.toUpperCase()))) {
          return null;
-      }
-      else {
+      } else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
          KeyStore ks = SSLSupport.loadKeystore(keyStoreProvider, keystorePath, keystorePassword);
          kmf.init(ks, keystorePassword == null ? null : keystorePassword.toCharArray());
@@ -138,13 +133,11 @@ public class SSLSupport {
       // First see if this is a URL
       try {
          return new URL(storePath);
-      }
-      catch (MalformedURLException e) {
+      } catch (MalformedURLException e) {
          File file = new File(storePath);
          if (file.exists() == true && file.isFile()) {
             return file.toURI().toURL();
-         }
-         else {
+         } else {
             URL url = findResource(storePath);
             if (url != null) {
                return url;

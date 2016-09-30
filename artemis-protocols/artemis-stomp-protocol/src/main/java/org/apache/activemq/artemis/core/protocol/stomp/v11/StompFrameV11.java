@@ -51,8 +51,7 @@ public class StompFrameV11 extends StompFrame {
       if (!headers.containsKey(key)) {
          headers.put(key, val);
          allHeaders.add(new Header(key, val));
-      }
-      else if (!key.equals(Stomp.Headers.CONTENT_LENGTH)) {
+      } else if (!key.equals(Stomp.Headers.CONTENT_LENGTH)) {
          allHeaders.add(new Header(key, val));
       }
    }

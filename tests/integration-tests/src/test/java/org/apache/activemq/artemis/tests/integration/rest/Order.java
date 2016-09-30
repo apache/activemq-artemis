@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 @XmlRootElement(name = "order")
 public class Order implements Serializable {
+
    private static final long serialVersionUID = -3462346058107018735L;
    private String name;
    private String amount;

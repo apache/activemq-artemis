@@ -116,8 +116,7 @@ public class ClusteredJgroupsExample {
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our resources!
 
          if (connection0 != null) {

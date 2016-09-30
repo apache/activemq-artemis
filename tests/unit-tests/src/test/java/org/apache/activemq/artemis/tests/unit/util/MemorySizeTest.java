@@ -16,14 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.utils.MemorySize;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class MemorySizeTest extends Assert {
 

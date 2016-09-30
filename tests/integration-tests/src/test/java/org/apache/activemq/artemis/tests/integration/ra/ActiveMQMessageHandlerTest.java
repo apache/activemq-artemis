@@ -16,6 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.resource.ResourceException;
+import javax.resource.spi.InvalidPropertyException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -32,21 +47,6 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.resource.ResourceException;
-import javax.resource.spi.InvalidPropertyException;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
@@ -158,8 +158,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          objMsg.setObject(new DummySerializable());
          MessageProducer producer = session.createProducer(jmsQueue);
          producer.send(objMsg);
-      }
-      finally {
+      } finally {
          connection.close();
       }
 
@@ -173,8 +172,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          Object obj = objMsg.getObject();
          assertTrue("deserialization should fail but got: " + obj, shouldSucceed);
          assertTrue(obj instanceof DummySerializable);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          assertFalse("got unexpected exception: " + e, shouldSucceed);
       }
 
@@ -364,8 +362,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       try {
          spec.setAcknowledgeMode("CLIENT_ACKNOWLEDGE");
          fail("should throw exception");
-      }
-      catch (java.lang.IllegalArgumentException e) {
+      } catch (java.lang.IllegalArgumentException e) {
          //pass
       }
       qResourceAdapter.stop();
@@ -813,8 +810,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       try {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof InvalidPropertyException);
          assertEquals("subscriptionName", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
@@ -841,8 +837,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       try {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof InvalidPropertyException);
          assertEquals("destinationType", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
@@ -955,13 +950,11 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
                try {
                   IntegrationTestLogger.LOGGER.info("pausing for 2 secs");
                   Thread.sleep(2000);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   interrupted.incrementAndGet();
                }
             }
-         }
-         finally {
+         } finally {
             if (latchDone != null) {
                latchDone.countDown();
             }
@@ -970,5 +963,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    }
 
    static class DummySerializable implements Serializable {
+
    }
 }

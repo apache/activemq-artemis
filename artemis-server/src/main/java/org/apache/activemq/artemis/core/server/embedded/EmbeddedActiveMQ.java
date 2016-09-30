@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server.embedded;
 
 import javax.management.MBeanServer;
-
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -62,15 +61,15 @@ public class EmbeddedActiveMQ {
 
    /**
     * It will iterate the cluster connections until you have at least the number of expected servers
-    * @param timeWait Time to wait on each iteration
-    * @param unit unit of time to wait
+    *
+    * @param timeWait   Time to wait on each iteration
+    * @param unit       unit of time to wait
     * @param iterations number of iterations
-    * @param servers number of minimal servers
+    * @param servers    number of minimal servers
     * @return
     */
    public boolean waitClusterForming(long timeWait, TimeUnit unit, int iterations, int servers) throws Exception {
-      if (activeMQServer.getClusterManager().getClusterConnections() == null ||
-         activeMQServer.getClusterManager().getClusterConnections().size() == 0) {
+      if (activeMQServer.getClusterManager().getClusterConnections() == null || activeMQServer.getClusterManager().getClusterConnections().size() == 0) {
          return servers == 0;
       }
 
@@ -132,8 +131,7 @@ public class EmbeddedActiveMQ {
       }
       if (mbeanServer == null) {
          activeMQServer = new ActiveMQServerImpl(configuration, securityManager);
-      }
-      else {
+      } else {
          activeMQServer = new ActiveMQServerImpl(configuration, mbeanServer, securityManager);
       }
    }

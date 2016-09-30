@@ -133,7 +133,10 @@ public interface ServerSession extends SecurityAuth {
 
    void sendContinuations(int packetSize, long totalBodySize, byte[] body, boolean continues) throws Exception;
 
-   RoutingStatus send(Transaction tx, ServerMessage message, boolean direct, boolean noAutoCreateQueue) throws Exception;
+   RoutingStatus send(Transaction tx,
+                      ServerMessage message,
+                      boolean direct,
+                      boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus send(ServerMessage message, boolean direct, boolean noAutoCreateQueue) throws Exception;
 

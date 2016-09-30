@@ -67,8 +67,7 @@ public class ActiveMQ {
          oos.flush();
 
          data = baos.toByteArray();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new RuntimeException(e);
       }
 
@@ -153,11 +152,9 @@ public class ActiveMQ {
       ResteasyProviderFactory.pushContext(Providers.class, factory);
       try {
          return reader.readFrom(type, genericType, null, ct, new Headers<String>(), new ByteArrayInputStream(body));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new RuntimeException(e);
-      }
-      finally {
+      } finally {
          ResteasyProviderFactory.popContextData(Providers.class);
          if (current != null)
             ResteasyProviderFactory.pushContext(Providers.class, current);

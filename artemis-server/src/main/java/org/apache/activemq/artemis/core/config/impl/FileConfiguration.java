@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import javax.management.MBeanServer;
 import java.net.URL;
 import java.util.Map;
 
@@ -25,8 +26,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.w3c.dom.Element;
-
-import javax.management.MBeanServer;
 
 /**
  * A {@code FileConfiguration} reads configuration values from a file.

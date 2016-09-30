@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -35,9 +38,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 

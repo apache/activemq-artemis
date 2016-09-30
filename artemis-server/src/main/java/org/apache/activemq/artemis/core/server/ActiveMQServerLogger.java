@@ -780,7 +780,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void broadcastGroupClosed(@Cause Exception e);
 
-
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222109, value = "Timed out waiting for write lock on consumer. Check the Thread dump", format = Message.Format.MESSAGE_FORMAT)
    void timeoutLockingConsumer();
@@ -1037,7 +1036,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @SuppressWarnings("deprecation")
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222168, value = "The ''" + TransportConstants.PROTOCOL_PROP_NAME + "'' property is deprecated. If you want this Acceptor to support multiple protocols, use the ''" + TransportConstants.PROTOCOLS_PROP_NAME + "'' property, e.g. with value ''CORE,AMQP,STOMP''",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void warnDeprecatedProtocol();
 
    @LogMessage(level = Logger.Level.WARN)
@@ -1139,7 +1138,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 222190, value = "Deleting old data directory {0} as the max folders is set to 0", format = Message.Format.MESSAGE_FORMAT)
    void backupDeletingData(String oldPath);
-
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222191,

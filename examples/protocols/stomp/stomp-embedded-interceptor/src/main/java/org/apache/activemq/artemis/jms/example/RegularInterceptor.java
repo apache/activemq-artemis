@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ public class RegularInterceptor implements Interceptor {
    public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
       System.out.println("Regular Intercept on " + packet);
       if (packet instanceof MessagePacket) {
-         MessagePacket messagePacket = (MessagePacket)packet;
+         MessagePacket messagePacket = (MessagePacket) packet;
          messagePacket.getMessage().putStringProperty("regularIntercepted", "HelloAgain");
       }
       return true;

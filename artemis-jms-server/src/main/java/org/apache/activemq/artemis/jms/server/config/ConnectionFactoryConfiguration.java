@@ -44,7 +44,7 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    ConnectionFactoryConfiguration setConnectorNames(List<String> connectorNames);
 
-   ConnectionFactoryConfiguration setConnectorNames(String...connectorNames);
+   ConnectionFactoryConfiguration setConnectorNames(String... connectorNames);
 
    boolean isHA();
 

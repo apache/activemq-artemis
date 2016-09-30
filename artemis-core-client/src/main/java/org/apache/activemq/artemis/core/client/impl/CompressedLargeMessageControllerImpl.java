@@ -102,8 +102,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
             InputStream input = new ActiveMQBufferInputStream(bufferDelegate);
 
             dataInput = new DataInputStream(new InflaterReader(input));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
 
@@ -119,8 +118,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public byte readByte() {
       try {
          return getStream().readByte();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -340,8 +338,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public int readUnsignedByte() {
       try {
          return getStream().readUnsignedByte();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -350,8 +347,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public short readShort() {
       try {
          return getStream().readShort();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -360,8 +356,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public int readUnsignedShort() {
       try {
          return getStream().readUnsignedShort();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -370,8 +365,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public int readInt() {
       try {
          return getStream().readInt();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -385,8 +379,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    public long readLong() {
       try {
          return getStream().readLong();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -398,8 +391,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
          if (nReadBytes < length) {
             ActiveMQClientLogger.LOGGER.compressedLargeMessageError(length, nReadBytes);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
@@ -445,32 +437,35 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
             getStream().read();
          }
          return length;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
 
-
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b) throws IOException {
       readBytes(b);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b, int off, int len) throws IOException {
       readBytes(b, off, len);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    @SuppressWarnings("deprecation")
    public String readLine() throws IOException {
       return getStream().readLine();
    }
-
 
    @Override
    public void writeByte(final byte value) {
@@ -568,8 +563,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       int b = readByte();
       if (b == DataConstants.NULL) {
          return null;
-      }
-      else {
+      } else {
          return readSimpleString();
       }
    }
@@ -579,8 +573,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       int b = readByte();
       if (b == DataConstants.NULL) {
          return null;
-      }
-      else {
+      } else {
          return readString();
       }
    }
@@ -603,11 +596,9 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
             chars[i] = (char) readShort();
          }
          return new String(chars);
-      }
-      else if (len < 0xfff) {
+      } else if (len < 0xfff) {
          return readUTF();
-      }
-      else {
+      } else {
          return readSimpleString().toString();
       }
    }

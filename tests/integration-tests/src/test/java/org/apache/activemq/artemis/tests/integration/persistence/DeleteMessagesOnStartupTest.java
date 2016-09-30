@@ -50,7 +50,7 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
    // This is only applicable for FILE based store, as the database storage manager will automatically delete records.
    @Parameterized.Parameters(name = "storeType")
    public static Collection<Object[]> data() {
-      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}};
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}};
       return Arrays.asList(params);
    }
 

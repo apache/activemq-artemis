@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.security;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -41,6 +38,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
@@ -111,8 +111,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          MessageProducer producer = sess.createProducer(queue);
          producer.send(sess.createTextMessage("test"));
          fail("expect auth exception");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
    }
 
@@ -128,8 +127,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          MessageProducer producer = sess.createProducer(queue);
          producer.send(sess.createTextMessage("test"));
          fail("expect auth exception");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
    }
 

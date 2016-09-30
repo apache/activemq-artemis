@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.command;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Map;
-
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -113,11 +112,9 @@ public class ActiveMQMessageTest extends TestCase {
       boolean test = false;
       try {
          msg.setIntProperty("test", 1);
-      }
-      catch (MessageNotWriteableException me) {
+      } catch (MessageNotWriteableException me) {
          test = true;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace(System.err);
          test = false;
       }
@@ -452,21 +449,18 @@ public class ActiveMQMessageTest extends TestCase {
          msg.setObjectProperty(name, Double.valueOf("1.1"));
          msg.setObjectProperty(name, Boolean.TRUE);
          msg.setObjectProperty(name, null);
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
          fail("should accept object primitives and String");
       }
       try {
          msg.setObjectProperty(name, new byte[5]);
          fail("should accept only object primitives and String");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.setObjectProperty(name, new Object());
          fail("should accept only object primitives and String");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -546,8 +540,7 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.setStringProperty(null, "Cheese");
          fail("Should have thrown exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          LOG.info("Worked, caught: " + e);
       }
    }
@@ -558,8 +551,7 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.setStringProperty("", "Cheese");
          fail("Should have thrown exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          LOG.info("Worked, caught: " + e);
       }
    }
@@ -589,38 +581,32 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getLongProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -638,20 +624,17 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -668,26 +651,22 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -703,32 +682,27 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -743,38 +717,32 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -789,32 +757,27 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getLongProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -828,38 +791,32 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getLongProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -889,38 +846,32 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          msg.getLongProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       assertFalse(msg.getBooleanProperty(propertyName));
    }
@@ -933,56 +884,47 @@ public class ActiveMQMessageTest extends TestCase {
          ((org.apache.activemq.command.Message) msg).setProperty(propertyName, obj); // bypass
          // object
          // check
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
       }
       try {
          msg.getStringProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getBooleanProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getByteProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getShortProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getIntProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getLongProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getFloatProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
       try {
          msg.getDoubleProperty(propertyName);
          fail("Should have thrown exception");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
    }
@@ -995,56 +937,47 @@ public class ActiveMQMessageTest extends TestCase {
       try {
          msg.setObjectProperty(propertyName, new Object());
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setStringProperty(propertyName, "test");
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setBooleanProperty(propertyName, true);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setByteProperty(propertyName, (byte) 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setShortProperty(propertyName, (short) 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setIntProperty(propertyName, 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setLongProperty(propertyName, 1);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setFloatProperty(propertyName, (float) 1.5);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       try {
          msg.setDoubleProperty(propertyName, 1.5);
          fail("Should have thrown exception");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
    }
 

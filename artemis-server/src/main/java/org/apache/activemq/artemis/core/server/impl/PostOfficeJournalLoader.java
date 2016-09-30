@@ -128,8 +128,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
                storageManager.commitBindings(tx);
                continue;
-            }
-            else {
+            } else {
                final SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
                ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
                queueBindingInfo.replaceQueueName(newName);
@@ -138,8 +137,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
          final QueueConfig.Builder queueConfigBuilder;
          if (queueBindingInfo.getAddress() == null) {
             queueConfigBuilder = QueueConfig.builderWith(queueBindingInfo.getId(), queueBindingInfo.getQueueName());
-         }
-         else {
+         } else {
             queueConfigBuilder = QueueConfig.builderWith(queueBindingInfo.getId(), queueBindingInfo.getQueueName(), queueBindingInfo.getAddress());
          }
          queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(queueBindingInfo.getUser()).durable(true).temporary(false).autoCreated(queueBindingInfo.isAutoCreated());
@@ -213,8 +211,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
             try {
                storageManager.deleteMessage(msg.getMessageID());
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
                ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(ignored, msg.getMessageID());
             }
          }
@@ -281,8 +278,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
       if (removed == null) {
          ActiveMQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
-      }
-      else {
+      } else {
          referencesToAck.add(removed);
       }
    }
@@ -363,14 +359,12 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
                   if (value == null) {
                      logger.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
-                  }
-                  else {
+                  } else {
                      logger.debug("Replacing counter " + value.get());
                      counter.increment(txRecoverCounter, value.get());
                   }
                }
-            }
-            else {
+            } else {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
                logger.debug("Page " + pageId + " didn't exist on address " + addressPageMapEntry.getKey() + ", so we are just removing records");
                for (List<PageCountPending> records : perQueue.values()) {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,14 +41,12 @@ public class DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest extends DbRestartJDBC
    protected void delayTillRestartRequired() {
       if (restartDelay > 2000) {
          LOG.info("delay for more than lease quantum. While Db is offline, master should stay alive but could loose lease");
-      }
-      else {
+      } else {
          LOG.info("delay for less than lease quantum. While Db is offline, master should stay alive");
       }
       try {
          TimeUnit.MILLISECONDS.sleep(restartDelay);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          e.printStackTrace();
       }
    }
@@ -57,8 +55,7 @@ public class DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest extends DbRestartJDBC
    protected void verifyExpectedBroker(int inflightMessageCount) {
       if (inflightMessageCount == 0 || (inflightMessageCount == failureCount + 10 && restartDelay <= 500)) {
          assertEquals("connected to master", master.getBrokerName(), ((ActiveMQConnection) sendConnection).getBrokerName());
-      }
-      else {
+      } else {
          // lease expired while DB was offline, either or master/slave can grab it so assert is not deterministic
          // but we still need to validate sent == received
       }

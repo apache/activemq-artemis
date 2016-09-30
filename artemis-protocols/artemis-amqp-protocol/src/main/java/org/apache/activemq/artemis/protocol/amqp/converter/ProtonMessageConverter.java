@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
+import javax.jms.BytesMessage;
+import java.io.IOException;
+
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPNativeOutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.InboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingInboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingOutboundTransformer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.IDGenerator;
-
-import javax.jms.BytesMessage;
-import java.io.IOException;
 
 public class ProtonMessageConverter implements MessageConverter {
 
@@ -58,7 +58,7 @@ public class ProtonMessageConverter implements MessageConverter {
     *
     * @param messageSource
     * @return
-    * @throws Exception                    https://issues.jboss.org/browse/ENTMQ-1560
+    * @throws Exception https://issues.jboss.org/browse/ENTMQ-1560
     */
    public ServerJMSMessage inboundJMSType(EncodedMessage messageSource) throws Exception {
       EncodedMessage encodedMessageSource = messageSource;
@@ -70,8 +70,7 @@ public class ProtonMessageConverter implements MessageConverter {
          try {
             transformedMessage = (ServerJMSMessage) transformer.transform(encodedMessageSource);
             break;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQClientLogger.LOGGER.debug("Transform of message using [{}] transformer, failed" + inboundTransformer.getTransformerName());
             ActiveMQClientLogger.LOGGER.trace("Transformation error:", e);
 
@@ -97,12 +96,10 @@ public class ProtonMessageConverter implements MessageConverter {
       if (jmsMessage.getBooleanProperty(prefixVendor + "NATIVE")) {
          if (jmsMessage instanceof BytesMessage) {
             return AMQPNativeOutboundTransformer.transform(outboundTransformer, (BytesMessage) jmsMessage);
-         }
-         else {
+         } else {
             return null;
          }
-      }
-      else {
+      } else {
          return outboundTransformer.convert(jmsMessage);
       }
    }

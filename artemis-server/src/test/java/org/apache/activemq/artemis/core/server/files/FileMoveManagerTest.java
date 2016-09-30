@@ -58,14 +58,12 @@ public class FileMoveManagerTest {
    private File dataLocation;
    private FileMoveManager manager;
 
-
    @Before
    public void setUp() {
       dataLocation = new File(temporaryFolder.getRoot(), "data");
       dataLocation.mkdirs();
       manager = new FileMoveManager(dataLocation, 10);
    }
-
 
    public FileMoveManagerTest() {
       File parent = new File("./target/tmp");
@@ -87,7 +85,6 @@ public class FileMoveManagerTest {
 
       Assert.assertEquals(12, manager.getFolders().length);
       Assert.assertEquals(12, manager.getNumberOfFolders());
-
 
       assertIDs(originalFiles, manager.getIDlist());
    }
@@ -153,7 +150,6 @@ public class FileMoveManagerTest {
       testMinMax();
    }
 
-
    @Test
    public void testNoFolders() {
       Assert.assertEquals(0, manager.getFolders().length);
@@ -164,7 +160,6 @@ public class FileMoveManagerTest {
       Assert.assertEquals(0, manager.getFolders().length);
       Assert.assertEquals(0, manager.getNumberOfFolders());
    }
-
 
    @Test
    public void testNoFiles() throws Exception {
@@ -207,11 +202,9 @@ public class FileMoveManagerTest {
       manager.setMaxFolders(1).checkOldFolders();
       Assert.assertEquals(1, manager.getNumberOfFolders());
 
-
       Assert.assertEquals(10, manager.getMaxID());
       Assert.assertEquals(10, manager.getMinID());
    }
-
 
    @Test
    public void testMoveFolders() throws Exception {
@@ -262,7 +255,6 @@ public class FileMoveManagerTest {
       manager.setMaxFolders(1).checkOldFolders();
       Assert.assertEquals(1, manager.getNumberOfFolders());
 
-
       Assert.assertEquals(10, manager.getMaxID());
       Assert.assertEquals(10, manager.getMinID());
    }
@@ -310,9 +302,7 @@ public class FileMoveManagerTest {
 
             final StorageManager storageManager = new NullStorageManager();
 
-            PagingStoreFactoryNIO storeFactory =
-               new PagingStoreFactoryNIO(storageManager, dataLocation, 100, null,
-                  new OrderedExecutorFactory(threadPool), true, null);
+            PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, null, new OrderedExecutorFactory(threadPool), true, null);
 
             PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1);
 
@@ -332,15 +322,12 @@ public class FileMoveManagerTest {
          }
 
          Assert.assertFalse("The loggers are complaining about address.txt", AssertionLoggerHandler.findText("address.txt"));
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
          threadPool.shutdown();
       }
 
-
    }
-
 
    private void assertIDs(int[] originalFiles, int[] ids) {
       Assert.assertEquals(originalFiles.length, ids.length);

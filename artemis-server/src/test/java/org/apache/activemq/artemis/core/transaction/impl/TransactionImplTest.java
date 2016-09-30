@@ -120,8 +120,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
          try {
             tx.commit();
             Assert.fail("Exception expected!");
-         }
-         catch (ActiveMQException expected) {
+         } catch (ActiveMQException expected) {
          }
       }
 

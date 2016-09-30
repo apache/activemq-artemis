@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.transport.failover;
 
+import javax.jms.DeliveryMode;
+import javax.jms.MessageNotWriteableException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.DeliveryMode;
-import javax.jms.MessageNotWriteableException;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
@@ -67,14 +66,8 @@ public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
    public static final boolean FAST_NO_MESSAGE_LEFT_ASSERT = System.getProperty("FAST_NO_MESSAGE_LEFT_ASSERT", "true").equals("true");
 
    @Parameterized.Parameters
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-              {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQQueue("TEST")},
-              {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQTopic("TEST")},
-              {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQQueue("TEST")},
-              {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQTopic("TEST")}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQQueue("TEST")}, {Integer.valueOf(DeliveryMode.NON_PERSISTENT), new ActiveMQTopic("TEST")}, {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQQueue("TEST")}, {Integer.valueOf(DeliveryMode.PERSISTENT), new ActiveMQTopic("TEST")}});
    }
 
    private EmbeddedJMS server;
@@ -103,19 +96,16 @@ public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
       for (StubConnection conn : connections) {
          try {
             conn.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       try {
          remoteServer.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       try {
          server.stop();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -173,8 +163,7 @@ public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
       message.setPersistent(false);
       try {
          message.setText("Test Message Payload.");
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
       return message;
    }
@@ -257,15 +246,13 @@ public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
       StubConnection connectionA;
       StubConnection connectionB;
 
-
       EmbeddedJMS serverA;
 
       if (new URI(newURI(0)).equals(ft.getConnectedTransportURI())) {
          connectionA = connection1;
          connectionB = connection2;
          serverA = server;
-      }
-      else {
+      } else {
          connectionA = connection2;
          connectionB = connection1;
          serverA = remoteServer;

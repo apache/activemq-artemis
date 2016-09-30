@@ -89,22 +89,19 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
                Declared declared = (Declared) state;
                txId.setRemoteTxId(declared.getTxnId());
                pendingRequest.onSuccess();
-            }
-            else if (state instanceof Rejected) {
+            } else if (state instanceof Rejected) {
                LOG.debug("Last TX request failed: {}", txId.getTxId());
                Rejected rejected = (Rejected) state;
                Exception cause = AmqpSupport.convertToException(rejected.getError());
                JMSException failureCause = null;
                if (txId.isCommit()) {
                   failureCause = new TransactionRolledBackException(cause.getMessage());
-               }
-               else {
+               } else {
                   failureCause = new JMSException(cause.getMessage());
                }
 
                pendingRequest.onFailure(failureCause);
-            }
-            else {
+            } else {
                LOG.debug("Last TX request succeeded: {}", txId.getTxId());
                pendingRequest.onSuccess();
             }
@@ -116,8 +113,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
          }
 
          super.processDeliveryUpdates(connection);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw IOExceptionSupport.create(e);
       }
    }
@@ -153,8 +149,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 
          if (commit) {
             failureCause = new TransactionRolledBackException("Transaction inbout: Coordinator remotely closed");
-         }
-         else {
+         } else {
             failureCause = new JMSException("Rollback cannot complete: Coordinator remotely closed");
          }
 
@@ -220,8 +215,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
          try {
             encodedSize = message.encode(buffer, 0, buffer.length);
             break;
-         }
-         catch (BufferOverflowException e) {
+         } catch (BufferOverflowException e) {
             buffer = new byte[buffer.length * 2];
          }
       }

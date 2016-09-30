@@ -145,8 +145,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       if (message == null) {
          if (other.message != null)
             return false;
-      }
-      else if (!message.equals(other.message))
+      } else if (!message.equals(other.message))
          return false;
       if (messageBodySize != other.messageBodySize)
          return false;

@@ -64,8 +64,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
       if (msg instanceof FullHttpRequest) {
          handleHttpRequest(ctx, (FullHttpRequest) msg);
-      }
-      else if (msg instanceof WebSocketFrame) {
+      } else if (msg instanceof WebSocketFrame) {
          WebSocketFrame frame = (WebSocketFrame) msg;
          boolean handle = handleWebSocketFrame(ctx, frame);
          if (handle) {
@@ -83,13 +82,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
       // Handshake
       String supportedProtocolsCSV = StringUtil.joinStringList(supportedProtocols, ",");
-      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV,false);
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV, false);
       this.httpRequest = req;
       this.handshaker = wsFactory.newHandshaker(req);
       if (this.handshaker == null) {
          WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
-      }
-      else {
+      } else {
          ChannelFuture handshake = this.handshaker.handshake(ctx.channel(), req);
          handshake.addListener(new ChannelFutureListener() {
 
@@ -99,8 +97,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                   // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
                   // wrap it in a binary web socket frame before letting the wsencoder send it on the wire
                   future.channel().pipeline().addAfter("wsencoder", "binary-websocket-encoder", BINARY_WEBSOCKET_ENCODER);
-               }
-               else {
+               } else {
                   // Handshake failed, fire an exceptionCaught event
                   future.channel().pipeline().fireExceptionCaught(future.cause());
                }
@@ -115,12 +112,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
       if (frame instanceof CloseWebSocketFrame) {
          this.handshaker.close(ctx.channel(), ((CloseWebSocketFrame) frame).retain());
          return false;
-      }
-      else if (frame instanceof PingWebSocketFrame) {
+      } else if (frame instanceof PingWebSocketFrame) {
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
          return false;
-      }
-      else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame)) {
+      } else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame)) {
          throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
       }
       return true;

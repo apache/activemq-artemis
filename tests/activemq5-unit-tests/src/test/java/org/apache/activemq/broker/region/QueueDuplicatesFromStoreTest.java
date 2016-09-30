@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,8 @@
 
 package org.apache.activemq.broker.region;
 
+import javax.jms.InvalidSelectorException;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
@@ -24,15 +26,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.jms.InvalidSelectorException;
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
 import org.apache.activemq.broker.ProducerBrokerExchange;
-import org.apache.activemq.broker.region.SubscriptionStatistics;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTextMessage;
@@ -56,11 +54,10 @@ import org.slf4j.LoggerFactory;
  * @see https://issues.apache.org/activemq/browse/AMQ-2020
  **/
 public class QueueDuplicatesFromStoreTest extends TestCase {
-   private static final Logger LOG = LoggerFactory
-           .getLogger(QueueDuplicatesFromStoreTest.class);
 
-   ActiveMQQueue destination = new ActiveMQQueue("queue-"
-           + QueueDuplicatesFromStoreTest.class.getSimpleName());
+   private static final Logger LOG = LoggerFactory.getLogger(QueueDuplicatesFromStoreTest.class);
+
+   ActiveMQQueue destination = new ActiveMQQueue("queue-" + QueueDuplicatesFromStoreTest.class.getSimpleName());
    BrokerService brokerService;
 
    final static String mesageIdRoot = "11111:22222:";
@@ -91,7 +88,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
    }
 
    public void testNoDuplicateAfterCacheFullAndAckedWithLargeAuditDepth() throws Exception {
-      doTestNoDuplicateAfterCacheFullAndAcked(1024*10);
+      doTestNoDuplicateAfterCacheFullAndAcked(1024 * 10);
    }
 
    public void testNoDuplicateAfterCacheFullAndAckedWithSmallAuditDepth() throws Exception {
@@ -99,15 +96,13 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
    }
 
    public void doTestNoDuplicateAfterCacheFullAndAcked(final int auditDepth) throws Exception {
-      final PersistenceAdapter persistenceAdapter =  brokerService.getPersistenceAdapter();
-      final MessageStore queueMessageStore =
-              persistenceAdapter.createQueueMessageStore(destination);
+      final PersistenceAdapter persistenceAdapter = brokerService.getPersistenceAdapter();
+      final MessageStore queueMessageStore = persistenceAdapter.createQueueMessageStore(destination);
       final ConnectionContext contextNotInTx = new ConnectionContext();
       final ConsumerInfo consumerInfo = new ConsumerInfo();
       final DestinationStatistics destinationStatistics = new DestinationStatistics();
       consumerInfo.setExclusive(true);
-      final Queue queue = new Queue(brokerService, destination,
-              queueMessageStore, destinationStatistics, brokerService.getTaskRunnerFactory());
+      final Queue queue = new Queue(brokerService, destination, queueMessageStore, destinationStatistics, brokerService.getTaskRunnerFactory());
 
       // a workaround for this issue
       // queue.setUseCache(false);
@@ -148,19 +143,16 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          @Override
          public void add(MessageReference node) throws Exception {
             if (enqueueCounter.get() != node.getMessageId().getProducerSequenceId()) {
-               errors.add("Not in sequence at: " + enqueueCounter.get() + ", received: "
-                       + node.getMessageId().getProducerSequenceId());
+               errors.add("Not in sequence at: " + enqueueCounter.get() + ", received: " + node.getMessageId().getProducerSequenceId());
             }
-            assertEquals("is in order", enqueueCounter.get(), node
-                    .getMessageId().getProducerSequenceId());
+            assertEquals("is in order", enqueueCounter.get(), node.getMessageId().getProducerSequenceId());
             receivedLatch.countDown();
             enqueueCounter.incrementAndGet();
             node.decrementReferenceCount();
          }
 
          @Override
-         public void add(ConnectionContext context, Destination destination)
-                 throws Exception {
+         public void add(ConnectionContext context, Destination destination) throws Exception {
          }
 
          @Override
@@ -266,8 +258,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public boolean matches(MessageReference node,
-                                MessageEvaluationContext context) throws IOException {
+         public boolean matches(MessageReference node, MessageEvaluationContext context) throws IOException {
             return true;
          }
 
@@ -277,13 +268,11 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public void processMessageDispatchNotification(
-                 MessageDispatchNotification mdn) throws Exception {
+         public void processMessageDispatchNotification(MessageDispatchNotification mdn) throws Exception {
          }
 
          @Override
-         public Response pullMessage(ConnectionContext context,
-                                     MessagePull pull) throws Exception {
+         public Response pullMessage(ConnectionContext context, MessagePull pull) throws Exception {
             return null;
          }
 
@@ -293,8 +282,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public List<MessageReference> remove(ConnectionContext context,
-                                              Destination destination) throws Exception {
+         public List<MessageReference> remove(ConnectionContext context, Destination destination) throws Exception {
             return null;
          }
 
@@ -303,9 +291,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public void setSelector(String selector)
-                 throws InvalidSelectorException,
-                 UnsupportedOperationException {
+         public void setSelector(String selector) throws InvalidSelectorException, UnsupportedOperationException {
          }
 
          @Override
@@ -313,8 +299,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public boolean addRecoveredMessage(ConnectionContext context,
-                                            MessageReference message) throws Exception {
+         public boolean addRecoveredMessage(ConnectionContext context, MessageReference message) throws Exception {
             return false;
          }
 
@@ -324,18 +309,16 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public void acknowledge(ConnectionContext context, MessageAck ack)
-                 throws Exception {
+         public void acknowledge(ConnectionContext context, MessageAck ack) throws Exception {
          }
 
          @Override
-         public int getCursorMemoryHighWaterMark(){
+         public int getCursorMemoryHighWaterMark() {
             return 0;
          }
 
          @Override
-         public void setCursorMemoryHighWaterMark(
-                 int cursorMemoryHighWaterMark) {
+         public void setCursorMemoryHighWaterMark(int cursorMemoryHighWaterMark) {
          }
 
          @Override
@@ -358,12 +341,12 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          }
 
          @Override
-         public void incrementConsumedCount(){
+         public void incrementConsumedCount() {
 
          }
 
          @Override
-         public void resetConsumedCount(){
+         public void resetConsumedCount() {
 
          }
 
@@ -388,12 +371,9 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
                for (int j = 0; j < ackBatchSize; j++, removeIndex++) {
                   ackedCount.incrementAndGet();
                   MessageAck ack = new MessageAck();
-                  ack.setLastMessageId(new MessageId(mesageIdRoot
-                          + removeIndex));
+                  ack.setLastMessageId(new MessageId(mesageIdRoot + removeIndex));
                   ack.setMessageCount(1);
-                  queue.removeMessage(contextNotInTx, subscription,
-                          new IndirectMessageReference(
-                                  getMessage(removeIndex)), ack);
+                  queue.removeMessage(contextNotInTx, subscription, new IndirectMessageReference(getMessage(removeIndex)), ack);
                   queue.wakeup();
 
                }
@@ -408,8 +388,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
 
       assertTrue("There are no errors: " + errors, errors.isEmpty());
       assertEquals(count, enqueueCounter.get());
-      assertEquals("store count is correct", count - removeIndex,
-              queueMessageStore.getMessageCount());
+      assertEquals("store count is correct", count - removeIndex, queueMessageStore.getMessageCount());
    }
 
    private Message getMessage(int i) throws Exception {

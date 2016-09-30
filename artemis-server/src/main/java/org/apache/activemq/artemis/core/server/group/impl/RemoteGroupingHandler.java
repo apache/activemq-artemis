@@ -117,8 +117,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
          for (Notification notification : pendingNotifications) {
             managementService.sendNotification(notification);
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -159,8 +158,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
                break;
             }
          } while (timeLimit > System.currentTimeMillis());
-      }
-      finally {
+      } finally {
          if (notification != null) {
             pendingNotifications.remove(notification);
          }
@@ -185,8 +183,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
             response.use();
             try {
                managementService.sendNotification(createProposalNotification(response.getGroupId(), response.getClusterName()));
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
          }
       }
@@ -249,8 +246,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
          // We could have more than one Requests waiting in case you have multiple producers
          // using different groups
          sendCondition.signalAll();
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }

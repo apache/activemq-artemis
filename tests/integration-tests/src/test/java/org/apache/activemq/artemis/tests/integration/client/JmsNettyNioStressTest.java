@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -31,16 +41,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * -- https://issues.jboss.org/browse/HORNETQ-746
@@ -169,16 +169,13 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
                      totalCount.incrementAndGet();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   throw new RuntimeException(e);
-               }
-               finally {
+               } finally {
                   if (session != null) {
                      try {
                         session.close();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -212,16 +209,13 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
                      totalCount.incrementAndGet();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   throw new RuntimeException(e);
-               }
-               finally {
+               } finally {
                   if (session != null) {
                      try {
                         session.close();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -248,16 +242,13 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
                      totalCount.incrementAndGet();
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   throw new RuntimeException(e);
-               }
-               finally {
+               } finally {
                   if (session != null) {
                      try {
                         session.close();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }

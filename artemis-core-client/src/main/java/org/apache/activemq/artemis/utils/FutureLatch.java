@@ -36,8 +36,7 @@ public class FutureLatch implements Runnable {
    public boolean await(final long timeout) {
       try {
          return latch.await(timeout, TimeUnit.MILLISECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          return false;
       }
    }

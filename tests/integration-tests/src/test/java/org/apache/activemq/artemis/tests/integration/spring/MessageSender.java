@@ -52,8 +52,7 @@ public class MessageSender {
          TextMessage message = session.createTextMessage(msg);
          producer.send(message);
          conn.close();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
       }
    }

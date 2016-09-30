@@ -62,8 +62,7 @@ public abstract class PerfBase {
 
       if (args != null && args.length > 0) {
          fileName = args[0];
-      }
-      else {
+      } else {
          fileName = PerfBase.DEFAULT_PERF_PROPERTIES_FILE_NAME;
       }
 
@@ -151,16 +150,14 @@ public abstract class PerfBase {
          destination = new org.apache.activemq.command.ActiveMQQueue(perfParams.getDestinationName());
 
          connection = factory.createConnection();
-      }
-      else if (perfParams.isCore()) {
-         factory = new  org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(perfParams.getUri());
+      } else if (perfParams.isCore()) {
+         factory = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(perfParams.getUri());
 
          destination = new org.apache.activemq.artemis.jms.client.ActiveMQQueue(perfParams.getDestinationName());
 
          connection = factory.createConnection();
 
-      }
-      else if (perfParams.isAMQP()) {
+      } else if (perfParams.isAMQP()) {
          factory = new JmsConnectionFactory(perfParams.getUri());
 
          destination = new org.apache.activemq.artemis.jms.client.ActiveMQQueue(perfParams.getDestinationName());
@@ -199,24 +196,20 @@ public abstract class PerfBase {
          sendMessages(perfParams.getNoOfMessagesToSend(), perfParams.getBatchSize(), perfParams.isDurable(), perfParams.isSessionTransacted(), true, perfParams.getThrottleRate(), perfParams.getMessageSize());
          long end = System.currentTimeMillis();
          displayAverage(perfParams.getNoOfMessagesToSend(), start, end);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (session != null) {
             try {
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
          if (connection != null) {
             try {
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -243,24 +236,20 @@ public abstract class PerfBase {
          long end = System.currentTimeMillis();
          // start was set on the first received message
          displayAverage(perfParams.getNoOfMessagesToSend(), start, end);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (session != null) {
             try {
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
          if (connection != null) {
             try {
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }
@@ -327,8 +316,7 @@ public abstract class PerfBase {
             if (i % txBatchSize == 0) {
                session.commit();
                committed = true;
-            }
-            else {
+            } else {
                committed = false;
             }
          }
@@ -402,8 +390,7 @@ public abstract class PerfBase {
                double duration = (1.0 * System.currentTimeMillis() - start) / 1000;
                PerfBase.log.info(String.format("received %6d messages in %2.2fs", currentCount, duration));
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }

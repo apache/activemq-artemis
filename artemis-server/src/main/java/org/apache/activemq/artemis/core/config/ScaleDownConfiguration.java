@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
 public class ScaleDownConfiguration implements Serializable {
 

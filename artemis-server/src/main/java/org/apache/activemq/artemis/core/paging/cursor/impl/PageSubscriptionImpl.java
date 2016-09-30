@@ -172,8 +172,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    public long getMessageCount() {
       if (empty) {
          return 0;
-      }
-      else {
+      } else {
          return counter.getValue() - deliveredCount.get();
       }
    }
@@ -222,11 +221,9 @@ final class PageSubscriptionImpl implements PageSubscription {
                   if (autoCleanup) {
                      cleanupEntries(false);
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.problemCleaningCursorPages(e);
-               }
-               finally {
+               } finally {
                   scheduledCleanupCount.decrementAndGet();
                }
             }
@@ -276,9 +273,8 @@ final class PageSubscriptionImpl implements PageSubscription {
                if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId() &&
                   currentPage.isLive()) {
                   logger.trace("We can't clear page " + entry.getKey() +
-                                                       " now since it's the current page");
-               }
-               else {
+                                  " now since it's the current page");
+               } else {
                   info.setPendingDelete();
                   completedPages.add(entry.getValue());
                }
@@ -375,14 +371,12 @@ final class PageSubscriptionImpl implements PageSubscription {
       if (cache == null) {
          // it will be null in the case of the current writing page
          return null;
-      }
-      else {
+      } else {
          PagedMessage serverMessage = cache.getMessage(retPos.getMessageNr());
 
          if (serverMessage != null) {
             return cursorProvider.newReference(retPos, serverMessage, this);
-         }
-         else {
+         } else {
             return null;
          }
       }
@@ -463,8 +457,7 @@ final class PageSubscriptionImpl implements PageSubscription {
       }
       if (!routed) {
          return false;
-      }
-      else {
+      } else {
          // if it's been routed here, we have to verify if it was acked
          return !getPageInfo(ref.getPosition()).isAck(ref.getPosition());
       }
@@ -533,8 +526,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          PageCursorInfo pageInfo = consumedPages.get(position.getPageNr());
          if (pageInfo != null) {
             pageInfo.decrementPendingTX();
-         }
-         else {
+         } else {
             // this shouldn't really happen.
          }
       }
@@ -590,8 +582,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          if (info == null && empty) {
             logger.tracef("isComplete(%d)::::Couldn't find info and it is empty", page);
             return true;
-         }
-         else {
+         } else {
             boolean isDone = info != null && info.isDone();
             if (logger.isTraceEnabled()) {
                logger.tracef("isComplete(%d):: found info=%s, isDone=%s", (Object) page, info, isDone);
@@ -632,12 +623,10 @@ final class PageSubscriptionImpl implements PageSubscription {
          }
 
          cursorProvider.close(this);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          try {
             store.rollback(tx);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             // exception of the exception.. nothing that can be done here
          }
       }
@@ -673,8 +662,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                   txDeleteCursorOnReload = store.generateID();
                }
                store.deleteCursorAcknowledgeTransactional(txDeleteCursorOnReload, pos.getRecordID());
-            }
-            else {
+            } else {
                pageInfo.loadACK(pos);
             }
          }
@@ -725,8 +713,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          if (completeInfo != null) {
             try {
                store.deletePageComplete(completeInfo.getRecordID());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
             }
             info.setCompleteInfo(null);
@@ -735,8 +722,7 @@ final class PageSubscriptionImpl implements PageSubscription {
             if (deleteInfo.getRecordID() >= 0) {
                try {
                   store.deleteCursorAcknowledge(deleteInfo.getRecordID());
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
                }
             }
@@ -783,8 +769,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    private boolean match(final ServerMessage message) {
       if (filter == null) {
          return true;
-      }
-      else {
+      } else {
          return filter.match(message);
       }
    }
@@ -817,8 +802,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          // This could become null if the page file was deleted, or if the queue was removed maybe?
          // it's better to diagnose it (based on support tickets) instead of NPE
          ActiveMQServerLogger.LOGGER.nullPageCursorInfo(this.getPagingStore().getAddress().toString(), pos.toString(), cursorId);
-      }
-      else {
+      } else {
          info.addACK(pos);
       }
 
@@ -856,8 +840,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    private PageTransactionInfo getPageTransaction(final PagedReference reference) throws ActiveMQException {
       if (reference.getPagedMessage().getTransactionID() >= 0) {
          return pageStore.getPagingManager().getTransaction(reference.getPagedMessage().getTransactionID());
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -930,8 +913,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                ", isDone=" +
                this.isDone() +
                " wasLive = " + wasLive;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             return "PageCursorInfo::pageNr=" + pageId +
                " numberOfMessage = " +
                numberOfMessages +
@@ -949,8 +931,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          if (cache != null) {
             wasLive = cache.isLive();
             this.cache = new WeakReference<>(cache);
-         }
-         else {
+         } else {
             wasLive = false;
          }
       }
@@ -1012,13 +993,12 @@ final class PageSubscriptionImpl implements PageSubscription {
          if (logger.isTraceEnabled()) {
             try {
                logger.trace("numberOfMessages =  " + getNumberOfMessages() +
-                                                    " confirmed =  " +
-                                                    (confirmed.get() + 1) +
-                                                    " pendingTX = " + pendingTX +
-                                                    ", pageNr = " +
-                                                    pageId + " posACK = " + posACK);
-            }
-            catch (Throwable ignored) {
+                               " confirmed =  " +
+                               (confirmed.get() + 1) +
+                               " pendingTX = " + pendingTX +
+                               ", pageNr = " +
+                               pageId + " posACK = " + posACK);
+            } catch (Throwable ignored) {
                logger.debug(ignored.getMessage(), ignored);
             }
          }
@@ -1064,8 +1044,7 @@ final class PageSubscriptionImpl implements PageSubscription {
             }
 
             return localcache.getNumberOfMessages();
-         }
-         else {
+         } else {
             return numberOfMessages;
          }
       }
@@ -1146,12 +1125,10 @@ final class PageSubscriptionImpl implements PageSubscription {
             synchronized (redeliveries) {
                cachedNext = lastRedelivery;
             }
-         }
-         else {
+         } else {
             if (lastOperation == null) {
                position = null;
-            }
-            else {
+            } else {
                position = lastOperation;
             }
          }
@@ -1194,8 +1171,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                      lastRedelivery = redeliveredMsg;
 
                      return redeliveredMsg;
-                  }
-                  else {
+                  } else {
                      lastRedelivery = null;
                      isredelivery = false;
                   }
@@ -1234,8 +1210,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                      ActiveMQServerLogger.LOGGER.pageSubscriptionCouldntLoad(message.getPagedMessage().getTransactionID(), message.getPosition(), pageStore.getAddress(), queue.getName());
                      valid = false;
                      ignored = true;
-                  }
-                  else {
+                  } else {
                      if (tx.deliverAfterCommit(CursorIterator.this, PageSubscriptionImpl.this, message.getPosition())) {
                         valid = false;
                         ignored = false;
@@ -1265,8 +1240,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                   if (!match) {
                      processACK(message.getPosition());
                   }
-               }
-               else if (ignored) {
+               } else if (ignored) {
                   positionIgnored(message.getPosition());
                }
             } while (!match);

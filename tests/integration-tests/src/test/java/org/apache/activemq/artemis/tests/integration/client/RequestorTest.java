@@ -271,8 +271,7 @@ public class RequestorTest extends ActiveMQTestBase {
             ClientProducer replyProducer = session.createProducer(replyTo);
             replyProducer.send(reply);
             request.acknowledge();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             e.printStackTrace();
          }
       }

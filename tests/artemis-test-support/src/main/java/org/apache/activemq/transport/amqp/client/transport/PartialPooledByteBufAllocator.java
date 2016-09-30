@@ -25,7 +25,6 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 /**
  * A {@link ByteBufAllocator} which is partial pooled. Which means only direct
  * {@link ByteBuf}s are pooled. The rest is unpooled.
- *
  */
 public class PartialPooledByteBufAllocator implements ByteBufAllocator {
 

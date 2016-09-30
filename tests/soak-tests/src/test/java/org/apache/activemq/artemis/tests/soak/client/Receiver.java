@@ -91,8 +91,7 @@ public class Receiver extends ClientAbstract {
             }
 
             endTX();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             connect();
          }
 
@@ -145,8 +144,7 @@ public class Receiver extends ClientAbstract {
          latchMax.setCount(currentDiff.get() - MAX_DIFF);
          try {
             latchMax.await(5, TimeUnit.SECONDS);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
       }

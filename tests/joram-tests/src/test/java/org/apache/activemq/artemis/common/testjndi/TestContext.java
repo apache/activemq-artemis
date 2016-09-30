@@ -83,8 +83,7 @@ public class TestContext implements Context, Serializable {
    public TestContext(Hashtable env) {
       if (env == null) {
          this.environment = new Hashtable<>();
-      }
-      else {
+      } else {
          this.environment = new Hashtable<>(env);
       }
       this.bindings = Collections.EMPTY_MAP;
@@ -94,8 +93,7 @@ public class TestContext implements Context, Serializable {
    public TestContext(Hashtable environment, Map<String, Object> bindings) {
       if (environment == null) {
          this.environment = new Hashtable<>();
-      }
-      else {
+      } else {
          this.environment = new Hashtable<>(environment);
       }
       this.bindings = new HashMap<>();
@@ -104,8 +102,7 @@ public class TestContext implements Context, Serializable {
          for (Map.Entry<String, Object> binding : bindings.entrySet()) {
             try {
                internalBind(binding.getKey(), binding.getValue());
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQClientLogger.LOGGER.error("Failed to bind " + binding.getKey() + "=" + binding.getValue(), e);
             }
          }
@@ -163,8 +160,7 @@ public class TestContext implements Context, Serializable {
          }
          bindings.put(name, value);
          newBindings.put(name, value);
-      }
-      else {
+      } else {
          String segment = name.substring(0, pos);
          assert segment != null;
          assert !segment.equals("");
@@ -174,8 +170,7 @@ public class TestContext implements Context, Serializable {
             treeBindings.put(segment, o);
             bindings.put(segment, o);
             newBindings.put(segment, o);
-         }
-         else if (!(o instanceof TestContext)) {
+         } else if (!(o instanceof TestContext)) {
             throw new NamingException("Something already bound where a subcontext should go");
          }
          TestContext readOnlyContext = (TestContext) o;
@@ -228,22 +223,19 @@ public class TestContext implements Context, Serializable {
                throw new NamingException("scheme " + scheme + " not recognized");
             }
             return ctx.lookup(name);
-         }
-         else {
+         } else {
             // Split out the first name of the path
             // and look for it in the bindings map.
             CompositeName path = new CompositeName(name);
 
             if (path.size() == 0) {
                return this;
-            }
-            else {
+            } else {
                String first = path.get(0);
                Object obj = bindings.get(first);
                if (obj == null) {
                   throw new NameNotFoundException(name);
-               }
-               else if (obj instanceof Context && path.size() > 1) {
+               } else if (obj instanceof Context && path.size() > 1) {
                   Context subContext = (Context) obj;
                   obj = subContext.lookup(path.getSuffix(1));
                }
@@ -258,11 +250,9 @@ public class TestContext implements Context, Serializable {
       if (result instanceof Reference) {
          try {
             result = NamingManager.getObjectInstance(result, null, null, this.environment);
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             throw e;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw (NamingException) new NamingException("could not look up : " + name).initCause(e);
          }
       }
@@ -305,11 +295,9 @@ public class TestContext implements Context, Serializable {
       Object o = lookup(name);
       if (o == this) {
          return new ListEnumeration();
-      }
-      else if (o instanceof Context) {
+      } else if (o instanceof Context) {
          return ((Context) o).list("");
-      }
-      else {
+      } else {
          throw new NotContextException();
       }
    }
@@ -319,11 +307,9 @@ public class TestContext implements Context, Serializable {
       Object o = lookup(name);
       if (o == this) {
          return new ListBindingEnumeration();
-      }
-      else if (o instanceof Context) {
+      } else if (o instanceof Context) {
          return ((Context) o).listBindings("");
-      }
-      else {
+      } else {
          throw new NotContextException();
       }
    }

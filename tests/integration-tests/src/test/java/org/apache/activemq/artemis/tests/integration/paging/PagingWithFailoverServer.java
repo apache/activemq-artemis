@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 
 public class PagingWithFailoverServer extends SpawnedServerSupport {
 
@@ -48,8 +48,7 @@ public class PagingWithFailoverServer extends SpawnedServerSupport {
          server.start();
 
          System.out.println("Server started!!!");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          System.exit(-1);
       }
@@ -67,8 +66,7 @@ public class PagingWithFailoverServer extends SpawnedServerSupport {
 
       try {
          server.perform(arg[0], Integer.parseInt(arg[1]), Integer.parseInt(arg[2]), Boolean.parseBoolean(arg[3]));
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
          System.exit(-1);
       }

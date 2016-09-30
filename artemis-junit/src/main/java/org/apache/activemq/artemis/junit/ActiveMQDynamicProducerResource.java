@@ -68,12 +68,10 @@ public class ActiveMQDynamicProducerResource extends ActiveMQProducerResource {
             session.createQueue(address, address);
          }
          producer = session.createProducer((SimpleString) null);
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          if (address == null) {
             throw new ActiveMQClientResourceException(String.format("Error creating producer for address %s", address.toString()), amqEx);
-         }
-         else {
+         } else {
             throw new ActiveMQClientResourceException("Error creating producer", amqEx);
          }
       }
@@ -104,15 +102,13 @@ public class ActiveMQDynamicProducerResource extends ActiveMQProducerResource {
             log.warn("queue does not exist - creating queue: address = {}, name = {}", address.toString(), address.toString());
             session.createQueue(targetAddress, targetAddress);
          }
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Queue creation failed for queue: address = %s, name = %s", address.toString(), address.toString()));
       }
 
       try {
          producer.send(targetAddress, message);
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Failed to send message to %s", targetAddress.toString()), amqEx);
       }
    }

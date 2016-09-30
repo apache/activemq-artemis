@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import javax.jms.XAJMSContext;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
 import org.apache.activemq.artemis.jms.client.ThreadAwareContext;
-
-import javax.jms.XAJMSContext;
 
 public class ActiveMQRAXAJMSContext extends ActiveMQRAJMSContext implements XAJMSContext {
 

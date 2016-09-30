@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.util;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class TimeAndCounterIDGeneratorTest extends Assert {
 
@@ -108,8 +108,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
 
                   hashSet.add(value);
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
             }
          }
@@ -154,8 +153,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
          // This is simulating a situation where we generated more than 268 million messages on the same time interval
          seq.generateID();
          Assert.fail("It was supposed to throw an exception, as the counter was set to explode on this test");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       seq = new TimeAndCounterIDGenerator();

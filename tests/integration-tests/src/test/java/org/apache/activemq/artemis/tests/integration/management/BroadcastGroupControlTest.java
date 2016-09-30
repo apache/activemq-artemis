@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.json.JsonArray;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -28,10 +32,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.json.JsonArray;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BroadcastGroupControlTest extends ManagementTestBase {
 

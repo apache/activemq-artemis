@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.rest.util;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.rest.HttpHeaderProperty;
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
-import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-import org.jboss.resteasy.client.ClientRequest;
-
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.jboss.resteasy.client.ClientRequest;
 
 public class HttpMessageHelper {
 
@@ -39,7 +39,10 @@ public class HttpMessageHelper {
       return lowerKey.toLowerCase().startsWith("content") || lowerKey.toLowerCase().equals("link");
    }
 
-   public static void buildMessage(ClientMessage message, ClientRequest request, String contentType, ConnectionFactoryOptions jmsOptions) {
+   public static void buildMessage(ClientMessage message,
+                                   ClientRequest request,
+                                   String contentType,
+                                   ConnectionFactoryOptions jmsOptions) {
       for (SimpleString key : message.getPropertyNames()) {
          String k = key.toString();
          String headerName = HttpHeaderProperty.fromPropertyName(k);
@@ -64,8 +67,7 @@ public class HttpMessageHelper {
             message.getBodyBuffer().readBytes(body);
             ActiveMQRestLogger.LOGGER.debug("Building Message from HTTP message");
             request.body(contentType, body);
-         }
-         else {
+         } else {
             // assume posted as a JMS or ActiveMQ Artemis object message
             size = message.getBodyBuffer().readInt();
             byte[] body = new byte[size];
@@ -81,8 +83,7 @@ public class HttpMessageHelper {
                obj = ois.readObject();
                ActiveMQRestLogger.LOGGER.debug("**** Building Message from object: " + obj.toString());
                request.body(contentType, obj);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                throw new RuntimeException(e);
             }

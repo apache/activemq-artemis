@@ -70,16 +70,13 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl {
       if (replicatingBackup) {
          if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
             return new AIOFileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
-         }
-         else {
+         } else {
             return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
          }
-      }
-      else {
+      } else {
          if (backup) {
             return nodeManagerBackup;
-         }
-         else {
+         } else {
             return nodeManagerLive;
          }
       }

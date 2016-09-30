@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.broker.util;
 
-import java.net.URI;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.net.URI;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -68,12 +67,10 @@ public class PluginBrokerTest extends JmsTopicSendReceiveTest {
       if (index == 7) {
          // check custom expiration
          assertTrue("expiration is in range, depends on two distinct calls to System.currentTimeMillis", 1500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
-      }
-      else if (index == 9) {
+      } else if (index == 9) {
          // check ceiling
          assertTrue("expiration ceeling is in range, depends on two distinct calls to System.currentTimeMillis", 59500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
-      }
-      else {
+      } else {
          // check default expiration
          assertEquals(1000, amqMsg.getExpiration() - amqMsg.getTimestamp());
       }
@@ -84,11 +81,9 @@ public class PluginBrokerTest extends JmsTopicSendReceiveTest {
    protected void sendMessage(int index, Message message) throws Exception {
       if (index == 7) {
          producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 2000);
-      }
-      else if (index == 9) {
+      } else if (index == 9) {
          producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 200000);
-      }
-      else {
+      } else {
          super.sendMessage(index, message);
       }
    }

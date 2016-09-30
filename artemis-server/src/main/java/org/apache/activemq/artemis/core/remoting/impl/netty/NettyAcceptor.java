@@ -178,7 +178,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
 
-
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
@@ -230,8 +229,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
 
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
-      }
-      else {
+      } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
@@ -269,16 +267,14 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (useInvm) {
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new LocalEventLoopGroup();
-      }
-      else {
+      } else {
          int threadsToUse;
 
          if (nioRemotingThreads == -1) {
             // Default to number of cores * 3
 
             threadsToUse = Runtime.getRuntime().availableProcessors() * 3;
-         }
-         else {
+         } else {
             threadsToUse = this.nioRemotingThreads;
          }
          channelClazz = NioServerSocketChannel.class;
@@ -329,8 +325,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (httpUpgradeEnabled) {
          // the channel will be bound by the Web container and hand over after the HTTP Upgrade
          // handshake is successful
-      }
-      else {
+      } else {
          startServerChannels();
 
          paused = false;
@@ -389,11 +384,10 @@ public class NettyAcceptor extends AbstractAcceptor {
       try {
          if (keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
             throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
-               "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
-               "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+                                                  "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
+                                                  "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
          context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
          ise.initCause(e);
          throw ise;
@@ -401,8 +395,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       SSLEngine engine;
       if (verifyHost) {
          engine = context.createSSLEngine(host, port);
-      }
-      else {
+      } else {
          engine = context.createSSLEngine();
       }
 
@@ -419,8 +412,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (enabledCipherSuites != null) {
          try {
             engine.setEnabledCipherSuites(SSLSupport.parseCommaSeparatedListIntoArray(enabledCipherSuites));
-         }
-         catch (IllegalArgumentException e) {
+         } catch (IllegalArgumentException e) {
             ActiveMQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
             throw e;
          }
@@ -429,13 +421,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (enabledProtocols != null) {
          try {
             engine.setEnabledProtocols(SSLSupport.parseCommaSeparatedListIntoArray(enabledProtocols));
-         }
-         catch (IllegalArgumentException e) {
+         } catch (IllegalArgumentException e) {
             ActiveMQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
             throw e;
          }
-      }
-      else {
+      } else {
          engine.setEnabledProtocols(originalProtocols);
       }
 
@@ -468,8 +458,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          SocketAddress address;
          if (useInvm) {
             address = new LocalAddress(h);
-         }
-         else {
+         } else {
             address = new InetSocketAddress(h, port);
          }
          Channel serverChannel = bootstrap.bind(address).syncUninterruptibly().channel();
@@ -541,9 +530,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
          try {
             notificationService.sendNotification(notification);
-         }
-         catch (Exception e) {
-            logger.warn("failed to send notification",e.getMessage(),e);
+         } catch (Exception e) {
+            logger.warn("failed to send notification", e.getMessage(), e);
          }
       }
 
@@ -657,19 +645,16 @@ public class NettyAcceptor extends AbstractAcceptor {
                   public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception {
                      if (future.isSuccess()) {
                         active = true;
-                     }
-                     else {
+                     } else {
                         future.getNow().close();
                      }
                   }
                });
-            }
-            else {
+            } else {
                active = true;
             }
             return nc;
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.connectionLimitReached(connectionsAllowed, ctx.channel().remoteAddress().toString());
             ctx.channel().close();
             return null;

@@ -67,8 +67,7 @@ public class Sender extends ClientAbstract {
                pendingMsgs++;
             }
             endTX();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             connect();
          }
       }

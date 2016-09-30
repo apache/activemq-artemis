@@ -68,8 +68,7 @@ public class PersistenceTest extends JMSTestCase {
             }
             ProxyAssertSupport.assertEquals("message" + i, tm.getText());
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -151,8 +150,7 @@ public class PersistenceTest extends JMSTestCase {
 
             ProxyAssertSupport.assertEquals(3, tm.getIntProperty("JMSXDeliveryCount"));
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -261,8 +259,7 @@ public class PersistenceTest extends JMSTestCase {
             TextMessage t = (TextMessage) cons.receive(500);
             ProxyAssertSupport.assertNull(t);
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -370,8 +367,7 @@ public class PersistenceTest extends JMSTestCase {
             TextMessage t = (TextMessage) cons.receiveNoWait();
             ProxyAssertSupport.assertNull(t);
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -423,8 +419,7 @@ public class PersistenceTest extends JMSTestCase {
          ds.close();
 
          s.unsubscribe("sub");
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -506,8 +501,7 @@ public class PersistenceTest extends JMSTestCase {
          sessConsume.unsubscribe("sub1");
          sessConsume.unsubscribe("sub2");
          sessConsume.unsubscribe("sub3");
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

@@ -73,7 +73,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       this.configuration = configuration;
    }
 
-   public ActiveMQJAASSecurityManager(String configurationName, String certificateConfigurationName, SecurityConfiguration configuration, SecurityConfiguration certificateConfiguration) {
+   public ActiveMQJAASSecurityManager(String configurationName,
+                                      String certificateConfigurationName,
+                                      SecurityConfiguration configuration,
+                                      SecurityConfiguration certificateConfiguration) {
       this.configurationName = configurationName;
       this.configuration = configuration;
       this.certificateConfigurationName = certificateConfigurationName;
@@ -89,8 +92,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
    public String validateUser(final String user, final String password, X509Certificate[] certificates) {
       try {
          return getUserFromSubject(getAuthenticatedSubject(user, password, certificates));
-      }
-      catch (LoginException e) {
+      } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
@@ -116,11 +118,11 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
    @Override
    public String validateUserAndRole(final String user,
-                                      final String password,
-                                      final Set<Role> roles,
-                                      final CheckType checkType,
-                                      final String address,
-                                      final RemotingConnection connection) {
+                                     final String password,
+                                     final Set<Role> roles,
+                                     final CheckType checkType,
+                                     final String address,
+                                     final RemotingConnection connection) {
       X509Certificate[] certificates = null;
       if (connection != null && connection.getTransportConnection() instanceof NettyConnection) {
          certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
@@ -128,8 +130,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       Subject localSubject;
       try {
          localSubject = getAuthenticatedSubject(user, password, certificates);
-      }
-      catch (LoginException e) {
+      } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
@@ -145,8 +146,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          Set<Principal> rolesForSubject = new HashSet<>();
          try {
             rolesForSubject.addAll(localSubject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             logger.info("Can't find roles for the subject", e);
          }
          if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
@@ -168,18 +168,18 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
       if (authorized) {
          return getUserFromSubject(localSubject);
-      }
-      else {
+      } else {
          return null;
       }
    }
 
-   private Subject getAuthenticatedSubject(final String user, final String password, final X509Certificate[] certificates) throws LoginException {
+   private Subject getAuthenticatedSubject(final String user,
+                                           final String password,
+                                           final X509Certificate[] certificates) throws LoginException {
       LoginContext lc;
       if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && certificates != null) {
          lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, certificates), certificateConfiguration);
-      }
-      else {
+      } else {
          lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
       }
       lc.login();
@@ -192,8 +192,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          if (checkType.hasRole(role)) {
             try {
                principals.add(createGroupPrincipal(role.getName(), rolePrincipalClass));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                logger.info("Can't add role principal", e);
             }
          }
@@ -276,8 +275,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
       }
       if (i < constructors.length) {
          instance = constructors[i].newInstance(param);
-      }
-      else {
+      } else {
          instance = cls.newInstance();
          Method[] methods = cls.getMethods();
          i = 0;
@@ -290,8 +288,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
          if (i < methods.length) {
             methods[i].invoke(instance, param);
-         }
-         else {
+         } else {
             throw new NoSuchMethodException();
          }
       }

@@ -31,22 +31,22 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
@@ -1233,8 +1233,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       public void run() {
          if (first) {
             queue.addHead(messageReference, false);
-         }
-         else {
+         } else {
             queue.addTail(messageReference);
          }
          added = true;
@@ -1283,8 +1282,7 @@ public class QueueImplTest extends ActiveMQTestBase {
             MessageReference ref = totalIterator.next();
             Assert.assertEquals(i++, ref.getMessage().getIntProperty("order").intValue());
          }
-      }
-      finally {
+      } finally {
          totalIterator.close();
          server.stop();
       }

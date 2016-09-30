@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.transport.tcp;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.net.SocketFactory;
 
 import org.apache.activemq.CombinationTestSupport;
 import org.apache.activemq.command.WireFormatInfo;
@@ -123,8 +122,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
          if (server != null) {
             server.stop();
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
       }
       super.tearDown();
@@ -161,8 +159,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
             }
          });
          serverTransport.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -242,9 +239,9 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
    public void initCombosForTestNoClientHangWithServerBlock() throws Exception {
       startClient();
 
-      addCombinationValues("clientInactivityLimit", new Object[] {Long.valueOf(1000)});
-      addCombinationValues("serverInactivityLimit", new Object[] {Long.valueOf(1000)});
-      addCombinationValues("serverRunOnCommand", new Object[] {new Runnable() {
+      addCombinationValues("clientInactivityLimit", new Object[]{Long.valueOf(1000)});
+      addCombinationValues("serverInactivityLimit", new Object[]{Long.valueOf(1000)});
+      addCombinationValues("serverRunOnCommand", new Object[]{new Runnable() {
          @Override
          public void run() {
             try {

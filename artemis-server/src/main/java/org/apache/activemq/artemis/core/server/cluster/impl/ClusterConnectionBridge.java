@@ -57,6 +57,7 @@ import org.jboss.logging.Logger;
  * Such as such adding extra properties and setting up notifications between the nodes.
  */
 public class ClusterConnectionBridge extends BridgeImpl {
+
    private static final Logger logger = Logger.getLogger(ClusterConnectionBridge.class);
 
    private final ClusterConnection clusterConnection;
@@ -184,12 +185,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
    private void setupNotificationConsumer() throws Exception {
       if (logger.isDebugEnabled()) {
          logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
-                                              " and " +
-                                              flowRecord.getBridge().getForwardingConnection() +
-                                              " clusterConnection = " +
-                                              this.clusterConnection.getName() +
-                                              " on server " +
-                                              clusterConnection.getServer());
+                         " and " +
+                         flowRecord.getBridge().getForwardingConnection() +
+                         " clusterConnection = " +
+                         this.clusterConnection.getName() +
+                         " on server " +
+                         clusterConnection.getServer());
       }
       if (flowRecord != null) {
          flowRecord.reset();
@@ -197,13 +198,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
          if (notifConsumer != null) {
             try {
                logger.debug("Closing notification Consumer for reopening " + notifConsumer +
-                                                    " on bridge " +
-                                                    this.getName());
+                               " on bridge " +
+                               this.getName());
                notifConsumer.close();
 
                notifConsumer = null;
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                ActiveMQServerLogger.LOGGER.errorClosingConsumer(e);
             }
          }
@@ -279,8 +279,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       if (!address.contains(",")) {
          if (address.startsWith("!")) {
             stringBuilder.append(ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + address.substring(1, address.length()) + "%'");
-         }
-         else {
+         } else {
             stringBuilder.append(ManagementHelper.HDR_ADDRESS + " LIKE '" + address + "%'");
          }
          return stringBuilder.toString();
@@ -298,8 +297,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       for (String s : list) {
          if (s.startsWith("!")) {
             excludes.add(s.substring(1, s.length()));
-         }
-         else {
+         } else {
             includes.add(s);
          }
       }
@@ -355,8 +353,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       if (permanently) {
          logger.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
-      }
-      else {
+      } else {
          clusterConnection.disconnectRecord(targetNodeID);
       }
    }

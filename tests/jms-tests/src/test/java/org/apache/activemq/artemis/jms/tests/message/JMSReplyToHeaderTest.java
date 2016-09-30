@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import org.junit.Test;
-
 import javax.jms.Message;
 import javax.jms.TemporaryQueue;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.junit.Test;
 
 /**
  * A JMSReplyToHeaderTest

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.tcp;
 
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,15 +26,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-
 import org.apache.activemq.TransportLoggerSupport;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.broker.BrokerRegistry;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.openwire.OpenWireFormat;
-import org.apache.activemq.transport.*;
+import org.apache.activemq.transport.InactivityMonitor;
+import org.apache.activemq.transport.Transport;
+import org.apache.activemq.transport.TransportFactory;
+import org.apache.activemq.transport.TransportServer;
+import org.apache.activemq.transport.WireFormatNegotiator;
 import org.apache.activemq.util.IOExceptionSupport;
 import org.apache.activemq.util.IntrospectionSupport;
 import org.apache.activemq.util.URISupport;
@@ -53,8 +56,7 @@ public class TcpTransportFactory extends TransportFactory {
       String brokerId = params.remove("invmBrokerId");
       boolean autoCreate = true;
       String create = params.remove("create");
-      if (create != null)
-      {
+      if (create != null) {
          autoCreate = "true".equals(create);
       }
 
@@ -96,8 +98,7 @@ public class TcpTransportFactory extends TransportFactory {
          server.bind();
 
          return server;
-      }
-      catch (URISyntaxException e) {
+      } catch (URISyntaxException e) {
          throw IOExceptionSupport.create(e);
       }
    }
@@ -119,8 +120,7 @@ public class TcpTransportFactory extends TransportFactory {
       if (tcpTransport.isTrace()) {
          try {
             transport = TransportLoggerSupport.createTransportLogger(transport, tcpTransport.getLogWriterName(), tcpTransport.isDynamicManagement(), tcpTransport.isStartLogging(), tcpTransport.getJmxPort());
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             LOG.error("Could not create TransportLogger object for: " + tcpTransport.getLogWriterName() + ", reason: " + e, e);
          }
       }
@@ -154,8 +154,7 @@ public class TcpTransportFactory extends TransportFactory {
             Integer.parseInt(path.substring(localPortIndex + 1, path.length()));
             String localString = location.getScheme() + ":/" + path;
             localLocation = new URI(localString);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             LOG.warn("path isn't a valid local location for TcpTransport to use", e.getMessage());
             if (LOG.isDebugEnabled()) {
                LOG.debug("Failure detail", e);
@@ -191,11 +190,9 @@ public class TcpTransportFactory extends TransportFactory {
       if (brokerService != null) {
          try {
             ArtemisBrokerHelper.stopArtemisBroker();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
-         }
-         finally {
+         } finally {
             brokerService = null;
          }
       }
@@ -203,6 +200,7 @@ public class TcpTransportFactory extends TransportFactory {
 
    //added createTime for debugging
    private static class InternalServiceInfo {
+
       private String internalService;
       private long createTime;
 

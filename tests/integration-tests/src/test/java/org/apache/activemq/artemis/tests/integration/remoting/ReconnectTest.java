@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
-import org.apache.activemq.artemis.api.core.client.FailoverEventType;
-import org.apache.activemq.artemis.core.server.ServerSession;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,15 +23,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ReconnectTest extends ActiveMQTestBase {
 
@@ -102,12 +100,10 @@ public class ReconnectTest extends ActiveMQTestBase {
          Assert.assertEquals(1, count.get());
 
          locator.close();
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
 
          server.stop();
@@ -174,12 +170,10 @@ public class ReconnectTest extends ActiveMQTestBase {
 
             locator.close();
          }
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
 
          server.stop();
@@ -295,8 +289,7 @@ public class ReconnectTest extends ActiveMQTestBase {
                latchCommit.countDown();
                try {
                   session.commit();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   e.printStackTrace();
                }
             }
@@ -310,8 +303,7 @@ public class ReconnectTest extends ActiveMQTestBase {
 
          if (interruptMainThread) {
             tcommitt.interrupt();
-         }
-         else {
+         } else {
             for (Thread tint : threadToBeInterrupted) {
                tint.interrupt();
             }
@@ -321,8 +313,7 @@ public class ReconnectTest extends ActiveMQTestBase {
          assertFalse(tcommitt.isAlive());
 
          locator.close();
-      }
-      finally {
+      } finally {
       }
 
    }

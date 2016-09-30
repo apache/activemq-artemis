@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -29,6 +26,8 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -202,8 +201,7 @@ public class JmsSessionRecoverTest extends TestCase {
                      errorMessage[0] = "Got too many messages: " + counter;
                      doneCountDownLatch.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errorMessage[0] = "Got exception: " + e;
                doneCountDownLatch.countDown();
@@ -216,8 +214,7 @@ public class JmsSessionRecoverTest extends TestCase {
          if (errorMessage[0] != null) {
             fail(errorMessage[0]);
          }
-      }
-      else {
+      } else {
          fail("Timeout waiting for async message delivery to complete.");
       }
 
@@ -273,8 +270,7 @@ public class JmsSessionRecoverTest extends TestCase {
                      errorMessage[0] = "Got too many messages: " + counter;
                      doneCountDownLatch.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errorMessage[0] = "Got exception: " + e;
                doneCountDownLatch.countDown();
@@ -287,8 +283,7 @@ public class JmsSessionRecoverTest extends TestCase {
          if (errorMessage[0] != null) {
             fail(errorMessage[0]);
          }
-      }
-      else {
+      } else {
          fail("Timeout waiting for async message delivery to complete.");
       }
    }

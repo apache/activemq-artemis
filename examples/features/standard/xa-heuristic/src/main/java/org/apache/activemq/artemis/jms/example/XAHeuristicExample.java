@@ -166,8 +166,7 @@ public class XAHeuristicExample {
 
          // Step 32. Close the JMX Connector
          connector.close();
-      }
-      finally {
+      } finally {
          // Step 32. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();
@@ -212,8 +211,7 @@ class SimpleMessageListener implements MessageListener {
       try {
          System.out.println("Message received: " + ((TextMessage) message).getText());
          receiveHolder.add(((TextMessage) message).getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          result = false;
          e.printStackTrace();
       }

@@ -171,8 +171,7 @@ public class PagingStoreImpl implements PagingStore {
 
       if (scheduledExecutor != null && syncTimeout > 0) {
          this.syncTimer = new PageSyncTimer(this, scheduledExecutor, executor, syncTimeout);
-      }
-      else {
+      } else {
          this.syncTimer = null;
       }
 
@@ -212,8 +211,7 @@ public class PagingStoreImpl implements PagingStore {
       }
       try {
          return lock.writeLock().tryLock(timeout, TimeUnit.MILLISECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          return false;
       }
    }
@@ -248,8 +246,7 @@ public class PagingStoreImpl implements PagingStore {
       if (maxSize < 0) {
          // if maxSize < 0, we will return 2 pages for depage purposes
          return pageSize * 2;
-      }
-      else {
+      } else {
          return maxSize;
       }
    }
@@ -269,8 +266,7 @@ public class PagingStoreImpl implements PagingStore {
       SequentialFileFactory factoryUsed = this.fileFactory;
       if (factoryUsed != null) {
          return factoryUsed.getDirectory();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -290,8 +286,7 @@ public class PagingStoreImpl implements PagingStore {
             return isFull();
          }
          return paging;
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
    }
@@ -315,8 +310,7 @@ public class PagingStoreImpl implements PagingStore {
    public void sync() throws Exception {
       if (syncTimer != null) {
          syncTimer.addSync(storageManager.getContext());
-      }
-      else {
+      } else {
          ioSync();
       }
 
@@ -330,8 +324,7 @@ public class PagingStoreImpl implements PagingStore {
          if (currentPage != null) {
             currentPage.sync();
          }
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
    }
@@ -393,8 +386,7 @@ public class PagingStoreImpl implements PagingStore {
             // and having both threads calling init. One of the calls should just
             // need to be ignored
             return;
-         }
-         else {
+         } else {
             running = true;
             firstPageId = Integer.MAX_VALUE;
 
@@ -453,8 +445,7 @@ public class PagingStoreImpl implements PagingStore {
             }
          }
 
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -465,8 +456,7 @@ public class PagingStoreImpl implements PagingStore {
       try {
          paging = false;
          this.cursorProvider.onPageModeCleared();
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -488,8 +478,7 @@ public class PagingStoreImpl implements PagingStore {
          if (paging) {
             return false;
          }
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
 
@@ -506,8 +495,7 @@ public class PagingStoreImpl implements PagingStore {
          if (currentPage == null) {
             try {
                openNewPage();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // If not possible to starting page due to an IO error, we will just consider it non paging.
                // This shouldn't happen anyway
                ActiveMQServerLogger.LOGGER.pageStoreStartIOError(e);
@@ -518,8 +506,7 @@ public class PagingStoreImpl implements PagingStore {
          paging = true;
 
          return true;
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -585,8 +572,7 @@ public class PagingStoreImpl implements PagingStore {
 
          if (numberOfPages == 0) {
             return null;
-         }
-         else {
+         } else {
             numberOfPages--;
 
             final Page returnPage;
@@ -614,22 +600,19 @@ public class PagingStoreImpl implements PagingStore {
                   // This will trigger this address to exit the page mode,
                   // and this will make ActiveMQ Artemis start using the journal again
                   return null;
-               }
-               else {
+               } else {
                   // We need to create a new page, as we can't lock the address until we finish depaging.
                   openNewPage();
                }
 
                return returnPage;
-            }
-            else {
+            } else {
                returnPage = createPage(firstPageId++);
             }
 
             return returnPage;
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
 
@@ -679,8 +662,7 @@ public class PagingStoreImpl implements PagingStore {
          if (isFull()) {
             return false;
          }
-      }
-      else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
+      } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
          if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() > maxSize || pagingManager.isGlobalFull()) {
             OverSizedRunnable ourRunnable = new OverSizedRunnable(runWhenAvailable);
 
@@ -693,8 +675,7 @@ public class PagingStoreImpl implements PagingStore {
             if (!pagingManager.isGlobalFull() && (sizeInBytes.get() <= maxSize || maxSize < 0)) {
                // run it now
                ourRunnable.run();
-            }
-            else {
+            } else {
                if (usingGlobalMaxSize || pagingManager.isDiskFull()) {
                   pagingManager.addBlockedStore(this);
                }
@@ -726,8 +707,7 @@ public class PagingStoreImpl implements PagingStore {
          }
 
          return;
-      }
-      else if (addressFullMessagePolicy == AddressFullMessagePolicy.PAGE) {
+      } else if (addressFullMessagePolicy == AddressFullMessagePolicy.PAGE) {
          if (size > 0) {
             if (maxSize != -1 && newSize > maxSize || globalFull) {
                if (startPaging()) {
@@ -790,12 +770,10 @@ public class PagingStoreImpl implements PagingStore {
 
             // Address is full, we just pretend we are paging, and drop the data
             return true;
-         }
-         else {
+         } else {
             return false;
          }
-      }
-      else if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
+      } else if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
          return false;
       }
 
@@ -807,8 +785,7 @@ public class PagingStoreImpl implements PagingStore {
          if (!paging) {
             return false;
          }
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
 
@@ -859,16 +836,14 @@ public class PagingStoreImpl implements PagingStore {
 
             if (logger.isTraceEnabled()) {
                logger.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
-                                                    " pageNr=" + currentPage.getPageId());
+                               " pageNr=" + currentPage.getPageId());
             }
 
             return true;
-         }
-         finally {
+         } finally {
             lock.writeLock().unlock();
          }
-      }
-      finally {
+      } finally {
          managerLock.unlock();
       }
    }
@@ -924,8 +899,7 @@ public class PagingStoreImpl implements PagingStore {
             // non transactional writes need an intermediate place
             // to avoid the counter getting out of sync
             q.getPageSubscription().getCounter().pendingCounter(page, 1);
-         }
-         else {
+         } else {
             // null tx is treated through pending counters
             q.getPageSubscription().getCounter().increment(tx, 1);
          }
@@ -1074,8 +1048,7 @@ public class PagingStoreImpl implements PagingStore {
          if (currentPageId < firstPageId) {
             firstPageId = currentPageId;
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -1131,8 +1104,7 @@ public class PagingStoreImpl implements PagingStore {
             }
             replicator.syncPages(sFile, id, getAddress());
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }

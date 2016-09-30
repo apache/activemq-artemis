@@ -65,11 +65,13 @@ under the License.
       <module name="ArrayTypeStyle"/>
       <!-- Make sure left curly braces are on the same line. -->
       <module name="LeftCurly">
-         <property name="option" value="eol"/>
+         <property name="maxLineLength" value="100"/>
       </module>
-      <!-- Make sure right curly braces are on a new line by itself. Note, this is not the recommendation from Sun. It is a legacy preference. -->
+
+      <module name="RightCurly"/>
       <module name="RightCurly">
          <property name="option" value="alone"/>
+         <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT"/>
       </module>
       <!-- Checks that there is no whitespace after certain tokens; e.g. "." and "!". -->
       <module name="NoWhitespaceAfter"/>

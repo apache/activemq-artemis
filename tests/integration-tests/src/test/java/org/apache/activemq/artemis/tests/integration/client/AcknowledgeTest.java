@@ -33,13 +33,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
@@ -145,12 +145,10 @@ public class AcknowledgeTest extends ActiveMQTestBase {
          public void onMessage(final ClientMessage message) {
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                try {
                   session.close();
-               }
-               catch (ActiveMQException e1) {
+               } catch (ActiveMQException e1) {
                   e1.printStackTrace();
                }
             }
@@ -215,16 +213,14 @@ public class AcknowledgeTest extends ActiveMQTestBase {
             // pretending to be an unbehaved client doing an invalid ack right after failover
             ((ClientSessionInternal) sessionConsumer).acknowledge(new FakeConsumerWithID(0), new FakeMessageWithID(12343));
             fail("supposed to throw an exception here");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
 
          try {
             // pretending to be an unbehaved client doing an invalid ack right after failover
             ((ClientSessionInternal) sessionConsumer).acknowledge(new FakeConsumerWithID(3), new FakeMessageWithID(12343));
             fail("supposed to throw an exception here");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
 
@@ -264,12 +260,10 @@ public class AcknowledgeTest extends ActiveMQTestBase {
             if (latch.getCount() == 1) {
                try {
                   message.acknowledge();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   try {
                      session.close();
-                  }
-                  catch (ActiveMQException e1) {
+                  } catch (ActiveMQException e1) {
                      e1.printStackTrace();
                   }
                }

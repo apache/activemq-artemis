@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,25 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.karaf;
+
+import javax.inject.Inject;
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.security.auth.Subject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
@@ -38,25 +57,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
-
-import javax.inject.Inject;
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.security.auth.Subject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -99,17 +99,11 @@ public class ArtemisFeatureTest extends Assert {
       ArrayList<String> f = new ArrayList<>();
       f.addAll(Arrays.asList(features));
 
-      Option[] options =
-            new Option[]{
-                  karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject())
-                        .unpackDirectory(new File("target/paxexam/unpack/")),
+      Option[] options = new Option[]{karafDistributionConfiguration().frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject()).unpackDirectory(new File("target/paxexam/unpack/")),
 
-                  KarafDistributionOption.keepRuntimeFolder(),
-                  logLevel(LogLevelOption.LogLevel.INFO),
-                  editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                  //debugConfiguration("5005", true),
-                  features(getArtemisMQKarafFeatureUrl(), f.toArray(new String[f.size()]))};
+         KarafDistributionOption.keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.INFO), editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+         //debugConfiguration("5005", true),
+         features(getArtemisMQKarafFeatureUrl(), f.toArray(new String[f.size()]))};
 
       return options;
    }
@@ -117,7 +111,7 @@ public class ArtemisFeatureTest extends Assert {
    public static UrlReference getArtemisMQKarafFeatureUrl() {
       String type = "xml/features";
       UrlReference urlReference = mavenBundle().groupId("org.apache.activemq").
-            artifactId("artemis-features").versionAsInProject().type(type);
+         artifactId("artemis-features").versionAsInProject().type(type);
       LOG.info("FeatureURL: " + urlReference.getURL());
       return urlReference;
    }
@@ -154,8 +148,7 @@ public class ArtemisFeatureTest extends Assert {
          MessageConsumer consumer = sess.createConsumer(queue);
          Message msg = consumer.receive(5000);
          assertNotNull(msg);
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -169,41 +162,38 @@ public class ArtemisFeatureTest extends Assert {
       final Session commandSession = sessionFactory.create(System.in, printStream, printStream);
       commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
       commandSession.put("USER", USER);
-      FutureTask<String> commandFuture = new FutureTask<>(
-            new Callable<String>() {
-               @Override
-               public String call() {
+      FutureTask<String> commandFuture = new FutureTask<>(new Callable<String>() {
+         @Override
+         public String call() {
 
-                  Subject subject = new Subject();
-                  subject.getPrincipals().add(new UserPrincipal("admin"));
-                  subject.getPrincipals().add(new RolePrincipal("admin"));
-                  subject.getPrincipals().add(new RolePrincipal("manager"));
-                  subject.getPrincipals().add(new RolePrincipal("viewer"));
-                  return Subject.doAs(subject, new PrivilegedAction<String>() {
-                     @Override
-                     public String run() {
-                        try {
-                           if (!silent) {
-                              System.out.println(command);
-                              System.out.flush();
-                           }
-                           commandSession.execute(command);
-                        }
-                        catch (Exception e) {
-                           e.printStackTrace(System.err);
-                        }
-                        printStream.flush();
-                        return byteArrayOutputStream.toString();
+            Subject subject = new Subject();
+            subject.getPrincipals().add(new UserPrincipal("admin"));
+            subject.getPrincipals().add(new RolePrincipal("admin"));
+            subject.getPrincipals().add(new RolePrincipal("manager"));
+            subject.getPrincipals().add(new RolePrincipal("viewer"));
+            return Subject.doAs(subject, new PrivilegedAction<String>() {
+               @Override
+               public String run() {
+                  try {
+                     if (!silent) {
+                        System.out.println(command);
+                        System.out.flush();
                      }
-                  });
+                     commandSession.execute(command);
+                  } catch (Exception e) {
+                     e.printStackTrace(System.err);
+                  }
+                  printStream.flush();
+                  return byteArrayOutputStream.toString();
                }
             });
+         }
+      });
 
       try {
          executor.submit(commandFuture);
          response = commandFuture.get(timeout, TimeUnit.MILLISECONDS);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace(System.err);
          response = "SHELL COMMAND TIMED OUT: ";
       }
@@ -220,13 +210,11 @@ public class ArtemisFeatureTest extends Assert {
       while (true) {
          try {
             return callable.call();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             if (System.currentTimeMillis() < max) {
                TimeUnit.SECONDS.sleep(1);
                continue;
-            }
-            else {
+            } else {
                throw t;
             }
          }
@@ -250,8 +238,7 @@ public class ArtemisFeatureTest extends Assert {
       try {
          st.open();
          return st.waitForService(timeout);
-      }
-      finally {
+      } finally {
          st.close();
       }
    }

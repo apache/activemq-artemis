@@ -133,8 +133,7 @@ public class TimedBuffer {
       // Need to start with the spin limiter acquired
       try {
          spinLimiter.acquire();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new ActiveMQInterruptedException(e);
       }
 
@@ -173,8 +172,7 @@ public class TimedBuffer {
       while (timerThread.isAlive()) {
          try {
             timerThread.join();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
@@ -217,8 +215,7 @@ public class TimedBuffer {
 
          if (sizeChecked > remainingInFile) {
             return false;
-         }
-         else {
+         } else {
             // There is enough space in the file for this size
 
             // Need to re-calculate buffer limit
@@ -227,8 +224,7 @@ public class TimedBuffer {
 
             return true;
          }
-      }
-      else {
+      } else {
          delayFlush = true;
 
          return true;
@@ -380,8 +376,7 @@ public class TimedBuffer {
                   // if using sleep, we will always flush
                   flush();
                   lastFlushTime = System.nanoTime();
-               }
-               else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
+               } else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
                   // if not using flush we will spin and do the time checks manually
                   flush();
                   lastFlushTime = System.nanoTime();
@@ -397,8 +392,7 @@ public class TimedBuffer {
                Thread.yield();
 
                spinLimiter.release();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
@@ -417,11 +411,9 @@ public class TimedBuffer {
 
             try {
                sleep(sleepMillis, sleepNanos);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                setUseSleep(false);
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
             }
@@ -469,8 +461,7 @@ public class TimedBuffer {
             // We acquire the spinLimiter semaphore - this prevents the timer flush thread unnecessarily spinning
             // when the buffer is inactive
             spinLimiter.acquire();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
 

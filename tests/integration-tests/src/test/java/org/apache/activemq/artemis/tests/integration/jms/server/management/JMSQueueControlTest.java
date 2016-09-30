@@ -24,6 +24,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.json.JsonArray;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 import javax.naming.Context;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -43,7 +45,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -72,7 +73,6 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import javax.json.JsonArray;
 
 /**
  * A QueueControlTest
@@ -485,8 +485,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.removeMessage(unknownMessageID);
          Assert.fail("should throw an exception is the message ID is unknown");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -589,8 +588,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.changeMessagePriority(messageIDs[0], invalidPriority);
          Assert.fail("must throw an exception if the new priority is not a valid value");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
@@ -612,8 +610,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.changeMessagePriority(unknownMessageID, 7);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -698,8 +695,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       boolean exception = false;
       try {
          serverManager.createQueue(false, someOtherQueue, null, true, someOtherQueue, "/duplicate");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          exception = true;
       }
 
@@ -749,8 +745,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.expireMessage(unknownMessageID);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -889,8 +884,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.sendMessageToDeadLetterAddress(unknownMessageID);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
    }
@@ -980,8 +974,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.moveMessages(null, unknownQueue);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -1024,14 +1017,13 @@ public class JMSQueueControlTest extends ManagementTestBase {
       connection.close();
    }
 
-
    protected ActiveMQQueue createDLQ(final String deadLetterQueueName) throws Exception {
       serverManager.createQueue(false, deadLetterQueueName, null, true, deadLetterQueueName);
       return (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueueName);
    }
 
    protected ActiveMQQueue createTestQueueWithDLQ(final String queueName, final ActiveMQQueue dlq) throws Exception {
-      serverManager.createQueue(false,queueName,null,true,queueName);
+      serverManager.createQueue(false, queueName, null, true, queueName);
       ActiveMQQueue testQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(queueName);
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
@@ -1052,21 +1044,22 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
    /**
     * Test retrying all messages put on DLQ - i.e. they should appear on the original queue.
+    *
     * @throws Exception
     */
    @Test
    public void testRetryMessages() throws Exception {
       ActiveMQQueue dlq = createDLQ(RandomUtil.randomString());
-      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(),dlq);
+      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(), dlq);
 
       final int numMessagesToTest = 10;
       JMSUtil.sendMessages(testQueue, numMessagesToTest);
 
       Connection connection = createConnection();
       connection.start();
-      Session session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(testQueue);
-      for (int i = 0;i < numMessagesToTest;i++) {
+      for (int i = 0; i < numMessagesToTest; i++) {
          Message msg = consumer.receive(500L);
       }
       session.rollback(); // All <numMessagesToTest> messages should now be on DLQ
@@ -1074,20 +1067,21 @@ public class JMSQueueControlTest extends ManagementTestBase {
       JMSQueueControl testQueueControl = createManagementControl(testQueue);
       JMSQueueControl dlqQueueControl = createManagementControl(dlq);
       Assert.assertEquals(0, getMessageCount(testQueueControl));
-      Assert.assertEquals(numMessagesToTest,getMessageCount(dlqQueueControl));
+      Assert.assertEquals(numMessagesToTest, getMessageCount(dlqQueueControl));
 
-      Assert.assertEquals(10,getMessageCount(dlqQueueControl));
+      Assert.assertEquals(10, getMessageCount(dlqQueueControl));
 
       dlqQueueControl.retryMessages();
 
       Assert.assertEquals(numMessagesToTest, getMessageCount(testQueueControl));
-      Assert.assertEquals(0,getMessageCount(dlqQueueControl));
+      Assert.assertEquals(0, getMessageCount(dlqQueueControl));
 
       connection.close();
    }
 
    /**
     * Test retrying all messages put on DLQ - i.e. they should appear on the original queue.
+    *
     * @throws Exception
     */
    @Test
@@ -1101,10 +1095,8 @@ public class JMSQueueControlTest extends ManagementTestBase {
       MessageConsumer cons1 = sessionConsume.createDurableSubscriber(testTopic, "sub1");
       MessageConsumer cons2 = sessionConsume.createDurableSubscriber(testTopic, "sub2");
 
-
       final int numMessagesToTest = 10;
       JMSUtil.sendMessages(testTopic, numMessagesToTest);
-
 
       connectionConsume.start();
       for (int i = 0; i < numMessagesToTest; i++) {
@@ -1139,17 +1131,18 @@ public class JMSQueueControlTest extends ManagementTestBase {
    /**
     * Test retrying a specific message on DLQ.
     * Expected to be sent back to original queue.
+    *
     * @throws Exception
     */
    @Test
    public void testRetryMessage() throws Exception {
       ActiveMQQueue dlq = createDLQ(RandomUtil.randomString());
-      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(),dlq);
-      String messageID = JMSUtil.sendMessages(testQueue,1)[0];
+      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(), dlq);
+      String messageID = JMSUtil.sendMessages(testQueue, 1)[0];
 
       Connection connection = createConnection();
       connection.start();
-      Session session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(testQueue);
       consumer.receive(500L);
       session.rollback(); // All <numMessagesToTest> messages should now be on DLQ
@@ -1157,12 +1150,12 @@ public class JMSQueueControlTest extends ManagementTestBase {
       JMSQueueControl testQueueControl = createManagementControl(testQueue);
       JMSQueueControl dlqQueueControl = createManagementControl(dlq);
       Assert.assertEquals(0, getMessageCount(testQueueControl));
-      Assert.assertEquals(1,getMessageCount(dlqQueueControl));
+      Assert.assertEquals(1, getMessageCount(dlqQueueControl));
 
       dlqQueueControl.retryMessage(messageID);
 
       Assert.assertEquals(1, getMessageCount(testQueueControl));
-      Assert.assertEquals(0,getMessageCount(dlqQueueControl));
+      Assert.assertEquals(0, getMessageCount(dlqQueueControl));
 
    }
 
@@ -1420,8 +1413,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.moveMessage(unknownMessageID, otherQueueName);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       serverManager.destroyQueue(otherQueueName);
@@ -1527,8 +1519,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       try {
          queueControl.moveMessage(messageIDs[0], unknownQueue);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       JMSUtil.consumeMessages(1, queue);
@@ -1545,8 +1536,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
          Assert.assertTrue(queueControl.isPaused());
          queueControl.resume();
          Assert.assertFalse(queueControl.isPaused());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }

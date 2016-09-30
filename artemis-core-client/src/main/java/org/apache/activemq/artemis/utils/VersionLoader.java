@@ -56,8 +56,7 @@ public final class VersionLoader {
                   return System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY);
                }
             });
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
             PROP_FILE_NAME = null;
          }
@@ -67,8 +66,7 @@ public final class VersionLoader {
          }
 
          VersionLoader.versions = VersionLoader.load();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          VersionLoader.versions = null;
          ActiveMQClientLogger.LOGGER.error(e.getMessage(), e);
       }
@@ -131,19 +129,16 @@ public final class VersionLoader {
 
             });
             return definedVersions.toArray(new Version[incrementingVersions.length]);
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             // if we get here then the messaging hasn't been built properly and the version.properties is skewed in some
             // way
             throw new RuntimeException("unable to load " + VersionLoader.PROP_FILE_NAME, e);
          }
-      }
-      finally {
+      } finally {
          try {
             if (in != null)
                in.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
 
@@ -168,8 +163,7 @@ public final class VersionLoader {
             if (cursor > 1) {
                to = Integer.parseInt(token.substring(1, cursor));
             }
-         }
-         else if (Character.isDigit(firstChar)) {
+         } else if (Character.isDigit(firstChar)) {
             for (; cursor < token.length() && Character.isDigit(token.charAt(cursor)); cursor++) {
                // do nothing
             }
@@ -178,14 +172,12 @@ public final class VersionLoader {
             if (cursor == token.length()) {
                // just "n" pattern
                to = from;
-            }
-            else if (token.charAt(cursor) == '-') {
+            } else if (token.charAt(cursor) == '-') {
                cursor++;
                if (cursor == token.length()) {
                   // "n-" pattern
                   to = Integer.MAX_VALUE;
-               }
-               else {
+               } else {
                   // "n-n" pattern
                   to = Integer.parseInt(token.substring(cursor));
                }

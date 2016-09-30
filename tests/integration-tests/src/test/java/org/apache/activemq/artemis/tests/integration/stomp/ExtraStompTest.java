@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.QueueBrowser;
+import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -46,16 +56,6 @@ import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.QueueBrowser;
-import javax.jms.TextMessage;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ExtraStompTest extends StompTestBase {
 
@@ -93,8 +93,7 @@ public class ExtraStompTest extends StompTestBase {
 
          message = (TextMessage) consumer.receiveNoWait();
          Assert.assertNull(message);
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -169,12 +168,10 @@ public class ExtraStompTest extends StompTestBase {
 
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -233,12 +230,10 @@ public class ExtraStompTest extends StompTestBase {
 
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -296,12 +291,10 @@ public class ExtraStompTest extends StompTestBase {
          connV12.sendFrame(unsubFrame);
 
          connV12.disconnect();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -354,12 +347,10 @@ public class ExtraStompTest extends StompTestBase {
          connV12.sendFrame(unsubFrame);
 
          connV12.disconnect();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -419,12 +410,10 @@ public class ExtraStompTest extends StompTestBase {
 
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -476,12 +465,10 @@ public class ExtraStompTest extends StompTestBase {
          connV12.sendFrame(unsubFrame);
 
          connV12.disconnect();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -534,12 +521,10 @@ public class ExtraStompTest extends StompTestBase {
          connV12.sendFrame(unsubFrame);
 
          connV12.disconnect();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -600,12 +585,10 @@ public class ExtraStompTest extends StompTestBase {
 
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -662,8 +645,7 @@ public class ExtraStompTest extends StompTestBase {
             if (enable != null && enable.booleanValue()) {
                assertNotNull(msgId);
                assertTrue(msgId.indexOf("STOMP") == 0);
-            }
-            else {
+            } else {
                assertNull(msgId);
             }
          }
@@ -680,8 +662,7 @@ public class ExtraStompTest extends StompTestBase {
 
          message = (TextMessage) consumer.receive(2000);
          Assert.assertNull(message);
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }
@@ -802,8 +783,7 @@ public class ExtraStompTest extends StompTestBase {
 
          sendFrame(frame);
 
-      }
-      finally {
+      } finally {
          cleanUp();
          server.stop();
       }

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -39,13 +46,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProducerFlowControlTest extends ActiveMQTestBase {
 
@@ -245,8 +245,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
                   Thread.sleep(consumerDelay);
                }
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ProducerFlowControlTest.log.error("Failed to handle message", e);
 
                exception = e;
@@ -271,8 +270,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       for (int i = 0; i < numProducers; i++) {
          if (anon) {
             producers[i] = session.createProducer();
-         }
-         else {
+         } else {
             producers[i] = session.createProducer(address);
          }
       }
@@ -287,8 +285,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          for (int j = 0; j < numProducers; j++) {
             if (anon) {
                producers[j].send(address, message);
-            }
-            else {
+            } else {
                producers[j].send(message);
             }
 
@@ -350,8 +347,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
                closed.set(true);
 
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
          }
       });
@@ -363,8 +359,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          for (int i = 0; i < 10; i++) {
             producer.send(message);
          }
-      }
-      catch (ActiveMQObjectClosedException expected) {
+      } catch (ActiveMQObjectClosedException expected) {
       }
 
       Assert.assertTrue(closed.get());

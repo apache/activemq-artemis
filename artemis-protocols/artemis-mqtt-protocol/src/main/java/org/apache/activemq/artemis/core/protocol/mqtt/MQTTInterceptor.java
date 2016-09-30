@@ -23,4 +23,5 @@ import io.netty.handler.codec.mqtt.MqttMessage;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 
 public interface MQTTInterceptor extends BaseInterceptor<MqttMessage> {
+
 }

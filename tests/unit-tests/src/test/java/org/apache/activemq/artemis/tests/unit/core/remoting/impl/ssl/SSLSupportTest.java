@@ -21,8 +21,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,8 +100,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       try {
          SSLSupport.createContext(storeType, "not a keystore", keyStorePassword, storeType, trustStorePath, trustStorePassword);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -109,8 +108,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
    public void testContextWithNullKeyStorePath() throws Exception {
       try {
          SSLSupport.createContext(storeType, null, keyStorePassword, storeType, trustStorePath, trustStorePassword);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Assert.fail();
       }
    }
@@ -132,8 +130,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       try {
          SSLSupport.createContext(storeType, keyStorePath, "bad password", storeType, trustStorePath, trustStorePassword);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -142,8 +139,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       try {
          SSLSupport.createContext(storeType, keyStorePath, null, storeType, trustStorePath, trustStorePassword);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertFalse(e instanceof NullPointerException);
       }
    }
@@ -153,8 +149,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       try {
          SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, "not a trust store", trustStorePassword);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -163,8 +158,7 @@ public class SSLSupportTest extends ActiveMQTestBase {
       try {
          SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, "bad passord");
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 }

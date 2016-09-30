@@ -30,10 +30,10 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.rest.HttpHeaderProperty;
-import org.apache.activemq.artemis.rest.Jms;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.rest.Jms;
 import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -125,8 +125,7 @@ public class JMSTest extends MessageTestBase {
          message.setObject(object);
 
          producer.send(message);
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }
@@ -142,8 +141,7 @@ public class JMSTest extends MessageTestBase {
          try {
             order = Jms.getEntity(message, Order.class);
             messageID = message.getJMSMessageID();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
          latch.countDown();
@@ -191,8 +189,7 @@ public class JMSTest extends MessageTestBase {
             Assert.assertEquals(order, Listener.order);
             Assert.assertNotNull(Listener.messageID);
          }
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }

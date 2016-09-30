@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,13 @@
 
 package org.apache.activemq.usecases;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -99,8 +98,7 @@ public class AMQStackOverFlowTest extends TestCase {
 
          assertEquals("test2", tm2.getText());
 
-      }
-      finally {
+      } finally {
          brokerService1.stop();
          brokerService1 = null;
          brokerService2.stop();

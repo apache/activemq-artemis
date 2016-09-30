@@ -17,13 +17,11 @@
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.XMLUtil;
+import org.junit.Assert;
+import org.junit.Test;
 import org.w3c.dom.Element;
 
 public class ConfigurationValidationTest extends ActiveMQTestBase {

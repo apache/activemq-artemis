@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
-
 import javax.jms.IllegalStateException;
 import java.util.Set;
+
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 /**
  * Restricts what can be called on context passed in wrapped CompletionListener.
@@ -53,8 +53,7 @@ public class ThreadAwareContext {
    public void setCurrentThread(boolean isCompletionListener) {
       if (isCompletionListener) {
          completionListenerThread = Thread.currentThread();
-      }
-      else {
+      } else {
          messageListenerThreads.add(Thread.currentThread().getId());
       }
    }
@@ -68,8 +67,7 @@ public class ThreadAwareContext {
    public void clearCurrentThread(boolean isCompletionListener) {
       if (isCompletionListener) {
          completionListenerThread = null;
-      }
-      else {
+      } else {
          messageListenerThreads.remove(Thread.currentThread().getId());
       }
    }

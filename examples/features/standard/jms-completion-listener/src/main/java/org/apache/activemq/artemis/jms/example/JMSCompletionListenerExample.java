@@ -22,7 +22,6 @@ import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.Queue;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -72,8 +71,7 @@ public class JMSCompletionListenerExample {
          if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Completion listener not called as expected.");
          }
-      }
-      finally {
+      } finally {
          if (jmsContext != null) {
             jmsContext.close();
          }

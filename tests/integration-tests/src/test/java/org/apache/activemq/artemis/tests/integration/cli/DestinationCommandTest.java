@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
@@ -26,10 +30,6 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Map;
 
 public class DestinationCommandTest extends JMSTestBase {
 
@@ -183,15 +183,13 @@ public class DestinationCommandTest extends JMSTestBase {
          System.out.println("output: " + fullMessage);
          assertTrue(fullMessage, fullMessage.contains("successfully"));
          assertTrue(checkBindingExists(command, null));
-      }
-      else {
+      } else {
          if (command.getName().equals("jmsQueue1") || command.getName().equals("coreQueue2") || command.getName().equals("jmsTopic1")) {
             String fullMessage = output.toString();
             System.out.println("output: " + fullMessage);
             assertTrue(fullMessage, fullMessage.contains("successfully"));
             assertFalse(checkBindingExists(command, null));
-         }
-         else {
+         } else {
             String errorMessage = error.toString();
             System.out.println("error: " + errorMessage);
             assertTrue(errorMessage, errorMessage.contains("Failed to"));
@@ -205,8 +203,7 @@ public class DestinationCommandTest extends JMSTestBase {
       if (isJms(command)) {
          if (isTopic(command)) {
             bindingKey = "jms.topic." + bindingKey;
-         }
-         else {
+         } else {
             bindingKey = "jms.queue." + bindingKey;
          }
       }

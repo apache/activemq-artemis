@@ -135,8 +135,7 @@ public class AmqpSupport {
       if (data.isDirect()) {
          rc = new Buffer(data.remaining());
          data.get(rc.data);
-      }
-      else {
+      } else {
          rc = new Buffer(data);
          data.position(data.position() + data.remaining());
       }
@@ -182,24 +181,20 @@ public class AmqpSupport {
    public static ActiveMQDestination createDestination(Object endpoint) throws AmqpProtocolException {
       if (endpoint == null) {
          return null;
-      }
-      else if (endpoint instanceof Coordinator) {
+      } else if (endpoint instanceof Coordinator) {
          return null;
-      }
-      else if (endpoint instanceof org.apache.qpid.proton.amqp.messaging.Terminus) {
+      } else if (endpoint instanceof org.apache.qpid.proton.amqp.messaging.Terminus) {
          org.apache.qpid.proton.amqp.messaging.Terminus terminus = (org.apache.qpid.proton.amqp.messaging.Terminus) endpoint;
          if (terminus.getAddress() == null || terminus.getAddress().length() == 0) {
             if (terminus instanceof org.apache.qpid.proton.amqp.messaging.Source) {
                throw new AmqpProtocolException("amqp:invalid-field", "source address not set");
-            }
-            else {
+            } else {
                throw new AmqpProtocolException("amqp:invalid-field", "target address not set");
             }
          }
 
          return ActiveMQDestination.createDestination(terminus.getAddress(), ActiveMQDestination.QUEUE_TYPE);
-      }
-      else {
+      } else {
          throw new RuntimeException("Unexpected terminus type: " + endpoint);
       }
    }

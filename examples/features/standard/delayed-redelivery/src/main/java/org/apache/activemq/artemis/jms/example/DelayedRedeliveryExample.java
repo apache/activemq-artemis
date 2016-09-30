@@ -112,8 +112,7 @@ public class DelayedRedeliveryExample {
                                " after " +
                                (end - start) +
                                " milliseconds.");
-      }
-      finally {
+      } finally {
          // Step 17. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

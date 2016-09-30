@@ -51,8 +51,7 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase {
          queueProducer.send(m);
 
          ProxyAssertSupport.assertFalse("ID:something".equals(m.getJMSMessageID()));
-      }
-      finally {
+      } finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
@@ -67,8 +66,7 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase {
 
          ProxyAssertSupport.assertNotNull(m.getJMSMessageID());
          ProxyAssertSupport.assertTrue(m.getJMSMessageID().startsWith("ID:"));
-      }
-      finally {
+      } finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }

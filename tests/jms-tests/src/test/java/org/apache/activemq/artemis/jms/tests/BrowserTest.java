@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import java.util.Enumeration;
-
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
@@ -27,6 +25,7 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -49,8 +48,7 @@ public class BrowserTest extends JMSTestCase {
       try {
          session.createBrowser(null);
          ProxyAssertSupport.fail("should throw exception");
-      }
-      catch (InvalidDestinationException e) {
+      } catch (InvalidDestinationException e) {
          // OK
       }
    }
@@ -70,12 +68,10 @@ public class BrowserTest extends JMSTestCase {
                }
             });
             ProxyAssertSupport.fail("should throw exception");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             // OK
          }
-      }
-      finally {
+      } finally {
          if (pconn != null) {
             pconn.close();
          }
@@ -155,8 +151,7 @@ public class BrowserTest extends JMSTestCase {
             m.setIntProperty("test_counter", i + 1);
             producer.send(m);
          }
-      }
-      finally {
+      } finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
@@ -202,8 +197,7 @@ public class BrowserTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals("A", rm.getText());
 
          ProxyAssertSupport.assertFalse(en.hasMoreElements());
-      }
-      finally {
+      } finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
@@ -215,8 +209,7 @@ public class BrowserTest extends JMSTestCase {
          if (conn != null) {
             conn.close();
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }

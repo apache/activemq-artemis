@@ -95,7 +95,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          Role destRole = new Role("manager", false, false, false, false, true, true, false, false);
 
-         Set<Role> roles =  new HashSet<>();
+         Set<Role> roles = new HashSet<>();
          roles.add(senderRole);
          roles.add(receiverRole);
          roles.add(guestRole);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,8 +57,7 @@ public class SslTransportFactoryTest extends TestCase {
 
          try {
             sslTransportServer = (SslTransportServer) factory.doBind(new URI("ssl://localhost:61616?" + options));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Unable to bind to address: " + e.getMessage());
          }
 
@@ -68,8 +67,7 @@ public class SslTransportFactoryTest extends TestCase {
 
          try {
             sslTransportServer.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Unable to stop TransportServer: " + e.getMessage());
          }
       }
@@ -106,8 +104,7 @@ public class SslTransportFactoryTest extends TestCase {
 
          try {
             transport = new StubSslTransport(null, socketStub);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Unable to create StubSslTransport: " + e.getMessage());
          }
 
@@ -125,8 +122,7 @@ public class SslTransportFactoryTest extends TestCase {
          // lets start the transport to force the introspection
          try {
             transport.start();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // ignore bad connection
          }
 

@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -32,6 +26,10 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * A test that makes sure that an ActiveMQ Artemis server cleans up the associated

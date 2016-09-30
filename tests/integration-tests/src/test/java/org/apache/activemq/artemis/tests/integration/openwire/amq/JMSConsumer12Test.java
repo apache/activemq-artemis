@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

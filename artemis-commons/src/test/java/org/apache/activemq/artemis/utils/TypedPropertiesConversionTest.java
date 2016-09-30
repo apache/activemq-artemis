@@ -61,8 +61,7 @@ public class TypedPropertiesConversionTest {
          props.putByteProperty(key, RandomUtil.randomByte());
          props.getBooleanProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       Assert.assertFalse(props.getBooleanProperty(unknownKey));
@@ -80,15 +79,13 @@ public class TypedPropertiesConversionTest {
          props.putByteProperty(key, RandomUtil.randomByte());
          props.getCharProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getCharProperty(unknownKey);
          Assert.fail();
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
       }
    }
 
@@ -107,15 +104,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getByteProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getByteProperty(unknownKey);
          Assert.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -138,15 +133,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getIntProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getIntProperty(unknownKey);
          Assert.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -177,15 +170,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getLongProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getLongProperty(unknownKey);
          Assert.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -204,15 +195,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getDoubleProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getDoubleProperty(unknownKey);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -232,15 +221,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getFloatProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getFloatProperty(unknownKey);
          Assert.fail();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -264,15 +251,13 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getShortProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       try {
          props.getShortProperty(unknownKey);
          Assert.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -294,8 +279,7 @@ public class TypedPropertiesConversionTest {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getBytesProperty(key);
          Assert.fail();
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
       }
 
       Assert.assertNull(props.getBytesProperty(unknownKey));
