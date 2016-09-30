@@ -326,17 +326,17 @@ public final class XmlDataImporter extends ActionAbstract {
             // Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
             // send directly to a queue, we have to send to an address instead but not all the queues related to the
             // address may need the message
-            ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
-            ClientMessage managementMessage = managementSession.createMessage(false);
-            ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
-            managementSession.start();
-            if (logger.isDebugEnabled()) {
-               logger.debug("Requesting ID for: " + queue);
+            try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+               ClientMessage managementMessage = managementSession.createMessage(false);
+               ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
+               managementSession.start();
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Requesting ID for: " + queue);
+               }
+               ClientMessage reply = requestor.request(managementMessage);
+               Number idObject = (Number) ManagementHelper.getResult(reply);
+               queueID = idObject.longValue();
             }
-            ClientMessage reply = requestor.request(managementMessage);
-            Number idObject = (Number) ManagementHelper.getResult(reply);
-            queueID = idObject.longValue();
-            requestor.close();
             if (logger.isDebugEnabled()) {
                logger.debug("ID for " + queue + " is: " + queueID);
             }
@@ -825,21 +825,20 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
-      ClientMessage managementMessage = managementSession.createMessage(false);
-      ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createConnectionFactory", name, Boolean.parseBoolean(ha), discoveryGroupName.length() > 0, Integer.parseInt(type), connectors, entries, clientId, Long.parseLong(clientFailureCheckPeriod), Long.parseLong(connectionTtl), Long.parseLong(callTimeout), Long.parseLong(callFailoverTimeout), Integer.parseInt(minLargeMessageSize), Boolean.parseBoolean(compressLargeMessages), Integer.parseInt(consumerWindowSize), Integer.parseInt(consumerMaxRate), Integer.parseInt(confirmationWindowSize), Integer.parseInt(producerWindowSize), Integer.parseInt(producerMaxRate), Boolean.parseBoolean(blockOnAcknowledge), Boolean.parseBoolean(blockOnDurableSend), Boolean.parseBoolean(blockOnNonDurableSend), Boolean.parseBoolean(autoGroup), Boolean.parseBoolean(preacknowledge), loadBalancingPolicyClassName, Integer.parseInt(transactionBatchSize), Integer.parseInt(dupsOkBatchSize), Boolean.parseBoolean(useGlobalPools), Integer.parseInt(scheduledThreadMaxPoolSize), Integer.parseInt(threadMaxPoolSize), Long.parseLong(retryInterval), Double.parseDouble(retryIntervalMultiplier), Long.parseLong(maxRetryInterval), Integer.parseInt(reconnectAttempts), Boolean.parseBoolean(failoverOnInitialConnection), groupId);
-      //Boolean.parseBoolean(cacheLargeMessagesClient));
-      managementSession.start();
-      ClientMessage reply = requestor.request(managementMessage);
-      if (ManagementHelper.hasOperationSucceeded(reply)) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Created connection factory " + name);
+      try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+         ClientMessage managementMessage = managementSession.createMessage(false);
+         ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createConnectionFactory", name, Boolean.parseBoolean(ha), discoveryGroupName.length() > 0, Integer.parseInt(type), connectors, entries, clientId, Long.parseLong(clientFailureCheckPeriod), Long.parseLong(connectionTtl), Long.parseLong(callTimeout), Long.parseLong(callFailoverTimeout), Integer.parseInt(minLargeMessageSize), Boolean.parseBoolean(compressLargeMessages), Integer.parseInt(consumerWindowSize), Integer.parseInt(consumerMaxRate), Integer.parseInt(confirmationWindowSize), Integer.parseInt(producerWindowSize), Integer.parseInt(producerMaxRate), Boolean.parseBoolean(blockOnAcknowledge), Boolean.parseBoolean(blockOnDurableSend), Boolean.parseBoolean(blockOnNonDurableSend), Boolean.parseBoolean(autoGroup), Boolean.parseBoolean(preacknowledge), loadBalancingPolicyClassName, Integer.parseInt(transactionBatchSize), Integer.parseInt(dupsOkBatchSize), Boolean.parseBoolean(useGlobalPools), Integer.parseInt(scheduledThreadMaxPoolSize), Integer.parseInt(threadMaxPoolSize), Long.parseLong(retryInterval), Double.parseDouble(retryIntervalMultiplier), Long.parseLong(maxRetryInterval), Integer.parseInt(reconnectAttempts), Boolean.parseBoolean(failoverOnInitialConnection), groupId);
+         //Boolean.parseBoolean(cacheLargeMessagesClient));
+         managementSession.start();
+         ClientMessage reply = requestor.request(managementMessage);
+         if (ManagementHelper.hasOperationSucceeded(reply)) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Created connection factory " + name);
+            }
+         } else {
+            ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
          }
-      } else {
-         ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
-
-      requestor.close();
    }
 
    private void createJmsDestination() throws Exception {
@@ -884,24 +883,23 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
-      ClientMessage managementMessage = managementSession.createMessage(false);
-      if ("Queue".equals(type)) {
-         ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);
-      } else if ("Topic".equals(type)) {
-         ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createTopic", name, entries);
-      }
-      managementSession.start();
-      ClientMessage reply = requestor.request(managementMessage);
-      if (ManagementHelper.hasOperationSucceeded(reply)) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Created " + type.toLowerCase() + " " + name);
+      try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+         ClientMessage managementMessage = managementSession.createMessage(false);
+         if ("Queue".equals(type)) {
+            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);
+         } else if ("Topic".equals(type)) {
+            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createTopic", name, entries);
          }
-      } else {
-         ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
+         managementSession.start();
+         ClientMessage reply = requestor.request(managementMessage);
+         if (ManagementHelper.hasOperationSucceeded(reply)) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Created " + type.toLowerCase() + " " + name);
+            }
+         } else {
+            ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
+         }
       }
-
-      requestor.close();
    }
 
    private String getEntries() throws Exception {
