@@ -2220,7 +2220,7 @@ public class QueueImpl implements Queue {
       acknowledge(tx, ref);
    }
 
-   @SuppressWarnings({"ArrayToString", "ArrayToStringConcatentation"})
+   @SuppressWarnings({"ArrayToString", "ArrayToStringConcatenation"})
    private void moveBetweenSnFQueues(final SimpleString queueSuffix,
                                      final Transaction tx,
                                      final MessageReference ref) throws Exception {
