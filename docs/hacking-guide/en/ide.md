@@ -41,7 +41,7 @@ There's a [SOF Question](http://stackoverflow.com/questions/27906481/can-intelli
 We have shared the style templates that are good for this project. If you want to apply them use these steps:
 
 * File->Import Settings
-* Select the file under ./artemis-cloned-folder/etc/ide-settings/IDEA-style.jar
+* Select the file under ./artemis-cloned-folder/etc/ide-settings/idea/IDEA-style.jar
 * Select both Code Style Templates and File templates (it's the default option)
 * Select OK and restart Idea
 
@@ -50,7 +50,7 @@ Alternatively you can copy artemis-codestyle.xml under your home settings at ``I
 #### To import inspection settings:
 
 * File->Settings->Editor->Inspections->Manage->Import
-* Select the file ./artemis-cloned-folder/etc/ide-settings/IDEA-artemis-inspections.xml
+* Select the file ./artemis-cloned-folder/etc/ide-settings/idea/artemis-inspections.xml
 * Select OK
 
 ### Issue: My JUnit tests are not runnable with in the IDE.
