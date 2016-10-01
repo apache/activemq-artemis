@@ -4,7 +4,7 @@ Eclipse code formatting and (basic) project configuration files can be found at 
 copy them _after importing all your projects_:
 
     for settings_dir in `find . -type d -name .settings`; do
-       \cp -v etc/ide-settings/org.eclipse.jdt.* $settings_dir
+       \cp -v etc/ide-settings/eclipse/org.eclipse.jdt.* $settings_dir
     done
 
 Do not use the [maven-eclipse-plugin](https://maven.apache.org/plugins/maven-eclipse-plugin/) to copy the files as it 
