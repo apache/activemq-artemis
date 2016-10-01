@@ -1,6 +1,6 @@
 # IDE Integration
 
-There a few files useful for IDE integration under ./etc/ide-settings on a checked out folder. This folder is not part of the source distribution can it can be easily obtained:
+There a few files useful for IDE integration under ./etc/ide-settings on a checked out folder. This folder is not part of the source distribution, but it can be easily obtained:
 
 - https://github.com/apache/activemq-artemis/tree/master/etc/ide-settings
 
