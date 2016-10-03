@@ -16,13 +16,26 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.Message;
+import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.Message;
+
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
 import org.apache.qpid.proton.amqp.Decimal32;
@@ -38,109 +51,61 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 
-import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
-
 public abstract class InboundTransformer {
 
-   JMSVendor vendor;
+   protected IDGenerator idGenerator;
 
    public static final String TRANSFORMER_NATIVE = "native";
    public static final String TRANSFORMER_RAW = "raw";
    public static final String TRANSFORMER_JMS = "jms";
 
-   String prefixVendor = "JMS_AMQP_";
-   String prefixDeliveryAnnotations = "DA_";
-   String prefixMessageAnnotations = "MA_";
-   String prefixFooter = "FT_";
-
-   int defaultDeliveryMode = DeliveryMode.NON_PERSISTENT;
-   int defaultPriority = Message.DEFAULT_PRIORITY;
-   long defaultTtl = Message.DEFAULT_TIME_TO_LIVE;
-
-   public InboundTransformer(JMSVendor vendor) {
-      this.vendor = vendor;
+   public InboundTransformer(IDGenerator idGenerator) {
+      this.idGenerator = idGenerator;
    }
 
-   public abstract Message transform(EncodedMessage amqpMessage) throws Exception;
+   public abstract ServerJMSMessage transform(EncodedMessage amqpMessage) throws Exception;
 
    public abstract String getTransformerName();
 
    public abstract InboundTransformer getFallbackTransformer();
 
-   public int getDefaultDeliveryMode() {
-      return defaultDeliveryMode;
-   }
-
-   public void setDefaultDeliveryMode(int defaultDeliveryMode) {
-      this.defaultDeliveryMode = defaultDeliveryMode;
-   }
-
-   public int getDefaultPriority() {
-      return defaultPriority;
-   }
-
-   public void setDefaultPriority(int defaultPriority) {
-      this.defaultPriority = defaultPriority;
-   }
-
-   public long getDefaultTtl() {
-      return defaultTtl;
-   }
-
-   public void setDefaultTtl(long defaultTtl) {
-      this.defaultTtl = defaultTtl;
-   }
-
-   public String getPrefixVendor() {
-      return prefixVendor;
-   }
-
-   public void setPrefixVendor(String prefixVendor) {
-      this.prefixVendor = prefixVendor;
-   }
-
-   public JMSVendor getVendor() {
-      return vendor;
-   }
-
-   public void setVendor(JMSVendor vendor) {
-      this.vendor = vendor;
-   }
-
-   protected void populateMessage(Message jms, org.apache.qpid.proton.message.Message amqp) throws Exception {
+   @SuppressWarnings("unchecked")
+   protected ServerJMSMessage populateMessage(ServerJMSMessage jms, org.apache.qpid.proton.message.Message amqp) throws Exception {
       Header header = amqp.getHeader();
-      if (header == null) {
-         header = new Header();
-      }
+      if (header != null) {
+         jms.setBooleanProperty(JMS_AMQP_HEADER, true);
 
-      if (header.getDurable() != null) {
-         jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+         if (header.getDurable() != null) {
+            jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+         } else {
+            jms.setJMSDeliveryMode(Message.DEFAULT_DELIVERY_MODE);
+         }
+
+         if (header.getPriority() != null) {
+            jms.setJMSPriority(header.getPriority().intValue());
+         } else {
+            jms.setJMSPriority(Message.DEFAULT_PRIORITY);
+         }
+
+         if (header.getFirstAcquirer() != null) {
+            jms.setBooleanProperty(JMS_AMQP_FIRST_ACQUIRER, header.getFirstAcquirer());
+         }
+
+         if (header.getDeliveryCount() != null) {
+            // AMQP Delivery Count counts only failed delivers where JMS
+            // Delivery Count should include the original delivery in the count.
+            jms.setLongProperty("JMSXDeliveryCount", header.getDeliveryCount().longValue() + 1);
+         }
       } else {
-         jms.setJMSDeliveryMode(defaultDeliveryMode);
-      }
-
-      if (header.getPriority() != null) {
-         jms.setJMSPriority(header.getPriority().intValue());
-      } else {
-         jms.setJMSPriority(defaultPriority);
-      }
-
-      if (header.getFirstAcquirer() != null) {
-         jms.setBooleanProperty(prefixVendor + "FirstAcquirer", header.getFirstAcquirer());
-      }
-
-      if (header.getDeliveryCount() != null) {
-         vendor.setJMSXDeliveryCount(jms, header.getDeliveryCount().longValue());
+         jms.setJMSPriority((byte) Message.DEFAULT_PRIORITY);
+         jms.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
       }
 
       final MessageAnnotations ma = amqp.getMessageAnnotations();
       if (ma != null) {
          for (Map.Entry<?, ?> entry : ma.getValue().entrySet()) {
             String key = entry.getKey().toString();
-            if ("x-opt-jms-type".equals(key) && entry.getValue() != null) {
-               // Legacy annotation, JMSType value will be replaced by Subject further down if also present.
-               jms.setJMSType(entry.getValue().toString());
-            } else if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
+            if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
                long deliveryTime = ((Number) entry.getValue()).longValue();
                jms.setLongProperty(HDR_SCHEDULED_DELIVERY_TIME.toString(), deliveryTime);
             } else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
@@ -149,41 +114,15 @@ public abstract class InboundTransformer {
                   jms.setLongProperty(HDR_SCHEDULED_DELIVERY_TIME.toString(), System.currentTimeMillis() + delay);
                }
             }
-            //todo
-               /*else if ("x-opt-delivery-repeat".equals(key) && entry.getValue() != null) {
-                    int repeat = ((Number) entry.getValue()).intValue();
-                    if (repeat > 0) {
-                        jms.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, repeat);
-                    }
-                } else if ("x-opt-delivery-period".equals(key) && entry.getValue() != null) {
-                    long period = ((Number) entry.getValue()).longValue();
-                    if (period > 0) {
-                        jms.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, period);
-                    }
-                } else if ("x-opt-delivery-cron".equals(key) && entry.getValue() != null) {
-                    String cronEntry = (String) entry.getValue();
-                    if (cronEntry != null) {
-                        jms.setStringProperty(ScheduledMessage.AMQ_SCHEDULED_CRON, cronEntry);
-                    }
-                }*/
 
-            setProperty(jms, prefixVendor + prefixMessageAnnotations + key, entry.getValue());
+            setProperty(jms, JMS_AMQP_MESSAGE_ANNOTATION_PREFIX + key, entry.getValue());
          }
       }
 
       final ApplicationProperties ap = amqp.getApplicationProperties();
       if (ap != null) {
          for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) ap.getValue().entrySet()) {
-            String key = entry.getKey().toString();
-            if ("JMSXGroupID".equals(key)) {
-               vendor.setJMSXGroupID(jms, entry.getValue().toString());
-            } else if ("JMSXGroupSequence".equals(key)) {
-               vendor.setJMSXGroupSequence(jms, ((Number) entry.getValue()).intValue());
-            } else if ("JMSXUserID".equals(key)) {
-               vendor.setJMSXUserID(jms, entry.getValue().toString());
-            } else {
-               setProperty(jms, key, entry.getValue());
-            }
+            setProperty(jms, entry.getKey().toString(), entry.getValue());
          }
       }
 
@@ -194,37 +133,38 @@ public abstract class InboundTransformer {
          }
          Binary userId = properties.getUserId();
          if (userId != null) {
-            vendor.setJMSXUserID(jms, new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
+            // TODO - Better Way to set this?
+            jms.setStringProperty("JMSXUserID", new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
          }
          if (properties.getTo() != null) {
-            jms.setJMSDestination(vendor.createDestination(properties.getTo()));
+            jms.setJMSDestination(new ServerDestination(properties.getTo()));
          }
          if (properties.getSubject() != null) {
             jms.setJMSType(properties.getSubject());
          }
          if (properties.getReplyTo() != null) {
-            jms.setJMSReplyTo(vendor.createDestination(properties.getReplyTo()));
+            jms.setJMSReplyTo(new ServerDestination(properties.getReplyTo()));
          }
          if (properties.getCorrelationId() != null) {
             jms.setJMSCorrelationID(AMQPMessageIdHelper.INSTANCE.toBaseMessageIdString(properties.getCorrelationId()));
          }
          if (properties.getContentType() != null) {
-            jms.setStringProperty(prefixVendor + "ContentType", properties.getContentType().toString());
+            jms.setStringProperty(JMS_AMQP_CONTENT_TYPE, properties.getContentType().toString());
          }
          if (properties.getContentEncoding() != null) {
-            jms.setStringProperty(prefixVendor + "ContentEncoding", properties.getContentEncoding().toString());
+            jms.setStringProperty(JMS_AMQP_CONTENT_ENCODING, properties.getContentEncoding().toString());
          }
          if (properties.getCreationTime() != null) {
             jms.setJMSTimestamp(properties.getCreationTime().getTime());
          }
          if (properties.getGroupId() != null) {
-            vendor.setJMSXGroupID(jms, properties.getGroupId());
+            jms.setStringProperty("_AMQ_GROUP_ID", properties.getGroupId());
          }
          if (properties.getGroupSequence() != null) {
-            vendor.setJMSXGroupSequence(jms, properties.getGroupSequence().intValue());
+            jms.setIntProperty("JMSXGroupSeq", properties.getGroupSequence().intValue());
          }
          if (properties.getReplyToGroupId() != null) {
-            jms.setStringProperty(prefixVendor + "ReplyToGroupID", properties.getReplyToGroupId());
+            jms.setStringProperty(JMS_AMQP_REPLYTO_GROUP_ID, properties.getReplyToGroupId());
          }
          if (properties.getAbsoluteExpiryTime() != null) {
             jms.setJMSExpiration(properties.getAbsoluteExpiryTime().getTime());
@@ -232,9 +172,9 @@ public abstract class InboundTransformer {
       }
 
       // If the jms expiration has not yet been set...
-      if (jms.getJMSExpiration() == 0) {
+      if (header != null && jms.getJMSExpiration() == 0) {
          // Then lets try to set it based on the message ttl.
-         long ttl = defaultTtl;
+         long ttl = Message.DEFAULT_TIME_TO_LIVE;
          if (header.getTtl() != null) {
             ttl = header.getTtl().longValue();
          }
@@ -250,9 +190,11 @@ public abstract class InboundTransformer {
       if (fp != null) {
          for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) fp.getValue().entrySet()) {
             String key = entry.getKey().toString();
-            setProperty(jms, prefixVendor + prefixFooter + key, entry.getValue());
+            setProperty(jms, JMS_AMQP_FOOTER_PREFIX + key, entry.getValue());
          }
       }
+
+      return jms;
    }
 
    private void setProperty(Message msg, String key, Object value) throws JMSException {

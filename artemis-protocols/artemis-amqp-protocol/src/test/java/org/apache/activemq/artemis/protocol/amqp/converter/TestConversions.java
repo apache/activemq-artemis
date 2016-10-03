@@ -16,32 +16,31 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
-import java.io.ByteArrayOutputStream;
+import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.wrapMessage;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.apache.blacklist.ABadClass;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -53,10 +52,13 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+
 public class TestConversions extends Assert {
 
    @Test
-   public void testObjectMessageWhiteList() throws Exception {
+   public void testAmqpValueOfBooleanIsPassedThrough() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
       ApplicationProperties properties = new ApplicationProperties(mapprop);
       MessageImpl message = (MessageImpl) Message.Factory.create();
@@ -73,39 +75,15 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSObjectMessage serverMessage = (ServerJMSObjectMessage) converter.inboundJMSType(encodedMessage);
+      ServerMessage serverMessage = converter.inbound(encodedMessage);
 
-      verifyProperties(serverMessage);
+      verifyProperties(new ServerJMSMessage(serverMessage, 0));
 
-      assertEquals(true, serverMessage.getObject());
+      EncodedMessage encoded = (EncodedMessage) converter.outbound(serverMessage, 0);
+      Message amqpMessage = encoded.decode();
 
-      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
-
-      AmqpValue value = (AmqpValue) ((Message) obj).getBody();
+      AmqpValue value = (AmqpValue) amqpMessage.getBody();
       assertEquals(value.getValue(), true);
-
-   }
-
-   @Test
-   public void testObjectMessageNotOnWhiteList() throws Exception {
-
-      ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessageImpl message = new ServerMessageImpl(1, 1024);
-      message.setType((byte) 2);
-      ServerJMSObjectMessage serverMessage = new ServerJMSObjectMessage(message, 1024);
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      ObjectOutputStream ois = new ObjectOutputStream(out);
-      ois.writeObject(new ABadClass());
-      byte[] src = out.toByteArray();
-      serverMessage.getInnerMessage().getBodyBuffer().writeInt(src.length);
-      serverMessage.getInnerMessage().getBodyBuffer().writeBytes(src);
-
-      try {
-         converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
-         fail("should throw ClassNotFoundException");
-      } catch (ClassNotFoundException e) {
-         //ignore
-      }
    }
 
    @Test
@@ -126,22 +104,23 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSBytesMessage serverMessage = (ServerJMSBytesMessage) converter.inboundJMSType(encodedMessage);
+      ServerMessage serverMessage = converter.inbound(encodedMessage);
 
-      verifyProperties(serverMessage);
+      ServerJMSBytesMessage bytesMessage = (ServerJMSBytesMessage) wrapMessage(BYTES_TYPE, serverMessage, 0);
 
-      assertEquals(bodyBytes.length, serverMessage.getBodyLength());
+      verifyProperties(bytesMessage);
+
+      assertEquals(bodyBytes.length, bytesMessage.getBodyLength());
 
       byte[] newBodyBytes = new byte[4];
 
-      serverMessage.readBytes(newBodyBytes);
+      bytesMessage.readBytes(newBodyBytes);
 
       Assert.assertArrayEquals(bodyBytes, newBodyBytes);
 
-      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+      Object obj = converter.outbound(serverMessage, 0);
 
       System.out.println("output = " + obj);
-
    }
 
    private void verifyProperties(javax.jms.Message message) throws Exception {
@@ -175,25 +154,25 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSMapMessage serverMessage = (ServerJMSMapMessage) converter.inboundJMSType(encodedMessage);
+      ServerMessage serverMessage = converter.inbound(encodedMessage);
 
-      verifyProperties(serverMessage);
+      ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) wrapMessage(MAP_TYPE, serverMessage, 0);
+      mapMessage.decode();
 
-      Assert.assertEquals(1, serverMessage.getInt("someint"));
-      Assert.assertEquals("value", serverMessage.getString("somestr"));
+      verifyProperties(mapMessage);
 
-      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+      Assert.assertEquals(1, mapMessage.getInt("someint"));
+      Assert.assertEquals("value", mapMessage.getString("somestr"));
 
-      reEncodeMsg(obj);
+      EncodedMessage encoded = (EncodedMessage) converter.outbound(serverMessage, 0);
+      Message amqpMessage = encoded.decode();
 
-      MessageImpl outMessage = (MessageImpl) obj;
-      AmqpValue value = (AmqpValue) outMessage.getBody();
-      Map mapoutput = (Map) value.getValue();
+      AmqpValue value = (AmqpValue) amqpMessage.getBody();
+      Map<?, ?> mapoutput = (Map<?, ?>) value.getValue();
 
       assertEquals(Integer.valueOf(1), mapoutput.get("someint"));
 
-      System.out.println("output = " + obj);
-
+      System.out.println("output = " + amqpMessage);
    }
 
    @Test
@@ -212,26 +191,25 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSStreamMessage serverMessage = (ServerJMSStreamMessage) converter.inboundJMSType(encodedMessage);
+      ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       simulatePersistence(serverMessage);
 
-      verifyProperties(serverMessage);
+      ServerJMSStreamMessage streamMessage = (ServerJMSStreamMessage) wrapMessage(STREAM_TYPE, serverMessage, 0);
 
-      serverMessage.reset();
+      verifyProperties(streamMessage);
 
-      assertEquals(10, serverMessage.readInt());
-      assertEquals("10", serverMessage.readString());
+      streamMessage.reset();
 
-      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+      assertEquals(10, streamMessage.readInt());
+      assertEquals("10", streamMessage.readString());
 
-      reEncodeMsg(obj);
+      EncodedMessage encoded = (EncodedMessage) converter.outbound(serverMessage, 0);
+      Message amqpMessage = encoded.decode();
 
-      MessageImpl outMessage = (MessageImpl) obj;
-      List list = ((AmqpSequence) outMessage.getBody()).getValue();
+      List<?> list = ((AmqpSequence) amqpMessage.getBody()).getValue();
       Assert.assertEquals(Integer.valueOf(10), list.get(0));
       Assert.assertEquals("10", list.get(1));
-
    }
 
    @Test
@@ -247,33 +225,33 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSTextMessage serverMessage = (ServerJMSTextMessage) converter.inboundJMSType(encodedMessage);
+      ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       simulatePersistence(serverMessage);
 
-      verifyProperties(serverMessage);
+      ServerJMSTextMessage textMessage = (ServerJMSTextMessage) wrapMessage(TEXT_TYPE, serverMessage, 0);
+      textMessage.decode();
 
-      Assert.assertEquals(text, serverMessage.getText());
+      verifyProperties(textMessage);
 
-      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+      Assert.assertEquals(text, textMessage.getText());
 
-      reEncodeMsg(obj);
+      EncodedMessage encoded = (EncodedMessage) converter.outbound(serverMessage, 0);
+      Message amqpMessage = encoded.decode();
 
-      MessageImpl outMessage = (MessageImpl) obj;
-      AmqpValue value = (AmqpValue) outMessage.getBody();
+      AmqpValue value = (AmqpValue) amqpMessage.getBody();
       String textValue = (String) value.getValue();
 
       Assert.assertEquals(text, textValue);
 
-      System.out.println("output = " + obj);
-
+      System.out.println("output = " + amqpMessage);
    }
 
-   private void simulatePersistence(ServerJMSMessage serverMessage) {
-      serverMessage.getInnerMessage().setAddress(new SimpleString("jms.queue.SomeAddress"));
+   private void simulatePersistence(ServerMessage serverMessage) {
+      serverMessage.setAddress(new SimpleString("jms.queue.SomeAddress"));
       // This is just to simulate what would happen during the persistence of the message
       // We need to still be able to recover the message when we read it back
-      ((EncodingSupport) serverMessage.getInnerMessage()).encode(new EmptyBuffer());
+      ((EncodingSupport) serverMessage).encode(new EmptyBuffer());
    }
 
    private ProtonJMessage reEncodeMsg(Object obj) {
