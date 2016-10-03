@@ -16,91 +16,86 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
-import javax.jms.BytesMessage;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_NATIVE;
+
 import java.io.IOException;
+
+import javax.jms.BytesMessage;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPNativeOutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.InboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingInboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingOutboundTransformer;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.OutboundTransformer;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.qpid.proton.codec.WritableBuffer;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public class ProtonMessageConverter implements MessageConverter {
 
-   ActiveMQJMSVendor activeMQJMSVendor;
-
-   private final String prefixVendor;
-
    public ProtonMessageConverter(IDGenerator idGenerator) {
-      activeMQJMSVendor = new ActiveMQJMSVendor(idGenerator);
-      inboundTransformer = new JMSMappingInboundTransformer(activeMQJMSVendor);
-      outboundTransformer = new JMSMappingOutboundTransformer(activeMQJMSVendor);
-      prefixVendor = outboundTransformer.getPrefixVendor();
+      inboundTransformer = new JMSMappingInboundTransformer(idGenerator);
+      outboundTransformer = new JMSMappingOutboundTransformer(idGenerator);
    }
 
    private final InboundTransformer inboundTransformer;
-   private final JMSMappingOutboundTransformer outboundTransformer;
+   private final OutboundTransformer outboundTransformer;
 
    @Override
    public ServerMessage inbound(Object messageSource) throws Exception {
-      ServerJMSMessage jmsMessage = inboundJMSType((EncodedMessage) messageSource);
-
-      return (ServerMessage) jmsMessage.getInnerMessage();
-   }
-
-   /**
-    * Just create the JMS Part of the inbound (for testing)
-    *
-    * @param messageSource
-    * @return
-    * @throws Exception https://issues.jboss.org/browse/ENTMQ-1560
-    */
-   public ServerJMSMessage inboundJMSType(EncodedMessage messageSource) throws Exception {
-      EncodedMessage encodedMessageSource = messageSource;
+      EncodedMessage encodedMessageSource = (EncodedMessage) messageSource;
       ServerJMSMessage transformedMessage = null;
 
-      InboundTransformer transformer = inboundTransformer;
+      try {
+         transformedMessage = inboundTransformer.transform(encodedMessageSource);
+      } catch (Exception e) {
+         ActiveMQClientLogger.LOGGER.debug("Transform of message using [{}] transformer, failed" + inboundTransformer.getTransformerName());
+         ActiveMQClientLogger.LOGGER.trace("Transformation error:", e);
 
-      while (transformer != null) {
-         try {
-            transformedMessage = (ServerJMSMessage) transformer.transform(encodedMessageSource);
-            break;
-         } catch (Exception e) {
-            ActiveMQClientLogger.LOGGER.debug("Transform of message using [{}] transformer, failed" + inboundTransformer.getTransformerName());
-            ActiveMQClientLogger.LOGGER.trace("Transformation error:", e);
-
-            transformer = transformer.getFallbackTransformer();
-         }
-      }
-
-      if (transformedMessage == null) {
          throw new IOException("Failed to transform incoming delivery, skipping.");
       }
 
       transformedMessage.encode();
 
-      return transformedMessage;
+      return (ServerMessage) transformedMessage.getInnerMessage();
    }
 
    @Override
    public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception {
-      ServerJMSMessage jmsMessage = activeMQJMSVendor.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
+      // Useful for testing but not recommended for real life use.
+      ByteBuf nettyBuffer = Unpooled.buffer(1024);
+      NettyWritable buffer = new NettyWritable(nettyBuffer);
+      long messageFormat = (long) outbound(messageOutbound, deliveryCount, buffer);
+
+      EncodedMessage encoded = new EncodedMessage(messageFormat, nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(),
+         nettyBuffer.readableBytes());
+
+      return encoded;
+   }
+
+   public Object outbound(ServerMessage messageOutbound, int deliveryCount, WritableBuffer buffer) throws Exception {
+      ServerJMSMessage jmsMessage = AMQPMessageSupport.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
 
       jmsMessage.decode();
 
-      if (jmsMessage.getBooleanProperty(prefixVendor + "NATIVE")) {
+      if (jmsMessage.getBooleanProperty(JMS_AMQP_NATIVE)) {
          if (jmsMessage instanceof BytesMessage) {
-            return AMQPNativeOutboundTransformer.transform(outboundTransformer, (BytesMessage) jmsMessage);
+            return AMQPNativeOutboundTransformer.transform(outboundTransformer, (ServerJMSBytesMessage) jmsMessage, buffer);
          } else {
-            return null;
+            return 0;
          }
       } else {
-         return outboundTransformer.convert(jmsMessage);
+         return outboundTransformer.transform(jmsMessage, buffer);
       }
    }
 }

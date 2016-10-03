@@ -16,31 +16,20 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
+import java.io.Serializable;
+
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.qpid.proton.amqp.Binary;
 
 public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMessage {
 
-   private static final String DEFAULT_WHITELIST;
-   private static final String DEFAULT_BLACKLIST;
+   public static final byte TYPE = Message.OBJECT_TYPE;
 
-   static {
-      DEFAULT_WHITELIST = System.getProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "java.lang,java.math,javax.security,java.util,org.apache.activemq,org.apache.qpid.proton.amqp");
-
-      DEFAULT_BLACKLIST = System.getProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY, null);
-   }
-
-   public static final byte TYPE = Message.STREAM_TYPE;
-
-   private Serializable object;
+   private Binary payload;
 
    public ServerJMSObjectMessage(MessageInternal message, int deliveryCount) {
       super(message, deliveryCount);
@@ -48,23 +37,27 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
 
    @Override
    public void setObject(Serializable object) throws JMSException {
-      this.object = object;
+      throw new UnsupportedOperationException("Cannot set Object on this internal message");
    }
 
    @Override
    public Serializable getObject() throws JMSException {
-      return object;
+      throw new UnsupportedOperationException("Cannot set Object on this internal message");
+   }
+
+   public void setSerializedForm(Binary payload) {
+      this.payload = payload;
+   }
+
+   public Binary getSerializedForm() {
+      return payload;
    }
 
    @Override
    public void encode() throws Exception {
       super.encode();
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      ObjectOutputStream ous = new ObjectOutputStream(out);
-      ous.writeObject(object);
-      byte[] src = out.toByteArray();
-      getInnerMessage().getBodyBuffer().writeInt(src.length);
-      getInnerMessage().getBodyBuffer().writeBytes(src);
+      getInnerMessage().getBodyBuffer().writeInt(payload.getLength());
+      getInnerMessage().getBodyBuffer().writeBytes(payload.getArray(), payload.getArrayOffset(), payload.getLength());
    }
 
    @Override
@@ -73,10 +66,6 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
       int size = getInnerMessage().getBodyBuffer().readInt();
       byte[] bytes = new byte[size];
       getInnerMessage().getBodyBuffer().readBytes(bytes);
-      try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bytes))) {
-         ois.setWhiteList(DEFAULT_WHITELIST);
-         ois.setBlackList(DEFAULT_BLACKLIST);
-         object = (Serializable) ois.readObject();
-      }
+      payload = new Binary(bytes);
    }
 }
