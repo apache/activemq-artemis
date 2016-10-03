@@ -16,6 +16,25 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DELAYED_DELIVERY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PRODUCT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.VERSION;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.contains;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -36,21 +55,9 @@ import javax.jms.StreamMessage;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -82,11 +89,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.DELAYED_DELIVERY;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PRODUCT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.VERSION;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.contains;
 
 @RunWith(Parameterized.class)
 public class ProtonTest extends ProtonTestBase {
@@ -176,6 +178,31 @@ public class ProtonTest extends ProtonTestBase {
          }
       } finally {
          super.tearDown();
+      }
+   }
+
+   @Test
+   public void testSendAndReceiveOnTopic() throws Exception {
+      Connection connection = createConnection("myClientId");
+      try {
+         TopicSession session = (TopicSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic("amqp_testtopic");
+         TopicSubscriber consumer = session.createSubscriber(topic);
+         TopicPublisher producer = session.createPublisher(topic);
+
+         TextMessage message = session.createTextMessage("test-message");
+         producer.send(message);
+         producer.close();
+
+         connection.start();
+
+         message = (TextMessage) consumer.receive(1000);
+         assertNotNull(message);
+         assertNotNull(message.getText());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
       }
    }
 
@@ -495,7 +522,7 @@ public class ProtonTest extends ProtonTestBase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       javax.jms.Queue queue = createQueue(address);
       MessageProducer p = session.createProducer(queue);
-      ArrayList list = new ArrayList();
+      ArrayList<String> list = new ArrayList<>();
       list.add("aString");
       ObjectMessage objectMessage = session.createObjectMessage(list);
       p.send(objectMessage);
@@ -507,7 +534,7 @@ public class ProtonTest extends ProtonTestBase {
 
       objectMessage = (ObjectMessage) cons.receive(5000);
       assertNotNull(objectMessage);
-      list = (ArrayList) objectMessage.getObject();
+      list = (ArrayList<String>) objectMessage.getObject();
       assertEquals(list.get(0), "aString");
       connection.close();
    }
@@ -586,7 +613,7 @@ public class ProtonTest extends ProtonTestBase {
       fillAddress(destinationAddress);
 
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
-      AmqpConnection amqpConnection = amqpConnection = client.connect();
+      AmqpConnection amqpConnection = client.connect();
       try {
          AmqpSession session = amqpConnection.createSession();
          AmqpSender sender = session.createSender(destinationAddress);
@@ -860,7 +887,7 @@ public class ProtonTest extends ProtonTestBase {
          AmqpMessage request = new AmqpMessage();
          request.setApplicationProperty("_AMQ_ResourceName", "core.server");
          request.setApplicationProperty("_AMQ_OperationName", "getQueueNames");
-         request.setApplicationProperty("JMSReplyTo", destinationAddress);
+         request.setReplyToAddress(destinationAddress);
          request.setText("[]");
 
          sender.send(request);
