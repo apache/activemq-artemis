@@ -28,7 +28,7 @@
    <logpath>${artemis.instance}\log</logpath>
    <logmode>roll</logmode>
 
-   <executable>java</executable>
+   <executable>%JAVA_HOME%\bin\java.exe</executable>
    <argument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</argument>
    <argument>-XX:+UseParallelGC</argument>
    <argument>-XX:+AggressiveOpts</argument>
