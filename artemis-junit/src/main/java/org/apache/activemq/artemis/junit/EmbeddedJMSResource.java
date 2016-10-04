@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
@@ -89,11 +90,34 @@ public class EmbeddedJMSResource extends ExternalResource {
     * Create a default EmbeddedJMSResource
     */
    public EmbeddedJMSResource() {
-      configuration = new ConfigurationImpl().setName(SERVER_NAME).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      this(false);
+   }
 
-      jmsConfiguration = new JMSConfigurationImpl();
+   /**
+    * Create a default EmbeddedJMSResource
+    */
+   public EmbeddedJMSResource(boolean useNetty) {
+      try {
+         configuration = new ConfigurationImpl().setName(SERVER_NAME).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration("invm", "vm://0");
 
-      init();
+         if (useNetty) {
+            configuration.addAcceptorConfiguration("netty", DefaultConnectionProperties.DEFAULT_BROKER_BIND_URL);
+         }
+
+         jmsConfiguration = new JMSConfigurationImpl();
+
+         init();
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   /**
+    * The acceptor used
+    */
+   public EmbeddedJMSResource addAcceptor(String name, String uri) throws Exception {
+      configuration.addAcceptorConfiguration(name, uri);
+      return this;
    }
 
    /**
