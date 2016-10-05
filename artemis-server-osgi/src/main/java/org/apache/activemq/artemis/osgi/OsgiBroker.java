@@ -144,11 +144,13 @@ public class OsgiBroker {
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
       ArrayList<String> protocols = new ArrayList<>();
       for (TransportConfiguration acceptor : acceptors) {
-         String protocolsFromAcceptor = acceptor.getParams().get(TransportConstants.PROTOCOLS_PROP_NAME).toString();
-         String[] protocolsSplit = protocolsFromAcceptor.split(",");
-         for (String protocol : protocolsSplit) {
-            if (!protocol.contains(protocol)) {
-               protocols.add(protocol);
+         Object protocolsFromAcceptor = acceptor.getParams().get(TransportConstants.PROTOCOLS_PROP_NAME);
+         if (protocolsFromAcceptor != null) {
+            String[] protocolsSplit = protocolsFromAcceptor.toString().split(",");
+            for (String protocol : protocolsSplit) {
+               if (!protocols.contains(protocol)) {
+                  protocols.add(protocol);
+               }
             }
          }
       }
