@@ -30,7 +30,7 @@ under the License.
    <core xmlns="urn:activemq:core">
 
       <!-- this could be ASYNCIO or NIO -->
-      <journal-type>NIO</journal-type>
+      <journal-type>ASYNCIO</journal-type>
       <paging-directory>./data/paging</paging-directory>
       <bindings-directory>./data/bindings</bindings-directory>
       <journal-directory>./data/journal</journal-directory>
@@ -45,10 +45,21 @@ under the License.
       -->
       <journal-buffer-timeout>1591999</journal-buffer-timeout>
 
+      <!-- how often we are looking for how many bytes are being used on the disk in ms -->
+      <disk-scan-period>5000</disk-scan-period>
+
+      <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
+     that won't support flow control. -->
+      <max-disk-usage>90</max-disk-usage>
+
+      <!-- the system will enter into page mode once you hit this limit.
+           This is an estimate in bytes of how much the messages are using in memory -->
+      <global-max-size>104857600</global-max-size>
+
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
          <!-- performance tests have shown that openWire performs best with these buffer sizes -->
-         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=XXXX</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
          <acceptor name="amqp">tcp://0.0.0.0:5672?protocols=AMQP</acceptor>
@@ -82,9 +93,10 @@ under the License.
             <dead-letter-address>jms.queue.DLQ</dead-letter-address>
             <expiry-address>jms.queue.ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
-            <max-size-bytes>10485760</max-size-bytes>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>BLOCK</address-full-policy>
+            <address-full-policy>PAGE</address-full-policy>
             <auto-create-jms-queues>true</auto-create-jms-queues>
          </address-setting>
       </address-settings>
