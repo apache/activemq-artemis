@@ -1,13 +1,13 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,54 +16,36 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import java.io.UnsupportedEncodingException;
+
+import javax.jms.JMSException;
+
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.qpid.proton.codec.WritableBuffer;
+
 public abstract class OutboundTransformer {
 
-   JMSVendor vendor;
-   String prefixVendor;
+   protected IDGenerator idGenerator;
 
-   String prefixDeliveryAnnotations = "DA_";
-   String prefixMessageAnnotations = "MA_";
-   String prefixFooter = "FT_";
-
-   String messageFormatKey;
-   String nativeKey;
-   String firstAcquirerKey;
-   String prefixDeliveryAnnotationsKey;
-   String prefixMessageAnnotationsKey;
-   String contentTypeKey;
-   String contentEncodingKey;
-   String replyToGroupIDKey;
-   String prefixFooterKey;
-
-   public OutboundTransformer(JMSVendor vendor) {
-      this.vendor = vendor;
-      this.setPrefixVendor("JMS_AMQP_");
+   public OutboundTransformer(IDGenerator idGenerator) {
+      this.idGenerator = idGenerator;
    }
 
-   public String getPrefixVendor() {
-      return prefixVendor;
-   }
+   /**
+    * Given an JMS Message perform a conversion to an AMQP Message and encode into a form that
+    * is ready for transmission.
+    *
+    * @param message
+    *        the message to transform
+    * @param buffer
+    *        the buffer where encoding should write to
+    *
+    * @return the message format key of the encoded message.
+    *
+    * @throws Exception
+    *         if an error occurs during message transformation
+    */
+   public abstract long transform(ServerJMSMessage message, WritableBuffer buffer) throws JMSException, UnsupportedEncodingException;
 
-   public void setPrefixVendor(String prefixVendor) {
-      this.prefixVendor = prefixVendor;
-
-      messageFormatKey = prefixVendor + "MESSAGE_FORMAT";
-      nativeKey = prefixVendor + "NATIVE";
-      firstAcquirerKey = prefixVendor + "FirstAcquirer";
-      prefixDeliveryAnnotationsKey = prefixVendor + prefixDeliveryAnnotations;
-      prefixMessageAnnotationsKey = prefixVendor + prefixMessageAnnotations;
-      contentTypeKey = prefixVendor + "ContentType";
-      contentEncodingKey = prefixVendor + "ContentEncoding";
-      replyToGroupIDKey = prefixVendor + "ReplyToGroupID";
-      prefixFooterKey = prefixVendor + prefixFooter;
-
-   }
-
-   public JMSVendor getVendor() {
-      return vendor;
-   }
-
-   public void setVendor(JMSVendor vendor) {
-      this.vendor = vendor;
-   }
 }
