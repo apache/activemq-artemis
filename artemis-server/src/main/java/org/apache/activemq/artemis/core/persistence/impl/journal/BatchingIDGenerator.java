@@ -90,7 +90,7 @@ public final class BatchingIDGenerator implements IDGenerator {
       encoding.decode(buffer);
 
       // Keep nextID and counter the same, the next generateID will update the checkpoint
-      nextID = encoding.id;
+      nextID = encoding.id + 1;
 
       counter.set(nextID);
    }

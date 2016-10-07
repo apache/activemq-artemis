@@ -57,7 +57,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       long id3 = batch.generateID();
 
-      Assert.assertEquals(1000, id3);
+      Assert.assertEquals(1001, id3);
 
       long id4 = batch.generateID();
 
