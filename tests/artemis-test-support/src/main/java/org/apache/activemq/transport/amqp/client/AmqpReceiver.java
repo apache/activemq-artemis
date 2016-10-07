@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
-import javax.jms.InvalidDestinationException;
+import static org.apache.activemq.transport.amqp.AmqpSupport.COPY;
+import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_NAME;
+import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_NAME;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +29,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jms.InvalidDestinationException;
 
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.ClientFuture;
@@ -51,10 +56,6 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.transport.amqp.AmqpSupport.COPY;
-import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_NAME;
-import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_NAME;
 
 /**
  * Receiver class that manages a Proton receiver endpoint.
@@ -390,13 +391,47 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * Accepts a message that was dispatched under the given Delivery instance.
+    * Accepts a message that was dispatched under the given Delivery instance and settles the delivery.
     *
-    * @param delivery the Delivery instance to accept.
+    * @param delivery
+    *        the Delivery instance to accept.
+    *
     * @throws IOException if an error occurs while sending the accept.
     */
-   public void accept(final Delivery delivery) throws IOException {
-      accept(delivery, this.session);
+   public void accept(Delivery delivery) throws IOException {
+      accept(delivery, this.session, true);
+   }
+
+   /**
+    * Accepts a message that was dispatched under the given Delivery instance.
+    *
+    * @param delivery
+    *        the Delivery instance to accept.
+    * @param settle
+    *        true if the receiver should settle the delivery or just send the disposition.
+    *
+    * @throws IOException if an error occurs while sending the accept.
+    */
+   public void accept(Delivery delivery, boolean settle) throws IOException {
+      accept(delivery, this.session, settle);
+   }
+
+   /**
+    * Accepts a message that was dispatched under the given Delivery instance and settles the delivery.
+    *
+    * This method allows for the session that is used in the accept to be specified by the
+    * caller.  This allows for an accepted message to be involved in a transaction that is
+    * being managed by some other session other than the one that created this receiver.
+    *
+    * @param delivery
+    *        the Delivery instance to accept.
+    * @param session
+    *        the session under which the message is being accepted.
+    *
+    * @throws IOException if an error occurs while sending the accept.
+    */
+   public void accept(final Delivery delivery, final AmqpSession session) throws IOException {
+      accept(delivery, session, true);
    }
 
    /**
@@ -406,11 +441,16 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * caller.  This allows for an accepted message to be involved in a transaction that is
     * being managed by some other session other than the one that created this receiver.
     *
-    * @param delivery the Delivery instance to accept.
-    * @param session  the session under which the message is being accepted.
+    * @param delivery
+    *        the Delivery instance to accept.
+    * @param session
+    *        the session under which the message is being accepted.
+    * @param settle
+    *        true if the receiver should settle the delivery or just send the disposition.
+    *
     * @throws IOException if an error occurs while sending the accept.
     */
-   public void accept(final Delivery delivery, final AmqpSession session) throws IOException {
+   public void accept(final Delivery delivery, final AmqpSession session, final boolean settle) throws IOException {
       checkClosed();
 
       if (delivery == null) {
@@ -440,11 +480,13 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                         txState.setOutcome(Accepted.getInstance());
                         txState.setTxnId(txnId);
                         delivery.disposition(txState);
-                        delivery.settle();
                         session.getTransactionContext().registerTxConsumer(AmqpReceiver.this);
                      }
                   } else {
                      delivery.disposition(Accepted.getInstance());
+                  }
+
+                  if (settle) {
                      delivery.settle();
                   }
                }
@@ -462,8 +504,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Mark a message that was dispatched under the given Delivery instance as Modified.
     *
-    * @param delivery          the Delivery instance to mark modified.
-    * @param deliveryFailed    indicates that the delivery failed for some reason.
+    * @param delivery the Delivery instance to mark modified.
+    * @param deliveryFailed indicates that the delivery failed for some reason.
     * @param undeliverableHere marks the delivery as not being able to be process by link it was sent to.
     * @throws IOException if an error occurs while sending the reject.
     */
