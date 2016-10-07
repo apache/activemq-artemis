@@ -381,6 +381,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                // With pre-ack, we ack *before* sending to the client
                ref.getQueue().acknowledge(ref);
+               acks++;
             }
 
             if (message.isLargeMessage() && this.supportLargeMessage) {
