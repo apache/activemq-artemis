@@ -128,11 +128,23 @@ public class AmqpMessage {
     * @throws Exception if an error occurs during the accept.
     */
    public void accept() throws Exception {
+      accept(true);
+   }
+
+   /**
+    * Accepts the message marking it as consumed on the remote peer.
+    *
+    * @param settle
+    *        true if the client should also settle the delivery when sending the accept.
+    *
+    * @throws Exception if an error occurs during the accept.
+    */
+   public void accept(boolean settle) throws Exception {
       if (receiver == null) {
          throw new IllegalStateException("Can't accept non-received message.");
       }
 
-      receiver.accept(delivery);
+      receiver.accept(delivery, settle);
    }
 
    /**
@@ -142,11 +154,23 @@ public class AmqpMessage {
     * @throws Exception if an error occurs during the accept.
     */
    public void accept(AmqpSession txnSession) throws Exception {
+      accept(txnSession, true);
+   }
+
+   /**
+    * Accepts the message marking it as consumed on the remote peer.
+    *
+    * @param session
+    *      The session that is used to manage acceptance of the message.
+    *
+    * @throws Exception if an error occurs during the accept.
+    */
+   public void accept(AmqpSession txnSession, boolean settle) throws Exception {
       if (receiver == null) {
          throw new IllegalStateException("Can't accept non-received message.");
       }
 
-      receiver.accept(delivery, txnSession);
+      receiver.accept(delivery, txnSession, settle);
    }
 
    /**

@@ -622,4 +622,166 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       connection.close();
    }
+
+   @Test(timeout = 60000)
+   public void testReceiversCommitAndRollbackWithMultipleSessionsInSingleTXNoSettlement() throws Exception {
+      final int NUM_MESSAGES = 10;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = client.connect();
+
+      // Root TXN session controls all TXN send lifetimes.
+      AmqpSession txnSession = connection.createSession();
+
+      // Normal Session which won't create an TXN itself
+      AmqpSession session = connection.createSession();
+      AmqpSender sender = session.createSender(getTestName());
+
+      for (int i = 0; i < NUM_MESSAGES + 1; ++i) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         message.setApplicationProperty("msgId", i);
+         sender.send(message, txnSession.getTransactionId());
+      }
+
+      // Read all messages from the Queue, do not accept them yet.
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
+      receiver.flow((NUM_MESSAGES + 2) * 2);
+      for (int i = 0; i < NUM_MESSAGES; ++i) {
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         System.out.println("Read message: " + message.getApplicationProperty("msgId"));
+         assertNotNull(message);
+         messages.add(message);
+      }
+
+      // Commit half the consumed messages [0, 1, 2, 3, 4]
+      txnSession.begin();
+      for (int i = 0; i < NUM_MESSAGES / 2; ++i) {
+         System.out.println("Commit: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
+         messages.get(i).accept(txnSession, false);
+      }
+      txnSession.commit();
+
+      // Rollback the other half the consumed messages [5, 6, 7, 8, 9]
+      txnSession.begin();
+      for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; ++i) {
+         System.out.println("Rollback: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
+         messages.get(i).accept(txnSession, false);
+      }
+      txnSession.rollback();
+
+      // After rollback messages should still be acquired so we read last sent message [10]
+      {
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         System.out.println("Read message: " + message.getApplicationProperty("msgId"));
+         assertNotNull(message);
+         assertEquals(NUM_MESSAGES, message.getApplicationProperty("msgId"));
+         message.release();
+      }
+
+      // Commit the other half the consumed messages [5, 6, 7, 8, 9] which should still be acquired
+      txnSession.begin();
+      for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; ++i) {
+         messages.get(i).accept(txnSession);
+      }
+      txnSession.commit();
+
+      // The final message [10] should still be pending as we released it previously and committed
+      // the previously accepted but not settled messages [5, 6, 7, 8, 9] in a new TX
+      {
+         receiver.flow(1);
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         System.out.println("Read message: " + message.getApplicationProperty("msgId"));
+         assertNotNull(message);
+         assertEquals(NUM_MESSAGES, message.getApplicationProperty("msgId"));
+         message.accept();
+      }
+
+      // We should have now drained the Queue
+      receiver.flow(1);
+      AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+      if (message != null) {
+         System.out.println("Read message: " + message.getApplicationProperty("msgId"));
+      }
+      assertNull(message);
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testCommitAndRollbackWithMultipleSessionsInSingleTXNoSettlement() throws Exception {
+      final int NUM_MESSAGES = 10;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = client.connect();
+
+      // Root TXN session controls all TXN send lifetimes.
+      AmqpSession txnSession = connection.createSession();
+
+      // Normal Session which won't create an TXN itself
+      AmqpSession session = connection.createSession();
+      AmqpSender sender = session.createSender(getTestName());
+
+      for (int i = 0; i < NUM_MESSAGES; ++i) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         message.setApplicationProperty("msgId", i);
+         sender.send(message, txnSession.getTransactionId());
+      }
+
+      // Read all messages from the Queue, do not accept them yet.
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(2);
+      AmqpMessage message1 = receiver.receive(5, TimeUnit.SECONDS);
+      AmqpMessage message2 = receiver.receive(5, TimeUnit.SECONDS);
+
+      // Accept the first one in a TXN and send a new message in that TXN as well
+      txnSession.begin();
+      {
+         // This will result in message [0[ being consumed once we commit.
+         message1.accept(txnSession, false);
+         System.out.println("Commit: accepting message: " + message1.getApplicationProperty("msgId"));
+
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         message.setApplicationProperty("msgId", NUM_MESSAGES);
+
+         sender.send(message, txnSession.getTransactionId());
+      }
+      txnSession.commit();
+
+      // Accept the second one in a TXN and send a new message in that TXN as well but rollback
+      txnSession.begin();
+      {
+         message2.accept(txnSession, false);
+         System.out.println("Rollback: accepting message: " + message2.getApplicationProperty("msgId"));
+
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         message.setApplicationProperty("msgId", NUM_MESSAGES + 1);
+         sender.send(message, txnSession.getTransactionId());
+      }
+      txnSession.rollback();
+
+      // This releases message [1]
+      message2.release();
+
+      // Should be ten message available for dispatch given that we sent and committed one, and
+      // releases another we had previously received.
+      receiver.flow(10);
+      for (int i = 1; i <= NUM_MESSAGES; ++i) {
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull("Expected a message for: " + i, message);
+         System.out.println("Accepting message: " + message.getApplicationProperty("msgId"));
+         assertEquals(i, message.getApplicationProperty("msgId"));
+         message.accept();
+      }
+
+      // Should be nothing left.
+      receiver.flow(1);
+      assertNull(receiver.receive(1, TimeUnit.SECONDS));
+
+      connection.close();
+   }
 }
