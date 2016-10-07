@@ -98,6 +98,12 @@
          <artifactId>apacheds-server-integ</artifactId>
          <version>${directory-version}</version>
          <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>xml-apis</groupId>
+               <artifactId>xml-apis</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.directory.server</groupId>
