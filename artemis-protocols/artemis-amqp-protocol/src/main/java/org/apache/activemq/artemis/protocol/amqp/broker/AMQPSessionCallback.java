@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternal
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -59,11 +60,13 @@ import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
-import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.ProtonJMessage;
+import org.jboss.logging.Logger;
 
 public class AMQPSessionCallback implements SessionCallback {
+
+   private static final Logger logger = Logger.getLogger(AMQPSessionCallback.class);
 
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
@@ -467,9 +470,14 @@ public class AMQPSessionCallback implements SessionCallback {
 
    @Override
    public void disconnect(ServerConsumer consumer, String queueName) {
-      synchronized (connection.getLock()) {
-         ((Link) consumer.getProtocolContext()).close();
-         connection.flush();
+      ErrorCondition ec = new ErrorCondition(AmqpSupport.RESOURCE_DELETED, "Queue was deleted: " + queueName);
+      try {
+         synchronized (connection.getLock()) {
+            ((ProtonServerSenderContext) consumer.getProtocolContext()).close(ec);
+            connection.flush();
+         }
+      } catch (ActiveMQAMQPException e) {
+         logger.error("Error closing link for " + consumer.getQueue().getAddress());
       }
    }
 
@@ -504,5 +512,4 @@ public class AMQPSessionCallback implements SessionCallback {
       protonSPI.removeTransaction(txid);
 
    }
-
 }

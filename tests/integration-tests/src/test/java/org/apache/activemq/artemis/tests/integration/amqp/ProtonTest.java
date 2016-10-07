@@ -58,7 +58,10 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -71,6 +74,8 @@ import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -156,6 +161,7 @@ public class ProtonTest extends ProtonTestBase {
       server.createQueue(new SimpleString("amqp_testtopic" + "8"), new SimpleString("amqp_testtopic" + "8"), null, true, false);
       server.createQueue(new SimpleString("amqp_testtopic" + "9"), new SimpleString("amqp_testtopic" + "9"), null, true, false);
       server.createQueue(new SimpleString("amqp_testtopic" + "10"), new SimpleString("amqp_testtopic" + "10"), null, true, false);
+
       connection = createConnection();
 
    }
@@ -186,9 +192,9 @@ public class ProtonTest extends ProtonTestBase {
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          myDurSub = session.createDurableSubscriber(topic, "myDurSub");
          myDurSub.close();
-         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId:myDurSub")));
+         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
          session.unsubscribe("myDurSub");
-         Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId:myDurSub")));
+         Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId.myDurSub")));
          session.close();
          connection.close();
       } finally {
@@ -738,6 +744,81 @@ public class ProtonTest extends ProtonTestBase {
       assertNotNull(expectedException);
       assertTrue(expectedException.getMessage().contains("amqp:not-found"));
       assertTrue(expectedException.getMessage().contains("target address does not exist"));
+   }
+
+   @Test
+   public void testLinkDetachSentWhenQueueDeleted() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      final AmqpConnection amqpConnection = client.connect();
+      try {
+         AmqpSession session = amqpConnection.createSession();
+
+         AmqpReceiver receiver = session.createReceiver(coreAddress);
+         server.destroyQueue(new SimpleString(coreAddress), null, false, true);
+
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return amqpConnection.isClosed();
+            }
+         });
+         assertTrue(receiver.isClosed());
+      } finally {
+         amqpConnection.close();
+      }
+   }
+
+   @Test
+   public void testCloseIsSentOnConnectionClose() throws Exception {
+      connection.close();
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      final AmqpConnection amqpConnection = client.connect();
+      try {
+         for (RemotingConnection connection : server.getRemotingService().getConnections()) {
+            server.getRemotingService().removeConnection(connection);
+            connection.disconnect(true);
+         }
+
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return amqpConnection.isClosed();
+            }
+         });
+
+         assertTrue(amqpConnection.isClosed());
+         assertEquals(AmqpSupport.CONNECTION_FORCED, amqpConnection.getConnection().getRemoteCondition().getCondition());
+      } finally {
+         amqpConnection.close();
+      }
+   }
+
+
+   @Test
+   public void testClientIdIsSetInSubscriptionList() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.createConnection();
+      amqpConnection.setContainerId("testClient");
+      amqpConnection.setOfferedCapabilities(Arrays.asList(Symbol.getSymbol("topic")));
+      amqpConnection.connect();
+      try {
+         AmqpSession session = amqpConnection.createSession();
+
+         Source source = new Source();
+         source.setDurable(TerminusDurability.UNSETTLED_STATE);
+         source.setCapabilities(Symbol.getSymbol("topic"));
+         source.setAddress("jms.topic.mytopic");
+         AmqpReceiver receiver = session.createReceiver(source, "testSub");
+
+         SimpleString fo = new SimpleString("testClient.testSub:jms.topic.mytopic");
+         assertNotNull(server.locateQueue(fo));
+
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         amqpConnection.close();
+      }
    }
 
    @Test

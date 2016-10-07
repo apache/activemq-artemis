@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
@@ -132,8 +133,8 @@ public class AMQPConnectionContext extends ProtonInitializable {
       handler.flush();
    }
 
-   public void close() {
-      handler.close();
+   public void close(ErrorCondition errorCondition) {
+      handler.close(errorCondition);
    }
 
    protected AMQPSessionContext getSessionExtension(Session realSession) throws ActiveMQAMQPException {
@@ -264,7 +265,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
             if (!connectionCallback.isSupportsAnonymous()) {
                connectionCallback.sendSASLSupported();
                connectionCallback.close();
-               handler.close();
+               handler.close(null);
             }
          }
       }

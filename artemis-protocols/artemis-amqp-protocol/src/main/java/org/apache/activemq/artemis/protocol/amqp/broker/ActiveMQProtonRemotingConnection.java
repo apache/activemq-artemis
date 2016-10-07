@@ -23,8 +23,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
 /**
  * This is a Server's Connection representation used by ActiveMQ Artemis.
@@ -103,6 +105,9 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
    @Override
    public void disconnect(boolean criticalError) {
+      ErrorCondition errorCondition = new ErrorCondition();
+      errorCondition.setCondition(AmqpSupport.CONNECTION_FORCED);
+      amqpConnection.close(errorCondition);
       getTransportConnection().close();
    }
 
@@ -111,7 +116,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
     */
    @Override
    public void disconnect(String scaleDownNodeID, boolean criticalError) {
-      getTransportConnection().close();
+      disconnect(criticalError);
    }
 
    @Override

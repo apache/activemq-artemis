@@ -128,6 +128,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void destroyQueue(final String name, final boolean removeConsumers) throws Exception {
+            proxy.invokeOperation("destroyQueue", name, removeConsumers);
+         }
+
+         @Override
          public void disableMessageCounters() throws Exception {
             proxy.invokeOperation("disableMessageCounters");
          }

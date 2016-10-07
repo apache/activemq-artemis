@@ -53,6 +53,9 @@ public class AmqpSupport {
    public static final Symbol PRODUCT = Symbol.valueOf("product");
    public static final Symbol VERSION = Symbol.valueOf("version");
    public static final Symbol PLATFORM = Symbol.valueOf("platform");
+   public static final Symbol RESOURCE_DELETED = Symbol.valueOf("amqp:resource-deleted");
+   public static final Symbol CONNECTION_FORCED = Symbol.valueOf("amqp:connection:forced");
+
 
    // Symbols used in configuration of newly opened links.
    public static final Symbol COPY = Symbol.getSymbol("copy");
