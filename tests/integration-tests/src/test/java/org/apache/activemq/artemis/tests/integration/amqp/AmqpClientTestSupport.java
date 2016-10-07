@@ -48,6 +48,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    @Override
    public void setUp() throws Exception {
       super.setUp();
+
       server = createServer(true, true);
       server.start();
    }
@@ -55,8 +56,6 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    @After
    @Override
    public void tearDown() throws Exception {
-      super.tearDown();
-
       for (AmqpConnection conn : connections) {
          try {
             conn.close();
@@ -65,6 +64,8 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
          }
       }
       server.stop();
+
+      super.tearDown();
    }
 
    public Queue getProxyToQueue(String queueName) {
