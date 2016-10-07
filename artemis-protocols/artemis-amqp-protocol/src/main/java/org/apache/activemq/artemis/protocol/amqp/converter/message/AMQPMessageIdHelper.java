@@ -28,24 +28,29 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 
 /**
- * Helper class for identifying and converting message-id and correlation-id values between
- * the AMQP types and the Strings values used by JMS.
+ * Helper class for identifying and converting message-id and correlation-id values between the
+ * AMQP types and the Strings values used by JMS.
  * <p>
- * <p>AMQP messages allow for 4 types of message-id/correlation-id: message-id-string, message-id-binary,
- * message-id-uuid, or message-id-ulong. In order to accept or return a string representation of these
- * for interoperability with other AMQP clients, the following encoding can be used after removing or
- * before adding the "ID:" prefix used for a JMSMessageID value:<br>
+ * <p>
+ * AMQP messages allow for 4 types of message-id/correlation-id: message-id-string,
+ * message-id-binary, message-id-uuid, or message-id-ulong. In order to accept or return a
+ * string representation of these for interoperability with other AMQP clients, the following
+ * encoding can be used after removing or before adding the "ID:" prefix used for a JMSMessageID
+ * value:<br>
  * <p>
  * {@literal "AMQP_BINARY:<hex representation of binary content>"}<br>
  * {@literal "AMQP_UUID:<string representation of uuid>"}<br>
  * {@literal "AMQP_ULONG:<string representation of ulong>"}<br>
  * {@literal "AMQP_STRING:<string>"}<br>
  * <p>
- * <p>The AMQP_STRING encoding exists only for escaping message-id-string values that happen to begin
- * with one of the encoding prefixes (including AMQP_STRING itself). It MUST NOT be used otherwise.
  * <p>
- * <p>When provided a string for conversion which attempts to identify itself as an encoded binary, uuid, or
- * ulong but can't be converted into the indicated format, an exception will be thrown.
+ * The AMQP_STRING encoding exists only for escaping message-id-string values that happen to
+ * begin with one of the encoding prefixes (including AMQP_STRING itself). It MUST NOT be used
+ * otherwise.
+ * <p>
+ * <p>
+ * When provided a string for conversion which attempts to identify itself as an encoded binary,
+ * uuid, or ulong but can't be converted into the indicated format, an exception will be thrown.
  */
 public class AMQPMessageIdHelper {
 
@@ -63,11 +68,12 @@ public class AMQPMessageIdHelper {
    private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
 
    /**
-    * Takes the provided AMQP messageId style object, and convert it to a base string.
-    * Encodes type information as a prefix where necessary to convey or escape the type
-    * of the provided object.
+    * Takes the provided AMQP messageId style object, and convert it to a base string. Encodes
+    * type information as a prefix where necessary to convey or escape the type of the provided
+    * object.
     *
-    * @param messageId the raw messageId object to process
+    * @param messageId
+    *        the raw messageId object to process
     * @return the base string to be used in creating the actual id.
     */
    public String toBaseMessageIdString(Object messageId) {
@@ -106,9 +112,12 @@ public class AMQPMessageIdHelper {
     * Takes the provided base id string and return the appropriate amqp messageId style object.
     * Converts the type based on any relevant encoding information found as a prefix.
     *
-    * @param baseId the object to be converted to an AMQP MessageId value.
+    * @param baseId
+    *        the object to be converted to an AMQP MessageId value.
     * @return the AMQP messageId style object
-    * @throws ActiveMQAMQPIllegalStateException if the provided baseId String indicates an encoded type but can't be converted to that type.
+    * @throws ActiveMQAMQPIllegalStateException
+    *         if the provided baseId String indicates an encoded type but can't be converted to
+    *         that type.
     */
    public Object toIdObject(String baseId) throws ActiveMQAMQPIllegalStateException {
       if (baseId == null) {
@@ -143,15 +152,17 @@ public class AMQPMessageIdHelper {
     * <p>
     * The hex characters may be upper or lower case.
     *
-    * @param hexString string to convert to a binary value.
+    * @param hexString
+    *        string to convert to a binary value.
     * @return a byte array containing the binary representation
-    * @throws IllegalArgumentException if the provided String is a non-even length or contains
-    *                                  non-hex characters
+    * @throws IllegalArgumentException
+    *         if the provided String is a non-even length or contains non-hex characters
     */
    public byte[] convertHexStringToBinary(String hexString) throws IllegalArgumentException {
       int length = hexString.length();
 
-      // As each byte needs two characters in the hex encoding, the string must be an even length.
+      // As each byte needs two characters in the hex encoding, the string must be an even
+      // length.
       if (length % 2 != 0) {
          throw new IllegalArgumentException("The provided hex String must be an even length, but was of length " + length + ": " + hexString);
       }
@@ -177,7 +188,8 @@ public class AMQPMessageIdHelper {
     * <p>
     * The returned hex characters are upper-case.
     *
-    * @param bytes the binary value to convert to a hex String instance.
+    * @param bytes
+    *        the binary value to convert to a hex String instance.
     * @return a String containing a hex representation of the bytes
     */
    public String convertBinaryToHexString(byte[] bytes) {
@@ -198,11 +210,10 @@ public class AMQPMessageIdHelper {
       return builder.toString();
    }
 
-   //----- Internal implementation ------------------------------------------//
+   // ----- Internal implementation ------------------------------------------//
 
    private boolean hasTypeEncodingPrefix(String stringId) {
-      return hasAmqpBinaryPrefix(stringId) || hasAmqpUuidPrefix(stringId) ||
-         hasAmqpUlongPrefix(stringId) || hasAmqpStringPrefix(stringId);
+      return hasAmqpBinaryPrefix(stringId) || hasAmqpUuidPrefix(stringId) || hasAmqpUlongPrefix(stringId) || hasAmqpStringPrefix(stringId);
    }
 
    private boolean hasAmqpStringPrefix(String stringId) {

@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
+import java.util.Collections;
+import java.util.Enumeration;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import java.util.Collections;
-import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -45,6 +46,10 @@ public class ServerJMSMessage implements Message {
    public ServerJMSMessage(MessageInternal message, int deliveryCount) {
       this.message = message;
       this.deliveryCount = deliveryCount;
+   }
+
+   public int getDeliveryCount() {
+      return deliveryCount;
    }
 
    private ActiveMQBuffer readBodyBuffer;
