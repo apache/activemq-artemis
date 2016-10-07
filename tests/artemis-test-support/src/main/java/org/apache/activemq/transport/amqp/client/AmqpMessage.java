@@ -245,7 +245,7 @@ public class AmqpMessage {
     * @return the set message ID in String form or null if not set.
     */
    public String getMessageId() {
-      if (message.getProperties() == null) {
+      if (message.getProperties() == null || message.getProperties().getMessageId() == null) {
          return null;
       }
 
@@ -295,7 +295,7 @@ public class AmqpMessage {
     * @return the set correlation ID in String form or null if not set.
     */
    public String getCorrelationId() {
-      if (message.getProperties() == null) {
+      if (message.getProperties() == null || message.getProperties().getCorrelationId() == null) {
          return null;
       }
 
@@ -370,7 +370,7 @@ public class AmqpMessage {
     * @return true if the message is marked as being durable.
     */
    public boolean isDurable() {
-      if (message.getHeader() == null) {
+      if (message.getHeader() == null || message.getHeader().getDurable() == null) {
          return false;
       }
 
