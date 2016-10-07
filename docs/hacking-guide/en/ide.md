@@ -78,6 +78,13 @@ It is strongly recommended to turn off the auto-updating of .gitignore files by 
 generates new .gitignore files in many directories that are not needed due to the top level .gitignore file.  To turn
 it off, go to Preferences->Team->Git->Projects and deselect the "Automatically ignore derived resources" checkbox.
 
+### Schema setup
+For proper schema validation you can add the Artemis schemas to your Eclipse XML Catalog
+
+* Open: Window -> Preferences -> XML -> XML Catalog
+* Select Add -> Workspace -> Navigate to artemis-server and select src/main/resources/schema/artemis-server.xsd -> click OK
+* Repeat the above steps and add src/main/resources/schema/artemis-configuration.xsd
+
 ### Checkstyle setup
 You can import the Artemis Checkstyle template into eclipse to do Checkstyle validation. As a prerequisite you need to make sure the Checkstyle plugin is installed into Eclipse which you can get form the Eclipse Marketplace. You also will need to configure Sevntu-Checkstyle. See http://sevntu-checkstyle.github.io/sevntu.checkstyle/ for instructions. Then to configure the template:
 
