@@ -21,7 +21,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -59,9 +59,10 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
-import org.apache.qpid.proton.message.ProtonJMessage;
+import io.netty.buffer.ByteBuf;
 import org.jboss.logging.Logger;
 
 public class AMQPSessionCallback implements SessionCallback {
@@ -259,8 +260,11 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public ProtonJMessage encodeMessage(Object message, int deliveryCount) throws Exception {
-      return (ProtonJMessage) manager.getConverter().outbound((ServerMessage) message, deliveryCount);
+   public long encodeMessage(Object message, int deliveryCount, WritableBuffer buffer) throws Exception {
+      ProtonMessageConverter converter = (ProtonMessageConverter) manager.getConverter();
+
+      // The Proton variant accepts a WritableBuffer to allow for a faster more direct encode.
+      return (long) converter.outbound((ServerMessage) message, deliveryCount, buffer);
    }
 
    public String tempQueueName() {

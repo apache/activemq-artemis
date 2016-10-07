@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.util.Map;
 import java.util.Objects;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -52,8 +50,10 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
-import org.apache.qpid.proton.message.ProtonJMessage;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
@@ -407,33 +407,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          return 0;
       }
 
-      //encode the message
-      ProtonJMessage serverMessage;
-      try {
-         // This can be done a lot better here
-         serverMessage = sessionSPI.encodeMessage(message, deliveryCount);
-      } catch (Throwable e) {
-         log.warn(e.getMessage(), e);
-         throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
-      }
-
-      return performSend(serverMessage, message);
-   }
-
-   private static boolean hasCapabilities(Symbol symbol, Source source) {
-      if (source != null) {
-         if (source.getCapabilities() != null) {
-            for (Symbol cap : source.getCapabilities()) {
-               if (symbol.equals(cap)) {
-                  return true;
-               }
-            }
-         }
-      }
-      return false;
-   }
-
-   protected int performSend(ProtonJMessage serverMessage, Object context) {
       if (!creditsSemaphore.tryAcquire()) {
          try {
             creditsSemaphore.acquire();
@@ -444,22 +417,32 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
       }
 
-      //presettle means we can ack the message on the dealer side before we send it, i.e. for browsers
+      // presettle means we can settle the message on the dealer side before we send it, i.e. for browsers
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
-      //we only need a tag if we are going to ack later
+      // we only need a tag if we are going to settle later
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
 
       ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
       try {
-         serverMessage.encode(new NettyWritable(nettyBuffer));
+         long messageFormat = 0;
+
+         // Encode the Server Message into the given Netty Buffer as an AMQP
+         // Message transformed from the internal message model.
+         try {
+            messageFormat = sessionSPI.encodeMessage(message, deliveryCount, new NettyWritable(nettyBuffer));
+         } catch (Throwable e) {
+            log.warn(e.getMessage(), e);
+            throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+         }
 
          int size = nettyBuffer.writerIndex();
 
          synchronized (connection.getLock()) {
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
-            delivery.setContext(context);
+            delivery.setMessageFormat((int) messageFormat);
+            delivery.setContext(message);
 
             // this will avoid a copy.. patch provided by Norman using buffer.array()
             sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
@@ -477,6 +460,19 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } finally {
          nettyBuffer.release();
       }
+   }
+
+   private static boolean hasCapabilities(Symbol symbol, Source source) {
+      if (source != null) {
+         if (source.getCapabilities() != null) {
+            for (Symbol cap : source.getCapabilities()) {
+               if (symbol.equals(cap)) {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    private static String createQueueName(String clientId, String pubId) {
