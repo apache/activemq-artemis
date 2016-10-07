@@ -117,7 +117,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
             server.removeClientConnection(remoteContainerId);
          }
          connection.close();
-         amqpConnection.close();
+         amqpConnection.close(null);
       } finally {
          for (Transaction tx : transactions.values()) {
             try {
