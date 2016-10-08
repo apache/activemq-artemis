@@ -1,5 +1,7 @@
 # Code Formatting
 
+## Eclipse
+
 Eclipse code formatting and (basic) project configuration files can be found at the `etc/` folder. You should manually 
 copy them _after importing all your projects_:
 
@@ -10,11 +12,11 @@ copy them _after importing all your projects_:
 Do not use the [maven-eclipse-plugin](https://maven.apache.org/plugins/maven-eclipse-plugin/) to copy the files as it 
 conflicts with [m2e](http://eclipse.org/m2e/).
 
-# Idea
+## IDEA
 
 If you completed the step described on [idea instructions](ide.md#style-templates-and-inspection-settings-for-idea), and selected the code style accordingly you should be ready to go.
 
-# EditorConfig
+## EditorConfig
 
 For editors supporting [EditorConfig](http://editorconfig.org/), a settings file is provided in
 etc/ide-settings/editorconfig.ini. Copy it to your Artemis top level directory and
