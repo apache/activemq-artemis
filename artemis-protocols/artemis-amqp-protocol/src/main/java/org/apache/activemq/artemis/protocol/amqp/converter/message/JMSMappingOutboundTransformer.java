@@ -177,7 +177,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          properties.setTo(toAddress(destination));
          if (maMap == null) {
-            maMap = new HashMap<Symbol, Object>();
+            maMap = new HashMap<>();
          }
          maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, destinationType(destination));
       }
@@ -188,7 +188,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          properties.setReplyTo(toAddress(replyTo));
          if (maMap == null) {
-            maMap = new HashMap<Symbol, Object>();
+            maMap = new HashMap<>();
          }
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(replyTo));
       }
@@ -293,14 +293,14 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                continue;
             } else if (key.startsWith(JMS_AMQP_DELIVERY_ANNOTATION_PREFIX)) {
                if (daMap == null) {
-                  daMap = new HashMap<Symbol, Object>();
+                  daMap = new HashMap<>();
                }
                String name = key.substring(JMS_AMQP_DELIVERY_ANNOTATION_PREFIX.length());
                daMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
                continue;
             } else if (key.startsWith(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX)) {
                if (maMap == null) {
-                  maMap = new HashMap<Symbol, Object>();
+                  maMap = new HashMap<>();
                }
                String name = key.substring(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX.length());
                maMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
@@ -325,7 +325,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                continue;
             } else if (key.startsWith(JMS_AMQP_FOOTER_PREFIX)) {
                if (footerMap == null) {
-                  footerMap = new HashMap<Object, Object>();
+                  footerMap = new HashMap<>();
                }
                String name = key.substring(JMS_AMQP_FOOTER_PREFIX.length());
                footerMap.put(name, message.getObjectProperty(key));
@@ -350,7 +350,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
 
          if (apMap == null) {
-            apMap = new HashMap<String, Object>();
+            apMap = new HashMap<>();
          }
 
          Object objectProperty = message.getObjectProperty(key);
