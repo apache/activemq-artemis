@@ -13,3 +13,9 @@ conflicts with [m2e](http://eclipse.org/m2e/).
 # Idea
 
 If you completed the step described on [idea instructions](ide.md#style-templates-and-inspection-settings-for-idea), and selected the code style accordingly you should be ready to go.
+
+# EditorConfig
+
+For editors supporting [EditorConfig](http://editorconfig.org/), a settings file is provided in
+etc/ide-settings/editorconfig.ini. Copy it to your Artemis top level directory and
+[name it .editorconfig](http://editorconfig.org/#file-location)

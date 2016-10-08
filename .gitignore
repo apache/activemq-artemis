@@ -9,6 +9,7 @@ ratReport.txt
 .settings
 .checkstyle
 .factorypath
+**/.editorconfig
 **/derby.log
 
 # for native build

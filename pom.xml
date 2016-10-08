@@ -1269,6 +1269,7 @@
                   <exclude>**/.settings/**</exclude>
                   <exclude>**/.project</exclude>
                   <exclude>**/.classpath</exclude>
+                  <exclude>**/.editorconfig</exclude>
                   <exclude>**/.checkstyle</exclude>
                   <exclude>**/.factorypath</exclude>
                   <exclude>ratReport.txt</exclude>
