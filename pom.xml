@@ -1272,7 +1272,6 @@
                   <exclude>**/.editorconfig</exclude>
                   <exclude>**/.checkstyle</exclude>
                   <exclude>**/.factorypath</exclude>
-                  <exclude>ratReport.txt</exclude>
                   <exclude>**/org.apache.activemq.artemis.cfg</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
@@ -1288,7 +1287,6 @@
                   <exclude>**/npm-shrinkwrap.json</exclude>
 
                   <!-- things from cmake on the native build -->
-                  <exclude>**/CMakeCache.txt</exclude>
                   <exclude>**/CMakeFiles/</exclude>
                   <exclude>**/Makefile</exclude>
                   <exclude>**/cmake_install.cmake</exclude>
