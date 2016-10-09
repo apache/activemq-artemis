@@ -213,7 +213,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Start the embedded EmbeddedJMSResource.
-    * <p/>
+    * <p>
     * The server will normally be started by JUnit using the before() method.  This method allows the server to
     * be started manually to support advanced testing scenarios.
     */
@@ -228,7 +228,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Stop the embedded ActiveMQ broker, blocking until the broker has stopped.
-    * <p/>
+    * <p>
     * The broker will normally be stopped by JUnit using the after() method.  This method allows the broker to
     * be stopped manually to support advanced testing scenarios.
     */
@@ -250,7 +250,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Start the embedded ActiveMQ Broker
-    * <p/>
+    * <p>
     * Invoked by JUnit to setup the resource
     */
    @Override
@@ -264,7 +264,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Stop the embedded ActiveMQ Broker
-    * <p/>
+    * <p>
     * Invoked by JUnit to tear down the resource
     */
    @Override
@@ -278,7 +278,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Get the EmbeddedJMS server.
-    * <p/>
+    * <p>
     * This may be required for advanced configuration of the EmbeddedJMS server.
     *
     * @return
@@ -323,7 +323,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Get the Queue corresponding to a JMS Destination.
-    * <p/>
+    * <p>
     * The full name of the JMS destination including the prefix should be provided - i.e. queue://myQueue
     * or topic://myTopic.  If the destination type prefix is not included in the destination name, a prefix
     * of "queue://" is assumed.
@@ -359,7 +359,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Get the Queues corresponding to a JMS Topic.
-    * <p/>
+    * <p>
     * The full name of the JMS Topic including the prefix should be provided - i.e. topic://myTopic.  If the destination type prefix
     * is not included in the destination name, a prefix of "topic://" is assumed.
     *
@@ -391,7 +391,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
    /**
     * Get the number of messages in a specific JMS Destination.
-    * <p/>
+    * <p>
     * The full name of the JMS destination including the prefix should be provided - i.e. queue://myQueue
     * or topic://myTopic.  If the destination type prefix is not included in the destination name, a prefix
     * of "queue://" is assumed.
