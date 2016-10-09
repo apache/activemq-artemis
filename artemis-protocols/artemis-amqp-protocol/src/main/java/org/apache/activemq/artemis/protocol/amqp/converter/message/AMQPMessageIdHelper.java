@@ -31,7 +31,6 @@ import org.apache.qpid.proton.amqp.UnsignedLong;
  * Helper class for identifying and converting message-id and correlation-id values between the
  * AMQP types and the Strings values used by JMS.
  * <p>
- * <p>
  * AMQP messages allow for 4 types of message-id/correlation-id: message-id-string,
  * message-id-binary, message-id-uuid, or message-id-ulong. In order to accept or return a
  * string representation of these for interoperability with other AMQP clients, the following
@@ -43,11 +42,9 @@ import org.apache.qpid.proton.amqp.UnsignedLong;
  * {@literal "AMQP_ULONG:<string representation of ulong>"}<br>
  * {@literal "AMQP_STRING:<string>"}<br>
  * <p>
- * <p>
  * The AMQP_STRING encoding exists only for escaping message-id-string values that happen to
  * begin with one of the encoding prefixes (including AMQP_STRING itself). It MUST NOT be used
  * otherwise.
- * <p>
  * <p>
  * When provided a string for conversion which attempts to identify itself as an encoded binary,
  * uuid, or ulong but can't be converted into the indicated format, an exception will be thrown.
