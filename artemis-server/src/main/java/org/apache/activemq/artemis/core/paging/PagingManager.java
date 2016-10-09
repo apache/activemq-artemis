@@ -97,7 +97,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Add size at the global count level.
-    * if totalSize > globalMaxSize it will return true
+    * if totalSize &gt; globalMaxSize it will return true
     */
    PagingManager addSize(int size);
 

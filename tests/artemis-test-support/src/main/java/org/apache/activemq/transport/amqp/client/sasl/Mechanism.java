@@ -103,7 +103,7 @@ public interface Mechanism extends Comparable<Mechanism> {
    String getPassword();
 
    /**
-    * Sets any additional Mechanism specific properties using a Map<String, Object>
+    * Sets any additional Mechanism specific properties using a Map&lt;String, Object&gt;
     *
     * @param options the map of additional properties that this Mechanism should utilize.
     */
