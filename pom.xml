@@ -692,7 +692,11 @@
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
                   <configuration>
-                     <additionalparam>-Xdoclint:none</additionalparam>
+                     <additionalparam>
+                        -Xdoclint:all
+                        -Xdoclint:-missing
+                        -Xdoclint:-syntax
+                     </additionalparam>
                   </configuration>
                </plugin>
             </plugins>
