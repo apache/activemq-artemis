@@ -27,8 +27,8 @@ import java.util.Set;
 /**
  * A LoginModule allowing for SSL certificate based authentication based on
  * Distinguished Names (DN) stored in text files. The DNs are parsed using a
- * Properties class where each line is <user_name>=<user_DN>. This class also
- * uses a group definition file where each line is <role_name>=<user_name_1>,<user_name_2>,etc.
+ * Properties class where each line is &lt;user_name&gt;=&lt;user_DN&gt;. This class also
+ * uses a group definition file where each line is &lt;role_name&gt;=&lt;user_name_1&gt;,&lt;user_name_2&gt;,etc.
  * The user and role files' locations must be specified in the
  * org.apache.activemq.jaas.textfiledn.user and
  * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This
