@@ -150,7 +150,7 @@ public class AmqpMessage {
    /**
     * Accepts the message marking it as consumed on the remote peer.
     *
-    * @param session The session that is used to manage acceptance of the message.
+    * @param txnSession The session that is used to manage acceptance of the message.
     * @throws Exception if an error occurs during the accept.
     */
    public void accept(AmqpSession txnSession) throws Exception {
@@ -160,7 +160,7 @@ public class AmqpMessage {
    /**
     * Accepts the message marking it as consumed on the remote peer.
     *
-    * @param session
+    * @param txnSession
     *      The session that is used to manage acceptance of the message.
     *
     * @throws Exception if an error occurs during the accept.
@@ -354,7 +354,7 @@ public class AmqpMessage {
    /**
     * Sets the GroupId property on an outbound message using the provided String
     *
-    * @param messageId the String Group ID value to set.
+    * @param groupId the String Group ID value to set.
     */
    public void setGroupId(String groupId) {
       checkReadOnly();
@@ -505,7 +505,7 @@ public class AmqpMessage {
     * Sets a byte array value into the body of an outgoing Message, throws
     * an exception if this is an incoming message instance.
     *
-    * @param value the byte array value to store in the Message body.
+    * @param bytes the byte array value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
     */
    public void setBytes(byte[] bytes) throws IllegalStateException {
@@ -515,10 +515,10 @@ public class AmqpMessage {
    }
 
    /**
-    * Sets a byte array value into the body of an outgoing Message, throws
+    * Sets a described type into the body of an outgoing Message, throws
     * an exception if this is an incoming message instance.
     *
-    * @param value the byte array value to store in the Message body.
+    * @param described the described type value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
     */
    public void setDescribedType(DescribedType described) throws IllegalStateException {
