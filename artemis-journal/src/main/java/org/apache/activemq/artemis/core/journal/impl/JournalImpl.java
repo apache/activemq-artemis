@@ -73,7 +73,6 @@ import org.jboss.logging.Logger;
 
 /**
  * <p>A circular log implementation.</p>
- * <p></p>
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
  */
 public class JournalImpl extends JournalBase implements TestableJournal, JournalRecordProvider {
@@ -930,9 +929,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /**
     * <p>If the system crashed after a prepare was called, it should store information that is required to bring the transaction
     * back to a state it could be committed. </p>
-    * <p></p>
     * <p> transactionData allows you to store any other supporting user-data related to the transaction</p>
-    * <p></p>
     * <p> This method also uses the same logic applied on {@link JournalImpl#appendCommitRecord(long, boolean)}
     *
     * @param txID
@@ -1397,7 +1394,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    /**
     * <p>Load data accordingly to the record layouts</p>
-    * <p></p>
     * <p>Basic record layout:</p>
     * <table border=1 summary="">
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
@@ -1411,9 +1407,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * <tr><td>RecordBody</td><td>Byte Array (size=BodySize)</td></tr>
     * <tr><td>Check Size</td><td>Integer (4 bytes)</td></tr>
     * </table>
-    * <p></p>
     * <p> The check-size is used to validate if the record is valid and complete </p>
-    * <p></p>
     * <p>Commit/Prepare record layout:</p>
     * <table border=1 summary="">
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
@@ -1428,7 +1422,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * <tr><td>* NumberOfElements(n)</td><td>Integer (4 bytes)</td></tr>
     * <tr><td>CheckSize</td><td>Integer (4 bytes)</td></tr>
     * </table>
-    * <p></p>
     * <p> * FileID and NumberOfElements are the transaction summary, and they will be repeated (N)umberOfFiles times </p>
     */
    @Override
