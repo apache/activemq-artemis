@@ -43,8 +43,10 @@ public abstract class OutboundTransformer {
     *
     * @return the message format key of the encoded message.
     *
-    * @throws Exception
+    * @throws JMSException
     *         if an error occurs during message transformation
+    * @throws UnsupportedEncodingException
+    *         if an error occurs during message encoding
     */
    public abstract long transform(ServerJMSMessage message, WritableBuffer buffer) throws JMSException, UnsupportedEncodingException;
 
