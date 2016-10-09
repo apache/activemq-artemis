@@ -94,7 +94,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * Opens the supplied file.  If the file does not exist in the database it will create a new one.
     *
     * @param file
-    * @return
     * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
@@ -216,7 +215,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param file
     * @param data
     * @return
-    * @throws Exception
+    * @throws SQLException
     */
    public synchronized int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
       try {
@@ -238,7 +237,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param file
     * @param bytes
     * @return
-    * @throws Exception
+    * @throws SQLException
     */
    public synchronized int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
       connection.setAutoCommit(false);

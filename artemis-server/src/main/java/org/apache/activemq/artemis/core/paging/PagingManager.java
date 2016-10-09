@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
  * <PRE>
  *
  * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
- * | {@link org.apache.activemq.artemis.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.artemis.core.paging.impl.Page}  | ------&gt; | {@link SequentialFile} |
+ * | {@link org.apache.activemq.artemis.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.artemis.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq.artemis.core.io.SequentialFile} |
  * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
  * |                  1 ^
  * |                    |

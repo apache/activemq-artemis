@@ -279,7 +279,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @param name
     * @param filterString
     * @param durable
-    * @throws ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filter}
+    * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
     * @throws NullPointerException                      if {@code address} is {@code null}
     */
    void createSharedQueue(final SimpleString address,
