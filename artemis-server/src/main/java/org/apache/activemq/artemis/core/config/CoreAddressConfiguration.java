@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class CoreAddressConfiguration implements Serializable {
 
    private String name = null;
 
-   private RoutingType routingType = null;
+   private AddressInfo.RoutingType routingType = null;
 
    private Integer defaultMaxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
@@ -47,11 +47,11 @@ public class CoreAddressConfiguration implements Serializable {
       return this;
    }
 
-   public RoutingType getRoutingType() {
+   public AddressInfo.RoutingType getRoutingType() {
       return routingType;
    }
 
-   public CoreAddressConfiguration setRoutingType(RoutingType routingType) {
+   public CoreAddressConfiguration setRoutingType(AddressInfo.RoutingType routingType) {
       this.routingType = routingType;
       return this;
    }

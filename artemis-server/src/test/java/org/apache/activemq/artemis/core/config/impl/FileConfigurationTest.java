@@ -52,9 +52,6 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.ANYCAST;
-import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.MULTICAST;
-
 public class FileConfigurationTest extends ConfigurationImplTest {
 
    private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
@@ -379,7 +376,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       // Addr 1
       CoreAddressConfiguration addressConfiguration = conf.getAddressConfigurations().get(0);
       assertEquals("addr1", addressConfiguration.getName());
-      assertEquals(ANYCAST, addressConfiguration.getRoutingType());
+      assertEquals(AddressInfo.RoutingType.Anycast, addressConfiguration.getRoutingType());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 1 Queue 1
@@ -405,7 +402,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       // Addr 2
       addressConfiguration = conf.getAddressConfigurations().get(1);
       assertEquals("addr2", addressConfiguration.getName());
-      assertEquals(MULTICAST, addressConfiguration.getRoutingType());
+      assertEquals(AddressInfo.RoutingType.Multicast, addressConfiguration.getRoutingType());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 2 Queue 1

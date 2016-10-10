@@ -16,18 +16,13 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AddressInfo {
 
-   public enum RoutingType {
-      MULTICAST, ANYCAST
-   }
-
    private final SimpleString name;
 
-   private RoutingType routingType = RoutingType.MULTICAST;
+   private RoutingType routingType = RoutingType.Multicast;
 
    private boolean defaultDeleteOnNoConsumers;
 
@@ -63,5 +58,31 @@ public class AddressInfo {
 
    public SimpleString getName() {
       return name;
+   }
+
+   public enum RoutingType {
+      Multicast, Anycast;
+
+      public byte getType() {
+         switch (this) {
+            case Multicast:
+               return 0;
+            case Anycast:
+               return 1;
+            default:
+               return -1;
+         }
+      }
+
+      public static RoutingType getType(byte type) {
+         switch (type) {
+            case 0:
+               return Multicast;
+            case 1:
+               return Anycast;
+            default:
+               return null;
+         }
+      }
    }
 }
