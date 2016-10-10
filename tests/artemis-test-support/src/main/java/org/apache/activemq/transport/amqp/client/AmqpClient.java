@@ -63,7 +63,7 @@ public class AmqpClient {
     * connect attempt immediately and will fail if the remote peer cannot be reached.
     *
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @returns a new connection object used to interact with the connected peer.
+    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection connect() throws Exception {
 
@@ -82,7 +82,7 @@ public class AmqpClient {
     * changes applied before the <code>connect</code> method is invoked.
     *
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @returns a new connection object used to interact with the connected peer.
+    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection createConnection() throws Exception {
       if (username == null && password != null) {
@@ -218,7 +218,7 @@ public class AmqpClient {
     *
     * @param broker the address of the remote broker instance.
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @returns a new connection object used to interact with the connected peer.
+    * @return a new connection object used to interact with the connected peer.
     */
    public static AmqpConnection connect(URI broker) throws Exception {
       return connect(broker, null, null);
@@ -231,7 +231,7 @@ public class AmqpClient {
     * @param username the user name to use to connect to the broker or null for anonymous.
     * @param password the password to use to connect to the broker, must be null if user name is null.
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @returns a new connection object used to interact with the connected peer.
+    * @return a new connection object used to interact with the connected peer.
     */
    public static AmqpConnection connect(URI broker, String username, String password) throws Exception {
       if (username == null && password != null) {

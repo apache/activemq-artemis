@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
  * OperationNotSupportedException. Each Context in the tree builds a cache of
  * the entries in all sub-contexts to optimise the performance of lookup.
  * <p>
- * <p>
  * This implementation is intended to optimise the performance of lookup(String)
  * to about the level of a HashMap get. It has been observed that the scheme
  * resolution phase performed by the JVM takes considerably longer, so for

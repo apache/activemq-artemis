@@ -652,7 +652,6 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
    /**
     * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
     */
    public void setIncomingInterceptorList(String interceptorList) {
       checkWrite();
@@ -665,7 +664,6 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
    /**
     * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
     */
    public void setOutgoingInterceptorList(String interceptorList) {
       serverLocator.setOutgoingInterceptorList(interceptorList);
