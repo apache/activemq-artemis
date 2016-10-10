@@ -35,10 +35,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.apache.qpid.transport.util.Logger;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -237,7 +237,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
 
             System.err.println("activating");
             if (!backupServer.waitForActivation(1, TimeUnit.MINUTES)) {
-               Logger.get(LargeMessageOverReplicationTest.class).warn("Can't failover server");
+               Logger.getLogger(LargeMessageOverReplicationTest.class).warn("Can't failover server");
             }
          }
       } catch (Exception e) {
