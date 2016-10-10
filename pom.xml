@@ -81,7 +81,7 @@
       <jetty.version>9.4.0.M1</jetty.version>
       <jgroups.version>3.6.9.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <netty.version>4.0.41.Final</netty.version>
+      <netty.version>4.1.5.Final</netty.version>
       <proton.version>0.14.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
@@ -92,7 +92,6 @@
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.0.3.Final</jb.logmanager.version>
       <airlift.version>0.7</airlift.version>
-      <netty.codec.mqtt.version>5.0.0.Alpha2</netty.codec.mqtt.version>
       <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
       <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
@@ -434,12 +433,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-mqtt</artifactId>
-            <version>${netty.codec.mqtt.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>

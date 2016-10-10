@@ -110,7 +110,7 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
 
    @Override
    public void addChannelHandlers(ChannelPipeline pipeline) {
-      pipeline.addLast(new MqttEncoder());
+      pipeline.addLast(MqttEncoder.INSTANCE);
       pipeline.addLast(new MqttDecoder(MQTTUtil.MAX_MESSAGE_SIZE));
 
       pipeline.addLast(new MQTTProtocolHandler(server, this));
