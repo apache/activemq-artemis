@@ -50,19 +50,16 @@ public class XMLConfigurationMigration {
       if (args.length == 0) {
          System.err.println("Invalid args");
          printUsage();
-      }
-      else {
+      } else {
          File input = new File(args[0]);
          if (input.isDirectory()) {
             System.out.println("Scanning directory: " + input.getAbsolutePath());
             recursiveTransform(input);
-         }
-         else {
+         } else {
             if (args.length != 2) {
                System.err.println("Invalid args");
                printUsage();
-            }
-            else {
+            } else {
                transform(input, new File(args[1]));
             }
          }
@@ -70,12 +67,10 @@ public class XMLConfigurationMigration {
    }
 
    private static void recursiveTransform(File root) throws Exception {
-      for ( File file : root.listFiles())
-      {
+      for (File file : root.listFiles()) {
          scanAndTransform(file);
       }
    }
-
 
    public static void scanAndTransform(File pFile) throws Exception {
       try {
@@ -93,14 +88,12 @@ public class XMLConfigurationMigration {
                         file.renameTo(r);
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   //continue
                }
             }
          }
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
          System.out.println(pFile.getAbsoluteFile());
       }
    }
@@ -125,9 +118,7 @@ public class XMLConfigurationMigration {
             migration.write(output, properties);
             return true;
          }
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          System.err.println("Error tranforming document");
          e.printStackTrace();
       }
@@ -174,8 +165,7 @@ public class XMLConfigurationMigration {
 
          if (addresses.containsKey(addressName)) {
             address = addresses.get(addressName);
-         }
-         else {
+         } else {
             address = new Address();
             address.setName(addressName);
             addresses.put(addressName, address);

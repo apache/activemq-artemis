@@ -1269,6 +1269,7 @@
                   <exclude>docs/**/_book/</exclude>
                   <exclude>**/target/</exclude>
                   <exclude>**/META-INF/services/*</exclude>
+                  <exclude>**/META-INF/MANIFEST.MF</exclude>
                   <exclude>**/*.iml</exclude>
                   <exclude>**/*.jceks</exclude>
                   <exclude>**/*.jks</exclude>
