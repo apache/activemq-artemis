@@ -47,7 +47,7 @@
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
-         <artifactId>netty-codec-mqtt</artifactId>
+         <artifactId>netty-all</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
@@ -55,21 +55,4 @@
       </dependency>
    </dependencies>
 
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <version>3.0.0</version>
-            <extensions>true</extensions>
-            <configuration>
-               <instructions>
-                  <Embed-Dependency>netty-codec-mqtt</Embed-Dependency>
-                  <Export-Package>!*</Export-Package>
-                  <Import-Package>io.netty.*;version="[4,6)", *</Import-Package>
-               </instructions>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
 </project>

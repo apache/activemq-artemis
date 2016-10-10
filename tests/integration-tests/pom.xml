@@ -179,7 +179,7 @@
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
-         <artifactId>netty-codec-mqtt</artifactId>
+         <artifactId>netty-all</artifactId>
       </dependency>
       <!-- END MQTT Deps -->
 

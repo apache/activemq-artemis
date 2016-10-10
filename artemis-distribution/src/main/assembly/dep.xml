@@ -91,7 +91,6 @@
             <include>commons-collections:commons-collections</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
             <include>org.jgroups:jgroups</include>
-            <include>io.netty:netty-codec-mqtt</include>
             <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
             <include>org.apache.johnzon:johnzon-core</include>
          </includes>

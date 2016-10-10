@@ -169,7 +169,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    void sendConnack(MqttConnectReturnCode returnCode) {
       MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
-      MqttConnAckVariableHeader varHeader = new MqttConnAckVariableHeader(returnCode);
+      MqttConnAckVariableHeader varHeader = new MqttConnAckVariableHeader(returnCode, true);
       MqttConnAckMessage message = new MqttConnAckMessage(fixedHeader, varHeader);
 
       ctx.write(message);
