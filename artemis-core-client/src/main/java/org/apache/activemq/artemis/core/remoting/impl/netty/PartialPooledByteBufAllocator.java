@@ -130,4 +130,9 @@ public class PartialPooledByteBufAllocator implements ByteBufAllocator {
    public boolean isDirectBufferPooled() {
       return true;
    }
+
+   @Override
+   public int calculateNewCapacity(int minNewCapacity, int maxCapacity) {
+      return UNPOOLED.calculateNewCapacity(minNewCapacity, maxCapacity);
+   }
 }
