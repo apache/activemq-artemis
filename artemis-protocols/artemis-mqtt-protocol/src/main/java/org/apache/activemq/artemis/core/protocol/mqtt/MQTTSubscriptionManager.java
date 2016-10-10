@@ -36,8 +36,6 @@ public class MQTTSubscriptionManager {
 
    private ConcurrentMap<String, ServerConsumer> consumers;
 
-   private MQTTLogger log = MQTTLogger.LOGGER;
-
    // We filter out Artemis management messages and notifications
    private SimpleString managementFilter;
 
@@ -63,7 +61,7 @@ public class MQTTSubscriptionManager {
 
    synchronized void start() throws Exception {
       for (MqttTopicSubscription subscription : session.getSessionState().getSubscriptions()) {
-         SimpleString q = createQueueForSubscription(subscription.topicName(), subscription.qualityOfService().value());
+         Queue q = createQueueForSubscription(subscription.topicName(), subscription.qualityOfService().value());
          createConsumerForSubscriptionQueue(q, subscription.topicName(), subscription.qualityOfService().value());
       }
    }
@@ -86,23 +84,23 @@ public class MQTTSubscriptionManager {
    /**
     * Creates a Queue if it doesn't already exist, based on a topic and address.  Returning the queue name.
     */
-   private SimpleString createQueueForSubscription(String topic, int qos) throws Exception {
+   private Queue createQueueForSubscription(String topic, int qos) throws Exception {
       String address = MQTTUtil.convertMQTTAddressFilterToCore(topic);
       SimpleString queue = getQueueNameForTopic(address);
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
+         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
       }
-      return queue;
+      return q;
    }
 
    /**
     * Creates a new consumer for the queue associated with a subscription
     */
-   private void createConsumerForSubscriptionQueue(SimpleString queue, String topic, int qos) throws Exception {
+   private void createConsumerForSubscriptionQueue(Queue queue, String topic, int qos) throws Exception {
       long cid = session.getServer().getStorageManager().generateID();
-      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue, null, false, true, -1);
+      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), null, false, true, -1);
       consumer.setStarted(true);
 
       consumers.put(topic, consumer);
@@ -117,7 +115,7 @@ public class MQTTSubscriptionManager {
 
       session.getSessionState().addSubscription(subscription);
 
-      SimpleString q = createQueueForSubscription(topic, qos);
+      Queue q = createQueueForSubscription(topic, qos);
 
       if (s == null) {
          createConsumerForSubscriptionQueue(q, topic, qos);
@@ -171,7 +169,4 @@ public class MQTTSubscriptionManager {
       return consumerQoSLevels;
    }
 
-   ServerConsumer getConsumerForAddress(String address) {
-      return consumers.get(address);
-   }
 }
