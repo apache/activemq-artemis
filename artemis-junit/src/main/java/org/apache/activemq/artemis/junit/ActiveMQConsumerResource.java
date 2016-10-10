@@ -30,10 +30,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
  *
  * <pre><code>
  * public class SimpleTest {
- *    {@code @Rule}
+ *     @Rule
  *     public ActiveMQConsumerResource client = new ActiveMQProducerResource( "vm://0", "test.queue" );
  *
- *    {@code @Test}
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded client here
  *         ClientMessage message = client.receiveMessage();

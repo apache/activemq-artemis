@@ -52,10 +52,10 @@ import org.slf4j.LoggerFactory;
  *
  * <pre><code>
  * public class SimpleTest {
- *    {@code @Rule}
+ *     @Rule
  *     public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
  *
- *    {@code @Test}
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded server here
  *     }

@@ -31,10 +31,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
  *
  * <pre><code>
  * public class SimpleTest {
- *    {@code @Rule}
+ *     @Rule
  *     public ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource( "vm://0");
  *
- *    {@code @Test}
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded ClientProducer here
  *         producer.sendMessage( "test.address", "String Body" );
