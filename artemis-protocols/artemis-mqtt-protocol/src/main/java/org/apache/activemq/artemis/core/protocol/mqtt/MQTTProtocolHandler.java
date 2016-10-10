@@ -96,7 +96,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
          connection.dataReceived();
 
-         MQTTUtil.logMessage(log, message, true);
+         MQTTUtil.logMessage(session.getState(), message, true);
 
          switch (message.fixedHeader().messageType()) {
             case CONNECT:
@@ -145,7 +145,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
                disconnect();
          }
       } catch (Exception e) {
-         log.warn("Error processing Control Packet, Disconnecting Client" + e.getMessage());
+         log.debug("Error processing Control Packet, Disconnecting Client", e);
          disconnect();
       }
    }
@@ -243,6 +243,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttSubAckMessage ack = new MqttSubAckMessage(header, message.variableHeader(), new MqttSubAckPayload(qos));
+      MQTTUtil.logMessage(session.getSessionState(), ack, false);
       ctx.write(ack);
       ctx.flush();
    }
@@ -255,6 +256,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       session.getSubscriptionManager().removeSubscriptions(message.payload().topics());
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttUnsubAckMessage m = new MqttUnsubAckMessage(header, message.variableHeader());
+      MQTTUtil.logMessage(session.getSessionState(), m, false);
       ctx.write(m);
       ctx.flush();
    }
@@ -264,7 +266,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handlePingreq(MqttMessage message, ChannelHandlerContext ctx) {
-      ctx.write(new MqttMessage(new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0)));
+      MqttMessage pingResp = new MqttMessage(new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0));
+      MQTTUtil.logMessage(session.getSessionState(), pingResp, false);
+      ctx.write(pingResp);
       ctx.flush();
    }
 
@@ -284,6 +288,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topicName, messageId);
       MqttMessage publish = new MqttPublishMessage(header, varHeader, payload);
       this.protocolManager.invokeOutgoing(publish, connection);
+
+      MQTTUtil.logMessage(session.getSessionState(), publish, false);
 
       ctx.write(publish);
       ctx.flush();

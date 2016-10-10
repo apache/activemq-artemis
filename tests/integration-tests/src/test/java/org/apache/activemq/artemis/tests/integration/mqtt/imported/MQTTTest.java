@@ -267,6 +267,32 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals(NUM_MESSAGES, MQTTOutoingInterceptor.getMessageCount());
    }
 
+   @Test(timeout = 600 * 1000)
+   public void testSendMoreThanUniqueId() throws Exception {
+      int messages = (Short.MAX_VALUE * 2) + 1;
+
+      final MQTTClientProvider publisher = getMQTTClientProvider();
+      initializeConnection(publisher);
+
+      final MQTTClientProvider subscriber = getMQTTClientProvider();
+      initializeConnection(subscriber);
+
+      int count = 0;
+      subscriber.subscribe("foo", EXACTLY_ONCE);
+      for (int i = 0; i < messages; i++) {
+         String payload = "Test Message: " + i;
+         publisher.publish("foo", payload.getBytes(), EXACTLY_ONCE);
+         byte[] message = subscriber.receive(5000);
+         assertNotNull("Should get a message + [" + i + "]", message);
+         assertEquals(payload, new String(message));
+         count++;
+      }
+
+      assertEquals(messages, count);
+      subscriber.disconnect();
+      publisher.disconnect();
+   }
+
    @Test(timeout = 60 * 1000)
    public void testSendAndReceiveLargeMessages() throws Exception {
       byte[] payload = new byte[1024 * 32];
