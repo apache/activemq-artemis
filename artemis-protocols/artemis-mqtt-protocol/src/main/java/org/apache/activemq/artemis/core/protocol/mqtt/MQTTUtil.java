@@ -69,6 +69,8 @@ public class MQTTUtil {
       return swapMQTTAndCoreWildCards(filter);
    }
 
+   private static final MQTTLogger logger = MQTTLogger.LOGGER;
+
    public static String convertCoreAddressFilterToMQTT(String filter) {
       if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          filter = filter.substring(MQTT_RETAIN_ADDRESS_PREFIX.length(), filter.length());
@@ -148,25 +150,38 @@ public class MQTTUtil {
       return message;
    }
 
-   public static void logMessage(MQTTLogger logger, MqttMessage message, boolean inbound) {
-      StringBuilder log = inbound ? new StringBuilder("Received ") : new StringBuilder("Sent ");
+   public static void logMessage(MQTTSessionState state, MqttMessage message, boolean inbound) {
+      if (logger.isTraceEnabled()) {
 
-      if (message.fixedHeader() != null) {
-         log.append(message.fixedHeader().messageType().toString());
+         StringBuilder log = new StringBuilder("MQTT(");
 
-         if (message.variableHeader() instanceof MqttPublishVariableHeader) {
-            log.append("(" + ((MqttPublishVariableHeader) message.variableHeader()).messageId() + ") " + message.fixedHeader().qosLevel());
-         } else if (message.variableHeader() instanceof MqttMessageIdVariableHeader) {
-            log.append("(" + ((MqttMessageIdVariableHeader) message.variableHeader()).messageId() + ")");
+         if (state != null) {
+            log.append(state.getClientId());
          }
 
-         if (message.fixedHeader().messageType() == MqttMessageType.SUBSCRIBE) {
-            for (MqttTopicSubscription sub : ((MqttSubscribeMessage) message).payload().topicSubscriptions()) {
-               log.append("\n\t" + sub.topicName() + " : " + sub.qualityOfService());
+         if (inbound) {
+            log.append("): IN << ");
+         } else {
+            log.append("): OUT >> ");
+         }
+
+         if (message.fixedHeader() != null) {
+            log.append(message.fixedHeader().messageType().toString());
+
+            if (message.variableHeader() instanceof MqttPublishVariableHeader) {
+               log.append("(" + ((MqttPublishVariableHeader) message.variableHeader()).messageId() + ") " + message.fixedHeader().qosLevel());
+            } else if (message.variableHeader() instanceof MqttMessageIdVariableHeader) {
+               log.append("(" + ((MqttMessageIdVariableHeader) message.variableHeader()).messageId() + ")");
             }
-         }
 
-         logger.debug(log.toString());
+            if (message.fixedHeader().messageType() == MqttMessageType.SUBSCRIBE) {
+               for (MqttTopicSubscription sub : ((MqttSubscribeMessage) message).payload().topicSubscriptions()) {
+                  log.append("\n\t" + sub.topicName() + " : " + sub.qualityOfService());
+               }
+            }
+
+            logger.trace(log.toString());
+         }
       }
    }
 

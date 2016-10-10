@@ -66,9 +66,8 @@ public class MQTTRetainMessageManager {
       }
    }
 
-   void addRetainedMessagesToQueue(SimpleString queueName, String address) throws Exception {
+   void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
       // Queue to add the retained messages to
-      Queue queue = session.getServer().locateQueue(queueName);
 
       // The address filter that matches all retained message queues.
       String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(address);
