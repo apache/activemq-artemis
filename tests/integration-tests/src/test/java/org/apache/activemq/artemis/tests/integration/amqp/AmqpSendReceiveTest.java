@@ -16,22 +16,31 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
+import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
+import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.activemq.transport.amqp.client.AmqpValidator;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.engine.Receiver;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +51,255 @@ import org.slf4j.LoggerFactory;
 public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(AmqpSendReceiveTest.class);
+
+   @Test(timeout = 60000)
+   public void testCreateQueueReceiver() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+
+      Queue queue = getProxyToQueue(getTestName());
+      assertNotNull(queue);
+
+      receiver.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testCreateQueueReceiverWithJMSSelector() throws Exception {
+      AmqpClient client = createAmqpClient();
+
+      client.setValidator(new AmqpValidator() {
+
+         @SuppressWarnings("unchecked")
+         @Override
+         public void inspectOpenedResource(Receiver receiver) {
+
+            if (receiver.getRemoteSource() == null) {
+               markAsInvalid("Link opened with null source.");
+            }
+
+            Source source = (Source) receiver.getRemoteSource();
+            Map<Symbol, Object> filters = source.getFilter();
+
+            if (findFilter(filters, JMS_SELECTOR_FILTER_IDS) == null) {
+               markAsInvalid("Broker did not return the JMS Filter on Attach");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      session.createReceiver(getTestName(), "JMSPriority > 8");
+
+      connection.getStateInspector().assertValid();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testCreateQueueReceiverWithNoLocalSet() throws Exception {
+      AmqpClient client = createAmqpClient();
+
+      client.setValidator(new AmqpValidator() {
+
+         @SuppressWarnings("unchecked")
+         @Override
+         public void inspectOpenedResource(Receiver receiver) {
+
+            if (receiver.getRemoteSource() == null) {
+               markAsInvalid("Link opened with null source.");
+            }
+
+            Source source = (Source) receiver.getRemoteSource();
+            Map<Symbol, Object> filters = source.getFilter();
+
+            // Currently don't support noLocal on a Queue
+            if (findFilter(filters, NO_LOCAL_FILTER_IDS) != null) {
+               markAsInvalid("Broker did not return the NoLocal Filter on Attach");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      session.createReceiver(getTestName(), null, true);
+
+      connection.getStateInspector().assertValid();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testQueueReceiverReadMessage() throws Exception {
+      sendMessages(getTestName(), 1);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+
+      Queue queueView = getProxyToQueue(getTestName());
+      assertEquals(1, queueView.getMessageCount());
+
+      receiver.flow(1);
+      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
+      receiver.close();
+
+      assertEquals(1, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testTwoQueueReceiversOnSameConnectionReadMessagesNoDispositions() throws Exception {
+      int MSG_COUNT = 4;
+      sendMessages(getTestName(), MSG_COUNT);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+
+      Queue queueView = getProxyToQueue(getTestName());
+      assertEquals(MSG_COUNT, queueView.getMessageCount());
+
+      receiver1.flow(2);
+      assertNotNull(receiver1.receive(5, TimeUnit.SECONDS));
+      assertNotNull(receiver1.receive(5, TimeUnit.SECONDS));
+
+      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+
+      assertEquals(2, server.getTotalConsumerCount());
+
+      receiver2.flow(2);
+      assertNotNull(receiver2.receive(5, TimeUnit.SECONDS));
+      assertNotNull(receiver2.receive(5, TimeUnit.SECONDS));
+
+      assertEquals(0, queueView.getMessagesAcknowledged());
+
+      receiver1.close();
+      receiver2.close();
+
+      assertEquals(MSG_COUNT, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testTwoQueueReceiversOnSameConnectionReadMessagesAcceptOnEach() throws Exception {
+      int MSG_COUNT = 4;
+      sendMessages(getTestName(), MSG_COUNT);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+
+      final Queue queueView = getProxyToQueue(getTestName());
+      assertEquals(MSG_COUNT, queueView.getMessageCount());
+
+      receiver1.flow(2);
+      AmqpMessage message = receiver1.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+      message = receiver1.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+
+      assertTrue("Should have ack'd two", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return queueView.getMessagesAcknowledged() == 2;
+         }
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+
+      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+
+      assertEquals(2, server.getTotalConsumerCount());
+
+      receiver2.flow(2);
+      message = receiver2.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+      message = receiver2.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+
+      assertTrue("Queue should be empty now", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return queueView.getMessagesAcknowledged() == 4;
+         }
+      }, TimeUnit.SECONDS.toMillis(15), TimeUnit.MILLISECONDS.toMillis(10)));
+
+      receiver1.close();
+      receiver2.close();
+
+      assertEquals(0, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testSecondReceiverOnQueueGetsAllUnconsumedMessages() throws Exception {
+      int MSG_COUNT = 20;
+      sendMessages(getTestName(), MSG_COUNT);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+
+      final Queue queueView = getProxyToQueue(getTestName());
+      assertEquals(MSG_COUNT, queueView.getMessageCount());
+
+      receiver1.flow(20);
+
+      assertTrue("Should have dispatch to prefetch", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return queueView.getDeliveringCount() >= 2;
+         }
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+
+      receiver1.close();
+
+      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+
+      assertEquals(1, server.getTotalConsumerCount());
+
+      receiver2.flow(MSG_COUNT * 2);
+      AmqpMessage message = receiver2.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+      message = receiver2.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message);
+      message.accept();
+
+      assertTrue("Should have ack'd two", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return queueView.getMessagesAcknowledged() == 2;
+         }
+      }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
+
+      receiver2.close();
+
+      assertEquals(MSG_COUNT - 2, queueView.getMessageCount());
+
+      connection.close();
+   }
 
    @Test(timeout = 60000)
    public void testSimpleSendOneReceiveOne() throws Exception {
@@ -476,7 +734,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertTrue("Should be no inflight messages: " + destinationView.getDeliveringCount(), Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return destinationView.getDeliveringCount() == 0;
          }
       }));
@@ -553,5 +811,22 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver2.close();
 
       connection.close();
+   }
+
+   public void sendMessages(String destinationName, int count) throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(destinationName);
+
+         for (int i = 0; i < count; ++i) {
+            AmqpMessage message = new AmqpMessage();
+            message.setMessageId("MessageID:" + i);
+            sender.send(message);
+         }
+      } finally {
+         connection.close();
+      }
    }
 }
