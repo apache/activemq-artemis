@@ -29,7 +29,7 @@ public class FileStorageConfiguration implements StoreConfiguration {
 
    @Override
    public StoreType getStoreType() {
-      return StoreType.DATABASE;
+      return StoreType.FILE;
    }
 
    public String getMessageTableName() {
