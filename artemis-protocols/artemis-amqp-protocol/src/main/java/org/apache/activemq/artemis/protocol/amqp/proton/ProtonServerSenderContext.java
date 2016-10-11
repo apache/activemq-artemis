@@ -521,9 +521,20 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
-         } else if (remoteState instanceof Rejected || remoteState instanceof Modified) {
+         } else if (remoteState instanceof Rejected) {
             try {
                sessionSPI.cancel(brokerConsumer, message, true);
+            } catch (Exception e) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+            }
+         } else if (remoteState instanceof Modified) {
+            try {
+               Modified modification = (Modified) remoteState;
+               if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
+                  sessionSPI.cancel(brokerConsumer, message, true);
+               } else {
+                  sessionSPI.cancel(brokerConsumer, message, false);
+               }
             } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
