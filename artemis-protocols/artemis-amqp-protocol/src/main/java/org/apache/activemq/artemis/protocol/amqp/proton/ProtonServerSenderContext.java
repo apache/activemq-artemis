@@ -482,6 +482,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
 
             if (preSettle) {
+               // Presettled means the client implicitly accepts any delivery we send it.
+               sessionSPI.ack(null, brokerConsumer, message);
                delivery.settle();
             } else {
                sender.advance();
