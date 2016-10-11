@@ -29,6 +29,7 @@
 
 	<feature name="netty-core" version="${netty.version}" description="Netty libraries">
 		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-resolver/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
@@ -73,6 +74,7 @@
 
 	<feature name="artemis-mqtt" version="${pom.version}" description="ActiveMQ Artemis MQTT protocol libraries">
 		<feature>artemis-core</feature>
+		<bundle>mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${pom.version}</bundle>
 	</feature>
 
