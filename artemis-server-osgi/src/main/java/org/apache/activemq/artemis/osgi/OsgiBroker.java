@@ -31,7 +31,10 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration.StoreType;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -57,6 +60,7 @@ public class OsgiBroker {
    private Map<String, ActiveMQComponent> components;
    private Map<String, ServiceRegistration<?>> registrations;
    private ServiceTracker tracker;
+   private ServiceTracker dataSourceTracker;
 
    @Activate
    public void activate(ComponentContext cctx) throws Exception {
@@ -92,42 +96,21 @@ public class OsgiBroker {
       final ActiveMQServer server = (ActiveMQServer) components.get("core");
 
       String[] requiredProtocols = getRequiredProtocols(server.getConfiguration().getAcceptorConfigurations());
-      ProtocolTrackerCallBack callback = new ProtocolTrackerCallBack() {
+      ProtocolTrackerCallBack callback = new ProtocolTrackerCallBackImpl(server, context, properties);
 
-         @Override
-         public void addFactory(ProtocolManagerFactory<Interceptor> pmf) {
-            server.addProtocolManagerFactory(pmf);
-         }
+      StoreConfiguration storeConfiguration = server.getConfiguration().getStoreConfiguration();
+      String dataSourceName = String.class.cast(properties.get("dataSourceName"));
+      if (storeConfiguration.getStoreType() == StoreType.DATABASE && dataSourceName != null &&
+               !dataSourceName.isEmpty()) {
+         callback = new ServerTrackerCallBackImpl(server, context, properties);
+         String filter = "(&(objectClass=javax.sql.DataSource)(osgi.jndi.service.name=" + dataSourceName + "))";
+         DataSourceTracker trackerCust =
+                  new DataSourceTracker(name, context, DatabaseStorageConfiguration.class.cast(storeConfiguration),
+                                        (ServerTrackerCallBack) callback);
+         dataSourceTracker = new ServiceTracker(context, context.createFilter(filter), trackerCust);
+         dataSourceTracker.open();
+      }
 
-         @Override
-         public void removeFactory(ProtocolManagerFactory<Interceptor> pmf) {
-            server.removeProtocolManagerFactory(pmf);
-         }
-
-         @Override
-         public void stop() throws Exception {
-            ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
-            components.values().toArray(mqComponents);
-            for (int i = mqComponents.length - 1; i >= 0; i--) {
-               mqComponents[i].stop();
-            }
-            unregister();
-         }
-
-         @Override
-         public void start() throws Exception {
-            List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
-            for (ActiveMQComponent component : componentsByStartOrder) {
-               component.start();
-            }
-            register(context, properties);
-         }
-
-         @Override
-         public boolean isStarted() {
-            return server.isStarted();
-         }
-      };
       ProtocolTracker trackerCust = new ProtocolTracker(name, context, requiredProtocols, callback);
       tracker = new ServiceTracker(context, ProtocolManagerFactory.class, trackerCust);
       tracker.open();
@@ -160,6 +143,9 @@ public class OsgiBroker {
    @Deactivate
    public void stop() throws Exception {
       tracker.close();
+      if (dataSourceTracker != null) {
+         dataSourceTracker.close();
+      }
    }
 
    public Map<String, ActiveMQComponent> getComponents() {
@@ -217,6 +203,75 @@ public class OsgiBroker {
       if (registrations != null) {
          for (ServiceRegistration<?> reg : registrations.values()) {
             reg.unregister();
+         }
+      }
+   }
+
+   private class ProtocolTrackerCallBackImpl implements ProtocolTrackerCallBack {
+
+      private final ActiveMQServer server;
+      private final BundleContext context;
+      private final Dictionary<String, Object> properties;
+
+      ProtocolTrackerCallBackImpl(ActiveMQServer server, BundleContext context,
+                                         Dictionary<String, Object> properties) {
+         this.server = server;
+         this.context = context;
+         this.properties = properties;
+      }
+
+      @Override
+      public void addFactory(ProtocolManagerFactory<Interceptor> pmf) {
+         server.addProtocolManagerFactory(pmf);
+      }
+
+      @Override
+      public void removeFactory(ProtocolManagerFactory<Interceptor> pmf) {
+         server.removeProtocolManagerFactory(pmf);
+      }
+
+      @Override
+      public void stop() throws Exception {
+         ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
+         components.values().toArray(mqComponents);
+         for (int i = mqComponents.length - 1; i >= 0; i--) {
+            mqComponents[i].stop();
+         }
+         unregister();
+      }
+
+      @Override
+      public void start() throws Exception {
+         List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
+         for (ActiveMQComponent component : componentsByStartOrder) {
+            component.start();
+         }
+         register(context, properties);
+      }
+
+      @Override
+      public boolean isStarted() {
+         return server.isStarted();
+      }
+   }
+
+   private class ServerTrackerCallBackImpl extends ProtocolTrackerCallBackImpl implements ServerTrackerCallBack {
+
+      private volatile boolean dataSourceDependency = true;
+
+      ServerTrackerCallBackImpl(ActiveMQServer server, BundleContext context, Dictionary<String, Object> properties) {
+         super(server, context, properties);
+      }
+
+      @Override
+      public void setDataSourceDependency(boolean dataSourceDependency) {
+         this.dataSourceDependency = dataSourceDependency;
+      }
+
+      @Override
+      public void start() throws Exception {
+         if (!dataSourceDependency) {
+            super.start();
          }
       }
    }
