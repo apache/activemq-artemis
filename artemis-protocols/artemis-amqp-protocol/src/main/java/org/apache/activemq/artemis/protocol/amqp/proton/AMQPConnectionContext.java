@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -45,6 +44,8 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.ByteBuf;
 
 public class AMQPConnectionContext extends ProtonInitializable {
 
@@ -181,7 +182,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
    protected void remoteLinkOpened(Link link) throws Exception {
 
-      AMQPSessionContext protonSession = (AMQPSessionContext) getSessionExtension(link.getSession());
+      AMQPSessionContext protonSession = getSessionExtension(link.getSession());
 
       link.setSource(link.getRemoteSource());
       link.setTarget(link.getRemoteTarget());
@@ -321,6 +322,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
       public void onRemoteClose(Connection connection) {
          synchronized (getLock()) {
             connection.close();
+            connection.free();
             for (AMQPSessionContext protonSession : sessions.values()) {
                protonSession.close();
             }
@@ -352,6 +354,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
       public void onRemoteClose(Session session) throws Exception {
          synchronized (getLock()) {
             session.close();
+            session.free();
          }
 
          AMQPSessionContext sessionContext = (AMQPSessionContext) session.getContext();
@@ -375,6 +378,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
       @Override
       public void onRemoteClose(Link link) throws Exception {
          link.close();
+         link.free();
          ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
          if (linkContext != null) {
             linkContext.close(true);
@@ -384,10 +388,11 @@ public class AMQPConnectionContext extends ProtonInitializable {
       @Override
       public void onRemoteDetach(Link link) throws Exception {
          link.detach();
+         link.free();
       }
 
       @Override
-      public void onDetach(Link link) throws Exception {
+      public void onLocalDetach(Link link) throws Exception {
          Object context = link.getContext();
          if (context instanceof ProtonServerSenderContext) {
             ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
@@ -402,10 +407,8 @@ public class AMQPConnectionContext extends ProtonInitializable {
             handler.onMessage(delivery);
          } else {
             // TODO: logs
-
             System.err.println("Handler is null, can't delivery " + delivery);
          }
       }
    }
-
 }
