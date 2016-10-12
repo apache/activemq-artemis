@@ -61,15 +61,12 @@ public abstract class UnaryExpression implements Expression {
                                                       final boolean not) {
 
       // Use a HashSet if there are many elements.
-      Collection<Object> t;
-      if (elements.size() == 0) {
-         t = null;
-      } else if (elements.size() < 5) {
-         t = elements;
+      final Collection<Object> inList;
+      if (elements.size() < 5) {
+         inList = elements;
       } else {
-         t = new HashSet<>(elements);
+         inList = new HashSet<>(elements);
       }
-      final Collection<Object> inList = t;
 
       return new BooleanUnaryExpression(right) {
          @Override
@@ -83,7 +80,7 @@ public abstract class UnaryExpression implements Expression {
                return null;
             }
 
-            return (inList != null && inList.contains(rvalue)) ^ not;
+            return inList.contains(rvalue) ^ not;
          }
 
          @Override
