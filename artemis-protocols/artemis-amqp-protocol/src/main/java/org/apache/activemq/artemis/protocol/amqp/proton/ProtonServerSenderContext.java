@@ -170,21 +170,46 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          String clientId = connection.getRemoteContainer();
          String pubId = sender.getName();
          queue = createQueueName(clientId, pubId);
-         boolean exists = sessionSPI.queueQuery(queue, false).isExists();
+         QueueQueryResult result = sessionSPI.queueQuery(queue, false);
 
          // Once confirmed that the address exists we need to return a Source that reflects
          // the lifetime policy and capabilities of the new subscription.
-         //
-         // TODO we are not applying selector or noLocal filters to the source we just
-         // looked up which would violate expectations if the client checked that they
-         // are present on subscription recovery (JMS Durable Re-subscribe) etc
-         if (exists) {
+         if (result.isExists()) {
             source = new org.apache.qpid.proton.amqp.messaging.Source();
             source.setAddress(queue);
             source.setDurable(TerminusDurability.UNSETTLED_STATE);
             source.setExpiryPolicy(TerminusExpiryPolicy.NEVER);
             source.setDistributionMode(COPY);
             source.setCapabilities(TOPIC);
+
+            SimpleString filterString = result.getFilterString();
+            if (filterString != null) {
+               selector = filterString.toString();
+               boolean noLocal = false;
+
+               String remoteContainerId = sender.getSession().getConnection().getRemoteContainer();
+               String noLocalFilter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
+
+               if (selector.endsWith(noLocalFilter)) {
+                  if (selector.length() > noLocalFilter.length()) {
+                     noLocalFilter = " AND " + noLocalFilter;
+                     selector = selector.substring(0, selector.length() - noLocalFilter.length());
+                  } else {
+                     selector = null;
+                  }
+
+                  noLocal = true;
+               }
+
+               if (noLocal) {
+                  supportedFilters.put(AmqpSupport.NO_LOCAL_NAME, AmqpNoLocalFilter.NO_LOCAL);
+               }
+
+               if (selector != null && !selector.trim().isEmpty()) {
+                  supportedFilters.put(AmqpSupport.JMS_SELECTOR_NAME, new AmqpJmsSelectorFilter(selector));
+               }
+            }
+
             sender.setSource(source);
          } else {
             throw new ActiveMQAMQPNotFoundException("Unknown subscription link: " + sender.getName());
@@ -228,7 +253,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                } else {
                   sessionSPI.createDurableQueue(source.getAddress(), queue, selector);
                }
-               source.setAddress(queue);
             } else {
                // otherwise we are a volatile subscription
                queue = java.util.UUID.randomUUID().toString();
@@ -237,7 +261,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                } catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
                }
-               source.setAddress(queue);
             }
          } else {
             queue = source.getAddress();
@@ -308,7 +331,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // any durable resources for say pub subs
          if (remoteLinkClose) {
             Source source = (Source) sender.getSource();
-            if (source != null && source.getAddress() != null && hasCapabilities(TOPIC, source)) {
+            if (source != null && source.getAddress() != null && (hasCapabilities(TOPIC, source) || isPubSub(source))) {
                String queueName = source.getAddress();
                QueueQueryResult result = sessionSPI.queueQuery(queueName, false);
                if (result.isExists() && source.getDynamic()) {

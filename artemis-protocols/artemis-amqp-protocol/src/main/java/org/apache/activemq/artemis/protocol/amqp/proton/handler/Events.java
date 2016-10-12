@@ -85,7 +85,7 @@ public final class Events {
             handler.onFinal(event.getLink());
             break;
          case LINK_LOCAL_DETACH:
-            handler.onDetach(event.getLink());
+            handler.onLocalDetach(event.getLink());
             break;
          case LINK_REMOTE_DETACH:
             handler.onRemoteDetach(event.getLink());
@@ -96,7 +96,8 @@ public final class Events {
          case DELIVERY:
             handler.onDelivery(event.getDelivery());
             break;
+         default:
+            break;
       }
    }
-
 }
