@@ -162,7 +162,7 @@ Configuration configuration = new ConfigurationImpl()
    .setPersistenceEnabled(false)
    .setSecurityEnabled(false)
    .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-   .addConnectorConfiguration("myConnector", new TransportConfiguration(NettyAcceptorFactory.class.getName()));
+   .addConnectorConfiguration("myConnector", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
 // Step 2. Create the JMS configuration
 JMSConfiguration jmsConfig = new JMSConfigurationImpl();
