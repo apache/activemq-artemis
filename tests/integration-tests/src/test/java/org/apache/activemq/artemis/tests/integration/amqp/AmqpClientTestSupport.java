@@ -21,8 +21,12 @@ import java.net.URI;
 import java.util.LinkedList;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -35,9 +39,11 @@ import org.junit.Before;
  */
 public class AmqpClientTestSupport extends ActiveMQTestBase {
 
-   ActiveMQServer server;
+   private boolean useSSL;
 
-   LinkedList<AmqpConnection> connections = new LinkedList<>();
+   protected JMSServerManager serverManager;
+   protected ActiveMQServer server;
+   protected LinkedList<AmqpConnection> connections = new LinkedList<>();
 
    protected AmqpConnection addConnection(AmqpConnection connection) {
       connections.add(connection);
@@ -48,9 +54,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    @Override
    public void setUp() throws Exception {
       super.setUp();
-
-      server = createServer(true, true);
-      server.start();
+      server = createServer();
    }
 
    @After
@@ -63,17 +67,35 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
             ignored.printStackTrace();
          }
       }
+
+      if (serverManager != null) {
+         try {
+            serverManager.stop();
+         } catch (Throwable ignored) {
+            ignored.printStackTrace();
+         }
+         serverManager = null;
+      }
+
       server.stop();
 
       super.tearDown();
    }
 
+   protected ActiveMQServer createServer() throws Exception {
+      ActiveMQServer server = createServer(true, true);
+      serverManager = new JMSServerManagerImpl(server);
+      Configuration serverConfig = server.getConfiguration();
+      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(true).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
+      serverConfig.setSecurityEnabled(false);
+      serverManager.start();
+      server.start();
+      return server;
+   }
+
    public Queue getProxyToQueue(String queueName) {
       return server.locateQueue(SimpleString.toSimpleString(queueName));
    }
-
-   private String connectorScheme = "amqp";
-   private boolean useSSL;
 
    public String getTestName() {
       return "jms.queue." + getName();
@@ -83,12 +105,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    }
 
    public AmqpClientTestSupport(String connectorScheme, boolean useSSL) {
-      this.connectorScheme = connectorScheme;
       this.useSSL = useSSL;
-   }
-
-   public String getConnectorScheme() {
-      return connectorScheme;
    }
 
    public boolean isUseSSL() {
@@ -97,30 +114,6 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
 
    public String getAmqpConnectionURIOptions() {
       return "";
-   }
-
-   protected boolean isUseTcpConnector() {
-      return !isUseSSL() && !connectorScheme.contains("nio") && !connectorScheme.contains("ws");
-   }
-
-   protected boolean isUseSslConnector() {
-      return isUseSSL() && !connectorScheme.contains("nio") && !connectorScheme.contains("wss");
-   }
-
-   protected boolean isUseNioConnector() {
-      return !isUseSSL() && connectorScheme.contains("nio");
-   }
-
-   protected boolean isUseNioPlusSslConnector() {
-      return isUseSSL() && connectorScheme.contains("nio");
-   }
-
-   protected boolean isUseWsConnector() {
-      return !isUseSSL() && connectorScheme.contains("ws");
-   }
-
-   protected boolean isUseWssConnector() {
-      return isUseSSL() && connectorScheme.contains("wss");
    }
 
    public URI getBrokerAmqpConnectionURI() {
