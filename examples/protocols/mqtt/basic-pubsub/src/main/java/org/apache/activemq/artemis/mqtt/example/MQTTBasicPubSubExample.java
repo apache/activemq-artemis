@@ -39,23 +39,27 @@ public class MQTTBasicPubSubExample {
       System.out.println("Connected to Artemis");
 
       // Subscribe to topics
-      Topic[] topics = {new Topic("mqtt/example/publish", QoS.AT_LEAST_ONCE), new Topic("mqtt/#", QoS.EXACTLY_ONCE)};
+      Topic[] topics = {new Topic("mqtt/example/publish", QoS.AT_LEAST_ONCE), new Topic("test/#", QoS.EXACTLY_ONCE), new Topic("foo/+/bar", QoS.AT_LEAST_ONCE)};
       connection.subscribe(topics);
       System.out.println("Subscribed to topics.");
 
       // Publish Messages
       String payload1 = "This is message 1";
       String payload2 = "This is message 2";
+      String payload3 = "This is message 3";
 
       connection.publish("mqtt/example/publish", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
-      connection.publish("mqtt/test", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+      connection.publish("test/test", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+      connection.publish("foo/1/bar", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
       System.out.println("Sent messages.");
 
       Message message1 = connection.receive(5, TimeUnit.SECONDS);
       Message message2 = connection.receive(5, TimeUnit.SECONDS);
+      Message message3 = connection.receive(5, TimeUnit.SECONDS);
       System.out.println("Received messages.");
 
       System.out.println(new String(message1.getPayload()));
       System.out.println(new String(message2.getPayload()));
+      System.out.println(new String(message3.getPayload()));
    }
 }
