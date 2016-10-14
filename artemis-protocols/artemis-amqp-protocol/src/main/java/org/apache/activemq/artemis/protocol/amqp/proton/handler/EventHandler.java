@@ -69,7 +69,7 @@ public interface EventHandler {
 
    void onRemoteDetach(Link link) throws Exception;
 
-   void onDetach(Link link) throws Exception;
+   void onLocalDetach(Link link) throws Exception;
 
    void onDelivery(Delivery delivery) throws Exception;
 
