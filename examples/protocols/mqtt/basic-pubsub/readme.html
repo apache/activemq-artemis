@@ -87,26 +87,28 @@ under the License.
 
          <p>Subscriptions in MQTT are realised by subscribing to a particular Topic.  Each Topic has an address
          and a quality of service level (QoS level).  Subscriptions also support wildcards.  In the code below we
-         subscribe to a Topic with address "mqtt/example/publish" and also a wildcard address "mqtt/#" which will
-         match anything starting with "mqtt/".</p>
+         subscribe to a Topic with address "mqtt/example/publish", a wildcard address "test/#" which will
+         match anything starting with "test/" and also a wildcard "foo/+/bar", where + matches a single level of the hierarchy (foo/something/bar)</p>
 
          <pre class="prettyprint">
-             Topic[] topics = { new Topic("mqtt/example/publish", QoS.AT_LEAST_ONCE), new Topic("mqtt/#", QoS.EXACTLY_ONCE) };
+             Topic[] topics = { new Topic("mqtt/example/publish", QoS.AT_LEAST_ONCE), new Topic("test/#", QoS.EXACTLY_ONCE), new Topic("foo/+/bar", QoS.AT_LEAST_ONCE) };
              connection.subscribe(topics);
          </pre>
 
          <li>3. Sending messages</li>
 
-         <p>There is no type system in MQTT, messages simply consist of a number of bytes.  Below we send two messages with
-         UTF8 encoded strings (as a byte array).  Notice the second message is sent to "mqtt/test" which should match
-         our wildcard subscription we defined previously.</p>
+         <p>There is no type system in MQTT, messages simply consist of a number of bytes.  Below we send three messages with
+         UTF8 encoded strings (as a byte array).  Notice the second message is sent to "test/test" which should match
+         the first wildcard subscription we defined previously. The third message is sent to "foo/1/bar", which matches the second wildcard subscription.</p>
 
          <pre class="prettyprint">
              String payload1 = "This is message 1";
              String payload2 = "This is message 2";
+             String payload3 = "This is message 3";
 
              connection.publish("mqtt/example/publish", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
              connection.publish("mqtt/test", payload2.getBytes(), QoS.AT_MOST_ONCE, false);
+             connection.publish("foo/1/bar", payload3.getBytes(), QoS.AT_MOST_ONCE, false);
          </pre>
 
          <li>4. Receiving messages</li>
@@ -119,9 +121,11 @@ under the License.
          <pre class="prettyprint">
              Message message1 = connection.receive(5, TimeUnit.SECONDS);
              Message message2 = connection.receive(5, TimeUnit.SECONDS);
+             Message message3 = connection.receive(5, TimeUnit.SECONDS);
 
              System.out.println(new String(message1.getPayload()));
              System.out.println(new String(message2.getPayload()));
+             System.out.println(new String(message3.getPayload()));
          </pre>
      </o1>
 
