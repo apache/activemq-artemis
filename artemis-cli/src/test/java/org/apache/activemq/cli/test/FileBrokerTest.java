@@ -17,6 +17,7 @@
 package org.apache.activemq.cli.test;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -105,6 +106,7 @@ public class FileBrokerTest {
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
          path = activeMQServer.getConfiguration().getConfigurationUrl().getPath();
+         path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
          Assert.assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
 
          Thread.sleep(activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod() * 2);

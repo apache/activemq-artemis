@@ -23,22 +23,33 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class GuestLoginModuleTest extends Assert {
+
+   private static final Logger logger = Logger.getLogger(GuestLoginModuleTest.class);
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
       if (path == null) {
          URL resource = GuestLoginModuleTest.class.getClassLoader().getResource("login.config");
          if (resource != null) {
-            path = resource.getFile();
-            System.setProperty("java.security.auth.login.config", path);
+            try {
+               path = URLDecoder.decode(resource.getFile(), StandardCharsets.UTF_8.name());
+               System.setProperty("java.security.auth.login.config", path);
+            } catch (UnsupportedEncodingException e) {
+               logger.error(e.getMessage(), e);
+               throw new RuntimeException(e);
+            }
          }
       }
    }

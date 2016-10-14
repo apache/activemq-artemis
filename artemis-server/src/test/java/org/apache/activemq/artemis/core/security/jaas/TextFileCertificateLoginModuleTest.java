@@ -20,7 +20,10 @@ import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -28,11 +31,14 @@ import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TextFileCertificateLoginModuleTest {
+
+   private static final Logger logger = Logger.getLogger(TextFileCertificateLoginModuleTest.class);
 
    private static final String CERT_USERS_FILE_SMALL = "cert-users-SMALL.properties";
    private static final String CERT_USERS_FILE_LARGE = "cert-users-LARGE.properties";
@@ -45,8 +51,13 @@ public class TextFileCertificateLoginModuleTest {
       if (path == null) {
          URL resource = TextFileCertificateLoginModuleTest.class.getClassLoader().getResource("login.config");
          if (resource != null) {
-            path = resource.getFile();
-            System.setProperty("java.security.auth.login.config", path);
+            try {
+               path = URLDecoder.decode(resource.getFile(), StandardCharsets.UTF_8.name());
+               System.setProperty("java.security.auth.login.config", path);
+            } catch (UnsupportedEncodingException e) {
+               logger.error(e.getMessage(), e);
+               throw new RuntimeException(e);
+            }
          }
       }
    }

@@ -18,7 +18,10 @@
 package org.apache.activemq.artemis.core.server.reload;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,7 +95,17 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
       private final List<ReloadCallback> callbacks = new LinkedList<>();
 
       ReloadRegistry(URL uri) {
-         this.file = new File(uri.getPath());
+         String filePath = null;
+         try {
+            filePath = URLDecoder.decode(uri.getPath(), StandardCharsets.UTF_8.name());
+         } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+         }
+         if (filePath != null) {
+            this.file = new File(filePath);
+         } else {
+            this.file = new File(uri.getPath());
+         }
          this.lastModified = file.lastModified();
          this.uri = uri;
       }
