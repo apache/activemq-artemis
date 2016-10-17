@@ -27,15 +27,15 @@ public class XmlBrokerFactoryHandler implements BrokerFactoryHandler {
 
    @Override
    public BrokerDTO createBroker(URI brokerURI) throws Exception {
-      return createBroker(brokerURI, null, null);
+      return createBroker(brokerURI, null, null, null);
    }
 
    @Override
-   public BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance) throws Exception {
+   public BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance, URI artemisURIInstance) throws Exception {
       File file = new File(brokerURI.getSchemeSpecificPart());
       if (!file.exists()) {
          throw new ConfigurationException("Invalid configuration URI, can't find file: " + file.getName());
       }
-      return XmlUtil.decode(BrokerDTO.class, file, artemisHome, artemisInstance);
+      return XmlUtil.decode(BrokerDTO.class, file, artemisHome, artemisInstance, artemisURIInstance);
    }
 }

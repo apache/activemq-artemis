@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.factory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -30,12 +29,13 @@ import org.apache.activemq.artemis.utils.FactoryFinder;
 public class BrokerFactory {
 
    public static BrokerDTO createBrokerConfiguration(URI configURI) throws Exception {
-      return createBrokerConfiguration(configURI, null, null);
+      return createBrokerConfiguration(configURI, null, null, null);
    }
 
    public static BrokerDTO createBrokerConfiguration(URI configURI,
                                                      String artemisHome,
-                                                     String artemisInstance) throws Exception {
+                                                     String artemisInstance,
+                                                     URI artemisURIInstance) throws Exception {
       if (configURI.getScheme() == null) {
          throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
       }
@@ -48,25 +48,18 @@ public class BrokerFactory {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
 
-      return factory.createBroker(configURI, artemisHome, artemisInstance);
+      return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception {
-      return createBrokerConfiguration(new URI(configuration), null, null);
+      return createBrokerConfiguration(new URI(configuration), null, null, null);
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration,
                                                      String artemisHome,
-                                                     String artemisInstance) throws Exception {
-      return createBrokerConfiguration(new URI(configuration), artemisHome, artemisInstance);
-   }
-
-   static String fixupFileURI(String value) {
-      if (value != null && value.startsWith("file:")) {
-         value = value.substring("file:".length());
-         value = new File(value).toURI().toString();
-      }
-      return value;
+                                                     String artemisInstance,
+                                                     URI artemisURIInstance) throws Exception {
+      return createBrokerConfiguration(new URI(configuration), artemisHome, artemisInstance, artemisURIInstance);
    }
 
    public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) throws Exception {
