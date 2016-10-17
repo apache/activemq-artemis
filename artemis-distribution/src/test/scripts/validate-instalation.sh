@@ -18,4 +18,55 @@
 
 # This script will validate the distribution works with folders with spaces on Linux machines
 
-./validate-instalation.sh with\ spaces\ And\ Weird\ %26\ Characters
+echo validating instalation on $1
+rm -rf target
+mkdir target
+mkdir target/"$1"
+
+
+# Setting the script to fail if anything goes wrong
+set -e
+
+
+export TEST_TARGET="./target/$1"
+
+. ./installHome.sh
+
+
+export ARTEMIS_INSTANCE="$CURRENT_DIR/target/$1/artemis_instance"
+echo home used is $ARTEMIS_HOME
+echo artemis instance is $ARTEMIS_HOME
+
+
+cd "$ARTEMIS_HOME/bin"
+./artemis create --silent --force "$ARTEMIS_INSTANCE"
+
+cd "$ARTEMIS_INSTANCE/bin"
+pwd
+
+./artemis run &
+
+sleep 5
+
+./artemis producer
+./artemis consumer
+
+./artemis stop
+
+sleep 5
+./artemis data print > data.log
+./artemis data compact
+./artemis data exp
+
+
+./artemis-service start
+
+sleep 5
+
+./artemis producer
+./artemis consumer
+
+./artemis-service stop
+
+cd $CURRENT_DIR
+rm -rf target

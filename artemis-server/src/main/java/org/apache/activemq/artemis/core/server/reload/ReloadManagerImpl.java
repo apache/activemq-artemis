@@ -85,14 +85,24 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
    class ReloadRegistry {
 
-      private final File file;
+      private File file;
       private final URL uri;
       private long lastModified;
 
       private final List<ReloadCallback> callbacks = new LinkedList<>();
 
-      ReloadRegistry(URL uri) {
-         this.file = new File(uri.getPath());
+      ReloadRegistry(URL uri)  {
+         try {
+            file = new File(uri.toURI());
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            file = new File(uri.getPath());
+         }
+
+         if (!file.exists()) {
+            logger.warn("File " + file + " does not exist");
+         }
+
          this.lastModified = file.lastModified();
          this.uri = uri;
       }

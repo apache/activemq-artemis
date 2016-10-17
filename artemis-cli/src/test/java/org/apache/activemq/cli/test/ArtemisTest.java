@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -42,6 +43,8 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,6 +63,9 @@ public class ArtemisTest {
    @Rule
    public TemporaryFolder temporaryFolder;
 
+   @Rule
+   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
    private String original = System.getProperty("java.security.auth.login.config");
 
    public ArtemisTest() {
@@ -69,12 +75,23 @@ public class ArtemisTest {
    }
 
    @Before
-   public void setup() {
-      System.setProperty("java.security.auth.login.config", temporaryFolder.getRoot().getAbsolutePath() + "/etc/login.config");
+   public void setup() throws Exception {
+      setupAuth();
+      Run.setEmbedded(true);
+      PropertiesLoader.resetUsersAndGroupsCache();
+   }
+
+   public void setupAuth() throws Exception {
+      setupAuth(temporaryFolder.getRoot());
+   }
+
+   public void setupAuth(File folder) throws Exception {
+      System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
    }
 
    @After
    public void cleanup() {
+      ActiveMQClient.clearThreadPools();
       System.clearProperty("artemis.instance");
       Run.setEmbedded(false);
 
@@ -123,6 +140,7 @@ public class ArtemisTest {
 
    @Test
    public void testWebConfig() throws Exception {
+      setupAuth();
       Run.setEmbedded(true);
       //instance1: default using http
       File instance1 = new File(temporaryFolder.getRoot(), "instance1");
@@ -196,13 +214,34 @@ public class ArtemisTest {
 
    @Test
    public void testSimpleRun() throws Exception {
+      testSimpleRun("server");
+   }
+
+   @Test
+   public void testWeirdCharacter() throws Exception {
+      testSimpleRun("test%26%26x86_6");
+   }
+
+
+   @Test
+   public void testSpaces() throws Exception {
+      testSimpleRun("with space");
+   }
+
+
+   public void testSimpleRun(String folderName) throws Exception {
+      File instanceFolder = temporaryFolder.newFolder(folderName);
+
+      setupAuth(instanceFolder);
       String queues = "q1,t2";
       String topics = "t1,t2";
 
+
       // This is usually set when run from the command line via artemis.profile
       Run.setEmbedded(true);
-      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login");
-      System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.internalExecute("run");
 
@@ -263,24 +302,6 @@ public class ArtemisTest {
 
          // Checking it was acked before
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
-      } finally {
-         stopServer();
-      }
-   }
-
-   @Test
-   public void testAnonymousAutoCreate() throws Exception {
-      // This is usually set when run from the command line via artemis.profile
-
-      Run.setEmbedded(true);
-      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--no-autotune", "--allow-anonymous", "--user", "a", "--password", "a", "--role", "a");
-      System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
-      // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
-      Artemis.internalExecute("run");
-
-      try {
-         Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100"));
-         Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--message-count", "100"));
       } finally {
          stopServer();
       }
