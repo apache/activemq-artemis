@@ -26,11 +26,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActivationParams;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 public class ColocatedHAManager implements HAManager {
 
@@ -268,19 +270,31 @@ public class ColocatedHAManager implements HAManager {
       }
    }
 
+   /**
+    * Offset the port for Netty connector/acceptor (unless HTTP upgrade is enabled) and the server ID for invm connector/acceptor.
+    *
+    * The port is not offset for Netty connector/acceptor when HTTP upgrade is enabled. In this case, the app server that
+    * embed ActiveMQ is "owning" the port and is charge to delegate the HTTP ugprade to the correct broker (that can be
+    * the main one or any colocated backup hosted on the main broker). Delegation to the correct broker is done by looking at the
+    * {@link TransportConstants#ACTIVEMQ_SERVER_NAME} property [ARTEMIS-803]
+    */
    private static void updatebackupParams(String name, int portOffset, Map<String, Object> params) {
       if (params != null) {
-         Object port = params.get("port");
+         Object port = params.get(TransportConstants.PORT_PROP_NAME);
          if (port != null) {
-            Integer integer = Integer.valueOf(port.toString());
-            integer += portOffset;
-            params.put("port", integer.toString());
+            boolean httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, params);
+            if (!httpUpgradeEnabled) {
+               Integer integer = Integer.valueOf(port.toString());
+               integer += portOffset;
+               params.put(TransportConstants.PORT_PROP_NAME, integer.toString());
+            }
          }
-         Object serverId = params.get("serverId");
+         Object serverId = params.get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME);
          if (serverId != null) {
             Integer newid = Integer.parseInt(serverId.toString()) + portOffset;
-            params.put("serverId", newid.toString());
+            params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, newid.toString());
          }
+         params.put(TransportConstants.ACTIVEMQ_SERVER_NAME, name);
       }
    }
 }
