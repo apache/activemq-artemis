@@ -53,6 +53,11 @@ public interface Channel {
    boolean supports(byte packetID);
 
    /**
+    * For protocol check
+    */
+   boolean supports(byte packetID, int version);
+
+   /**
     * Sends a packet on this channel.
     *
     * @param packet the packet to send
