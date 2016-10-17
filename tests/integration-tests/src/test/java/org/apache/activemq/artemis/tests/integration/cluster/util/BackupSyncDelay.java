@@ -345,5 +345,10 @@ public class BackupSyncDelay implements Interceptor {
          return true;
       }
 
+      @Override
+      public boolean supports(byte packetID, int version) {
+         return true;
+      }
+
    }
 }

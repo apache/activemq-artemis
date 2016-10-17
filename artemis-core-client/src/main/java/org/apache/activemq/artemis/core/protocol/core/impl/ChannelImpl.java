@@ -152,8 +152,11 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean supports(final byte packetType) {
-      int version = connection.getClientVersion();
+      return supports(packetType, connection.getClientVersion());
+   }
 
+   @Override
+   public boolean supports(final byte packetType, int version) {
       switch (packetType) {
          case PacketImpl.CLUSTER_TOPOLOGY_V2:
             return version >= 122;
