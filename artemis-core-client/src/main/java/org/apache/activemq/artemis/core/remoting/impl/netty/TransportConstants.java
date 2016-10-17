@@ -53,6 +53,8 @@ public class TransportConstants {
 
    public static final String USE_INVM_PROP_NAME = "useInvm";
 
+   public static final String ACTIVEMQ_SERVER_NAME = "activemqServerName";
+
    /**
     * @deprecated use PROTOCOLS_PROP_NAME
     */
@@ -252,6 +254,7 @@ public class TransportConstants {
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
       Set<String> allowableConnectorKeys = new HashSet<>();
+      allowableConnectorKeys.add(TransportConstants.ACTIVEMQ_SERVER_NAME);
       allowableConnectorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HTTP_ENABLED_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME);
