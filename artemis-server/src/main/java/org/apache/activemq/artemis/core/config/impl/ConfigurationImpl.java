@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -126,6 +127,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
 
    private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+
+   private List<CoreAddressConfiguration> addressConfigurations = new ArrayList<>();
 
    protected transient List<BroadcastGroupConfiguration> broadcastGroupConfigurations = new ArrayList<>();
 
@@ -578,6 +581,23 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
       queueConfigurations.add(config);
+      return this;
+   }
+
+   @Override
+   public List<CoreAddressConfiguration> getAddressConfigurations() {
+      return addressConfigurations;
+   }
+
+   @Override
+   public Configuration setAddressConfigurations(List<CoreAddressConfiguration> configs) {
+      this.addressConfigurations = configs;
+      return this;
+   }
+
+   @Override
+   public Configuration addAddressConfiguration(CoreAddressConfiguration config) {
+      this.addressConfigurations.add(config);
       return this;
    }
 

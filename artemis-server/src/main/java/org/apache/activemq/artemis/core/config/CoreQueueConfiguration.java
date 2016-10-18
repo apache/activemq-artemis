@@ -30,6 +30,10 @@ public class CoreQueueConfiguration implements Serializable {
 
    private boolean durable = true;
 
+   private Integer maxConsumers = null;
+
+   private Boolean deleteOnNoConsumers = null;
+
    public CoreQueueConfiguration() {
    }
 
@@ -48,6 +52,8 @@ public class CoreQueueConfiguration implements Serializable {
    public boolean isDurable() {
       return durable;
    }
+
+
 
    /**
     * @param address the address to set
@@ -81,6 +87,30 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
+   /**
+    * @param maxConsumers for this queue, default is -1 (unlimited)
+    */
+   public CoreQueueConfiguration setMaxConsumers(Integer maxConsumers) {
+      this.maxConsumers = maxConsumers;
+      return this;
+   }
+
+   /**
+    * @param deleteOnNoConsumers delete this queue when consumer count reaches 0, default is false
+    */
+   public CoreQueueConfiguration setDeleteOnNoConsumers(Boolean deleteOnNoConsumers) {
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      return this;
+   }
+
+   public Boolean getDeleteOnNoConsumers() {
+      return deleteOnNoConsumers;
+   }
+
+   public Integer getMaxConsumers() {
+      return maxConsumers;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -89,6 +119,8 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + (durable ? 1231 : 1237);
       result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
       result = prime * result + ((name == null) ? 0 : name.hashCode());
+      result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
+      result = prime * result + ((deleteOnNoConsumers == null) ? 0 : deleteOnNoConsumers.hashCode());
       return result;
    }
 
@@ -118,6 +150,17 @@ public class CoreQueueConfiguration implements Serializable {
             return false;
       } else if (!name.equals(other.name))
          return false;
+      if (maxConsumers == null) {
+         if (other.maxConsumers != null)
+            return false;
+      } else if (!maxConsumers.equals(other.maxConsumers))
+         return false;
+      if (deleteOnNoConsumers == null) {
+         if (other.deleteOnNoConsumers != null)
+            return false;
+      } else if (!deleteOnNoConsumers.equals(other.deleteOnNoConsumers)) {
+         return false;
+      }
       return true;
    }
 }
