@@ -170,6 +170,7 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateNonExistentTopic() throws Exception {
       getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
@@ -198,6 +199,7 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateTopicWhileQueueWithSameNameExists() throws Exception {
       getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {

@@ -276,7 +276,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          message.getBodyBuffer().writeBytes(Base64.decode(body));
       }
       message.setAddress(addressInfo.getName());
-      postOffice.route(message, null, true);
+      postOffice.route(message, true);
       return "" + message.getMessageID();
    }
 

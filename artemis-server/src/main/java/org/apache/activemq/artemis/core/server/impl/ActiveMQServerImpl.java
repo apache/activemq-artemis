@@ -119,8 +119,6 @@ import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
 import org.apache.activemq.artemis.core.server.PostQueueDeletionCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
-import org.apache.activemq.artemis.core.server.QueueCreator;
-import org.apache.activemq.artemis.core.server.QueueDeleter;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -272,16 +270,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private ReloadManager reloadManager;
 
    private FileStoreMonitor fileStoreMonitor;
-
-   /**
-    * This will be set by the JMS Queue Manager.
-    */
-   private QueueCreator jmsQueueCreator;
-
-   /**
-    * This will be set by the JMS Queue Manager.
-    */
-   private QueueDeleter jmsQueueDeleter;
 
    private final Map<String, ServerSession> sessions = new ConcurrentHashMap<>();
 
@@ -721,11 +709,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      if (autoCreateJmsTopics) {
-         putAddressInfoIfAbsent(new AddressInfo(address));
-      }
-
-      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
+      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
@@ -791,26 +775,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public final void stop(boolean failoverOnServerShutdown) throws Exception {
       stop(failoverOnServerShutdown, false, false);
-   }
-
-   @Override
-   public QueueCreator getJMSDestinationCreator() {
-      return jmsQueueCreator;
-   }
-
-   @Override
-   public void setJMSQueueCreator(QueueCreator jmsQueueCreator) {
-      this.jmsQueueCreator = jmsQueueCreator;
-   }
-
-   @Override
-   public QueueDeleter getJMSQueueDeleter() {
-      return jmsQueueDeleter;
-   }
-
-   @Override
-   public void setJMSQueueDeleter(QueueDeleter jmsQueueDeleter) {
-      this.jmsQueueDeleter = jmsQueueDeleter;
    }
 
    @Override
@@ -1358,7 +1322,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      SessionCallback callback,
                                                      OperationContext context,
                                                      boolean autoCreateJMSQueues) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, autoCreateJMSQueues ? jmsQueueCreator : null, pagingManager);
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager);
    }
 
    @Override
@@ -1616,17 +1580,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public Queue deployQueue(final SimpleString address,
-                            final SimpleString resourceName,
+                            final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
-      return deployQueue(address, resourceName, filterString, durable, temporary, autoCreated, null, null);
+      return deployQueue(address, queueName, filterString, durable, temporary, autoCreated, null, null);
    }
 
    @Override
    public Queue deployQueue(final SimpleString address,
-                            final SimpleString resourceName,
+                            final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary,
@@ -1635,9 +1599,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final Boolean deleteOnNoConsumers) throws Exception {
 
       // TODO: fix logging here as this could be for a topic or queue
-      ActiveMQServerLogger.LOGGER.deployQueue(resourceName);
+      ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
-      return createQueue(address, resourceName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers);
+      return createQueue(address, queueName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers);
    }
 
    @Override
@@ -2137,6 +2101,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // Deploy any predefined queues
       deployQueuesFromConfiguration();
 
+      registerPostQueueDeletionCallback(new PostQueueDeletionCallback() {
+         // TODO delete auto-created addresses when queueCount == 0
+         @Override
+         public void callback(SimpleString address, SimpleString queueName) throws Exception {
+            if (getAddressInfo(address).isAutoCreated() && postOffice.getBindingsForAddress(address).getBindings().size() == 0) {
+               removeAddressInfo(address);
+            }
+         }
+      });
+
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
       callActivateCallbacks();
@@ -2408,7 +2382,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean autoCreated,
                             final Integer maxConsumers,
                             final Boolean deleteOnNoConsumers) throws Exception {
-
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
          if (ignoreIfExists) {
@@ -2465,7 +2438,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (transientQueue) {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
       } else if (queue.isAutoCreated()) {
-         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this.getJMSQueueDeleter(), queue.getName()));
+         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this, queue.getName()));
       }
 
       final QueueBinding localQueueBinding = new LocalQueueBinding(getAddressInfo(queue.getAddress()), queue, nodeManager.getNodeId());

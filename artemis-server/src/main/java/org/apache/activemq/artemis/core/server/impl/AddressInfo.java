@@ -29,6 +29,8 @@ public class AddressInfo {
 
    private int defaultMaxQueueConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
+   private boolean autoCreated = false;
+
    public AddressInfo(SimpleString name) {
       this.name = name;
    }
@@ -67,6 +69,15 @@ public class AddressInfo {
       return this;
    }
 
+   public boolean isAutoCreated() {
+      return autoCreated;
+   }
+
+   public AddressInfo setAutoCreated(boolean autoCreated) {
+      this.autoCreated = autoCreated;
+      return this;
+   }
+
    public SimpleString getName() {
       return name;
    }
@@ -78,6 +89,7 @@ public class AddressInfo {
       buff.append(", routingType=" + routingType);
       buff.append(", defaultMaxQueueConsumers=" + defaultMaxQueueConsumers);
       buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);
+      buff.append(", autoCreated=" + autoCreated);
       buff.append("]");
       return buff.toString();
    }

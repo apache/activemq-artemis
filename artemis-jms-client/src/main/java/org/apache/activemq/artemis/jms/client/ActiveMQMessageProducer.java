@@ -403,20 +403,20 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             try {
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
 
-               if (!query.isExists() && query.isAutoCreateJmsQueues()) {
-                  if (destination.isQueue() && !destination.isTemporary()) {
-                     clientSession.createAddress(address, false);
-                     clientSession.createQueue(address, address, null, true);
-                  } else if (destination.isQueue() && destination.isTemporary()) {
-                     clientSession.createAddress(address, false);
-                     clientSession.createTemporaryQueue(address, address);
-                  } else if (!destination.isQueue() && !destination.isTemporary()) {
-                     clientSession.createAddress(address, true);
-                  } else if (!destination.isQueue() && destination.isTemporary()) {
-                     clientSession.createAddress(address, true);
+               if (!query.isExists()) {
+                  if (destination.isQueue() && query.isAutoCreateJmsQueues()) {
+                     clientSession.createAddress(address, false, true);
+                     if (destination.isTemporary()) {
+                        // TODO is it right to use the address for the queue name here?
+                        clientSession.createTemporaryQueue(address, address);
+                     } else {
+                        clientSession.createQueue(address, address, null, true);
+                     }
+                  } else if (!destination.isQueue() && query.isAutoCreateJmsTopics()) {
+                     clientSession.createAddress(address, true, true);
+                  } else if ((destination.isQueue() && !query.isAutoCreateJmsQueues()) || (!destination.isQueue() && !query.isAutoCreateJmsTopics())) {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }
-               } else if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
-                  throw new InvalidDestinationException("Destination " + address + " does not exist");
                } else {
                   connection.addKnownDestination(address);
                }

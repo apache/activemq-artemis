@@ -87,8 +87,6 @@ public interface ServerSession extends SecurityAuth {
 
    void markTXFailed(Throwable e);
 
-   QueueCreator getQueueCreator();
-
    List<Xid> xaGetInDoubtXids();
 
    int xaGetTimeout();
@@ -194,7 +192,8 @@ public interface ServerSession extends SecurityAuth {
                      boolean temporary,
                      boolean durable,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     final Boolean autoCreated) throws Exception;
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,

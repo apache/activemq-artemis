@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
  */
 public interface QueueFactory {
 
-   Queue createQueueWith(final QueueConfig config);
+   Queue createQueueWith(final QueueConfig config) throws Exception;
 
    /**
     * @deprecated Replaced by {@link #createQueueWith}

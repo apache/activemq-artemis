@@ -506,8 +506,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
          managementService = server1.getManagementService();
       }
       AddressControl topicControl = (AddressControl) managementService.getResource(ResourceNames.ADDRESS + topic.getTopicName());
-      Assert.assertEquals(0, topicControl.getQueueNames().length);
-
+      if (topicControl != null) {
+         Assert.assertEquals(0, topicControl.getQueueNames().length);
+      }
    }
 
    protected void removeAllMessages(final String queueName, final int index) throws Exception {

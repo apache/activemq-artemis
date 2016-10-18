@@ -17,34 +17,48 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
-import org.apache.activemq.artemis.core.server.QueueDeleter;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
 public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
 
    private final SimpleString queueName;
 
-   private final QueueDeleter deleter;
+   private final ActiveMQServer server;
 
    private final Runnable runnable = new Runnable() {
       @Override
       public void run() {
-         try {
-            if (deleter != null) {
-               deleter.delete(queueName);
+         Queue queue = server.locateQueue(queueName);
+         SimpleString address = queue.getAddress();
+         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+         long consumerCount = queue.getConsumerCount();
+         long messageCount = queue.getMessageCount();
+
+         // TODO make sure this is the right check
+         if ((queue.isAutoCreated() || queue.isDeleteOnNoConsumers()) && queue.getMessageCount() == 0) {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; getAutoDeleteJmsQueues = " + settings.getAutoDeleteJmsQueues());
             }
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
+
+            // TODO handle this exception better
+            try {
+               server.destroyQueue(queueName, null, true, false);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
          }
       }
    };
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public AutoCreatedQueueManagerImpl(QueueDeleter deleter, SimpleString queueName) {
-      this.deleter = deleter;
+   public AutoCreatedQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
+      this.server = server;
       this.queueName = queueName;
    }
 

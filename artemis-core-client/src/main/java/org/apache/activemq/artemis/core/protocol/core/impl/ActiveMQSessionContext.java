@@ -584,8 +584,8 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void createAddress(SimpleString address, final boolean multicast) throws ActiveMQException {
-      CreateAddressMessage request = new CreateAddressMessage(address, multicast, true);
+   public void createAddress(SimpleString address, final boolean multicast, final boolean autoCreated) throws ActiveMQException {
+      CreateAddressMessage request = new CreateAddressMessage(address, multicast, autoCreated, true);
       sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 

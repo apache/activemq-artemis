@@ -26,15 +26,19 @@ public class CreateAddressMessage extends PacketImpl {
 
    private boolean multicast;
 
+   private boolean autoCreated;
+
    private boolean requiresResponse;
 
    public CreateAddressMessage(final SimpleString address,
                                final boolean multicast,
+                               final boolean autoCreated,
                                final boolean requiresResponse) {
       this();
 
       this.address = address;
       this.multicast = multicast;
+      this.autoCreated = autoCreated;
       this.requiresResponse = requiresResponse;
    }
 
@@ -49,6 +53,7 @@ public class CreateAddressMessage extends PacketImpl {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", address=" + address);
       buff.append(", multicast=" + multicast);
+      buff.append(", autoCreated=" + autoCreated);
       buff.append("]");
       return buff.toString();
    }
@@ -65,6 +70,10 @@ public class CreateAddressMessage extends PacketImpl {
       return requiresResponse;
    }
 
+   public boolean isAutoCreated() {
+      return autoCreated;
+   }
+
    public void setAddress(SimpleString address) {
       this.address = address;
    }
@@ -74,6 +83,7 @@ public class CreateAddressMessage extends PacketImpl {
       buffer.writeSimpleString(address);
       buffer.writeBoolean(multicast);
       buffer.writeBoolean(requiresResponse);
+      buffer.writeBoolean(autoCreated);
    }
 
    @Override
@@ -81,6 +91,7 @@ public class CreateAddressMessage extends PacketImpl {
       address = buffer.readSimpleString();
       multicast = buffer.readBoolean();
       requiresResponse = buffer.readBoolean();
+      autoCreated = buffer.readBoolean();
    }
 
    @Override
@@ -89,6 +100,7 @@ public class CreateAddressMessage extends PacketImpl {
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
       result = prime * result + (multicast ? 1231 : 1237);
+      result = prime * result + (autoCreated ? 1231 : 1237);
       result = prime * result + (requiresResponse ? 1231 : 1237);
       return result;
    }
@@ -108,6 +120,8 @@ public class CreateAddressMessage extends PacketImpl {
       } else if (!address.equals(other.address))
          return false;
       if (multicast != other.multicast)
+         return false;
+      if (autoCreated != other.autoCreated)
          return false;
       if (requiresResponse != other.requiresResponse)
          return false;

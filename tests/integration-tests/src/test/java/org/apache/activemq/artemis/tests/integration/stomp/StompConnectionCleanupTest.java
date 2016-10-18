@@ -19,32 +19,20 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
-import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.junit.Test;
 
-public class StompConnectionCleanupTest extends StompTestBase {
+public class StompConnectionCleanupTest extends StompTest {
 
    private static final long CONNECTION_TTL = 2000;
 
    // ARTEMIS-231
    @Test
    public void testConnectionCleanupWithTopicSubscription() throws Exception {
-      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
-      sendFrame(frame);
-      frame = receiveFrame(10000);
+      conn.connect(defUser, defPass);
 
-      //We send and consumer a message to ensure a STOMP connection and server session is created
-
-      System.out.println("Received frame: " + frame);
-
-      assertTrue(frame.startsWith("CONNECTED"));
-
-      frame = "SUBSCRIBE\n" + "destination:" + getTopicPrefix() + getTopicName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
-      sendFrame(frame);
-
-      frame = "DISCONNECT\n\n" + Stomp.NULL;
-      sendFrame(frame);
+      subscribeTopic(conn, null, "auto", null);
 
       // Now we wait until the connection is cleared on the server, which will happen some time after ttl, since no data
       // is being sent
@@ -72,25 +60,16 @@ public class StompConnectionCleanupTest extends StompTestBase {
 
    @Test
    public void testConnectionCleanup() throws Exception {
-      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
-      sendFrame(frame);
-      frame = receiveFrame(10000);
+      conn.connect(defUser, defPass);
 
-      //We send and consumer a message to ensure a STOMP connection and server session is created
+      subscribe(conn, null, "auto", null);
 
-      System.out.println("Received frame: " + frame);
+      send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
 
-      assertTrue(frame.startsWith("CONNECTED"));
+      ClientStompFrame frame = conn.receiveFrame(10000);
 
-      frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
-      sendFrame(frame);
-
-      frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World" + Stomp.NULL;
-      sendFrame(frame);
-
-      frame = receiveFrame(10000);
-      assertTrue(frame.startsWith("MESSAGE"));
-      assertTrue(frame.indexOf("destination:") > 0);
+      assertTrue(frame.getCommand().equals("MESSAGE"));
+      assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
 
       // Now we wait until the connection is cleared on the server, which will happen some time after ttl, since no data
       // is being sent
@@ -118,13 +97,7 @@ public class StompConnectionCleanupTest extends StompTestBase {
 
    @Test
    public void testConnectionNotCleanedUp() throws Exception {
-      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
-      sendFrame(frame);
-      frame = receiveFrame(10000);
-
-      //We send and consumer a message to ensure a STOMP connection and server session is created
-
-      assertTrue(frame.startsWith("CONNECTED"));
+      conn.connect(defUser, defPass);
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -136,8 +109,7 @@ public class StompConnectionCleanupTest extends StompTestBase {
       while (true) {
          //Send and receive a msg
 
-         frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World" + Stomp.NULL;
-         sendFrame(frame);
+         send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
 
          Message msg = consumer.receive(1000);
          assertNotNull(msg);

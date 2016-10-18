@@ -368,13 +368,13 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
    // Inner classes -------------------------------------------------
 
-   public void createSubscription(StompConnection connection,
-                                  String subscriptionID,
-                                  String durableSubscriptionName,
-                                  String destination,
-                                  String selector,
-                                  String ack,
-                                  boolean noLocal) throws Exception {
+   public void subscribe(StompConnection connection,
+                         String subscriptionID,
+                         String durableSubscriptionName,
+                         String destination,
+                         String selector,
+                         String ack,
+                         boolean noLocal) throws Exception {
       StompSession stompSession = getSession(connection);
       stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID)) {
@@ -411,7 +411,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    public boolean destinationExists(String destination) {
-      return server.getPostOffice().getAddresses().contains(SimpleString.toSimpleString(destination));
+      return server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(destination)) != null;
    }
 
    public ActiveMQServer getServer() {

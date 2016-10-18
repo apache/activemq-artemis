@@ -27,11 +27,11 @@ public interface ClientStompFrame {
 
    boolean needsReply();
 
-   void setCommand(String command);
+   ClientStompFrame setCommand(String command);
 
-   void addHeader(String string, String string2);
+   ClientStompFrame addHeader(String string, String string2);
 
-   void setBody(String string);
+   ClientStompFrame setBody(String string);
 
    String getCommand();
 
@@ -43,8 +43,8 @@ public interface ClientStompFrame {
 
    boolean isPing();
 
-   void setForceOneway();
+   ClientStompFrame setForceOneway();
 
-   void setPing(boolean b);
+   ClientStompFrame setPing(boolean b);
 
 }

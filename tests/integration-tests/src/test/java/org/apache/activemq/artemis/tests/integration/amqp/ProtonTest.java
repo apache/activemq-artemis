@@ -63,6 +63,7 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
@@ -775,6 +776,7 @@ public class ProtonTest extends ProtonTestBase {
       Exception expectedException = null;
       try {
          session.createSender("AnAddressThatDoesNotExist");
+         fail("Creating a sender here on an address that doesn't exist should fail");
       } catch (Exception e) {
          expectedException = e;
       }
@@ -896,7 +898,7 @@ public class ProtonTest extends ProtonTestBase {
 
          //create request message for getQueueNames query
          AmqpMessage request = new AmqpMessage();
-         request.setApplicationProperty("_AMQ_ResourceName", "core.server");
+         request.setApplicationProperty("_AMQ_ResourceName", ResourceNames.BROKER);
          request.setApplicationProperty("_AMQ_OperationName", "getQueueNames");
          request.setReplyToAddress(destinationAddress);
          request.setText("[]");

@@ -550,11 +550,11 @@ public class ArtemisTest {
               ClientSessionFactory factory = locator.createSessionFactory();
               ClientSession coreSession = factory.createSession("admin", "admin", false, true, true, false, 0)) {
             for (String str : queues.split(",")) {
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.queue." + str));
+               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
                assertTrue("Couldn't find queue " + str, queryResult.isExists());
             }
             for (String str : topics.split(",")) {
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.topic." + str));
+               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
                assertTrue("Couldn't find topic " + str, queryResult.isExists());
             }
          }

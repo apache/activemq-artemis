@@ -31,6 +31,10 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    public int defaultMaxConsumers;
 
+   public boolean defaultDeleteOnNoConsumers;
+
+   public boolean autoCreated;
+
    public AddressInfo.RoutingType routingType;
 
    public PersistentAddressBindingEncoding() {
@@ -45,15 +49,23 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
          routingType +
          ", defaultMaxConsumers=" +
          defaultMaxConsumers +
+         ", defaultDeleteOnNoConsumers=" +
+         defaultDeleteOnNoConsumers +
+         ", autoCreated=" +
+         autoCreated +
          "]";
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
                                            final AddressInfo.RoutingType routingType,
-                                           final int defaultMaxConsumers) {
+                                           final int defaultMaxConsumers,
+                                           final boolean defaultDeleteOnNoConsumers,
+                                           final boolean autoCreated) {
       this.name = name;
       this.routingType = routingType;
       this.defaultMaxConsumers = defaultMaxConsumers;
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.autoCreated = autoCreated;
    }
 
    @Override
@@ -85,6 +97,8 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       name = buffer.readSimpleString();
       routingType = AddressInfo.RoutingType.getType(buffer.readByte());
       defaultMaxConsumers = buffer.readInt();
+      defaultDeleteOnNoConsumers = buffer.readBoolean();
+      autoCreated = buffer.readBoolean();
    }
 
    @Override
@@ -92,10 +106,12 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       buffer.writeSimpleString(name);
       buffer.writeByte(routingType.getType());
       buffer.writeInt(defaultMaxConsumers);
+      buffer.writeBoolean(defaultDeleteOnNoConsumers);
+      buffer.writeBoolean(autoCreated);
    }
 
    @Override
    public int getEncodeSize() {
-      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT;
+      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_BOOLEAN + DataConstants.SIZE_BOOLEAN;
    }
 }

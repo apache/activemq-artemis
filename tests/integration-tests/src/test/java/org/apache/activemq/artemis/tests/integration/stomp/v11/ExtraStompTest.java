@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
 import java.nio.charset.StandardCharsets;
 
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
@@ -28,15 +30,19 @@ import org.junit.Test;
 /*
  * Some Stomp tests against server with persistence enabled are put here.
  */
-public class ExtraStompTest extends StompV11TestBase {
+public class ExtraStompTest extends StompTestBase {
 
    private StompClientConnection connV10;
    private StompClientConnection connV11;
 
    @Override
+   public boolean isPersistenceEnabled() {
+      return true;
+   }
+
+   @Override
    @Before
    public void setUp() throws Exception {
-      persistenceEnabled = true;
       super.setUp();
       connV10 = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
       connV10.connect(defUser, defPass);
@@ -57,331 +63,142 @@ public class ExtraStompTest extends StompV11TestBase {
 
    @Test
    public void testSendAndReceive10() throws Exception {
-      String msg1 = "Hello World 1!";
-      String msg2 = "Hello World 2!";
-
-      ClientStompFrame frame = connV10.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", String.valueOf(msg1.getBytes(StandardCharsets.UTF_8).length));
-      frame.addHeader("persistent", "true");
-      frame.setBody(msg1);
-
-      connV10.sendFrame(frame);
-
-      ClientStompFrame frame2 = connV10.createFrame("SEND");
-      frame2.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame2.addHeader("content-length", String.valueOf(msg2.getBytes(StandardCharsets.UTF_8).length));
-      frame2.addHeader("persistent", "true");
-      frame2.setBody(msg2);
-
-      connV10.sendFrame(frame2);
-
-      ClientStompFrame subFrame = connV10.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
-
-      connV10.sendFrame(subFrame);
-
-      frame = connV10.receiveFrame();
-
-      System.out.println("received " + frame);
-
-      assertEquals("MESSAGE", frame.getCommand());
-
-      assertEquals("a-sub", frame.getHeader("subscription"));
-
-      assertNotNull(frame.getHeader("message-id"));
-
-      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
-
-      assertEquals(msg1, frame.getBody());
-
-      frame = connV10.receiveFrame();
-
-      System.out.println("received " + frame);
-
-      assertEquals("MESSAGE", frame.getCommand());
-
-      assertEquals("a-sub", frame.getHeader("subscription"));
-
-      assertNotNull(frame.getHeader("message-id"));
-
-      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
-
-      assertEquals(msg2, frame.getBody());
-
-      //unsub
-      ClientStompFrame unsubFrame = connV10.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV10.sendFrame(unsubFrame);
-
+      testSendAndReceive(connV10);
    }
 
    @Test
    public void testSendAndReceive11() throws Exception {
+      testSendAndReceive(connV11);
+   }
+
+   public void testSendAndReceive(StompClientConnection conn) throws Exception {
       String msg1 = "Hello World 1!";
       String msg2 = "Hello World 2!";
 
-      ClientStompFrame frame = connV11.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", String.valueOf(msg1.getBytes(StandardCharsets.UTF_8).length));
-      frame.addHeader("persistent", "true");
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND);
+      frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame.addHeader(Stomp.Headers.CONTENT_LENGTH, String.valueOf(msg1.getBytes(StandardCharsets.UTF_8).length));
+      frame.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame.setBody(msg1);
 
-      connV11.sendFrame(frame);
+      conn.sendFrame(frame);
 
-      ClientStompFrame frame2 = connV11.createFrame("SEND");
-      frame2.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame2.addHeader("content-length", String.valueOf(msg2.getBytes(StandardCharsets.UTF_8).length));
-      frame2.addHeader("persistent", "true");
+      ClientStompFrame frame2 = conn.createFrame(Stomp.Commands.SEND);
+      frame2.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame2.addHeader(Stomp.Headers.CONTENT_LENGTH, String.valueOf(msg2.getBytes(StandardCharsets.UTF_8).length));
+      frame2.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame2.setBody(msg2);
 
-      connV11.sendFrame(frame2);
+      conn.sendFrame(frame2);
 
-      ClientStompFrame subFrame = connV11.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
+      subscribe(conn, "a-sub");
 
-      connV11.sendFrame(subFrame);
+      frame = conn.receiveFrame();
 
-      frame = connV11.receiveFrame();
-
-      System.out.println("received " + frame);
-
-      assertEquals("MESSAGE", frame.getCommand());
-
-      assertEquals("a-sub", frame.getHeader("subscription"));
-
-      assertNotNull(frame.getHeader("message-id"));
-
-      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
-
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals("a-sub", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
+      assertNotNull(frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
+      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
       assertEquals(msg1, frame.getBody());
 
-      frame = connV11.receiveFrame();
+      frame = conn.receiveFrame();
 
-      System.out.println("received " + frame);
-
-      assertEquals("MESSAGE", frame.getCommand());
-
-      assertEquals("a-sub", frame.getHeader("subscription"));
-
-      assertNotNull(frame.getHeader("message-id"));
-
-      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
-
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals("a-sub", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
+      assertNotNull(frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
+      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
       assertEquals(msg2, frame.getBody());
 
-      //unsub
-      ClientStompFrame unsubFrame = connV11.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV11.sendFrame(unsubFrame);
+      unsubscribe(conn, "a-sub");
    }
 
    @Test
    public void testNoGarbageAfterPersistentMessageV10() throws Exception {
-      ClientStompFrame subFrame = connV10.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
-
-      connV10.sendFrame(subFrame);
-
-      ClientStompFrame frame = connV10.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
-      frame.setBody("Hello World");
-
-      connV10.sendFrame(frame);
-
-      frame = connV10.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
-      frame.setBody("Hello World");
-
-      connV10.sendFrame(frame);
-
-      frame = connV10.receiveFrame(10000);
-
-      System.out.println("received: " + frame);
-
-      assertEquals("Hello World", frame.getBody());
-
-      //if activemq sends trailing garbage bytes, the second message
-      //will not be normal
-      frame = connV10.receiveFrame(10000);
-
-      System.out.println("received: " + frame);
-
-      assertEquals("Hello World", frame.getBody());
-
-      //unsub
-      ClientStompFrame unsubFrame = connV10.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV10.sendFrame(unsubFrame);
-
-   }
-
-   @Test
-   public void testNoGarbageOnPersistentRedeliveryV10() throws Exception {
-
-      ClientStompFrame frame = connV10.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
-      frame.setBody("Hello World");
-
-      connV10.sendFrame(frame);
-
-      frame = connV10.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
-      frame.setBody("Hello World");
-
-      connV10.sendFrame(frame);
-
-      ClientStompFrame subFrame = connV10.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "client");
-
-      connV10.sendFrame(subFrame);
-
-      // receive but don't ack
-      frame = connV10.receiveFrame(10000);
-      frame = connV10.receiveFrame(10000);
-
-      System.out.println("received: " + frame);
-
-      //unsub
-      ClientStompFrame unsubFrame = connV10.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV10.sendFrame(unsubFrame);
-
-      subFrame = connV10.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
-
-      connV10.sendFrame(subFrame);
-
-      frame = connV10.receiveFrame(10000);
-      frame = connV10.receiveFrame(10000);
-
-      //second receive will get problem if trailing bytes
-      assertEquals("Hello World", frame.getBody());
-
-      System.out.println("received again: " + frame);
-
-      //unsub
-      unsubFrame = connV10.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV10.sendFrame(unsubFrame);
+      testNoGarbageAfterPersistentMessage(connV10);
    }
 
    @Test
    public void testNoGarbageAfterPersistentMessageV11() throws Exception {
-      ClientStompFrame subFrame = connV11.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
+      testNoGarbageAfterPersistentMessage(connV11);
+   }
 
-      connV11.sendFrame(subFrame);
-      ClientStompFrame frame = connV11.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
+   public void testNoGarbageAfterPersistentMessage(StompClientConnection conn) throws Exception {
+      subscribe(conn, "a-sub");
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND);
+      frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame.addHeader(Stomp.Headers.CONTENT_LENGTH, "11");
+      frame.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame.setBody("Hello World");
 
-      connV11.sendFrame(frame);
+      conn.sendFrame(frame);
 
-      frame = connV11.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
+      frame = conn.createFrame(Stomp.Commands.SEND);
+      frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame.addHeader(Stomp.Headers.CONTENT_LENGTH, "11");
+      frame.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame.setBody("Hello World");
 
-      connV11.sendFrame(frame);
-      frame = connV11.receiveFrame(10000);
+      conn.sendFrame(frame);
 
-      System.out.println("received: " + frame);
+      frame = conn.receiveFrame(10000);
 
       assertEquals("Hello World", frame.getBody());
 
       //if activemq sends trailing garbage bytes, the second message
       //will not be normal
-      frame = connV11.receiveFrame(10000);
-
-      System.out.println("received: " + frame);
+      frame = conn.receiveFrame(10000);
 
       assertEquals("Hello World", frame.getBody());
 
-      //unsub
-      ClientStompFrame unsubFrame = connV11.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV11.sendFrame(unsubFrame);
+      unsubscribe(conn, "a-sub");
+   }
+
+   @Test
+   public void testNoGarbageOnPersistentRedeliveryV10() throws Exception {
+      testNoGarbageOnPersistentRedelivery(connV10);
    }
 
    @Test
    public void testNoGarbageOnPersistentRedeliveryV11() throws Exception {
-      ClientStompFrame frame = connV11.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
+      testNoGarbageOnPersistentRedelivery(connV11);
+   }
+
+   public void testNoGarbageOnPersistentRedelivery(StompClientConnection conn) throws Exception {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND);
+      frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame.addHeader(Stomp.Headers.CONTENT_LENGTH, "11");
+      frame.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame.setBody("Hello World");
 
-      connV11.sendFrame(frame);
+      conn.sendFrame(frame);
 
-      frame = connV11.createFrame("SEND");
-      frame.addHeader("destination", getQueuePrefix() + getQueueName());
-      frame.addHeader("content-length", "11");
-      frame.addHeader("persistent", "true");
+      frame = conn.createFrame(Stomp.Commands.SEND);
+      frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
+      frame.addHeader(Stomp.Headers.CONTENT_LENGTH, "11");
+      frame.addHeader(Stomp.Headers.Send.PERSISTENT, Boolean.TRUE.toString());
       frame.setBody("Hello World");
 
-      connV11.sendFrame(frame);
+      conn.sendFrame(frame);
 
-      ClientStompFrame subFrame = connV11.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "client");
-
-      connV11.sendFrame(subFrame);
+      subscribe(conn, "a-sub", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
 
       // receive but don't ack
-      frame = connV11.receiveFrame(10000);
-      frame = connV11.receiveFrame(10000);
+      frame = conn.receiveFrame(10000);
+      frame = conn.receiveFrame(10000);
 
-      System.out.println("received: " + frame);
+      unsubscribe(conn, "a-sub");
 
-      //unsub
-      ClientStompFrame unsubFrame = connV11.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV11.sendFrame(unsubFrame);
+      subscribe(conn, "a-sub");
 
-      subFrame = connV11.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", "a-sub");
-      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      subFrame.addHeader("ack", "auto");
-
-      connV11.sendFrame(subFrame);
-
-      frame = connV11.receiveFrame(10000);
-      frame = connV11.receiveFrame(10000);
+      frame = conn.receiveFrame(10000);
+      frame = conn.receiveFrame(10000);
 
       //second receive will get problem if trailing bytes
       assertEquals("Hello World", frame.getBody());
 
-      System.out.println("received again: " + frame);
-
       //unsub
-      unsubFrame = connV11.createFrame("UNSUBSCRIBE");
-      unsubFrame.addHeader("id", "a-sub");
-      connV11.sendFrame(unsubFrame);
+      unsubscribe(conn, "a-sub");
    }
 
 }

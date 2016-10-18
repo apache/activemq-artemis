@@ -198,7 +198,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     */
    int getVersion();
 
-   void createAddress(final SimpleString address, final boolean multicast) throws ActiveMQException;
+   void createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws ActiveMQException;
 
    // Queue Operations ----------------------------------------------
 
