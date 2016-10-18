@@ -20,7 +20,9 @@
 
    <jaas-security domain="activemq"/>
 
-   <server configuration="file:${artemis.instance}/etc/broker.xml"/>
+   <!-- artemis.URI.instance is parsed from artemis.instance by the CLI startup.
+        This is to avoid situations where you could have spaces or special characters on this URI -->
+   <server configuration="${artemis.URI.instance}/etc/broker.xml"/>
 
 ${bootstrap-web-settings}
 
