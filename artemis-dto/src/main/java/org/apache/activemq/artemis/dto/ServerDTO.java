@@ -36,7 +36,7 @@ public class ServerDTO {
 
    public URI getConfigurationURI() throws Exception {
       if (configurationURI == null) {
-         configurationURI = new URI(fixupFileURI(configuration));
+         configurationURI = new URI(configuration);
       }
 
       return configurationURI;
@@ -44,17 +44,10 @@ public class ServerDTO {
 
    public File getConfigurationFile() throws Exception {
       if (configurationFile == null) {
-         configurationFile = new File(new URI(fixupFileURI(configuration)).getSchemeSpecificPart());
+         configurationFile = new File(getConfigurationURI());
       }
       return configurationFile;
    }
 
-   private static String fixupFileURI(String value) {
-      if (value != null && value.startsWith("file:")) {
-         value = value.substring("file:".length());
-         value = new File(value).toURI().toString();
-      }
-      return value;
-   }
 
 }

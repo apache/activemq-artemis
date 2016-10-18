@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
+import java.net.URI;
 
 import io.airlift.airline.Option;
 
@@ -28,6 +29,8 @@ public abstract class ActionAbstract implements Action {
    private String brokerInstance;
 
    private String brokerHome;
+
+   private URI brokerInstanceURI;
 
    protected ActionContext context;
 
@@ -61,6 +64,25 @@ public abstract class ActionAbstract implements Action {
       }
       return brokerInstance;
    }
+
+
+   public URI getBrokerURIInstance() {
+
+      if (brokerInstanceURI == null) {
+         String instanceProperty = getBrokerInstance();
+
+         File artemisInstance = null;
+         if (artemisInstance == null && instanceProperty != null) {
+            artemisInstance = new File(instanceProperty);
+         }
+
+         if (artemisInstance != null) {
+            brokerInstanceURI = artemisInstance.toURI();
+         }
+      }
+      return brokerInstanceURI;
+   }
+
 
    @Override
    public String getBrokerHome() {

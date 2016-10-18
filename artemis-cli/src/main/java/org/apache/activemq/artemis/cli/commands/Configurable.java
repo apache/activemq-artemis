@@ -87,7 +87,7 @@ public abstract class Configurable extends ActionAbstract {
             fileConfiguration = new FileConfiguration();
             FileJMSConfiguration jmsConfiguration = new FileJMSConfiguration();
 
-            String serverConfiguration = getBrokerDTO().server.configuration;
+            String serverConfiguration = getBrokerDTO().server.getConfigurationURI().toASCIIString();
             FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(serverConfiguration);
             fileDeploymentManager.addDeployable(fileConfiguration).addDeployable(jmsConfiguration);
             fileDeploymentManager.readConfiguration();
@@ -102,7 +102,7 @@ public abstract class Configurable extends ActionAbstract {
       if (brokerDTO == null) {
          getConfiguration();
 
-         brokerDTO = BrokerFactory.createBrokerConfiguration(configuration, getBrokerHome(), getBrokerInstance());
+         brokerDTO = BrokerFactory.createBrokerConfiguration(configuration, getBrokerHome(), getBrokerInstance(), getBrokerURIInstance());
 
          if (brokerConfig != null) {
             if (!brokerConfig.startsWith("file:")) {

@@ -68,7 +68,7 @@ public class ReloadManagerTest extends ActiveMQTestBase {
 
    @Test
    public void testUpdateWithSpace() throws Exception {
-      File spaceDir = new File(getTemporaryDir(), "./with space");
+      File spaceDir = new File(getTemporaryDir(), "./with %25space");
       spaceDir.mkdirs();
       File file = new File(spaceDir, "checkFile.tst");
       internalTest(manager, file);

@@ -24,5 +24,5 @@ public interface BrokerFactoryHandler {
 
    BrokerDTO createBroker(URI brokerURI) throws Exception;
 
-   BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance) throws Exception;
+   BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance, URI artemisURIInstance) throws Exception;
 }
