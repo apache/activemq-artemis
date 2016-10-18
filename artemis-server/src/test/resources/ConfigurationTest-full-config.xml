@@ -297,5 +297,31 @@
             <factory-class>org.foo</factory-class>
          </connector-service>
       </connector-services>
+
+      <addresses>
+         <address name="addr1" type="anycast">
+            <queues>
+               <queue name="q1">
+                  <durable>false</durable>
+                  <filter string="color='blue'"/>
+               </queue>
+               <queue name="q2" max-consumers="-1" delete-on-no-consumers="false">
+                  <durable>true</durable>
+                  <filter string="color='green'"/>
+               </queue>
+            </queues>
+         </address>
+         <address name="addr2" type="multicast">
+            <queues>
+               <queue name="q3" max-consumers="10" >
+                  <filter string="color='red'"/>
+               </queue>
+               <queue name="q4" delete-on-no-consumers="true">
+                  <durable>true</durable>
+               </queue>
+            </queues>
+         </address>
+      </addresses>
+
    </core>
 </configuration>

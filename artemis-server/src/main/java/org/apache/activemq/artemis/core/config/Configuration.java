@@ -429,6 +429,21 @@ public interface Configuration {
    Configuration addQueueConfiguration(final CoreQueueConfiguration config);
 
    /**
+    * Returns the addresses configured for this server.
+    */
+   List<CoreAddressConfiguration> getAddressConfigurations();
+
+   /**
+    * Sets the addresses configured for this server.
+    */
+   Configuration setAddressConfigurations(final List<CoreAddressConfiguration> configs);
+
+   /**
+    * Adds an addresses configuration
+    */
+   Configuration addAddressConfiguration(final CoreAddressConfiguration config);
+
+   /**
     * Returns the management address of this server. <br>
     * Clients can send management messages to this address to manage this server. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.

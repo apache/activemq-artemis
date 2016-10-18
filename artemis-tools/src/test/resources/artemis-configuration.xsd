@@ -34,14 +34,6 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="system-property-prefix" type="xsd:string" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  This defines the prefix which we will use to parse System properties for the configuration. Default=
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
          <xsd:element name="resolve-protocols" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>
@@ -50,14 +42,6 @@
                   on the
                   classpath. If false then only the core protocol will be available, unless in Embedded mode where users
                   can inject their own Protocol Managers.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="journal-datasync" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  that means the server will use fdatasync to confirm writes on the disk.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -870,66 +854,6 @@
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
-
-         <xsd:element name="network-check-list" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A comma separated list of IPs to be used to validate if the broker should be kept up
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="network-check-URL-list" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A comma separated list of URLs to be used to validate if the broker should be kept up
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="network-check-period" type="xsd:long" default="10000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A frequency in milliseconds to how often we should check if the network is still up
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="network-check-timeout" type="xsd:long" default="1000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A timeout used in milliseconds to be used on the ping.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="network-check-NIC" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The network interface card name to be used to validate the address.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-
-         <xsd:element name="network-check-ping-command" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The ping command used to ping IPV4 addresses.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-
-         <xsd:element name="network-check-ping6-command" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The ping command used to ping IPV6 addresses.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-
 
          <xsd:element name="addresses" type="addressesType" maxOccurs="1" minOccurs="0" />
       </xsd:all>

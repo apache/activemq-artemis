@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
+import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
@@ -2074,6 +2075,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       // Deploy the rest of the stuff
 
+      // Deploy predefined addresses
+      deployAddressesFromConfiguration();
+
       // Deploy any predefined queues
       deployQueuesFromConfiguration();
 
@@ -2152,10 +2156,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   private void deployQueuesFromConfiguration() throws Exception {
-      for (CoreQueueConfiguration config : configuration.getQueueConfigurations()) {
+   private void deployAddressesFromConfiguration() throws Exception {
+      for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
+         AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()));
+         info.setRoutingType(config.getRoutingType());
+         info.setDefaultDeleteOnNoConsumers(config.getDefaultDeleteOnNoConsumers());
+         info.setDefaultMaxConsumers(config.getDefaultMaxConsumers());
+
+         addAddressInfo(info);
+         deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
+      }
+   }
+
+   private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
+      for (CoreQueueConfiguration config : queues) {
          deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false);
       }
+   }
+   private void deployQueuesFromConfiguration() throws Exception {
+      deployQueuesFromListCoreQueueConfiguration(configuration.getQueueConfigurations());
    }
 
    private void checkForPotentialOOMEInAddressConfiguration() {
@@ -2247,7 +2266,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   private Queue createQueue(final SimpleString address,
+   @Override
+   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+      return postOffice.addAddressInfo(addressInfo);
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) {
+      return postOffice.removeAddressInfo(address);
+   }
+
+   @Override
+   public AddressInfo getAddressInfo(SimpleString address) {
+      return postOffice.removeAddressInfo(address);
+   }
+
+   private Queue createQueue(final SimpleString addressName,
                              final SimpleString queueName,
                              final SimpleString filterString,
                              final SimpleString user,
@@ -2256,6 +2290,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                              final boolean ignoreIfExists,
                              final boolean transientQueue,
                              final boolean autoCreated) throws Exception {
+
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
          if (ignoreIfExists) {
@@ -2271,14 +2306,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       final long queueID = storageManager.generateID();
 
       final QueueConfig.Builder queueConfigBuilder;
-      if (address == null) {
+      if (addressName == null) {
          queueConfigBuilder = QueueConfig.builderWith(queueID, queueName);
       } else {
-         queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, address);
-
+         queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressName);
       }
       final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).build();
       final Queue queue = queueFactory.createQueueWith(queueConfig);
+
+      addAddressInfo(new AddressInfo(queue.getAddress()));
+
       if (transientQueue) {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
       } else if (queue.isAutoCreated()) {
