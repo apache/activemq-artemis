@@ -166,7 +166,7 @@ public abstract class SessionContext {
 
    public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
-   public abstract void createAddress(SimpleString address, boolean multicast) throws ActiveMQException;
+   public abstract void createAddress(SimpleString address, boolean multicast, boolean autoCreated) throws ActiveMQException;
 
    public abstract void createQueue(SimpleString address,
                                     SimpleString queueName,

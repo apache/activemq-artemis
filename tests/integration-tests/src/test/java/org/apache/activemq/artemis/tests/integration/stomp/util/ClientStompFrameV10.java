@@ -30,18 +30,18 @@ public class ClientStompFrameV10 extends AbstractClientStompFrame {
    }
 
    @Override
+   public ClientStompFrame setForceOneway() {
+      throw new IllegalStateException("Doesn't apply with V1.0!");
+   }
+
+   @Override
+   public ClientStompFrame setPing(boolean b) {
+      throw new IllegalStateException("Doesn't apply with V1.0!");
+   }
+
+   @Override
    public boolean isPing() {
       return false;
-   }
-
-   @Override
-   public void setForceOneway() {
-      throw new IllegalStateException("Doesn't apply with V1.0!");
-   }
-
-   @Override
-   public void setPing(boolean b) {
-      throw new IllegalStateException("Doesn't apply with V1.0!");
    }
 
 }

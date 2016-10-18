@@ -154,7 +154,7 @@ class IncomingVertxEventHandler implements ConnectorService {
          manualEncodeVertxMessageBody(msg.getBodyBuffer(), message.body(), type);
 
          try {
-            postOffice.route(msg, null, false);
+            postOffice.route(msg, false);
          } catch (Exception e) {
             ActiveMQVertxLogger.LOGGER.error("failed to route msg " + msg, e);
          }

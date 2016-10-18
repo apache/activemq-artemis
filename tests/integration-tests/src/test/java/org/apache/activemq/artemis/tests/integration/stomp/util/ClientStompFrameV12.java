@@ -16,17 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
-/**
- */
-public class ClientStompFrameV12 extends AbstractClientStompFrame {
-
-   static {
-      validCommands.add("NACK");
-      validCommands.add("STOMP");
-   }
-
-   boolean forceOneway = false;
-   boolean isPing = false;
+public class ClientStompFrameV12 extends ClientStompFrameV11 {
 
    public ClientStompFrameV12(String command) {
       this(command, true, true);
@@ -42,32 +32,6 @@ public class ClientStompFrameV12 extends AbstractClientStompFrame {
       if (newEol) {
          EOL = "\r\n";
       }
-   }
-
-   @Override
-   public void setForceOneway() {
-      forceOneway = true;
-   }
-
-   @Override
-   public boolean needsReply() {
-      if (forceOneway)
-         return false;
-
-      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
-         return true;
-      }
-      return false;
-   }
-
-   @Override
-   public void setPing(boolean b) {
-      isPing = b;
-   }
-
-   @Override
-   public boolean isPing() {
-      return isPing;
    }
 
    @Override

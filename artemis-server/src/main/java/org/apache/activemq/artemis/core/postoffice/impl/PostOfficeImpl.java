@@ -63,7 +63,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -441,6 +440,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) {
+      try {
+         getServer().getManagementService().unregisterAddress(address);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
       return addressManager.removeAddressInfo(address);
    }
 
@@ -595,39 +599,34 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public RoutingStatus route(final ServerMessage message,
-                              QueueCreator queueCreator,
                               final boolean direct) throws Exception {
-      return route(message, queueCreator, (Transaction) null, direct);
+      return route(message, (Transaction) null, direct);
    }
 
    @Override
    public RoutingStatus route(final ServerMessage message,
-                              QueueCreator queueCreator,
                               final Transaction tx,
                               final boolean direct) throws Exception {
-      return route(message, queueCreator, new RoutingContextImpl(tx), direct);
+      return route(message, new RoutingContextImpl(tx), direct);
    }
 
    @Override
    public RoutingStatus route(final ServerMessage message,
-                              final QueueCreator queueCreator,
                               final Transaction tx,
                               final boolean direct,
                               final boolean rejectDuplicates) throws Exception {
-      return route(message, queueCreator, new RoutingContextImpl(tx), direct, rejectDuplicates);
+      return route(message, new RoutingContextImpl(tx), direct, rejectDuplicates);
    }
 
    @Override
    public RoutingStatus route(final ServerMessage message,
-                              final QueueCreator queueCreator,
                               final RoutingContext context,
                               final boolean direct) throws Exception {
-      return route(message, queueCreator, context, direct, true);
+      return route(message, context, direct, true);
    }
 
    @Override
    public RoutingStatus route(final ServerMessage message,
-                              final QueueCreator queueCreator,
                               final RoutingContext context,
                               final boolean direct,
                               boolean rejectDuplicates) throws Exception {
@@ -657,14 +656,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
 
+      // TODO auto-create queues here?
       // first check for the auto-queue creation thing
-      if (bindings == null && queueCreator != null) {
+      if (bindings == null) {
          // There is no queue with this address, we will check if it needs to be created
-         if (queueCreator.create(address)) {
+//         if (queueCreator.create(address)) {
             // TODO: this is not working!!!!
             // reassign bindings if it was created
-            bindings = addressManager.getBindingsForRoutingAddress(address);
-         }
+//            bindings = addressManager.getBindingsForRoutingAddress(address);
+//         }
       }
 
       if (bindings != null) {
@@ -704,7 +704,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                message.setAddress(dlaAddress);
 
-               route(message, null, context.getTransaction(), false);
+               route(message, context.getTransaction(), false);
                result = RoutingStatus.NO_BINDINGS_DLA;
             }
          } else {

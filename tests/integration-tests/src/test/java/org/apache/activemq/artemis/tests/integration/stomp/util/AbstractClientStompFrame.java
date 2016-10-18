@@ -24,9 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AbstractClientStompFrame implements ClientStompFrame {
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 
-   protected static final String HEADER_RECEIPT = "receipt";
+public abstract class AbstractClientStompFrame implements ClientStompFrame {
 
    protected static final Set<String> validCommands = new HashSet<>();
    protected String command;
@@ -36,19 +36,19 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
    protected String EOL = "\n";
 
    static {
-      validCommands.add("CONNECT");
-      validCommands.add("CONNECTED");
-      validCommands.add("SEND");
-      validCommands.add("RECEIPT");
-      validCommands.add("SUBSCRIBE");
-      validCommands.add("UNSUBSCRIBE");
-      validCommands.add("MESSAGE");
-      validCommands.add("BEGIN");
-      validCommands.add("COMMIT");
-      validCommands.add("ABORT");
-      validCommands.add("ACK");
-      validCommands.add("DISCONNECT");
-      validCommands.add("ERROR");
+      validCommands.add(Stomp.Commands.CONNECT);
+      validCommands.add(Stomp.Responses.CONNECTED);
+      validCommands.add(Stomp.Commands.SEND);
+      validCommands.add(Stomp.Responses.RECEIPT);
+      validCommands.add(Stomp.Commands.SUBSCRIBE);
+      validCommands.add(Stomp.Commands.UNSUBSCRIBE);
+      validCommands.add(Stomp.Responses.MESSAGE);
+      validCommands.add(Stomp.Commands.BEGIN);
+      validCommands.add(Stomp.Commands.COMMIT);
+      validCommands.add(Stomp.Commands.ABORT);
+      validCommands.add(Stomp.Commands.ACK);
+      validCommands.add(Stomp.Commands.DISCONNECT);
+      validCommands.add(Stomp.Responses.ERROR);
    }
 
    public AbstractClientStompFrame(String command) {
@@ -80,37 +80,15 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
 
    @Override
    public ByteBuffer toByteBuffer() {
-      if (isPing()) {
-         ByteBuffer buffer = ByteBuffer.allocateDirect(1);
-         buffer.put((byte) 0x0A);
-         buffer.rewind();
-         return buffer;
-      }
-      StringBuffer sb = new StringBuffer();
-      sb.append(command + EOL);
-      int n = headers.size();
-      for (int i = 0; i < n; i++) {
-         sb.append(headers.get(i).key + ":" + headers.get(i).val + EOL);
-      }
-      sb.append(EOL);
-      if (body != null) {
-         sb.append(body);
-      }
-      sb.append((char) 0);
-
-      String data = sb.toString();
-
-      byte[] byteValue = data.getBytes(StandardCharsets.UTF_8);
-
-      ByteBuffer buffer = ByteBuffer.allocateDirect(byteValue.length);
-      buffer.put(byteValue);
-
-      buffer.rewind();
-      return buffer;
+      return toByteBufferInternal(null);
    }
 
    @Override
    public ByteBuffer toByteBufferWithExtra(String str) {
+      return toByteBufferInternal(str);
+   }
+
+   public ByteBuffer toByteBufferInternal(String str) {
       StringBuffer sb = new StringBuffer();
       sb.append(command + EOL);
       int n = headers.size();
@@ -122,7 +100,9 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
          sb.append(body);
       }
       sb.append((char) 0);
-      sb.append(str);
+      if (str != null) {
+         sb.append(str);
+      }
 
       String data = sb.toString();
 
@@ -137,26 +117,29 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
 
    @Override
    public boolean needsReply() {
-      if ("CONNECT".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
+      if (Stomp.Commands.CONNECT.equals(command) || headerKeys.contains(Stomp.Headers.RECEIPT_REQUESTED)) {
          return true;
       }
       return false;
    }
 
    @Override
-   public void setCommand(String command) {
+   public ClientStompFrame setCommand(String command) {
       this.command = command;
+      return this;
    }
 
    @Override
-   public void addHeader(String key, String val) {
+   public ClientStompFrame addHeader(String key, String val) {
       headers.add(new Header(key, val));
       headerKeys.add(key);
+      return this;
    }
 
    @Override
-   public void setBody(String body) {
+   public ClientStompFrame setBody(String body) {
       this.body = body;
+      return this;
    }
 
    @Override

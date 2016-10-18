@@ -27,29 +27,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public abstract class AbstractStompClientConnection implements StompClientConnection {
 
-   public static final String STOMP_COMMAND = "STOMP";
-
-   public static final String ACCEPT_HEADER = "accept-version";
-   public static final String HOST_HEADER = "host";
-   public static final String VERSION_HEADER = "version";
-   public static final String RECEIPT_HEADER = "receipt";
-
-   protected static final String CONNECT_COMMAND = "CONNECT";
-   protected static final String CONNECTED_COMMAND = "CONNECTED";
-   protected static final String DISCONNECT_COMMAND = "DISCONNECT";
-
-   protected static final String LOGIN_HEADER = "login";
-   protected static final String PASSCODE_HEADER = "passcode";
-
-   //ext
-   protected static final String CLIENT_ID_HEADER = "client-id";
-
    protected Pinger pinger;
-
    protected String version;
    protected String host;
    protected int port;
@@ -58,13 +41,10 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    protected StompFrameFactory factory;
    protected final SocketChannel socketChannel;
    protected ByteBuffer readBuffer;
-
    protected List<Byte> receiveList;
-
    protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<>();
-
    protected boolean connected = false;
-   private int serverPingCounter;
+   protected int serverPingCounter;
 
    public AbstractStompClientConnection(String version, String host, int port) throws IOException {
       this.version = version;
@@ -90,11 +70,15 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       new ReaderThread().start();
    }
 
-   @Override
-   public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException {
+   private ClientStompFrame sendFrameInternal(ClientStompFrame frame, boolean wicked) throws IOException, InterruptedException {
       ClientStompFrame response = null;
-      IntegrationTestLogger.LOGGER.info("Sending frame:\n" + frame);
-      ByteBuffer buffer = frame.toByteBuffer();
+      IntegrationTestLogger.LOGGER.info("Sending " + (wicked ? "*wicked* " : "") + "frame:\n" + frame);
+      ByteBuffer buffer;
+      if (wicked) {
+         buffer = frame.toByteBufferWithExtra("\n");
+      } else {
+         buffer = frame.toByteBuffer();
+      }
       while (buffer.remaining() > 0) {
          socketChannel.write(buffer);
       }
@@ -105,40 +89,27 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
          //filter out server ping
          while (response != null) {
-            if (response.getCommand().equals("STOMP")) {
+            if (response.getCommand().equals(Stomp.Commands.STOMP)) {
                response = receiveFrame();
             } else {
                break;
             }
          }
       }
+
+      IntegrationTestLogger.LOGGER.info("Received:\n" + response);
 
       return response;
    }
 
    @Override
+   public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException {
+      return sendFrameInternal(frame, false);
+   }
+
+   @Override
    public ClientStompFrame sendWickedFrame(ClientStompFrame frame) throws IOException, InterruptedException {
-      ClientStompFrame response = null;
-      ByteBuffer buffer = frame.toByteBufferWithExtra("\n");
-
-      while (buffer.remaining() > 0) {
-         socketChannel.write(buffer);
-      }
-
-      //now response
-      if (frame.needsReply()) {
-         response = receiveFrame();
-
-         //filter out server ping
-         while (response != null) {
-            if (response.getCommand().equals("STOMP")) {
-               response = receiveFrame();
-            } else {
-               break;
-            }
-         }
-      }
-      return response;
+      return sendFrameInternal(frame, true);
    }
 
    @Override
@@ -186,17 +157,12 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       readBuffer.rewind();
    }
 
-   @Override
-   public int getServerPingNumber() {
-      return serverPingCounter;
-   }
-
    protected void incrementServerPing() {
       serverPingCounter++;
    }
 
    private boolean validateFrame(ClientStompFrame f) {
-      String h = f.getHeader("content-length");
+      String h = f.getHeader(Stomp.Headers.CONTENT_LENGTH);
       if (h != null) {
          int len = Integer.valueOf(h);
          if (f.getBody().getBytes(StandardCharsets.UTF_8).length < len) {
@@ -271,34 +237,15 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       return this.frameQueue.size();
    }
 
-   @Override
-   public void startPinger(long interval) {
-      pinger = new Pinger(interval);
-      pinger.startPing();
-   }
-
-   @Override
-   public void stopPinger() {
-      if (pinger != null) {
-         pinger.stopPing();
-         try {
-            pinger.join();
-         } catch (InterruptedException e) {
-            e.printStackTrace();
-         }
-         pinger = null;
-      }
-   }
-
-   private class Pinger extends Thread {
+   protected class Pinger extends Thread {
 
       long pingInterval;
       ClientStompFrame pingFrame;
       volatile boolean stop = false;
 
-      private Pinger(long interval) {
+      Pinger(long interval) {
          this.pingInterval = interval;
-         pingFrame = createFrame("STOMP");
+         pingFrame = createFrame(Stomp.Commands.STOMP);
          pingFrame.setBody("\n");
          pingFrame.setForceOneway();
          pingFrame.setPing(true);
@@ -329,5 +276,4 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          }
       }
    }
-
 }

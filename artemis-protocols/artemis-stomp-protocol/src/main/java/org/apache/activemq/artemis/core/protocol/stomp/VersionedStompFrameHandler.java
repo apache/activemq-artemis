@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -167,8 +168,11 @@ public abstract class VersionedStompFrameHandler {
       StompFrame response = null;
       try {
          connection.validate();
-         String destination = frame.getHeader(Stomp.Headers.Send.DESTINATION);
-         checkDestination(destination);
+         String destination = getDestination(frame);
+         AddressInfo.RoutingType routingType = getRoutingType(frame.getHeader(Headers.Send.DESTINATION_TYPE), frame.getHeader(Headers.Send.DESTINATION));
+         connection.autoCreateDestinationIfPossible(destination, routingType);
+         connection.checkDestination(destination);
+         connection.checkRoutingSemantics(destination, routingType);
          String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
 
          long timestamp = System.currentTimeMillis();
@@ -195,10 +199,6 @@ public abstract class VersionedStompFrameHandler {
       }
 
       return response;
-   }
-
-   private void checkDestination(String destination) throws ActiveMQStompException {
-      connection.checkDestination(destination);
    }
 
    public StompFrame onBegin(StompFrame frame) {
@@ -238,7 +238,7 @@ public abstract class VersionedStompFrameHandler {
 
    public StompFrame onSubscribe(StompFrame request) {
       StompFrame response = null;
-      String destination = request.getHeader(Stomp.Headers.Subscribe.DESTINATION);
+      String destination = getDestination(request);
 
       String selector = request.getHeader(Stomp.Headers.Subscribe.SELECTOR);
       String ack = request.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
@@ -247,6 +247,7 @@ public abstract class VersionedStompFrameHandler {
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
+      AddressInfo.RoutingType routingType = getRoutingType(request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), request.getHeader(Headers.Subscribe.DESTINATION));
       boolean noLocal = false;
 
       if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
@@ -254,12 +255,23 @@ public abstract class VersionedStompFrameHandler {
       }
 
       try {
-         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal);
+         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
       return response;
+   }
+
+   public String getDestination(StompFrame request) {
+      String destination = request.getHeader(Headers.Subscribe.DESTINATION);
+      if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
+         destination = destination.substring(connection.getMulticastPrefix().length());
+      } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
+         destination = destination.substring(connection.getAnycastPrefix().length());
+      }
+
+      return destination;
    }
 
    public StompFrame postprocess(StompFrame request) {
@@ -330,6 +342,21 @@ public abstract class VersionedStompFrameHandler {
    public void onError(ActiveMQStompException e) {
       this.connection.sendFrame(e.getFrame());
       connection.destroy();
+   }
+
+   private AddressInfo.RoutingType getRoutingType(String typeHeader, String destination) {
+      // null is valid to return here so we know when the user didn't provide any routing info
+      AddressInfo.RoutingType routingType = null;
+      if (typeHeader != null) {
+         routingType = AddressInfo.RoutingType.valueOf(typeHeader);
+      } else if (destination != null && !connection.getAnycastPrefix().equals(connection.getMulticastPrefix())) {
+         if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
+            routingType = AddressInfo.RoutingType.MULTICAST;
+         } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
+            routingType = AddressInfo.RoutingType.ANYCAST;
+         }
+      }
+      return routingType;
    }
 
 }

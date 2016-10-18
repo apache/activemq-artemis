@@ -18,9 +18,6 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
 
-/**
- * pls use factory to create frames.
- */
 public interface StompClientConnection {
 
    ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException;
@@ -35,7 +32,7 @@ public interface StompClientConnection {
 
    ClientStompFrame connect(String defUser, String defPass) throws Exception;
 
-   void connect(String defUser, String defPass, String clientId) throws Exception;
+   ClientStompFrame connect(String defUser, String defPass, String clientId) throws Exception;
 
    boolean isConnected();
 

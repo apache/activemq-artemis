@@ -104,7 +104,7 @@ public class DivertImpl implements Divert {
          copy = message;
       }
 
-      postOffice.route(copy, null, context.getTransaction(), false);
+      postOffice.route(copy, context.getTransaction(), false);
    }
 
    @Override

@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
-/**
- * pls use factory to create frames.
- */
-public class ClientStompFrameV11 extends AbstractClientStompFrame {
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+
+public class ClientStompFrameV11 extends ClientStompFrameV10 {
 
    static {
-      validCommands.add("NACK");
-      validCommands.add("STOMP");
+      validCommands.add(Stomp.Commands.NACK);
+      validCommands.add(Stomp.Commands.STOMP);
    }
 
    boolean forceOneway = false;
@@ -38,8 +37,9 @@ public class ClientStompFrameV11 extends AbstractClientStompFrame {
    }
 
    @Override
-   public void setForceOneway() {
+   public ClientStompFrame setForceOneway() {
       forceOneway = true;
+      return this;
    }
 
    @Override
@@ -47,15 +47,17 @@ public class ClientStompFrameV11 extends AbstractClientStompFrame {
       if (forceOneway)
          return false;
 
-      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
+      if (Stomp.Commands.STOMP.equals(command)) {
          return true;
       }
-      return false;
+
+      return super.needsReply();
    }
 
    @Override
-   public void setPing(boolean b) {
+   public ClientStompFrame setPing(boolean b) {
       isPing = b;
+      return this;
    }
 
    @Override

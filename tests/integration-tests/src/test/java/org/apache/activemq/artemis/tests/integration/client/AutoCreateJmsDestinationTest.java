@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -144,7 +145,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-      assertNotNull(server.getManagementService().getResource("core.address.test"));
+      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + "test"));
    }
 
    @Test
@@ -181,11 +182,11 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       connection.start();
       assertNotNull(consumer.receive(500));
 
-      assertNotNull(server.getManagementService().getResource("core.address." + topicName));
+      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + topicName));
 
       connection.close();
 
-      assertNull(server.getManagementService().getResource("core.address." + topicName));
+      assertNull(server.getManagementService().getResource(ResourceNames.ADDRESS + topicName));
    }
 
    @Test
@@ -204,7 +205,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
       connection.close();
 
-      assertNotNull(server.getManagementService().getResource("core.address.test"));
+      assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + "test"));
 
       assertNotNull(server.locateQueue(SimpleString.toSimpleString("myClientID.myDurableSub")));
    }

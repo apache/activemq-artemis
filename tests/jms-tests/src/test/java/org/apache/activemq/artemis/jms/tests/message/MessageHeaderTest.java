@@ -1125,7 +1125,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
 
       @Override
-      public void createAddress(SimpleString address, boolean multicast) throws ActiveMQException {
+      public void createAddress(SimpleString address, boolean multicast, final boolean autoCreated) throws ActiveMQException {
 
       }
 

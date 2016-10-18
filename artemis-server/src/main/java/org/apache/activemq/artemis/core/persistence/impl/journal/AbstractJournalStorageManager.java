@@ -1268,7 +1268,11 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    @Override
    public void addAddressBinding(final long tx, final AddressInfo addressInfo) throws Exception {
-      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(), addressInfo.getRoutingType(), addressInfo.getDefaultMaxQueueConsumers());
+      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(),
+                                                                                              addressInfo.getRoutingType(),
+                                                                                              addressInfo.getDefaultMaxQueueConsumers(),
+                                                                                              addressInfo.isDefaultDeleteOnNoConsumers(),
+                                                                                              addressInfo.isAutoCreated());
 
       readLock();
       try {
@@ -1398,7 +1402,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
             idGenerator.loadState(record.id, buffer);
          } else if (rec == JournalRecordIds.ADDRESS_BINDING_RECORD) {
             PersistentAddressBindingEncoding bindingEncoding = newAddressBindingEncoding(id, buffer);
-            ActiveMQServerLogger.LOGGER.info("=== Loading: " + bindingEncoding);
             addressBindingInfos.add(bindingEncoding);
          } else if (rec == JournalRecordIds.GROUP_RECORD) {
             GroupingEncoding encoding = newGroupEncoding(id, buffer);

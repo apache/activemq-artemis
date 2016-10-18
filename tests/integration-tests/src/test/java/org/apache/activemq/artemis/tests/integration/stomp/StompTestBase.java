@@ -26,34 +26,17 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -63,6 +46,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
@@ -73,12 +57,15 @@ import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
 import org.junit.Before;
 
 public abstract class StompTestBase extends ActiveMQTestBase {
+
+   protected String hostname = "127.0.0.1";
 
    protected final int port = 61613;
 
@@ -98,98 +85,56 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    protected String defPass = "wombats";
 
-   protected boolean autoCreateServer = true;
-
-   private List<Bootstrap> bootstraps = new ArrayList<>();
-
-   //   private Channel channel;
-
-   private List<BlockingQueue<String>> priorityQueues = new ArrayList<>();
-
-   private List<EventLoopGroup> groups = new ArrayList<>();
-
-   private List<Channel> channels = new ArrayList<>();
-
    // Implementation methods
    // -------------------------------------------------------------------------
+   public boolean isCompressLargeMessages() {
+      return false;
+   }
+
+   public boolean isSecurityEnabled() {
+      return false;
+   }
+
+   public boolean isPersistenceEnabled() {
+      return false;
+   }
+
+   public boolean isEnableStompMessageId() {
+      return false;
+   }
+
+   public Integer getStompMinLargeMessageSize() {
+      return null;
+   }
+
+   public List<String> getIncomingInterceptors() {
+      return null;
+   }
+
+   public List<String> getOutgoingInterceptors() {
+      return null;
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      if (autoCreateServer) {
-         server = createServer();
-         addServer(server.getActiveMQServer());
-         server.start();
-         connectionFactory = createConnectionFactory();
-         createBootstrap();
 
-         if (isSecurityEnabled()) {
-            connection = connectionFactory.createConnection("brianm", "wombats");
-         } else {
-            connection = connectionFactory.createConnection();
-         }
-         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         queue = session.createQueue(getQueueName());
-         topic = session.createTopic(getTopicName());
-         connection.start();
-      }
-   }
-
-   private void createBootstrap() {
-      createBootstrap(0, port);
-   }
-
-   protected void createBootstrap(int port) {
-      createBootstrap(0, port);
-   }
-
-   protected void createBootstrap(final int index, int port) {
-      priorityQueues.add(index, new ArrayBlockingQueue<String>(1000));
-      groups.add(index, new NioEventLoopGroup());
-      bootstraps.add(index, new Bootstrap());
-      bootstraps.get(index).group(groups.get(index)).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
-         @Override
-         public void initChannel(SocketChannel ch) throws Exception {
-            addChannelHandlers(index, ch);
-         }
-      });
-
-      // Start the client.
-      try {
-         channels.add(index, bootstraps.get(index).connect("localhost", port).sync().channel());
-         handshake();
-      } catch (InterruptedException e) {
-         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      }
-
-   }
-
-   protected void handshake() throws InterruptedException {
-   }
-
-   protected void addChannelHandlers(int index, SocketChannel ch) throws URISyntaxException {
-      ch.pipeline().addLast("decoder", new StringDecoder(StandardCharsets.UTF_8));
-      ch.pipeline().addLast("encoder", new StringEncoder(StandardCharsets.UTF_8));
-      ch.pipeline().addLast(new StompClientHandler(index));
-   }
-
-   protected void setUpAfterServer() throws Exception {
-      setUpAfterServer(false);
-   }
-
-   protected void setUpAfterServer(boolean jmsCompressLarge) throws Exception {
+      server = createServer();
+      server.start();
       connectionFactory = createConnectionFactory();
-      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) connectionFactory;
 
-      activeMQConnectionFactory.setCompressLargeMessage(jmsCompressLarge);
-      createBootstrap();
+      ((ActiveMQConnectionFactory)connectionFactory).setCompressLargeMessage(isCompressLargeMessages());
 
-      connection = connectionFactory.createConnection();
-      connection.start();
+      if (isSecurityEnabled()) {
+         connection = connectionFactory.createConnection("brianm", "wombats");
+      } else {
+         connection = connectionFactory.createConnection();
+      }
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       queue = session.createQueue(getQueueName());
       topic = session.createTopic(getTopicName());
-
+      connection.start();
    }
 
    /**
@@ -198,14 +143,30 @@ public abstract class StompTestBase extends ActiveMQTestBase {
     */
    protected JMSServerManager createServer() throws Exception {
       Map<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + ","  + MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
+      if (isEnableStompMessageId()) {
+         params.put(TransportConstants.STOMP_ENABLE_MESSAGE_ID, true);
+      }
+      if (getStompMinLargeMessageSize() != null) {
+         params.put(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, 2048);
+      }
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
-      TransportConfiguration allTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName());
 
-      Configuration config = createBasicConfig().setSecurityEnabled(isSecurityEnabled()).setPersistenceEnabled(true).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      config.addAcceptorConfiguration(allTransport);
+      Configuration config = createBasicConfig().setSecurityEnabled(isSecurityEnabled())
+                                                .setPersistenceEnabled(isPersistenceEnabled())
+                                                .addAcceptorConfiguration(stompTransport)
+                                                .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+                                                .setConnectionTtlCheckInterval(500);
+
+      if (getIncomingInterceptors() != null) {
+         config.setIncomingInterceptorClassNames(getIncomingInterceptors());
+      }
+
+      if (getOutgoingInterceptors() != null) {
+         config.setOutgoingInterceptorClassNames(getOutgoingInterceptors());
+      }
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
@@ -222,62 +183,19 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       }
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setDurable(false).setBindings(getQueueName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setBindings(getQueueName()));
       jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      if (autoCreateServer) {
-         connection.close();
-
-         for (EventLoopGroup group : groups) {
-            if (group != null) {
-               for (Channel channel : channels) {
-                  channel.close();
-               }
-               group.shutdownGracefully(0, 5000, TimeUnit.MILLISECONDS);
-            }
-         }
-      }
-      super.tearDown();
-   }
-
-   protected void cleanUp() throws Exception {
-      connection.close();
-      if (groups.get(0) != null) {
-         groups.get(0).shutdown();
-      }
-   }
-
-   protected void reconnect() throws Exception {
-      reconnect(0);
-   }
-
-   protected void reconnect(long sleep) throws Exception {
-      groups.get(0).shutdown();
-
-      if (sleep > 0) {
-         Thread.sleep(sleep);
-      }
-
-      createBootstrap();
-   }
-
    protected ConnectionFactory createConnectionFactory() {
       return new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
    }
 
-   protected Socket createSocket() throws IOException {
-      return new Socket("localhost", port);
-   }
-
    protected String getQueueName() {
-      return "test";
+      return "testQueue";
    }
 
    protected String getQueuePrefix() {
@@ -292,65 +210,28 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return "";
    }
 
-   protected void assertChannelClosed() throws InterruptedException {
-      assertChannelClosed(0);
+   public void sendJmsMessage(String msg) throws Exception {
+      sendJmsMessage(msg, queue);
    }
 
-   protected void assertChannelClosed(int index) throws InterruptedException {
-      boolean closed = channels.get(index).closeFuture().await(5000);
-      assertTrue("channel not closed", closed);
-   }
-
-   public void sendFrame(String data) throws Exception {
-      IntegrationTestLogger.LOGGER.info("Sending: " + data);
-      sendFrame(0, data);
-   }
-
-   public void sendFrame(int index, String data) throws Exception {
-      channels.get(index).writeAndFlush(data);
-   }
-
-   public void sendFrame(byte[] data) throws Exception {
-      sendFrame(0, data);
-   }
-
-   public void sendFrame(int index, byte[] data) throws Exception {
-      ByteBuf buffer = Unpooled.buffer(data.length);
-      buffer.writeBytes(data);
-      channels.get(index).writeAndFlush(buffer);
-   }
-
-   public String receiveFrame(long timeOut) throws Exception {
-      return receiveFrame(0, timeOut);
-   }
-
-   public String receiveFrame(int index, long timeOut) throws Exception {
-      String msg = priorityQueues.get(index).poll(timeOut, TimeUnit.MILLISECONDS);
-      return msg;
-   }
-
-   public void sendMessage(String msg) throws Exception {
-      sendMessage(msg, queue);
-   }
-
-   public void sendMessage(String msg, Destination destination) throws Exception {
+   public void sendJmsMessage(String msg, Destination destination) throws Exception {
       MessageProducer producer = session.createProducer(destination);
       TextMessage message = session.createTextMessage(msg);
       producer.send(message);
    }
 
-   public void sendMessage(byte[] data, Destination destination) throws Exception {
-      sendMessage(data, "foo", "xyz", destination);
+   public void sendJmsMessage(byte[] data, Destination destination) throws Exception {
+      sendJmsMessage(data, "foo", "xyz", destination);
    }
 
-   public void sendMessage(String msg, String propertyName, String propertyValue) throws Exception {
-      sendMessage(msg.getBytes(StandardCharsets.UTF_8), propertyName, propertyValue, queue);
+   public void sendJmsMessage(String msg, String propertyName, String propertyValue) throws Exception {
+      sendJmsMessage(msg.getBytes(StandardCharsets.UTF_8), propertyName, propertyValue, queue);
    }
 
-   public void sendMessage(byte[] data,
-                           String propertyName,
-                           String propertyValue,
-                           Destination destination) throws Exception {
+   public void sendJmsMessage(byte[] data,
+                              String propertyName,
+                              String propertyValue,
+                              Destination destination) throws Exception {
       MessageProducer producer = session.createProducer(destination);
       BytesMessage message = session.createBytesMessage();
       message.setStringProperty(propertyName, propertyValue);
@@ -358,59 +239,294 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       producer.send(message);
    }
 
-   protected void waitForReceipt() throws Exception {
-      String frame = receiveFrame(50000);
-      assertNotNull(frame);
-      assertTrue(frame.indexOf("RECEIPT") > -1);
+   public void abortTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+      ClientStompFrame abortFrame = conn.createFrame(Stomp.Commands.ABORT)
+                                        .addHeader(Stomp.Headers.TRANSACTION, txID);
+
+      conn.sendFrame(abortFrame);
    }
 
-   protected void waitForFrameToTakeEffect() throws InterruptedException {
-      // bit of a dirty hack :)
-      // another option would be to force some kind of receipt to be returned
-      // from the frame
-      Thread.sleep(500);
+   public void beginTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+      ClientStompFrame beginFrame = conn.createFrame(Stomp.Commands.BEGIN)
+                                        .addHeader(Stomp.Headers.TRANSACTION, txID);
+
+      conn.sendFrame(beginFrame);
    }
 
-   public boolean isSecurityEnabled() {
-      return false;
+   public void commitTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
+      commitTransaction(conn, txID, false);
    }
 
-   class StompClientHandler extends SimpleChannelInboundHandler<String> {
-
-      int index = 0;
-
-      StompClientHandler(int index) {
-         this.index = index;
+   public void commitTransaction(StompClientConnection conn,
+                                 String txID,
+                                 boolean receipt) throws IOException, InterruptedException {
+      ClientStompFrame beginFrame = conn.createFrame(Stomp.Commands.COMMIT)
+                                        .addHeader(Stomp.Headers.TRANSACTION, txID);
+      String uuid = UUID.randomUUID().toString();
+      if (receipt) {
+         beginFrame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
       }
-
-      StringBuffer currentMessage = new StringBuffer("");
-
-      @Override
-      protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-         currentMessage.append(msg);
-         String fullMessage = currentMessage.toString();
-         if (fullMessage.contains("\0\n")) {
-            int messageEnd = fullMessage.indexOf("\0\n");
-            String actualMessage = fullMessage.substring(0, messageEnd);
-            fullMessage = fullMessage.substring(messageEnd + 2);
-            currentMessage = new StringBuffer("");
-            BlockingQueue queue = priorityQueues.get(index);
-            if (queue == null) {
-               queue = new ArrayBlockingQueue(1000);
-               priorityQueues.add(index, queue);
-            }
-            queue.add(actualMessage);
-            if (fullMessage.length() > 0) {
-               channelRead(ctx, fullMessage);
-            }
-         }
-      }
-
-      @Override
-      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-         cause.printStackTrace();
-         ctx.close();
+      ClientStompFrame resp = conn.sendFrame(beginFrame);
+      if (receipt) {
+         assertEquals(uuid, resp.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
    }
 
+   public void ack(StompClientConnection conn,
+                   String subscriptionId,
+                   ClientStompFrame messageIdFrame) throws IOException, InterruptedException {
+      String messageID = messageIdFrame.getHeader(Stomp.Headers.Message.MESSAGE_ID);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.ACK)
+                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageID);
+
+      if (subscriptionId != null) {
+         frame.addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId);
+      }
+
+      ClientStompFrame response = conn.sendFrame(frame);
+      if (response != null) {
+         throw new IOException("failed to ack " + response);
+      }
+   }
+
+   public void ack(StompClientConnection conn,
+                   String subscriptionId,
+                   String mid,
+                   String txID) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.ACK)
+                                      .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
+                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, mid);
+      if (txID != null) {
+         frame.addHeader(Stomp.Headers.TRANSACTION, txID);
+      }
+
+      conn.sendFrame(frame);
+   }
+
+   public void nack(StompClientConnection conn, String subscriptionId, String messageId) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.NACK)
+                                      .addHeader(Stomp.Headers.Ack.SUBSCRIPTION, subscriptionId)
+                                      .addHeader(Stomp.Headers.Message.MESSAGE_ID, messageId);
+
+      conn.sendFrame(frame);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, null, null);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack,
+                                     String durableId) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, null);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack,
+                                     String durableId,
+                                     boolean receipt) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, null, receipt);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack,
+                                     String durableId,
+                                     String selector) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, selector, false);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack,
+                                     String durableId,
+                                     String selector,
+                                     boolean receipt) throws IOException, InterruptedException {
+      return subscribe(conn, subscriptionId, ack, durableId, selector, getQueuePrefix() + getQueueName(), receipt);
+   }
+
+   public ClientStompFrame subscribe(StompClientConnection conn,
+                                     String subscriptionId,
+                                     String ack,
+                                     String durableId,
+                                     String selector,
+                                     String destination,
+                                     boolean receipt) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, AddressInfo.RoutingType.ANYCAST.toString())
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, destination);
+      if (subscriptionId != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.ID, subscriptionId);
+      }
+      if (ack != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.ACK_MODE, ack);
+      }
+      if (durableId != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, durableId);
+      }
+      if (selector != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.SELECTOR, selector);
+      }
+      String uuid = UUID.randomUUID().toString();
+      if (receipt) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      }
+
+      frame = conn.sendFrame(frame);
+
+      if (receipt) {
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+      }
+
+      return frame;
+   }
+
+   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+                                          String subscriptionId,
+                                          String ack,
+                                          String durableId) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, false);
+   }
+
+   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+                                          String subscriptionId,
+                                          String ack,
+                                          String durableId,
+                                          boolean receipt) throws IOException, InterruptedException {
+      return subscribeTopic(conn, subscriptionId, ack, durableId, receipt, false);
+   }
+
+   public ClientStompFrame subscribeTopic(StompClientConnection conn,
+                                          String subscriptionId,
+                                          String ack,
+                                          String durableId,
+                                          boolean receipt,
+                                          boolean noLocal) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, AddressInfo.RoutingType.MULTICAST.toString())
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, getTopicPrefix() + getTopicName());
+      if (subscriptionId != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.ID, subscriptionId);
+      }
+      if (ack != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.ACK_MODE, ack);
+      }
+      if (durableId != null) {
+         frame.addHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME, durableId);
+      }
+      String uuid = UUID.randomUUID().toString();
+      if (receipt) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      }
+      if (noLocal) {
+         frame.addHeader(Stomp.Headers.Subscribe.NO_LOCAL, "true");
+      }
+
+      frame = conn.sendFrame(frame);
+
+      if (receipt) {
+         assertNotNull("Requested receipt, but response is null", frame);
+         assertTrue(frame.getHeader(Stomp.Headers.Response.RECEIPT_ID).equals(uuid));
+      }
+
+      return frame;
+   }
+
+   public ClientStompFrame unsubscribe(StompClientConnection conn, String subscriptionId) throws IOException, InterruptedException {
+      return unsubscribe(conn, subscriptionId, null, false, false);
+   }
+
+   public ClientStompFrame unsubscribe(StompClientConnection conn,
+                                       String subscriptionId,
+                                       boolean receipt) throws IOException, InterruptedException {
+      return unsubscribe(conn, subscriptionId, null, receipt, false);
+   }
+
+   public ClientStompFrame unsubscribe(StompClientConnection conn,
+                                       String subscriptionId,
+                                       String destination,
+                                       boolean receipt,
+                                       boolean durable) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
+      if (durable && subscriptionId != null) {
+         frame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subscriptionId);
+      } else if (!durable && subscriptionId != null) {
+         frame.addHeader(Stomp.Headers.Unsubscribe.ID, subscriptionId);
+      }
+
+      if (destination != null) {
+         frame.addHeader(Stomp.Headers.Unsubscribe.DESTINATION, destination);
+      }
+
+      String uuid = UUID.randomUUID().toString();
+
+      if (receipt) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      }
+
+      frame = conn.sendFrame(frame);
+
+      if (receipt) {
+         assertEquals(Stomp.Responses.RECEIPT, frame.getCommand());
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+      }
+
+      return frame;
+   }
+
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body) throws IOException, InterruptedException {
+      return send(conn, destination, contentType, body, false);
+   }
+
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt) throws IOException, InterruptedException {
+      return send(conn, destination, contentType, body, receipt, null);
+   }
+
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, AddressInfo.RoutingType destinationType) throws IOException, InterruptedException {
+      return send(conn, destination, contentType, body, receipt, destinationType, null);
+   }
+
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, AddressInfo.RoutingType destinationType, String txId) throws IOException, InterruptedException {
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, destination)
+                                   .setBody(body);
+
+      if (contentType != null) {
+         frame.addHeader(Stomp.Headers.CONTENT_TYPE, contentType);
+      }
+
+      if (destinationType != null) {
+         frame.addHeader(Stomp.Headers.Send.DESTINATION_TYPE, destinationType.toString());
+      }
+
+      if (txId != null) {
+         frame.addHeader(Stomp.Headers.TRANSACTION, txId);
+      }
+
+      String uuid = UUID.randomUUID().toString();
+
+      if (receipt) {
+         frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+      }
+      frame = conn.sendFrame(frame);
+
+      if (receipt) {
+         assertEquals(Stomp.Responses.RECEIPT, frame.getCommand());
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+      }
+
+      IntegrationTestLogger.LOGGER.info("Received: " + frame);
+
+      return frame;
+   }
 }

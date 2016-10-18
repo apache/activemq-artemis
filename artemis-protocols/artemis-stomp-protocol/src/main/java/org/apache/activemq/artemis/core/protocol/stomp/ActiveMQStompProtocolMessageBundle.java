@@ -86,10 +86,10 @@ public interface ActiveMQStompProtocolMessageBundle {
    ActiveMQStompException noDestination();
 
    @Message(id = 339016, value = "Error creating subscription {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorCreatSubscription(String subscriptionID, @Cause Exception e);
+   ActiveMQStompException errorCreatingSubscription(String subscriptionID, @Cause Exception e);
 
    @Message(id = 339017, value = "Error unsubscribing {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorUnsubscrib(String subscriptionID, @Cause Exception e);
+   ActiveMQStompException errorUnsubscribing(String subscriptionID, @Cause Exception e);
 
    @Message(id = 339018, value = "Error acknowledging message {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException errorAck(String messageID, @Cause Exception e);
@@ -153,4 +153,7 @@ public interface ActiveMQStompProtocolMessageBundle {
 
    @Message(id = 339040, value = "Undefined escape sequence: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException undefinedEscapeSequence(String sequence);
+
+   @Message(id = 339041, value = "Not allowed to specify {0} semantics on {1} address.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQStompException illegalSemantics(String requested, String exists);
 }

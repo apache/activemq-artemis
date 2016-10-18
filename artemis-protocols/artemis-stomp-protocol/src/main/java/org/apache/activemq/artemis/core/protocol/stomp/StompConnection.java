@@ -86,6 +86,12 @@ public final class StompConnection implements RemotingConnection {
 
    private final boolean enableMessageID;
 
+   private final int minLargeMessageSize;
+
+   private final String anycastPrefix;
+
+   private final String multicastPrefix;
+
    private StompVersions version;
 
    private VersionedStompFrameHandler frameHandler;
@@ -96,8 +102,6 @@ public final class StompConnection implements RemotingConnection {
    private FrameEventListener stompListener;
 
    private final Object sendLock = new Object();
-
-   private final int minLargeMessageSize;
 
    private final ScheduledExecutorService scheduledExecutorService;
 
@@ -162,6 +166,8 @@ public final class StompConnection implements RemotingConnection {
 
       this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration());
+      this.anycastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_ANYCAST_PREFIX, TransportConstants.DEFAULT_STOMP_ANYCAST_PREFIX, acceptorUsed.getConfiguration());
+      this.multicastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_MULTICAST_PREFIX, TransportConstants.DEFAULT_STOMP_MULTICAST_PREFIX, acceptorUsed.getConfiguration());
    }
 
    @Override
@@ -246,22 +252,38 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void checkDestination(String destination) throws ActiveMQStompException {
-      autoCreateDestinationIfPossible(destination);
-
       if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
-   public void autoCreateDestinationIfPossible(String queue) throws ActiveMQStompException {
-      // TODO: STOMP clients will have to prefix their destination with queue:// or topic:// so we can determine what to do here
+   public boolean autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+      boolean result = false;
+
       try {
-         manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST));
-         manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, true, false);
+         if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
+            // TODO check here to see if auto-creation is enabled
+            if (routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
+               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
+            } else {
+               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
+               manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+            }
+            result = true;
+         }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
       } catch (Exception e) {
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
+      }
+
+      return result;
+   }
+
+   public void checkRoutingSemantics(String destination, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+      AddressInfo.RoutingType actualRoutingTypeOfAddress = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingType();
+      if (routingType != null && !routingType.equals(actualRoutingTypeOfAddress)) {
+         throw BUNDLE.illegalSemantics(routingType.toString(), actualRoutingTypeOfAddress.toString());
       }
    }
 
@@ -560,7 +582,7 @@ public final class StompConnection implements RemotingConnection {
       if (stompSession.isNoLocal()) {
          message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
       }
-      if (enableMessageID()) {
+      if (isEnableMessageID()) {
          message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
       }
       try {
@@ -617,8 +639,11 @@ public final class StompConnection implements RemotingConnection {
                   String ack,
                   String id,
                   String durableSubscriptionName,
-                  boolean noLocal) throws ActiveMQStompException {
-      autoCreateDestinationIfPossible(destination);
+                  boolean noLocal,
+                  AddressInfo.RoutingType subscriptionType) throws ActiveMQStompException {
+      autoCreateDestinationIfPossible(destination, subscriptionType);
+      checkDestination(destination);
+      checkRoutingSemantics(destination, subscriptionType);
       if (noLocal) {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
          if (selector == null) {
@@ -643,11 +668,11 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         manager.createSubscription(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
-         throw BUNDLE.errorCreatSubscription(subscriptionID, e).setHandler(frameHandler);
+         throw BUNDLE.errorCreatingSubscription(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
@@ -657,7 +682,7 @@ public final class StompConnection implements RemotingConnection {
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
-         throw BUNDLE.errorUnsubscrib(subscriptionID, e).setHandler(frameHandler);
+         throw BUNDLE.errorUnsubscribing(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
@@ -710,12 +735,20 @@ public final class StompConnection implements RemotingConnection {
       return this.frameHandler;
    }
 
-   public boolean enableMessageID() {
+   public boolean isEnableMessageID() {
       return enableMessageID;
    }
 
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
+   }
+
+   public String getAnycastPrefix() {
+      return anycastPrefix;
+   }
+
+   public String getMulticastPrefix() {
+      return multicastPrefix;
    }
 
    public StompProtocolManager getManager() {

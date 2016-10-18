@@ -41,12 +41,12 @@ public class ActiveMQStompException extends Exception {
    }
 
    public ActiveMQStompException(String msg) {
-      super(msg);
+      super(msg.replace(":", ""));
       handler = null;
    }
 
    public ActiveMQStompException(String msg, Throwable t) {
-      super(msg, t);
+      super(msg.replace(":", ""), t);
       this.body = t.getMessage();
       handler = null;
    }
