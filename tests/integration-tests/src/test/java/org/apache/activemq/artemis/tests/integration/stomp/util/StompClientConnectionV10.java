@@ -18,52 +18,47 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
 
-/**
- * pls use factory to create frames.
- */
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
    }
 
+   public StompClientConnectionV10(String version, String host, int port) throws IOException {
+      super(version, host, port);
+   }
+
    @Override
    public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
-      ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
-      frame.addHeader(LOGIN_HEADER, username);
-      frame.addHeader(PASSCODE_HEADER, passcode);
+      return connect(username, passcode, null);
+   }
+
+   @Override
+   public ClientStompFrame connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
+      ClientStompFrame frame = factory.newFrame(Stomp.Commands.CONNECT);
+      frame.addHeader(Stomp.Headers.Connect.LOGIN, username);
+      frame.addHeader(Stomp.Headers.Connect.PASSCODE, passcode);
+      if (clientID != null) {
+         frame.addHeader(Stomp.Headers.Connect.CLIENT_ID, clientID);
+      }
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND)) {
+      if (response.getCommand().equals(Stomp.Responses.CONNECTED)) {
          connected = true;
       } else {
-         System.out.println("Connection failed with: " + response);
+         IntegrationTestLogger.LOGGER.warn("Connection failed with: " + response);
          connected = false;
       }
       return response;
    }
 
    @Override
-   public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
-      ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
-      frame.addHeader(LOGIN_HEADER, username);
-      frame.addHeader(PASSCODE_HEADER, passcode);
-      frame.addHeader(CLIENT_ID_HEADER, clientID);
-
-      ClientStompFrame response = this.sendFrame(frame);
-
-      if (response.getCommand().equals(CONNECTED_COMMAND)) {
-         connected = true;
-      } else {
-         System.out.println("Connection failed with: " + response);
-         connected = false;
-      }
-   }
-
-   @Override
    public void disconnect() throws IOException, InterruptedException {
-      ClientStompFrame frame = factory.newFrame(DISCONNECT_COMMAND);
+      ClientStompFrame frame = factory.newFrame(Stomp.Commands.DISCONNECT);
       this.sendFrame(frame);
 
       close();

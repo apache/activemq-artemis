@@ -68,7 +68,6 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -166,8 +165,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private final OperationContext context;
 
-   private QueueCreator queueCreator;
-
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
    protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<>();
 
@@ -202,7 +199,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final QueueCreator queueCreator,
                             final PagingManager pagingManager) throws Exception {
       this.username = username;
 
@@ -249,8 +245,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       remotingConnection.addFailureListener(this);
       this.context = context;
-
-      this.queueCreator = queueCreator;
 
       if (!xa) {
          tx = newTransaction();
@@ -389,11 +383,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   @Override
-   public QueueCreator getQueueCreator() {
-      return queueCreator;
-   }
-
    protected void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
       if (securityEnabled) {
          securityStore.check(address, checkType, auth);
@@ -499,7 +488,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address, name, filterString, temporary, durable, null, null);
+      return createQueue(address, name, filterString, temporary, durable, null, null, false);
    }
 
    @Override
@@ -509,7 +498,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean temporary,
                             final boolean durable,
                             final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers) throws Exception {
+                            final Boolean deleteOnNoConsumers,
+                            final Boolean autoCreated) throws Exception {
       if (durable) {
          // make sure the user has privileges to create this queue
          securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
@@ -519,7 +509,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, maxConsumers, deleteOnNoConsumers);
+      Queue queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers);
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -1472,7 +1462,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void installJMSHooks() {
-      this.queueCreator = server.getJMSDestinationCreator();
    }
 
    private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses() {
@@ -1592,11 +1581,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       try {
-         if (noAutoCreateQueue) {
-            result = postOffice.route(msg, null, routingContext, direct);
-         } else {
-            result = postOffice.route(msg, queueCreator, routingContext, direct);
-         }
+         result = postOffice.route(msg, routingContext, direct);
 
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
 

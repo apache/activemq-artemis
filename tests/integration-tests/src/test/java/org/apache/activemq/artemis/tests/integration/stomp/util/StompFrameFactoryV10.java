@@ -38,18 +38,18 @@ import java.util.StringTokenizer;
 public class StompFrameFactoryV10 implements StompFrameFactory {
 
    @Override
-   public ClientStompFrame createFrame(String data) {
+   public ClientStompFrame createFrame(final String data) {
       //split the string at "\n\n"
       String[] dataFields = data.split("\n\n");
 
       StringTokenizer tokenizer = new StringTokenizer(dataFields[0], "\n");
 
       String command = tokenizer.nextToken();
-      ClientStompFrame frame = new ClientStompFrameV10(command);
+      ClientStompFrame frame = newFrame(command);
 
       while (tokenizer.hasMoreTokens()) {
          String header = tokenizer.nextToken();
-         String[] fields = header.split(":");
+         String[] fields = handleHeaders(header);
          frame.addHeader(fields[0], fields[1]);
       }
 
@@ -58,6 +58,11 @@ public class StompFrameFactoryV10 implements StompFrameFactory {
          frame.setBody(dataFields[1]);
       }
       return frame;
+   }
+
+   @Override
+   public String[] handleHeaders(String header) {
+      return header.split(":");
    }
 
    @Override

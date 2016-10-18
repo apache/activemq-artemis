@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -162,7 +161,6 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public RoutingStatus route(ServerMessage message,
-                              QueueCreator creator,
                               RoutingContext context,
                               boolean direct) throws Exception {
       return RoutingStatus.OK;
@@ -171,7 +169,6 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public RoutingStatus route(ServerMessage message,
-                              QueueCreator creator,
                               Transaction tx,
                               boolean direct) throws Exception {
       return RoutingStatus.OK;
@@ -179,7 +176,6 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public RoutingStatus route(ServerMessage message,
-                              QueueCreator creator,
                               RoutingContext context,
                               boolean direct,
                               boolean rejectDuplicates) throws Exception {
@@ -189,7 +185,6 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public RoutingStatus route(ServerMessage message,
-                              QueueCreator creator,
                               Transaction tx,
                               boolean direct,
                               boolean rejectDuplicates) throws Exception {
@@ -201,7 +196,7 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public RoutingStatus route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception {
+   public RoutingStatus route(ServerMessage message, boolean direct) throws Exception {
       return RoutingStatus.OK;
    }
 }

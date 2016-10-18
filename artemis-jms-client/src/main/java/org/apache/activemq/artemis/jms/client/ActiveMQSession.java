@@ -299,13 +299,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (jbd != null) {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
-            if (jbd.isQueue()) {
-               if (!response.isExists()) {
-                  if (response.isAutoCreateJmsQueues()) {
-                     session.createAddress(jbd.getSimpleAddress(), false);
-                  } else {
-                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-                  }
+            if (!response.isExists() && response.isAutoCreateJmsQueues()) {
+               if (jbd.isQueue()) {
+                  session.createAddress(jbd.getSimpleAddress(), false, true);
+                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
+               } else {
+                  session.createAddress(jbd.getSimpleAddress(), true, true);
                }
 
                if (response.getQueueNames().isEmpty()) {
@@ -660,6 +659,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
+                  // TODO create queue here in such a way that it is deleted when consumerCount == 0
+                  // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
                   session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), true);
                } else {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
@@ -674,7 +675,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
             if (!response.isExists()) {
                if (response.isAutoCreateJmsQueues()) {
-                  session.createAddress(dest.getSimpleAddress(), true);
+                  session.createAddress(dest.getSimpleAddress(), true, true);
                } else {
                   throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
                }
@@ -1106,7 +1107,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       AddressQuery query = session.addressQuery(topic.getSimpleAddress());
 
-      if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
+      if (!query.isExists() && !query.isAutoCreateJmsTopics()) {
          return null;
       } else {
          return topic;

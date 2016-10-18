@@ -52,6 +52,9 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.config.CoreAddressConfiguration.RoutingType.ANYCAST;
+import static org.apache.activemq.artemis.core.config.CoreAddressConfiguration.RoutingType.MULTICAST;
+
 public class FileConfigurationTest extends ConfigurationImplTest {
 
    private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
@@ -396,6 +399,62 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       addressConfiguration = conf.getAddressConfigurations().get(1);
       assertEquals("addr2", addressConfiguration.getName());
       assertEquals(AddressInfo.RoutingType.MULTICAST, addressConfiguration.getRoutingType());
+      assertEquals(2, addressConfiguration.getQueueConfigurations().size());
+
+      // Addr 2 Queue 1
+      queueConfiguration = addressConfiguration.getQueueConfigurations().get(0);
+
+      assertEquals("q3", queueConfiguration.getName());
+      assertTrue(queueConfiguration.isDurable());
+      assertEquals("color='red'", queueConfiguration.getFilterString());
+      assertEquals(new Integer(10), queueConfiguration.getMaxConsumers());
+      assertEquals(addressConfiguration.getDefaultDeleteOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals("addr2", queueConfiguration.getAddress());
+
+      // Addr 2 Queue 2
+      queueConfiguration = addressConfiguration.getQueueConfigurations().get(1);
+
+      assertEquals("q4", queueConfiguration.getName());
+      assertTrue(queueConfiguration.isDurable());
+      assertNull(queueConfiguration.getFilterString());
+      assertEquals(addressConfiguration.getDefaultMaxConsumers(), queueConfiguration.getMaxConsumers());
+      assertTrue(queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals("addr2", queueConfiguration.getAddress());
+   }
+
+   private void verifyAddresses() {
+      assertEquals(2, conf.getAddressConfigurations().size());
+
+      // Addr 1
+      CoreAddressConfiguration addressConfiguration = conf.getAddressConfigurations().get(0);
+      assertEquals("addr1", addressConfiguration.getName());
+      assertEquals(ANYCAST, addressConfiguration.getRoutingType());
+      assertEquals(2, addressConfiguration.getQueueConfigurations().size());
+
+      // Addr 1 Queue 1
+      CoreQueueConfiguration queueConfiguration = addressConfiguration.getQueueConfigurations().get(0);
+
+      assertEquals("q1", queueConfiguration.getName());
+      assertFalse(queueConfiguration.isDurable());
+      assertEquals("color='blue'", queueConfiguration.getFilterString());
+      assertEquals(addressConfiguration.getDefaultDeleteOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals("addr1", queueConfiguration.getAddress());
+      assertEquals(addressConfiguration.getDefaultMaxConsumers(), queueConfiguration.getMaxConsumers());
+
+      // Addr 1 Queue 2
+      queueConfiguration = addressConfiguration.getQueueConfigurations().get(1);
+
+      assertEquals("q2", queueConfiguration.getName());
+      assertTrue(queueConfiguration.isDurable());
+      assertEquals("color='green'", queueConfiguration.getFilterString());
+      assertEquals(new Integer(-1), queueConfiguration.getMaxConsumers());
+      assertFalse(queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals("addr1", queueConfiguration.getAddress());
+
+      // Addr 2
+      addressConfiguration = conf.getAddressConfigurations().get(1);
+      assertEquals("addr2", addressConfiguration.getName());
+      assertEquals(MULTICAST, addressConfiguration.getRoutingType());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 2 Queue 1

@@ -464,7 +464,6 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerInRegistry(final String resourceName, final Object managedResource) {
       unregisterFromRegistry(resourceName);
 
-      ActiveMQServerLogger.LOGGER.info("Registering: " + resourceName);
       registry.put(resourceName, managedResource);
    }
 
@@ -653,7 +652,7 @@ public class ManagementServiceImpl implements ManagementService {
                   notificationMessage.putStringProperty(new SimpleString("foobar"), new SimpleString(notification.getUID()));
                }
 
-               postOffice.route(notificationMessage, null, false);
+               postOffice.route(notificationMessage, false);
             }
          }
       }

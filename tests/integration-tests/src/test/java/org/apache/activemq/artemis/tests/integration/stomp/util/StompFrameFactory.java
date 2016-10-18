@@ -24,4 +24,6 @@ public interface StompFrameFactory {
 
    ClientStompFrame newAnyFrame(String command);
 
+   String[] handleHeaders(String header);
+
 }

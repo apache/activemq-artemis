@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -168,7 +169,10 @@ public abstract class VersionedStompFrameHandler {
       try {
          connection.validate();
          String destination = frame.getHeader(Stomp.Headers.Send.DESTINATION);
-         checkDestination(destination);
+         String destinationType = frame.getHeader(Headers.Send.DESTINATION_TYPE);
+         AddressInfo.RoutingType routingType = destinationType == null ? null : AddressInfo.RoutingType.valueOf(destinationType);
+         connection.autoCreateDestinationIfPossible(destination, routingType);
+         connection.checkDestination(destination);
          String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
 
          long timestamp = System.currentTimeMillis();
@@ -195,10 +199,6 @@ public abstract class VersionedStompFrameHandler {
       }
 
       return response;
-   }
-
-   private void checkDestination(String destination) throws ActiveMQStompException {
-      connection.checkDestination(destination);
    }
 
    public StompFrame onBegin(StompFrame frame) {
@@ -247,6 +247,8 @@ public abstract class VersionedStompFrameHandler {
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
+      String subscriptionType = request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE);
+      AddressInfo.RoutingType routingType = subscriptionType == null ? null : AddressInfo.RoutingType.valueOf(subscriptionType);
       boolean noLocal = false;
 
       if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
@@ -254,7 +256,7 @@ public abstract class VersionedStompFrameHandler {
       }
 
       try {
-         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal);
+         connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }

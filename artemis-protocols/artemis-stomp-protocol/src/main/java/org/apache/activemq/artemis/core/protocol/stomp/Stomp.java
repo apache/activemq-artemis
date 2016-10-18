@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 /**
  * The standard verbs and headers used for the <a href="http://stomp.codehaus.org/">STOMP</a> protocol.
- *
- * @version $Revision: 57 $
  */
 public interface Stomp {
 
@@ -27,7 +25,7 @@ public interface Stomp {
 
    String NEWLINE = "\n";
 
-   public interface Commands {
+   interface Commands {
 
       String CONNECT = "CONNECT";
 
@@ -53,7 +51,7 @@ public interface Stomp {
       String STOMP = "STOMP";
    }
 
-   public interface Responses {
+   interface Responses {
 
       String CONNECTED = "CONNECTED";
 
@@ -64,7 +62,7 @@ public interface Stomp {
       String RECEIPT = "RECEIPT";
    }
 
-   public interface Headers {
+   interface Headers {
 
       String SEPARATOR = ":";
 
@@ -78,14 +76,16 @@ public interface Stomp {
 
       String CONTENT_TYPE = "content-type";
 
-      public interface Response {
+      interface Response {
 
          String RECEIPT_ID = "receipt-id";
       }
 
-      public interface Send {
+      interface Send {
 
          String DESTINATION = "destination";
+
+         String DESTINATION_TYPE = "destination-type";
 
          String CORRELATION_ID = "correlation-id";
 
@@ -97,10 +97,10 @@ public interface Stomp {
 
          String TYPE = "type";
 
-         Object PERSISTENT = "persistent";
+         String PERSISTENT = "persistent";
       }
 
-      public interface Message {
+      interface Message {
 
          String MESSAGE_ID = "message-id";
 
@@ -129,7 +129,7 @@ public interface Stomp {
          String VALIDATED_USER = "JMSXUserID";
       }
 
-      public interface Subscribe {
+      interface Subscribe {
 
          String DESTINATION = "destination";
 
@@ -144,6 +144,8 @@ public interface Stomp {
 
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
 
+         String SUBSCRIPTION_TYPE = "subscription-type";
+
          String NO_LOCAL = "no-local";
 
          public interface AckModeValues {
@@ -156,7 +158,7 @@ public interface Stomp {
          }
       }
 
-      public interface Unsubscribe {
+      interface Unsubscribe {
 
          String DESTINATION = "destination";
 
@@ -168,7 +170,7 @@ public interface Stomp {
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
       }
 
-      public interface Connect {
+      interface Connect {
 
          String LOGIN = "login";
 
@@ -182,10 +184,10 @@ public interface Stomp {
          String ACCEPT_VERSION = "accept-version";
          String HOST = "host";
 
-         Object HEART_BEAT = "heart-beat";
+         String HEART_BEAT = "heart-beat";
       }
 
-      public interface Error {
+      interface Error {
 
          String MESSAGE = "message";
 
@@ -193,7 +195,7 @@ public interface Stomp {
          String VERSION = "version";
       }
 
-      public interface Connected {
+      interface Connected {
 
          String SESSION = "session";
 
@@ -207,7 +209,7 @@ public interface Stomp {
          String HEART_BEAT = "heart-beat";
       }
 
-      public interface Ack {
+      interface Ack {
 
          String MESSAGE_ID = "message-id";
 

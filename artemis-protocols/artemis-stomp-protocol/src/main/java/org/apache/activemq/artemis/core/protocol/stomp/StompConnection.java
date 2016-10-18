@@ -245,18 +245,20 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void checkDestination(String destination) throws ActiveMQStompException {
-      autoCreateDestinationIfPossible(destination);
-
       if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
-   public void autoCreateDestinationIfPossible(String queue) throws ActiveMQStompException {
-      // TODO: STOMP clients will have to prefix their destination with queue:// or topic:// so we can determine what to do here
+   public void autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
       try {
-         manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST));
-         manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, true, false);
+         // TODO check here to see if auto-creation is enabled
+         if (routingType == null || routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
+            manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
+         } else {
+            manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST));
+            manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+         }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
       } catch (Exception e) {
@@ -616,8 +618,9 @@ public final class StompConnection implements RemotingConnection {
                   String ack,
                   String id,
                   String durableSubscriptionName,
-                  boolean noLocal) throws ActiveMQStompException {
-      autoCreateDestinationIfPossible(destination);
+                  boolean noLocal,
+                  AddressInfo.RoutingType subscriptionType) throws ActiveMQStompException {
+      autoCreateDestinationIfPossible(destination, subscriptionType);
       if (noLocal) {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
          if (selector == null) {
@@ -642,7 +645,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       try {
-         manager.createSubscription(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
+         manager.subscribe(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {

@@ -728,7 +728,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       ByteBuffer buffer = ByteBuffer.allocate(8);
       buffer.putLong(queue.getID());
       message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
-      postOffice.route(message, null, true);
+      postOffice.route(message, true);
       return "" + message.getMessageID();
    }
 
