@@ -960,9 +960,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void messageExceededMaxDeliverySendtoDLA(MessageReference ref, SimpleString name, SimpleString simpleString);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222150, value = "Message has exceeded max delivery attempts. No Dead Letter Address configured for queue {0} so dropping it",
+   @Message(id = 222150, value = "Message {0} has exceeded max delivery attempts. No Dead Letter Address configured for queue {1} so dropping it",
       format = Message.Format.MESSAGE_FORMAT)
-   void messageExceededMaxDeliveryNoDLA(SimpleString name);
+   void messageExceededMaxDeliveryNoDLA(MessageReference ref, SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222151, value = "removing consumer which did not handle a message, consumer={0}, message={1}",

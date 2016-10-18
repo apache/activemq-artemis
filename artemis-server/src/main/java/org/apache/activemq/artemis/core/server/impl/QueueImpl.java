@@ -2395,7 +2395,7 @@ public class QueueImpl implements Queue {
             move(tx, deadLetterAddress, ref, false, AckReason.KILLED);
          }
       } else {
-         ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(name);
+         ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
 
          ref.acknowledge(tx, AckReason.KILLED);
       }
