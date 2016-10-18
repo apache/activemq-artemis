@@ -653,6 +653,10 @@ public class NettyConnector extends AbstractConnector {
                request.headers().set(HttpHeaders.Names.HOST, host);
                request.headers().set(HttpHeaders.Names.UPGRADE, ACTIVEMQ_REMOTING);
                request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.UPGRADE);
+               final String serverName = ConfigurationHelper.getStringProperty(TransportConstants.ACTIVEMQ_SERVER_NAME, null, configuration);
+               if (serverName != null) {
+                  request.headers().set(TransportConstants.ACTIVEMQ_SERVER_NAME, serverName);
+               }
 
                final String endpoint = ConfigurationHelper.getStringProperty(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME, null, configuration);
                if (endpoint != null) {
