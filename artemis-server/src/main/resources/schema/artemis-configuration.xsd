@@ -430,7 +430,6 @@
             </xsd:complexType>
          </xsd:element>
 
-
          <!-- QUEUES -->
          <xsd:element name="queues" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -863,6 +862,8 @@
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
+
+         <xsd:element name="addresses" type="addressesType" maxOccurs="1" minOccurs="0" />
       </xsd:all>
    </xsd:complexType>
 
@@ -2520,4 +2521,79 @@
          </xsd:extension>
       </xsd:simpleContent>
    </xsd:complexType>
+
+
+   <!-- 2.0 Addressing configuration -->
+   <xsd:simpleType name="routingType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="multicast" />
+         <xsd:enumeration value="anycast" />
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:complexType name="queueType">
+      <xsd:all>
+         <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="durable" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0" />
+      </xsd:all>
+      <xsd:attribute name="name" type="xsd:ID" use="required"/>
+      <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
+      <xsd:attribute name="delete-on-no-consumers" type="xsd:boolean" use="optional"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="addressType">
+      <xsd:all>
+         <xsd:element name="queues" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a list of pre configured queues to create
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="queue" type="queueType" maxOccurs="unbounded" minOccurs="0" />
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
+      </xsd:all>
+      <xsd:attribute name="name" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               The address name to matches incoming message addresses
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type" type="routingType" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               The address name to matches incoming message addresses
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="default-max-consumers" type="xsd:int" use="optional" default="-1">
+         <xsd:annotation>
+            <xsd:documentation>
+               The default value of max-consumers applied to all queues that are
+               auto-created under this address.  Also applies to any queues that do not
+               specify a value for max-consumers.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="default-delete-on-no-consumers" type="xsd:boolean" use="optional" default="false">
+         <xsd:annotation>
+            <xsd:documentation>
+               The default value of delete-on-no-consumers applied to all queues that are
+               auto-created under this address.  Also applies to any queues that do not
+               specify a value for delete-on-no-consumers.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:complexType name="addressesType">
+      <xsd:sequence>
+         <xsd:element name="address" type="addressType" maxOccurs="unbounded" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
 </xsd:schema>
