@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
@@ -389,10 +390,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void stop(boolean failoverOnServerShutdown) throws Exception;
 
+   AddressInfo getAddressInfo(SimpleString address);
+
    /*
-   * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
-   * replace any factories with the same protocol
-   * */
+      * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
+      * replace any factories with the same protocol
+      * */
    void addProtocolManagerFactory(ProtocolManagerFactory factory);
 
    /*
@@ -421,4 +424,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    boolean addClientConnection(String clientId, boolean unique);
 
    void removeClientConnection(String clientId);
+
+   AddressInfo addAddressInfo(AddressInfo addressInfo);
+
+   AddressInfo removeAddressInfo(SimpleString address);
 }

@@ -64,6 +64,8 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
 
       Assert.assertEquals(Collections.emptyList(), conf.getQueueConfigurations());
 
+      Assert.assertEquals(Collections.emptyList(), conf.getAddressConfigurations());
+
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress());

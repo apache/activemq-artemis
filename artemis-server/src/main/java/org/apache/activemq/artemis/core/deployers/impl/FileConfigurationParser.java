@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
@@ -63,6 +64,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -560,6 +562,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseQueues(e, config);
 
+      parseAddresses(e, config);
+
       parseSecurity(e, config);
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
@@ -603,13 +607,35 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     */
    private void parseQueues(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("queues");
+      if (elements.getLength() != 0) {
+         Element node = (Element) elements.item(0);
+         config.setQueueConfigurations(parseQueueConfigurations(node));
+      }
+   }
+
+   private List<CoreQueueConfiguration> parseQueueConfigurations(final Element node) {
+      List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
+      NodeList list = node.getElementsByTagName("queue");
+      for (int i = 0; i < list.getLength(); i++) {
+         CoreQueueConfiguration queueConfig = parseQueueConfiguration(list.item(i));
+         queueConfigurations.add(queueConfig);
+      }
+      return queueConfigurations;
+   }
+
+   /**
+    * @param e
+    * @param config
+    */
+   private void parseAddresses(final Element e, final Configuration config) {
+      NodeList elements = e.getElementsByTagName("addresses");
 
       if (elements.getLength() != 0) {
          Element node = (Element) elements.item(0);
-         NodeList list = node.getElementsByTagName("queue");
+         NodeList list = node.getElementsByTagName("address");
          for (int i = 0; i < list.getLength(); i++) {
-            CoreQueueConfiguration queueConfig = parseQueueConfiguration(list.item(i));
-            config.getQueueConfigurations().add(queueConfig);
+            CoreAddressConfiguration addrConfig = parseAddressConfiguration(list.item(i));
+            config.getAddressConfigurations().add(addrConfig);
          }
       }
    }
@@ -847,9 +873,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String address = null;
       String filterString = null;
       boolean durable = true;
+      Integer maxConsumers = null;
+      Boolean deleteOnNoConsumers = null;
+
+      NamedNodeMap attributes = node.getAttributes();
+      for (int i = 0; i < attributes.getLength(); i++) {
+         Node item = attributes.item(i);
+         if (item.getNodeName().equals("max-consumers")) {
+            maxConsumers = Integer.parseInt(item.getNodeValue());
+         } else if (item.getNodeName().equals("delete-on-no-consumers")) {
+            deleteOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
+         }
+      }
 
       NodeList children = node.getChildNodes();
-
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
 
@@ -862,7 +899,41 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable);
+      return new CoreQueueConfiguration()
+         .setAddress(address)
+         .setName(name)
+         .setFilterString(filterString)
+         .setDurable(durable)
+         .setMaxConsumers(maxConsumers)
+         .setDeleteOnNoConsumers(deleteOnNoConsumers);
+   }
+
+   protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {
+      String name = getAttributeValue(node, "name");
+      String routingType = getAttributeValue(node, "type");
+
+      CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration();
+      addressConfiguration.setName(name)
+         .setRoutingType(AddressInfo.RoutingType.valueOf(routingType.toUpperCase()));
+
+      NodeList children = node.getChildNodes();
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+         if (child.getNodeName().equals("queues")) {
+            addressConfiguration.setQueueConfigurations(parseQueueConfigurations((Element) child));
+         }
+      }
+
+      for (CoreQueueConfiguration coreQueueConfiguration : addressConfiguration.getQueueConfigurations()) {
+         coreQueueConfiguration.setAddress(addressConfiguration.getName());
+         if (coreQueueConfiguration.getMaxConsumers() == null) {
+            coreQueueConfiguration.setMaxConsumers(addressConfiguration.getDefaultMaxConsumers());
+         }
+         if (coreQueueConfiguration.getDeleteOnNoConsumers() == null) {
+            coreQueueConfiguration.setDeleteOnNoConsumers(addressConfiguration.getDefaultDeleteOnNoConsumers());
+         }
+      }
+      return addressConfiguration;
    }
 
    private TransportConfiguration parseAcceptorTransportConfiguration(final Element e,
