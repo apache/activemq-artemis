@@ -33,6 +33,8 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import java.lang.ref.WeakReference;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -359,7 +361,13 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
             }
          }
 
-         failoverListenerExecutor.shutdown();
+         AccessController.doPrivileged(new PrivilegedAction() {
+            @Override
+            public Object run() {
+               failoverListenerExecutor.shutdown();
+               return null;
+            }
+         });
 
          closed = true;
       } catch (ActiveMQException e) {
