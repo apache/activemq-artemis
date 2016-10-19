@@ -104,6 +104,9 @@ public interface ActiveMQMessageBundle {
       value = "Did not receive data from {0} within the {1}ms connection TTL. The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQConnectionTimedOutException clientExited(String remoteAddress, long ttl);
 
+   @Message(id = 119015, value = "Must specify a name for each divert. This one will not be deployed.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQInternalErrorException divertWithNoName();
+
    @Message(id = 119017, value = "Queue {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQNonExistentQueueException noSuchQueue(SimpleString queueName);
 
