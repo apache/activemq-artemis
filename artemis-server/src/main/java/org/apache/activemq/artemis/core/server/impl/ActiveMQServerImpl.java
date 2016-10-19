@@ -1649,9 +1649,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void deployDivert(DivertConfiguration config) throws Exception {
       if (config.getName() == null) {
-         ActiveMQServerLogger.LOGGER.divertWithNoName();
-
-         return;
+         throw ActiveMQMessageBundle.BUNDLE.divertWithNoName();
       }
 
       if (config.getAddress() == null) {
