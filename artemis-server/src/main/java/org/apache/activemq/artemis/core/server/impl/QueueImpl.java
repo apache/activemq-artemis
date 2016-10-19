@@ -2709,7 +2709,7 @@ public class QueueImpl implements Queue {
          synchronized (QueueImpl.this) {
             internalAddRedistributor(executor1);
 
-            futures.remove(this);
+            futures.remove(redistributorFuture);
          }
       }
    }
