@@ -16,7 +16,16 @@
  */
 package org.apache.activemq.artemis.osgi;
 
-public interface ServerTrackerCallBack extends ProtocolTrackerCallBack {
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+
+public interface ServerTrackerCallBack extends ActiveMQComponent {
+
+   void addFactory(ProtocolManagerFactory<Interceptor> pmf);
+
+   void removeFactory(ProtocolManagerFactory<Interceptor> pmf);
 
    void setDataSourceDependency(boolean dataSourceDependency);
+
 }
