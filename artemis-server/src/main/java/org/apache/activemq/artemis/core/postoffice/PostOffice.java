@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
@@ -41,6 +42,12 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  * A Queue instance can only be bound against a single address in the post office.
  */
 public interface PostOffice extends ActiveMQComponent {
+
+   AddressInfo addAddressInfo(AddressInfo addressInfo);
+
+   AddressInfo removeAddressInfo(SimpleString address);
+
+   AddressInfo getAddressInfo(SimpleString address);
 
    void addBinding(Binding binding) throws Exception;
 
@@ -112,5 +119,6 @@ public interface PostOffice extends ActiveMQComponent {
    boolean isAddressBound(final SimpleString address) throws Exception;
 
    Set<SimpleString> getAddresses();
+
 
 }

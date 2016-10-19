@@ -46,13 +46,14 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.activemq.artemis.core.config.CoreAddressConfiguration.RoutingType.ANYCAST;
-import static org.apache.activemq.artemis.core.config.CoreAddressConfiguration.RoutingType.MULTICAST;
+import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.ANYCAST;
+import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.MULTICAST;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 

@@ -21,13 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType;
 
 public class CoreAddressConfiguration implements Serializable {
-
-   public enum RoutingType {
-      MULTICAST,
-      ANYCAST
-   }
 
    private String name = null;
 
