@@ -6,18 +6,21 @@ Apache ActiveMQ Artemis is OSGi ready. Below you can find instruction on how to 
 
 Apache ActiveMQ Artemis provides features that makes it easy to install the broker on Apache Karaf (4.x or later). First you need to define the feature URL, like 
 
-    karaf@root()> feature:repo-add mvn:org.apache.activemq/artemis-features/1.3.0-SNAPSHOT/xml/features
+```sh
+karaf@root()> feature:repo-add mvn:org.apache.activemq/artemis-features/1.3.0-SNAPSHOT/xml/features
+```
     
 This will add Artemis related features   
-    
-	karaf@root()> feature:list | grep artemis
-	artemis                       | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | Full ActiveMQ Artemis broker with default configuration
-	netty-core                    | 4.0.32.Final     |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | Netty libraries
-	artemis-core                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis broker libraries
-	artemis-amqp                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis AMQP protocol libraries
-	artemis-stomp                 | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis Stomp protocol libraries
-	artemis-mqtt                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis MQTT protocol libraries
-	artemis-hornetq               | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis HornetQ protocol libraries    
+```
+karaf@root()> feature:list | grep artemis
+artemis                       | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | Full ActiveMQ Artemis broker with default configuration
+netty-core                    | 4.0.32.Final     |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | Netty libraries
+artemis-core                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis broker libraries
+artemis-amqp                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis AMQP protocol libraries
+artemis-stomp                 | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis Stomp protocol libraries
+artemis-mqtt                  | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis MQTT protocol libraries
+artemis-hornetq               | 1.3.0.SNAPSHOT   |          | Uninstalled | artemis-1.3.0-SNAPSHOT   | ActiveMQ Artemis HornetQ protocol libraries    
+```
 
 Feature named `artemis` contains full broker installation, so running    
     

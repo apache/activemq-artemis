@@ -64,7 +64,12 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfi
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+// uncomment this to be able to debug it
+// import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 
+/**
+ * Useful docs about this test: https://ops4j1.jira.com/wiki/display/paxexam/FAQ
+ */
 @RunWith(PaxExam.class)
 public class ArtemisFeatureTest extends Assert {
 
@@ -102,7 +107,8 @@ public class ArtemisFeatureTest extends Assert {
       Option[] options = new Option[]{karafDistributionConfiguration().frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject()).unpackDirectory(new File("target/paxexam/unpack/")),
 
          KarafDistributionOption.keepRuntimeFolder(), logLevel(LogLevelOption.LogLevel.INFO), editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-         //debugConfiguration("5005", true),
+         // uncomment this to debug it.
+         // debugConfiguration("5005", true),
          features(getArtemisMQKarafFeatureUrl(), f.toArray(new String[f.size()]))};
 
       return options;

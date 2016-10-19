@@ -93,9 +93,9 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
       ReloadRegistry(URL uri)  {
          try {
-            file = new File(uri.toURI());
+            file = new File(uri.toURI());//"file:etc/artemis.xml"
          } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.debug(e.getMessage(), e);
             file = new File(uri.getPath());
          }
 
