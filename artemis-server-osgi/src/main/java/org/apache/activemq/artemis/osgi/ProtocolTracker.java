@@ -43,12 +43,12 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
    private String name;
    private BundleContext context;
    private Map<String, Boolean> protocols;
-   private ProtocolTrackerCallBack callback;
+   private ServerTrackerCallBack callback;
 
    public ProtocolTracker(String name,
                           BundleContext context,
                           String[] requiredProtocols,
-                          ProtocolTrackerCallBack callback) {
+                          ServerTrackerCallBack callback) {
       this.name = name;
       this.context = context;
       this.callback = callback;

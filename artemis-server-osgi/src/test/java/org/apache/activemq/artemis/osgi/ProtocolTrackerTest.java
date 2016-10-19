@@ -34,7 +34,7 @@ public class ProtocolTrackerTest {
       IMocksControl c = EasyMock.createControl();
       BundleContext context = c.createMock(BundleContext.class);
       String[] requiredProtocols = {"a", "b"};
-      ProtocolTrackerCallBack callback = c.createMock(ProtocolTrackerCallBack.class);
+      ServerTrackerCallBack callback = c.createMock(ServerTrackerCallBack.class);
 
       RefFact protA = new RefFact(c, context, new String[]{"a"});
       RefFact protB = new RefFact(c, context, new String[]{"b"});

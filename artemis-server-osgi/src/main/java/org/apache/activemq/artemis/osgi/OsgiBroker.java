@@ -96,13 +96,15 @@ public class OsgiBroker {
       final ActiveMQServer server = (ActiveMQServer) components.get("core");
 
       String[] requiredProtocols = getRequiredProtocols(server.getConfiguration().getAcceptorConfigurations());
-      ProtocolTrackerCallBack callback = new ProtocolTrackerCallBackImpl(server, context, properties);
+      ServerTrackerCallBack callback = new ServerTrackerCallBackImpl(server, context, properties);
 
       StoreConfiguration storeConfiguration = server.getConfiguration().getStoreConfiguration();
       String dataSourceName = String.class.cast(properties.get("dataSourceName"));
-      if (storeConfiguration.getStoreType() == StoreType.DATABASE && dataSourceName != null &&
+
+      if (storeConfiguration != null &&
+          storeConfiguration.getStoreType() == StoreType.DATABASE && dataSourceName != null &&
                !dataSourceName.isEmpty()) {
-         callback = new ServerTrackerCallBackImpl(server, context, properties);
+         callback.setDataSourceDependency(true);
          String filter = "(&(objectClass=javax.sql.DataSource)(osgi.jndi.service.name=" + dataSourceName + "))";
          DataSourceTracker trackerCust =
                   new DataSourceTracker(name, context, DatabaseStorageConfiguration.class.cast(storeConfiguration),
@@ -207,13 +209,15 @@ public class OsgiBroker {
       }
    }
 
-   private class ProtocolTrackerCallBackImpl implements ProtocolTrackerCallBack {
+   private class ServerTrackerCallBackImpl implements ServerTrackerCallBack {
+
+      private volatile boolean dataSourceDependency = false;
 
       private final ActiveMQServer server;
       private final BundleContext context;
       private final Dictionary<String, Object> properties;
 
-      ProtocolTrackerCallBackImpl(ActiveMQServer server, BundleContext context,
+      ServerTrackerCallBackImpl(ActiveMQServer server, BundleContext context,
                                          Dictionary<String, Object> properties) {
          this.server = server;
          this.context = context;
@@ -242,37 +246,28 @@ public class OsgiBroker {
 
       @Override
       public void start() throws Exception {
-         List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
-         for (ActiveMQComponent component : componentsByStartOrder) {
-            component.start();
+         if (!dataSourceDependency) {
+            List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
+            for (ActiveMQComponent component : componentsByStartOrder) {
+               component.start();
+            }
+            register(context, properties);
          }
-         register(context, properties);
       }
 
       @Override
       public boolean isStarted() {
          return server.isStarted();
       }
-   }
 
-   private class ServerTrackerCallBackImpl extends ProtocolTrackerCallBackImpl implements ServerTrackerCallBack {
 
-      private volatile boolean dataSourceDependency = true;
-
-      ServerTrackerCallBackImpl(ActiveMQServer server, BundleContext context, Dictionary<String, Object> properties) {
-         super(server, context, properties);
-      }
 
       @Override
       public void setDataSourceDependency(boolean dataSourceDependency) {
          this.dataSourceDependency = dataSourceDependency;
       }
 
-      @Override
-      public void start() throws Exception {
-         if (!dataSourceDependency) {
-            super.start();
-         }
-      }
+
    }
+
 }
