@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
@@ -39,6 +40,8 @@ import org.jboss.logging.Logger;
 public class SimpleAddressManager implements AddressManager {
 
    private static final Logger logger = Logger.getLogger(Page.class);
+
+   private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new ConcurrentHashMap<>();
 
    /**
     * HashMap<Address, Binding>
@@ -177,5 +180,20 @@ public class SimpleAddressManager implements AddressManager {
       bindings.addBinding(binding);
 
       return prevBindings != null;
+   }
+
+   @Override
+   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo);
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) {
+      return addressInfoMap.remove(address);
+   }
+
+   @Override
+   public AddressInfo getAddressInfo(SimpleString addressName) {
+      return addressInfoMap.get(addressName);
    }
 }

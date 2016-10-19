@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -417,6 +418,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    // PostOffice implementation -----------------------------------------------
+
+   @Override
+   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+      return addressManager.addAddressInfo(addressInfo);
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) {
+      return addressManager.removeAddressInfo(address);
+   }
+
+   @Override
+   public AddressInfo getAddressInfo(SimpleString addressName) {
+      return addressManager.getAddressInfo(addressName);
+   }
 
    // TODO - needs to be synchronized to prevent happening concurrently with activate()
    // (and possible removeBinding and other methods)

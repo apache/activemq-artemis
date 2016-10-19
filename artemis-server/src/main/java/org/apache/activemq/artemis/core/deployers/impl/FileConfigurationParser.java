@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -895,7 +896,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration();
       addressConfiguration.setName(name)
-         .setRoutingType(CoreAddressConfiguration.RoutingType.valueOf(routingType.toUpperCase()));
+         .setRoutingType(AddressInfo.RoutingType.valueOf(routingType.toUpperCase()));
 
       NodeList children = node.getChildNodes();
       for (int j = 0; j < children.getLength(); j++) {

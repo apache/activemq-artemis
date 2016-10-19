@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -57,6 +58,22 @@ public class FakePostOffice implements PostOffice {
    @Override
    public void stop() throws Exception {
 
+   }
+
+   @Override
+   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+      return null;
+   }
+
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) {
+      return null;
+   }
+
+   @Override
+   public AddressInfo getAddressInfo(SimpleString addressName) {
+      return null;
    }
 
    @Override
