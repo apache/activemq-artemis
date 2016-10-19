@@ -347,10 +347,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void timedOutStoppingThreadpool(ExecutorService service);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222003, value = "Must specify a name for each divert. This one will not be deployed.", format = Message.Format.MESSAGE_FORMAT)
-   void divertWithNoName();
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222004, value = "Must specify an address for each divert. This one will not be deployed.", format = Message.Format.MESSAGE_FORMAT)
    void divertWithNoAddress();
 
