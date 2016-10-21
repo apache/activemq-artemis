@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.persistence;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.impl.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public interface AddressBindingInfo {
 
@@ -29,6 +29,6 @@ public interface AddressBindingInfo {
 
    SimpleString getUser();
 
-   RoutingType getRoutingType();
+   AddressInfo.RoutingType getRoutingType();
 
 }

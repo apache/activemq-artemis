@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
-import org.apache.activemq.artemis.core.persistence.impl.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistentAddressBindingEncoding implements EncodingSupport, AddressBindingInfo {
@@ -33,7 +33,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    public SimpleString user;
 
-   public RoutingType routingType;
+   public AddressInfo.RoutingType routingType;
 
    public PersistentAddressBindingEncoding() {
    }
@@ -55,7 +55,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    public PersistentAddressBindingEncoding(final SimpleString name,
                                            final SimpleString user,
                                            final boolean autoCreated,
-                                           final RoutingType routingType) {
+                                           final AddressInfo.RoutingType routingType) {
       this.name = name;
       this.user = user;
       this.autoCreated = autoCreated;
@@ -87,7 +87,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
-   public RoutingType getRoutingType() {
+   public AddressInfo.RoutingType getRoutingType() {
       return routingType;
    }
 
@@ -109,7 +109,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       }
 
       autoCreated = buffer.readBoolean();
-      routingType = RoutingType.getType(buffer.readByte());
+      routingType = AddressInfo.RoutingType.getType(buffer.readByte());
    }
 
    @Override
