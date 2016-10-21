@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -62,9 +63,15 @@ import javax.jms.TopicSubscriber;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonClientConnectionLifeCycleListener;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonClientProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -947,6 +954,54 @@ public class ProtonTest extends ProtonTestBase {
       Assert.assertNotNull(jmsReplyTo);
       Assert.assertNotNull(message);
 
+   }
+
+   @Test
+   public void testOutboundConnection() throws Throwable {
+      final ActiveMQServer remote = createAMQPServer(5673);
+      remote.start();
+      try {
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return remote.isActive();
+            }
+         });
+      } catch (Exception e) {
+         remote.stop();
+         throw e;
+      }
+
+      final Map<String, Object> config = new LinkedHashMap<>();
+      config.put(TransportConstants.HOST_PROP_NAME, "localhost");
+      config.put(TransportConstants.PORT_PROP_NAME, "5673");
+      ProtonClientConnectionLifeCycleListener lifeCycleListener = new ProtonClientConnectionLifeCycleListener(server, 5000);
+      ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
+      NettyConnector connector = new NettyConnector(config, lifeCycleListener, lifeCycleListener, server.getExecutorFactory().getExecutor(), server.getExecutorFactory().getExecutor(), server.getScheduledPool(), protocolManager);
+      connector.start();
+      connector.createConnection();
+
+      try {
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return remote.getConnectionCount() > 0;
+            }
+         });
+         assertEquals(1, remote.getConnectionCount());
+
+         lifeCycleListener.stop();
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return remote.getConnectionCount() == 0;
+            }
+         });
+         assertEquals(0, remote.getConnectionCount());
+      } finally {
+         lifeCycleListener.stop();
+         remote.stop();
+      }
    }
 
    /*
