@@ -372,7 +372,9 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
       @Override
       public void onFlow(Link link) throws Exception {
-         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
+         if (link.getContext() != null) {
+            ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
+         }
       }
 
       @Override
