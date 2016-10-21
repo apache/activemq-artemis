@@ -867,7 +867,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          if (newPeriod < MessageCounterManagerImpl.MIN_SAMPLE_PERIOD) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidMessageCounterPeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD);
+            if (newPeriod <= 0) {
+               throw ActiveMQMessageBundle.BUNDLE.periodMustGreaterThanZero(newPeriod);
+            }
+            ActiveMQServerLogger.LOGGER.invalidMessageCounterPeriod(newPeriod);
          }
 
          if (messageCounterManager != null && newPeriod != messageCounterManager.getSamplePeriod()) {
