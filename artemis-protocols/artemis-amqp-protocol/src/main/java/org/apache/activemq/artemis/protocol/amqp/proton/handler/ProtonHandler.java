@@ -357,4 +357,11 @@ public class ProtonHandler extends ProtonInitializable {
       }
 
    }
+
+   public void open(String containerId) {
+      this.transport.open();
+      this.connection.setContainer(containerId);
+      this.connection.open();
+      flush();
+   }
 }

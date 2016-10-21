@@ -205,6 +205,10 @@ public class AMQPConnectionContext extends ProtonInitializable {
       return ExtCapability.getCapabilities();
    }
 
+   public void open() {
+      handler.open(containerId);
+   }
+
    // This listener will perform a bunch of things here
    class LocalListener implements EventHandler {
 
