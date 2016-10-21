@@ -21,6 +21,9 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface PageSubscriptionCounter {
 
+   //incremental counter of messages added
+   long getValueAdded();
+
    long getValue();
 
    void increment(Transaction tx, int add) throws Exception;

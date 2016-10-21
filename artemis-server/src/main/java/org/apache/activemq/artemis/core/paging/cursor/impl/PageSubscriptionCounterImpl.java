@@ -61,6 +61,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private final AtomicLong value = new AtomicLong(0);
 
+   private final AtomicLong added = new AtomicLong(0);
+
    private final AtomicLong pendingValue = new AtomicLong(0);
 
    private final LinkedList<Long> incrementRecords = new LinkedList<>();
@@ -90,6 +92,11 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       this.storage = storage;
       this.persistent = persistent;
       this.subscription = subscription;
+   }
+
+   @Override
+   public long getValueAdded() {
+      return added.get() + pendingValue.get();
    }
 
    @Override
@@ -205,6 +212,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          this.subscription.notEmpty();
       }
       this.value.set(value1);
+      this.added.set(value1);
       this.recordID = recordID1;
    }
 
@@ -243,6 +251,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
             recordID = -1;
             value.set(0);
+            added.set(0);
             incrementRecords.clear();
          }
       } finally {
@@ -269,6 +278,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
          for (Pair<Long, Integer> incElement : loadList) {
             value.addAndGet(incElement.getB());
+            added.addAndGet(incElement.getB());
             incrementRecords.add(incElement.getA());
          }
          loadList.clear();
@@ -279,7 +289,9 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    @Override
    public synchronized void addInc(long id, int variance) {
       value.addAndGet(variance);
-
+      if (variance > 0) {
+         added.addAndGet(variance);
+      }
       if (id >= 0) {
          incrementRecords.add(id);
       }

@@ -518,7 +518,9 @@ public class QueueImpl implements Queue {
 
       directDeliver = false;
 
-      messagesAdded++;
+      if (!ref.isPaged()) {
+         messagesAdded++;
+      }
    }
 
    @Override
@@ -573,7 +575,9 @@ public class QueueImpl implements Queue {
    protected boolean scheduleIfPossible(MessageReference ref) {
       if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          synchronized (this) {
-            messagesAdded++;
+            if (!ref.isPaged()) {
+               messagesAdded++;
+            }
          }
 
          return true;
@@ -1165,7 +1169,7 @@ public class QueueImpl implements Queue {
    @Override
    public long getMessagesAdded() {
       if (pageSubscription != null) {
-         return messagesAdded + pageSubscription.getCounter().getValue() - pagedReferences.get();
+         return messagesAdded + pageSubscription.getCounter().getValueAdded();
       } else {
          return messagesAdded;
       }
@@ -1819,7 +1823,10 @@ public class QueueImpl implements Queue {
       while ((ref = intermediateMessageReferences.poll()) != null) {
          internalAddTail(ref);
 
-         messagesAdded++;
+         if (!ref.isPaged()) {
+            messagesAdded++;
+         }
+
          if (added++ > MAX_DELIVERIES_IN_LOOP) {
             // if we just keep polling from the intermediate we could starve in case there's a sustained load
             deliverAsync();

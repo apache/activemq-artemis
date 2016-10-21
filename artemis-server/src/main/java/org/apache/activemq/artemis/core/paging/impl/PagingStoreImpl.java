@@ -876,7 +876,6 @@ public class PagingStoreImpl implements PagingStore {
       }
 
       for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues) {
-         q.getPageSubscription().getCounter().increment(tx, 1);
          q.getPageSubscription().notEmpty();
          ids[i++] = q.getID();
       }
