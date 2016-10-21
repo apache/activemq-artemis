@@ -912,6 +912,7 @@ public class NettyConnector extends AbstractConnector {
          if (connections.putIfAbsent(connection.getID(), connection) != null) {
             throw ActiveMQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
+         listener.connectionCreated(component, connection, protocol);
       }
 
       @Override
