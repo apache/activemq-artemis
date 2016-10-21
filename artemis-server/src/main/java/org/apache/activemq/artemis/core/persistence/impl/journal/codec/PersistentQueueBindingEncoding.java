@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -35,6 +38,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    public boolean autoCreated;
 
    public SimpleString user;
+
+   public List<QueueStatusEncoding> queueStatusEncodings;
 
    public PersistentQueueBindingEncoding() {
    }
@@ -104,6 +109,19 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    @Override
    public boolean isAutoCreated() {
       return autoCreated;
+   }
+
+   @Override
+   public void addQueueStatusEncoding(QueueStatusEncoding status) {
+      if (queueStatusEncodings == null) {
+         queueStatusEncodings = new LinkedList<>();
+      }
+      queueStatusEncodings.add(status);
+   }
+
+   @Override
+   public List<QueueStatusEncoding> getQueueStatusEncodings() {
+      return queueStatusEncodings;
    }
 
    @Override

@@ -411,9 +411,15 @@ public interface QueueControl {
    void pause() throws Exception;
 
    /**
+    * Pauses the queue. Messages are no longer delivered to its consumers.
+    */
+   @Operation(desc = "Pauses the Queue", impact = MBeanOperationInfo.ACTION)
+   void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
+
+   /**
     * Resumes the queue. Messages are again delivered to its consumers.
     */
-   @Operation(desc = "Resumes delivery of queued messages and gets the queue out of paused state.", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Resumes delivery of queued messages and gets the queue out of paused state. It will also affected the state of a persisted pause.", impact = MBeanOperationInfo.ACTION)
    void resume() throws Exception;
 
    @Operation(desc = "List all the existent consumers on the Queue")

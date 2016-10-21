@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -81,6 +82,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCount
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.QueueStatusEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.ScheduledDeliveryEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.XidEncoding;
@@ -105,6 +107,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
@@ -121,6 +124,8 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
  * Using this class also ensures that locks are acquired in the right order, avoiding dead-locks.
  */
 public abstract class AbstractJournalStorageManager implements StorageManager {
+
+   private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
 
    public enum JournalContent {
       BINDINGS((byte) 0), MESSAGES((byte) 1);
@@ -1237,6 +1242,32 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    }
 
    @Override
+   public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      long recordID = idGenerator.generateID();
+
+      readLock();
+      try {
+         bindingsJournal.appendAddRecord(recordID, JournalRecordIds.QUEUE_STATUS_RECORD, new QueueStatusEncoding(queueID, status), true);
+      } finally {
+         readUnLock();
+      }
+
+
+      return recordID;
+   }
+
+   @Override
+   public void deleteQueueStatus(long recordID) throws Exception {
+      readLock();
+      try {
+         bindingsJournal.appendDeleteRecord(recordID, true);
+      } finally {
+         readUnLock();
+      }
+
+   }
+
+   @Override
    public long storePageCounterInc(long txID, long queueID, int value) throws Exception {
       readLock();
       try {
@@ -1326,6 +1357,8 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
+      HashMap<Long, PersistentQueueBindingEncoding> mapBindings = new HashMap<>();
+
       for (RecordInfo record : records) {
          long id = record.id;
 
@@ -1337,6 +1370,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
             PersistentQueueBindingEncoding bindingEncoding = newBindingEncoding(id, buffer);
 
             queueBindingInfos.add(bindingEncoding);
+            mapBindings.put(bindingEncoding.getId(), bindingEncoding);
          } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
             idGenerator.loadState(record.id, buffer);
          } else if (rec == JournalRecordIds.GROUP_RECORD) {
@@ -1348,10 +1382,23 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          } else if (rec == JournalRecordIds.SECURITY_RECORD) {
             PersistedRoles roles = newSecurityRecord(id, buffer);
             mapPersistedRoles.put(roles.getAddressMatch(), roles);
+         } else if (rec == JournalRecordIds.QUEUE_STATUS_RECORD) {
+            QueueStatusEncoding statusEncoding = newQueueStatusEncoding(id, buffer);
+            PersistentQueueBindingEncoding queueBindingEncoding = mapBindings.get(statusEncoding.queueID);
+            if (queueBindingEncoding != null) {
+               queueBindingEncoding.addQueueStatusEncoding(statusEncoding);
+            } else {
+               // unlikely to happen, so I didn't bother about the Logger method
+               logger.info("There is no queue with ID " + statusEncoding.queueID + ", deleting record " + statusEncoding.getId());
+               this.deleteQueueStatus(statusEncoding.getId());
+            }
          } else {
-            throw new IllegalStateException("Invalid record type " + rec);
+            // unlikely to happen
+            logger.warn("Invalid record type " + rec, new Exception("invalid record type " + rec));
          }
       }
+
+      mapBindings.clear(); // just to give a hand to GC
 
       // This will instruct the IDGenerator to beforeStop old records
       idGenerator.cleanup();
@@ -1820,6 +1867,23 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       bindingEncoding.setId(id);
       return bindingEncoding;
    }
+
+   /**
+    * @param id
+    * @param buffer
+    * @return
+    */
+   protected static QueueStatusEncoding newQueueStatusEncoding(long id, ActiveMQBuffer buffer) {
+      QueueStatusEncoding statusEncoding = new QueueStatusEncoding();
+
+      statusEncoding.decode(buffer);
+      statusEncoding.setId(id);
+
+      return statusEncoding;
+   }
+
+
+
 
    @Override
    public boolean addToPage(PagingStore store,
