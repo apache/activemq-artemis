@@ -370,6 +370,12 @@ public interface JMSQueueControl extends DestinationControl {
    void pause() throws Exception;
 
    /**
+    * Pauses the queue. Messages are no longer delivered to its consumers.
+    */
+   @Operation(desc = "Pauses the Queue", impact = MBeanOperationInfo.ACTION)
+   void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
+
+   /**
     * Returns whether the queue is paused.
     */
    @Attribute(desc = "Returns true if the queue is paused.")

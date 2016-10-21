@@ -848,6 +848,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+
+   @Override
+   public void pause(boolean persist) {
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.pause(persist);
+      } finally {
+         blockOnIO();
+      }
+   }
    @Override
    public void resume() {
       checkStarted();

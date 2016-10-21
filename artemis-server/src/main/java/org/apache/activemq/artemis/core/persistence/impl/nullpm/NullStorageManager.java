@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
@@ -81,6 +82,16 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void criticalError(Throwable error) {
+
+   }
+
+   @Override
+   public long storeQueueStatus(long queueID, QueueStatus status) throws Exception {
+      return 0;
+   }
+
+   @Override
+   public void deleteQueueStatus(long recordID) throws Exception {
 
    }
 

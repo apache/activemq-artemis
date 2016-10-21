@@ -287,6 +287,17 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void deleteQueueBinding(long tx, long queueBindingID) throws Exception;
 
+   /**
+    *
+    * @param queueID The id of the queue
+    * @param status The current status of the queue. (Reserved for future use, ATM we only use this record for PAUSED)
+    * @return the id of the journal
+    * @throws Exception
+    */
+   long storeQueueStatus(long queueID, QueueStatus status) throws Exception;
+
+   void deleteQueueStatus(long recordID) throws Exception;
+
    JournalLoadInformation loadBindingJournal(List<QueueBindingInfo> queueBindingInfos,
                                              List<GroupingInfo> groupingInfos) throws Exception;
 

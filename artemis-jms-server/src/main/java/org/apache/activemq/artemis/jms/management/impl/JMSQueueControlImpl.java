@@ -474,6 +474,11 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    @Override
+   public void pause(boolean persist) throws Exception {
+      coreQueueControl.pause(persist);
+   }
+
+   @Override
    public void resume() throws Exception {
       coreQueueControl.resume();
    }
