@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
+import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -175,6 +176,8 @@ public class QueueImpl implements Queue {
    protected final AtomicInteger deliveringCount = new AtomicInteger(0);
 
    private boolean paused;
+
+   private long pauseStatusRecord = -1;
 
    private static final int MAX_SCHEDULED_RUNNERS = 2;
 
@@ -1718,8 +1721,32 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized void pause() {
+      pause(false);
+   }
+
+   @Override
+   public synchronized void reloadPause(long recordID) {
+      this.paused = true;
+      if (pauseStatusRecord >= 0) {
+         try {
+            storageManager.deleteQueueStatus(pauseStatusRecord);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      }
+      this.pauseStatusRecord = recordID;
+   }
+
+   @Override
+   public synchronized void pause(boolean persist)  {
       try {
          this.flushDeliveriesInTransit();
+         if (persist && isDurable()) {
+            if (pauseStatusRecord >= 0) {
+               storageManager.deleteQueueStatus(pauseStatusRecord);
+            }
+            pauseStatusRecord = storageManager.storeQueueStatus(this.id, QueueStatus.PAUSED);
+         }
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
@@ -1730,12 +1757,26 @@ public class QueueImpl implements Queue {
    public synchronized void resume() {
       paused = false;
 
+      if (pauseStatusRecord >= 0) {
+         try {
+            storageManager.deleteQueueStatus(pauseStatusRecord);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         }
+         pauseStatusRecord = -1;
+      }
+
       deliverAsync();
    }
 
    @Override
    public synchronized boolean isPaused() {
       return paused;
+   }
+
+   @Override
+   public synchronized boolean isPersistedPause() {
+      return this.pauseStatusRecord >= 0;
    }
 
    @Override

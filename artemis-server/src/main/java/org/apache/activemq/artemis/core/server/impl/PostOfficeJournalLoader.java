@@ -39,9 +39,11 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AddMessageRecord;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.QueueStatusEncoding;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -146,6 +148,13 @@ public class PostOfficeJournalLoader implements JournalLoader {
             queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl) postOffice).getServer().getJMSQueueDeleter(), queueBindingInfo.getQueueName()));
          }
 
+         if (queueBindingInfo.getQueueStatusEncodings() != null) {
+            for (QueueStatusEncoding encoding : queueBindingInfo.getQueueStatusEncodings()) {
+               if (encoding.getStatus() == QueueStatus.PAUSED)
+               queue.reloadPause(encoding.getId());
+            }
+         }
+
          final Binding binding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
          queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
@@ -245,7 +254,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
                         ResourceManager resourceManager,
                         Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
       for (Queue queue : queues.values()) {
-         queue.resume();
+         if (!queue.isPersistedPause()) {
+            queue.resume();
+         }
       }
 
       if (System.getProperty("org.apache.activemq.opt.directblast") != null) {

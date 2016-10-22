@@ -74,6 +74,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_TRANSACTION;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.QUEUE_BINDING_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.QUEUE_STATUS_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SECURITY_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
@@ -549,6 +550,9 @@ public final class DescribeJournal {
             encoding.setID(info.id);
             return encoding;
          }
+
+         case QUEUE_STATUS_RECORD:
+            return AbstractJournalStorageManager.newQueueStatusEncoding(id, buffer);
 
          case QUEUE_BINDING_RECORD:
             return AbstractJournalStorageManager.newBindingEncoding(id, buffer);
