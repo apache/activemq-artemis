@@ -503,7 +503,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("test");
       clientProducer.send(message);
@@ -536,7 +536,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("1");
       clientProducer.send(message);
@@ -589,7 +589,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("1");
       clientProducer.send(message);
@@ -638,7 +638,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       qResourceAdapter.endpointActivation(endpointFactory, spec);
 
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("1");
       clientProducer.send(message);
@@ -690,7 +690,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("1");
       message.putStringProperty("foo", "bar");
@@ -767,7 +767,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       qResourceAdapter.endpointActivation(endpointFactory2, spec2);
 
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
 
       for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
@@ -863,7 +863,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("1");
       message.putStringProperty("foo", "bar");

@@ -147,7 +147,7 @@ public class ArtemisFeatureTest extends Assert {
          connection.start();
 
          javax.jms.Session sess = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-         Queue queue = sess.createQueue("jms.queue.exampleQueue");
+         Queue queue = sess.createQueue("exampleQueue");
          MessageProducer producer = sess.createProducer(queue);
          producer.send(sess.createTextMessage("TEST"));
 

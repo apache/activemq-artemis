@@ -157,8 +157,7 @@ public final class ActiveMQDefaultConfiguration {
    // true means that the server supports wild card routing
    private static boolean DEFAULT_WILDCARD_ROUTING_ENABLED = true;
 
-   // the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it.
-   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = new SimpleString("jms.queue.activemq.management");
+   private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = new SimpleString("activemq.management");
 
    // the name of the address that consumers bind to receive management notifications
    private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = new SimpleString("activemq.notifications");

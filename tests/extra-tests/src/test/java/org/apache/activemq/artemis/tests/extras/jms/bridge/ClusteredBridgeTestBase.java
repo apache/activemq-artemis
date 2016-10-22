@@ -212,7 +212,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
 
       public void sendMessages(String queueName, int num) throws ActiveMQException {
          ClientSession session = sessionFactory.createSession();
-         ClientProducer producer = session.createProducer("jms.queue." + queueName);
+         ClientProducer producer = session.createProducer(queueName);
          for (int i = 0; i < num; i++) {
             ClientMessage m = session.createMessage(true);
             m.putStringProperty("bridge-message", "hello " + index);
@@ -225,7 +225,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
       public void receiveMessages(String queueName, int num, boolean checkDup) throws ActiveMQException {
          ClientSession session = sessionFactory.createSession();
          session.start();
-         ClientConsumer consumer = session.createConsumer("jms.queue." + queueName);
+         ClientConsumer consumer = session.createConsumer(queueName);
          for (int i = 0; i < num; i++) {
             ClientMessage m = consumer.receive(30000);
             assertNotNull("i=" + i, m);

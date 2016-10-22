@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
@@ -84,9 +85,9 @@ public class AMQConsumer {
 
       if (openwireDestination.isTopic()) {
          if (openwireDestination.isTemporary()) {
-            address = new SimpleString("jms.temptopic." + physicalName);
+            address = new SimpleString(physicalName);
          } else {
-            address = new SimpleString("jms.topic." + physicalName);
+            address = new SimpleString(physicalName);
          }
 
          SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), physicalName, info.getSubscriptionName(), selector, address);
@@ -95,7 +96,11 @@ public class AMQConsumer {
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
       } else {
          SimpleString queueName = OpenWireUtil.toCoreAddress(openwireDestination);
-         session.getCoreServer().getJMSDestinationCreator().create(queueName);
+         try {
+            session.getCoreServer().createQueue(queueName, queueName, null, true, false);
+         } catch (ActiveMQQueueExistsException e) {
+            // ignore
+         }
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
          AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(queueName.toString());

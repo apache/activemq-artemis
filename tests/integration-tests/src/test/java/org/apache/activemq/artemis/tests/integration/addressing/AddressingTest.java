@@ -309,7 +309,7 @@ public class AddressingTest extends ActiveMQTestBase {
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean deleteOnNoConsumers = false;
       AddressInfo addressInfo = new AddressInfo(address);
-      addressInfo.setDefaultMaxConsumers(0);
+      addressInfo.setDefaultMaxQueueConsumers(0);
       Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
 
       ClientSession session = sessionFactory.createSession();

@@ -23,7 +23,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class QueueRestMessageContext extends RestMessageContext {
 
-   public static final String PREFIX_QUEUE = "/queues/jms.queue.";
+   public static final String PREFIX_QUEUE = "/queues/";
 
    public QueueRestMessageContext(RestAMQConnection restAMQConnection, String queue) throws IOException {
       super(restAMQConnection, queue);

@@ -299,7 +299,15 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (jbd != null) {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
-            if (!response.isExists() && ((jbd.getAddress().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && !response.isAutoCreateJmsQueues()) || (jbd.getAddress().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && !response.isAutoCreateJmsTopics()))) {
+            if (!response.isExists() && response.isAutoCreateJmsQueues()) {
+               if (jbd.isQueue()) {
+                  session.createAddress(jbd.getSimpleAddress(), false);
+                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
+               } else {
+                  session.createAddress(jbd.getSimpleAddress(), true);
+               }
+
+            } else if (!response.isExists() && !response.isAutoCreateJmsQueues()) {
                throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
             }
 
@@ -559,7 +567,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
-         if (!response.isExists()) {
+         if (!response.isExists() && !response.isAutoCreateJmsTopics()) {
             throw ActiveMQJMSClientBundle.BUNDLE.destinationDoesNotExist(dest.getSimpleAddress());
          }
 
@@ -652,8 +660,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          } else {
             AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
-            if (!response.isExists() && !response.isAutoCreateJmsTopics()) {
-               throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
+            if (!response.isExists()) {
+               if (response.isAutoCreateJmsQueues()) {
+                  session.createAddress(dest.getSimpleAddress(), true);
+               } else {
+                  throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
+               }
             }
 
             connection.addKnownDestination(dest.getSimpleAddress());
@@ -774,26 +786,26 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(e, new SimpleString(filterString)));
       }
 
-      ActiveMQDestination jbq = (ActiveMQDestination) queue;
+      ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
 
-      if (!jbq.isQueue()) {
+      if (!activeMQDestination.isQueue()) {
          throw new InvalidDestinationException("Cannot create a browser on a topic");
       }
 
       try {
-         AddressQuery response = session.addressQuery(new SimpleString(jbq.getAddress()));
+         AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
          if (!response.isExists()) {
             if (response.isAutoCreateJmsQueues()) {
-               session.createQueue(jbq.getSimpleAddress(), jbq.getSimpleAddress(), true);
+               session.createQueue(activeMQDestination.getSimpleAddress(), activeMQDestination.getSimpleAddress(), true);
             } else {
-               throw new InvalidDestinationException("Destination " + jbq.getName() + " does not exist");
+               throw new InvalidDestinationException("Destination " + activeMQDestination.getName() + " does not exist");
             }
          }
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
-      return new ActiveMQQueueBrowser(options, (ActiveMQQueue) jbq, filterString, session);
+      return new ActiveMQQueueBrowser(options, (ActiveMQQueue) activeMQDestination, filterString, session);
 
    }
 
@@ -1082,7 +1094,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       AddressQuery query = session.addressQuery(topic.getSimpleAddress());
 
-      if (!query.isExists() && !query.isAutoCreateJmsTopics()) {
+      if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
          return null;
       } else {
          return topic;

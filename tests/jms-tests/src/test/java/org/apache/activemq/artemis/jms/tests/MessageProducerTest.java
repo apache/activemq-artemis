@@ -339,7 +339,7 @@ public class MessageProducerTest extends JMSTestCase {
 
    @Test
    public void testCreateProducerOnInexistentDestination() throws Exception {
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
       Connection pconn = createConnection();
       try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);

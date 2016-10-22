@@ -33,7 +33,7 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
    // Static --------------------------------------------------------
 
    public static SimpleString createAddressFromName(final String name) {
-      return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + name);
+      return new SimpleString(name);
    }
 
    // Attributes ----------------------------------------------------
@@ -41,11 +41,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
    // Constructors --------------------------------------------------
 
    public ActiveMQQueue(final String name) {
-      super(JMS_QUEUE_ADDRESS_PREFIX + name, name, false, true, null);
+      super(name, name, false, true, null);
    }
 
    public ActiveMQQueue(final String name, boolean temporary) {
-      super(JMS_QUEUE_ADDRESS_PREFIX + name, name, temporary, true, null);
+      super(name, name, temporary, true, null);
    }
 
    /**

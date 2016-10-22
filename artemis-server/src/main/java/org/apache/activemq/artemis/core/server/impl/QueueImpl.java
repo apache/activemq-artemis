@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -380,9 +381,9 @@ public class QueueImpl implements Queue {
 
       this.autoCreated = autoCreated;
 
-      this.maxConsumers = maxConsumers == null ? addressInfo.getDefaultMaxConsumers() : maxConsumers;
+      this.maxConsumers = maxConsumers == null ? (addressInfo == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : addressInfo.getDefaultMaxQueueConsumers()) : maxConsumers;
 
-      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? addressInfo.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;
+      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? (addressInfo == null ? ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers() : addressInfo.isDefaultDeleteOnNoConsumers()) : deleteOnNoConsumers;
 
       this.postOffice = postOffice;
 
@@ -1883,7 +1884,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public String toString() {
-      return "QueueImpl[name=" + name.toString() + ", postOffice=" + this.postOffice + "]@" + Integer.toHexString(System.identityHashCode(this));
+      return "QueueImpl[name=" + name.toString() + ", postOffice=" + this.postOffice + ", temp=" + this.temporary + "]@" + Integer.toHexString(System.identityHashCode(this));
    }
 
    private synchronized void internalAddTail(final MessageReference ref) {

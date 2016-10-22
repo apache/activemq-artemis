@@ -1625,7 +1625,7 @@ public class MQTTTest extends MQTTTestSupport {
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
          AddressInfo addressInfo = new AddressInfo(coreAddress);
-         addressInfo.setDefaultMaxConsumers(0);
+         addressInfo.setDefaultMaxQueueConsumers(0);
          getServer().createOrUpdateAddressInfo(addressInfo);
 
          getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false);

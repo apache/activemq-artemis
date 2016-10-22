@@ -29,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
@@ -37,8 +38,8 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -253,11 +254,12 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void autoCreateDestinationIfPossible(String queue) throws ActiveMQStompException {
+      // TODO: STOMP clients will have to prefix their destination with queue:// or topic:// so we can determine what to do here
       try {
-         QueueCreator queueCreator = manager.getServer().getJMSDestinationCreator();
-         if (queueCreator != null) {
-            queueCreator.create(SimpleString.toSimpleString(queue));
-         }
+         manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST));
+         manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, true, false);
+      } catch (ActiveMQQueueExistsException e) {
+         // ignore
       } catch (Exception e) {
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
       }

@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
@@ -287,11 +286,10 @@ public class LocalTestServer implements Server, Runnable {
    public void configureSecurityForDestination(final String destName,
                                                final boolean isQueue,
                                                final Set<Role> roles) throws Exception {
-      String destination = (isQueue ? "jms.queue." : "jms.topic.") + destName;
       if (roles != null) {
-         getActiveMQServer().getSecurityRepository().addMatch(destination, roles);
+         getActiveMQServer().getSecurityRepository().addMatch(destName, roles);
       } else {
-         getActiveMQServer().getSecurityRepository().removeMatch(destination);
+         getActiveMQServer().getSecurityRepository().removeMatch(destName);
       }
    }
 
@@ -330,7 +328,7 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public Long getMessageCountForQueue(final String queueName) throws Exception {
-      JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.JMS_QUEUE + queueName);
+      JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(queueName);
       if (queue != null) {
          queue.flushExecutor();
          return queue.getMessageCount();
@@ -342,10 +340,10 @@ public class LocalTestServer implements Server, Runnable {
    @Override
    public void removeAllMessages(final String destination, final boolean isQueue) throws Exception {
       if (isQueue) {
-         JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.JMS_QUEUE + destination);
+         JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(destination);
          queue.removeMessages(null);
       } else {
-         TopicControl topic = (TopicControl) getActiveMQServer().getManagementService().getResource(ResourceNames.JMS_TOPIC + destination);
+         TopicControl topic = (TopicControl) getActiveMQServer().getManagementService().getResource(destination);
          topic.removeMessages(null);
       }
    }

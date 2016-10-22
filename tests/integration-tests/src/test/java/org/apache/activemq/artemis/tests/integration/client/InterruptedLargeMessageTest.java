@@ -214,7 +214,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       server.start();
 
-      SimpleString jmsAddress = new SimpleString("jms.queue.Test");
+      SimpleString jmsAddress = new SimpleString("Test");
 
       server.createQueue(jmsAddress, jmsAddress, null, true, false);
 

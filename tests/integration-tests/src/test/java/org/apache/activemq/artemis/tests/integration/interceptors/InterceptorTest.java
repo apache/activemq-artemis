@@ -51,7 +51,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -65,7 +64,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
 
-   private final SimpleString JMS_QUEUE = SimpleString.toSimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + QUEUE.toString());
+   private final SimpleString JMS_QUEUE = SimpleString.toSimpleString(QUEUE.toString());
 
    private ServerLocator locator;
 

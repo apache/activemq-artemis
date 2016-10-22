@@ -34,6 +34,8 @@ public class Role implements Serializable {
 
    private final boolean consume;
 
+   private final boolean createAddress;
+
    private final boolean createDurableQueue;
 
    private final boolean deleteDurableQueue;
@@ -47,7 +49,7 @@ public class Role implements Serializable {
    private final boolean browse;
 
    public JsonObject toJson() {
-      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).build();
+      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).add("createAddress", createAddress).build();
    }
 
    /**
@@ -84,12 +86,28 @@ public class Role implements Serializable {
                final boolean deleteNonDurableQueue,
                final boolean manage,
                final boolean browse) {
+      // This constructor exists for version compatibility on the API. If either createDurableQueue or createNonDurableQueue
+      // is true then createAddress will be true.
+      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createDurableQueue || createNonDurableQueue);
+   }
+
+   public Role(final String name,
+               final boolean send,
+               final boolean consume,
+               final boolean createDurableQueue,
+               final boolean deleteDurableQueue,
+               final boolean createNonDurableQueue,
+               final boolean deleteNonDurableQueue,
+               final boolean manage,
+               final boolean browse,
+               final boolean createAddress) {
       if (name == null) {
          throw new NullPointerException("name is null");
       }
       this.name = name;
       this.send = send;
       this.consume = consume;
+      this.createAddress = createAddress;
       this.createDurableQueue = createDurableQueue;
       this.deleteDurableQueue = deleteDurableQueue;
       this.createNonDurableQueue = createNonDurableQueue;
@@ -108,6 +126,10 @@ public class Role implements Serializable {
 
    public boolean isConsume() {
       return consume;
+   }
+
+   public boolean isCreateAddress() {
+      return createAddress;
    }
 
    public boolean isCreateDurableQueue() {
@@ -135,6 +157,9 @@ public class Role implements Serializable {
       }
       if (consume) {
          stringReturn.append(" consume ");
+      }
+      if (createAddress) {
+         stringReturn.append(" createAddress ");
       }
       if (createDurableQueue) {
          stringReturn.append(" createDurableQueue ");
@@ -174,6 +199,9 @@ public class Role implements Serializable {
       if (consume != role.consume) {
          return false;
       }
+      if (createAddress != role.createAddress) {
+         return false;
+      }
       if (createDurableQueue != role.createDurableQueue) {
          return false;
       }
@@ -208,6 +236,7 @@ public class Role implements Serializable {
       result = name.hashCode();
       result = 31 * result + (send ? 1 : 0);
       result = 31 * result + (consume ? 1 : 0);
+      result = 31 * result + (createAddress ? 1 : 0);
       result = 31 * result + (createDurableQueue ? 1 : 0);
       result = 31 * result + (deleteDurableQueue ? 1 : 0);
       result = 31 * result + (createNonDurableQueue ? 1 : 0);

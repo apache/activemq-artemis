@@ -95,7 +95,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = addClientSession(locator.createSessionFactory().createSession());
-      ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
+      ClientProducer clientProducer = session.createProducer("mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("test");
       clientProducer.send(message);

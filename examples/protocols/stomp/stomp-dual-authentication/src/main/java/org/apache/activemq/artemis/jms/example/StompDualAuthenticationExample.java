@@ -70,7 +70,7 @@ public class StompDualAuthenticationExample {
          // jms.queue.exampleQueue address with a text body
          String text = "Hello, world from Stomp!";
          String message = "SEND\n" +
-            "destination: jms.queue.exampleQueue\n" +
+            "destination: exampleQueue\n" +
             "\n" +
             text +
             END_OF_FRAME;

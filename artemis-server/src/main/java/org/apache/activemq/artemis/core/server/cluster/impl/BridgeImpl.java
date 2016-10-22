@@ -78,10 +78,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    // Attributes ----------------------------------------------------
 
-   private static final SimpleString JMS_QUEUE_ADDRESS_PREFIX = new SimpleString("jms.queue.");
-
-   private static final SimpleString JMS_TOPIC_ADDRESS_PREFIX = new SimpleString("jms.topic.");
-
    protected final ServerLocatorInternal serverLocator;
 
    protected final Executor executor;
@@ -879,16 +875,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                   return;
                }
 
-               if (forwardingAddress.startsWith(BridgeImpl.JMS_QUEUE_ADDRESS_PREFIX) || forwardingAddress.startsWith(BridgeImpl.JMS_TOPIC_ADDRESS_PREFIX)) {
-                  if (!query.isExists()) {
-                     ActiveMQServerLogger.LOGGER.errorQueryingBridge(forwardingAddress, retryCount);
-                     scheduleRetryConnect();
-                     return;
-                  }
-               } else {
-                  if (!query.isExists()) {
-                     ActiveMQServerLogger.LOGGER.bridgeNoBindings(getName(), getForwardingAddress(), getForwardingAddress());
-                  }
+               if (!query.isExists()) {
+                  ActiveMQServerLogger.LOGGER.errorQueryingBridge(forwardingAddress, retryCount);
+                  scheduleRetryConnect();
+                  return;
                }
             }
 

@@ -1727,7 +1727,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
     * on appropriate nodes in the cluster.  It also verifies that addresses not matching the simple string filter do not
     * result in bindings being created.
     */ public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
-      setupCluster("jms", "jms", "jms", "jms", "jms");
+      setupCluster("test", "test", "test", "test", "test");
       startServers();
 
       setupSessionFactory(0, isNetty());
@@ -1736,11 +1736,11 @@ public class SymmetricClusterTest extends ClusterTestBase {
       setupSessionFactory(3, isNetty());
       setupSessionFactory(4, isNetty());
 
-      createQueue(0, "jms.queues.test.1", "queue0", null, false);
-      createQueue(1, "jms.queues.test.1", "queue0", null, false);
-      createQueue(2, "jms.queues.test.1", "queue0", null, false);
-      createQueue(3, "jms.queues.test.1", "queue0", null, false);
-      createQueue(4, "jms.queues.test.1", "queue0", null, false);
+      createQueue(0, "test.1", "queue0", null, false);
+      createQueue(1, "test.1", "queue0", null, false);
+      createQueue(2, "test.1", "queue0", null, false);
+      createQueue(3, "test.1", "queue0", null, false);
+      createQueue(4, "test.1", "queue0", null, false);
 
       createQueue(0, "foo.queues.test.1", "queue1", null, false);
       createQueue(1, "foo.queues.test.1", "queue1", null, false);
@@ -1748,11 +1748,11 @@ public class SymmetricClusterTest extends ClusterTestBase {
       createQueue(3, "foo.queues.test.1", "queue1", null, false);
       createQueue(4, "foo.queues.test.1", "queue1", null, false);
 
-      waitForBindings(0, "jms.queues.test.1", 4, 0, false);
-      waitForBindings(1, "jms.queues.test.1", 4, 0, false);
-      waitForBindings(2, "jms.queues.test.1", 4, 0, false);
-      waitForBindings(3, "jms.queues.test.1", 4, 0, false);
-      waitForBindings(4, "jms.queues.test.1", 4, 0, false);
+      waitForBindings(0, "test.1", 4, 0, false);
+      waitForBindings(1, "test.1", 4, 0, false);
+      waitForBindings(2, "test.1", 4, 0, false);
+      waitForBindings(3, "test.1", 4, 0, false);
+      waitForBindings(4, "test.1", 4, 0, false);
 
       waitForBindings(0, "foo.queues.test.1", 0, 0, false);
       waitForBindings(1, "foo.queues.test.1", 0, 0, false);

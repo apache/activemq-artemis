@@ -2569,7 +2569,7 @@ public class StompV12Test extends StompV11TestBase {
 
       ClientStompFrame frame = connV12.createFrame("SEND");
       String guid = UUID.randomUUID().toString();
-      frame.addHeader("destination", "jms.queue.NonExistentQueue" + guid);
+      frame.addHeader("destination", "NonExistentQueue" + guid);
       frame.addHeader("receipt", "1234");
       frame.setBody("Hello World");
 
@@ -2589,7 +2589,7 @@ public class StompV12Test extends StompV11TestBase {
 
       ClientStompFrame frame = connV12.createFrame("SEND");
       String guid = UUID.randomUUID().toString();
-      frame.addHeader("destination", "jms.queue.NonExistentQueue" + guid);
+      frame.addHeader("destination", "NonExistentQueue" + guid);
       frame.addHeader("receipt", "1234");
       frame.setBody("Hello World");
 

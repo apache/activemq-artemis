@@ -25,7 +25,7 @@ public class PushReg {
 
    public static void main(String[] args) throws Exception {
       // get the push consumers factory resource
-      ClientRequest request = new ClientRequest("http://localhost:8080/queues/jms.queue.orders");
+      ClientRequest request = new ClientRequest("http://localhost:8080/queues/orders");
       ClientResponse res = request.head();
       Link pushConsumers = res.getHeaderAsLink("msg-push-consumers");
 
@@ -33,7 +33,7 @@ public class PushReg {
       // Really, just create a link with the shipping URL and the type you want posted
       PushRegistration reg = new PushRegistration();
       XmlLink target = new XmlLink();
-      target.setHref("http://localhost:8080/queues/jms.queue.shipping");
+      target.setHref("http://localhost:8080/queues/shipping");
       target.setType("application/xml");
       target.setRelationship("destination");
       reg.setTarget(target);

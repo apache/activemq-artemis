@@ -120,7 +120,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       frame = stompConnection.receiveFrame();
       assertTrue(frame.startsWith("CONNECTED"));
 
-      frame = "SUBSCRIBE\n" + "destination:jms.queue." + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
+      frame = "SUBSCRIBE\n" + "destination:" + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
       stompConnection.sendFrame(frame);
 
       // ensure dispatch has started before pause
@@ -148,7 +148,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       // verify connection is dead
       try {
          for (int i = 0; i < 200; i++) {
-            stompConnection.send("jms.queue." + dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
+            stompConnection.send(dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
          }
          fail("expected send to fail with timeout out connection");
       } catch (SocketException expected) {

@@ -88,7 +88,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
 
       // guest can not create queue
-      Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true);
+      Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), roles);
@@ -136,7 +136,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
 
-      Role role = new Role("notif", true, true, true, true, true, true, true, true);
+      Role role = new Role("notif", true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);

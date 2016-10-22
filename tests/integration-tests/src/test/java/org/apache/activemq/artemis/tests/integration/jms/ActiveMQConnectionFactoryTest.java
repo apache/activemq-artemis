@@ -242,7 +242,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private void testDeserializationOptions(boolean useJndi, boolean useBrowser) throws Exception {
       String qname = "SerialTestQueue";
-      SimpleString qaddr = new SimpleString("jms.queue." + qname);
+      SimpleString qaddr = new SimpleString(qname);
       liveService.createQueue(qaddr, qaddr, null, true, false);
 
       //default ok
@@ -315,7 +315,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       System.setProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "some.other.package");
 
       String qname = "SerialTestQueue";
-      SimpleString qaddr = new SimpleString("jms.queue." + qname);
+      SimpleString qaddr = new SimpleString(qname);
       liveService.createQueue(qaddr, qaddr, null, true, false);
 
       try {
@@ -378,9 +378,8 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       } else {
          factory = new ActiveMQConnectionFactory("vm://0" + query);
       }
-      Connection connection = null;
-      try {
-         connection = factory.createConnection();
+
+      try (Connection connection = factory.createConnection()) {
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(qname);
@@ -401,14 +400,6 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          return result;
       } catch (Exception e) {
          return e;
-      } finally {
-         if (connection != null) {
-            try {
-               connection.close();
-            } catch (JMSException e) {
-               return e;
-            }
-         }
       }
    }
 

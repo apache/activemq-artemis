@@ -421,11 +421,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+      try {
+         getServer().getManagementService().registerAddress(addressInfo.getName());
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
       return addressManager.addAddressInfo(addressInfo);
    }
 
    @Override
    public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      try {
+         getServer().getManagementService().registerAddress(addressInfo.getName());
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
       return addressManager.addOrUpdateAddressInfo(addressInfo);
    }
 
@@ -490,6 +500,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new ActiveMQNonExistentQueueException();
       }
 
+      // TODO: see whether we still want to do this or not
       if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
          pagingManager.deletePageStore(binding.getAddress());
 

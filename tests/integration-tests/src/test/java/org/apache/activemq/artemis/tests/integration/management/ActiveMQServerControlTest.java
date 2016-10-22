@@ -440,7 +440,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String exactAddress = "test.whatever";
 
       assertEquals(1, serverControl.getRoles(addressMatch).length);
-      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", "foo", "bar", "foo, bar", "", "", "bar");
+      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", "foo", "bar", "foo, bar", "", "", "bar", "foo");
 
       // Restart the server. Those settings should be persisted
 
@@ -468,6 +468,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertFalse(fooRole.isDeleteNonDurableQueue());
       assertFalse(fooRole.isManage());
       assertFalse(fooRole.isBrowse());
+      assertTrue(fooRole.isCreateAddress());
 
       assertFalse(barRole.isSend());
       assertTrue(barRole.isConsume());
@@ -477,6 +478,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertFalse(barRole.isDeleteNonDurableQueue());
       assertFalse(barRole.isManage());
       assertTrue(barRole.isBrowse());
+      assertFalse(barRole.isCreateAddress());
 
       serverControl.removeSecuritySettings(addressMatch);
       assertEquals(1, serverControl.getRoles(exactAddress).length);
@@ -544,7 +546,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+//      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
@@ -570,7 +572,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+//      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       ex = false;
@@ -1414,7 +1416,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.start();
 
       HashSet<Role> role = new HashSet<>();
-      role.add(new Role("guest", true, true, true, true, true, true, true, true));
+      role.add(new Role("guest", true, true, true, true, true, true, true, true, true));
       server.getSecurityRepository().addMatch("#", role);
    }
 

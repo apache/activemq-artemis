@@ -45,12 +45,13 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 public class SelectorTest extends MessageTestBase {
 
    public static ConnectionFactory connectionFactory;
-   public static String topicName = ActiveMQDestination.createQueueAddressFromName("testTopic").toString();
+   public static String topicName = "testTopic";
+   public static String prefixedTopicName = ActiveMQDestination.createQueueAddressFromName(topicName).toString();
 
    @BeforeClass
    public static void setup() throws Exception {
       connectionFactory = new ActiveMQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
-      System.out.println("Queue name: " + topicName);
+      System.out.println("Queue name: " + prefixedTopicName);
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -118,7 +119,7 @@ public class SelectorTest extends MessageTestBase {
    }
 
    public static Destination createDestination(String dest) {
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(dest);
+      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(dest);
       System.out.println("SimpleAddress: " + destination.getSimpleAddress());
       return destination;
    }
@@ -203,32 +204,32 @@ public class SelectorTest extends MessageTestBase {
       Order order = new Order();
       order.setName("1");
       order.setAmount("$5.00");
-      publish(topicName, order, null, "1");
+      publish(prefixedTopicName, order, null, "1");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.oneOrder);
 
       order.setName("2");
-      publish(topicName, order, null, "2");
+      publish(prefixedTopicName, order, null, "2");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.twoOrder);
 
       order.setName("3");
-      publish(topicName, order, null, "2");
+      publish(prefixedTopicName, order, null, "2");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.twoOrder);
 
       order.setName("4");
-      publish(topicName, order, null, "1");
+      publish(prefixedTopicName, order, null, "1");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.oneOrder);
 
       order.setName("5");
-      publish(topicName, order, null, "1");
+      publish(prefixedTopicName, order, null, "1");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.oneOrder);
 
       order.setName("6");
-      publish(topicName, order, null, "1");
+      publish(prefixedTopicName, order, null, "1");
       Thread.sleep(200);
       Assert.assertEquals(order, PushReceiver.oneOrder);
 
@@ -262,17 +263,17 @@ public class SelectorTest extends MessageTestBase {
          Order order = new Order();
          order.setName("1");
          order.setAmount("$5.00");
-         publish(topicName, order, null, "1");
+         publish(prefixedTopicName, order, null, "1");
          order.setName("2");
-         publish(topicName, order, null, "2");
+         publish(prefixedTopicName, order, null, "2");
          order.setName("3");
-         publish(topicName, order, null, "2");
+         publish(prefixedTopicName, order, null, "2");
          order.setName("4");
-         publish(topicName, order, null, "1");
+         publish(prefixedTopicName, order, null, "1");
          order.setName("5");
-         publish(topicName, order, null, "1");
+         publish(prefixedTopicName, order, null, "1");
          order.setName("6");
-         publish(topicName, order, null, "1");
+         publish(prefixedTopicName, order, null, "1");
 
          {
             order.setName("1");

@@ -27,7 +27,7 @@ public class XmlTest {
    @Test
    public void testPush() throws Exception {
       String xml = "<push-registration id=\"111\">\n" +
-         "   <destination>jms.queue.bar</destination>\n" +
+         "   <destination>bar</destination>\n" +
          "   <durable>true</durable>\n" +
          "   <session-count>10</session-count>\n" +
          "   <link rel=\"template\" href=\"http://somewhere.com/resources/{id}/messages\" method=\"PUT\"/>\n" +

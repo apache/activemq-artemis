@@ -39,7 +39,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
    @Before
    public void createQueue() throws Exception {
-      server.createQueue(SimpleString.toSimpleString("jms.queue.queue1"), SimpleString.toSimpleString("jms.queue.queue1"), null, true, false);
+      server.createQueue(SimpleString.toSimpleString("queue1"), SimpleString.toSimpleString("queue1"), null, true, false);
    }
 
    @After
@@ -110,7 +110,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
    @Test
    public void testWithoutReconnect() throws Exception {
 
-      internalNoReconnect(AMQP_URI, "jms.queue.queue1");
+      internalNoReconnect(AMQP_URI, "queue1");
       internalNoReconnect(CORE_URI_NO_RECONNECT, "queue1");
    }
 

@@ -464,11 +464,13 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerInRegistry(final String resourceName, final Object managedResource) {
       unregisterFromRegistry(resourceName);
 
+      ActiveMQServerLogger.LOGGER.info("Registering: " + resourceName);
       registry.put(resourceName, managedResource);
    }
 
    @Override
    public synchronized void unregisterFromRegistry(final String resourceName) {
+      ActiveMQServerLogger.LOGGER.info("Unregistering: " + resourceName, new Exception());
       registry.remove(resourceName);
    }
 

@@ -300,16 +300,16 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
             String clientID = null;
             String subName = null;
 
-            if (queue.isDurable() && !queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
+            if (queue.isDurable()) {
                Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName());
                clientID = pair.getA();
                subName = pair.getB();
-            } else if (queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
+            } else {
                // in the case of heirarchical topics the queue name will not follow the <part>.<part> pattern of normal
                // durable subscribers so skip decomposing the name for the client ID and subscription name and just
                // hard-code it
-               clientID = "ActiveMQ";
-               subName = "ActiveMQ";
+               clientID = "";
+               subName = "";
             }
 
             String filter = queue.getFilter() != null ? queue.getFilter() : null;

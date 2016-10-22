@@ -28,11 +28,6 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.util.ByteSequence;
 
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX;
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX;
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX;
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
-
 public class OpenWireUtil {
 
    public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes) {
@@ -45,21 +40,17 @@ public class OpenWireUtil {
    public static SimpleString toCoreAddress(ActiveMQDestination dest) {
       if (dest.isQueue()) {
          if (dest.isTemporary()) {
-            return new SimpleString(JMS_TEMP_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
+            return new SimpleString(dest.getPhysicalName());
          } else {
-            return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
+            return new SimpleString(dest.getPhysicalName());
          }
       } else {
          if (dest.isTemporary()) {
-            return new SimpleString(JMS_TEMP_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
+            return new SimpleString(dest.getPhysicalName());
          } else {
-            return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
+            return new SimpleString(dest.getPhysicalName());
          }
       }
-   }
-
-   public static String toAMQAddress(String coreAddress) {
-      return coreAddress.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
    }
 
    /**
@@ -70,7 +61,7 @@ public class OpenWireUtil {
     */
    public static ActiveMQDestination toAMQAddress(ServerMessage message, ActiveMQDestination actualDestination) {
       String address = message.getAddress().toString();
-      String strippedAddress = toAMQAddress(address);
+      String strippedAddress = address;//.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
       } else {

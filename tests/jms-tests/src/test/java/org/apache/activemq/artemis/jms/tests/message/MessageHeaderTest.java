@@ -1125,6 +1125,11 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
 
       @Override
+      public void createAddress(SimpleString address, boolean multicast) throws ActiveMQException {
+
+      }
+
+      @Override
       public FakeSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
          return this;
       }

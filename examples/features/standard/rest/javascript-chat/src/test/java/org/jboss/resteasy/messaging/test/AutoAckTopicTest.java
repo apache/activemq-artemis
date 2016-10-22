@@ -31,7 +31,7 @@ public class AutoAckTopicTest {
    //todo fix
    //@Test
    public void testSuccessFirst() throws Exception {
-      ClientRequest request = new ClientRequest("http://localhost:8080/topics/jms.topic.chat");
+      ClientRequest request = new ClientRequest("http://localhost:8080/topics/chat");
 
       ClientResponse response = request.head();
       Assert.assertEquals("*****", 200, response.getStatus());

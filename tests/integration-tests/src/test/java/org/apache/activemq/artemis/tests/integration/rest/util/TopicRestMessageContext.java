@@ -23,7 +23,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class TopicRestMessageContext extends RestMessageContext {
 
-   public static final String PREFIX_TOPIC = "/topics/jms.topic.";
+   public static final String PREFIX_TOPIC = "/topics/";
 
    private boolean durableSub;
 

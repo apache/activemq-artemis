@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -99,7 +98,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       RemotingConnection coreConn = ((ClientSessionInternal) coreSession).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString("myqueue");
 
       coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -179,7 +178,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
       Destination dest;
 
       if (nonDurableSub) {
-         coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
+         coreSession.createQueue("mytopic", "blahblah", null, false);
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
       } else {
@@ -242,7 +241,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
+      coreSession.createQueue("mytopic", "blahblah", null, false);
 
       Topic topic = ActiveMQJMSClient.createTopic("mytopic");
 

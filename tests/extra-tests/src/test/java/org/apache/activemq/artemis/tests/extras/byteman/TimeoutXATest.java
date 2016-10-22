@@ -55,7 +55,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
       server.getConfiguration().setTransactionTimeoutScanPeriod(1100);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.start();
-      server.createQueue(SimpleString.toSimpleString("jms.queue.Queue1"), SimpleString.toSimpleString("jms.queue.Queue1"), null, true, false);
+      server.createQueue(SimpleString.toSimpleString("Queue1"), SimpleString.toSimpleString("Queue1"), null, true, false);
 
       removingTXEntered0 = new CountDownLatch(1);
       removingTXAwait0 = new CountDownLatch(1);

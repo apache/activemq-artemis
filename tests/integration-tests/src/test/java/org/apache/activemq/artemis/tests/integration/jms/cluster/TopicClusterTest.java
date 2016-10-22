@@ -29,6 +29,9 @@ import org.junit.Test;
 
 public class TopicClusterTest extends JMSClusteredTestBase {
 
+   // TODO: required to match cluster-connection
+   public static final String TOPIC = "jms.t1";
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -55,9 +58,9 @@ public class TopicClusterTest extends JMSClusteredTestBase {
 
       try {
 
-         Topic topic1 = createTopic("t1");
+         Topic topic1 = createTopic(TOPIC);
 
-         Topic topic2 = (Topic) context1.lookup("topic/t1");
+         Topic topic2 = (Topic) context1.lookup("topic/" + TOPIC);
 
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -87,8 +90,8 @@ public class TopicClusterTest extends JMSClusteredTestBase {
          conn2.close();
       }
 
-      jmsServer1.destroyTopic("t1");
-      jmsServer2.destroyTopic("t1");
+      jmsServer1.destroyTopic(TOPIC);
+      jmsServer2.destroyTopic(TOPIC);
 
    }
 

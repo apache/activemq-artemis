@@ -86,7 +86,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, true);
       serverManager = new JMSServerManagerImpl(server);
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(true).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateJmsQueues(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       serverManager.start();
       server.start();
@@ -98,7 +98,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    }
 
    public String getTestName() {
-      return "jms.queue." + getName();
+      return getName();
    }
 
    public AmqpClientTestSupport() {

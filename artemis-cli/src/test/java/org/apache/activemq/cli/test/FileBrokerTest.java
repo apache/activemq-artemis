@@ -114,7 +114,7 @@ public class FileBrokerTest {
          ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession("myUser", "myPass", false, true, false, false, 0);
-         ClientProducer producer = session.createProducer("jms.queue.DLQ");
+         ClientProducer producer = session.createProducer("DLQ");
          producer.send(session.createMessage(true));
 
          replacePatternInFile(path, "guest", "X");

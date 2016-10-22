@@ -27,7 +27,7 @@ public class AddressInfo {
 
    private boolean defaultDeleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
 
-   private int defaultMaxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+   private int defaultMaxQueueConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
    public AddressInfo(SimpleString name) {
       this.name = name;
@@ -51,17 +51,28 @@ public class AddressInfo {
       return this;
    }
 
-   public int getDefaultMaxConsumers() {
-      return defaultMaxConsumers;
+   public int getDefaultMaxQueueConsumers() {
+      return defaultMaxQueueConsumers;
    }
 
-   public AddressInfo setDefaultMaxConsumers(int defaultMaxConsumers) {
-      this.defaultMaxConsumers = defaultMaxConsumers;
+   public AddressInfo setDefaultMaxQueueConsumers(int defaultMaxQueueConsumers) {
+      this.defaultMaxQueueConsumers = defaultMaxQueueConsumers;
       return this;
    }
 
    public SimpleString getName() {
       return name;
+   }
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer();
+      buff.append("AddressInfo [name=" + name);
+      buff.append(", routingType=" + routingType);
+      buff.append(", defaultMaxQueueConsumers=" + defaultMaxQueueConsumers);
+      buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);
+      buff.append("]");
+      return buff.toString();
    }
 
    public enum RoutingType {

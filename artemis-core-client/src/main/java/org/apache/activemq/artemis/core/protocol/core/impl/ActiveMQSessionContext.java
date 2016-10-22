@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
@@ -580,6 +581,12 @@ public class ActiveMQSessionContext extends SessionContext {
       SessionXAGetTimeoutResponseMessage response = (SessionXAGetTimeoutResponseMessage) sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_XA_GET_TIMEOUT), PacketImpl.SESS_XA_GET_TIMEOUT_RESP);
 
       return response.getTimeoutSeconds();
+   }
+
+   @Override
+   public void createAddress(SimpleString address, final boolean multicast) throws ActiveMQException {
+      CreateAddressMessage request = new CreateAddressMessage(address, multicast, true);
+      sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 
    @Override

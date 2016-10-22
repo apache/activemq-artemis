@@ -55,10 +55,10 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
       super.setUp();
       server = createServer(true, true);
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       server.start();
-      coreQueue = new SimpleString("jms.queue." + queueName);
+      coreQueue = new SimpleString(queueName);
       this.server.createQueue(coreQueue, coreQueue, null, false, false);
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }

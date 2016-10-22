@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -132,7 +131,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -178,7 +177,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -252,7 +251,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -279,7 +278,7 @@ public class ConsumerTest extends JMSTestBase {
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }

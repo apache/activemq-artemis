@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class PagingReceiveTest extends ActiveMQTestBase {
 
-   private static final SimpleString ADDRESS = new SimpleString("jms.queue.catalog-service.price.change.bm");
+   private static final SimpleString ADDRESS = new SimpleString("catalog-service.price.change.bm");
 
    private ActiveMQServer server;
 
