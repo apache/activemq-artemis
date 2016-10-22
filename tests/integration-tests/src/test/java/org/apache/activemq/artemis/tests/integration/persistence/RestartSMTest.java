@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -73,7 +74,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          List<QueueBindingInfo> queueBindingInfos = new ArrayList<>();
 
-         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
+         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
@@ -87,7 +88,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          queueBindingInfos = new ArrayList<>();
 
-         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
+         journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
 
          journal.start();
       } finally {
