@@ -2989,7 +2989,17 @@ public class QueueImpl implements Queue {
       public void onChange() {
          AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
          configureExpiry(settings);
+         checkDeadLetterAddressAndExpiryAddress(settings);
          configureSlowConsumerReaper(settings);
+      }
+   }
+
+   private void checkDeadLetterAddressAndExpiryAddress(final AddressSettings settings) {
+      if (settings.getDeadLetterAddress() == null) {
+         ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
+      }
+      if (settings.getExpiryAddress() == null) {
+         ActiveMQServerLogger.LOGGER.AddressSettingsNoExpiryAddress(name);
       }
    }
 

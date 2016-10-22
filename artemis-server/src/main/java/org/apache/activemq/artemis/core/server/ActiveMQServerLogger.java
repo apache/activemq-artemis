@@ -1025,6 +1025,16 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorStartingReplication(BackupReplicationStartFailedMessage.BackupRegistrationProblem problem);
 
    @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222165, value = "No Dead Letter Address configured for queue {0} in AddressSettings",
+      format = Message.Format.MESSAGE_FORMAT)
+   void AddressSettingsNoDLA(SimpleString name);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222166, value = "No Expiry Address configured for queue {0} in AddressSettings",
+      format = Message.Format.MESSAGE_FORMAT)
+   void AddressSettingsNoExpiryAddress(SimpleString name);
+
+   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222167, value = "Group Binding not available so deleting {0} groups from {1}, groups will be bound to another node",
       format = Message.Format.MESSAGE_FORMAT)
    void groupingQueueRemoved(int size, SimpleString clusterName);
