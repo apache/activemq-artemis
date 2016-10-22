@@ -31,7 +31,7 @@ public class ReceiveShipping {
 
    public static void main(String[] args) throws Exception {
       ConnectionFactory factory = new ActiveMQJMSConnectionFactory("tcp://localhost:61616");
-      Destination destination = ActiveMQDestination.fromAddress("jms.queue.shipping");
+      Destination destination = ActiveMQDestination.fromPrefixedName("queue://shipping");
 
       try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

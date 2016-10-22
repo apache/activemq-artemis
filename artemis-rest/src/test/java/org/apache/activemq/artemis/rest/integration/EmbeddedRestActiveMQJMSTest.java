@@ -65,7 +65,7 @@ public class EmbeddedRestActiveMQJMSTest {
       List<String> connectors = createInVmConnector();
       server.getEmbeddedJMS().getJMSServerManager().createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
 
-      ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/jms.queue.exampleQueue"));
+      ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/exampleQueue"));
 
       ClientResponse<?> response = request.head();
       response.releaseConnection();

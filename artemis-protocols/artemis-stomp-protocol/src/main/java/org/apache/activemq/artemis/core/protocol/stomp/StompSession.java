@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -285,7 +286,7 @@ public class StompSession implements SessionCallback {
          receiveCredits = -1;
       }
 
-      if (destination.startsWith("jms.topic")) {
+      if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingType().equals(AddressInfo.RoutingType.MULTICAST)) {
          // subscribes to a topic
          pubSub = true;
          if (durableSubscriptionName != null) {

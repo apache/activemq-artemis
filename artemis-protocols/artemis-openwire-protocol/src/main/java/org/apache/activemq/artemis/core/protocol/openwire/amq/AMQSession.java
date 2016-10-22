@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -145,7 +146,11 @@ public class AMQSession implements SessionCallback {
       for (ActiveMQDestination openWireDest : dests) {
          if (openWireDest.isQueue()) {
             SimpleString queueName = OpenWireUtil.toCoreAddress(openWireDest);
-            getCoreServer().getJMSDestinationCreator().create(queueName);
+            try {
+               getCoreServer().createQueue(queueName, queueName, null, true, false);
+            } catch (ActiveMQQueueExistsException e) {
+               // ignore
+            }
          }
          AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool);
 

@@ -72,12 +72,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final SimpleString address,
                                          final SimpleString filterString,
                                          final SimpleString user,
-                                         final boolean autoCreated) {
+                                         final boolean autoCreated,
+                                         final int maxConsumers,
+                                         final boolean deleteOnNoConsumers) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
       this.user = user;
       this.autoCreated = autoCreated;
+      this.maxConsumers = maxConsumers;
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
    }
 
    @Override
@@ -134,12 +138,12 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    @Override
    public int getMaxConsumers() {
-      return 0;
+      return maxConsumers;
    }
 
    @Override
    public void setMaxConsumers(int maxConsumers) {
-
+      this.maxConsumers = maxConsumers;
    }
 
    @Override
@@ -148,8 +152,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
-   public void setDeleteOnNoConsumers() {
-
+   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
    }
 
    @Override

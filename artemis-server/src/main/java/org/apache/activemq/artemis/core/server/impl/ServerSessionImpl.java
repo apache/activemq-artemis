@@ -41,7 +41,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -521,14 +520,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue;
-
-      // any non-temporary JMS destination created via this method should be marked as auto-created
-      if (!temporary && ((address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name)) || address.toString().startsWith(ResourceNames.JMS_TOPIC))) {
-         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true, maxConsumers, deleteOnNoConsumers);
-      } else {
-         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, maxConsumers, deleteOnNoConsumers);
-      }
+      Queue queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, maxConsumers, deleteOnNoConsumers);
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -556,6 +548,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       return queue;
 
+   }
+
+   @Override
+   public AddressInfo createAddress(final SimpleString address, final boolean multicast) throws Exception {
+      // make sure the user has privileges to create this queue
+      securityCheck(address, CheckType.CREATE_ADDRESS, this);
+      AddressInfo.RoutingType routingType = multicast ? AddressInfo.RoutingType.MULTICAST : AddressInfo.RoutingType.ANYCAST;
+
+      AddressInfo addressInfo = server.createOrUpdateAddressInfo(new AddressInfo(address).setRoutingType(routingType));
+
+      return addressInfo;
    }
 
    @Override
@@ -1516,6 +1519,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       SimpleString replyTo = message.getSimpleStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME);
 
       if (replyTo != null) {
+         // TODO: move this check somewhere else? this is a JMS-specific bit of logic in the core impl
+         if (replyTo.toString().startsWith("queue://") || replyTo.toString().startsWith("topic://")) {
+            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(8));
+         } else if (replyTo.toString().startsWith("temp-queue://") || replyTo.toString().startsWith("temp-topic://")) {
+            replyTo = SimpleString.toSimpleString(replyTo.toString().substring(13));
+         }
          reply.setAddress(replyTo);
 
          doSend(tx, reply, direct, false);

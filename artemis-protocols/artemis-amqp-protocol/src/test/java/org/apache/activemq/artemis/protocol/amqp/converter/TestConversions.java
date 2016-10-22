@@ -248,7 +248,7 @@ public class TestConversions extends Assert {
    }
 
    private void simulatePersistence(ServerMessage serverMessage) {
-      serverMessage.setAddress(new SimpleString("jms.queue.SomeAddress"));
+      serverMessage.setAddress(new SimpleString("SomeAddress"));
       // This is just to simulate what would happen during the persistence of the message
       // We need to still be able to recover the message when we read it back
       ((EncodingSupport) serverMessage).encode(new EmptyBuffer());

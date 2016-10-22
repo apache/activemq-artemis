@@ -65,7 +65,7 @@ public class OptimizedAckTest extends TestSupport {
       MessageConsumer consumer = session.createConsumer(queue);
       //check queue delivering count is 10
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("jms.queue.test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
       assertTrue("delivering count is 10", Wait.waitFor(new Wait.Condition() {
@@ -107,7 +107,7 @@ public class OptimizedAckTest extends TestSupport {
 
       //check queue delivering count is 10
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("jms.queue.test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
       assertTrue("prefetch full", Wait.waitFor(new Wait.Condition() {
@@ -151,7 +151,7 @@ public class OptimizedAckTest extends TestSupport {
 
       MessageConsumer consumer = session.createConsumer(queue);
       ArtemisBrokerWrapper broker = (ArtemisBrokerWrapper) ArtemisBrokerHelper.getBroker().getBroker();
-      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("jms.queue.test"));
+      Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
       assertTrue("prefetch full", Wait.waitFor(new Wait.Condition() {

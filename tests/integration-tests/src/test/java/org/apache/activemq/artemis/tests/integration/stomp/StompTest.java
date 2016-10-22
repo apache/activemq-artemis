@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -298,9 +297,9 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
       // closing the consumer here should trigger auto-deletion
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
       consumer.close();
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
    }
 
    @Test
@@ -333,11 +332,11 @@ public class StompTest extends StompTestBase {
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentTopic)));
 
       // closing the consumer here should trigger auto-deletion of the topic
       consumer.close();
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentTopic)));
    }
 
    /*
@@ -1436,9 +1435,9 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(frame.indexOf("destination:") > 0);
       Assert.assertTrue(frame.indexOf(getName()) > 0);
 
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
 
-      final Queue subscription = ((LocalQueueBinding) server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue))).getQueue();
+      final Queue subscription = ((LocalQueueBinding) server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue))).getQueue();
 
       assertTrue(Wait.waitFor(new Wait.Condition() {
          @Override
@@ -1462,7 +1461,7 @@ public class StompTest extends StompTestBase {
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("RECEIPT"));
 
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(nonExistentQueue)));
 
       sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistentQueue));
 

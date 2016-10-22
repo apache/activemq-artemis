@@ -29,6 +29,8 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    public SimpleString name;
 
+   public int defaultMaxConsumers;
+
    public AddressInfo.RoutingType routingType;
 
    public PersistentAddressBindingEncoding() {
@@ -41,13 +43,17 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
          name +
          ", routingType=" +
          routingType +
+         ", defaultMaxConsumers=" +
+         defaultMaxConsumers +
          "]";
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
-                                           final AddressInfo.RoutingType routingType) {
+                                           final AddressInfo.RoutingType routingType,
+                                           final int defaultMaxConsumers) {
       this.name = name;
       this.routingType = routingType;
+      this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
    @Override
@@ -70,19 +76,26 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       routingType = AddressInfo.RoutingType.getType(buffer.readByte());
+      defaultMaxConsumers = buffer.readInt();
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(name);
       buffer.writeByte(routingType.getType());
+      buffer.writeInt(defaultMaxConsumers);
    }
 
    @Override
    public int getEncodeSize() {
-      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE;
+      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT;
    }
 }

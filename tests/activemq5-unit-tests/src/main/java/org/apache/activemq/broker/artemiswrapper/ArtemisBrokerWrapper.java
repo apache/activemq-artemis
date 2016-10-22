@@ -81,13 +81,13 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          translatePolicyMap(serverConfig, policyMap);
       }
 
-      String match = "jms.queue.#";
+      String match = "#";
       AddressSettings commonSettings = addressSettingsMap.get(match);
       if (commonSettings == null) {
          commonSettings = new AddressSettings();
          addressSettingsMap.put(match, commonSettings);
       }
-      SimpleString dla = new SimpleString("jms.queue.ActiveMQ.DLQ");
+      SimpleString dla = new SimpleString("ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
       commonSettings.setAutoCreateJmsQueues(true);
 
@@ -222,11 +222,11 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
    private String getCorePattern(org.apache.activemq.command.ActiveMQDestination dest) {
       String physicalName = dest.getPhysicalName();
       String pattern = physicalName.replace(">", "#");
-      if (dest.isTopic()) {
-         pattern = "jms.topic." + pattern;
-      } else {
-         pattern = "jms.queue." + pattern;
-      }
+//      if (dest.isTopic()) {
+//         pattern = pattern;
+//      } else {
+//         pattern = pattern;
+//      }
 
       return pattern;
    }
@@ -248,7 +248,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       synchronized (testQueues) {
          SimpleString coreQ = testQueues.get(qname);
          if (coreQ == null) {
-            coreQ = new SimpleString("jms.queue." + qname);
+            coreQ = new SimpleString(qname);
             try {
                this.server.createQueue(coreQ, coreQ, null, false, false);
                testQueues.put(qname, coreQ);
@@ -266,9 +266,9 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       long count = 0;
       String qname = null;
       if (amq5Dest.isTemporary()) {
-         qname = "jms.tempqueue." + amq5Dest.getPhysicalName();
+         qname = amq5Dest.getPhysicalName();
       } else {
-         qname = "jms.queue." + amq5Dest.getPhysicalName();
+         qname = amq5Dest.getPhysicalName();
       }
       Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));
       if (binding != null) {

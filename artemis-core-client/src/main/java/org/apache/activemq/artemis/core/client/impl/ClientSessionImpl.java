@@ -279,6 +279,18 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
+   public void createAddress(final SimpleString address, final boolean multicast) throws ActiveMQException {
+      checkClosed();
+
+      startCall();
+      try {
+         sessionContext.createAddress(address, multicast);
+      } finally {
+         endCall();
+      }
+   }
+
+   @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,

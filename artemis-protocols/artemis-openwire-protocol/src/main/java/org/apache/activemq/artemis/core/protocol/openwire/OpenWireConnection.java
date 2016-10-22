@@ -792,8 +792,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    @Override
    public void tempQueueDeleted(SimpleString bindingName) {
-      String amqName = OpenWireUtil.toAMQAddress(bindingName.toString());
-      ActiveMQDestination dest = new ActiveMQTempQueue(amqName);
+      ActiveMQDestination dest = new ActiveMQTempQueue(bindingName.toString());
 
       if (!AdvisorySupport.isAdvisoryTopic(dest)) {
          AMQConnectionContext context = getContext();

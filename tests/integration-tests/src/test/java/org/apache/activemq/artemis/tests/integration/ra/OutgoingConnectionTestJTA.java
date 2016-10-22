@@ -71,7 +71,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
-      Role role = new Role("arole", true, true, true, true, true, true, true, true);
+      Role role = new Role("arole", true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
@@ -187,7 +187,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
 
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           ClientConsumer consVerify = session.createConsumer(MDBQUEUE);
            JMSContext jmsctx = qraConnectionFactory.createContext();
       ) {
          session.start();
@@ -233,7 +233,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
       Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           ClientConsumer consVerify = session.createConsumer(MDBQUEUE);
            Connection conn = qraConnectionFactory.createConnection();
       ) {
          Session jmsSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

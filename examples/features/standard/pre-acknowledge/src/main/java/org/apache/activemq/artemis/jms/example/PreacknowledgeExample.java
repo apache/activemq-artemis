@@ -113,7 +113,7 @@ public class PreacknowledgeExample {
 
       Message m = session.createMessage();
 
-      JMSManagementHelper.putAttribute(m, "jms.queue.exampleQueue", "messageCount");
+      JMSManagementHelper.putAttribute(m, "exampleQueue", "messageCount");
 
       Message response = requestor.request(m);
 

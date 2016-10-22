@@ -53,7 +53,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
@@ -197,7 +196,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString("myqueue");
 
       coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -270,7 +269,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       RemotingConnection coreConnLive = ((ClientSessionInternal) coreSessionLive).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString("myqueue");
 
       coreSessionLive.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -319,7 +318,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
    @Test
    public void testSendReceiveLargeMessages() throws Exception {
-      SimpleString QUEUE = new SimpleString("jms.queue.somequeue");
+      SimpleString QUEUE = new SimpleString("somequeue");
 
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc, backuptc);
       jbcf.setReconnectAttempts(-1);

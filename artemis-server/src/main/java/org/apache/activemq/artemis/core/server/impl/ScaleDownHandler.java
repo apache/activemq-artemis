@@ -439,7 +439,7 @@ public class ScaleDownHandler {
    private Integer getQueueID(ClientSession session, SimpleString queueName) throws Exception {
       Integer queueID = -1;
       Object result;
-      try (ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management")) {
+      try (ClientRequestor requestor = new ClientRequestor(session, "activemq.management")) {
          ClientMessage managementMessage = session.createMessage(false);
          ManagementHelper.putAttribute(managementMessage, "core.queue." + queueName, "ID");
          session.start();

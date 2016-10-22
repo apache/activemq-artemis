@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -39,7 +38,7 @@ import org.jboss.logging.Logger;
  */
 public class SimpleAddressManager implements AddressManager {
 
-   private static final Logger logger = Logger.getLogger(Page.class);
+   private static final Logger logger = Logger.getLogger(SimpleAddressManager.class);
 
    private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new ConcurrentHashMap<>();
 
@@ -196,7 +195,7 @@ public class SimpleAddressManager implements AddressManager {
    private AddressInfo updateAddressInfo(AddressInfo from, AddressInfo to) {
       synchronized (from) {
          from.setRoutingType(to.getRoutingType());
-         from.setDefaultMaxConsumers(to.getDefaultMaxConsumers());
+         from.setDefaultMaxQueueConsumers(to.getDefaultMaxQueueConsumers());
          from.setDefaultDeleteOnNoConsumers(to.isDefaultDeleteOnNoConsumers());
          return from;
       }

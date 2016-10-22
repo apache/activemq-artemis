@@ -605,7 +605,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       jmsServer.createTopic(true, "tt", "/topic/TT");
 
-      server.getActiveMQServerControl().addAddressSettings("jms.topic.TT", "DLQ", "DLQ", -1, false, 5, 1024 * 1024, 1024 * 10, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      server.getActiveMQServerControl().addAddressSettings("TT", "DLQ", "DLQ", -1, false, 5, 1024 * 1024, 1024 * 10, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
 
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -620,7 +620,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       TextMessage txt = sess.createTextMessage("TST");
       prod.send(txt);
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("jms.topic.TT"));
+      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("TT"));
 
       assertEquals(1024 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -634,7 +634,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
-      AddressSettings settings = server.getAddressSettingsRepository().getMatch("jms.topic.TT");
+      AddressSettings settings = server.getAddressSettingsRepository().getMatch("TT");
 
       assertEquals(1024 * 1024, settings.getMaxSizeBytes());
       assertEquals(10 * 1024, settings.getPageSizeBytes());
@@ -661,7 +661,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
-      server.getActiveMQServerControl().addAddressSettings("jms.queue.Q1", "DLQ", "DLQ", -1, false, 5, 100 * 1024, 10 * 1024, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
+      server.getActiveMQServerControl().addAddressSettings("Q1", "DLQ", "DLQ", -1, false, 5, 100 * 1024, 10 * 1024, 5, 5, 1, 1000, 0, false, "PAGE", -1, 10, "KILL", true, true, true, true);
 
       jmsServer.createQueue(true, "Q1", null, true, "/queue/Q1");
 
@@ -682,7 +682,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
          prod.send(bmt);
       }
 
-      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("jms.queue.Q1"));
+      PagingStore store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
 
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
@@ -698,13 +698,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
-      AddressSettings settings = server.getAddressSettingsRepository().getMatch("jms.queue.Q1");
+      AddressSettings settings = server.getAddressSettingsRepository().getMatch("Q1");
 
       assertEquals(100 * 1024, settings.getMaxSizeBytes());
       assertEquals(10 * 1024, settings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, settings.getAddressFullMessagePolicy());
 
-      store = server.getPagingManager().getPageStore(new SimpleString("jms.queue.Q1"));
+      store = server.getPagingManager().getPageStore(new SimpleString("Q1"));
       assertEquals(100 * 1024, store.getMaxSize());
       assertEquals(10 * 1024, store.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.PAGE, store.getAddressFullMessagePolicy());

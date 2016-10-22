@@ -52,5 +52,5 @@ public interface QueueBindingInfo {
 
    boolean isDeleteOnNoConsumers();
 
-   void setDeleteOnNoConsumers();
+   void setDeleteOnNoConsumers(boolean deleteOnNoConsumers);
 }

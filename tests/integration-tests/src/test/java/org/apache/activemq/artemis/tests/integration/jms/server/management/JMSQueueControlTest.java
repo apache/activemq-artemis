@@ -214,7 +214,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       Assert.assertEquals(1, data.length);
       Assert.assertEquals(1, data.length);
       Assert.assertNotNull(data[0].get("JMSReplyTo"));
-      Assert.assertEquals("jms.queue.foo", data[0].get("JMSReplyTo"));
+      Assert.assertEquals("queue://foo", data[0].get("JMSReplyTo"));
       System.out.println(data[0]);
 
       JMSUtil.consumeMessages(1, queue);

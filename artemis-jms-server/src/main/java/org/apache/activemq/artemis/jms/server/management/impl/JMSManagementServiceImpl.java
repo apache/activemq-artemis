@@ -89,14 +89,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSQueueObjectName(queue.getQueueName());
       JMSQueueControlImpl control = new JMSQueueControlImpl(queue, coreQueueControl, jmsServerManager, counter);
       managementService.registerInJMX(objectName, control);
-      managementService.registerInRegistry(ResourceNames.JMS_QUEUE + queue.getQueueName(), control);
+      managementService.registerInRegistry(queue.getQueueName(), control);
    }
 
    @Override
    public synchronized void unregisterQueue(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSQueueObjectName(name);
       managementService.unregisterFromJMX(objectName);
-      managementService.unregisterFromRegistry(ResourceNames.JMS_QUEUE + name);
+      managementService.unregisterFromRegistry(name);
    }
 
    @Override
@@ -105,14 +105,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       AddressControl addressControl = (AddressControl) managementService.getResource(ResourceNames.CORE_ADDRESS + topic.getAddress());
       JMSTopicControlImpl control = new JMSTopicControlImpl(topic, jmsServerManager, addressControl, managementService);
       managementService.registerInJMX(objectName, control);
-      managementService.registerInRegistry(ResourceNames.JMS_TOPIC + topic.getTopicName(), control);
+      managementService.registerInRegistry(topic.getTopicName(), control);
    }
 
    @Override
    public synchronized void unregisterTopic(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(name);
       managementService.unregisterFromJMX(objectName);
-      managementService.unregisterFromRegistry(ResourceNames.JMS_TOPIC + name);
+      managementService.unregisterFromRegistry(name);
    }
 
    @Override

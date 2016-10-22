@@ -180,7 +180,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
          // TODO: figure out what else to set here
          AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName())
-            .setRoutingType(addressBindingInfo.getRoutingType());
+            .setRoutingType(addressBindingInfo.getRoutingType())
+            .setDefaultMaxQueueConsumers(addressBindingInfo.getDefaultMaxConsumers());
 
          postOffice.addAddressInfo(addressInfo);
          managementService.registerAddress(addressInfo.getName());

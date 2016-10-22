@@ -32,9 +32,7 @@ public class StompExample {
 
    public static void main(final String[] args) throws Exception {
       StompJmsConnectionFactory factory = new StompJmsConnectionFactory();
-      factory.setQueuePrefix("jms.queue.");
       factory.setDisconnectTimeout(5000);
-      factory.setTopicPrefix("jms.topic.");
       factory.setBrokerURI("tcp://localhost:61616");
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

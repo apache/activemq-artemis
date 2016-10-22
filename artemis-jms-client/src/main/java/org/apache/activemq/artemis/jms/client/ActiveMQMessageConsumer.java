@@ -240,6 +240,8 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             } else {
                coreMessage.acknowledge();
             }
+
+            jmsMsg.setFromQueue(destination instanceof ActiveMQQueue);
          }
 
          return jmsMsg;

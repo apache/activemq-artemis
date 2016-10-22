@@ -258,7 +258,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       ClientSession session = factory.createSession(false, false);
       session.start();
 
-      ClientConsumer consumer = session.createConsumer("jms.queue.outQueue");
+      ClientConsumer consumer = session.createConsumer("outQueue");
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage message = consumer.receive(60000);
@@ -423,7 +423,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
             factory = nettyLocator.createSessionFactory();
             //            buggingList.add(factory);
             endpointSession = factory.createSession(true, false, false);
-            producer = endpointSession.createProducer("jms.queue.outQueue");
+            producer = endpointSession.createProducer("outQueue");
          } catch (Throwable e) {
             throw new RuntimeException(e);
          }

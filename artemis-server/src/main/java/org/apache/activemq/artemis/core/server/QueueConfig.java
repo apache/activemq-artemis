@@ -33,7 +33,7 @@ public final class QueueConfig {
    private final boolean durable;
    private final boolean temporary;
    private final boolean autoCreated;
-   private final int maxConsumers;
+   private final Integer maxConsumers;
    private final boolean deleteOnNoConsumers;
 
    public static final class Builder {
@@ -47,7 +47,7 @@ public final class QueueConfig {
       private boolean durable;
       private boolean temporary;
       private boolean autoCreated;
-      private int maxConsumers;
+      private Integer maxConsumers;
       private boolean deleteOnNoConsumers;
 
       private Builder(final long id, final SimpleString name) {
@@ -112,7 +112,7 @@ public final class QueueConfig {
          return this;
       }
 
-      public Builder maxConsumers(final int maxConsumers) {
+      public Builder maxConsumers(final Integer maxConsumers) {
          this.maxConsumers = maxConsumers;
          return this;
       }
@@ -185,7 +185,7 @@ public final class QueueConfig {
                        final boolean durable,
                        final boolean temporary,
                        final boolean autoCreated,
-                       final int maxConsumers,
+                       final Integer maxConsumers,
                        final boolean deleteOnNoConsumers) {
       this.id = id;
       this.address = address;
@@ -240,7 +240,7 @@ public final class QueueConfig {
       return deleteOnNoConsumers;
    }
 
-   public int maxConsumers() {
+   public Integer maxConsumers() {
       return maxConsumers;
    }
 

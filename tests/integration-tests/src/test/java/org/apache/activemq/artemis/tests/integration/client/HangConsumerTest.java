@@ -425,8 +425,8 @@ public class HangConsumerTest extends ActiveMQTestBase {
    public void testDuplicateDestinationsOnTopic() throws Exception {
       try {
          for (int i = 0; i < 5; i++) {
-            if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null) {
-               server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
+            if (server.locateQueue(SimpleString.toSimpleString("tt")) == null) {
+               server.createQueue(SimpleString.toSimpleString("tt"), SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
             }
 
             server.stop();

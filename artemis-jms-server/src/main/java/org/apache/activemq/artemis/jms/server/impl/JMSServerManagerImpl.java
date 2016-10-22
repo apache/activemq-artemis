@@ -28,7 +28,6 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,12 +56,9 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
-import org.apache.activemq.artemis.core.server.PostQueueDeletionCallback;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueCreator;
-import org.apache.activemq.artemis.core.server.QueueDeleter;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
@@ -392,15 +388,15 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          return;
       }
 
-      server.setJMSQueueCreator(new JMSDestinationCreator());
-
-      server.setJMSQueueDeleter(new JMSQueueDeleter());
+//      server.setJMSQueueCreator(new JMSDestinationCreator());
+//
+//      server.setJMSQueueDeleter(new JMSQueueDeleter());
 
       server.registerActivateCallback(this);
 
-      server.registerPostQueueCreationCallback(new JMSPostQueueCreationCallback());
-
-      server.registerPostQueueDeletionCallback(new JMSPostQueueDeletionCallback());
+//      server.registerPostQueueCreationCallback(new JMSPostQueueCreationCallback());
+//
+//      server.registerPostQueueDeletionCallback(new JMSPostQueueDeletionCallback());
       /**
        * See this method's javadoc.
        * <p>
@@ -797,11 +793,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    public synchronized boolean destroyQueue(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
 
-      server.destroyQueue(ActiveMQDestination.createQueueAddressFromName(name), null, !removeConsumers, removeConsumers);
+      server.destroyQueue(SimpleString.toSimpleString(name), null, !removeConsumers, removeConsumers);
 
       // if the queue has consumers and 'removeConsumers' is false then the queue won't actually be removed
       // therefore only remove the queue from Bindings, etc. if the queue is actually removed
-      if (this.server.getPostOffice().getBinding(ActiveMQDestination.createQueueAddressFromName(name)) == null) {
+      if (this.server.getPostOffice().getBinding(SimpleString.toSimpleString(name)) == null) {
          removeFromBindings(queues, queueBindings, name);
 
          queues.remove(name);
@@ -826,7 +822,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    @Override
    public synchronized boolean destroyTopic(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
-      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + ActiveMQDestination.createTopicAddressFromName(name));
+      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + name);
       if (addressControl != null) {
          for (String queueName : addressControl.getQueueNames()) {
             Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
@@ -1096,6 +1092,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
+         server.createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQQueue.getName())).setRoutingType(AddressInfo.RoutingType.ANYCAST).setDefaultMaxQueueConsumers(-1));
+
          Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false, autoCreated);
 
          queues.put(queueName, activeMQQueue);
@@ -1131,7 +1129,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          // checks when routing messages to a topic that
          // does not exist - otherwise we would not be able to distinguish from a non existent topic and one with no
          // subscriptions - core has no notion of a topic
-         server.deployQueue(SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(JMSServerManagerImpl.REJECT_FILTER), true, false, autoCreated);
+//          server.deployQueue(SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(JMSServerManagerImpl.REJECT_FILTER), true, false, autoCreated);
+         server.createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress())));
 
          topics.put(topicName, activeMQTopic);
 
@@ -1643,95 +1642,95 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * This class is responsible for auto-creating the JMS (and underlying core) resources when a client sends a message
     * to a non-existent JMS queue or topic
     */
-   class JMSDestinationCreator implements QueueCreator {
+//   class JMSDestinationCreator implements QueueCreator {
+//
+//      @Override
+//      public boolean create(SimpleString address) throws Exception {
+//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateJmsQueues()) {
+//            return internalCreateJMSQueue(false, address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), null, true, true);
+//         } else if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics()) {
+//            return createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
+//         } else {
+//            return false;
+//         }
+//      }
+//   }
 
-      @Override
-      public boolean create(SimpleString address) throws Exception {
-         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateJmsQueues()) {
-            return internalCreateJMSQueue(false, address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), null, true, true);
-         } else if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics()) {
-            return createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
-         } else {
-            return false;
-         }
-      }
-   }
-
-   class JMSQueueDeleter implements QueueDeleter {
-
-      @Override
-      public boolean delete(SimpleString queueName) throws Exception {
-         Queue queue = server.locateQueue(queueName);
-         SimpleString address = queue.getAddress();
-         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-         long consumerCount = queue.getConsumerCount();
-         long messageCount = queue.getMessageCount();
-
-         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoDeleteJmsQueues() && queue.getMessageCount() == 0) {
-            if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQJMSServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + settings.isAutoDeleteJmsQueues());
-            }
-
-            return destroyQueue(queueName.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), false);
-         } else {
-            return false;
-         }
-      }
-   }
+//   class JMSQueueDeleter implements QueueDeleter {
+//
+//      @Override
+//      public boolean delete(SimpleString queueName) throws Exception {
+//         Queue queue = server.locateQueue(queueName);
+//         SimpleString address = queue.getAddress();
+//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+//         long consumerCount = queue.getConsumerCount();
+//         long messageCount = queue.getMessageCount();
+//
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.getAutoDeleteJmsQueues() && queue.getMessageCount() == 0) {
+//            if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
+//               ActiveMQJMSServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; getAutoDeleteJmsQueues = " + settings.getAutoDeleteJmsQueues());
+//            }
+//
+//            return destroyQueue(queueName.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), false);
+//         } else {
+//            return false;
+//         }
+//      }
+//   }
 
    /**
     * When a core queue is created with a jms.topic prefix this class will create the associated JMS resources
     * retroactively.  This would happen if, for example, a client created a subscription a non-existent JMS topic and
     * autoCreateJmsTopics = true.
     */
-   class JMSPostQueueCreationCallback implements PostQueueCreationCallback {
-
-      @Override
-      public void callback(SimpleString queueName) throws Exception {
-         Queue queue = server.locateQueue(queueName);
-         String address = queue.getAddress().toString();
-
-         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-         /* When a topic is created a dummy subscription is created which never receives any messages; when the queue
-          * for that dummy subscription is created we don't want to call createTopic again. Therefore we make sure the
-          * queue name doesn't start with the topic prefix.
-          */
-         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics() && !queueName.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
-            createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
-         }
-      }
-   }
+//   class JMSPostQueueCreationCallback implements PostQueueCreationCallback {
+//
+//      @Override
+//      public void callback(SimpleString queueName) throws Exception {
+//         Queue queue = server.locateQueue(queueName);
+//         String address = queue.getAddress().toString();
+//
+//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+//         /* When a topic is created a dummy subscription is created which never receives any messages; when the queue
+//          * for that dummy subscription is created we don't want to call createTopic again. Therefore we make sure the
+//          * queue name doesn't start with the topic prefix.
+//          */
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics() && !queueName.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
+//            createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
+//         }
+//      }
+//   }
 
    /**
     * When a core queue representing a JMS topic subscription is deleted this class will check to see if that was the
     * last subscription on the topic and if so and autoDeleteJmsTopics = true then it will delete the JMS resources
     * for that topic.
     */
-   class JMSPostQueueDeletionCallback implements PostQueueDeletionCallback {
-
-      @Override
-      public void callback(SimpleString address, SimpleString queueName) throws Exception {
-         Queue queue = server.locateQueue(address);
-         Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(address).getBindings();
-
-         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-
-         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoDeleteJmsTopics() && bindings.size() == 1 && queue != null && queue.isAutoCreated()) {
-            try {
-               destroyTopic(address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()));
-            } catch (IllegalStateException e) {
-               /*
-                * During shutdown the callback can be invoked after the JMSServerManager is already shut down so we just
-                * ignore the exception in that case
-                */
-               if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQJMSServerLogger.LOGGER.debug("Failed to destroy topic", e);
-               }
-            }
-         }
-      }
-   }
+//   class JMSPostQueueDeletionCallback implements PostQueueDeletionCallback {
+//
+//      @Override
+//      public void callback(SimpleString address, SimpleString queueName) throws Exception {
+//         Queue queue = server.locateQueue(address);
+//         Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(address).getBindings();
+//
+//         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+//
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoDeleteJmsTopics() && bindings.size() == 1 && queue != null && queue.isAutoCreated()) {
+//            try {
+//               destroyTopic(address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()));
+//            } catch (IllegalStateException e) {
+//               /*
+//                * During shutdown the callback can be invoked after the JMSServerManager is already shut down so we just
+//                * ignore the exception in that case
+//                */
+//               if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
+//                  ActiveMQJMSServerLogger.LOGGER.debug("Failed to destroy topic", e);
+//               }
+//            }
+//         }
+//      }
+//   }
 
    private final class JMSReloader implements ReloadCallback {
 

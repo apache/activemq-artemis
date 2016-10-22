@@ -557,6 +557,20 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void addSecuritySettings(String addressMatch,
+                                         String sendRoles,
+                                         String consumeRoles,
+                                         String createDurableQueueRoles,
+                                         String deleteDurableQueueRoles,
+                                         String createNonDurableQueueRoles,
+                                         String deleteNonDurableQueueRoles,
+                                         String manageRoles,
+                                         String browseRoles,
+                                         String createAddress) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress);
+         }
+
+         @Override
          public void removeSecuritySettings(String addressMatch) throws Exception {
             proxy.invokeOperation("removeSecuritySettings", addressMatch);
          }

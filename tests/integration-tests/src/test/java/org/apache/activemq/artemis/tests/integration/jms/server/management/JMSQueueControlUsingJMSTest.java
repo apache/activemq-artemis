@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.Parameter;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
@@ -75,7 +74,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
    protected JMSQueueControl createManagementControl() throws Exception {
       ActiveMQQueue managementQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue("activemq.management");
 
-      final JMSMessagingProxy proxy = new JMSMessagingProxy(session, managementQueue, ResourceNames.JMS_QUEUE + queue.getQueueName());
+      final JMSMessagingProxy proxy = new JMSMessagingProxy(session, managementQueue, queue.getQueueName());
 
       return new JMSQueueControl() {
 

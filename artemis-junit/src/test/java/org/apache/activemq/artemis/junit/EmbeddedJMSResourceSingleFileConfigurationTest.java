@@ -76,7 +76,7 @@ public class EmbeddedJMSResourceSingleFileConfigurationTest {
 
       List<Queue> boundQueues = jmsServer.getTopicQueues(TEST_TOPIC);
       assertNotNull("List should never be null", boundQueues);
-      assertEquals("Should have two queues bound to topic " + TEST_TOPIC, 2, boundQueues.size());
+      assertEquals("Should have two queues bound to topic " + TEST_TOPIC, 1, boundQueues.size());
    }
 
 }

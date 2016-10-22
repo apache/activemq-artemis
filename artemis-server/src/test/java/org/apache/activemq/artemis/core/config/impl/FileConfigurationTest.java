@@ -299,7 +299,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(5, conf.getAddressesSettings().get("a1").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.NOTIFY, conf.getAddressesSettings().get("a1").getSlowConsumerPolicy());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsQueues());
-      assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsQueues());
+      assertEquals(true, conf.getAddressesSettings().get("a1").getAutoDeleteJmsQueues());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsTopics());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsTopics());
 
@@ -314,7 +314,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(15, conf.getAddressesSettings().get("a2").getSlowConsumerCheckPeriod());
       assertEquals(SlowConsumerPolicy.KILL, conf.getAddressesSettings().get("a2").getSlowConsumerPolicy());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsQueues());
-      assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsQueues());
+      assertEquals(false, conf.getAddressesSettings().get("a2").getAutoDeleteJmsQueues());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsTopics());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsTopics());
 

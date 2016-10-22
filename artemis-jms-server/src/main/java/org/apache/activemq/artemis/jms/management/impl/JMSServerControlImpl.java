@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.management.impl;
 
-import javax.jms.JMSRuntimeException;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -38,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.Parameter;
@@ -52,11 +52,12 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerLogger;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
@@ -99,28 +100,6 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          trimmed[i] = trimmed[i].replace("&comma;", ",");
       }
       return trimmed;
-   }
-
-   private static String[] determineJMSDestination(String coreAddress) {
-      String[] result = new String[2]; // destination name & type
-      if (coreAddress.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX)) {
-         result[0] = coreAddress.substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
-         result[1] = "queue";
-      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
-         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
-         result[1] = "tempqueue";
-      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
-         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
-         result[1] = "topic";
-      } else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
-         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
-         result[1] = "temptopic";
-      } else {
-         ActiveMQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestination()" + coreAddress);
-         // not related to JMS
-         return null;
-      }
-      return result;
    }
 
    public static MBeanNotificationInfo[] getNotificationInfos() {
@@ -822,24 +801,45 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       return server.getActiveMQServer().destroyConnectionWithSessionMetadata(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
    }
 
-   private JsonObject toJSONObject(ServerConsumer consumer) {
-      String[] destinationInfo = determineJMSDestination(consumer.getQueue().getAddress().toString());
-      if (destinationInfo == null) {
+   private String determineJMSDestinationType(Queue queue) {
+      String result;
+      if (server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(queue.getAddress().toString())).getRoutingType() == AddressInfo.RoutingType.ANYCAST) {
+         if (queue.isTemporary()) {
+            result = "tempqueue";
+         } else {
+            result = "queue";
+         }
+      } else if (server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(queue.getAddress().toString())).getRoutingType() == AddressInfo.RoutingType.MULTICAST) {
+         if (queue.isTemporary()) {
+            result = "temptopic";
+         } else {
+            result = "topic";
+         }
+      } else {
+         ActiveMQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestinationType() " + queue);
+         // not related to JMS
          return null;
       }
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("destinationName", destinationInfo[0]).add("destinationType", destinationInfo[1]);
+      return result;
+   }
+
+   private JsonObject toJSONObject(ServerConsumer consumer) {
+      AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(consumer.getQueue().getAddress().toString()));
+      if (addressInfo == null) {
+         return null;
+      }
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("destinationName", consumer.getQueue().getAddress().toString()).add("destinationType", determineJMSDestinationType(consumer.getQueue()));
       // JMS consumer with message filter use the queue's filter
       Filter queueFilter = consumer.getQueue().getFilter();
       if (queueFilter != null) {
          obj.add("filter", queueFilter.getFilterString().toString());
       }
 
-      if (destinationInfo[1].equals("topic")) {
-         try {
-            ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue().getName().toString());
-            obj.add("durable", true);
-         } catch (IllegalArgumentException | JMSRuntimeException e) {
+      if (addressInfo.getRoutingType().equals(AddressInfo.RoutingType.MULTICAST)) {
+         if (consumer.getQueue().isTemporary()) {
             obj.add("durable", false);
+         } else {
+            obj.add("durable", true);
          }
       } else {
          obj.add("durable", false);

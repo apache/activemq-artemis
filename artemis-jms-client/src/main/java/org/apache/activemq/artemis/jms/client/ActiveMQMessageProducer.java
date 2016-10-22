@@ -403,9 +403,19 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             try {
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
 
-               // if it's autoCreateJMSQueue we will let the PostOffice.route to execute the creation at the server's side
-               // as that's a more efficient path for such operation
-               if (!query.isExists() && ((address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && !query.isAutoCreateJmsQueues()) || (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && !query.isAutoCreateJmsTopics()))) {
+               if (!query.isExists() && query.isAutoCreateJmsQueues()) {
+                  if (destination.isQueue() && !destination.isTemporary()) {
+                     clientSession.createAddress(address, false);
+                     clientSession.createQueue(address, address, null, true);
+                  } else if (destination.isQueue() && destination.isTemporary()) {
+                     clientSession.createAddress(address, false);
+                     clientSession.createTemporaryQueue(address, address);
+                  } else if (!destination.isQueue() && !destination.isTemporary()) {
+                     clientSession.createAddress(address, true);
+                  } else if (!destination.isQueue() && destination.isTemporary()) {
+                     clientSession.createAddress(address, true);
+                  }
+               } else if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
                   throw new InvalidDestinationException("Destination " + address + " does not exist");
                } else {
                   connection.addKnownDestination(address);

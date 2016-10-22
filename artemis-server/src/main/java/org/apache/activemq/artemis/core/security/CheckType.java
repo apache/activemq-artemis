@@ -29,6 +29,12 @@ public enum CheckType {
          return role.isConsume();
       }
    },
+   CREATE_ADDRESS {
+      @Override
+      public boolean hasRole(final Role role) {
+         return role.isCreateAddress();
+      }
+   },
    CREATE_DURABLE_QUEUE {
       @Override
       public boolean hasRole(final Role role) {

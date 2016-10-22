@@ -326,7 +326,7 @@ public final class XmlDataImporter extends ActionAbstract {
             // Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
             // send directly to a queue, we have to send to an address instead but not all the queues related to the
             // address may need the message
-            try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+            try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
                ClientMessage managementMessage = managementSession.createMessage(false);
                ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
                managementSession.start();
@@ -825,7 +825,7 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+      try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
          ClientMessage managementMessage = managementSession.createMessage(false);
          ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createConnectionFactory", name, Boolean.parseBoolean(ha), discoveryGroupName.length() > 0, Integer.parseInt(type), connectors, entries, clientId, Long.parseLong(clientFailureCheckPeriod), Long.parseLong(connectionTtl), Long.parseLong(callTimeout), Long.parseLong(callFailoverTimeout), Integer.parseInt(minLargeMessageSize), Boolean.parseBoolean(compressLargeMessages), Integer.parseInt(consumerWindowSize), Integer.parseInt(consumerMaxRate), Integer.parseInt(confirmationWindowSize), Integer.parseInt(producerWindowSize), Integer.parseInt(producerMaxRate), Boolean.parseBoolean(blockOnAcknowledge), Boolean.parseBoolean(blockOnDurableSend), Boolean.parseBoolean(blockOnNonDurableSend), Boolean.parseBoolean(autoGroup), Boolean.parseBoolean(preacknowledge), loadBalancingPolicyClassName, Integer.parseInt(transactionBatchSize), Integer.parseInt(dupsOkBatchSize), Boolean.parseBoolean(useGlobalPools), Integer.parseInt(scheduledThreadMaxPoolSize), Integer.parseInt(threadMaxPoolSize), Long.parseLong(retryInterval), Double.parseDouble(retryIntervalMultiplier), Long.parseLong(maxRetryInterval), Integer.parseInt(reconnectAttempts), Boolean.parseBoolean(failoverOnInitialConnection), groupId);
          //Boolean.parseBoolean(cacheLargeMessagesClient));
@@ -883,7 +883,7 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      try (ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management")) {
+      try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
          ClientMessage managementMessage = managementSession.createMessage(false);
          if ("Queue".equals(type)) {
             ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);

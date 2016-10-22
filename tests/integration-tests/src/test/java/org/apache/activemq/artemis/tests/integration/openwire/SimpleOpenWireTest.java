@@ -443,7 +443,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateJmsQueues(false);
 
-      server.getAddressSettingsRepository().addMatch("jms.queue.foo", addressSetting);
+      server.getAddressSettingsRepository().addMatch("foo", addressSetting);
 
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -462,7 +462,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       addressSetting.setAutoCreateJmsQueues(true);
 
       String address = "foo";
-      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+      server.getAddressSettingsRepository().addMatch(address, addressSetting);
 
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -484,7 +484,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       addressSetting.setAutoCreateJmsQueues(true);
 
       String address = "foo";
-      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+      server.getAddressSettingsRepository().addMatch(address, addressSetting);
 
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -507,7 +507,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       addressSetting.setAutoCreateJmsQueues(false);
 
       String address = "foo";
-      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+      server.getAddressSettingsRepository().addMatch(address, addressSetting);
 
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -567,7 +567,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       try {
@@ -609,7 +609,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMultipleConsumers() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       try {
@@ -646,7 +646,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
@@ -686,7 +686,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    public void testMixedOpenWireExample2() throws Exception {
       Connection conn1 = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
@@ -1196,7 +1196,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    private void checkQueueEmpty(String qName) {
       PostOffice po = server.getPostOffice();
-      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString("jms.queue." + qName));
+      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString(qName));
       try {
          //waiting for last ack to finish
          Thread.sleep(1000);

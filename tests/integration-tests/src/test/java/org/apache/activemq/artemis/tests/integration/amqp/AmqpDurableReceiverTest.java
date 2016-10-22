@@ -371,6 +371,6 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    }
 
    public String getTopicName() {
-      return "jms.topic.myTopic";
+      return "topic://myTopic";
    }
 }

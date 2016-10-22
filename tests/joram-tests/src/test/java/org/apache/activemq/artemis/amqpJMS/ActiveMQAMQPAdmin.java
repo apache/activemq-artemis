@@ -100,7 +100,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
    public void createQueue(String name) {
       super.createQueue(name);
       try {
-         context.bind(name, new JmsQueue("jms.queue." + name));
+         context.bind(name, new JmsQueue(name));
       } catch (NamingException e) {
          throw new RuntimeException(e);
       }
@@ -110,7 +110,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
    public void createTopic(String name) {
       super.createTopic(name);
       try {
-         context.bind(name, new JmsTopic("jms.topic." + name));
+         context.bind(name, new JmsTopic(name));
       } catch (NamingException e) {
          throw new RuntimeException(e);
       }

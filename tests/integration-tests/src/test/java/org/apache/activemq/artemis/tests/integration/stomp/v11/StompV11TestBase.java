@@ -124,7 +124,7 @@ public abstract class StompV11TestBase extends ActiveMQTestBase {
    }
 
    protected String getQueuePrefix() {
-      return "jms.queue.";
+      return "";
    }
 
    protected String getTopicName() {
@@ -132,7 +132,7 @@ public abstract class StompV11TestBase extends ActiveMQTestBase {
    }
 
    protected String getTopicPrefix() {
-      return "jms.topic.";
+      return "";
    }
 
    public void sendMessage(String msg) throws Exception {

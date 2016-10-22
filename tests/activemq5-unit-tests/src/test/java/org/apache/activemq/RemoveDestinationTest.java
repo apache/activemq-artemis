@@ -158,7 +158,7 @@ public class RemoveDestinationTest {
       PostOffice po = wrapper.getServer().getPostOffice();
       Set<SimpleString> addressSet = po.getAddresses();
       Iterator<SimpleString> iter = addressSet.iterator();
-      String addressToFind = "jms.topic." + amqTopic.getPhysicalName();
+      String addressToFind = amqTopic.getPhysicalName();
       while (iter.hasNext()) {
          if (addressToFind.equals(iter.next().toString())) {
             found = true;

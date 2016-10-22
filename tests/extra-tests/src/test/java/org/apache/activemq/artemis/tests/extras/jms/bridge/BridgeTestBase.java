@@ -38,7 +38,6 @@ import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
@@ -486,7 +485,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          managementService = server1.getManagementService();
       }
-      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queue.getQueueName());
+      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(queue.getQueueName());
 
       //server may be closed
       if (queueControl != null) {
@@ -505,7 +504,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          managementService = server1.getManagementService();
       }
-      TopicControl topicControl = (TopicControl) managementService.getResource(ResourceNames.JMS_TOPIC + topic.getTopicName());
+      TopicControl topicControl = (TopicControl) managementService.getResource(topic.getTopicName());
       Assert.assertEquals(0, topicControl.getSubscriptionCount());
 
    }
@@ -515,7 +514,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          managementService = server1.getManagementService();
       }
-      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queueName);
+      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(queueName);
       queueControl.removeMessages(null);
    }
 

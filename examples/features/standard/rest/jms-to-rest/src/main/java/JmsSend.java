@@ -29,7 +29,7 @@ public class JmsSend {
 
    public static void main(String[] args) throws Exception {
       ConnectionFactory factory = new ActiveMQJMSConnectionFactory("tcp://localhost:61616");
-      Destination destination = ActiveMQDestination.fromAddress("jms.queue.orders");
+      Destination destination = ActiveMQDestination.fromPrefixedName("queue://orders");
 
       try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

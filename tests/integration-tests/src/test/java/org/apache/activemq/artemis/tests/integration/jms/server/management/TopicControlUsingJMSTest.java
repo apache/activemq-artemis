@@ -25,7 +25,6 @@ import javax.jms.Session;
 import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -406,7 +405,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       connection.start();
 
       ActiveMQQueue managementQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue("activemq.management");
-      proxy = new JMSMessagingProxy(session, managementQueue, ResourceNames.JMS_TOPIC + topic.getTopicName());
+      proxy = new JMSMessagingProxy(session, managementQueue, topic.getTopicName());
    }
 
    // Private -------------------------------------------------------

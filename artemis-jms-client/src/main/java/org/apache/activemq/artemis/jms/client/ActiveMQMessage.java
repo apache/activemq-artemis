@@ -47,6 +47,11 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+
 /**
  * ActiveMQ Artemis implementation of a JMS Message.
  * <br>
@@ -195,6 +200,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    private boolean individualAck;
 
    private long jmsDeliveryTime;
+
+   private boolean fromQueue;
 
    // Constructors --------------------------------------------------
 
@@ -353,7 +360,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          SimpleString repl = MessageUtil.getJMSReplyTo(message);
 
          if (repl != null) {
-            replyTo = ActiveMQDestination.fromAddress(repl.toString());
+            replyTo = ActiveMQDestination.fromPrefixedName(repl.toString());
          }
       }
       return replyTo;
@@ -370,9 +377,19 @@ public class ActiveMQMessage implements javax.jms.Message {
             throw new InvalidDestinationException("Foreign destination " + dest);
          }
 
+         String prefix = "";
+         if (dest instanceof ActiveMQTemporaryQueue) {
+            prefix = TEMP_QUEUE_QUALIFED_PREFIX;
+         } else if (dest instanceof ActiveMQQueue) {
+            prefix = QUEUE_QUALIFIED_PREFIX;
+         } else if (dest instanceof ActiveMQTemporaryTopic) {
+            prefix = TEMP_TOPIC_QUALIFED_PREFIX;
+         } else if (dest instanceof ActiveMQTopic) {
+            prefix = TOPIC_QUALIFIED_PREFIX;
+         }
          ActiveMQDestination jbd = (ActiveMQDestination) dest;
 
-         MessageUtil.setJMSReplyTo(message, jbd.getSimpleAddress());
+         MessageUtil.setJMSReplyTo(message, SimpleString.toSimpleString(prefix + jbd.getAddress()));
 
          replyTo = jbd;
       }
@@ -381,9 +398,9 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public Destination getJMSDestination() throws JMSException {
       if (dest == null) {
-         SimpleString sdest = message.getAddress();
+         SimpleString address = message.getAddress();
 
-         dest = sdest == null ? null : ActiveMQDestination.fromAddress(sdest.toString());
+         dest = address == null ? null : ActiveMQDestination.fromPrefixedName((fromQueue ? QUEUE_QUALIFIED_PREFIX : TOPIC_QUALIFIED_PREFIX) + address.toString());
       }
 
       return dest;
@@ -761,6 +778,10 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    // Public --------------------------------------------------------
+
+   public void setFromQueue(boolean fromQueue) {
+      this.fromQueue = fromQueue;
+   }
 
    public void setIndividualAcknowledge() {
       this.individualAck = true;

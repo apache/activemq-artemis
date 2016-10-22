@@ -53,7 +53,7 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
          amqpConnection.connect();
 
          AmqpSession session = amqpConnection.createSession();
-         AmqpSender sender = session.createSender("jms.queue." + testQueueName);
+         AmqpSender sender = session.createSender(testQueueName);
 
          final int payload = FRAME_SIZE * 16;
 
@@ -62,10 +62,10 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
             sender.send(message);
          }
 
-         int count = getMessageCount(server.getPostOffice(), "jms.queue." + testQueueName);
+         int count = getMessageCount(server.getPostOffice(), testQueueName);
          assertEquals(nMsgs, count);
 
-         AmqpReceiver receiver = session.createReceiver("jms.queue." + testQueueName);
+         AmqpReceiver receiver = session.createReceiver(testQueueName);
          receiver.flow(nMsgs);
 
          for (int i = 0; i < nMsgs; ++i) {

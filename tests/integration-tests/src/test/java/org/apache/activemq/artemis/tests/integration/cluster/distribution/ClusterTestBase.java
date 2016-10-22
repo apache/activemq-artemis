@@ -523,10 +523,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final String address,
                                     final AddressInfo.RoutingType routingType,
                                     final int defaulMaxConsumers,
-                                    boolean defaultDeleteOnNoConsumers) {
+                                    boolean defaultDeleteOnNoConsumers) throws Exception {
       AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
       addressInfo.setRoutingType(routingType);
-      addressInfo.setDefaultMaxConsumers(defaulMaxConsumers);
+      addressInfo.setDefaultMaxQueueConsumers(defaulMaxConsumers);
       addressInfo.setDefaultDeleteOnNoConsumers(defaultDeleteOnNoConsumers);
 
       servers[node].createOrUpdateAddressInfo(addressInfo);

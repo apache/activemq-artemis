@@ -43,9 +43,9 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    public void testUnitOnWildCardFailingScenario() throws Exception {
       int errors = 0;
       WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake());
-      ad.addBinding(new BindingFake("jms.topic.Topic1", "jms.topic.Topic1"));
-      ad.addBinding(new BindingFake("jms.topic.Topic1", "one"));
-      ad.addBinding(new BindingFake("jms.topic.*", "two"));
+      ad.addBinding(new BindingFake("Topic1", "Topic1"));
+      ad.addBinding(new BindingFake("Topic1", "one"));
+      ad.addBinding(new BindingFake("*", "two"));
       ad.removeBinding(SimpleString.toSimpleString("one"), null);
       try {
          ad.removeBinding(SimpleString.toSimpleString("two"), null);
@@ -57,7 +57,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
          e.printStackTrace();
       }
       try {
-         ad.addBinding(new BindingFake("jms.topic.Topic1", "three"));
+         ad.addBinding(new BindingFake("Topic1", "three"));
       } catch (Throwable e) {
          // We are not failing the test here as this test is replicating the exact scenario
          // that was happening under https://issues.jboss.org/browse/HORNETQ-988

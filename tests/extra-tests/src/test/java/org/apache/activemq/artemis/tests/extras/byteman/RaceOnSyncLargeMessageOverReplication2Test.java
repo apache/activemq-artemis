@@ -108,7 +108,7 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
 
       liveServer = createServer(liveConfig);
-      liveServer.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName("jms.queue.Queue").setAddress("jms.queue.Queue"));
+      liveServer.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName("Queue").setAddress("Queue"));
       liveServer.start();
 
       waitForServerToStart(liveServer);
