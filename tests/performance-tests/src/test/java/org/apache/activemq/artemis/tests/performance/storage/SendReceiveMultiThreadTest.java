@@ -78,9 +78,9 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue = server.createQueue(SimpleString.toSimpleString("jms.queue.performanceQueue"), SimpleString.toSimpleString("jms.queue.performanceQueue"), null, true, false);
+      Queue queue = server.createQueue(SimpleString.toSimpleString("performanceQueue"), SimpleString.toSimpleString("performanceQueue"), null, true, false);
 
-      Queue queue2 = server.createQueue(SimpleString.toSimpleString("jms.queue.stationaryQueue"), SimpleString.toSimpleString("jms.queue.stationaryQueue"), null, true, false);
+      Queue queue2 = server.createQueue(SimpleString.toSimpleString("stationaryQueue"), SimpleString.toSimpleString("stationaryQueue"), null, true, false);
 
       MyThread[] threads = new MyThread[NUMBER_OF_THREADS];
 

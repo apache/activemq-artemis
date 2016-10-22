@@ -93,7 +93,7 @@ public class DivertAndACKClientTest extends JMSTestBase {
 
    @Override
    protected Configuration createDefaultConfig(final boolean netty) throws Exception {
-      DivertConfiguration divert = new DivertConfiguration().setName("local-divert").setRoutingName("some-name").setAddress("jms.queue.Source").setForwardingAddress("jms.queue.Dest").setExclusive(true);
+      DivertConfiguration divert = new DivertConfiguration().setName("local-divert").setRoutingName("some-name").setAddress("Source").setForwardingAddress("Dest").setExclusive(true);
 
       Configuration config = super.createDefaultConfig(netty).addDivertConfiguration(divert);
 

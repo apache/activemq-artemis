@@ -128,8 +128,8 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       // create the 2 queues used in the test
       ClientSessionFactory sf = locator.createSessionFactory(transpConf);
       ClientSession session = sf.createTransactedSession();
-      session.createQueue("jms.queue.queue", "jms.queue.queue");
-      session.createQueue("jms.queue.queue2", "jms.queue.queue2");
+      session.createQueue("queue", "queue");
+      session.createQueue("queue2", "queue2");
       session.commit();
       sf.close();
       session.close();

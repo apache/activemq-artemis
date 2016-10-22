@@ -281,7 +281,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
                                           TransportConfiguration liveConnector,
                                           TransportConfiguration liveAcceptor,
                                           TransportConfiguration... otherLiveNodes) throws Exception {
-      Configuration configuration = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor).addConnectorConfiguration(liveConnector.getName(), liveConnector).setJournalDirectory(getJournalDir() + identity).setBindingsDirectory(getBindingsDir() + identity).setLargeMessagesDirectory(getLargeMessagesDir() + identity).setPagingDirectory(getPageDir() + identity).addQueueConfiguration(new CoreQueueConfiguration().setAddress("jms.queue.testQueue").setName("jms.queue.testQueue"));
+      Configuration configuration = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor).addConnectorConfiguration(liveConnector.getName(), liveConnector).setJournalDirectory(getJournalDir() + identity).setBindingsDirectory(getBindingsDir() + identity).setLargeMessagesDirectory(getLargeMessagesDir() + identity).setPagingDirectory(getPageDir() + identity).addQueueConfiguration(new CoreQueueConfiguration().setAddress("testQueue").setName("testQueue"));
 
       List<String> transportConfigurationList = new ArrayList<>();
 

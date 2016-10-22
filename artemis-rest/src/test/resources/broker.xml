@@ -39,7 +39,7 @@
 
        <security-settings>
            <!--security for example queue-->
-           <security-setting match="jms.queue.exampleQueue">
+           <security-setting match="exampleQueue">
                <permission type="createDurableQueue" roles="guest"/>
                <permission type="deleteDurableQueue" roles="guest"/>
                <permission type="createNonDurableQueue" roles="guest"/>

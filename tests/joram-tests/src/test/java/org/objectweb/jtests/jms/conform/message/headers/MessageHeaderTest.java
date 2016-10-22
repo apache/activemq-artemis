@@ -180,7 +180,9 @@ public class MessageHeaderTest extends PTPTestCase {
          Assert.assertEquals("sec. 3.4.1 After completion of the send it holds the destination object specified " + "by the sending method.\n", senderQueue, message.getJMSDestination());
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertEquals("sec. 3.4.1 When a message is received, its destination value must be equivalent  " + " to the value assigned when it was sent.\n", ((Queue) message.getJMSDestination()).getQueueName(), ((Queue) msg.getJMSDestination()).getQueueName());
+         String one = ((Queue) message.getJMSDestination()).getQueueName();
+         String two = ((Queue) msg.getJMSDestination()).getQueueName();
+         Assert.assertEquals("sec. 3.4.1 When a message is received, its destination value must be equivalent  " + " to the value assigned when it was sent.\n", one, two);
 
          admin.deleteQueue("anotherQueue");
       } catch (JMSException e) {

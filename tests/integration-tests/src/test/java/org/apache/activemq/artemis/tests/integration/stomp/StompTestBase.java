@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
@@ -215,7 +216,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole(defUser, role);
          config.getSecurityRoles().put("#", new HashSet<Role>() {
             {
-               add(new Role(role, true, true, true, true, true, true, true, true));
+               add(new Role(role, true, true, true, true, true, true, true, true, true));
             }
          });
       }
@@ -280,7 +281,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    protected String getQueuePrefix() {
-      return "jms.queue.";
+      return "";
    }
 
    protected String getTopicName() {
@@ -288,7 +289,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    protected String getTopicPrefix() {
-      return "jms.topic.";
+      return "";
    }
 
    protected void assertChannelClosed() throws InterruptedException {
@@ -301,6 +302,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public void sendFrame(String data) throws Exception {
+      IntegrationTestLogger.LOGGER.info("Sending: " + data);
       sendFrame(0, data);
    }
 

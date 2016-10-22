@@ -214,17 +214,17 @@ public class JMSServerControlTest extends ManagementTestBase {
       Queue queue = (Queue) o;
       // assertEquals(((ActiveMQDestination)queue).get);
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString(queueName)).getFilter().getFilterString().toString());
       o = ActiveMQTestBase.checkBinding(context, bindings[1]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString(queueName)).getFilter().getFilterString().toString());
       o = ActiveMQTestBase.checkBinding(context, bindings[2]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString(queueName)).getFilter().getFilterString().toString());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       Assert.assertNotNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -249,7 +249,7 @@ public class JMSServerControlTest extends ManagementTestBase {
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(new SimpleString(queueName));
       Assert.assertFalse(queueBinding.getQueue().isDurable());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 

@@ -111,7 +111,7 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
       try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
            ClientSessionFactory factory = locator.createSessionFactory();
            ClientSession session = factory.createSession()) {
-         ClientSession.QueueQuery query = session.queueQuery(new SimpleString("jms.queue.TEST"));
+         ClientSession.QueueQuery query = session.queueQuery(new SimpleString("TEST"));
          assertNotNull(query);
          assertEquals(data.length, query.getMessageCount());
       }

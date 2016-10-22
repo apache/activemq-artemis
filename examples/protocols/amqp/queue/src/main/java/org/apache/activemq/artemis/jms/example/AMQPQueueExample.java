@@ -41,7 +41,7 @@ public class AMQPQueueExample {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 3. Create a sender
-         Queue queue = session.createQueue("jms.queue.exampleQueue");
+         Queue queue = session.createQueue("exampleQueue");
          MessageProducer sender = session.createProducer(queue);
 
          // Step 4. send a few simple message

@@ -62,8 +62,8 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
          latch.await(10, TimeUnit.SECONDS);
-         Assert.assertEquals("jms.queue.DLQ", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
-         Assert.assertEquals("jms.queue.ExpiryQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
+         Assert.assertEquals("DLQ", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
+         Assert.assertEquals("ExpiryQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
          Assert.assertFalse(tryConsume());
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -73,8 +73,8 @@ public class RedeployTest extends ActiveMQTestBase {
 
          Assert.assertTrue(tryConsume());
 
-         Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
-         Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
+         Assert.assertEquals("NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
+         Assert.assertEquals("NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
 
          ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
          try (Connection connection = factory.createConnection()) {

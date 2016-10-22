@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 @RunWith(BMUnitRunner.class)
 public class StompInternalStateTest extends ActiveMQTestBase {
 
-   private static final String STOMP_QUEUE_NAME = "jms.queue.StompTestQueue";
+   private static final String STOMP_QUEUE_NAME = "StompTestQueue";
 
    private String resultTestStompProtocolManagerLeak = null;
 

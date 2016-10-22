@@ -44,7 +44,9 @@ import org.junit.Before;
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
-   protected static final SimpleString ADDRESS = new SimpleString("jms.queues.FailoverTestAddress");
+   // TODO: find a better solution for this
+   // this is necessary because the cluster connection is using "jms" as its match; see org.apache.activemq.artemis.tests.util.ActiveMQTestBase.basicClusterConnectionConfig()
+   protected static final SimpleString ADDRESS = new SimpleString("jms.FailoverTestAddress");
 
    // Attributes ----------------------------------------------------
 

@@ -32,7 +32,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    // Static --------------------------------------------------------
 
    public static SimpleString createAddressFromName(final String name) {
-      return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + name);
+      return new SimpleString(name);
    }
 
    // Attributes ----------------------------------------------------
@@ -44,7 +44,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    }
 
    public ActiveMQTopic(final String name, boolean temporary) {
-      super(JMS_TOPIC_ADDRESS_PREFIX + name, name, temporary, false, null);
+      super(name, name, temporary, false, null);
    }
 
    /**

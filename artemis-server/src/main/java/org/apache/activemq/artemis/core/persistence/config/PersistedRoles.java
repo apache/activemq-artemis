@@ -46,6 +46,8 @@ public class PersistedRoles implements EncodingSupport {
 
    private SimpleString browseRoles;
 
+   private SimpleString createAddressRoles;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -72,7 +74,8 @@ public class PersistedRoles implements EncodingSupport {
                          final String createNonDurableQueueRoles,
                          final String deleteNonDurableQueueRoles,
                          final String manageRoles,
-                         final String browseRoles) {
+                         final String browseRoles,
+                         final String createAddressRoles) {
       super();
       this.addressMatch = SimpleString.toSimpleString(addressMatch);
       this.sendRoles = SimpleString.toSimpleString(sendRoles);
@@ -83,6 +86,7 @@ public class PersistedRoles implements EncodingSupport {
       this.deleteNonDurableQueueRoles = SimpleString.toSimpleString(deleteNonDurableQueueRoles);
       this.manageRoles = SimpleString.toSimpleString(manageRoles);
       this.browseRoles = SimpleString.toSimpleString(browseRoles);
+      this.createAddressRoles = SimpleString.toSimpleString(createAddressRoles);
    }
 
    // Public --------------------------------------------------------
@@ -158,6 +162,13 @@ public class PersistedRoles implements EncodingSupport {
       return browseRoles.toString();
    }
 
+   /**
+    * @return the createAddressRoles
+    */
+   public String getCreateAddressRoles() {
+      return createAddressRoles.toString();
+   }
+
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(addressMatch);
@@ -169,6 +180,7 @@ public class PersistedRoles implements EncodingSupport {
       buffer.writeNullableSimpleString(deleteNonDurableQueueRoles);
       buffer.writeNullableSimpleString(manageRoles);
       buffer.writeNullableSimpleString(browseRoles);
+      buffer.writeNullableSimpleString(createAddressRoles);
    }
 
    @Override
@@ -180,7 +192,8 @@ public class PersistedRoles implements EncodingSupport {
          SimpleString.sizeofNullableString(createNonDurableQueueRoles) +
          SimpleString.sizeofNullableString(deleteNonDurableQueueRoles) +
          SimpleString.sizeofNullableString(manageRoles) +
-         SimpleString.sizeofNullableString(browseRoles);
+         SimpleString.sizeofNullableString(browseRoles) +
+         SimpleString.sizeofNullableString(createAddressRoles);
 
    }
 
@@ -195,6 +208,7 @@ public class PersistedRoles implements EncodingSupport {
       deleteNonDurableQueueRoles = buffer.readNullableSimpleString();
       manageRoles = buffer.readNullableSimpleString();
       browseRoles = buffer.readNullableSimpleString();
+      createAddressRoles = buffer.readNullableSimpleString();
    }
 
    /* (non-Javadoc)
@@ -212,6 +226,7 @@ public class PersistedRoles implements EncodingSupport {
       result = prime * result + ((deleteNonDurableQueueRoles == null) ? 0 : deleteNonDurableQueueRoles.hashCode());
       result = prime * result + ((manageRoles == null) ? 0 : manageRoles.hashCode());
       result = prime * result + ((browseRoles == null) ? 0 : browseRoles.hashCode());
+      result = prime * result + ((createAddressRoles == null) ? 0 : createAddressRoles.hashCode());
       result = prime * result + ((sendRoles == null) ? 0 : sendRoles.hashCode());
       result = prime * result + (int) (storeId ^ (storeId >>> 32));
       return result;
@@ -269,6 +284,11 @@ public class PersistedRoles implements EncodingSupport {
             return false;
       } else if (!browseRoles.equals(other.browseRoles))
          return false;
+      if (createAddressRoles == null) {
+         if (other.createAddressRoles != null)
+            return false;
+      } else if (!createAddressRoles.equals(other.createAddressRoles))
+         return false;
       if (sendRoles == null) {
          if (other.sendRoles != null)
             return false;
@@ -303,6 +323,8 @@ public class PersistedRoles implements EncodingSupport {
          manageRoles +
          ", browseRoles=" +
          browseRoles +
+         ", createAddressRoles=" +
+         createAddressRoles +
          "]";
    }
 

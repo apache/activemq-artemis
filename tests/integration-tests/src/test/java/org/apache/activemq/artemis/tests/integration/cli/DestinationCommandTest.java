@@ -202,9 +202,9 @@ public class DestinationCommandTest extends JMSTestBase {
       String bindingKey = command.getName();
       if (isJms(command)) {
          if (isTopic(command)) {
-            bindingKey = "jms.topic." + bindingKey;
+//            bindingKey = bindingKey;
          } else {
-            bindingKey = "jms.queue." + bindingKey;
+//            bindingKey = bindingKey;
          }
       }
       Map<SimpleString, Binding> bindings = server.getPostOffice().getAllBindings();

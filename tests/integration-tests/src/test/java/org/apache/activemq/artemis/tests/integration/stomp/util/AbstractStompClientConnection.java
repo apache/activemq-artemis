@@ -27,6 +27,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+
 public abstract class AbstractStompClientConnection implements StompClientConnection {
 
    public static final String STOMP_COMMAND = "STOMP";
@@ -91,6 +93,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    @Override
    public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException {
       ClientStompFrame response = null;
+      IntegrationTestLogger.LOGGER.info("Sending frame:\n" + frame);
       ByteBuffer buffer = frame.toByteBuffer();
       while (buffer.remaining() > 0) {
          socketChannel.write(buffer);

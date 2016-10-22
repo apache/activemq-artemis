@@ -45,6 +45,8 @@ public final class RoleInfo {
 
    private final boolean browse;
 
+   private final boolean createAddress;
+
    /**
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link AddressControl#getRolesAsJSON()}.
@@ -54,7 +56,7 @@ public final class RoleInfo {
       RoleInfo[] roles = new RoleInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject r = array.getJsonObject(i);
-         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"));
+         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"), r.getBoolean("createAddress"));
          roles[i] = role;
       }
       return roles;
@@ -68,7 +70,8 @@ public final class RoleInfo {
                     final boolean createNonDurableQueue,
                     final boolean deleteNonDurableQueue,
                     final boolean manage,
-                    final boolean browse) {
+                    final boolean browse,
+                    final boolean createAddress) {
       this.name = name;
       this.send = send;
       this.consume = consume;
@@ -78,6 +81,7 @@ public final class RoleInfo {
       this.deleteNonDurableQueue = deleteNonDurableQueue;
       this.manage = manage;
       this.browse = browse;
+      this.createAddress = createAddress;
    }
 
    /**
@@ -141,5 +145,12 @@ public final class RoleInfo {
     */
    public boolean isBrowse() {
       return browse;
+   }
+
+   /**
+    * Returns whether this role can create addresses.
+    */
+   public boolean isCreateAddress() {
+      return createAddress;
    }
 }

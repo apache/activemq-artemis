@@ -41,7 +41,7 @@ public class VerySimpleOenwireTest extends OpenWireTestBase {
    public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       try {
@@ -78,7 +78,7 @@ public class VerySimpleOenwireTest extends OpenWireTestBase {
    public void testMixedOpenWireExample() throws Exception {
       Connection openConn = null;
 
-      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      SimpleString durableQueue = new SimpleString("exampleQueue");
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();

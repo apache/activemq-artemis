@@ -28,6 +28,8 @@ import org.junit.Test;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
+   public static final String QUEUE_NAME = "jms.target";
+
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -42,8 +44,8 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
    public void testClusteredQueue() throws Exception {
       System.out.println("Server1 = " + server1.getNodeID());
       System.out.println("Server2 = " + server2.getNodeID());
-      jmsServer1.createQueue(false, "target", null, true, "/queue/target");
-      jmsServer2.createQueue(false, "target", null, true, "/queue/target");
+      jmsServer1.createQueue(false, QUEUE_NAME, null, true, "/queue/target");
+      jmsServer2.createQueue(false, QUEUE_NAME, null, true, "/queue/target");
 
       Connection conn1 = cf1.createConnection();
       Connection conn2 = cf2.createConnection();
@@ -54,10 +56,10 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
       try {
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue1 = session1.createQueue("target");
+         Queue targetQueue1 = session1.createQueue(QUEUE_NAME);
 
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue2 = session2.createQueue("target");
+         Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
          // sleep a little bit to have the temp queue propagated to server #2
          Thread.sleep(3000);
@@ -81,10 +83,11 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
       }
    }
 
+   // TODO: this is broken because temporary queues are no longer created with the "jms.temp-queue" prefix which means the cluster-connection won't match it
    @Test
    public void testTemporaryQueue() throws Exception {
-      jmsServer1.createQueue(false, "target", null, false, "/queue/target");
-      jmsServer2.createQueue(false, "target", null, false, "/queue/target");
+      jmsServer1.createQueue(false, QUEUE_NAME, null, false, "/queue/target");
+      jmsServer2.createQueue(false, QUEUE_NAME, null, false, "/queue/target");
 
       Connection conn1 = cf1.createConnection();
       Connection conn2 = cf2.createConnection();
@@ -94,11 +97,11 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
       try {
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue1 = session1.createQueue("target");
+         Queue targetQueue1 = session1.createQueue(QUEUE_NAME);
          Queue tempQueue = session1.createTemporaryQueue();
          System.out.println("temp queue is " + tempQueue.getQueueName());
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue targetQueue2 = session2.createQueue("target");
+         Queue targetQueue2 = session2.createQueue(QUEUE_NAME);
 
          MessageProducer prod1 = session1.createProducer(targetQueue1);
          MessageConsumer cons2 = session2.createConsumer(targetQueue2);
@@ -126,6 +129,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
          for (int i = 0; i < 10; i++) {
             if (i % 2 == 0) {
                TextMessage received = (TextMessage) tempCons1.receive(5000);
+               assertNotNull(received);
                System.out.println(received.getText());
             }
          }
@@ -134,8 +138,8 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
          conn2.close();
       }
 
-      jmsServer1.destroyQueue("target");
-      jmsServer2.destroyQueue("target");
+      jmsServer1.destroyQueue(QUEUE_NAME);
+      jmsServer2.destroyQueue(QUEUE_NAME);
 
    }
 

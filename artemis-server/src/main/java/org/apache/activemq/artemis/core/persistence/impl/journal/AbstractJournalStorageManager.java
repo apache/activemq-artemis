@@ -1221,7 +1221,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
       SimpleString filterString = filter == null ? null : filter.getFilterString();
 
-      PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(), binding.getAddress(), filterString, queue.getUser(), queue.isAutoCreated());
+      PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(), binding.getAddress(), filterString, queue.getUser(), queue.isAutoCreated(), queue.getMaxConsumers(), queue.isDeleteOnNoConsumers());
 
       readLock();
       try {
@@ -1268,7 +1268,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    @Override
    public void addAddressBinding(final long tx, final AddressInfo addressInfo) throws Exception {
-      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(), addressInfo.getRoutingType());
+      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(), addressInfo.getRoutingType(), addressInfo.getDefaultMaxQueueConsumers());
 
       readLock();
       try {

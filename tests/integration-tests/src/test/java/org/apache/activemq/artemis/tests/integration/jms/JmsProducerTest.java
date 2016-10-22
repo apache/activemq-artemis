@@ -92,7 +92,6 @@ public class JmsProducerTest extends JMSTestBase {
 
    @Test
    public void multipleSendsUsingSetters() throws Exception {
-      jmsServer.createQueue(true, "q1", null, true, "/queues/q1");
       server.createQueue(SimpleString.toSimpleString("q1"), SimpleString.toSimpleString("q1"), null, true, false);
 
       Queue q1 = context.createQueue("q1");

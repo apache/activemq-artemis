@@ -92,7 +92,7 @@ public class BrowserTest extends JMSTestCase {
 
       coreSession.start();
 
-      ClientConsumer browser = coreSession.createConsumer("jms.queue.Queue1", true);
+      ClientConsumer browser = coreSession.createConsumer("Queue1", true);
 
       conn.start();
 

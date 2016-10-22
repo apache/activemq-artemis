@@ -368,7 +368,7 @@ public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
    @Override
    public EmbeddedJMS createArtemisBroker() throws Exception {
       Configuration config0 = createConfig("localhost", 0);
-      String coreQueueAddress = "jms.queue." + brokerZeroQueue.getQueueName();
+      String coreQueueAddress = brokerZeroQueue.getQueueName();
       AddressSettings addrSettings = new AddressSettings();
       addrSettings.setQueuePrefetch(0);
       config0.getAddressesSettings().put(coreQueueAddress, addrSettings);

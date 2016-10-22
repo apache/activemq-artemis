@@ -27,4 +27,6 @@ public interface AddressBindingInfo {
 
    AddressInfo.RoutingType getRoutingType();
 
+   int getDefaultMaxConsumers();
+
 }

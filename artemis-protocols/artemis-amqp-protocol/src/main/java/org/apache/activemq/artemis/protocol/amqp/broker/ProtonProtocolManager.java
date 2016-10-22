@@ -58,7 +58,8 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
    * the address. This can be changed on the acceptor.
    * */
-   private String pubSubPrefix = ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
+   // TODO fix this
+   private String pubSubPrefix = ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
 
    private int maxFrameSize = AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
 

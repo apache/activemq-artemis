@@ -86,8 +86,8 @@ under the License.
 
       <diverts>
          <divert name="myDivert">
-            <address>jms.queue.DivertQueue</address>
-            <forwarding-address>jms.queue.NewQueue</forwarding-address>
+            <address>DivertQueue</address>
+            <forwarding-address>NewQueue</forwarding-address>
          </divert>
       </diverts>
 
@@ -110,8 +110,8 @@ under the License.
          <!--default for catch all-->
          <address-setting match="#">
             <auto-create-jms-queues>false</auto-create-jms-queues>
-            <dead-letter-address>jms.queue.NewQueue</dead-letter-address>
-            <expiry-address>jms.queue.NewQueue</expiry-address>
+            <dead-letter-address>NewQueue</dead-letter-address>
+            <expiry-address>NewQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
             <max-size-bytes>10485760</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>

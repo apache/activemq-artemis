@@ -44,9 +44,9 @@ public final class ResourceNames {
 
    public static final String JMS_SERVER = "jms.server";
 
-   public static final String JMS_QUEUE = "jms.queue.";
+//   public static final String JMS_QUEUE = "jms.queue.";
 
-   public static final String JMS_TOPIC = "jms.topic.";
+//   public static final String JMS_TOPIC = "jms.topic.";
 
    public static final String JMS_CONNECTION_FACTORY = "jms.connectionfactory.";
 

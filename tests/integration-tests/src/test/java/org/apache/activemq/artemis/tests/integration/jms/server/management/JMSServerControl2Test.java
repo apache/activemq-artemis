@@ -415,7 +415,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
             assertNotNull(sInfo.getSessionID());
             long createTime = sInfo.getCreationTime();
             assertTrue(startTime <= createTime && createTime <= System.currentTimeMillis());
-            String lastID = control.getLastSentMessageID(sInfo.getSessionID(), "jms.queue." + queueName);
+            String lastID = control.getLastSentMessageID(sInfo.getSessionID(), queueName);
             if (lastID != null) {
                assertEquals(lastMsgID, lastID);
                lastMsgFound = true;
@@ -926,8 +926,8 @@ public class JMSServerControl2Test extends ManagementTestBase {
          Queue queue2 = ActiveMQJMSClient.createQueue(queueName2);
 
          JMSServerControl control = createManagementControl();
-         QueueControl queueControl = createManagementControl("jms.queue." + queueName, "jms.queue." + queueName);
-         QueueControl queueControl2 = createManagementControl("jms.queue." + queueName2, "jms.queue." + queueName2);
+         QueueControl queueControl = createManagementControl(queueName, queueName);
+         QueueControl queueControl2 = createManagementControl(queueName2, queueName2);
 
          Assert.assertEquals(0, server.getConnectionCount());
          Assert.assertEquals(0, control.listRemoteAddresses().length);
@@ -959,7 +959,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
             }
          });
 
-         Assert.assertTrue(control.closeConsumerConnectionsForAddress("jms.queue." + queueName));
+         Assert.assertTrue(control.closeConsumerConnectionsForAddress(queueName));
 
          boolean gotException = exceptionLatch.await(2 * JMSServerControl2Test.CONNECTION_TTL, TimeUnit.MILLISECONDS);
          Assert.assertTrue("did not received the expected JMSException", gotException);
@@ -1000,9 +1000,9 @@ public class JMSServerControl2Test extends ManagementTestBase {
          Queue queue3 = ActiveMQJMSClient.createQueue(queueName3);
 
          JMSServerControl control = createManagementControl();
-         QueueControl queueControl = createManagementControl("jms.queue." + queueName1, "jms.queue." + queueName1);
-         QueueControl queueControl2 = createManagementControl("jms.queue." + queueName2, "jms.queue." + queueName2);
-         QueueControl queueControl3 = createManagementControl("jms.queue." + queueName3, "jms.queue." + queueName3);
+         QueueControl queueControl = createManagementControl(queueName1, queueName1);
+         QueueControl queueControl2 = createManagementControl(queueName2, queueName2);
+         QueueControl queueControl3 = createManagementControl(queueName3, queueName3);
 
          Assert.assertEquals(0, server.getConnectionCount());
          Assert.assertEquals(0, control.listRemoteAddresses().length);
@@ -1047,7 +1047,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
             }
          });
 
-         Assert.assertTrue(control.closeConsumerConnectionsForAddress("jms.queue.x.#"));
+         Assert.assertTrue(control.closeConsumerConnectionsForAddress("x.#"));
 
          boolean gotException = exceptionLatch.await(2 * JMSServerControl2Test.CONNECTION_TTL, TimeUnit.MILLISECONDS);
          Assert.assertTrue("did not received the expected JMSException", gotException);
@@ -1087,8 +1087,8 @@ public class JMSServerControl2Test extends ManagementTestBase {
          Queue queue2 = ActiveMQJMSClient.createQueue(queueName2);
 
          JMSServerControl control = createManagementControl();
-         QueueControl queueControl = createManagementControl("jms.queue." + queueName, "jms.queue." + queueName);
-         QueueControl queueControl2 = createManagementControl("jms.queue." + queueName2, "jms.queue." + queueName2);
+         QueueControl queueControl = createManagementControl(queueName, queueName);
+         QueueControl queueControl2 = createManagementControl(queueName2, queueName2);
 
          Assert.assertEquals(0, server.getConnectionCount());
          Assert.assertEquals(0, control.listRemoteAddresses().length);

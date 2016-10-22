@@ -52,7 +52,7 @@ public class StompEmbeddedWithInterceptorExample {
          // jms.queue.exampleQueue address with a text body
          String text = "Hello World from Stomp 1.2 !";
          String message = "SEND\n" +
-            "destination:jms.queue.exampleQueue" +
+            "destination:exampleQueue" +
             "\n" +
             text +
             END_OF_FRAME;

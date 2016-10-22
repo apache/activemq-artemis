@@ -39,6 +39,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+
 public class RestDeserializationTest extends RestTestBase {
 
    private RestAMQConnection restConnection;
@@ -169,11 +172,11 @@ public class RestDeserializationTest extends RestTestBase {
       ConnectionFactory factory = new ActiveMQJMSConnectionFactory("tcp://localhost:61616");
       String jmsDest;
       if (isQueue) {
-         jmsDest = "jms.queue." + destName;
+         jmsDest = QUEUE_QUALIFIED_PREFIX + destName;
       } else {
-         jmsDest = "jms.topic." + destName;
+         jmsDest = TOPIC_QUALIFIED_PREFIX + destName;
       }
-      Destination destination = ActiveMQDestination.fromAddress(jmsDest);
+      Destination destination = ActiveMQDestination.fromPrefixedName(jmsDest);
 
       Connection conn = factory.createConnection();
       try {

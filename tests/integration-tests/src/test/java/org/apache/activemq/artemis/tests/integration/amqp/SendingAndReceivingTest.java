@@ -64,7 +64,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
       try {
          connection = connectionFactory.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue queue = session.createQueue("jms.queue.exampleQueue");
+         Queue queue = session.createQueue("exampleQueue");
          MessageProducer sender = session.createProducer(queue);
 
          String body = createMessage(10240);

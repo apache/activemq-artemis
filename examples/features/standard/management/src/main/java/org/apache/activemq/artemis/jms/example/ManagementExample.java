@@ -81,7 +81,7 @@ public class ManagementExample {
          // Step 13. Use a helper class to fill the JMS message with management information:
          // * the name of the resource to manage
          // * in this case, we want to retrieve the value of the messageCount of the queue
-         JMSManagementHelper.putAttribute(m, "jms.queue.exampleQueue", "messageCount");
+         JMSManagementHelper.putAttribute(m, "exampleQueue", "messageCount");
 
          // Step 14. Use the requestor to send the request and wait for the reply
          Message reply = requestor.request(m);
@@ -97,7 +97,7 @@ public class ManagementExample {
          // * the object name of the resource to manage (i.e. the queue)
          // * in this case, we want to call the "removeMessage" operation with the JMS MessageID
          // of the message sent to the queue in step 8.
-         JMSManagementHelper.putOperationInvocation(m, "jms.queue.exampleQueue", "removeMessage", message.getJMSMessageID());
+         JMSManagementHelper.putOperationInvocation(m, "exampleQueue", "removeMessage", message.getJMSMessageID());
 
          // Step 18 Use the requestor to send the request and wait for the reply
          reply = requestor.request(m);

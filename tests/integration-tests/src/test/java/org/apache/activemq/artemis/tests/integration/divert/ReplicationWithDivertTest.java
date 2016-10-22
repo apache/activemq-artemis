@@ -46,9 +46,9 @@ import org.junit.Test;
 public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
    public static final String JMS_SOURCE_QUEUE = "Queue";
-   public static final String SOURCE_QUEUE = "jms.queue." + JMS_SOURCE_QUEUE;
+   public static final String SOURCE_QUEUE = JMS_SOURCE_QUEUE;
    public static final String JMS_TARGET_QUEUE = "DestQueue";
-   public static final String TARGET_QUEUE = "jms.queue." + JMS_TARGET_QUEUE;
+   public static final String TARGET_QUEUE = JMS_TARGET_QUEUE;
    public static int messageChunkCount = 0;
 
    private static ActiveMQServer backupServer;

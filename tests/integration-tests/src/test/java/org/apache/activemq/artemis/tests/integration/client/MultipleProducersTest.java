@@ -25,7 +25,6 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -43,11 +42,11 @@ public class MultipleProducersTest extends JMSTestBase {
    public Queue queueTwo = null;
    public Session session = null;
 
-   public SimpleString dlq = new SimpleString("jms.queue.DLQ");
-   public SimpleString expiryQueue = new SimpleString("jms.queue.ExpiryQueue");
+   public SimpleString dlq = new SimpleString("DLQ");
+   public SimpleString expiryQueue = new SimpleString("ExpiryQueue");
 
-   public SimpleString queueOneName = new SimpleString("jms.queue.queueOne");
-   public SimpleString queueTwoName = new SimpleString("jms.queue.queueTwo");
+   public SimpleString queueOneName = new SimpleString("queueOne");
+   public SimpleString queueTwoName = new SimpleString("queueTwo");
    public JMSQueueControl control = null;
    public long queueOneMsgCount = 0;
    public long queueTwoMsgCount = 0;
@@ -127,7 +126,7 @@ public class MultipleProducersTest extends JMSTestBase {
       // after draining queueOne send 5 message to queueOne
       queueTwoMsgCount = server.locateQueue(queueTwoName).getMessageCount();
 
-      control = (JMSQueueControl) server.getManagementService().getResource(ResourceNames.JMS_QUEUE + queueOne.getQueueName());
+      control = (JMSQueueControl) server.getManagementService().getResource(queueOne.getQueueName());
 
       control.removeMessages(null);
 

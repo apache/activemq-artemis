@@ -87,8 +87,8 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       jmsServer2.createQueue(false, name, null, true, "/queue/" + name);
       jmsServer1.createQueue(false, name, null, true, "/queue/" + name);
 
-      assertTrue(waitForBindings(server1, "jms.queue." + name, false, 1, 0, 10000));
-      assertTrue(waitForBindings(server2, "jms.queue." + name, false, 1, 0, 10000));
+      assertTrue(waitForBindings(server1, name, false, 1, 0, 10000));
+      assertTrue(waitForBindings(server2, name, false, 1, 0, 10000));
 
       return (Queue) context1.lookup("/queue/" + name);
    }

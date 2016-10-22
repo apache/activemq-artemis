@@ -67,7 +67,7 @@ public final class AddressSettingsInfo {
 
    public static AddressSettingsInfo from(final String jsonString) {
       JsonObject object = JsonUtil.readJsonObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getJsonNumber("maxSizeBytes").longValue(), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getJsonNumber("redeliveryDelay").longValue(), object.getJsonNumber("redeliveryMultiplier").doubleValue(), object.getJsonNumber("maxRedeliveryDelay").longValue(), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getJsonNumber("redistributionDelay").longValue(), object.getBoolean("sendToDLAOnNoRoute"), object.getJsonNumber("slowConsumerThreshold").longValue(), object.getJsonNumber("slowConsumerCheckPeriod").longValue(), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoCreateJmsTopics"), object.getBoolean("autoDeleteJmsTopics"));
+      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getJsonNumber("maxSizeBytes").longValue(), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getJsonNumber("redeliveryDelay").longValue(), object.getJsonNumber("redeliveryMultiplier").doubleValue(), object.getJsonNumber("maxRedeliveryDelay").longValue(), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getJsonNumber("redistributionDelay").longValue(), object.getBoolean("sendToDLAOnNoRoute"), object.getJsonNumber("slowConsumerThreshold").longValue(), object.getJsonNumber("slowConsumerCheckPeriod").longValue(), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoCreateJmsTopics"), object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoDeleteJmsTopics"));
    }
 
    // Constructors --------------------------------------------------
@@ -89,8 +89,8 @@ public final class AddressSettingsInfo {
                               long slowConsumerCheckPeriod,
                               String slowConsumerPolicy,
                               boolean autoCreateJmsQueues,
-                              boolean autoDeleteJmsQueues,
                               boolean autoCreateJmsTopics,
+                              boolean autoDeleteJmsQueues,
                               boolean autoDeleteJmsTopics) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;

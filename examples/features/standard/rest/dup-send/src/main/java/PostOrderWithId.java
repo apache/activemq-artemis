@@ -26,7 +26,7 @@ public class PostOrderWithId {
          throw new RuntimeException("You must pass in a parameter");
 
       // first get the create URL for the shipping queue
-      ClientRequest request = new ClientRequest("http://localhost:8080/queues/jms.queue.orders");
+      ClientRequest request = new ClientRequest("http://localhost:8080/queues/orders");
       ClientResponse res = request.head();
       Link create = res.getHeaderAsLink("msg-create-with-id");
 

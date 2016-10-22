@@ -48,6 +48,10 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class BindingsClusterTest extends JMSClusteredTestBase {
 
+   // TODO: find a solution to this
+   // the "jms." prefix is needed because the cluster connection is matching on this
+   public static final String TOPIC = "jms.t1";
+
    private final boolean crash;
 
    public BindingsClusterTest(boolean crash) {
@@ -89,9 +93,9 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
       try {
 
-         Topic topic1 = createTopic("t1", true);
+         Topic topic1 = createTopic(TOPIC, true);
 
-         Topic topic2 = (Topic) context1.lookup("topic/t1");
+         Topic topic2 = (Topic) context1.lookup("topic/" + TOPIC);
 
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -113,12 +117,12 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
          prod1.send(session1.createTextMessage("m1"));
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          crash();
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
 
          prod1.send(session1.createTextMessage("m2"));
 
@@ -126,8 +130,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          prod1.send(session1.createTextMessage("m3"));
 
@@ -167,8 +171,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          conn2.close();
       }
 
-      jmsServer1.destroyTopic("t1");
-      jmsServer2.destroyTopic("t1");
+      jmsServer1.destroyTopic(TOPIC);
+      jmsServer2.destroyTopic(TOPIC);
    }
 
    @Test
@@ -187,9 +191,9 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
       try {
 
-         Topic topic1 = createTopic("t1", true);
+         Topic topic1 = createTopic(TOPIC, true);
 
-         Topic topic2 = (Topic) context1.lookup("topic/t1");
+         Topic topic2 = (Topic) context1.lookup("topic/" + TOPIC);
 
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -213,12 +217,12 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
          prod1.send(session1.createTextMessage("m1"));
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          crash();
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
 
          //send a few messages while the binding is disconnected
          prod1.send(session1.createTextMessage("m2"));
@@ -229,8 +233,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          prod1.send(session1.createTextMessage("m5"));
          prod1.send(session1.createTextMessage("m6"));
@@ -287,8 +291,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          conn2.close();
       }
 
-      jmsServer1.destroyTopic("t1");
-      jmsServer2.destroyTopic("t1");
+      jmsServer1.destroyTopic(TOPIC);
+      jmsServer2.destroyTopic(TOPIC);
    }
 
    @Test
@@ -307,9 +311,9 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
       try {
 
-         Topic topic1 = createTopic("t1", true);
+         Topic topic1 = createTopic(TOPIC, true);
 
-         Topic topic2 = (Topic) context1.lookup("topic/t1");
+         Topic topic2 = (Topic) context1.lookup("topic/" + TOPIC);
 
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -328,15 +332,15 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          prod1.send(session1.createTextMessage("m1"));
          prod1.send(session1.createTextMessage("m2"));
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          crash();
 
          //this may or may not be closed, if the server was crashed then it would have been closed on failure.
          cons2.close();
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
 
          //send a few messages while the binding is disconnected
          prod1.send(session1.createTextMessage("m3"));
@@ -347,8 +351,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), TOPIC);
+         printBindings(jmsServer2.getActiveMQServer(), TOPIC);
 
          prod1.send(session1.createTextMessage("m6"));
          prod1.send(session1.createTextMessage("m7"));
@@ -395,8 +399,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          conn2.close();
       }
 
-      jmsServer1.destroyTopic("t1");
-      jmsServer2.destroyTopic("t1");
+      jmsServer1.destroyTopic(TOPIC);
+      jmsServer2.destroyTopic(TOPIC);
    }
 
    private void crash() throws Exception {

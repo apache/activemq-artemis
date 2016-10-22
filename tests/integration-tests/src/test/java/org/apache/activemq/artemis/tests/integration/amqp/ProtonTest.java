@@ -133,7 +133,7 @@ public class ProtonTest extends ProtonTestBase {
    private final int protocol;
 
    public ProtonTest(String name, int protocol) {
-      this.coreAddress = "jms.queue.exampleQueue";
+      this.coreAddress = "exampleQueue";
       this.protocol = protocol;
       if (protocol == 0 || protocol == 3) {
          this.address = coreAddress;
@@ -494,6 +494,7 @@ public class ProtonTest extends ProtonTestBase {
          Assert.assertEquals("Message:" + i, message.getText());
       }
       session.commit();
+      session.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
       Assert.assertEquals(q.getMessageCount(), 0);
    }
@@ -638,7 +639,7 @@ public class ProtonTest extends ProtonTestBase {
 
          AmqpMessage m;
          for (int i = 0; i < messagesSent - 1; i++) {
-            m = receiver.receive();
+            m = receiver.receive(5000, TimeUnit.MILLISECONDS);
             m.accept();
          }
 
@@ -845,10 +846,10 @@ public class ProtonTest extends ProtonTestBase {
          Source source = new Source();
          source.setDurable(TerminusDurability.UNSETTLED_STATE);
          source.setCapabilities(Symbol.getSymbol("topic"));
-         source.setAddress("jms.topic.mytopic");
+         source.setAddress("mytopic");
          AmqpReceiver receiver = session.createReceiver(source, "testSub");
 
-         SimpleString fo = new SimpleString("testClient.testSub:jms.topic.mytopic");
+         SimpleString fo = new SimpleString("testClient.testSub:mytopic");
          assertNotNull(server.locateQueue(fo));
 
       } catch (Exception e) {
@@ -877,7 +878,7 @@ public class ProtonTest extends ProtonTestBase {
       message.setText("TestPayload");
       sender.send(message);
 
-      AmqpMessage receivedMessage = receiver.receive();
+      AmqpMessage receivedMessage = receiver.receive(5000, TimeUnit.MILLISECONDS);
       assertNotNull(receivedMessage);
    }
 
@@ -889,7 +890,7 @@ public class ProtonTest extends ProtonTestBase {
       try {
          String destinationAddress = address + 1;
          AmqpSession session = amqpConnection.createSession();
-         AmqpSender sender = session.createSender("jms.queue.activemq.management");
+         AmqpSender sender = session.createSender("activemq.management");
          AmqpReceiver receiver = session.createReceiver(destinationAddress);
          receiver.flow(10);
 
@@ -931,6 +932,7 @@ public class ProtonTest extends ProtonTestBase {
       connection.start();
 
       message = (TextMessage) cons.receive(5000);
+      assertNotNull(message);
       Destination jmsReplyTo = message.getJMSReplyTo();
       Assert.assertNotNull(jmsReplyTo);
       Assert.assertNotNull(message);

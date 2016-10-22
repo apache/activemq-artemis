@@ -42,6 +42,10 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
+   // TODO: find a solution to this
+   // the "jms." prefix is needed because the cluster connection is matching on this
+   public static final String QUEUE = "jms.Q1";
+
    private final boolean persistent;
 
    @Override
@@ -72,9 +76,9 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     */
    @Test
    public void testSendHalfLargeTextMessage() throws Exception {
-      createQueue("Q1");
+      createQueue(QUEUE);
 
-      Queue queue = (Queue) context1.lookup("queue/Q1");
+      Queue queue = (Queue) context1.lookup("queue/" + QUEUE);
       Connection conn1 = cf1.createConnection();
       Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod1 = session1.createProducer(queue);
@@ -112,9 +116,9 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     */
    @Test
    public void testSendMapMessageOverCluster() throws Exception {
-      createQueue("Q1");
+      createQueue("jms." + QUEUE);
 
-      Queue queue = (Queue) context1.lookup("queue/Q1");
+      Queue queue = (Queue) context1.lookup("queue/jms." + QUEUE);
       Connection conn1 = cf1.createConnection();
       Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod1 = session1.createProducer(queue);
@@ -180,9 +184,9 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     */
    @Test
    public void testSendBytesAsLargeOnBridgeOnly() throws Exception {
-      createQueue("Q1");
+      createQueue(QUEUE);
 
-      Queue queue = (Queue) context1.lookup("queue/Q1");
+      Queue queue = (Queue) context1.lookup("queue/" + QUEUE);
       Connection conn1 = cf1.createConnection();
       Session session1 = conn1.createSession(true, Session.SESSION_TRANSACTED);
       MessageProducer prod1 = session1.createProducer(queue);
@@ -227,9 +231,9 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
     */
    @Test
    public void testSendLargeForBridge() throws Exception {
-      createQueue("Q1");
+      createQueue(QUEUE);
 
-      Queue queue = (Queue) context1.lookup("queue/Q1");
+      Queue queue = (Queue) context1.lookup("queue/" + QUEUE);
 
       ActiveMQConnectionFactory cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(1)));
       cf1.setMinLargeMessageSize(200 * 1024);

@@ -111,6 +111,8 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       sender.close();
 
+      Thread.sleep(200);
+
       queueView = getProxyToQueue(remoteTarget.getAddress());
       assertNull(queueView);
 
