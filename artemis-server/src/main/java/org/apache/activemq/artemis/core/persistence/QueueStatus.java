@@ -14,36 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.persistence;
 
-import java.util.List;
+public enum QueueStatus {
+   PAUSED((short) 0), RUNNING((short) 1);
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.QueueStatusEncoding;
+   public final short id;
 
-public interface QueueBindingInfo {
+   QueueStatus(short id) {
+      this.id = id;
+   }
 
-   long getId();
+   public static QueueStatus[] values;
 
-   SimpleString getAddress();
+   static {
+      QueueStatus[] allValues = QueueStatus.values();
+      values = new QueueStatus[allValues.length];
+      for (QueueStatus v : allValues) {
+         values[v.id] = v;
+      }
+   }
 
-   SimpleString getQueueName();
-
-   /**
-    * used to rename the queue in case of a duplication during load time
-    *
-    * @param newName
-    */
-   void replaceQueueName(SimpleString newName);
-
-   SimpleString getFilterString();
-
-   boolean isAutoCreated();
-
-   SimpleString getUser();
-
-   void addQueueStatusEncoding(QueueStatusEncoding status);
-
-   List<QueueStatusEncoding> getQueueStatusEncodings();
-
+   public static QueueStatus fromID(short id) {
+      if (id < 0 || id > values.length) {
+         return null;
+      } else {
+         return values[id];
+      }
+   }
 }

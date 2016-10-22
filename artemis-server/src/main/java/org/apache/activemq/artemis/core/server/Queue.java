@@ -207,6 +207,15 @@ public interface Queue extends Bindable {
    void pause();
 
    /**
+    * Pauses the queue. It will receive messages but won't give them to the consumers until resumed.
+    * If a queue is paused, pausing it again will only throw a warning.
+    * To check if a queue is paused, invoke <i>isPaused()</i>
+    */
+   void pause(boolean persist);
+
+   void reloadPause(long recordID);
+
+   /**
     * Resumes the delivery of message for the queue.
     * If a queue is resumed, resuming it again will only throw a warning.
     * To check if a queue is resumed, invoke <i>isPaused()</i>
@@ -217,6 +226,12 @@ public interface Queue extends Bindable {
     * @return true if paused, false otherwise.
     */
    boolean isPaused();
+
+   /**
+    * if the pause was persisted
+    * @return
+    */
+   boolean isPersistedPause();
 
    Executor getExecutor();
 

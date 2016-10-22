@@ -33,6 +33,8 @@ public final class JournalRecordIds {
 
    public static final byte QUEUE_BINDING_RECORD = 21;
 
+   public static final byte QUEUE_STATUS_RECORD = 22;
+
    /**
     * Records storing the current recordID number.
     *

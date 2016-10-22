@@ -351,6 +351,11 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          }
 
          @Override
+         public void pause(boolean persist) throws Exception {
+            proxy.invokeOperation("pause", persist);
+         }
+
+         @Override
          public void resume() throws Exception {
             proxy.invokeOperation("resume");
          }

@@ -845,6 +845,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
          this.expectedElements = new CountDownLatch(expectedElements);
       }
 
+      @Override
+      public boolean isPersistedPause() {
+         return false;
+      }
+
       public boolean waitCompletion(long timeout, TimeUnit timeUnit) throws Exception {
          return expectedElements.await(timeout, timeUnit);
       }
@@ -860,6 +865,14 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public long getID() {
          return 0;
+      }
+
+      @Override
+      public void pause(boolean persist) {
+      }
+
+      @Override
+      public void reloadPause(long recordID) {
       }
 
       @Override

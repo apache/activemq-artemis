@@ -57,6 +57,16 @@ public class FakeQueue implements Queue {
    }
 
    @Override
+   public void reloadPause(long recordID) {
+
+   }
+
+   @Override
+   public boolean isPersistedPause() {
+      return false;
+   }
+
+   @Override
    public int retryMessages(Filter filter) throws Exception {
       return 0;
    }
@@ -99,6 +109,11 @@ public class FakeQueue implements Queue {
    @Override
    public void reload(MessageReference ref) {
       // no-op
+
+   }
+
+   @Override
+   public void pause(boolean persist) {
 
    }
 
