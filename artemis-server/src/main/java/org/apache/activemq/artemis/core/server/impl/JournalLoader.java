@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
@@ -36,6 +37,9 @@ public interface JournalLoader {
 
    void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
                    List<QueueBindingInfo> queueBindingInfos) throws Exception;
+
+   void initAddresses(Map<Long, AddressBindingInfo> addressBindingInfosMap,
+                      List<AddressBindingInfo> addressBindingInfo) throws Exception;
 
    void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception;
 

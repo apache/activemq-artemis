@@ -29,10 +29,6 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    public SimpleString name;
 
-   public boolean autoCreated;
-
-   public SimpleString user;
-
    public AddressInfo.RoutingType routingType;
 
    public PersistentAddressBindingEncoding() {
@@ -43,22 +39,14 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       return "PersistentAddressBindingEncoding [id=" + id +
          ", name=" +
          name +
-         ", user=" +
-         user +
-         ", autoCreated=" +
-         autoCreated +
          ", routingType=" +
          routingType +
          "]";
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
-                                           final SimpleString user,
-                                           final boolean autoCreated,
                                            final AddressInfo.RoutingType routingType) {
       this.name = name;
-      this.user = user;
-      this.autoCreated = autoCreated;
       this.routingType = routingType;
    }
 
@@ -77,16 +65,6 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
-   public SimpleString getUser() {
-      return user;
-   }
-
-   @Override
-   public boolean isAutoCreated() {
-      return autoCreated;
-   }
-
-   @Override
    public AddressInfo.RoutingType getRoutingType() {
       return routingType;
    }
@@ -94,42 +72,17 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
-
-      String metadata = buffer.readNullableSimpleString().toString();
-      if (metadata != null) {
-         String[] elements = metadata.split(";");
-         for (String element : elements) {
-            String[] keyValuePair = element.split("=");
-            if (keyValuePair.length == 2) {
-               if (keyValuePair[0].equals("user")) {
-                  user = SimpleString.toSimpleString(keyValuePair[1]);
-               }
-            }
-         }
-      }
-
-      autoCreated = buffer.readBoolean();
       routingType = AddressInfo.RoutingType.getType(buffer.readByte());
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(name);
-      buffer.writeNullableSimpleString(createMetadata());
-      buffer.writeBoolean(autoCreated);
       buffer.writeByte(routingType.getType());
    }
 
    @Override
    public int getEncodeSize() {
-      return SimpleString.sizeofString(name) + DataConstants.SIZE_BOOLEAN +
-         SimpleString.sizeofNullableString(createMetadata()) +
-         DataConstants.SIZE_BYTE;
-   }
-
-   private SimpleString createMetadata() {
-      StringBuilder metadata = new StringBuilder();
-      metadata.append("user=").append(user).append(";");
-      return SimpleString.toSimpleString(metadata.toString());
+      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE;
    }
 }

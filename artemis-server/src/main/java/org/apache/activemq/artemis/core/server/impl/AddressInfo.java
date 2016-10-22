@@ -36,24 +36,27 @@ public class AddressInfo {
       return routingType;
    }
 
-   public void setRoutingType(RoutingType routingType) {
+   public AddressInfo setRoutingType(RoutingType routingType) {
       this.routingType = routingType;
+      return this;
    }
 
    public boolean isDefaultDeleteOnNoConsumers() {
       return defaultDeleteOnNoConsumers;
    }
 
-   public void setDefaultDeleteOnNoConsumers(boolean defaultDeleteOnNoConsumers) {
+   public AddressInfo setDefaultDeleteOnNoConsumers(boolean defaultDeleteOnNoConsumers) {
       this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      return this;
    }
 
    public int getDefaultMaxConsumers() {
       return defaultMaxConsumers;
    }
 
-   public void setDefaultMaxConsumers(int defaultMaxConsumers) {
+   public AddressInfo setDefaultMaxConsumers(int defaultMaxConsumers) {
       this.defaultMaxConsumers = defaultMaxConsumers;
+      return this;
    }
 
    public SimpleString getName() {

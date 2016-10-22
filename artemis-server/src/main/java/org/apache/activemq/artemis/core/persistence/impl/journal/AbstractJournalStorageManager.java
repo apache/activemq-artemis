@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
@@ -77,6 +78,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCount
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecordInc;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentAddressBindingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.QueueStatusEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
@@ -93,6 +95,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -1261,7 +1264,29 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       } finally {
          readUnLock();
       }
+   }
 
+   public void addAddressBinding(final long tx, final AddressInfo addressInfo) throws Exception {
+      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(), addressInfo.getRoutingType());
+
+      readLock();
+      try {
+         long recordID = idGenerator.generateID();
+         bindingEncoding.setId(recordID);
+         bindingsJournal.appendAddRecordTransactional(tx, recordID, JournalRecordIds.ADDRESS_BINDING_RECORD, bindingEncoding);
+      } finally {
+         readUnLock();
+      }
+   }
+
+   @Override
+   public void deleteAddressBinding(long tx, final long addressBindingID) throws Exception {
+      readLock();
+      try {
+         bindingsJournal.appendDeleteRecordTransactional(tx, addressBindingID);
+      } finally {
+         readUnLock();
+      }
    }
 
    @Override
@@ -1347,7 +1372,8 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
-                                                    final List<GroupingInfo> groupingInfos) throws Exception {
+                                                    final List<GroupingInfo> groupingInfos,
+                                                    final List<AddressBindingInfo> addressBindingInfos) throws Exception {
       List<RecordInfo> records = new ArrayList<>();
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
@@ -1364,12 +1390,15 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          byte rec = record.getUserRecordType();
 
          if (rec == JournalRecordIds.QUEUE_BINDING_RECORD) {
-            PersistentQueueBindingEncoding bindingEncoding = newBindingEncoding(id, buffer);
-
+            PersistentQueueBindingEncoding bindingEncoding = newQueueBindingEncoding(id, buffer);
             queueBindingInfos.add(bindingEncoding);
             mapBindings.put(bindingEncoding.getId(), bindingEncoding);
          } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
             idGenerator.loadState(record.id, buffer);
+         } else if (rec == JournalRecordIds.ADDRESS_BINDING_RECORD) {
+            PersistentAddressBindingEncoding bindingEncoding = newAddressBindingEncoding(id, buffer);
+            ActiveMQServerLogger.LOGGER.info("=== Loading: " + bindingEncoding);
+            addressBindingInfos.add(bindingEncoding);
          } else if (rec == JournalRecordIds.GROUP_RECORD) {
             GroupingEncoding encoding = newGroupEncoding(id, buffer);
             groupingInfos.add(encoding);
@@ -1849,7 +1878,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
     * @param buffer
     * @return
     */
-   protected static PersistentQueueBindingEncoding newBindingEncoding(long id, ActiveMQBuffer buffer) {
+   protected static PersistentQueueBindingEncoding newQueueBindingEncoding(long id, ActiveMQBuffer buffer) {
       PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding();
 
       bindingEncoding.decode(buffer);
@@ -1872,8 +1901,14 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       return statusEncoding;
    }
 
+   protected static PersistentAddressBindingEncoding newAddressBindingEncoding(long id, ActiveMQBuffer buffer) {
+      PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding();
 
+      bindingEncoding.decode(buffer);
 
+      bindingEncoding.setId(id);
+      return bindingEncoding;
+   }
 
    @Override
    public boolean addToPage(PagingStore store,

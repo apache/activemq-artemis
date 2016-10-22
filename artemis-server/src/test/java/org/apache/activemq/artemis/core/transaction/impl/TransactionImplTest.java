@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
@@ -55,6 +56,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -529,8 +531,19 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void addAddressBinding(long tx, AddressInfo addressInfo) throws Exception {
+
+      }
+
+      @Override
+      public void deleteAddressBinding(long tx, long addressBindingID) throws Exception {
+
+      }
+
+      @Override
       public JournalLoadInformation loadBindingJournal(List<QueueBindingInfo> queueBindingInfos,
-                                                       List<GroupingInfo> groupingInfos) throws Exception {
+                                                       List<GroupingInfo> groupingInfos,
+                                                       List<AddressBindingInfo> addressBindingInfos) throws Exception {
          return null;
       }
 
