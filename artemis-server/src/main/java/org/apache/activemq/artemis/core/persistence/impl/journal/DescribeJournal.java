@@ -555,7 +555,7 @@ public final class DescribeJournal {
             return AbstractJournalStorageManager.newQueueStatusEncoding(id, buffer);
 
          case QUEUE_BINDING_RECORD:
-            return AbstractJournalStorageManager.newBindingEncoding(id, buffer);
+            return AbstractJournalStorageManager.newQueueBindingEncoding(id, buffer);
 
          case ID_COUNTER_RECORD:
             EncodingSupport idReturn = new IDCounterEncoding();

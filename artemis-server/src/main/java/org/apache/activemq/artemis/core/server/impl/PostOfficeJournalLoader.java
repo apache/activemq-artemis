@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueStatus;
@@ -162,6 +163,21 @@ public class PostOfficeJournalLoader implements JournalLoader {
          managementService.registerAddress(queue.getAddress());
          managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
+      }
+   }
+
+   @Override
+   public void initAddresses(Map<Long, AddressBindingInfo> addressBindingInfosMap,
+                          List<AddressBindingInfo> addressBindingInfos) throws Exception {
+      for (AddressBindingInfo addressBindingInfo : addressBindingInfos) {
+         addressBindingInfosMap.put(addressBindingInfo.getId(), addressBindingInfo);
+
+         // TODO: figure out what else to set here
+         AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName())
+            .setRoutingType(addressBindingInfo.getRoutingType());
+
+         postOffice.addAddressInfo(addressInfo);
+         managementService.registerAddress(addressInfo.getName());
       }
    }
 

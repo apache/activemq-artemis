@@ -25,10 +25,6 @@ public interface AddressBindingInfo {
 
    SimpleString getName();
 
-   boolean isAutoCreated();
-
-   SimpleString getUser();
-
    AddressInfo.RoutingType getRoutingType();
 
 }
