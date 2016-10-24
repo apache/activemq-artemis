@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AddressingTest extends ActiveMQTestBase {
@@ -91,8 +92,6 @@ public class AddressingTest extends ActiveMQTestBase {
 
          q1.deleteQueue();
          q2.deleteQueue();
-
-         System.out.println(consumeAddress);
       }
    }
 
@@ -134,8 +133,6 @@ public class AddressingTest extends ActiveMQTestBase {
 
          q1.deleteQueue();
          q2.deleteQueue();
-
-         System.out.println(consumeAddress);
       }
    }
 
@@ -222,36 +219,40 @@ public class AddressingTest extends ActiveMQTestBase {
 
          q1.deleteQueue();
          q2.deleteQueue();
-
-         System.out.println(consumeAddress);
       }
    }
 
+   @Ignore
    @Test
    public void testDeleteQueueOnNoConsumersTrue() {
       fail("Not Implemented");
    }
 
+   @Ignore
    @Test
    public void testDeleteQueueOnNoConsumersFalse() {
       fail("Not Implemented");
    }
 
+   @Ignore
    @Test
    public void testLimitOnMaxConsumers() {
       fail("Not Implemented");
    }
 
+   @Ignore
    @Test
    public void testUnlimitedMaxConsumers() {
       fail("Not Implemented");
    }
 
+   @Ignore
    @Test
    public void testDefaultMaxConsumersFromAddress() {
       fail("Not Implemented");
    }
 
+   @Ignore
    @Test
    public void testDefaultDeleteOnNoConsumersFromAddress() {
       fail("Not Implemented");
