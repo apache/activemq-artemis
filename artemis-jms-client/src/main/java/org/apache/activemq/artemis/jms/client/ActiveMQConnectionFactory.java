@@ -83,6 +83,8 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
    private String deserializationWhiteList;
 
+   private boolean finalizeChecks;
+
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       URI uri = toURI();
@@ -147,6 +149,16 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          this.protocolManagerFactoryStr = protocolManagerFactoryStr;
       }
    }
+
+   public ActiveMQConnectionFactory disableFinalizeChecks() {
+      this.finalizeChecks = false;
+      return this;
+   }
+
+   public boolean isFinalizeChecks() {
+      return finalizeChecks;
+   }
+
 
    @Override
    public String getDeserializationBlackList() {
