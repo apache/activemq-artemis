@@ -376,7 +376,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       // Addr 1
       CoreAddressConfiguration addressConfiguration = conf.getAddressConfigurations().get(0);
       assertEquals("addr1", addressConfiguration.getName());
-      assertEquals(AddressInfo.RoutingType.Anycast, addressConfiguration.getRoutingType());
+      assertEquals(AddressInfo.RoutingType.ANYCAST, addressConfiguration.getRoutingType());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 1 Queue 1
@@ -402,7 +402,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       // Addr 2
       addressConfiguration = conf.getAddressConfigurations().get(1);
       assertEquals("addr2", addressConfiguration.getName());
-      assertEquals(AddressInfo.RoutingType.Multicast, addressConfiguration.getRoutingType());
+      assertEquals(AddressInfo.RoutingType.MULTICAST, addressConfiguration.getRoutingType());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 2 Queue 1

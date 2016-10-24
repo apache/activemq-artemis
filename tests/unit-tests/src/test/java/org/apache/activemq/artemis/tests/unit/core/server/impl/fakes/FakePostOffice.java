@@ -65,6 +65,11 @@ public class FakePostOffice implements PostOffice {
       return null;
    }
 
+   @Override
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      return null;
+   }
+
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) {

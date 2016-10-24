@@ -425,6 +425,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      return addressManager.addOrUpdateAddressInfo(addressInfo);
+   }
+
+   @Override
    public AddressInfo removeAddressInfo(SimpleString address) {
       return addressManager.removeAddressInfo(address);
    }

@@ -83,7 +83,7 @@ public class TopicCleanupTest extends JMSTestBase {
 
             final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), null, true, false, false, server.getScheduledPool(), server.getPostOffice(), storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor());
 
-            LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());
+            LocalQueueBinding binding = new LocalQueueBinding(server.getAddressInfo(queue.getAddress()), queue, server.getNodeID());
 
             storage.addQueueBinding(txid, binding);
 

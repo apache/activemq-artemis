@@ -155,7 +155,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
             }
          }
 
-         final Binding binding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
+         final Binding binding = new LocalQueueBinding(postOffice.getAddressInfo(queue.getAddress()), queue, nodeManager.getNodeId());
+
          queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
          managementService.registerAddress(queue.getAddress());

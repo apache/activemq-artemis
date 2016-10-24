@@ -68,6 +68,10 @@ public class QueueFactoryImpl implements QueueFactory {
 
    @Override
    public Queue createQueueWith(final QueueConfig config) {
+
+      // Add default address info if one doesn't exist
+      postOffice.addAddressInfo(new AddressInfo(config.address()));
+
       final AddressSettings addressSettings = addressSettingsRepository.getMatch(config.address().toString());
       final Queue queue;
       if (addressSettings.isLastValueQueue()) {
@@ -89,6 +93,10 @@ public class QueueFactoryImpl implements QueueFactory {
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) {
+
+      // Add default address info if one doesn't exist
+      postOffice.addAddressInfo(new AddressInfo(address));
+
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
       Queue queue;
