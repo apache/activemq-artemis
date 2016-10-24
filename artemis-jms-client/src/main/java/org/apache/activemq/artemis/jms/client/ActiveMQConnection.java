@@ -572,7 +572,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    @Override
    protected final void finalize() throws Throwable {
       if (!closed) {
-         ActiveMQJMSClientLogger.LOGGER.connectionLeftOpen(creationStack);
+         if (this.factoryReference.isFinalizeChecks()) {
+            ActiveMQJMSClientLogger.LOGGER.connectionLeftOpen(creationStack);
+         }
 
          close();
       }

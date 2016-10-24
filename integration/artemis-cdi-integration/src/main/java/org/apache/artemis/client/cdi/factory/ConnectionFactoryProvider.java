@@ -97,6 +97,7 @@ public class ConnectionFactoryProvider {
          activeMQConnectionFactory.setUser(configuration.getUsername());
          activeMQConnectionFactory.setPassword(configuration.getPassword());
       }
-      return activeMQConnectionFactory;
+      // The CF will probably be GCed since it was injected, so we disable the finalize check
+      return activeMQConnectionFactory.disableFinalizeChecks();
    }
 }
