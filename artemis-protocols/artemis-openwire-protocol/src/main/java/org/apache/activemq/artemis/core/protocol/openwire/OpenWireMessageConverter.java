@@ -499,18 +499,21 @@ public class OpenWireMessageConverter implements MessageConverter {
                }
             } else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
                TypedProperties mapData = new TypedProperties();
-               mapData.decode(buffer);
+               //it could be a null map
+               if (buffer.readableBytes() > 0) {
+                  mapData.decode(buffer);
+                  Map<String, Object> map = mapData.getMap();
+                  ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
+                  OutputStream os = out;
+                  if (isCompressed) {
+                     os = new DeflaterOutputStream(os);
+                  }
+                  try (DataOutputStream dataOut = new DataOutputStream(os)) {
+                     MarshallingSupport.marshalPrimitiveMap(map, dataOut);
+                  }
+                  bytes = out.toByteArray();
+               }
 
-               Map<String, Object> map = mapData.getMap();
-               ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
-               OutputStream os = out;
-               if (isCompressed) {
-                  os = new DeflaterOutputStream(os);
-               }
-               try (DataOutputStream dataOut = new DataOutputStream(os)) {
-                  MarshallingSupport.marshalPrimitiveMap(map, dataOut);
-               }
-               bytes = out.toByteArray();
             } else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
                int len = buffer.readInt();
                bytes = new byte[len];
