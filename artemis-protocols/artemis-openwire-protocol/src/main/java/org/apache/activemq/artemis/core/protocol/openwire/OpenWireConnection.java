@@ -815,7 +815,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
-         server.destroyQueue(OpenWireUtil.toCoreAddress(dest));
+         try {
+            server.destroyQueue(OpenWireUtil.toCoreAddress(dest));
+         } catch (ActiveMQNonExistentQueueException neq) {
+            //this is ok, ActiveMQ 5 allows this and will actually do it quite often
+            ActiveMQServerLogger.LOGGER.debug("queue never existed");
+         }
+
+
       } else {
          Bindings bindings = server.getPostOffice().getBindingsForAddress(OpenWireUtil.toCoreAddress(dest));
 
