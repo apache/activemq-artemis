@@ -666,7 +666,7 @@ Artemis comes with a web console that allows user to browse Artemis documentatio
 web access is plain HTTP. It is configured in `bootstrap.xml`:
 
     <web bind="http://localhost:8161" path="web">
-        <app url="jolokia" war="jolokia-war-1.3.3.war"/>
+        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
     </web>
 
 Alternatively you can edit the above configuration to enable secure access using HTTPS protocol. e.g.:
@@ -675,7 +675,7 @@ Alternatively you can edit the above configuration to enable secure access using
         path="web"
         keyStorePath="${artemis.instance}/etc/keystore.jks"
         keyStorePassword="password">
-        <app url="jolokia" war="jolokia-war-1.3.3.war"/>
+        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
     </web>
 
 As shown in the example, to enable https the first thing to do is config the `bind` to be an `https` url. In addition,
