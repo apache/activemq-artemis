@@ -35,6 +35,6 @@ public class CDIMessagingIntegrator {
       Queue queue = context.createQueue("test");
       context.createProducer().send(queue, body);
       String receivedBody = context.createConsumer(queue).receiveBody(String.class, 5000);
-      System.out.println("Received a message "+receivedBody);
+      System.out.println("Received a message " + receivedBody);
    }
 }
