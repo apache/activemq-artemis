@@ -188,6 +188,21 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      AddressInfo from = addAddressInfo(addressInfo);
+      return (from == null) ? addressInfo : updateAddressInfo(from, addressInfo);
+   }
+
+   private AddressInfo updateAddressInfo(AddressInfo from, AddressInfo to) {
+      synchronized (from) {
+         from.setRoutingType(to.getRoutingType());
+         from.setDefaultMaxConsumers(to.getDefaultMaxConsumers());
+         from.setDefaultDeleteOnNoConsumers(to.isDefaultDeleteOnNoConsumers());
+         return from;
+      }
+   }
+
+   @Override
    public AddressInfo removeAddressInfo(SimpleString address) {
       return addressInfoMap.remove(address);
    }

@@ -262,6 +262,7 @@ public final class BindingsImpl implements Bindings {
       boolean routed = false;
 
       for (Binding binding : exclusiveBindings) {
+
          if (binding.getFilter() == null || binding.getFilter().match(message)) {
             binding.getBindable().route(message, context);
 

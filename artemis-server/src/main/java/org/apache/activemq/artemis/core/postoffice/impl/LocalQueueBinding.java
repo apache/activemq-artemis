@@ -24,10 +24,11 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class LocalQueueBinding implements QueueBinding {
 
-   private final SimpleString address;
+   private final AddressInfo address;
 
    private final Queue queue;
 
@@ -37,7 +38,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    private final SimpleString clusterName;
 
-   public LocalQueueBinding(final SimpleString address, final Queue queue, final SimpleString nodeID) {
+   public LocalQueueBinding(final AddressInfo address, final Queue queue, final SimpleString nodeID) {
       this.address = address;
 
       this.queue = queue;
@@ -61,7 +62,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public SimpleString getAddress() {
-      return address;
+      return address.getName();
    }
 
    @Override
@@ -76,7 +77,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public SimpleString getRoutingName() {
-      return name;
+      return (address.getRoutingType() == AddressInfo.RoutingType.MULTICAST) ? name : address.getName();
    }
 
    @Override
