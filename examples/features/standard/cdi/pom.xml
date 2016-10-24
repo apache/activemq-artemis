@@ -22,8 +22,8 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.examples.modules</groupId>
-      <artifactId>broker-modules</artifactId>
+      <groupId>org.apache.activemq.examples.broker</groupId>
+      <artifactId>jms-examples</artifactId>
       <version>1.5.0-SNAPSHOT</version>
    </parent>
 
@@ -105,7 +105,7 @@
                         </goals>
                         <configuration>
                            <libListWithDeps>
-                              <arg>org.apache.activemq.examples.modules:artemis-cdi-example:${project.version}</arg>
+                              <arg>org.apache.activemq.examples.broker:artemis-cdi-example:${project.version}</arg>
                            </libListWithDeps>
 
                            <instance>${basedir}/target/server0</instance>
@@ -140,7 +140,7 @@
                   </executions>
                   <dependencies>
                      <dependency>
-                        <groupId>org.apache.activemq.examples.modules</groupId>
+                        <groupId>org.apache.activemq.examples.broker</groupId>
                         <artifactId>artemis-cdi-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
@@ -174,7 +174,7 @@
                         </goals>
                         <configuration>
                            <libListWithDeps>
-                              <arg>org.apache.activemq.examples.modules:artemis-cdi-example:${project.version}</arg>
+                              <arg>org.apache.activemq.examples.broker:artemis-cdi-example:${project.version}</arg>
                            </libListWithDeps>
 
                            <instance>${basedir}/target/server0</instance>
@@ -209,7 +209,7 @@
                   </executions>
                   <dependencies>
                      <dependency>
-                        <groupId>org.apache.activemq.examples.modules</groupId>
+                        <groupId>org.apache.activemq.examples.broker</groupId>
                         <artifactId>artemis-cdi-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
