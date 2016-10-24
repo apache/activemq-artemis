@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,23 +43,27 @@ public class ProtonTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      server = this.createServer(true, true);
+      server = this.createAMQPServer(5672);
+      server.start();
+   }
+
+   protected ActiveMQServer createAMQPServer(int port) throws Exception {
+      final ActiveMQServer amqpServer = this.createServer(true, true);
       HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "5672");
+      params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
       HashMap<String, Object> amqpParams = new HashMap<>();
       configureAmqp(amqpParams);
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "amqp-acceptor", amqpParams);
 
-      server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
-      server.getConfiguration().setName(brokerName);
+      amqpServer.getConfiguration().setAcceptorConfigurations(Collections.singleton(transportConfiguration));
+      amqpServer.getConfiguration().setName(brokerName);
 
       // Default Page
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      server.getConfiguration().getAddressesSettings().put("#", addressSettings);
-
-      server.start();
+      amqpServer.getConfiguration().getAddressesSettings().put("#", addressSettings);
+      return amqpServer;
    }
 
    protected void configureAmqp(Map<String, Object> params) {

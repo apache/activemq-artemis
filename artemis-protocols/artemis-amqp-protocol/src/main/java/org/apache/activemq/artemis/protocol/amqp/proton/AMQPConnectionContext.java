@@ -205,6 +205,10 @@ public class AMQPConnectionContext extends ProtonInitializable {
       return ExtCapability.getCapabilities();
    }
 
+   public void open() {
+      handler.open(containerId);
+   }
+
    // This listener will perform a bunch of things here
    class LocalListener implements EventHandler {
 
@@ -372,7 +376,9 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
       @Override
       public void onFlow(Link link) throws Exception {
-         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
+         if (link.getContext() != null) {
+            ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
+         }
       }
 
       @Override
