@@ -3335,7 +3335,7 @@ public class PagingTest extends ActiveMQTestBase {
       ClientMessage message = null;
 
       for (int i = 0; i < numberOfMessages; i++) {
-         byte[] body = new byte[1024];
+         byte[] body = new byte[2048];
 
          message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
@@ -3360,7 +3360,7 @@ public class PagingTest extends ActiveMQTestBase {
       Assert.assertEquals(0, server.getPagingManager().getPageStore(PagingTest.ADDRESS).getAddressSize());
 
       for (int i = 0; i < numberOfMessages; i++) {
-         byte[] body = new byte[1024];
+         byte[] body = new byte[2048];
 
          message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
@@ -3385,7 +3385,7 @@ public class PagingTest extends ActiveMQTestBase {
       producer = session.createProducer(PagingTest.ADDRESS);
 
       for (int i = 0; i < numberOfMessages; i++) {
-         byte[] body = new byte[1024];
+         byte[] body = new byte[2048];
 
          message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(body);
@@ -3841,7 +3841,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalFileSize(10 * 1024 * 1024);
 
-      server = createServer(true, config, 512 * 1024, 1024 * 1024);
+      server = createServer(true, config, 100 * 1024, 1024 * 1024 / 2);
 
       server.start();
 
@@ -4745,7 +4745,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       ClientMessage message = session.createMessage(true);
 
-      int biggerMessageSize = 1024;
+      int biggerMessageSize = 2048;
       byte[] body = new byte[biggerMessageSize];
       ByteBuffer bb = ByteBuffer.wrap(body);
       for (int j = 1; j <= biggerMessageSize; j++) {
@@ -4817,7 +4817,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       ClientMessage message = session.createMessage(true);
 
-      int biggerMessageSize = 1024;
+      int biggerMessageSize = 2048;
       byte[] body = new byte[biggerMessageSize];
       ByteBuffer bb = ByteBuffer.wrap(body);
       for (int j = 1; j <= biggerMessageSize; j++) {

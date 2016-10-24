@@ -144,18 +144,21 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
       JournalImpl journal = ValidateTransactionHealthTest.createJournal(type, journalDir);
 
       journal.start();
-      Loader loadTest = new Loader(numberOfRecords);
-      journal.load(loadTest);
-      Assert.assertEquals(numberOfRecords * numberOfThreads, loadTest.numberOfAdds);
-      Assert.assertEquals(0, loadTest.numberOfPreparedTransactions);
-      Assert.assertEquals(0, loadTest.numberOfUpdates);
-      Assert.assertEquals(0, loadTest.numberOfDeletes);
+      try {
+         Loader loadTest = new Loader(numberOfRecords);
+         journal.load(loadTest);
+         Assert.assertEquals(numberOfRecords * numberOfThreads, loadTest.numberOfAdds);
+         Assert.assertEquals(0, loadTest.numberOfPreparedTransactions);
+         Assert.assertEquals(0, loadTest.numberOfUpdates);
+         Assert.assertEquals(0, loadTest.numberOfDeletes);
 
-      journal.stop();
-
-      if (loadTest.ex != null) {
-         throw loadTest.ex;
+         if (loadTest.ex != null) {
+            throw loadTest.ex;
+         }
+      } finally {
+         journal.stop();
       }
+
    }
 
    // Inner classes -------------------------------------------------

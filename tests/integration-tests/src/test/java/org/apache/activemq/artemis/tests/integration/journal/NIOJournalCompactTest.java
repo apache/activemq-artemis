@@ -730,7 +730,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    @Test
    public void testCompactAddAndUpdateFollowedByADelete() throws Exception {
-
       setup(2, 60 * 1024, false);
 
       SimpleIDGenerator idGen = new SimpleIDGenerator(1000);
@@ -779,7 +778,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       createJournal();
       startJournal();
       loadAndCheck();
-
    }
 
    @Test
@@ -1610,8 +1608,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    }
 
+
    @Test
-   public void testStressDeletesNoSync() throws Exception {
+   public void testStressDeletesNoSync() throws Throwable {
       Configuration config = createBasicConfig().setJournalFileSize(100 * 1024).setJournalSyncNonTransactional(false).setJournalSyncTransactional(false).setJournalCompactMinFiles(0).setJournalCompactPercentage(0);
 
       final AtomicInteger errors = new AtomicInteger(0);
@@ -1629,114 +1628,129 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       final JournalStorageManager storage = new JournalStorageManager(config, factory);
 
       storage.start();
-      storage.loadInternalOnly();
 
-      ((JournalImpl) storage.getMessageJournal()).setAutoReclaim(false);
-      final LinkedList<Long> survivingMsgs = new LinkedList<>();
+      try {
+         storage.loadInternalOnly();
 
-      Runnable producerRunnable = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               while (running.get()) {
-                  final long[] values = new long[100];
-                  long tx = seqGenerator.incrementAndGet();
+         ((JournalImpl) storage.getMessageJournal()).setAutoReclaim(false);
+         final LinkedList<Long> survivingMsgs = new LinkedList<>();
 
-                  OperationContextImpl ctx = new OperationContextImpl(executor);
-                  storage.setContext(ctx);
+         Runnable producerRunnable = new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  while (running.get()) {
+                     final long[] values = new long[100];
+                     long tx = seqGenerator.incrementAndGet();
 
-                  for (int i = 0; i < 100; i++) {
-                     long id = seqGenerator.incrementAndGet();
-                     values[i] = id;
+                     OperationContextImpl ctx = new OperationContextImpl(executor);
+                     storage.setContext(ctx);
 
-                     ServerMessageImpl message = new ServerMessageImpl(id, 100);
+                     for (int i = 0; i < 100; i++) {
+                        long id = seqGenerator.incrementAndGet();
+                        values[i] = id;
 
-                     message.getBodyBuffer().writeBytes(new byte[1024]);
+                        ServerMessageImpl message = new ServerMessageImpl(id, 100);
 
-                     storage.storeMessageTransactional(tx, message);
-                  }
-                  ServerMessageImpl message = new ServerMessageImpl(seqGenerator.incrementAndGet(), 100);
+                        message.getBodyBuffer().writeBytes(new byte[1024]);
 
-                  survivingMsgs.add(message.getMessageID());
-
-                  // This one will stay here forever
-                  storage.storeMessage(message);
-
-                  storage.commit(tx);
-
-                  ctx.executeOnCompletion(new IOCallback() {
-                     @Override
-                     public void onError(int errorCode, String errorMessage) {
+                        storage.storeMessageTransactional(tx, message);
                      }
+                     ServerMessageImpl message = new ServerMessageImpl(seqGenerator.incrementAndGet(), 100);
 
-                     @Override
-                     public void done() {
-                        deleteExecutor.execute(new Runnable() {
-                           @Override
-                           public void run() {
-                              try {
-                                 for (long messageID : values) {
-                                    storage.deleteMessage(messageID);
+                     survivingMsgs.add(message.getMessageID());
+
+                     // This one will stay here forever
+                     storage.storeMessage(message);
+
+                     storage.commit(tx);
+
+                     ctx.executeOnCompletion(new IOCallback() {
+                        @Override
+                        public void onError(int errorCode, String errorMessage) {
+                        }
+
+                        @Override
+                        public void done() {
+                           deleteExecutor.execute(new Runnable() {
+                              @Override
+                              public void run() {
+                                 try {
+                                    for (long messageID : values) {
+                                       storage.deleteMessage(messageID);
+                                    }
+                                 } catch (Exception e) {
+                                    e.printStackTrace();
+                                    errors.incrementAndGet();
                                  }
-                              } catch (Exception e) {
-                                 e.printStackTrace();
-                                 errors.incrementAndGet();
+
                               }
+                           });
+                        }
+                     });
 
-                           }
-                        });
-                     }
-                  });
-
+                  }
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  errors.incrementAndGet();
                }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
             }
-         }
-      };
+         };
 
-      Runnable compressRunnable = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               while (running.get()) {
-                  Thread.sleep(500);
-                  System.out.println("Compacting");
-                  ((JournalImpl) storage.getMessageJournal()).testCompact();
-                  ((JournalImpl) storage.getMessageJournal()).checkReclaimStatus();
+         Runnable compressRunnable = new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  while (running.get()) {
+                     Thread.sleep(500);
+                     System.out.println("Compacting");
+                     ((JournalImpl) storage.getMessageJournal()).testCompact();
+                     ((JournalImpl) storage.getMessageJournal()).checkReclaimStatus();
+                  }
+               } catch (Throwable e) {
+                  e.printStackTrace();
+                  errors.incrementAndGet();
                }
-            } catch (Throwable e) {
-               e.printStackTrace();
-               errors.incrementAndGet();
+
             }
+         };
 
+         Thread producerThread = new Thread(producerRunnable);
+         producerThread.start();
+
+         Thread compactorThread = new Thread(compressRunnable);
+         compactorThread.start();
+
+         Thread.sleep(1000);
+
+         running.set(false);
+
+         producerThread.join();
+
+         compactorThread.join();
+
+         deleteExecutor.shutdown();
+
+         assertTrue("delete executor terminated", deleteExecutor.awaitTermination(30, TimeUnit.SECONDS));
+
+         executor.shutdown();
+
+         assertTrue("executor terminated", executor.awaitTermination(10, TimeUnit.SECONDS));
+
+      } catch (Throwable e) {
+         e.printStackTrace();
+         throw e;
+      } finally {
+         try {
+            storage.stop();
+         } catch (Exception e) {
+            e.printStackTrace();
          }
-      };
 
-      Thread producerThread = new Thread(producerRunnable);
-      producerThread.start();
+         executor.shutdownNow();
+         deleteExecutor.shutdownNow();
+      }
 
-      Thread compactorThread = new Thread(compressRunnable);
-      compactorThread.start();
-
-      Thread.sleep(1000);
-
-      running.set(false);
-
-      producerThread.join();
-
-      compactorThread.join();
-
-      storage.stop();
-
-      executor.shutdown();
-
-      assertTrue("executor terminated", executor.awaitTermination(10, TimeUnit.SECONDS));
-
-      deleteExecutor.shutdown();
-
-      assertTrue("delete executor terminated", deleteExecutor.awaitTermination(30, TimeUnit.SECONDS));
    }
 
    @Override

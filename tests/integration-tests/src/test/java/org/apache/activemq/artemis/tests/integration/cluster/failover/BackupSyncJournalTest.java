@@ -93,7 +93,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    @Test
    public void testReserveFileIdValuesOnBackup() throws Exception {
-      final int totalRounds = 50;
+      final int totalRounds = 5;
       createProducerSendSomeMessages();
       JournalImpl messageJournal = getMessageJournalFromServer(liveServer);
       for (int i = 0; i < totalRounds; i++) {
