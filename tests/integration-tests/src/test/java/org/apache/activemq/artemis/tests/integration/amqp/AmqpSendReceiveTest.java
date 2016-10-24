@@ -38,12 +38,18 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
+import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.jms.JmsQueue;
+import org.apache.qpid.jms.JmsTopic;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.engine.Receiver;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jms.*;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
@@ -65,6 +71,99 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver.close();
       connection.close();
+   }
+
+   // PASSES
+   @Test(timeout = 60000)
+   public void testCreateQueueConsumer() throws Exception {
+      ConnectionFactory connectionFactory = new JmsConnectionFactory("amqp://127.0.0.1:61616");
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+
+      MessageProducer consumer = session.createProducer(new JmsQueue(getTestName()));
+      assertNotNull(consumer);
+
+      consumer.close();
+      session.close();
+      connection.close();
+   }
+
+   private class TopicProducerCreator {
+      Connection connection;
+      Session session;
+      MessageProducer producer;
+      MessageConsumer consumer;
+
+      TopicProducerCreator() throws JMSException {
+         disableCheckThread(); // this way produces less output on failure
+         ConnectionFactory connectionFactory = new JmsConnectionFactory("amqp://127.0.0.1:61616");
+         connection = connectionFactory.createConnection();
+         connection.start();
+         session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+      }
+
+      // works
+      TopicProducerCreator testCreateConsumerDirect(String name) throws JMSException {
+         Destination destination = new JmsTopic(name);
+         consumer = session.createConsumer(destination);
+         assertNotNull(consumer);
+         return this;
+      }
+
+      // does NOT work
+      TopicProducerCreator testCreateProducerDirect(String name) throws JMSException {
+         Destination destination = new JmsTopic(name);
+         producer = session.createProducer(destination);
+         assertNotNull(producer);
+         return this;
+      }
+
+      // does NOT work
+      TopicProducerCreator testCreateProducerIndirect(String name) throws JMSException {
+         Topic topic = session.createTopic(name);
+         producer = session.createProducer(topic);
+         assertNotNull(producer);
+         return this;
+      }
+
+      void close() throws JMSException {
+         if (consumer != null) {
+            consumer.close();
+         }
+         if (producer != null) {
+            producer.close();
+         }
+         session.close();
+         connection.close();
+      }
+   }
+
+   // PASSES
+   @Test(timeout = 60000)
+   public void testCreateTopicConsumer1() throws Exception {
+      final String name = "jms.topic." + getName();
+      new TopicProducerCreator()
+         .testCreateConsumerDirect(name)
+         .close();
+   }
+
+   // FAILS
+   @Test(timeout = 60000)
+   public void testCreateTopicProducer1() throws Exception {
+      final String name = "jms.topic." + getName();
+      new TopicProducerCreator()
+         .testCreateProducerDirect(name)
+         .close();
+   }
+
+   // FAILS
+   @Test(timeout = 60000)
+   public void testCreateTopicProducer2() throws Exception {
+      final String name = "jms.topic." + getName();
+      new TopicProducerCreator()
+         .testCreateProducerIndirect(name)
+         .close();
    }
 
    @Test(timeout = 60000)
