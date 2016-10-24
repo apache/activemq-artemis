@@ -52,7 +52,6 @@ under the License.
             <module>aerogear</module>
             <module>artemis-ra-rar</module>
             <module>vertx</module>
-            <module>cdi</module>
          </modules>
       </profile>
    </profiles>
