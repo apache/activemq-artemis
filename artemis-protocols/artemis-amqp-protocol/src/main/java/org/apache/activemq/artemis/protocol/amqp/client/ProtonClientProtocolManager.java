@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.broker;
+package org.apache.activemq.artemis.protocol.amqp.client;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -32,8 +34,8 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * Handles proton protocol management for clients, mapping the {@link ProtonProtocolManager} to the {@link org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager} API.
- *
- * TODO: Find a common base for ProtocolManager and ClientProtocolManager.
+ * This is currently very basic and only supports Connecting to a broker,
+ * which will be useful in scenarios where the broker needs to connect to another broker through AMQP into another broker (like Interconnect) that will perform extra functionality.
  */
 public class ProtonClientProtocolManager extends ProtonProtocolManager implements ClientProtocolManager {
 
