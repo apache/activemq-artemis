@@ -284,8 +284,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       theCredits.acquireCredits(creditSize);
 
-      session.checkDefaultAddress(sendingAddress);
-
       sessionContext.sendFullMessage(msgI, sendBlocking, handler, address);
    }
 

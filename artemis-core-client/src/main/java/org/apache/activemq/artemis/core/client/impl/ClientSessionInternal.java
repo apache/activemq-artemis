@@ -93,8 +93,6 @@ public interface ClientSessionInternal extends ClientSession {
     */
    void setAddress(Message message, SimpleString address);
 
-   void checkDefaultAddress(SimpleString address);
-
    void setPacketSize(int packetSize);
 
    void resetIfNeeded() throws ActiveMQException;

@@ -135,8 +135,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private volatile boolean mayAttemptToFailover = true;
 
-   private volatile SimpleString defaultAddress;
-
    /**
     * Current XID. this will be used in case of failover
     */
@@ -957,7 +955,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                // want
                // to recreate the session, we just want to unblock the blocking call
                if (!inClose && mayAttemptToFailover) {
-                  sessionContext.recreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, defaultAddress);
+                  sessionContext.recreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge);
 
                   for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : consumers.entrySet()) {
 
@@ -1036,27 +1034,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void setAddress(final Message message, final SimpleString address) {
-      if (defaultAddress == null) {
-         logger.tracef("setAddress() Setting default address as %s", address);
+      logger.tracef("setAddress() Setting default address as %s", address);
 
-         message.setAddress(address);
-      } else {
-         if (!address.equals(defaultAddress)) {
-            logger.tracef("setAddress() setting non default address %s on message", address);
-            message.setAddress(address);
-         } else {
-            logger.trace("setAddress() being set as null");
-            message.setAddress(null);
-         }
-      }
-   }
-
-   @Override
-   public void checkDefaultAddress(SimpleString address) {
-      if (defaultAddress == null) {
-         logger.tracef("checkDefaultAddress(%s)", address);
-         defaultAddress = address;
-      }
+      message.setAddress(address);
    }
 
    @Override
