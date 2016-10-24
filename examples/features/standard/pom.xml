@@ -43,6 +43,7 @@ under the License.
          <modules>
             <module>bridge</module>
             <module>browser</module>
+            <module>cdi</module>
             <module>client-kickoff</module>
             <module>consumer-rate-limit</module>
             <module>dead-letter</module>
@@ -104,6 +105,7 @@ under the License.
          <modules>
             <module>bridge</module>
             <module>browser</module>
+            <module>cdi</module>
             <module>client-kickoff</module>
             <module>consumer-rate-limit</module>
             <module>dead-letter</module>

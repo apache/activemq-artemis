@@ -32,6 +32,7 @@
    <modules>
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
+      <module>artemis-cdi-client</module>
       <module>artemis-boot</module>
       <module>artemis-web</module>
       <module>artemis-website</module>
@@ -54,7 +55,6 @@
       <module>integration/activemq-spring-integration</module>
       <module>integration/activemq-aerogear-integration</module>
       <module>integration/activemq-vertx-integration</module>
-      <module>integration/artemis-cdi-integration</module>
       <module>artemis-distribution</module>
       <module>tests</module>
       <module>artemis-features</module>
