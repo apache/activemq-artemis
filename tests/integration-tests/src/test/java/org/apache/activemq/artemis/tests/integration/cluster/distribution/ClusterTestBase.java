@@ -78,6 +78,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -516,6 +517,19 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       session.createQueue(address, queueName, filterString, durable);
 
       session.close();
+   }
+
+   protected void createAddressInfo(final int node,
+                                    final String address,
+                                    final AddressInfo.RoutingType routingType,
+                                    final int defaulMaxConsumers,
+                                    boolean defaultDeleteOnNoConsumers) {
+      AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
+      addressInfo.setRoutingType(routingType);
+      addressInfo.setDefaultMaxConsumers(defaulMaxConsumers);
+      addressInfo.setDefaultDeleteOnNoConsumers(defaultDeleteOnNoConsumers);
+
+      servers[node].createOrUpdateAddressInfo(addressInfo);
    }
 
    protected void deleteQueue(final int node, final String queueName) throws Exception {

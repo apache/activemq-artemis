@@ -22,7 +22,7 @@ public class AddressInfo {
 
    private final SimpleString name;
 
-   private RoutingType routingType = RoutingType.Multicast;
+   private RoutingType routingType = RoutingType.MULTICAST;
 
    private boolean defaultDeleteOnNoConsumers;
 
@@ -61,13 +61,13 @@ public class AddressInfo {
    }
 
    public enum RoutingType {
-      Multicast, Anycast;
+      MULTICAST, ANYCAST;
 
       public byte getType() {
          switch (this) {
-            case Multicast:
+            case MULTICAST:
                return 0;
-            case Anycast:
+            case ANYCAST:
                return 1;
             default:
                return -1;
@@ -77,9 +77,9 @@ public class AddressInfo {
       public static RoutingType getType(byte type) {
          switch (type) {
             case 0:
-               return Multicast;
+               return MULTICAST;
             case 1:
-               return Anycast;
+               return ANYCAST;
             default:
                return null;
          }

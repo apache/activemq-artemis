@@ -45,6 +45,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    AddressInfo addAddressInfo(AddressInfo addressInfo);
 
+   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
+
    AddressInfo removeAddressInfo(SimpleString address);
 
    AddressInfo getAddressInfo(SimpleString address);
