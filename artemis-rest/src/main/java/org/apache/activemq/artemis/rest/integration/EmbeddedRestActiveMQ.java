@@ -41,7 +41,7 @@ class EmbeddedRestActiveMQ {
       embeddedActiveMQ = new EmbeddedActiveMQ();
    }
 
-   MessageServiceManager getManager() {
+   public MessageServiceManager getManager() {
       return manager;
    }
 
