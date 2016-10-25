@@ -17,10 +17,13 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
@@ -52,7 +55,7 @@ public final class ConnectorsService implements ActiveMQComponent {
 
    private final Configuration configuration;
 
-   private final Set<ConnectorService> connectors = new HashSet<>();
+   private final Map<String, ConnectorService> connectors = new HashMap<>();
 
    private final ServiceRegistry serviceRegistry;
 
@@ -69,51 +72,61 @@ public final class ConnectorsService implements ActiveMQComponent {
    }
 
    @Override
-   public void start() throws Exception {
+   public synchronized void start() throws Exception {
       Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServiceFactories = serviceRegistry.getConnectorServices(configuration.getConnectorServiceConfigurations());
 
       for (Pair<ConnectorServiceFactory, ConnectorServiceConfiguration> pair : connectorServiceFactories) {
-         createService(pair.getB(), pair.getA());
-      }
-
-      for (ConnectorService connector : connectors) {
          try {
-            connector.start();
+            createService(pair.getB(), pair.getA());
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, connector.getName());
+            ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, pair.getB().getConnectorName());
          }
       }
+
       isStarted = true;
    }
 
-   public void createService(ConnectorServiceConfiguration info, ConnectorServiceFactory factory) {
+   public synchronized void createService(ConnectorServiceConfiguration info, ConnectorServiceFactory factory) throws Exception {
+      if (connectors.containsKey(info.getConnectorName())) {
+         throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException("Connector service " + info.getConnectorName() + " already created");
+      }
+
       if (info.getParams() != null) {
          Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams().keySet());
          if (!invalid.isEmpty()) {
-            ActiveMQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
-            return;
+            throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException("Invalid connector keys for connector service " + info.getConnectorName() + ": " + ConfigurationHelper.stringSetToCommaListString(invalid));
          }
       }
 
       Set<String> invalid = ConfigurationHelper.checkKeysExist(factory.getRequiredProperties(), info.getParams().keySet());
       if (!invalid.isEmpty()) {
-         ActiveMQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
-         return;
+         throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException("Missing connector keys for connector service " + info.getConnectorName() + ": " + ConfigurationHelper.stringSetToCommaListString(invalid));
       }
       ConnectorService connectorService = factory.createConnectorService(info.getConnectorName(), info.getParams(), storageManager, postOffice, scheduledPool);
-      connectors.add(connectorService);
+      connectorService.start();
+
+      connectors.put(info.getConnectorName(), connectorService);
+   }
+
+   public synchronized void destroyService(String name) throws Exception {
+      if (!connectors.containsKey(name)) {
+         throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException("Connector service " + name + " does not exist");
+      }
+      ConnectorService connectorService = connectors.get(name);
+      connectorService.stop();
+      connectors.remove(name);
    }
 
    @Override
-   public void stop() throws Exception {
+   public synchronized void stop() throws Exception {
       if (!isStarted) {
          return;
       }
-      for (ConnectorService connector : connectors) {
+      for (Map.Entry<String, ConnectorService> connector : connectors.entrySet()) {
          try {
-            connector.stop();
+            connector.getValue().stop();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getName());
+            ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getKey());
          }
       }
       connectors.clear();
@@ -121,11 +134,11 @@ public final class ConnectorsService implements ActiveMQComponent {
    }
 
    @Override
-   public boolean isStarted() {
+   public synchronized boolean isStarted() {
       return isStarted;
    }
 
-   public Set<ConnectorService> getConnectors() {
-      return connectors;
+   public synchronized Map<String, ConnectorService> getConnectors() {
+      return Collections.unmodifiableMap(connectors);
    }
 }
