@@ -50,6 +50,7 @@ import org.apache.qpid.proton.engine.Event.Type;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.CollectorImpl;
+import org.apache.qpid.proton.engine.impl.TransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,8 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private List<Symbol> offeredCapabilities = Collections.emptyList();
    private Map<Symbol, Object> offeredProperties = Collections.emptyMap();
 
+   private volatile AmqpFrameValidator sentFrameInspector;
+   private volatile AmqpFrameValidator receivedFrameInspector;
    private AmqpConnectionListener listener;
    private SaslAuthenticator authenticator;
    private String mechanismRestriction;
@@ -100,6 +103,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private long connectTimeout = DEFAULT_CONNECT_TIMEOUT;
    private long closeTimeout = DEFAULT_CLOSE_TIMEOUT;
    private long drainTimeout = DEFAULT_DRAIN_TIMEOUT;
+   private boolean trace;
 
    public AmqpConnection(org.apache.activemq.transport.amqp.client.transport.NettyTransport transport,
                          String username,
@@ -155,6 +159,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                   sasl.client();
                }
                authenticator = new SaslAuthenticator(sasl, username, password, authzid, mechanismRestriction);
+               ((TransportImpl) protonTransport).setProtocolTracer(new AmqpProtocolTracer(AmqpConnection.this));
                open(future);
 
                pumpToProtonTransport(future);
@@ -437,6 +442,30 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
 
    public String getMechanismRestriction() {
       return mechanismRestriction;
+   }
+
+   public boolean isTraceFrames() {
+      return trace;
+   }
+
+   public void setTraceFrames(boolean trace) {
+      this.trace = trace;
+   }
+
+   public AmqpFrameValidator getSentFrameInspector() {
+      return sentFrameInspector;
+   }
+
+   public void setSentFrameInspector(AmqpFrameValidator amqpFrameInspector) {
+      this.sentFrameInspector = amqpFrameInspector;
+   }
+
+   public AmqpFrameValidator getReceivedFrameInspector() {
+      return receivedFrameInspector;
+   }
+
+   public void setReceivedFrameInspector(AmqpFrameValidator amqpFrameInspector) {
+      this.receivedFrameInspector = amqpFrameInspector;
    }
 
    //----- Internal getters used from the child AmqpResource classes --------//
