@@ -26,14 +26,17 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpFrameValidator;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
+import org.apache.qpid.proton.amqp.transport.Detach;
 import org.apache.qpid.proton.engine.Receiver;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -90,6 +93,26 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       connection.setContainerId(getContainerID());
       connection.connect();
 
+      connection.setReceivedFrameInspector(new AmqpFrameValidator() {
+
+         @Override
+         public void inspectDetach(Detach detach, Binary encoded) {
+            if (detach.getClosed()) {
+               markAsInvalid("Remote should have detached but closed instead.");
+            }
+         }
+      });
+
+      connection.setSentFrameInspector(new AmqpFrameValidator() {
+
+         @Override
+         public void inspectDetach(Detach detach, Binary encoded) {
+            if (detach.getClosed()) {
+               markAsInvalid("Client should have detached but closed instead.");
+            }
+         }
+      });
+
       AmqpSession session = connection.createSession();
       AmqpReceiver receiver = session.createDurableReceiver(getTopicName(), getSubscriptionName());
 
@@ -98,6 +121,9 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       receiver.detach();
 
       assertEquals(getTopicName(), lookupSubscription());
+
+      connection.getSentFrameInspector().assertValid();
+      connection.getReceivedFrameInspector().assertValid();
 
       connection.close();
    }
