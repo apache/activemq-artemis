@@ -27,10 +27,11 @@ public class XMLConfigurationMigrationTest {
    @Test
    public void testQueuesReplacedWithAddresses() throws Exception {
       File brokerXml = new File(this.getClass().getClassLoader().getResource("broker.xml").toURI());
-      XMLConfigurationMigration tool = new XMLConfigurationMigration(brokerXml);
-
       File output = new File("target/out.xml");
-      tool.convertQueuesToAddresses();
+
+      XMLConfigurationMigration tool = new XMLConfigurationMigration(brokerXml, output);
+
+      tool.transform();
 
       Properties properties = new Properties();
       properties.put(OutputKeys.INDENT, "yes");
@@ -42,6 +43,6 @@ public class XMLConfigurationMigrationTest {
    @Test
    public void scanAndReplaceTest() throws Exception {
       File dir = new File(this.getClass().getClassLoader().getResource("replace").getPath());
-      XMLConfigurationMigration.scanAndTransform(dir);
+      Main.scanAndTransform(dir);
    }
 }
