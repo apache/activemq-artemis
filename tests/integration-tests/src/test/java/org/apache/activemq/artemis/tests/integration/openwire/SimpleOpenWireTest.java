@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -120,6 +121,28 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection.start();
 
          TextMessage message = (TextMessage) consumer.receive(5000);
+
+         Assert.assertNotNull(message);
+
+         message.acknowledge();
+      }
+   }
+
+   @Test
+   public void testSendNullMapMessage() throws Exception {
+      try (Connection connection = factory.createConnection()) {
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         System.out.println("Queue:" + queue);
+         MessageProducer producer = session.createProducer(queue);
+         MessageConsumer consumer = session.createConsumer(queue);
+         producer.send(session.createMapMessage());
+
+         Assert.assertNull(consumer.receive(100));
+         connection.start();
+
+         MapMessage message = (MapMessage) consumer.receive(5000);
 
          Assert.assertNotNull(message);
 
