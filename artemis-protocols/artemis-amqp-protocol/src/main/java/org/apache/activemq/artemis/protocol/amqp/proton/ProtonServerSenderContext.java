@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -140,8 +141,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             try {
                SelectorParser.parse(selector);
             } catch (FilterException e) {
-               close(new ErrorCondition(AmqpError.INVALID_FIELD, e.getMessage()));
-               return;
+               throw new ActiveMQAMQPException(AmqpError.INVALID_FIELD, "Invalid filter", ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
             }
 
             supportedFilters.put(filter.getKey(), filter.getValue());
@@ -313,6 +313,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       closed = true;
+      if (condition != null) {
+         sender.setCondition(condition);
+      }
       protonSession.removeSender(sender);
       synchronized (connection.getLock()) {
          sender.close();
