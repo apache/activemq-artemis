@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
@@ -68,6 +69,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -1845,6 +1847,47 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.destroyBridge(name);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createConnectorService(final String name, final String factoryClass, final Map<String, Object> parameters) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         final ConnectorServiceConfiguration config = new ConnectorServiceConfiguration().setName(name).setFactoryClassName(factoryClass).setParams(parameters);
+         ConnectorServiceFactory factory = server.getServiceRegistry().getConnectorService(config);
+         server.getConnectorsService().createService(config, factory);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void destroyConnectorService(final String name) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         server.getConnectorsService().destroyService(name);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String[] getConnectorServices() {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         return server.getConnectorsService().getConnectors().keySet().toArray(new String[0]);
       } finally {
          blockOnIO();
       }

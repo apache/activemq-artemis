@@ -54,6 +54,14 @@ public interface ServiceRegistry {
     */
    Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices(List<ConnectorServiceConfiguration> configs);
 
+   /**
+    * Get connector service for a given configuration.
+    *
+    * @param configuration The connector service configuration.
+    * @return an instance of the connector service factory.
+    */
+   ConnectorServiceFactory getConnectorService(ConnectorServiceConfiguration configuration);
+
    void addIncomingInterceptor(BaseInterceptor interceptor);
 
    /**
