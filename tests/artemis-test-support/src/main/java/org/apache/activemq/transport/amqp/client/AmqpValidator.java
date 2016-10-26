@@ -17,6 +17,7 @@
 package org.apache.activemq.transport.amqp.client;
 
 import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
@@ -70,6 +71,10 @@ public class AmqpValidator {
 
    }
 
+   public void inspectDeliveryUpdate(Delivery delivery) {
+
+   }
+
    public boolean isValid() {
       return valid;
    }
@@ -98,4 +103,5 @@ public class AmqpValidator {
          throw new AssertionError(errorMessage);
       }
    }
+
 }

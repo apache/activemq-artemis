@@ -158,6 +158,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          condition.setDescription(e.getMessage());
          rejected.setError(condition);
          delivery.disposition(rejected);
+         delivery.settle();
       }
    }
 
