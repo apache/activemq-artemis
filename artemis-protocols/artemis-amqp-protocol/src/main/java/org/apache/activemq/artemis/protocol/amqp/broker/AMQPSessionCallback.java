@@ -352,6 +352,7 @@ public class AMQPSessionCallback implements SessionCallback {
       Rejected rejected = new Rejected();
       rejected.setError(ec);
       delivery.disposition(rejected);
+      delivery.settle();
       connection.flush();
    }
 
