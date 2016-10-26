@@ -19,6 +19,7 @@ package org.apache.activemq.transport.amqp.client;
 import java.io.IOException;
 
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
+import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Endpoint;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.slf4j.Logger;
@@ -301,6 +302,10 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
    protected abstract void doClosedInspection();
 
    protected void doDetachedInspection() {
+   }
+
+   protected void doDeliveryUpdate(Delivery delivery) {
+
    }
 
    //----- Private implementation utility methods ---------------------------//
