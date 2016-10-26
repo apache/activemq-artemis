@@ -532,6 +532,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.appendCommitRecord(1L, false);
 
+      journalImpl.debugWait();
+
       System.out.println("Files = " + factory.listFiles("tt"));
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
@@ -597,6 +599,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.appendCommitRecord(1L, false);
 
       journalImpl.appendCommitRecord(2L, false);
+
+      journalImpl.debugWait();
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
@@ -696,6 +700,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       }
 
       journalImpl.appendCommitRecord(1L, false);
+
+      journalImpl.debugWait();
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
@@ -936,8 +942,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.forceMoveNextFile();
 
-      // Reclaiming should still be able to reclaim a file if a transaction was
-      // ignored
+      // Reclaiming should still be able to reclaim a file if a transaction was ignored
       journalImpl.checkReclaimStatus();
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
@@ -1109,7 +1114,16 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testReclaimingAfterConcurrentAddsAndDeletes() throws Exception {
+   public void testReclaimingAfterConcurrentAddsAndDeletesTx() throws Exception {
+      testReclaimingAfterConcurrentAddsAndDeletes(true);
+   }
+
+   @Test
+   public void testReclaimingAfterConcurrentAddsAndDeletesNonTx() throws Exception {
+      testReclaimingAfterConcurrentAddsAndDeletes(false);
+   }
+
+   public void testReclaimingAfterConcurrentAddsAndDeletes(final boolean transactional) throws Exception {
       final int JOURNAL_SIZE = 10 * 1024;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -1131,8 +1145,14 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
                latchReady.countDown();
                ActiveMQTestBase.waitForLatch(latchStart);
                for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
-                  journalImpl.appendAddRecordTransactional(i, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
-                  journalImpl.appendCommitRecord(i, false);
+
+                  if (transactional) {
+                     journalImpl.appendAddRecordTransactional(i, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
+                     journalImpl.appendCommitRecord(i, false);
+                  } else {
+                     journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(50, (byte) 1), false);
+                  }
+
                   queueDelete.offer(i);
                }
                finishedOK.incrementAndGet();
@@ -1153,7 +1173,14 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
                   if (toDelete == null) {
                      break;
                   }
-                  journalImpl.appendDeleteRecord(toDelete, false);
+
+                  if (transactional) {
+                     journalImpl.appendDeleteRecordTransactional(toDelete, toDelete, new SimpleEncoding(50, (byte) 1));
+                     journalImpl.appendCommitRecord(i, false);
+                  } else {
+                     journalImpl.appendDeleteRecord(toDelete, false);
+                  }
+
                }
                finishedOK.incrementAndGet();
             } catch (Exception e) {

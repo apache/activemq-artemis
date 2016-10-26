@@ -143,7 +143,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void compactReadError(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142012, value = "Couldn''t find tx={0} to merge after compacting",
+   @Message(id = 142012, value = "Couldn't find tx={0} to merge after compacting",
       format = Message.Format.MESSAGE_FORMAT)
    void compactMergeError(Long id);
 
@@ -163,12 +163,12 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void uncomittedTxFound(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142016, value = "Couldn''t stop compactor executor after 120 seconds",
+   @Message(id = 142016, value = "Could not stop compactor executor after 120 seconds",
       format = Message.Format.MESSAGE_FORMAT)
    void couldNotStopCompactor();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142017, value = "Couldn''t stop journal executor after 60 seconds",
+   @Message(id = 142017, value = "Could not stop journal executor after 60 seconds",
       format = Message.Format.MESSAGE_FORMAT)
    void couldNotStopJournalExecutor();
 
@@ -182,7 +182,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void deletingOrphanedFile(String fileToDelete);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142020, value = "Couldn''t get lock after 60 seconds on closing Asynchronous File: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142020, value = "Could not get lock after 60 seconds on closing Asynchronous File: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorClosingFile(String fileToDelete);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -240,6 +240,10 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142034, value = "Exception on submitting write", format = Message.Format.MESSAGE_FORMAT)
    void errorSubmittingWrite(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 142035, value = "Could not stop journal append executor after 60 seconds", format = Message.Format.MESSAGE_FORMAT)
+   void couldNotStopJournalAppendExecutor();
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 144000, value = "Failed to delete file {0}", format = Message.Format.MESSAGE_FORMAT)
