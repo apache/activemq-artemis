@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
+import java.util.Map;
 
 /**
  * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
@@ -849,6 +850,17 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Destroy a bridge", impact = MBeanOperationInfo.ACTION)
    void destroyBridge(@Parameter(name = "name", desc = "Name of the bridge") String name) throws Exception;
+
+   @Operation(desc = "Create a connector service", impact = MBeanOperationInfo.ACTION)
+   void createConnectorService(@Parameter(name = "name", desc = "Name of the connector service") String name,
+                               @Parameter(name = "factoryClass", desc = "Class name of the connector service factory") String factoryClass,
+                               @Parameter(name = "parameters", desc = "Parameter specific to the connector service") Map<String, Object> parameters) throws Exception;
+
+   @Operation(desc = "Destroy a connector service", impact = MBeanOperationInfo.ACTION)
+   void destroyConnectorService(@Parameter(name = "name", desc = "Name of the connector service") String name) throws Exception;
+
+   @Attribute(desc = "names of the connector services on this server")
+   String[] getConnectorServices();
 
    @Operation(desc = "force the server to stop and notify clients to failover", impact = MBeanOperationInfo.UNKNOWN)
    void forceFailover() throws Exception;

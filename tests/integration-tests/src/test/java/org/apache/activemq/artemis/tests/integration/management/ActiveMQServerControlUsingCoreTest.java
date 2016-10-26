@@ -20,6 +20,8 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
+import java.util.Map;
+
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
    // Constants -----------------------------------------------------
@@ -625,6 +627,21 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public void destroyBridge(String name) throws Exception {
             proxy.invokeOperation("destroyBridge", name);
 
+         }
+
+         @Override
+         public void createConnectorService(String name, String factoryClass, Map<String, Object> parameters) throws Exception {
+            proxy.invokeOperation("createConnectorService", name, factoryClass, parameters);
+         }
+
+         @Override
+         public void destroyConnectorService(String name) throws Exception {
+            proxy.invokeOperation("destroyConnectorService", name);
+         }
+
+         @Override
+         public String[] getConnectorServices() {
+            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("connectorServices"));
          }
 
          @Override

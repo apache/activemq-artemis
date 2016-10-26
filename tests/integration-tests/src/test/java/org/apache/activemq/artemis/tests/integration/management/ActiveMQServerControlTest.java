@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
@@ -1325,6 +1326,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("myUser", second.getString("principal"));
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertEquals(1, second.getJsonNumber("consumerCount").longValue());
+   }
+
+   @Test
+   public void testConnectorServiceManagement() throws Exception {
+      ActiveMQServerControl managementControl = createManagementControl();
+      managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
+
+      Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
+
+      managementControl.createConnectorService("myconn2", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
+      Assert.assertEquals(2, server.getConnectorsService().getConnectors().size());
+
+      managementControl.destroyConnectorService("myconn");
+      Assert.assertEquals(1, server.getConnectorsService().getConnectors().size());
+      Assert.assertEquals("myconn2", managementControl.getConnectorServices()[0]);
    }
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {

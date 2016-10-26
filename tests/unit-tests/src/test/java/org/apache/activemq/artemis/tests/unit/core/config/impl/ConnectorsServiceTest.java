@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       connectorsService.start();
 
       assertTrue(connectorsService.getConnectors().size() == 1);
-      assertTrue(connectorsService.getConnectors().contains(connectorServiceFactory.getConnectorService()));
+      assertTrue(connectorsService.getConnectors().values().contains(connectorServiceFactory.getConnectorService()));
    }
 
    /**
@@ -85,5 +86,50 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       connectorsService.start();
 
       assertTrue(connectorsService.getConnectors().size() == 1);
+   }
+
+   /**
+    * Test that connectors can be created and destroyed directly.
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testConnectorServiceUsedDirectly() throws Exception {
+      // Initial setup with existing connector service
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
+      configuration.setConnectorServiceConfigurations(Arrays.asList(connectorServiceConfiguration));
+
+      ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
+      connectorsService.start();
+      assertEquals(1, connectorsService.getConnectors().size());
+
+
+      // Add with same name
+      FakeConnectorServiceFactory connectorServiceFactory = new FakeConnectorServiceFactory();
+      try {
+         connectorsService.createService(connectorServiceConfiguration, connectorServiceFactory);
+         assertTrue("Expected exception when creating service with same name", false);
+      } catch (Exception e) {
+      }
+
+
+      // Add unique with same factory
+      ConnectorServiceConfiguration additionalServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact2");
+      connectorsService.createService(additionalServiceConfiguration, connectorServiceFactory);
+      assertEquals(2, connectorsService.getConnectors().size());
+
+      // Destroy existing connector services
+      connectorsService.destroyService("myfact");
+      assertEquals(1, connectorsService.getConnectors().size());
+
+      connectorsService.destroyService("myfact2");
+      assertEquals(0, connectorsService.getConnectors().size());
+
+      // Destroy non-existing connector service
+      try {
+         connectorsService.destroyService("myfact");
+         assertTrue("Expected exception when destroying non-existing service", false);
+      } catch (Exception e) {
+      }
    }
 }
