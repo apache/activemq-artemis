@@ -45,6 +45,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jms.JMSException;
+
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
  */
@@ -129,6 +131,24 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       session.createReceiver(getTestName(), null, true);
 
       connection.getStateInspector().assertValid();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testInvalidFilter() throws Exception {
+      AmqpClient client = createAmqpClient();
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      try {
+         session.createReceiver(getTestName(), "null = 'f''", true);
+         fail("should throw exception");
+      } catch (Exception e) {
+         assertTrue(e.getCause() instanceof JMSException);
+         //passed
+      }
+
       connection.close();
    }
 
