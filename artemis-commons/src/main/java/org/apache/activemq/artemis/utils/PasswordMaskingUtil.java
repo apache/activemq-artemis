@@ -27,6 +27,64 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
 public class PasswordMaskingUtil {
 
+   private static final String PLAINTEXT_PROCESSOR = "plaintext";
+   private static final String SECURE_PROCESSOR = "secure";
+
+   private static final Map<String, HashProcessor> processors = new HashMap<>();
+
+   //stored password takes 2 forms, ENC() or plain text
+   public static HashProcessor getHashProcessor(String storedPassword) throws Exception {
+
+      if (!isEncoded(storedPassword)) {
+         return getPlaintextProcessor();
+      }
+      return getSecureProcessor();
+   }
+
+   private static boolean isEncoded(String storedPassword) {
+      if (storedPassword == null) {
+         return true;
+      }
+
+      if (storedPassword.startsWith("ENC(") && storedPassword.endsWith(")")) {
+         return true;
+      }
+      return false;
+   }
+
+   public static HashProcessor getHashProcessor() {
+      HashProcessor processor = null;
+      try {
+         processor = getSecureProcessor();
+      } catch (Exception e) {
+         processor = getPlaintextProcessor();
+      }
+      return processor;
+   }
+
+   public static HashProcessor getPlaintextProcessor() {
+      synchronized (processors) {
+         HashProcessor plain = processors.get(PLAINTEXT_PROCESSOR);
+         if (plain == null) {
+            plain = new NoHashProcessor();
+            processors.put(PLAINTEXT_PROCESSOR, plain);
+         }
+         return plain;
+      }
+   }
+
+   public static HashProcessor getSecureProcessor() throws Exception {
+      synchronized (processors) {
+         HashProcessor processor = processors.get(SECURE_PROCESSOR);
+         if (processor == null) {
+            DefaultSensitiveStringCodec codec = (DefaultSensitiveStringCodec) getCodec("org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;algorithm=one-way");
+            processor = new SecureHashProcessor(codec);
+            processors.put(SECURE_PROCESSOR, processor);
+         }
+         return processor;
+      }
+   }
+
    /*
     * Loading the codec class.
     *
@@ -37,7 +95,7 @@ public class PasswordMaskingUtil {
     * Where only <full qualified class name> is required. key/value pairs are optional
     */
    public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException {
-      SensitiveDataCodec<String> codecInstance = null;
+      SensitiveDataCodec<String> codecInstance;
 
       // semi colons
       String[] parts = codecDesc.split(";");
@@ -70,13 +128,19 @@ public class PasswordMaskingUtil {
                throw ActiveMQUtilBundle.BUNDLE.invalidProperty(parts[i]);
             props.put(keyVal[0], keyVal[1]);
          }
-         codecInstance.init(props);
+         try {
+            codecInstance.init(props);
+         } catch (Exception e) {
+            throw new ActiveMQException("Fail to init codec", e, ActiveMQExceptionType.SECURITY_EXCEPTION);
+         }
       }
 
       return codecInstance;
    }
 
-   public static SensitiveDataCodec<String> getDefaultCodec() {
+   public static DefaultSensitiveStringCodec getDefaultCodec() {
       return new DefaultSensitiveStringCodec();
    }
+
+
 }

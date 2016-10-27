@@ -32,14 +32,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.activemq.artemis.utils.HashProcessor;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.jboss.logging.Logger;
 
 public class PropertiesLoginModule extends PropertiesLoader implements LoginModule {
 
    private static final Logger logger = Logger.getLogger(PropertiesLoginModule.class);
 
-   private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.user";
-   private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.role";
+   public static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.user";
+   public static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.role";
 
    private Subject subject;
    private CallbackHandler callbackHandler;
@@ -49,6 +51,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    private String user;
    private final Set<Principal> principals = new HashSet<>();
    private boolean loginSucceeded;
+   private HashProcessor hashProcessor;
 
    @Override
    public void initialize(Subject subject,
@@ -90,10 +93,21 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       if (password == null) {
          throw new FailedLoginException("User does exist");
       }
-      if (!password.equals(new String(tmpPassword))) {
-         throw new FailedLoginException("Password does not match");
+
+      //password is hashed
+      try {
+         hashProcessor = PasswordMaskingUtil.getHashProcessor(password);
+
+         if (!hashProcessor.compare(tmpPassword, password)) {
+            throw new FailedLoginException("Password does not match");
+         }
+         loginSucceeded = true;
+      } catch (Exception e) {
+         if (debug) {
+            logger.debug("Exception getting a hash processor", e);
+         }
+         throw new FailedLoginException("Failed to get hash processor");
       }
-      loginSucceeded = true;
 
       if (debug) {
          logger.debug("login " + user);
