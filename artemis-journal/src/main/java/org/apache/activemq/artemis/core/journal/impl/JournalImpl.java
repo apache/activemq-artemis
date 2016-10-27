@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,14 +31,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,8 +71,11 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalR
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.jboss.logging.Logger;
 
 /**
@@ -163,7 +167,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // Compacting may replace this structure
    private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<>();
 
-   private final Set<Long> pendingRecords = Collections.newSetFromMap(new ConcurrentHashMap<Long, Boolean>());
+   private final Set<Long> pendingRecords = new ConcurrentHashSet<>();
 
    // Compacting may replace this structure
    private final ConcurrentMap<Long, JournalTransaction> transactions = new ConcurrentHashMap<>();
@@ -173,13 +177,17 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private final AtomicBoolean compactorRunning = new AtomicBoolean();
 
-   private ExecutorService filesExecutor = null;
+   private Executor filesExecutor = null;
 
-   private ExecutorService compactorExecutor = null;
+   private Executor compactorExecutor = null;
 
-   private ExecutorService appendExecutor = null;
+   private Executor appendExecutor = null;
 
    private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
+
+   private final OrderedExecutorFactory providedIOThreadPool;
+   protected OrderedExecutorFactory ioExecutorFactory;
+   private ThreadPoolExecutor threadPool;
 
    /**
     * We don't lock the journal during the whole compacting operation. During compacting we only
@@ -223,7 +231,24 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                       final String fileExtension,
                       final int maxAIO,
                       final int userVersion) {
+      this(null, fileSize, minFiles, poolSize, compactMinFiles, compactPercentage, fileFactory, filePrefix, fileExtension, maxAIO, userVersion);
+   }
+
+   public JournalImpl(final OrderedExecutorFactory ioExecutors,
+                      final int fileSize,
+                      final int minFiles,
+                      final int poolSize,
+                      final int compactMinFiles,
+                      final int compactPercentage,
+                      final SequentialFileFactory fileFactory,
+                      final String filePrefix,
+                      final String fileExtension,
+                      final int maxAIO,
+                      final int userVersion) {
+
       super(fileFactory.isSupportsCallbacks(), fileSize);
+
+      this.providedIOThreadPool = ioExecutors;
 
       if (fileSize % fileFactory.getAlignment() != 0) {
          throw new IllegalArgumentException("Invalid journal-file-size " + fileSize + ", It should be multiple of " +
@@ -693,7 +718,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       lineUpContext(callback);
       pendingRecords.add(id);
 
-      Future<?> result = appendExecutor.submit(new Runnable() {
+
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -710,7 +737,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                              ", usedFile = " +
                                              usedFile);
                }
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
             } finally {
                pendingRecords.remove(id);
@@ -719,7 +752,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
       }
    }
@@ -734,7 +767,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       lineUpContext(callback);
       checkKnownRecordID(id);
 
-      Future<?> result = appendExecutor.submit(new Runnable() {
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -758,7 +793,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                } else {
                   jrnRecord.addUpdateFile(usedFile, updateRecord.getEncodeSize());
                }
+
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
             } finally {
                journalLock.readLock().unlock();
@@ -766,7 +808,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
       }
    }
@@ -777,7 +819,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       lineUpContext(callback);
       checkKnownRecordID(id);
 
-      Future<?> result = appendExecutor.submit(new Runnable() {
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -801,7 +844,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                } else {
                   record.delete(usedFile);
                }
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
             } finally {
                journalLock.readLock().unlock();
@@ -809,9 +858,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
       }
+   }
+
+   private static SimpleFuture<Boolean> newSyncAndCallbackResult(boolean sync, IOCompletion callback) {
+      return (sync && callback == null) ? new SimpleFuture<>() : null;
    }
 
    @Override
@@ -824,7 +877,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final JournalTransaction tx = getTransactionInfo(txID);
       tx.checkErrorCondition();
 
-      appendExecutor.submit(new Runnable() {
+      appendExecutor.execute(new Runnable() {
 
          @Override
          public void run() {
@@ -860,15 +913,18 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          return;
       }
 
+      final SimpleFuture<Boolean> known = new SimpleFuture<>();
+
       // retry on the append thread. maybe the appender thread is not keeping up.
-      Future<Boolean> known = appendExecutor.submit(new Callable<Boolean>() {
+      appendExecutor.execute(new Runnable() {
          @Override
-         public Boolean call() throws Exception {
+         public void run() {
             journalLock.readLock().lock();
             try {
-               return records.containsKey(id)
+
+               known.set(records.containsKey(id)
                   || pendingRecords.contains(id)
-                  || (compactor != null && compactor.lookupRecord(id));
+                  || (compactor != null && compactor.lookupRecord(id)));
             } finally {
                journalLock.readLock().unlock();
             }
@@ -900,7 +956,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final JournalTransaction tx = getTransactionInfo(txID);
       tx.checkErrorCondition();
 
-      appendExecutor.submit(new Runnable() {
+      appendExecutor.execute(new Runnable() {
 
          @Override
          public void run() {
@@ -941,7 +997,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final JournalTransaction tx = getTransactionInfo(txID);
       tx.checkErrorCondition();
 
-      appendExecutor.submit(new Runnable() {
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -991,7 +1047,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final JournalTransaction tx = getTransactionInfo(txID);
       tx.checkErrorCondition();
 
-      Future<?> result = appendExecutor.submit(new Runnable() {
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -1004,7 +1062,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.prepare(usedFile);
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
                setErrorCondition(tx, e);
             } finally {
@@ -1013,7 +1077,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
          tx.checkErrorCondition();
       }
@@ -1055,8 +1119,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       tx.checkErrorCondition();
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
 
-      Future<?> result = appendExecutor.submit(new Runnable() {
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -1070,7 +1135,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
 
                tx.commit(usedFile);
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
                setErrorCondition(tx, e);
             } finally {
@@ -1079,7 +1150,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
          tx.checkErrorCondition();
       }
@@ -1097,8 +1168,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       tx.checkErrorCondition();
-
-      Future<?> result = appendExecutor.submit(new Runnable() {
+      final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -1107,7 +1178,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                JournalFile usedFile = appendRecord(rollbackRecord, false, sync, tx, callback);
 
                tx.rollback(usedFile);
+               if (result != null) {
+                  result.set(true);
+               }
             } catch (Exception e) {
+               if (result != null) {
+                  result.fail(e);
+               }
                ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
                setErrorCondition(tx, e);
             }  finally {
@@ -1116,7 +1193,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       });
 
-      if (sync && callback == null) {
+      if (result != null) {
          result.get();
          tx.checkErrorCondition();
       }
@@ -1981,11 +2058,30 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public void debugWait() throws InterruptedException {
       fileFactory.flush();
 
-      if (appendExecutor != null && !appendExecutor.isShutdown()) {
-         // Send something to the closingExecutor, just to make sure we went until its end
-         final CountDownLatch latch = newLatch(1);
+      flushExecutor(filesExecutor);
 
-         appendExecutor.execute(new Runnable() {
+      flushExecutor(appendExecutor);
+   }
+
+   @Override
+   public void flush() throws Exception {
+      fileFactory.flush();
+
+
+      flushExecutor(appendExecutor);
+
+      flushExecutor(filesExecutor);
+
+      flushExecutor(compactorExecutor);
+   }
+
+   private void flushExecutor(Executor executor) throws InterruptedException {
+
+      if (executor != null) {
+         // Send something to the closingExecutor, just to make sure we went until its end
+         final CountDownLatch latch = new CountDownLatch(1);
+
+         executor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -1993,23 +2089,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
 
          });
-         awaitLatch(latch, -1);
+         latch.await(10, TimeUnit.SECONDS);
       }
-
-      if (filesExecutor != null && !filesExecutor.isShutdown()) {
-         // Send something to the closingExecutor, just to make sure we went until its end
-         final CountDownLatch latch = newLatch(1);
-
-         filesExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               latch.countDown();
-            }
-         });
-
-         awaitLatch(latch, -1);
-      }
-
    }
 
    @Override
@@ -2099,7 +2180,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       };
 
-      appendExecutor.submit(new Runnable() {
+      appendExecutor.execute(new Runnable() {
          @Override
          public void run() {
             journalLock.readLock().lock();
@@ -2132,29 +2213,25 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          throw new IllegalStateException("Journal " + this + " is not stopped, state is " + state);
       }
 
-      filesExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+      if (providedIOThreadPool == null) {
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ArtemisIOThread", true, JournalImpl.class.getClassLoader());
+            }
+         });
 
-         @Override
-         public Thread newThread(final Runnable r) {
-            return new Thread(r, "JournalImpl::FilesExecutor");
-         }
-      });
+         threadPool = new ThreadPoolExecutor(0,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS, new SynchronousQueue<>(), factory);
+         ioExecutorFactory = new OrderedExecutorFactory(threadPool);
+      } else {
+         ioExecutorFactory = providedIOThreadPool;
+      }
 
-      compactorExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+      filesExecutor = ioExecutorFactory.getExecutor();
 
-         @Override
-         public Thread newThread(final Runnable r) {
-            return new Thread(r, "JournalImpl::CompactorExecutor");
-         }
-      });
+      compactorExecutor = ioExecutorFactory.getExecutor();
 
-      appendExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-
-         @Override
-         public Thread newThread(final Runnable r) {
-            return new Thread(r, "JournalImpl::appendExecutor");
-         }
-      });
+      appendExecutor = ioExecutorFactory.getExecutor();
 
       filesRepository.setExecutor(filesExecutor);
 
@@ -2171,29 +2248,21 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       setJournalState(JournalState.STOPPED);
 
-      // appendExecutor must be shut down first
-      appendExecutor.shutdown();
+      flush();
 
-      if (!appendExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-         ActiveMQJournalLogger.LOGGER.couldNotStopJournalAppendExecutor();
+      if (providedIOThreadPool == null) {
+         threadPool.shutdown();
+
+         if (!threadPool.awaitTermination(120, TimeUnit.SECONDS)) {
+            threadPool.shutdownNow();
+         }
+         threadPool = null;
+         ioExecutorFactory = null;
       }
+
 
       journalLock.writeLock().lock();
       try {
-         compactorExecutor.shutdown();
-
-         if (!compactorExecutor.awaitTermination(120, TimeUnit.SECONDS)) {
-            ActiveMQJournalLogger.LOGGER.couldNotStopCompactor();
-         }
-
-         filesExecutor.shutdown();
-
-         filesRepository.setExecutor(null);
-
-         if (!filesExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-            ActiveMQJournalLogger.LOGGER.couldNotStopJournalExecutor();
-         }
-
          try {
             for (CountDownLatch latch : latches) {
                latch.countDown();
@@ -2207,7 +2276,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          if (currentFile != null && currentFile.getFile().isOpen()) {
             currentFile.getFile().close();
          }
-
          filesRepository.clear();
 
          fileFactory.stop();

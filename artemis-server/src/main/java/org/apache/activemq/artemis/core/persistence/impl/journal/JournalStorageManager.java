@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -197,14 +198,18 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      });
+      try {
+         executor.execute(new Runnable() {
+            @Override
+            public void run() {
+               latch.countDown();
+            }
+         });
 
-      latch.await(30, TimeUnit.SECONDS);
+         latch.await(30, TimeUnit.SECONDS);
+      } catch (RejectedExecutionException ignored) {
+         // that's ok
+      }
 
       // We cache the variable as the replicator could be changed between here and the time we call stop
       // since sendLiveIsStopping may issue a close back from the channel
@@ -224,8 +229,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       bindingsJournal.stop();
 
       messageJournal.stop();
-
-      singleThreadExecutor.shutdown();
 
       journalLoaded = false;
 

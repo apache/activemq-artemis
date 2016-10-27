@@ -713,6 +713,8 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          journal.testCompact();
       }
 
+      journal.flush();
+
       stopJournal();
       createJournal();
       startJournal();

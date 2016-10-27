@@ -38,11 +38,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -150,6 +151,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -229,6 +231,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private volatile ScheduledExecutorService scheduledPool;
 
    private volatile ExecutorFactory executorFactory;
+
+
+   private volatile ExecutorService ioExecutorPool;
+   /**
+    * This is a thread pool for io tasks only.
+    * We can't use the same global executor to avoid starvations.
+    */
+   private volatile ExecutorFactory ioExecutorFactory;
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
@@ -859,17 +869,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       if (threadPool != null && !threadPoolSupplied) {
-         threadPool.shutdown();
-         try {
-            if (!threadPool.awaitTermination(10, TimeUnit.SECONDS)) {
-               ActiveMQServerLogger.LOGGER.timedOutStoppingThreadpool(threadPool);
-               for (Runnable r : threadPool.shutdownNow()) {
-                  logger.debug("Cancelled the execution of " + r);
-               }
-            }
-         } catch (InterruptedException e) {
-            ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(threadPool.getClass().getName());
-         }
+         shutdownPool(threadPool);
+      }
+
+      if (ioExecutorPool != null) {
+         shutdownPool(ioExecutorPool);
       }
 
       if (!threadPoolSupplied)
@@ -947,6 +951,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.serverStopped("identity=" + identity + ",version=" + getVersion().getFullVersion(), tempNodeID, getUptime());
       } else {
          ActiveMQServerLogger.LOGGER.serverStopped(getVersion().getFullVersion(), tempNodeID, getUptime());
+      }
+   }
+
+   private void shutdownPool(ExecutorService executorService) {
+      executorService.shutdown();
+      try {
+         if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            ActiveMQServerLogger.LOGGER.timedOutStoppingThreadpool(threadPool);
+            for (Runnable r : executorService.shutdownNow()) {
+               logger.debug("Cancelled the execution of " + r);
+            }
+         }
+      } catch (InterruptedException e) {
+         ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(threadPool.getClass().getName());
       }
    }
 
@@ -1805,16 +1823,31 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                return new ActiveMQThreadFactory("ActiveMQ-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
             }
          });
+
          if (configuration.getThreadPoolMaxSize() == -1) {
-            threadPool = Executors.newCachedThreadPool(tFactory);
+            threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
          } else {
-            threadPool = Executors.newFixedThreadPool(configuration.getThreadPoolMaxSize(), tFactory);
+            threadPool = new ActiveMQThreadPoolExecutor(0, configuration.getThreadPoolMaxSize(), 60L, TimeUnit.SECONDS, tFactory);
          }
       } else {
          threadPool = serviceRegistry.getExecutorService();
          this.threadPoolSupplied = true;
       }
       this.executorFactory = new OrderedExecutorFactory(threadPool);
+
+
+      if (serviceRegistry.getIOExecutorService() != null) {
+         this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());
+      } else {
+         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
+
+         this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
+      }
 
        /* We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this
        * Scheduled ExecutorService otherwise we create a new one.

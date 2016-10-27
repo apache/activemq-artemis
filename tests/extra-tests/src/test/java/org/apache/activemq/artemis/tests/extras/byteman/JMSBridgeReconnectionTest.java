@@ -50,7 +50,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
          targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
          targetMethod = "sendRegularMessage",
          targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);")})
+         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($2,$3,$4);")})
    public void performCrashDestinationStopBridge() throws Exception {
       activeMQServer = jmsServer1;
       ConnectionFactoryFactory factInUse0 = cff0;

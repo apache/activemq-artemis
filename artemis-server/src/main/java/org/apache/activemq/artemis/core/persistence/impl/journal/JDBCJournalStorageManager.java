@@ -101,8 +101,6 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       messageJournal.stop();
       largeMessagesFactory.stop();
 
-      singleThreadExecutor.shutdown();
-
       journalLoaded = false;
 
       started = false;

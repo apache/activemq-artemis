@@ -192,7 +192,8 @@ final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void reloadPageCompletion(PagePosition position) throws Exception {
       // if the current page is complete, we must move it out of the way
-      if (pageStore.getCurrentPage().getPageId() == position.getPageNr()) {
+      if (pageStore != null && pageStore.getCurrentPage() != null &&
+          pageStore.getCurrentPage().getPageId() == position.getPageNr()) {
          pageStore.forceAnotherPage();
       }
       PageCursorInfo info = new PageCursorInfo(position.getPageNr(), position.getMessageNr(), null);
