@@ -30,6 +30,8 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <winsw.version>1.18</winsw.version>
+      <commons.config.version>2.1</commons.config.version>
+      <commons.lang.version>3.0</commons.lang.version>
    </properties>
 
    <dependencies>
@@ -66,6 +68,16 @@
       <dependency>
          <groupId>io.airlift</groupId>
          <artifactId>airline</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-configuration2</artifactId>
+         <version>${commons.config.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-lang3</artifactId>
+         <version>${commons.lang.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.winsw</groupId>

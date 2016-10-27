@@ -14,22 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.cli.commands.user;
 
-import java.util.Map;
+import io.airlift.airline.Command;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 /**
- * A SensitiveDataCodec
- *
- * This interface is used for implementing a value decoder.
- *
- * It takes in a mask value and decode it.
+ * list existing users, example:
+ * ./artemis user list --username guest
  */
-public interface SensitiveDataCodec<T> {
+@Command(name = "list", description = "List existing user(s)")
+public class ListUser extends UserAction {
 
-   T decode(Object mask) throws Exception;
+   @Override
+   public Object execute(ActionContext context) throws Exception {
+      super.execute(context);
 
-   T encode(Object secret) throws Exception;
+      list();
 
-   void init(Map<String, String> params) throws Exception;
+      return null;
+   }
+
 }
