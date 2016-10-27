@@ -144,7 +144,6 @@ Out of the box, Apache ActiveMQ Artemis currently uses
 network library.
 
 Our Netty transport can be configured in several different ways; to use
-old (blocking) Java IO, or NIO (non-blocking), also to use
 straightforward TCP sockets, SSL, or to tunnel over HTTP or HTTPS..
 
 We believe this caters for the vast majority of transport requirements.
