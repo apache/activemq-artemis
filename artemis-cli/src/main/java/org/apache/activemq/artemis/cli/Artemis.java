@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
 import org.apache.activemq.artemis.cli.commands.Kill;
+import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
@@ -42,6 +43,11 @@ import org.apache.activemq.artemis.cli.commands.tools.HelpData;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
+import org.apache.activemq.artemis.cli.commands.user.AddUser;
+import org.apache.activemq.artemis.cli.commands.user.HelpUser;
+import org.apache.activemq.artemis.cli.commands.user.ListUser;
+import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
+import org.apache.activemq.artemis.cli.commands.user.ResetUser;
 
 /**
  * Artemis is the main CLI entry point for managing/running a broker.
@@ -120,7 +126,7 @@ public class Artemis {
 
    private static Cli.CliBuilder<Action> builder(File artemisInstance) {
       String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
-      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Consumer.class).withCommand(Browse.class).withDefaultCommand(HelpAction.class);
+      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Consumer.class).withCommand(Browse.class).withCommand(Mask.class).withDefaultCommand(HelpAction.class);
 
       builder.withGroup("destination").withDescription("Destination tools group (create|delete) (example ./artemis destination create)").
          withDefaultCommand(HelpDestination.class).withCommands(CreateDestination.class, DeleteDestination.class);
@@ -128,6 +134,8 @@ public class Artemis {
       if (instance != null) {
          builder.withGroup("data").withDescription("data tools group (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
+         builder.withGroup("user").withDescription("default file-based user management (add|rm|list|reset) (example ./artemis user list)").
+                 withDefaultCommand(HelpUser.class).withCommands(ListUser.class, AddUser.class, RemoveUser.class, ResetUser.class);
          builder = builder.withCommands(Run.class, Stop.class, Kill.class);
       } else {
          builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").

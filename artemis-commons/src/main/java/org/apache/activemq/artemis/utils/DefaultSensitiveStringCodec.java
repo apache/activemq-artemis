@@ -16,15 +16,19 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * A DefaultSensitiveDataCodec
@@ -34,52 +38,39 @@ import java.util.Map;
  * file to use a masked password but doesn't give a
  * codec implementation.
  *
- * The decode() and encode() method is copied originally from
- * JBoss AS code base.
+ * It supports one-way hash (digest) and two-way (encrypt-decrpt) algorithms
+ * The two-way uses "Blowfish" algorithm
+ * The one-way uses "PBKDF2" hash algorithm
  */
 public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
-   private byte[] internalKey = "clusterpassword".getBytes();
+   public static final String ALGORITHM = "algorithm";
+   public static final String BLOWFISH_KEY = "key";
+   public static final String ONE_WAY = "one-way";
+   public static final String TWO_WAY = "two-way";
+
+   private CodecAlgorithm algorithm = new BlowfishAlgorithm(Collections.EMPTY_MAP);
 
    @Override
-   public String decode(Object secret) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-      SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
-
-      BigInteger n = new BigInteger((String) secret, 16);
-      byte[] encoding = n.toByteArray();
-
-      // JBAS-3457: fix leading zeros
-      if (encoding.length % 8 != 0) {
-         int length = encoding.length;
-         int newLength = ((length / 8) + 1) * 8;
-         int pad = newLength - length; // number of leading zeros
-         byte[] old = encoding;
-         encoding = new byte[newLength];
-         System.arraycopy(old, 0, encoding, pad, old.length);
-      }
-
-      Cipher cipher = Cipher.getInstance("Blowfish");
-      cipher.init(Cipher.DECRYPT_MODE, key);
-      byte[] decode = cipher.doFinal(encoding);
-
-      return new String(decode);
-   }
-
-   public Object encode(String secret) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-      SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
-
-      Cipher cipher = Cipher.getInstance("Blowfish");
-      cipher.init(Cipher.ENCRYPT_MODE, key);
-      byte[] encoding = cipher.doFinal(secret.getBytes());
-      BigInteger n = new BigInteger(encoding);
-      return n.toString(16);
+   public String decode(Object secret) throws Exception {
+      return algorithm.decode((String) secret);
    }
 
    @Override
-   public void init(Map<String, String> params) {
-      String key = params.get("key");
-      if (key != null) {
-         updateKey(key);
+   public String encode(Object secret) throws Exception {
+      return algorithm.encode((String) secret);
+   }
+
+   @Override
+   public void init(Map<String, String> params) throws Exception {
+      String algorithm = params.get(ALGORITHM);
+      if (algorithm == null || algorithm.equals(TWO_WAY)) {
+         //two way
+         this.algorithm = new BlowfishAlgorithm(params);
+      } else if (algorithm.equals(ONE_WAY)) {
+         this.algorithm = new PBKDF2Algorithm(params);
+      } else {
+         throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
       }
    }
 
@@ -96,12 +87,149 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          System.exit(-1);
       }
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      Map<String, String> params = new HashMap<>();
+      Properties properties = System.getProperties();
+      for (final String name: properties.stringPropertyNames()) {
+         params.put(name, properties.getProperty(name));
+      }
+      codec.init(params);
       Object encode = codec.encode(args[0]);
+
       System.out.println("Encoded password (without quotes): \"" + encode + "\"");
    }
 
-   private void updateKey(String key) {
-      this.internalKey = key.getBytes();
+   public boolean verify(char[] inputValue, String storedValue) {
+      return algorithm.verify(inputValue, storedValue);
    }
 
+   private abstract class CodecAlgorithm {
+
+      protected Map<String, String> params;
+
+      CodecAlgorithm(Map<String, String> params) {
+         this.params = params;
+      }
+
+      public abstract String decode(String secret) throws Exception;
+      public abstract String encode(String secret) throws Exception;
+
+      public boolean verify(char[] inputValue, String storedValue) {
+         return false;
+      }
+   }
+
+   private class BlowfishAlgorithm extends CodecAlgorithm {
+
+      private byte[] internalKey = "clusterpassword".getBytes();
+
+      BlowfishAlgorithm(Map<String, String> params) {
+         super(params);
+         String key = params.get(BLOWFISH_KEY);
+         if (key != null) {
+            updateKey(key);
+         }
+      }
+
+      private void updateKey(String key) {
+         this.internalKey = key.getBytes();
+      }
+
+      @Override
+      public String decode(String secret) throws Exception {
+         SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
+
+         BigInteger n = new BigInteger((String) secret, 16);
+         byte[] encoding = n.toByteArray();
+
+         if (encoding.length % 8 != 0) {
+            int length = encoding.length;
+            int newLength = ((length / 8) + 1) * 8;
+            int pad = newLength - length; // number of leading zeros
+            byte[] old = encoding;
+            encoding = new byte[newLength];
+            System.arraycopy(old, 0, encoding, pad, old.length);
+         }
+
+         Cipher cipher = Cipher.getInstance("Blowfish");
+         cipher.init(Cipher.DECRYPT_MODE, key);
+         byte[] decode = cipher.doFinal(encoding);
+
+         return new String(decode);
+      }
+
+      @Override
+      public String encode(String secret) throws Exception {
+         SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
+
+         Cipher cipher = Cipher.getInstance("Blowfish");
+         cipher.init(Cipher.ENCRYPT_MODE, key);
+         byte[] encoding = cipher.doFinal(secret.getBytes());
+         BigInteger n = new BigInteger(encoding);
+         return n.toString(16);
+      }
+   }
+
+   private class PBKDF2Algorithm extends CodecAlgorithm {
+      private static final String SEPERATOR = ":";
+      private String sceretKeyAlgorithm = "PBKDF2WithHmacSHA1";
+      private String randomScheme = "SHA1PRNG";
+      private int keyLength = 64 * 8;
+      private int saltLength = 32;
+      private int iterations = 1024;
+      private SecretKeyFactory skf;
+
+      PBKDF2Algorithm(Map<String, String> params) throws NoSuchAlgorithmException {
+         super(params);
+         skf = SecretKeyFactory.getInstance(sceretKeyAlgorithm);
+      }
+
+      @Override
+      public String decode(String secret) throws Exception {
+         throw new IllegalArgumentException("Algorithm doesn't support decoding");
+      }
+
+      public byte[] getSalt() throws NoSuchAlgorithmException {
+         byte[] salt = new byte[this.saltLength];
+
+         SecureRandom sr = SecureRandom.getInstance(this.randomScheme);
+         sr.nextBytes(salt);
+         return salt;
+      }
+
+      @Override
+      public String encode(String secret) throws Exception {
+         char[] chars = secret.toCharArray();
+         byte[] salt = getSalt();
+
+         StringBuilder builder = new StringBuilder();
+         builder.append(iterations).append(SEPERATOR).append(ByteUtil.bytesToHex(salt)).append(SEPERATOR);
+
+         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, keyLength);
+
+         byte[] hash = skf.generateSecret(spec).getEncoded();
+         String hexValue = ByteUtil.bytesToHex(hash);
+         builder.append(hexValue);
+
+         return builder.toString();
+      }
+
+      @Override
+      public boolean verify(char[] plainChars, String storedValue) {
+         String[] parts = storedValue.split(SEPERATOR);
+         int originalIterations = Integer.parseInt(parts[0]);
+         byte[] salt = ByteUtil.hexToBytes(parts[1]);
+         byte[] originalHash = ByteUtil.hexToBytes(parts[2]);
+
+         PBEKeySpec spec = new PBEKeySpec(plainChars, salt, originalIterations, originalHash.length * 8);
+         byte[] newHash;
+
+         try {
+            newHash = skf.generateSecret(spec).getEncoded();
+         } catch (InvalidKeySpecException e) {
+            return false;
+         }
+
+         return Arrays.equals(newHash, originalHash);
+      }
+   }
 }
