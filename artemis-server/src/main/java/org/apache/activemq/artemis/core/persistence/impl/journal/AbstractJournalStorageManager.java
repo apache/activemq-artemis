@@ -19,11 +19,9 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import javax.transaction.xa.Xid;
 import java.io.File;
 import java.io.FileInputStream;
-import java.security.AccessController;
 import java.security.DigestInputStream;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,8 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -103,7 +99,6 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
@@ -168,7 +163,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    final Executor executor;
 
-   ExecutorService singleThreadExecutor;
+   Executor singleThreadExecutor;
 
    private final boolean syncTransactional;
 
@@ -284,10 +279,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    @Override
    public void setContext(final OperationContext context) {
       OperationContextImpl.setContext(context);
-   }
-
-   public Executor getSingleThreadExecutor() {
-      return singleThreadExecutor;
    }
 
    @Override
@@ -1429,12 +1420,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
       beforeStart();
 
-      singleThreadExecutor = Executors.newSingleThreadExecutor(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
-         @Override
-         public ActiveMQThreadFactory run() {
-            return new ActiveMQThreadFactory("ActiveMQ-IO-SingleThread", true, JournalStorageManager.class.getClassLoader());
-         }
-      }));
+      singleThreadExecutor = executorFactory.getExecutor();
 
       bindingsJournal.start();
 
@@ -1489,8 +1475,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       bindingsJournal.stop();
 
       messageJournal.stop();
-
-      singleThreadExecutor.shutdown();
 
       journalLoaded = false;
 

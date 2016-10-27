@@ -229,7 +229,7 @@ public class JournalTransaction {
    public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
 
-      if (compacting) {
+      if (compacting && compactor != null) {
          compactor.addCommandCommit(this, file);
       } else {
 

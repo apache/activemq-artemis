@@ -651,6 +651,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void flush() throws Exception {
+
+      }
+
+      @Override
       public void appendCommitRecord(final long txID, final boolean sync) throws Exception {
 
       }

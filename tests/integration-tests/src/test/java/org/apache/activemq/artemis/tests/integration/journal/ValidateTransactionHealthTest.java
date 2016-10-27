@@ -314,6 +314,8 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
          throw e;
       }
 
+      journal.flush();
+
       return journal;
    }
 

@@ -434,9 +434,6 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
-
-      Assert.assertEquals(2, factory.listFiles("tt").size());
-
    }
 
    @Test
@@ -944,6 +941,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       // Reclaiming should still be able to reclaim a file if a transaction was ignored
       journalImpl.checkReclaimStatus();
+      journalImpl.flush();
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
