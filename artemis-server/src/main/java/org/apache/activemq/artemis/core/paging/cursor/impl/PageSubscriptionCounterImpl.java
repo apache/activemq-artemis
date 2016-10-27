@@ -251,7 +251,6 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
             recordID = -1;
             value.set(0);
-            added.set(0);
             incrementRecords.clear();
          }
       } finally {

@@ -206,7 +206,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       this.creationTime = System.currentTimeMillis();
 
       if (browseOnly) {
-         browserDeliverer = new BrowserDeliverer(messageQueue.totalIterator());
+         browserDeliverer = new BrowserDeliverer(messageQueue.browserIterator());
       } else {
          messageQueue.addConsumer(this);
       }

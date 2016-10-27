@@ -165,7 +165,7 @@ public class ScaleDownHandler {
          for (Queue loopQueue : queues) {
             logger.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
 
-            try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.totalIterator()) {
+            try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.browserIterator()) {
 
                while (messagesIterator.hasNext()) {
                   MessageReference messageReference = messagesIterator.next();
@@ -249,7 +249,7 @@ public class ScaleDownHandler {
 
       for (Queue queue : queues) {
          // using auto-closeable
-         try (LinkedListIterator<MessageReference> messagesIterator = queue.totalIterator()) {
+         try (LinkedListIterator<MessageReference> messagesIterator = queue.browserIterator()) {
             // loop through every message of this queue
             while (messagesIterator.hasNext()) {
                MessageReference messageRef = messagesIterator.next();

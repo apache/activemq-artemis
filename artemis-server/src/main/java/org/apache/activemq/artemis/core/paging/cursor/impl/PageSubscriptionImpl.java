@@ -351,6 +351,11 @@ final class PageSubscriptionImpl implements PageSubscription {
       return new CursorIterator();
    }
 
+   @Override
+   public PageIterator iterator(boolean browsing) {
+      return new CursorIterator(browsing);
+   }
+
    private PagedReference internalGetNext(final PagePosition pos) {
       PagePosition retPos = pos.nextMessage();
 
@@ -1100,6 +1105,8 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       private volatile PagedReference lastRedelivery = null;
 
+      private final boolean browsing;
+
       // We only store the position for redeliveries. They will be read from the SoftCache again during delivery.
       private final java.util.Queue<PagePosition> redeliveries = new LinkedList<>();
 
@@ -1109,7 +1116,13 @@ final class PageSubscriptionImpl implements PageSubscription {
        */
       private volatile PagedReference cachedNext;
 
+      private CursorIterator(boolean browsing) {
+         this.browsing = browsing;
+      }
+
+
       private CursorIterator() {
+         this.browsing = false;
       }
 
       @Override
@@ -1199,7 +1212,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
                PageCursorInfo info = getPageInfo(message.getPosition().getPageNr());
 
-               if (info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null)) {
+               if (!browsing && info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null)) {
                   continue;
                }
 
@@ -1225,7 +1238,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                   // nothing
                   // is being changed. That's why the false is passed as a parameter here
 
-                  if (info != null && info.isRemoved(message.getPosition())) {
+                  if (!browsing && info != null && info.isRemoved(message.getPosition())) {
                      valid = false;
                   }
                }
@@ -1237,10 +1250,10 @@ final class PageSubscriptionImpl implements PageSubscription {
                if (valid) {
                   match = match(message.getMessage());
 
-                  if (!match) {
+                  if (!browsing && !match) {
                      processACK(message.getPosition());
                   }
-               } else if (ignored) {
+               } else if (!browsing && ignored) {
                   positionIgnored(message.getPosition());
                }
             } while (!match);

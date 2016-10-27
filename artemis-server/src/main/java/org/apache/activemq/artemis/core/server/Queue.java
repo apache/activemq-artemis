@@ -195,7 +195,7 @@ public interface Queue extends Bindable {
     */
    LinkedListIterator<MessageReference> iterator();
 
-   LinkedListIterator<MessageReference> totalIterator();
+   LinkedListIterator<MessageReference> browserIterator();
 
    SimpleString getExpiryAddress();
 
