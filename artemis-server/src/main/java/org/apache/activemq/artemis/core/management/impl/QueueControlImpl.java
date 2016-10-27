@@ -410,7 +410,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter filter = FilterImpl.createFilter(filterStr);
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
-         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             while (iterator.hasNext()) {
                MessageReference ref = iterator.next();
                if (filter == null || filter.match(ref.getMessage())) {
@@ -446,7 +446,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
-         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             // returns just the first, as it's the first only
             if (iterator.hasNext()) {
                MessageReference ref = iterator.next();
@@ -499,7 +499,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          if (filter == null) {
             return getMessageCount();
          } else {
-            try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
+            try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
                int count = 0;
                while (iterator.hasNext()) {
                   MessageReference ref = iterator.next();
@@ -895,7 +895,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter filter = FilterImpl.createFilter(filterStr);
          queue.flushExecutor();
-         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
+         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             while (iterator.hasNext() && currentPageSize++ < pageSize) {
                MessageReference ref = iterator.next();
                if (filter == null || filter.match(ref.getMessage())) {
