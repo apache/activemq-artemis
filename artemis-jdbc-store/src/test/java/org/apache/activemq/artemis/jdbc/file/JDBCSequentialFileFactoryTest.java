@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -53,10 +53,6 @@ public class JDBCSequentialFileFactoryTest {
    @Rule
    public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
 
-   private static String connectionUrl = "jdbc:derby:target/data;create=true";
-
-   private static String tableName = "FILES";
-
    private static String className = EmbeddedDriver.class.getCanonicalName();
 
    private JDBCSequentialFileFactory factory;
@@ -65,6 +61,8 @@ public class JDBCSequentialFileFactoryTest {
    public void setup() throws Exception {
       Executor executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
+      String connectionUrl = "jdbc:derby:target/data;create=true";
+      String tableName = "FILES";
       factory = new JDBCSequentialFileFactory(connectionUrl, className, JDBCUtils.getSQLProvider(className, tableName), executor);
       factory.start();
    }
@@ -198,7 +196,7 @@ public class JDBCSequentialFileFactoryTest {
          fail(errorMessage);
       }
 
-      public void assertEmpty(int timeout) throws InterruptedException {
+      void assertEmpty(int timeout) throws InterruptedException {
          countDownLatch.await(timeout, TimeUnit.SECONDS);
          assertEquals(countDownLatch.getCount(), 0);
       }
