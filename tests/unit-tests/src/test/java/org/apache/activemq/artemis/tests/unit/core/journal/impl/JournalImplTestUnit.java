@@ -62,12 +62,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       } catch (IllegalStateException e) {
          // OK
       }
-      try {
-         stopJournal();
-         Assert.fail("Should throw exception");
-      } catch (IllegalStateException e) {
-         // OK
-      }
       startJournal();
       try {
          startJournal();

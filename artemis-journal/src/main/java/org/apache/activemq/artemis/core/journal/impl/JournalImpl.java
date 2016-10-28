@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -74,6 +75,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.jboss.logging.Logger;
@@ -185,8 +187,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
 
-   private final OrderedExecutorFactory providedIOThreadPool;
-   protected OrderedExecutorFactory ioExecutorFactory;
+   private final ExecutorFactory providedIOThreadPool;
+   protected ExecutorFactory ioExecutorFactory;
    private ThreadPoolExecutor threadPool;
 
    /**
@@ -234,7 +236,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       this(null, fileSize, minFiles, poolSize, compactMinFiles, compactPercentage, fileFactory, filePrefix, fileExtension, maxAIO, userVersion);
    }
 
-   public JournalImpl(final OrderedExecutorFactory ioExecutors,
+   public JournalImpl(final ExecutorFactory ioExecutors,
                       final int fileSize,
                       final int minFiles,
                       final int poolSize,
@@ -744,7 +746,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendAddRecord::"  + e, e);
             } finally {
                pendingRecords.remove(id);
                journalLock.readLock().unlock();
@@ -801,7 +803,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendUpdateRecord:" + e, e);
             } finally {
                journalLock.readLock().unlock();
             }
@@ -851,7 +853,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendDeleteRecord:" + e, e);
             } finally {
                journalLock.readLock().unlock();
             }
@@ -899,7 +901,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                tx.addPositive(usedFile, id, addRecord.getEncodeSize());
             } catch (Exception e) {
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendAddRecordTransactional:" + e, e);
                setErrorCondition(tx, e);
             } finally {
                journalLock.readLock().unlock();
@@ -979,7 +981,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                tx.addPositive( usedFile, id, updateRecordTX.getEncodeSize() );
             } catch ( Exception e ) {
-               ActiveMQJournalLogger.LOGGER.error( e.getMessage(), e );
+               logger.error("appendUpdateRecordTransactional:" +  e.getMessage(), e );
                setErrorCondition( tx, e );
             } finally {
                journalLock.readLock().unlock();
@@ -1016,7 +1018,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                tx.addNegative(usedFile, id);
             } catch (Exception e) {
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendDeleteRecordTransactional:" + e, e);
                setErrorCondition(tx, e);
             } finally {
                journalLock.readLock().unlock();
@@ -1069,7 +1071,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendPrepareRecord:" + e, e);
                setErrorCondition(tx, e);
             } finally {
                journalLock.readLock().unlock();
@@ -1142,7 +1144,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendCommitRecord:" + e, e);
                setErrorCondition(tx, e);
             } finally {
                journalLock.readLock().unlock();
@@ -1185,7 +1187,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (result != null) {
                   result.fail(e);
                }
-               ActiveMQJournalLogger.LOGGER.error(e.getMessage(), e);
+               logger.error("appendRollbackRecord:" + e, e);
                setErrorCondition(tx, e);
             }  finally {
                journalLock.readLock().unlock();
@@ -2067,7 +2069,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public void flush() throws Exception {
       fileFactory.flush();
 
-
       flushExecutor(appendExecutor);
 
       flushExecutor(filesExecutor);
@@ -2081,16 +2082,21 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          // Send something to the closingExecutor, just to make sure we went until its end
          final CountDownLatch latch = new CountDownLatch(1);
 
-         executor.execute(new Runnable() {
+         try {
+            executor.execute(new Runnable() {
 
-            @Override
-            public void run() {
-               latch.countDown();
-            }
+               @Override
+               public void run() {
+                  latch.countDown();
+               }
 
-         });
-         latch.await(10, TimeUnit.SECONDS);
+            });
+            latch.await(10, TimeUnit.SECONDS);
+         } catch (RejectedExecutionException ignored ) {
+            // this is fine
+         }
       }
+
    }
 
    @Override
@@ -2243,7 +2249,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    @Override
    public synchronized void stop() throws Exception {
       if (state == JournalState.STOPPED) {
-         throw new IllegalStateException("Journal is already stopped");
+         return;
       }
 
       setJournalState(JournalState.STOPPED);
@@ -2905,6 +2911,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       try {
          scheduleCompactAndBlock(60);
       } catch (Exception e) {
+         e.printStackTrace();
          throw new RuntimeException(e);
       }
    }

@@ -86,25 +86,28 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    public JournalStorageManager(final Configuration config,
                                 final ExecutorFactory executorFactory,
-                                final ScheduledExecutorService scheduledExecutorService) {
-      this(config, executorFactory, scheduledExecutorService, null);
+                                final ScheduledExecutorService scheduledExecutorService,
+                                final ExecutorFactory ioExecutors) {
+      this(config, executorFactory, scheduledExecutorService, ioExecutors, null);
    }
 
-   public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory) {
-      this(config, executorFactory, null, null);
+   public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ExecutorFactory ioExecutors) {
+      this(config, executorFactory, null, ioExecutors, null);
    }
 
    public JournalStorageManager(final Configuration config,
                                 final ExecutorFactory executorFactory,
                                 final ScheduledExecutorService scheduledExecutorService,
+                                final ExecutorFactory ioExecutors,
                                 final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, scheduledExecutorService, criticalErrorListener);
+      super(config, executorFactory, scheduledExecutorService, ioExecutors, criticalErrorListener);
    }
 
    public JournalStorageManager(final Configuration config,
                                 final ExecutorFactory executorFactory,
+                                final ExecutorFactory ioExecutors,
                                 final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, null, criticalErrorListener);
+      super(config, executorFactory, null, ioExecutors, criticalErrorListener);
    }
 
    @Override
@@ -116,7 +119,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener, config.getJournalMaxIO_NIO());
 
-      Journal localBindings = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), bindingsFF, "activemq-bindings", "bindings", 1);
+      Journal localBindings = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), bindingsFF, "activemq-bindings", "bindings", 1, 0);
 
       bindingsJournal = localBindings;
       originalBindingsJournal = localBindings;
@@ -132,7 +135,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
       }
 
-      Journal localMessage = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", config.getJournalType() == JournalType.ASYNCIO ? config.getJournalMaxIO_AIO() : config.getJournalMaxIO_NIO());
+      Journal localMessage = new JournalImpl(ioExecutors, config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", config.getJournalType() == JournalType.ASYNCIO ? config.getJournalMaxIO_AIO() : config.getJournalMaxIO_NIO(), 0);
+
       messageJournal = localMessage;
       originalMessageJournal = localMessage;
 

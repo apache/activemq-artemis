@@ -1623,11 +1623,15 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
 
+      final ExecutorService ioexecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+
       OrderedExecutorFactory factory = new OrderedExecutorFactory(executor);
+
+      OrderedExecutorFactory iofactory = new OrderedExecutorFactory(ioexecutor);
 
       final ExecutorService deleteExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
 
-      final JournalStorageManager storage = new JournalStorageManager(config, factory);
+      final JournalStorageManager storage = new JournalStorageManager(config, factory, iofactory);
 
       storage.start();
 
@@ -1681,7 +1685,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                                     for (long messageID : values) {
                                        storage.deleteMessage(messageID);
                                     }
-                                 } catch (Exception e) {
+                                 } catch (Throwable e) {
                                     e.printStackTrace();
                                     errors.incrementAndGet();
                                  }
@@ -1733,11 +1737,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
          deleteExecutor.shutdown();
 
-         assertTrue("delete executor terminated", deleteExecutor.awaitTermination(30, TimeUnit.SECONDS));
+         assertTrue("delete executor failted to terminate", deleteExecutor.awaitTermination(30, TimeUnit.SECONDS));
+
+         storage.stop();
 
          executor.shutdown();
 
-         assertTrue("executor terminated", executor.awaitTermination(10, TimeUnit.SECONDS));
+         assertTrue("executor failed to terminate", executor.awaitTermination(30, TimeUnit.SECONDS));
+
+         ioexecutor.shutdown();
+
+         assertTrue("ioexecutor failed to terminate", ioexecutor.awaitTermination(30, TimeUnit.SECONDS));
 
       } catch (Throwable e) {
          e.printStackTrace();
@@ -1751,6 +1761,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
          executor.shutdownNow();
          deleteExecutor.shutdownNow();
+         ioexecutor.shutdownNow();
       }
 
    }

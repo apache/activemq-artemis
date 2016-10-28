@@ -36,15 +36,17 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
    public JDBCJournalStorageManager(Configuration config,
                                     ExecutorFactory executorFactory,
+                                    ExecutorFactory ioExecutorFactory,
                                     ScheduledExecutorService scheduledExecutorService) {
-      super(config, executorFactory, scheduledExecutorService);
+      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory);
    }
 
    public JDBCJournalStorageManager(final Configuration config,
                                     final ScheduledExecutorService scheduledExecutorService,
                                     final ExecutorFactory executorFactory,
+                                    final ExecutorFactory ioExecutorFactory,
                                     final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, scheduledExecutorService, criticalErrorListener);
+      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory, criticalErrorListener);
    }
 
    @Override
