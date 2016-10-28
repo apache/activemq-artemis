@@ -13,27 +13,7 @@ a scheduled thread pool for scheduled use. A Java scheduled thread pool
 cannot be configured to use a standard thread pool, otherwise we could
 use a single thread pool for both scheduled and non scheduled activity.
 
-A separate thread pool is also used to service connections. Apache ActiveMQ Artemis can
-use "old" (blocking) IO or "new" (non-blocking) IO also called NIO. Both
-of these options use a separate thread pool, but each of them behaves
-uniquely.
-
-Since old IO requires a thread per connection its thread pool is
-unbounded. The thread pool is created via `
-            java.util.concurrent.Executors.newCachedThreadPool(ThreadFactory)`.
-As the JavaDoc for this method states: “Creates a thread pool that
-creates new threads as needed, but will reuse previously constructed
-threads when they are available, and uses the provided ThreadFactory to
-create new threads when needed.” Threads from this pool which are idle
-for more than 60 seconds will time out and be removed. If old IO
-connections were serviced from the standard pool the pool would easily
-get exhausted if too many connections were made, resulting in the server
-"hanging" since it has no remaining threads to do anything else.
-However, even an unbounded thread pool can run into trouble if it
-becomes too large. If you require the server to handle many concurrent
-connections you should use NIO, not old IO.
-
-When using new IO (NIO), Apache ActiveMQ Artemis will, by default, cap its thread pool
+Apache ActiveMQ Artemis will, by default, cap its thread pool
 at three times the number of cores (or hyper-threads) as reported by `
             Runtime.getRuntime().availableProcessors()` for processing
 incoming packets. To override this value, you can set the number of

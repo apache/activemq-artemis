@@ -132,16 +132,6 @@ tuning:
     consumer-window-size. This effectively disables consumer flow
     control.
 
--   Socket NIO vs Socket Old IO. By default Apache ActiveMQ Artemis uses old (blocking)
-    on the server and the client side (see the chapter on configuring
-    transports for more information [Configuring the Transport](configuring-transports.md). NIO is much more scalable but
-    can give you some latency hit compared to old blocking IO. If you
-    need to be able to service many thousands of connections on the
-    server, then you should make sure you're using NIO on the server.
-    However, if don't expect many thousands of connections on the server
-    you can keep the server acceptors using old IO, and might get a
-    small performance advantage.
-
 -   Use the core API not JMS. Using the JMS API you will have slightly
     lower performance than using the core API, since all JMS operations
     need to be translated into core operations before the server can
