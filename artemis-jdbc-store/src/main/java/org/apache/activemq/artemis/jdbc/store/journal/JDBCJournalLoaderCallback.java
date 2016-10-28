@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 
-public class JDBCJournalLoaderCallback implements LoaderCallback {
+class JDBCJournalLoaderCallback implements LoaderCallback {
 
    private final List<PreparedTransactionInfo> preparedTransactions;
 
@@ -41,16 +41,16 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
 
    private long maxId = -1;
 
-   public JDBCJournalLoaderCallback(final List<RecordInfo> committedRecords,
-                                    final List<PreparedTransactionInfo> preparedTransactions,
-                                    final TransactionFailureCallback failureCallback,
-                                    final boolean fixBadTX) {
+   JDBCJournalLoaderCallback(final List<RecordInfo> committedRecords,
+                             final List<PreparedTransactionInfo> preparedTransactions,
+                             final TransactionFailureCallback failureCallback,
+                             final boolean fixBadTX) {
       this.committedRecords = committedRecords;
       this.preparedTransactions = preparedTransactions;
       this.failureCallback = failureCallback;
    }
 
-   public synchronized void checkMaxId(long id) {
+   private synchronized void checkMaxId(long id) {
       if (maxId < id) {
          maxId = id;
       }

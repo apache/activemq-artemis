@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jdbc.store.drivers.postgres;
+package org.apache.activemq.artemis.jdbc.store.file;
 
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
