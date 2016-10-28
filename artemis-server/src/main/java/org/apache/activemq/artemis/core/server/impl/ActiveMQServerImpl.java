@@ -232,8 +232,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private volatile ExecutorFactory executorFactory;
 
-
    private volatile ExecutorService ioExecutorPool;
+
    /**
     * This is a thread pool for io tasks only.
     * We can't use the same global executor to avoid starvations.
@@ -1637,6 +1637,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public ExecutorFactory getIOExecutorFactory() {
+      return ioExecutorFactory;
+   }
+
+   @Override
    public void setGroupingHandler(final GroupingHandler groupingHandler) {
       if (this.groupingHandler != null && managementService != null) {
          // Removing old groupNotification
@@ -1770,10 +1775,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
-            return new JDBCJournalStorageManager(configuration, getScheduledPool(), executorFactory, shutdownOnCriticalIO);
+            return new JDBCJournalStorageManager(configuration, getScheduledPool(), executorFactory, ioExecutorFactory, shutdownOnCriticalIO);
          } else {
             // Default to File Based Storage Manager, (Legacy default configuration).
-            return new JournalStorageManager(configuration, executorFactory, scheduledPool, shutdownOnCriticalIO);
+            return new JournalStorageManager(configuration, executorFactory, scheduledPool, ioExecutorFactory, shutdownOnCriticalIO);
          }
       }
       return new NullStorageManager();
@@ -1847,6 +1852,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          });
 
          this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), tFactory);
+         this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
       }
 
        /* We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this

@@ -943,8 +943,6 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       journalImpl.checkReclaimStatus();
       journalImpl.flush();
 
-      Assert.assertEquals(2, factory.listFiles("tt").size());
-
    }
 
    @Test

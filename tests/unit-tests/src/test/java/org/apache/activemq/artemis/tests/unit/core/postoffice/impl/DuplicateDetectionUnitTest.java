@@ -70,7 +70,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
       factory = new OrderedExecutorFactory(executor);
    }
 
@@ -92,7 +92,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
 
-         journal = new JournalStorageManager(configuration, factory);
+         journal = new JournalStorageManager(configuration, factory, factory);
 
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
@@ -112,7 +112,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          journal.stop();
 
-         journal = new JournalStorageManager(configuration, factory);
+         journal = new JournalStorageManager(configuration, factory, factory);
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
 
@@ -135,7 +135,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          mapDups.clear();
 
-         journal = new JournalStorageManager(configuration, factory);
+         journal = new JournalStorageManager(configuration, factory, factory);
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
 
@@ -146,6 +146,8 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
          values = mapDups.get(ADDRESS);
 
          Assert.assertEquals(10, values.size());
+
+         scheduledThreadPool.shutdown();
       } finally {
          if (journal != null) {
             try {

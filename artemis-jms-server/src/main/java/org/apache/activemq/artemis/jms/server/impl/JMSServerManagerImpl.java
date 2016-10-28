@@ -1544,16 +1544,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * @throws Exception
     */
    private void createJournal() throws Exception {
-      if (storage == null) {
-         if (coreConfig.isPersistenceEnabled()) {
-            storage = new JMSJournalStorageManagerImpl(new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager());
-         } else {
-            storage = new NullJMSStorageManagerImpl();
-         }
+      if (storage != null) {
+         storage.stop();
+      }
+      if (coreConfig.isPersistenceEnabled()) {
+         storage = new JMSJournalStorageManagerImpl(server.getIOExecutorFactory(), new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager());
       } else {
-         if (storage.isStarted()) {
-            storage.stop();
-         }
+         storage = new NullJMSStorageManagerImpl();
       }
 
       storage.start();

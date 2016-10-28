@@ -65,7 +65,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
       PostOffice postOffice = new FakePostOffice();
 
-      final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), execFactory);
+      final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), execFactory, execFactory);
 
       try {
 

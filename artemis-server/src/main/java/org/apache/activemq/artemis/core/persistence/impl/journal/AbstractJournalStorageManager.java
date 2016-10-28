@@ -146,6 +146,8 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected BatchingIDGenerator idGenerator;
 
+   protected final ExecutorFactory ioExecutors;
+
    protected final ScheduledExecutorService scheduledExecutorService;
 
    protected final ReentrantReadWriteLock storageManagerLock = new ReentrantReadWriteLock(true);
@@ -186,17 +188,21 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    public AbstractJournalStorageManager(final Configuration config,
                                         final ExecutorFactory executorFactory,
-                                        final ScheduledExecutorService scheduledExecutorService) {
-      this(config, executorFactory, scheduledExecutorService, null);
+                                        final ScheduledExecutorService scheduledExecutorService,
+                                        final ExecutorFactory ioExecutors) {
+      this(config, executorFactory, scheduledExecutorService, ioExecutors, null);
    }
 
    public AbstractJournalStorageManager(Configuration config,
                                         ExecutorFactory executorFactory,
                                         ScheduledExecutorService scheduledExecutorService,
+                                        ExecutorFactory ioExecutors,
                                         IOCriticalErrorListener criticalErrorListener) {
       this.executorFactory = executorFactory;
 
       this.ioCriticalErrorListener = criticalErrorListener;
+
+      this.ioExecutors = ioExecutors;
 
       this.scheduledExecutorService = scheduledExecutorService;
 
