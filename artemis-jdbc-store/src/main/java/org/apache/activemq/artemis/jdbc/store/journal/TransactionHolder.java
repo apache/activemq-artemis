@@ -30,7 +30,7 @@ final class TransactionHolder {
 
    public final long transactionID;
 
-   public final List<RecordInfo> recordInfos = new ArrayList<>();
+   final List<RecordInfo> recordInfos = new ArrayList<>();
 
    public final List<RecordInfo> recordsToDelete = new ArrayList<>();
 
@@ -38,7 +38,7 @@ final class TransactionHolder {
 
    public boolean invalid;
 
-   public byte[] extraData;
+   byte[] extraData;
 
    public boolean committed;
 }

@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
@@ -51,7 +52,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
 
    // Sync Delay in ms
-   public static final int SYNC_DELAY = 5;
+   private static final int SYNC_DELAY = 5;
 
    private static int USER_VERSION = 1;
 
@@ -741,4 +742,24 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       return started;
    }
 
+   private static class JDBCJournalSync extends ActiveMQScheduledComponent {
+
+      private final JDBCJournalImpl journal;
+
+      JDBCJournalSync(ScheduledExecutorService scheduledExecutorService,
+                      Executor executor,
+                      long checkPeriod,
+                      TimeUnit timeUnit,
+                      JDBCJournalImpl journal) {
+         super(scheduledExecutorService, executor, checkPeriod, timeUnit, true);
+         this.journal = journal;
+      }
+
+      @Override
+      public void run() {
+         if (journal.isStarted()) {
+            journal.sync();
+         }
+      }
+   }
 }
