@@ -196,6 +196,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       acceptorFactories.put(name, acceptorFactory);
    }
 
+   @SuppressWarnings("TypeParameterUnusedInFormals")
    public <T> T loadClass(final String className) {
       return AccessController.doPrivileged(new PrivilegedAction<T>() {
          @Override
