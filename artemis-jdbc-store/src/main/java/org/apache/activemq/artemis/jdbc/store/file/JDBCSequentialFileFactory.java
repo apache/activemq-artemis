@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
@@ -48,10 +47,9 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    public JDBCSequentialFileFactory(final DataSource dataSource,
                                     final SQLProvider sqlProvider,
-                                    final String tableName,
                                     Executor executor) throws Exception {
       this.executor = executor;
-      dbDriver = JDBCUtils.getDBFileDriver(dataSource, tableName, sqlProvider);
+      dbDriver = JDBCFileUtils.getDBFileDriver(dataSource, sqlProvider);
    }
 
    public JDBCSequentialFileFactory(final String connectionUrl,
@@ -59,7 +57,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
                                     final SQLProvider sqlProvider,
                                     Executor executor) throws Exception {
       this.executor = executor;
-      dbDriver = JDBCUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
+      dbDriver = JDBCFileUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
    }
 
    @Override
@@ -88,9 +86,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    @Override
    public SequentialFile createSequentialFile(String fileName) {
       try {
-         if (fileLocks.get(fileName) == null) {
-            fileLocks.put(fileName, new Object());
-         }
+         fileLocks.putIfAbsent(fileName, new Object());
          JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, dbDriver, fileLocks.get(fileName));
          files.add(file);
          return file;

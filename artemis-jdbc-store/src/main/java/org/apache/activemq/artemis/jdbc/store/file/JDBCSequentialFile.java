@@ -64,11 +64,11 @@ public class JDBCSequentialFile implements SequentialFile {
    // Allows DB Drivers to cache meta data.
    private final Map<Object, Object> metaData = new ConcurrentHashMap<>();
 
-   public JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
-                             final String filename,
-                             final Executor executor,
-                             final JDBCSequentialFileFactoryDriver driver,
-                             final Object writeLock) throws SQLException {
+   JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
+                      final String filename,
+                      final Executor executor,
+                      final JDBCSequentialFileFactoryDriver driver,
+                      final Object writeLock) throws SQLException {
       this.fileFactory = fileFactory;
       this.filename = filename;
       this.extension = filename.contains(".") ? filename.substring(filename.lastIndexOf(".") + 1, filename.length()) : "";
@@ -77,7 +77,7 @@ public class JDBCSequentialFile implements SequentialFile {
       this.dbDriver = driver;
    }
 
-   public void setWritePosition(int writePosition) {
+   void setWritePosition(int writePosition) {
       this.writePosition = writePosition;
    }
 
@@ -172,7 +172,7 @@ public class JDBCSequentialFile implements SequentialFile {
       return internalWrite(buffer.array(), callback);
    }
 
-   public void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback) {
+   private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback) {
       executor.execute(new Runnable() {
          @Override
          public void run() {
@@ -181,7 +181,7 @@ public class JDBCSequentialFile implements SequentialFile {
       });
    }
 
-   public void scheduleWrite(final ByteBuffer bytes, final IOCallback callback) {
+   private void scheduleWrite(final ByteBuffer bytes, final IOCallback callback) {
       executor.execute(new Runnable() {
          @Override
          public void run() {
@@ -356,10 +356,6 @@ public class JDBCSequentialFile implements SequentialFile {
 
    public void addMetaData(Object key, Object value) {
       metaData.put(key, value);
-   }
-
-   public Object removeMetaData(Object key) {
-      return metaData.remove(key);
    }
 
    public Object getMetaData(Object key) {
