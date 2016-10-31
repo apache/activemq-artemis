@@ -56,6 +56,9 @@ import org.jboss.logging.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
+/**
+ * TODO: Merge {@link ProtonServerSenderContext} and {@link ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
+ */
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
    private static final Logger log = Logger.getLogger(ProtonServerSenderContext.class);
@@ -167,7 +170,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       if (source == null) {
          // Attempt to recover a previous subscription happens when a link reattach happens on a
          // subscription queue
-         String clientId = connection.getRemoteContainer();
+         String clientId = getClientId();
          String pubId = sender.getName();
          queue = createQueueName(clientId, pubId);
          QueueQueryResult result = sessionSPI.queueQuery(queue, false);
@@ -232,7 +235,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             // if we are a subscription and durable create a durable queue using the container
             // id and link name
             if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) || TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
-               String clientId = connection.getRemoteContainer();
+               String clientId = getClientId();
                String pubId = sender.getName();
                queue = createQueueName(clientId, pubId);
                QueueQueryResult result = sessionSPI.queueQuery(queue, false);
@@ -295,6 +298,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
+   protected String getClientId() {
+      return connection.getRemoteContainer();
+   }
+
    private boolean isPubSub(Source source) {
       String pubSubPrefix = sessionSPI.getPubSubPrefix();
       return source != null && pubSubPrefix != null && source.getAddress() != null && source.getAddress().startsWith(pubSubPrefix);
@@ -337,7 +344,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                if (result.isExists() && source.getDynamic()) {
                   sessionSPI.deleteQueue(queueName);
                } else {
-                  String clientId = connection.getRemoteContainer();
+                  String clientId = getClientId();
                   String pubId = sender.getName();
                   String queue = createQueueName(clientId, pubId);
                   result = sessionSPI.queueQuery(queue, false);
