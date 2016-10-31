@@ -1509,6 +1509,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
+      return deployQueue(address, resourceName, filterString, durable, temporary, autoCreated, null, null);
+   }
+
+   @Override
+   public Queue deployQueue(final SimpleString address,
+                            final SimpleString resourceName,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary,
+                            final boolean autoCreated,
+                            final Integer maxConsumers,
+                            final Boolean deleteOnNoConsumers) throws Exception {
 
       if (resourceName.toString().toLowerCase().startsWith("jms.topic")) {
          ActiveMQServerLogger.LOGGER.deployTopic(resourceName);
@@ -1516,7 +1528,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.deployQueue(resourceName);
       }
 
-      return createQueue(address, resourceName, filterString, null, durable, temporary, true, false, autoCreated);
+      return createQueue(address, resourceName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers);
    }
 
    @Override
@@ -2102,9 +2114,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false);
+         deployQueue(SimpleString.toSimpleString(config.getAddress()),
+                     SimpleString.toSimpleString(config.getName()),
+                     SimpleString.toSimpleString(config.getFilterString()),
+                     config.isDurable(),
+                     false,
+                     false,
+                     config.getMaxConsumers(),
+                     config.getDeleteOnNoConsumers());
       }
    }
+
    private void deployQueuesFromConfiguration() throws Exception {
       deployQueuesFromListCoreQueueConfiguration(configuration.getQueueConfigurations());
    }
@@ -2228,6 +2248,30 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                              final boolean ignoreIfExists,
                              final boolean transientQueue,
                              final boolean autoCreated) throws Exception {
+      return createQueue(addressName,
+                         queueName,
+                         filterString,
+                         user,
+                         durable,
+                         temporary,
+                         ignoreIfExists,
+                         transientQueue,
+                         autoCreated,
+                         null,
+                         null);
+   }
+
+   private Queue createQueue(final SimpleString addressName,
+                             final SimpleString queueName,
+                             final SimpleString filterString,
+                             final SimpleString user,
+                             final boolean durable,
+                             final boolean temporary,
+                             final boolean ignoreIfExists,
+                             final boolean transientQueue,
+                             final boolean autoCreated,
+                             final Integer maxConsumers,
+                             final Boolean deleteOnNoConsumers) throws Exception {
 
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
@@ -2244,21 +2288,31 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       final long queueID = storageManager.generateID();
 
       final QueueConfig.Builder queueConfigBuilder;
+      final SimpleString address;
       if (addressName == null) {
          queueConfigBuilder = QueueConfig.builderWith(queueID, queueName);
+         address = queueName;
       } else {
          queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressName);
+         address = addressName;
       }
-      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).build();
+
+      // FIXME This boils down to a putIfAbsent (avoids race).  This should be reflected in the API.
+      AddressInfo info = postOffice.addAddressInfo(new AddressInfo(address));
+
+      final boolean isDeleteOnNoConsumers = deleteOnNoConsumers == null ? info.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;
+      final int noMaxConsumers = maxConsumers == null ? info.getDefaultMaxConsumers() : maxConsumers;
+
+      final QueueConfig queueConfig = queueConfigBuilder.filter(filter)
+         .pagingManager(pagingManager)
+         .user(user)
+         .durable(durable)
+         .temporary(temporary)
+         .autoCreated(autoCreated)
+         .deleteOnNoConsumers(isDeleteOnNoConsumers)
+         .maxConsumers(noMaxConsumers)
+         .build();
       final Queue queue = queueFactory.createQueueWith(queueConfig);
-
-      boolean addressAlreadyExists = true;
-
-      if (postOffice.getAddressInfo(queue.getAddress()) == null) {
-         postOffice.addAddressInfo(new AddressInfo(queue.getAddress())
-                           .setRoutingType(AddressInfo.RoutingType.MULTICAST));
-         addressAlreadyExists = false;
-      }
 
       if (transientQueue) {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
@@ -2270,7 +2324,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (queue.isDurable()) {
          storageManager.addQueueBinding(txID, localQueueBinding);
-         if (!addressAlreadyExists) {
+         if (info == null) {
             storageManager.addAddressBinding(txID, getAddressInfo(queue.getAddress()));
          }
       }

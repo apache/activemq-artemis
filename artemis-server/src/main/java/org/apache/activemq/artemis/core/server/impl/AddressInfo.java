@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AddressInfo {
@@ -24,9 +25,9 @@ public class AddressInfo {
 
    private RoutingType routingType = RoutingType.MULTICAST;
 
-   private boolean defaultDeleteOnNoConsumers;
+   private boolean defaultDeleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
 
-   private int defaultMaxConsumers;
+   private int defaultMaxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
    public AddressInfo(SimpleString name) {
       this.name = name;

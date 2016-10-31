@@ -573,7 +573,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
       try {
-
          server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();

@@ -333,6 +333,15 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
 
+   Queue deployQueue(SimpleString address,
+                     SimpleString resourceName,
+                     SimpleString filterString,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
    void destroyQueue(SimpleString queueName) throws Exception;
 
    void destroyQueue(SimpleString queueName, SecurityAuth session) throws Exception;

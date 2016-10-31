@@ -46,4 +46,11 @@ public interface QueueBindingInfo {
 
    List<QueueStatusEncoding> getQueueStatusEncodings();
 
+   int getMaxConsumers();
+
+   void setMaxConsumers(int maxConsumers);
+
+   boolean isDeleteOnNoConsumers();
+
+   void setDeleteOnNoConsumers();
 }
