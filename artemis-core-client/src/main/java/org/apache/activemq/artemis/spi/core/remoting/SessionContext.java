@@ -250,8 +250,7 @@ public abstract class SessionContext {
                                         final boolean xa,
                                         final boolean autoCommitSends,
                                         final boolean autoCommitAcks,
-                                        final boolean preAcknowledge,
-                                        final SimpleString defaultAddress) throws ActiveMQException;
+                                        final boolean preAcknowledge) throws ActiveMQException;
 
    public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException;
 

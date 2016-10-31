@@ -129,7 +129,7 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -467,7 +467,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    public void destroyTables(List<String> tableNames) throws Exception {
-      Driver driver = JDBCUtils.getDriver(getJDBCClassName());
+      Driver driver = getDriver(getJDBCClassName());
       Connection connection = driver.connect(getTestJDBCConnectionUrl(), null);
       Statement statement = connection.createStatement();
       try {
@@ -487,6 +487,30 @@ public abstract class ActiveMQTestBase extends Assert {
          e.printStackTrace();
       } finally {
          connection.close();
+      }
+   }
+
+   private Driver getDriver(String className) throws Exception {
+      try {
+         Driver driver = (Driver) Class.forName(className).newInstance();
+
+         // Shutdown the derby if using the derby embedded driver.
+         if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+               @Override
+               public void run() {
+                  try {
+                     DriverManager.getConnection("jdbc:derby:;shutdown=true");
+                  } catch (Exception e) {
+                  }
+               }
+            });
+         }
+         return driver;
+      } catch (ClassNotFoundException cnfe) {
+         throw new RuntimeException("Could not find class: " + className);
+      } catch (Exception e) {
+         throw new RuntimeException("Unable to instantiate driver class: ", e);
       }
    }
 

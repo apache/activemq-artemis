@@ -104,12 +104,12 @@ public class ProducerTest extends ActiveMQTestBase {
                   ClientProducer producer = session.createProducer();
 
                   for (int i = 0; i < 62; i++) {
-                     if (i == 61) {
+                     if (i == 30) {
                         // the point where the send would block
                         latch.countDown();
                      }
                      ClientMessage msg = session.createMessage(false);
-                     msg.getBodyBuffer().writeBytes(new byte[1024]);
+                     msg.getBodyBuffer().writeBytes(new byte[2048]);
                      producer.send(QUEUE, msg);
                   }
                } catch (Exception e) {
@@ -119,7 +119,7 @@ public class ProducerTest extends ActiveMQTestBase {
          };
 
          t.start();
-         assertTrue(latch.await(5, TimeUnit.SECONDS));
+         assertTrue(latch.await(10, TimeUnit.SECONDS));
          session.close();
 
          t.join(5000);

@@ -604,7 +604,7 @@ public class FakeQueue implements Queue {
    }
 
    @Override
-   public LinkedListIterator<MessageReference> totalIterator() {
+   public LinkedListIterator<MessageReference> browserIterator() {
       // TODO Auto-generated method stub
       return null;
    }

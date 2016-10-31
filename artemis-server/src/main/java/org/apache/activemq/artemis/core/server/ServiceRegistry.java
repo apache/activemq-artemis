@@ -36,6 +36,10 @@ public interface ServiceRegistry {
 
    void setExecutorService(ExecutorService executorService);
 
+   ExecutorService getIOExecutorService();
+
+   void setIOExecutorService(ExecutorService ioExecutorService);
+
    ScheduledExecutorService getScheduledExecutorService();
 
    void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService);

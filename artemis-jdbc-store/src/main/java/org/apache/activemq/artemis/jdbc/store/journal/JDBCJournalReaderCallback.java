@@ -27,13 +27,13 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public class JDBCJournalReaderCallback implements JournalReaderCallback {
+class JDBCJournalReaderCallback implements JournalReaderCallback {
 
    private final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<>();
 
    private final LoaderCallback loadManager;
 
-   public JDBCJournalReaderCallback(final LoaderCallback loadManager) {
+   JDBCJournalReaderCallback(final LoaderCallback loadManager) {
       this.loadManager = loadManager;
    }
 
@@ -126,7 +126,7 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
       // Not needed for JDBC journal impl
    }
 
-   public void checkPreparedTx() {
+   void checkPreparedTx() {
       for (TransactionHolder transaction : loadTransactions.values()) {
          if ((!transaction.prepared && !transaction.committed) || transaction.invalid) {
             ActiveMQJournalLogger.LOGGER.uncomittedTxFound(transaction.transactionID);

@@ -237,4 +237,9 @@ public interface Journal extends ActiveMQComponent {
     * only be called once the synchronization of the backup and live servers is completed.
     */
    void replicationSyncFinished();
+
+   /**
+    * It will make sure there are no more pending operations on the Executors.
+    * */
+   void flush() throws Exception;
 }

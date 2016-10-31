@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.jboss.logging.Logger;
 
 /**
@@ -104,7 +103,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
                         // This could happen during shutdowns. Nothing to be concerned about here
                         logger.debug("Interrupted Thread", e);
                      } catch (Throwable t) {
-                        ActiveMQClientLogger.LOGGER.caughtunexpectedThrowable(t);
+                        logger.warn(t.getMessage(), t);
                      }
                      task = tasks.poll();
                   }

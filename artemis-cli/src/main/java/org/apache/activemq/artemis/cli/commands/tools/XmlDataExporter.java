@@ -90,6 +90,7 @@ import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorag
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends OptionalLocking {
@@ -142,15 +143,10 @@ public final class XmlDataExporter extends OptionalLocking {
                        String pagingDir,
                        String largeMessagesDir) throws Exception {
       config = new ConfigurationImpl().setBindingsDirectory(bindingsDir).setJournalDirectory(journalDir).setPagingDirectory(pagingDir).setLargeMessagesDirectory(largeMessagesDir).setJournalType(JournalType.NIO);
-      final ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
-      ExecutorFactory executorFactory = new ExecutorFactory() {
-         @Override
-         public Executor getExecutor() {
-            return executor;
-         }
-      };
+      final ExecutorService executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
 
-      storageManager = new JournalStorageManager(config, executorFactory);
+      storageManager = new JournalStorageManager(config, executorFactory, executorFactory);
 
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
@@ -158,6 +154,8 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(XMLStreamWriter.class.getClassLoader(), new Class[]{XMLStreamWriter.class}, handler);
 
       writeXMLData();
+
+      executor.shutdown();
    }
 
    private void writeXMLData() throws Exception {

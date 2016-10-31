@@ -98,6 +98,10 @@ public final class FileWrapperJournal extends JournalBase {
       writeRecord(addRecord, sync, callback);
    }
 
+   @Override
+   public void flush() throws Exception {
+   }
+
    /**
     * Write the record to the current file.
     */

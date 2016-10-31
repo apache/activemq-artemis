@@ -629,9 +629,8 @@ public class ActiveMQSessionContext extends SessionContext {
                                final boolean xa,
                                final boolean autoCommitSends,
                                final boolean autoCommitAcks,
-                               final boolean preAcknowledge,
-                               final SimpleString defaultAddress) throws ActiveMQException {
-      Packet createRequest = newCreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, defaultAddress);
+                               final boolean preAcknowledge) throws ActiveMQException {
+      Packet createRequest = newCreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge);
       boolean retry;
       do {
          try {
@@ -662,9 +661,8 @@ public class ActiveMQSessionContext extends SessionContext {
                                                    boolean xa,
                                                    boolean autoCommitSends,
                                                    boolean autoCommitAcks,
-                                                   boolean preAcknowledge,
-                                                   SimpleString defaultAddress) {
-      return new CreateSessionMessage(name, sessionChannel.getID(), VersionLoader.getVersion().getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, defaultAddress == null ? null : defaultAddress.toString());
+                                                   boolean preAcknowledge) {
+      return new CreateSessionMessage(name, sessionChannel.getID(), VersionLoader.getVersion().getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
    }
 
    @Override

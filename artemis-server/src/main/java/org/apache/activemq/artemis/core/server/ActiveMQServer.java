@@ -345,6 +345,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    ExecutorFactory getExecutorFactory();
 
+   ExecutorFactory getIOExecutorFactory();
+
    void setGroupingHandler(GroupingHandler groupingHandler);
 
    GroupingHandler getGroupingHandler();
