@@ -166,7 +166,9 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void addSender(Sender sender) throws Exception {
-      ProtonServerSenderContext protonSender = new ProtonServerSenderContext(connection, sender, this, sessionSPI);
+      // TODO: Remove this check when we have support for global link names
+      boolean outgoing = (sender.getContext() != null && sender.getContext().equals(true));
+      ProtonServerSenderContext protonSender = outgoing ? new ProtonClientSenderContext(connection, sender, this, sessionSPI) : new ProtonServerSenderContext(connection, sender, this, sessionSPI);
 
       try {
          protonSender.initialise();
@@ -205,5 +207,4 @@ public class AMQPSessionContext extends ProtonInitializable {
          receiver.close();
       }
    }
-
 }
