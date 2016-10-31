@@ -435,7 +435,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
     * @throws Exception
     */
    private JournalStorageManager getStorage() throws Exception {
-      return new JournalStorageManager(createDefaultInVMConfig(), factory);
+      return new JournalStorageManager(createDefaultInVMConfig(), factory, factory);
    }
 
    /**
@@ -647,6 +647,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                                final long id,
                                                final byte recordType,
                                                final EncodingSupport record) throws Exception {
+
+      }
+
+      @Override
+      public void flush() throws Exception {
 
       }
 

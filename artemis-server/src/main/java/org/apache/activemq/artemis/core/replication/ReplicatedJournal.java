@@ -64,6 +64,11 @@ public class ReplicatedJournal implements Journal {
       this.replicationManager = replicationManager;
    }
 
+   @Override
+   public void flush() throws Exception {
+
+   }
+
    /**
     * @param id
     * @param recordType

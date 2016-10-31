@@ -44,6 +44,7 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase {
    public void setup() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
       serviceRegistry.setExecutorService(Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory()));
+      serviceRegistry.setIOExecutorService(Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
       serviceRegistry.setScheduledExecutorService(Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory()));
       server = new ActiveMQServerImpl(null, null, null, null, serviceRegistry);
       server.start();
@@ -58,6 +59,7 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase {
       }
       serviceRegistry.getExecutorService().shutdown();
       serviceRegistry.getScheduledExecutorService().shutdown();
+      serviceRegistry.getIOExecutorService().shutdown();
       super.tearDown();
    }
 

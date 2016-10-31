@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
 public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
@@ -73,7 +74,8 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
-   public JMSJournalStorageManagerImpl(final IDGenerator idGenerator,
+   public JMSJournalStorageManagerImpl(ExecutorFactory ioExecutors,
+                                       final IDGenerator idGenerator,
                                        final Configuration config,
                                        final ReplicationManager replicator) {
       if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO) {
@@ -86,7 +88,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
 
-      Journal localJMS = new JournalImpl(1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
+      Journal localJMS = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1, 0);
 
       if (replicator != null) {
          jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);

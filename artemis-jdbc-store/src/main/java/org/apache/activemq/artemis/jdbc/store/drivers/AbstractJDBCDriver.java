@@ -19,30 +19,32 @@ package org.apache.activemq.artemis.jdbc.store.drivers;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 /**
  * Class to hold common database functionality such as drivers and connections
  */
 public abstract class AbstractJDBCDriver {
 
+   private static final Logger logger = Logger.getLogger(AbstractJDBCDriver.class);
+
    protected Connection connection;
 
    protected SQLProvider sqlProvider;
 
-   protected String jdbcConnectionUrl;
+   private String jdbcConnectionUrl;
 
-   protected String jdbcDriverClass;
+   private String jdbcDriverClass;
 
-   protected Driver dbDriver;
-
-   protected DataSource dataSource;
+   private DataSource dataSource;
 
    public AbstractJDBCDriver() {
    }
@@ -75,7 +77,7 @@ public abstract class AbstractJDBCDriver {
    protected abstract void createSchema() throws SQLException;
 
    protected void createTable(String schemaSql) throws SQLException {
-      JDBCUtils.createTableIfNotExists(connection, sqlProvider.getTableName(), schemaSql);
+      createTableIfNotExists(connection, sqlProvider.getTableName(), schemaSql);
    }
 
    protected void connect() throws Exception {
@@ -83,7 +85,7 @@ public abstract class AbstractJDBCDriver {
          connection = dataSource.getConnection();
       } else {
          try {
-            dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
+            Driver dbDriver = getDriver(jdbcDriverClass);
             connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
          } catch (SQLException e) {
             ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
@@ -105,6 +107,48 @@ public abstract class AbstractJDBCDriver {
       }
    }
 
+   private static void createTableIfNotExists(Connection connection, String tableName, String sql) throws SQLException {
+      logger.tracef("Validating if table %s didn't exist before creating", tableName);
+      try {
+         connection.setAutoCommit(false);
+         try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
+            if (rs != null && !rs.next()) {
+               logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
+               try (Statement statement = connection.createStatement()) {
+                  statement.executeUpdate(sql);
+               }
+            }
+         }
+         connection.commit();
+      } catch (SQLException e) {
+         connection.rollback();
+      }
+   }
+
+   private Driver getDriver(String className) throws Exception {
+      try {
+         Driver driver = (Driver) Class.forName(className).newInstance();
+
+         // Shutdown the derby if using the derby embedded driver.
+         if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+               @Override
+               public void run() {
+                  try {
+                     DriverManager.getConnection("jdbc:derby:;shutdown=true");
+                  } catch (Exception e) {
+                  }
+               }
+            });
+         }
+         return driver;
+      } catch (ClassNotFoundException cnfe) {
+         throw new RuntimeException("Could not find class: " + className);
+      } catch (Exception e) {
+         throw new RuntimeException("Unable to instantiate driver class: ", e);
+      }
+   }
+
    public Connection getConnection() {
       return connection;
    }
@@ -113,32 +157,16 @@ public abstract class AbstractJDBCDriver {
       this.connection = connection;
    }
 
-   public SQLProvider getSqlProvider() {
-      return sqlProvider;
-   }
-
    public void setSqlProvider(SQLProvider sqlProvider) {
       this.sqlProvider = sqlProvider;
-   }
-
-   public String getJdbcConnectionUrl() {
-      return jdbcConnectionUrl;
    }
 
    public void setJdbcConnectionUrl(String jdbcConnectionUrl) {
       this.jdbcConnectionUrl = jdbcConnectionUrl;
    }
 
-   public String getJdbcDriverClass() {
-      return jdbcDriverClass;
-   }
-
    public void setJdbcDriverClass(String jdbcDriverClass) {
       this.jdbcDriverClass = jdbcDriverClass;
-   }
-
-   public DataSource getDataSource() {
-      return dataSource;
    }
 
    public void setDataSource(DataSource dataSource) {

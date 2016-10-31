@@ -33,25 +33,25 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    protected PreparedStatement deleteFile;
 
-   protected PreparedStatement createFile;
+   PreparedStatement createFile;
 
-   protected PreparedStatement selectFileByFileName;
+   private PreparedStatement selectFileByFileName;
 
-   protected PreparedStatement copyFileRecord;
+   private PreparedStatement copyFileRecord;
 
-   protected PreparedStatement renameFile;
+   private PreparedStatement renameFile;
 
-   protected PreparedStatement readLargeObject;
+   PreparedStatement readLargeObject;
 
-   protected PreparedStatement appendToLargeObject;
+   private PreparedStatement appendToLargeObject;
 
-   protected PreparedStatement selectFileNamesByExtension;
+   private PreparedStatement selectFileNamesByExtension;
 
-   public JDBCSequentialFileFactoryDriver() {
+   JDBCSequentialFileFactoryDriver() {
       super();
    }
 
-   public JDBCSequentialFileFactoryDriver(String tableName, DataSource dataSource, SQLProvider provider) {
+   JDBCSequentialFileFactoryDriver(DataSource dataSource, SQLProvider provider) {
       super(dataSource, provider);
    }
 

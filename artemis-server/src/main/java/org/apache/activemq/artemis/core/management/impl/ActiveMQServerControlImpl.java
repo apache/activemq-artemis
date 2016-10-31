@@ -1189,7 +1189,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public synchronized boolean closeConnectionsForAddress(final String ipAddress) {
+   public boolean closeConnectionsForAddress(final String ipAddress) {
       checkStarted();
 
       clearIO();
@@ -1213,7 +1213,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public synchronized boolean closeConsumerConnectionsForAddress(final String address) {
+   public boolean closeConsumerConnectionsForAddress(final String address) {
       boolean closed = false;
       checkStarted();
 
@@ -1251,7 +1251,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public synchronized boolean closeConnectionsForUser(final String userName) {
+   public boolean closeConnectionsForUser(final String userName) {
       boolean closed = false;
       checkStarted();
 

@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
@@ -36,15 +36,17 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
    public JDBCJournalStorageManager(Configuration config,
                                     ExecutorFactory executorFactory,
+                                    ExecutorFactory ioExecutorFactory,
                                     ScheduledExecutorService scheduledExecutorService) {
-      super(config, executorFactory, scheduledExecutorService);
+      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory);
    }
 
    public JDBCJournalStorageManager(final Configuration config,
                                     final ScheduledExecutorService scheduledExecutorService,
                                     final ExecutorFactory executorFactory,
+                                    final ExecutorFactory ioExecutorFactory,
                                     final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, scheduledExecutorService, criticalErrorListener);
+      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory, criticalErrorListener);
    }
 
    @Override
@@ -59,7 +61,7 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
             }
             bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getBindingsTableName()), dbConf.getBindingsTableName(), scheduledExecutorService, executorFactory.getExecutor());
             messageJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getMessageTableName()), dbConf.getMessageTableName(), scheduledExecutorService, executorFactory.getExecutor());
-            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getLargeMessageTableName()), dbConf.getLargeMessageTableName(), executor);
+            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getLargeMessageTableName()), executor);
          } else {
             String driverClassName = dbConf.getJdbcDriverClassName();
             bindingsJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getBindingsTableName()), scheduledExecutorService, executorFactory.getExecutor());
@@ -100,8 +102,6 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       bindingsJournal.stop();
       messageJournal.stop();
       largeMessagesFactory.stop();
-
-      singleThreadExecutor.shutdown();
 
       journalLoaded = false;
 

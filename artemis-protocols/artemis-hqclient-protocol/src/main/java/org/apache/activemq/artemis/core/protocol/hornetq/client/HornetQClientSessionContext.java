@@ -63,9 +63,8 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
                                                    boolean xa,
                                                    boolean autoCommitSends,
                                                    boolean autoCommitAcks,
-                                                   boolean preAcknowledge,
-                                                   SimpleString defaultAddress) {
-      return new CreateSessionMessage(getName(), getSessionChannel().getID(), 123, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, getConfirmationWindow(), defaultAddress == null ? null : defaultAddress.toString());
+                                                   boolean preAcknowledge) {
+      return new CreateSessionMessage(getName(), getSessionChannel().getID(), 123, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, getConfirmationWindow(), null);
    }
 
    @Override

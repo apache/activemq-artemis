@@ -1274,7 +1274,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       locator.close();
 
       Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(new SimpleString(MY_QUEUE))).getQueue();
-      LinkedListIterator<MessageReference> totalIterator = queue.totalIterator();
+      LinkedListIterator<MessageReference> totalIterator = queue.browserIterator();
 
       try {
          int i = 0;

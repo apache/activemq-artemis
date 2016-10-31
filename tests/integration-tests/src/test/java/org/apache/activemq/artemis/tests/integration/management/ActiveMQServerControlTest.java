@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -265,12 +266,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator receiveLocator = createInVMNonHALocator();
       ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
       ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
-      ClientConsumer consumer = receiveClientSession.createConsumer(name);
+      final ClientConsumer consumer = receiveClientSession.createConsumer(name);
 
       Assert.assertFalse(consumer.isClosed());
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
       serverControl.destroyQueue(name.toString(), true);
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return consumer.isClosed();
+         }
+      }, 1000, 100);
       Assert.assertTrue(consumer.isClosed());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));

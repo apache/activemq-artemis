@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -92,10 +93,13 @@ public class PagingLeakTest extends ActiveMQTestBase {
 
       positions.clear();
 
-      timeout = System.currentTimeMillis() + 5000;
-      while (pagePosInstances.get() != 0 && timeout > System.currentTimeMillis()) {
-         forceGC();
-      }
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            forceGC();
+            return pagePosInstances.get() == 0;
+         }
+      }, 5000, 100);
 
       // This is just to validate the rules are correctly applied on byteman
       assertEquals("You have changed something on PagePositionImpl in such way that these byteman rules are no longer working", 0, pagePosInstances.get());
@@ -110,7 +114,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
 
       server.start();
 
-      AddressSettings settings = new AddressSettings().setPageSizeBytes(2 * 1024).setMaxSizeBytes(20 * 1024).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings settings = new AddressSettings().setPageSizeBytes(2 * 1024).setMaxSizeBytes(10 * 1024).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
 

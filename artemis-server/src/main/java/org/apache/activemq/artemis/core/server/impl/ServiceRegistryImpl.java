@@ -41,6 +41,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    private ExecutorService executorService;
 
+   private ExecutorService ioExecutorService;
+
    private ScheduledExecutorService scheduledExecutorService;
 
    /* We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
@@ -160,6 +162,16 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       }
 
       return transformer;
+   }
+
+   @Override
+   public ExecutorService getIOExecutorService() {
+      return ioExecutorService;
+   }
+
+   @Override
+   public void setIOExecutorService(ExecutorService ioExecutorService) {
+      this.ioExecutorService = ioExecutorService;
    }
 
    @Override
