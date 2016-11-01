@@ -92,6 +92,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return name.getMethodName();
    }
 
+   public ActiveMQServer getServer() {
+      return server;
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {

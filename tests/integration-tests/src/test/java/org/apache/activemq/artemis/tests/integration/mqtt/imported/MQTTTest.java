@@ -22,6 +22,7 @@ import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.io.EOFException;
 import java.lang.reflect.Field;
 import java.net.ProtocolException;
 import java.util.ArrayList;
@@ -34,8 +35,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -1611,5 +1614,29 @@ public class MQTTTest extends MQTTTestSupport {
       }));
 
       connection.disconnect();
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testClientDisconnectedOnMaxConsumerLimitReached() throws Exception {
+      Exception peerDisconnectedException = null;
+      try {
+         SimpleString coreAddress = new SimpleString("foo.bar");
+         Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
+
+         AddressInfo addressInfo = new AddressInfo(coreAddress);
+         addressInfo.setDefaultMaxConsumers(0);
+         getServer().createOrUpdateAddressInfo(addressInfo);
+
+         MQTT mqtt = createMQTTConnection();
+         mqtt.setClientId("test-mqtt");
+         mqtt.setKeepAlive((short) 2);
+         final BlockingConnection connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.subscribe(mqttSubscription);
+      } catch (EOFException e) {
+         peerDisconnectedException = e;
+      }
+      assertNotNull(peerDisconnectedException);
+      assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
    }
 }
