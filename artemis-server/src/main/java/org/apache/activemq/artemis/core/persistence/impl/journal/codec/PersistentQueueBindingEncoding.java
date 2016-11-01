@@ -176,8 +176,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       if (buffer.readableBytes() > 0) {
          maxConsumers = buffer.readInt();
          deleteOnNoConsumers = buffer.readBoolean();
-      }
-      else {
+      } else {
          maxConsumers = -1;
          deleteOnNoConsumers = false;
       }

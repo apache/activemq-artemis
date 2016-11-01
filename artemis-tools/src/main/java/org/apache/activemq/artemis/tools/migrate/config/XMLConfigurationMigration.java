@@ -31,7 +31,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -111,8 +110,7 @@ public class XMLConfigurationMigration {
          if (coreElement == null) {
             throw new Exception("Not a artemis config");
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new Exception(e);
       }
    }
@@ -194,8 +192,7 @@ public class XMLConfigurationMigration {
          Address address;
          if (jmsQueueAddresses.containsKey(name)) {
             address = jmsQueueAddresses.get(name);
-         }
-         else {
+         } else {
             address = new Address();
             address.setName(name);
             address.setRoutingType("anycast");
@@ -217,8 +214,7 @@ public class XMLConfigurationMigration {
          Address address;
          if (jmsTopicAddresses.containsKey(name)) {
             address = jmsTopicAddresses.get(name);
-         }
-         else {
+         } else {
             address = new Address();
             address.setName(name);
             address.setRoutingType("multicast");
@@ -247,7 +243,8 @@ public class XMLConfigurationMigration {
    }
 
    private void writeAddressListToDoc(String comment, Collection<Address> addresses, Node addressElement) {
-      if (addresses.isEmpty()) return;
+      if (addresses.isEmpty())
+         return;
 
       addressElement.appendChild(document.createComment("=================="));
       addressElement.appendChild(document.createComment(comment));

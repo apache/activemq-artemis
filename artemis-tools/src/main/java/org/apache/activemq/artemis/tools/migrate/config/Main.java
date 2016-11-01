@@ -37,8 +37,7 @@ public class Main {
             } else {
                try {
                   XMLConfigurationMigration migration = new XMLConfigurationMigration(input, new File(args[1]));
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   // Unable to process file, move on.
                }
             }

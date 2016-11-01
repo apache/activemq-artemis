@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -159,7 +158,7 @@ public class AddressingTest extends ActiveMQTestBase {
       ClientConsumer consumer1 = session.createConsumer(q1.getName());
       ClientConsumer consumer2 = session.createConsumer(q2.getName());
       ClientConsumer consumer3 = session.createConsumer(q3.getName());
-      List<ClientConsumer> consumers = new ArrayList<>(Arrays.asList(new ClientConsumer[] {consumer1, consumer2, consumer3}));
+      List<ClientConsumer> consumers = new ArrayList<>(Arrays.asList(new ClientConsumer[]{consumer1, consumer2, consumer3}));
 
       List<String> messages = new ArrayList<>();
       messages.add("Message1");
@@ -272,9 +271,8 @@ public class AddressingTest extends ActiveMQTestBase {
          ClientSession session = sessionFactory.createSession();
          session.start();
 
-         ClientConsumer consumer1 = session.createConsumer(q1.getName());
-      }
-      catch (ActiveMQQueueMaxConsumerLimitReached e) {
+         session.createConsumer(q1.getName());
+      } catch (ActiveMQQueueMaxConsumerLimitReached e) {
          expectedException = e;
       }
 
