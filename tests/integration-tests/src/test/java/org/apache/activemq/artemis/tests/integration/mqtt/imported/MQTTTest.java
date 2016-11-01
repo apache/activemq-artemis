@@ -1639,4 +1639,28 @@ public class MQTTTest extends MQTTTestSupport {
       assertNotNull(peerDisconnectedException);
       assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
    }
+
+   @Test(timeout = 60 * 1000)
+   public void testClientDisconnectedWhenTryingToSubscribeToAnAnycastAddress() throws Exception {
+      Exception peerDisconnectedException = null;
+      try {
+         SimpleString coreAddress = new SimpleString("foo.bar");
+         Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
+
+         AddressInfo addressInfo = new AddressInfo(coreAddress);
+         addressInfo.setRoutingType(AddressInfo.RoutingType.ANYCAST);
+         getServer().createOrUpdateAddressInfo(addressInfo);
+
+         MQTT mqtt = createMQTTConnection();
+         mqtt.setClientId("test-mqtt");
+         mqtt.setKeepAlive((short) 2);
+         final BlockingConnection connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.subscribe(mqttSubscription);
+      } catch (EOFException e) {
+         peerDisconnectedException = e;
+      }
+      assertNotNull(peerDisconnectedException);
+      assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
+   }
 }

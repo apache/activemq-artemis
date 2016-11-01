@@ -219,6 +219,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQQueueMaxConsumerLimitReached(msg);
       }
+   },
+   UNEXPECTED_ROUTING_TYPE_FOR_ADDRESS(215) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQUnexpectedRoutingTypeForAddress(msg);
+      }
    };
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
