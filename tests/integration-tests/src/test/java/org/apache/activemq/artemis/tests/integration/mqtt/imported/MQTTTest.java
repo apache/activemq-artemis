@@ -1620,6 +1620,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void testClientDisconnectedOnMaxConsumerLimitReached() throws Exception {
       Exception peerDisconnectedException = null;
       try {
+         String clientId = "test.client";
          SimpleString coreAddress = new SimpleString("foo.bar");
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
@@ -1627,8 +1628,10 @@ public class MQTTTest extends MQTTTestSupport {
          addressInfo.setDefaultMaxConsumers(0);
          getServer().createOrUpdateAddressInfo(addressInfo);
 
+         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false);
+
          MQTT mqtt = createMQTTConnection();
-         mqtt.setClientId("test-mqtt");
+         mqtt.setClientId(clientId);
          mqtt.setKeepAlive((short) 2);
          final BlockingConnection connection = mqtt.blockingConnection();
          connection.connect();
@@ -1644,6 +1647,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void testClientDisconnectedWhenTryingToSubscribeToAnAnycastAddress() throws Exception {
       Exception peerDisconnectedException = null;
       try {
+         String clientId = "test.mqtt";
          SimpleString coreAddress = new SimpleString("foo.bar");
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
@@ -1652,7 +1656,30 @@ public class MQTTTest extends MQTTTestSupport {
          getServer().createOrUpdateAddressInfo(addressInfo);
 
          MQTT mqtt = createMQTTConnection();
-         mqtt.setClientId("test-mqtt");
+         mqtt.setClientId(clientId);
+         mqtt.setKeepAlive((short) 2);
+         final BlockingConnection connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.subscribe(mqttSubscription);
+      } catch (EOFException e) {
+         peerDisconnectedException = e;
+      }
+      assertNotNull(peerDisconnectedException);
+      assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testClientDisconnectedWhenTryingToSubscribeToAnExistingQueueWithDeleteOnNoConsumers() throws Exception {
+      Exception peerDisconnectedException = null;
+      try {
+         String clientId = "testMqtt";
+         SimpleString coreAddress = new SimpleString("foo.bar");
+         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, -1, true);
+
+         Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
+
+         MQTT mqtt = createMQTTConnection();
+         mqtt.setClientId(clientId);
          mqtt.setKeepAlive((short) 2);
          final BlockingConnection connection = mqtt.blockingConnection();
          connection.connect();

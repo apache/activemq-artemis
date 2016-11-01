@@ -320,7 +320,26 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      SimpleString user,
                      boolean durable,
                      boolean temporary,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
                      boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
 
    Queue deployQueue(SimpleString address,
                      SimpleString queueName,

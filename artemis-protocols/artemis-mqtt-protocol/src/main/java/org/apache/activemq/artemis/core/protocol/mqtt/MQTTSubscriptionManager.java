@@ -93,7 +93,11 @@ public class MQTTSubscriptionManager {
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
+         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, -1, false);
+      } else {
+         if (q.isDeleteOnNoConsumers()) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidQueueConfiguration(q.getAddress(), q.getName(), "deleteOnNoConsumers", false, true);
+         }
       }
       return q;
    }
@@ -118,7 +122,7 @@ public class MQTTSubscriptionManager {
 
       String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic);
       AddressInfo addressInfo = session.getServer().getAddressInfo(new SimpleString(coreAddress));
-      if (addressInfo.getRoutingType() != AddressInfo.RoutingType.MULTICAST) {
+      if (addressInfo != null && addressInfo.getRoutingType() != AddressInfo.RoutingType.MULTICAST) {
          throw ActiveMQMessageBundle.BUNDLE.unexpectedRoutingTypeForAddress(new SimpleString(coreAddress), AddressInfo.RoutingType.MULTICAST, addressInfo.getRoutingType());
       }
 

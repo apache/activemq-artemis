@@ -225,6 +225,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQUnexpectedRoutingTypeForAddress(msg);
       }
+   },
+   INVALID_QUEUE_CONFIGURATION(216) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQInvalidQueueConfiguration(msg);
+      }
    };
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;

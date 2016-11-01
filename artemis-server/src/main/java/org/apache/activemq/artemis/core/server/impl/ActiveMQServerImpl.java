@@ -1451,6 +1451,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public Queue createQueue(SimpleString address,
+                            SimpleString queueName,
+                            SimpleString filter,
+                            SimpleString user,
+                            boolean durable,
+                            boolean temporary,
+                            Integer maxConsumers,
+                            Boolean deleteOnNoConsumers) throws Exception {
+      return createQueue(address, queueName, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers);
+   }
+
+   @Override
    public Queue createQueue(final SimpleString address,
                             final SimpleString queueName,
                             final SimpleString filterString,
@@ -1459,6 +1471,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
       return createQueue(address, queueName, filterString, user, durable, temporary, false, false, autoCreated);
+   }
+
+   @Override
+   public Queue createQueue(SimpleString address,
+                            SimpleString queueName,
+                            SimpleString filter,
+                            SimpleString user,
+                            boolean durable,
+                            boolean temporary,
+                            boolean autoCreated,
+                            Integer maxConsumers,
+                            Boolean deleteOnNoConsumers) throws Exception {
+      return createQueue(address, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers);
    }
 
    @Override
