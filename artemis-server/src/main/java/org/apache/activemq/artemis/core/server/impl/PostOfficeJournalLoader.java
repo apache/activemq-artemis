@@ -148,8 +148,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .durable(true)
             .temporary(false)
             .autoCreated(queueBindingInfo.isAutoCreated())
-            .de
-            );
+            .deleteOnNoConsumers(queueBindingInfo.isDeleteOnNoConsumers())
+            .maxConsumers(queueBindingInfo.getMaxConsumers());
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());
          if (queue.isAutoCreated()) {
             queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl) postOffice).getServer().getJMSQueueDeleter(), queueBindingInfo.getQueueName()));

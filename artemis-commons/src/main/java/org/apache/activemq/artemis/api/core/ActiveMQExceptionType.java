@@ -213,7 +213,13 @@ public enum ActiveMQExceptionType {
       }
 
    },
-   NOT_IMPLEMTNED_EXCEPTION(213);
+   NOT_IMPLEMTNED_EXCEPTION(213),
+   MAX_CONSUMER_LIMIT_EXCEEDED(214) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQQueueMaxConsumerLimitReached(msg);
+      }
+   };
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 

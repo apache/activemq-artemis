@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionExcep
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -378,4 +379,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119119, value = "Disk Capacity is Low, cannot produce more messages.")
    ActiveMQIOErrorException diskBeyondLimit();
 
+   @Message(id = 119200, value = "Maximum Consumer Limit Reached on Queue:(address={0},queue={1})", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQQueueMaxConsumerLimitReached maxConsumerLimitReachedForQueue(SimpleString address, SimpleString queueName);
 }

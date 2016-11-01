@@ -48,7 +48,7 @@ public interface Queue extends Bindable {
 
    boolean isDeleteOnNoConsumers();
 
-   boolean getMaxConsumers();
+   int getMaxConsumers();
 
    void addConsumer(Consumer consumer) throws Exception;
 

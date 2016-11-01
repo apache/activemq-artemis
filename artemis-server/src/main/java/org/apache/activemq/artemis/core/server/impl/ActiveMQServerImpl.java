@@ -1433,6 +1433,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public Queue createQueue(final SimpleString address,
                             final SimpleString queueName,
                             final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary,
+                            final Integer maxConsumers,
+                            final Boolean deleteOnNoConsumers) throws Exception {
+      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers);
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary) throws Exception {
@@ -2261,17 +2272,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                          null);
    }
 
-   private Queue createQueue(final SimpleString addressName,
-                             final SimpleString queueName,
-                             final SimpleString filterString,
-                             final SimpleString user,
-                             final boolean durable,
-                             final boolean temporary,
-                             final boolean ignoreIfExists,
-                             final boolean transientQueue,
-                             final boolean autoCreated,
-                             final Integer maxConsumers,
-                             final Boolean deleteOnNoConsumers) throws Exception {
+   @Override
+   public Queue createQueue(final SimpleString addressName,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final SimpleString user,
+                            final boolean durable,
+                            final boolean temporary,
+                            final boolean ignoreIfExists,
+                            final boolean transientQueue,
+                            final boolean autoCreated,
+                            final Integer maxConsumers,
+                            final Boolean deleteOnNoConsumers) throws Exception {
 
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
@@ -2297,8 +2309,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          address = addressName;
       }
 
+
+      AddressInfo defaultAddressInfo = new AddressInfo(address);
       // FIXME This boils down to a putIfAbsent (avoids race).  This should be reflected in the API.
-      AddressInfo info = postOffice.addAddressInfo(new AddressInfo(address));
+      AddressInfo info = postOffice.addAddressInfo(defaultAddressInfo);
+
+      boolean addressExists = true;
+      if (info == null) {
+         info = defaultAddressInfo;
+         addressExists = false;
+      }
 
       final boolean isDeleteOnNoConsumers = deleteOnNoConsumers == null ? info.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;
       final int noMaxConsumers = maxConsumers == null ? info.getDefaultMaxConsumers() : maxConsumers;
@@ -2323,10 +2343,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       final QueueBinding localQueueBinding = new LocalQueueBinding(getAddressInfo(queue.getAddress()), queue, nodeManager.getNodeId());
 
       if (queue.isDurable()) {
-         storageManager.addQueueBinding(txID, localQueueBinding);
-         if (info == null) {
-            storageManager.addAddressBinding(txID, getAddressInfo(queue.getAddress()));
+         if (!addressExists) {
+            storageManager.addAddressBinding(txID, getAddressInfo(address));
          }
+         storageManager.addQueueBinding(txID, localQueueBinding);
       }
 
       try {

@@ -443,6 +443,16 @@ public class FakeQueue implements Queue {
    }
 
    @Override
+   public boolean isDeleteOnNoConsumers() {
+      return false;
+   }
+
+   @Override
+   public int getMaxConsumers() {
+      return -1;
+   }
+
+   @Override
    public LinkedListIterator<MessageReference> iterator() {
       // no-op
       return null;
