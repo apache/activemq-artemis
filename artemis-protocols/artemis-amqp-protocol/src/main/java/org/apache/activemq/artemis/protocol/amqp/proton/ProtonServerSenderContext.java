@@ -57,7 +57,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
 /**
- * TODO: Merge {@link ProtonServerSenderContext} and {@link ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
+ * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
  */
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
