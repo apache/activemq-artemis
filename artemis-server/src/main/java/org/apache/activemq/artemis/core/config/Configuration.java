@@ -79,6 +79,23 @@ public interface Configuration {
    Configuration setPersistenceEnabled(boolean enable);
 
    /**
+    * Should use fdatasync on journal files.
+    *
+    * @see <a href="http://man7.org/linux/man-pages/man2/fdatasync.2.html">fdatasync</a>
+    *
+    * @return a boolean
+    */
+   boolean isJournalDatasync();
+
+   /**
+    * documented at {@link #isJournalDatasync()} ()}
+    *
+    * @param enable
+    * @return this
+    */
+   Configuration setJournalDatasync(boolean enable);
+
+   /**
     * @return usernames mapped to ResourceLimitSettings
     */
    Map<String, ResourceLimitSettings> getResourceLimitSettings();

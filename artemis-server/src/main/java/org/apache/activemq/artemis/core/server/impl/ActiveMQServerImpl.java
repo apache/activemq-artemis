@@ -424,6 +424,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public OperationContext newOperationContext() {
+      return getStorageManager().newContext(getExecutorFactory().getExecutor());
+   }
+
+   @Override
    public final synchronized void start() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
          logger.debug("Server already started!");
@@ -1188,7 +1193,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final boolean xa,
                                       final String defaultAddress,
                                       final SessionCallback callback,
-                                      final boolean autoCreateQueues) throws Exception {
+                                      final boolean autoCreateQueues,
+                                      final OperationContext context) throws Exception {
       String validatedUser = "";
 
       if (securityStore != null) {
@@ -1201,7 +1207,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       checkSessionLimit(validatedUser);
 
-      final OperationContext context = storageManager.newContext(getExecutorFactory().getExecutor());
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues);
 
       sessions.put(name, session);

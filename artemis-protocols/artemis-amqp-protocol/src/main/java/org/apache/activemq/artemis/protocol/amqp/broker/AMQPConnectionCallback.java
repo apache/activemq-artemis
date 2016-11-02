@@ -177,7 +177,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    }
 
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
-      return new AMQPSessionCallback(this, manager, connection, this.connection, closeExecutor);
+      return new AMQPSessionCallback(this, manager, connection, this.connection, closeExecutor, server.newOperationContext());
    }
 
    public void sendSASLSupported() {

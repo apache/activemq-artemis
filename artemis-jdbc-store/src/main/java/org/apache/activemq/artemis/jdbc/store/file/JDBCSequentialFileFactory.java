@@ -61,6 +61,18 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    @Override
+   public SequentialFileFactory setDatasync(boolean enabled) {
+
+      // noop
+      return this;
+   }
+
+   @Override
+   public boolean isDatasync() {
+      return false;
+   }
+
+   @Override
    public synchronized void start() {
       try {
          if (!started) {

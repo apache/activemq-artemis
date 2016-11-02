@@ -129,7 +129,7 @@ public class ArtemisTest {
    public void testSync() throws Exception {
       int writes = 20;
       int tries = 10;
-      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true);
+      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true);
       System.out.println();
       System.out.println("TotalAvg = " + totalAvg);
       long nanoTime = SyncCalculation.toNanos(totalAvg, writes);
@@ -144,7 +144,7 @@ public class ArtemisTest {
       Run.setEmbedded(true);
       //instance1: default using http
       File instance1 = new File(temporaryFolder.getRoot(), "instance1");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync");
       File bootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
       Document config = parseXml(bootstrapFile);
@@ -163,7 +163,7 @@ public class ArtemisTest {
 
       //instance2: https
       File instance2 = new File(temporaryFolder.getRoot(), "instance2");
-      Artemis.main("create", instance2.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1");
+      Artemis.main("create", instance2.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--no-fsync");
       bootstrapFile = new File(new File(instance2, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
       config = parseXml(bootstrapFile);
@@ -184,7 +184,7 @@ public class ArtemisTest {
 
       //instance3: https with clientAuth
       File instance3 = new File(temporaryFolder.getRoot(), "instance3");
-      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2");
+      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2", "--no-fsync");
       bootstrapFile = new File(new File(instance3, "etc"), "bootstrap.xml");
       Assert.assertTrue(bootstrapFile.exists());
 

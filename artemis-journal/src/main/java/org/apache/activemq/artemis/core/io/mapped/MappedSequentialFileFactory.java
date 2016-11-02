@@ -37,6 +37,7 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    private final IOCriticalErrorListener criticalErrorListener;
    private long chunkBytes;
    private long overlapBytes;
+   private boolean useDataSync;
 
    public MappedSequentialFileFactory(File directory, IOCriticalErrorListener criticalErrorListener) {
       this.directory = directory;
@@ -72,7 +73,18 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
 
    @Override
    public SequentialFile createSequentialFile(String fileName) {
-      return new MappedSequentialFile(directory, new File(directory, fileName), chunkBytes, overlapBytes, criticalErrorListener);
+      return new MappedSequentialFile(this, directory, new File(directory, fileName), chunkBytes, overlapBytes, criticalErrorListener);
+   }
+
+   @Override
+   public SequentialFileFactory setDatasync(boolean enabled) {
+      this.useDataSync = enabled;
+      return this;
+   }
+
+   @Override
+   public boolean isDatasync() {
+      return useDataSync;
    }
 
    @Override

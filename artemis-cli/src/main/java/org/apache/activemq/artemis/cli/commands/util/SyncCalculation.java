@@ -46,8 +46,9 @@ public class SyncCalculation {
                                int blocks,
                                int tries,
                                boolean verbose,
+                               boolean fsync,
                                boolean aio) throws Exception {
-      SequentialFileFactory factory = newFactory(datafolder, aio);
+      SequentialFileFactory factory = newFactory(datafolder, fsync, aio);
       SequentialFile file = factory.createSequentialFile("test.tmp");
 
       try {
@@ -149,9 +150,9 @@ public class SyncCalculation {
       return timeWait;
    }
 
-   private static SequentialFileFactory newFactory(File datafolder, boolean aio) {
+   private static SequentialFileFactory newFactory(File datafolder, boolean datasync, boolean aio) {
       if (aio && LibaioContext.isLoaded()) {
-         SequentialFileFactory factory = new AIOSequentialFileFactory(datafolder, 1);
+         SequentialFileFactory factory = new AIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
          factory.start();
          ((AIOSequentialFileFactory) factory).disableBufferReuse();
 

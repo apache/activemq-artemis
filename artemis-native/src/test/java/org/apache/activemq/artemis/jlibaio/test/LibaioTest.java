@@ -54,7 +54,7 @@ public class LibaioTest {
          parent.mkdirs();
 
          boolean failed = false;
-         try (LibaioContext control = new LibaioContext<>(1, true); LibaioFile fileDescriptor = control.openFile(file, true)) {
+         try (LibaioContext control = new LibaioContext<>(1, true, true); LibaioFile fileDescriptor = control.openFile(file, true)) {
             fileDescriptor.fallocate(4 * 1024);
          } catch (Exception e) {
             e.printStackTrace();
@@ -80,7 +80,7 @@ public class LibaioTest {
 
    @Before
    public void setUpFactory() {
-      control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, true);
+      control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, true, true);
    }
 
    @After
@@ -532,10 +532,10 @@ public class LibaioTest {
       boolean exceptionThrown = false;
 
       control.close();
-      control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, false);
+      control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, false, true);
       try {
          // There is no space for a queue this huge, the native layer should throw the exception
-         LibaioContext newController = new LibaioContext(Integer.MAX_VALUE, false);
+         LibaioContext newController = new LibaioContext(Integer.MAX_VALUE, false, true);
       } catch (RuntimeException e) {
          exceptionThrown = true;
       }
@@ -630,7 +630,7 @@ public class LibaioTest {
 
    @Test
    public void testBlockedCallback() throws Exception {
-      final LibaioContext blockedContext = new LibaioContext(500, true);
+      final LibaioContext blockedContext = new LibaioContext(500, true, true);
       Thread t = new Thread() {
          @Override
          public void run() {

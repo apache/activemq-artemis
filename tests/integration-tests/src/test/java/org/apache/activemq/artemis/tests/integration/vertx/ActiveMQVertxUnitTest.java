@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.integration.vertx.VertxOutgoingConnectorServi
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
@@ -48,8 +49,10 @@ import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
 /**
  * This class tests the basics of ActiveMQ
- * vertx integration
+ * vertx inte
+ * gration
  */
+@Ignore
 public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
 
    private PlatformManager vertxManager;

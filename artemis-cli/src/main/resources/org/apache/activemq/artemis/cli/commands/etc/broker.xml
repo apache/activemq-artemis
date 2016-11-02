@@ -45,6 +45,8 @@ under the License.
 
       <large-messages-directory>${data.dir}/large-messages</large-messages-directory>
 
+      <journal-datasync>${fsync}</journal-datasync>
+
       <journal-min-files>2</journal-min-files>
 
       <journal-pool-files>-1</journal-pool-files>

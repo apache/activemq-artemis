@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
@@ -180,7 +181,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                                boolean xa,
                                String defaultAddress,
                                SessionCallback callback,
-                               boolean autoCreateQueues) throws Exception;
+                               boolean autoCreateQueues,
+                               OperationContext context) throws Exception;
 
    SecurityStore getSecurityStore();
 
@@ -191,6 +193,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    HierarchicalRepository<Set<Role>> getSecurityRepository();
 
    HierarchicalRepository<AddressSettings> getAddressSettingsRepository();
+
+   OperationContext newOperationContext();
 
    int getConnectionCount();
 

@@ -536,7 +536,7 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_su
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_blockedPoll
-  (JNIEnv * env, jobject thisObject, jobject contextPointer) {
+  (JNIEnv * env, jobject thisObject, jobject contextPointer, jboolean useFdatasync) {
 
     #ifdef DEBUG
        fprintf (stdout, "Running blockedPoll\n");
@@ -552,6 +552,8 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_bl
     pthread_mutex_lock(&(theControl->pollLock));
 
     short running = 1;
+
+    int lastFile = -1;
 
     while (running) {
 
@@ -574,6 +576,8 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_bl
            fflush(stdout);
         #endif
 
+        lastFile = -1;
+
         for (i = 0; i < result; i++)
         {
             #ifdef DEBUG
@@ -591,6 +595,11 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_bl
                putIOCB(theControl, iocbp);
                running = 0;
                break;
+            }
+
+            if (useFdatasync && lastFile != iocbp->aio_fildes) {
+                lastFile = iocbp->aio_fildes;
+                fdatasync(lastFile);
             }
 
 

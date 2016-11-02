@@ -23,8 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -35,18 +33,12 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public final class NIOSequentialFile extends AbstractSequentialFile {
 
    private FileChannel channel;
 
    private RandomAccessFile rfile;
-
-   /**
-    * The write semaphore here is only used when writing asynchronously
-    */
-   private Semaphore maxIOSemaphore;
 
    private final int defaultMaxIO;
 
@@ -99,11 +91,6 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
-
-      if (writerExecutor != null && useExecutor) {
-         maxIOSemaphore = new Semaphore(maxIO);
-         this.maxIO = maxIO;
-      }
    }
 
    @Override
@@ -124,6 +111,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
+      channel.force(true);
 
       fileSize = channel.size();
    }
@@ -138,13 +126,6 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
    public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
       super.close();
 
-      if (maxIOSemaphore != null) {
-         while (!maxIOSemaphore.tryAcquire(maxIO, 60, TimeUnit.SECONDS)) {
-            ActiveMQJournalLogger.LOGGER.errorClosingFile(getFileName());
-         }
-      }
-
-      maxIOSemaphore = null;
       try {
          if (channel != null) {
             channel.close();
@@ -202,7 +183,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void sync() throws IOException {
-      if (channel != null) {
+      if (factory.isDatasync() && channel != null) {
          try {
             channel.force(false);
          } catch (ClosedChannelException e) {
@@ -250,7 +231,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public SequentialFile cloneFile() {
-      return new NIOSequentialFile(factory, directory, getFileName(), maxIO, writerExecutor);
+      return new NIOSequentialFile(factory, directory, getFileName(), maxIO, null);
    }
 
    @Override
@@ -298,40 +279,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
       position.addAndGet(bytes.limit());
 
-      if (maxIOSemaphore == null || callback == null) {
-         // if maxIOSemaphore == null, that means we are not using executors and the writes are synchronous
-         try {
-            doInternalWrite(bytes, sync, callback);
-         } catch (ClosedChannelException e) {
-            throw e;
-         } catch (IOException e) {
-            factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
-         }
-      } else {
-         // This is a flow control on writing, just like maxAIO on libaio
-         maxIOSemaphore.acquire();
-
-         writerExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  try {
-                     doInternalWrite(bytes, sync, callback);
-                  } catch (ClosedChannelException e) {
-                     ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                  } catch (IOException e) {
-                     ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                     factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
-                     callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
-                  } catch (Throwable e) {
-                     ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                     callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
-                  }
-               } finally {
-                  maxIOSemaphore.release();
-               }
-            }
-         });
+      try {
+         doInternalWrite(bytes, sync, callback);
+      } catch (ClosedChannelException e) {
+         throw e;
+      } catch (IOException e) {
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
       }
    }
 
