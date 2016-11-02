@@ -38,6 +38,7 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.CLIException;
+import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -415,8 +416,10 @@ public class Create extends InputAbstract {
    public String getPassword() {
 
       if (password == null) {
-         this.password = inputPassword("--password", "Please provide the default password:", "admin");
+         password = inputPassword("--password", "Please provide the default password:", "admin");
       }
+
+      password = HashUtil.tryHash(context, password);
 
       return password;
    }

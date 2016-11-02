@@ -16,20 +16,26 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.util.Map;
 
 /**
- * A SensitiveDataCodec
- *
- * This interface is used for implementing a value decoder.
- *
- * It takes in a mask value and decode it.
+ * Used to process Hash text for passwords
  */
-public interface SensitiveDataCodec<T> {
+public interface HashProcessor {
 
-   T decode(Object mask) throws Exception;
+   /**
+    * produce hash text from plain text
+    * @param plainText Plain text input
+    * @return the Hash value of the input plain text
+    * @throws Exception
+    */
+   String hash(String plainText) throws Exception;
 
-   T encode(Object secret) throws Exception;
-
-   void init(Map<String, String> params) throws Exception;
+   /**
+    * compare the plain char array against the hash value
+    * @param inputValue value of the plain text
+    * @param storedHash the existing hash value
+    * @return true if the char array matches the hash value,
+    * otherwise false.
+    */
+   boolean compare(char[] inputValue, String storedHash);
 }
