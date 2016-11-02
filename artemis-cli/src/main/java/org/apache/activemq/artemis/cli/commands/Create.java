@@ -137,7 +137,7 @@ public class Create extends InputAbstract {
    boolean clustered = false;
 
    @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
-   int maxHops = 1;
+   int maxHops = 0;
 
    @Option(name = "--message-load-balancing", description = "Load balancing policy on cluster. [ON_DEMAND (default) | STRICT | OFF]")
    MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
