@@ -22,7 +22,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -189,10 +188,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
 
       public byte[] getSalt() throws NoSuchAlgorithmException {
-         byte[] salt = new byte[this.saltLength];
-
-         SecureRandom sr = SecureRandom.getInstance(this.randomScheme);
-         sr.nextBytes(salt);
+         byte[] salt = RandomUtil.randomBytes(this.saltLength);
          return salt;
       }
 
