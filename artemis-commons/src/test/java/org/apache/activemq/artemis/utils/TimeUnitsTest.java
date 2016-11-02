@@ -36,14 +36,13 @@ public class TimeUnitsTest {
       File tmpFile = folder.newFile("myfile.txt");
       assertTrue(tmpFile.exists());
       long begin = System.currentTimeMillis();
-      boolean result = TimeUtils.waitOnBoolean(false, 2000, tmpFile::exists);
+      boolean result = TimeUtils.waitOnBoolean(false, 100, tmpFile::exists);
       long end = System.currentTimeMillis();
 
       assertFalse(result);
       assertTrue(tmpFile.exists());
       //ideally the sleep time should > 2000.
-      System.out.println("actually waiting time: " + (end - begin));
-      assertTrue((end - begin) >= 2000);
+      assertTrue((end - begin) >= 100);
       tmpFile.delete();
       begin = System.currentTimeMillis();
       result = TimeUtils.waitOnBoolean(false, 5000, tmpFile::exists);
