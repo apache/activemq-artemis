@@ -49,7 +49,7 @@
          <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>qpid-jms-client</artifactId>
-            <version>0.10.0</version>
+            <version>${qpid.jms.version}</version>
             <!-- License: Apache: 2.0 -->
          </dependency>
 

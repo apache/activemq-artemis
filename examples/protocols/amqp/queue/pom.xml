@@ -39,7 +39,7 @@ under the License.
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
-         <version>0.7.0</version>
+         <version>${qpid.jms.version}</version>
       </dependency>
    </dependencies>
 
