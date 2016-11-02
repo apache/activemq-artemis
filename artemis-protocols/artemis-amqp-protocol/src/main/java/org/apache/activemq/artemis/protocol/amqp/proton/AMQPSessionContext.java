@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -166,7 +167,9 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void addSender(Sender sender) throws Exception {
-      ProtonServerSenderContext protonSender = new ProtonServerSenderContext(connection, sender, this, sessionSPI);
+      // TODO: Remove this check when we have support for global link names
+      boolean outgoing = (sender.getContext() != null && sender.getContext().equals(true));
+      ProtonServerSenderContext protonSender = outgoing ? new ProtonClientSenderContext(connection, sender, this, sessionSPI) : new ProtonServerSenderContext(connection, sender, this, sessionSPI);
 
       try {
          protonSender.initialise();
@@ -205,5 +208,4 @@ public class AMQPSessionContext extends ProtonInitializable {
          receiver.close();
       }
    }
-
 }
