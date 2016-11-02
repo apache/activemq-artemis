@@ -49,6 +49,7 @@
       <message-expiry-scan-period>10111213</message-expiry-scan-period>
       <message-expiry-thread-priority>8</message-expiry-thread-priority>
       <id-cache-size>127</id-cache-size>
+      <journal-datasync>false</journal-datasync>
       <persist-id-cache>true</persist-id-cache>
       <populate-validated-user>true</populate-validated-user>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>

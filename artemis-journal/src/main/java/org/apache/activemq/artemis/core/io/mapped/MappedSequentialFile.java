@@ -49,12 +49,15 @@ final class MappedSequentialFile implements SequentialFile {
    private String fileName;
    private MappedFile mappedFile;
    private ActiveMQBuffer pooledActiveMQBuffer;
+   private final MappedSequentialFileFactory factory;
 
-   MappedSequentialFile(final File directory,
+   MappedSequentialFile(MappedSequentialFileFactory factory,
+                        final File directory,
                         final File file,
                         final long chunkBytes,
                         final long overlapBytes,
                         final IOCriticalErrorListener criticalErrorListener) {
+      this.factory = factory;
       this.directory = directory;
       this.file = file;
       this.absoluteFile = null;
@@ -155,7 +158,7 @@ final class MappedSequentialFile implements SequentialFile {
          final int readableBytes = writerIndex - readerIndex;
          if (readableBytes > 0) {
             this.mappedFile.write(byteBuf, readerIndex, readableBytes);
-            if (sync) {
+            if (factory.isDatasync() && sync) {
                this.mappedFile.force();
             }
          }
@@ -178,7 +181,7 @@ final class MappedSequentialFile implements SequentialFile {
       final int readableBytes = writerIndex - readerIndex;
       if (readableBytes > 0) {
          this.mappedFile.write(byteBuf, readerIndex, readableBytes);
-         if (sync) {
+         if (factory.isDatasync() && sync) {
             this.mappedFile.force();
          }
       }
@@ -209,7 +212,7 @@ final class MappedSequentialFile implements SequentialFile {
          final int readableBytes = writerIndex - readerIndex;
          if (readableBytes > 0) {
             this.mappedFile.write(byteBuf, readerIndex, readableBytes);
-            if (sync) {
+            if (factory.isDatasync() && sync) {
                this.mappedFile.force();
             }
          }
@@ -235,7 +238,7 @@ final class MappedSequentialFile implements SequentialFile {
       final int readableBytes = writerIndex - readerIndex;
       if (readableBytes > 0) {
          this.mappedFile.write(byteBuf, readerIndex, readableBytes);
-         if (sync) {
+         if (factory.isDatasync() && sync) {
             this.mappedFile.force();
          }
       }
@@ -253,7 +256,7 @@ final class MappedSequentialFile implements SequentialFile {
          final int remaining = limit - position;
          if (remaining > 0) {
             this.mappedFile.write(bytes, position, remaining);
-            if (sync) {
+            if (factory.isDatasync() && sync) {
                this.mappedFile.force();
             }
          }
@@ -275,7 +278,7 @@ final class MappedSequentialFile implements SequentialFile {
       final int remaining = limit - position;
       if (remaining > 0) {
          this.mappedFile.write(bytes, position, remaining);
-         if (sync) {
+         if (factory.isDatasync() && sync) {
             this.mappedFile.force();
          }
       }
@@ -381,7 +384,7 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public SequentialFile cloneFile() {
       checkIsNotOpen();
-      return new MappedSequentialFile(this.directory, this.file, this.chunkBytes, this.overlapBytes, this.criticalErrorListener);
+      return new MappedSequentialFile(factory, this.directory, this.file, this.chunkBytes, this.overlapBytes, this.criticalErrorListener);
    }
 
    @Override
