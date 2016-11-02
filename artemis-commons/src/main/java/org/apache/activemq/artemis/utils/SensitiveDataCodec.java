@@ -29,5 +29,7 @@ public interface SensitiveDataCodec<T> {
 
    T decode(Object mask) throws Exception;
 
-   void init(Map<String, String> params);
+   T encode(Object secret) throws Exception;
+
+   void init(Map<String, String> params) throws Exception;
 }

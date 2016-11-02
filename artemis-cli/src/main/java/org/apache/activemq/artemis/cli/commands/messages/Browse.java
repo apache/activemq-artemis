@@ -40,7 +40,7 @@ public class Browse extends DestAbstract {
 
       System.out.println("Consumer:: filter = " + filter);
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
+      ActiveMQConnectionFactory factory = createConnectionFactory();
 
       Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.QUEUE_TYPE);
       try (Connection connection = factory.createConnection()) {
