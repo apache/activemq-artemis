@@ -298,6 +298,10 @@ The message journal is configured using the following attributes in
     data files on the journal
 
     The default for this parameter is `30`
+    
+-   `journal-datasync` (default: true)
+    
+    This will disable the use of fdatasync on journal writes.
 
 ### An important note on disabling disk write cache.
 

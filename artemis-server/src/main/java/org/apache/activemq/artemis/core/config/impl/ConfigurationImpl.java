@@ -77,6 +77,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
+   private boolean journalDatasync = ActiveMQDefaultConfiguration.isDefaultJournalDatasync();
+
    protected long fileDeploymentScanPeriod = ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
 
    private boolean persistDeliveryCountBeforeDelivery = ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery();
@@ -294,6 +296,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setPersistenceEnabled(final boolean enable) {
       persistenceEnabled = enable;
+      return this;
+   }
+
+   @Override
+   public boolean isJournalDatasync() {
+      return journalDatasync;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalDatasync(boolean enable) {
+      journalDatasync = enable;
       return this;
    }
 

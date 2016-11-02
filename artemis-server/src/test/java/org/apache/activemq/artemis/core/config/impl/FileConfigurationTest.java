@@ -354,6 +354,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(1234567, conf.getGlobalMaxSize());
       assertEquals(37, conf.getMaxDiskUsage());
       assertEquals(123, conf.getDiskScanPeriod());
+
+      assertEquals(false, conf.isJournalDatasync());
    }
 
    @Test

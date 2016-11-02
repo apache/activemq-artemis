@@ -52,6 +52,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    protected final int maxIO;
 
+   protected boolean dataSync = true;
+
    private final IOCriticalErrorListener critialErrorListener;
 
    /**
@@ -80,6 +82,19 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.critialErrorListener = criticalErrorListener;
       this.maxIO = maxIO;
    }
+
+
+   @Override
+   public SequentialFileFactory setDatasync(boolean enabled) {
+      this.dataSync = enabled;
+      return this;
+   }
+
+   @Override
+   public boolean isDatasync() {
+      return dataSync;
+   }
+
 
    @Override
    public void stop() {

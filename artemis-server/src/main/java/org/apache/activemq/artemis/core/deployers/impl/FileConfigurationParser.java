@@ -486,6 +486,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
+      config.setJournalDatasync(getBoolean(e, "journal-datasync", config.isJournalDatasync()));
+
       config.setJournalSyncTransactional(getBoolean(e, "journal-sync-transactional", config.isJournalSyncTransactional()));
 
       config.setJournalSyncNonTransactional(getBoolean(e, "journal-sync-non-transactional", config.isJournalSyncNonTransactional()));

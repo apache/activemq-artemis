@@ -97,7 +97,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public SequentialFile cloneFile() {
-      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), writerExecutor);
+      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), null);
    }
 
    @Override
@@ -214,11 +214,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
 
       AIOSequentialFileFactory.AIOSequentialCallback runnableCallback = getCallback(callback, bytes);
       runnableCallback.initWrite(positionToWrite, bytesToWrite);
-      if (writerExecutor != null) {
-         writerExecutor.execute(runnableCallback);
-      } else {
-         runnableCallback.run();
-      }
+      runnableCallback.run();
    }
 
    AIOSequentialFileFactory.AIOSequentialCallback getCallback(IOCallback originalCallback, ByteBuffer buffer) {
