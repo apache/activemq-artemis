@@ -20,6 +20,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
+import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,13 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * ./artemis user add --username guest --role admin --password ***
  */
 @Command(name = "add", description = "Add a new user")
-public class AddUser extends UserAction {
-
-   @Option(name = "--password", description = "the password (Default: input)")
-   String password;
-
-   @Option(name = "--role", description = "user's role(s), comma separated", required = true)
-   String role;
+public class AddUser extends PasswordAction {
 
    @Option(name = "--plaintext", description = "using plaintext (Default false)")
    boolean plaintext = false;
@@ -42,9 +37,9 @@ public class AddUser extends UserAction {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      if (password == null) {
-         password = inputPassword("--password", "Please provide the password:", null);
-      }
+      checkInputUser();
+      checkInputPassword();
+      checkInputRole();
 
       String hash = plaintext ? password : HashUtil.tryHash(context, password);
       add(hash, StringUtils.split(role, ","));
@@ -52,11 +47,16 @@ public class AddUser extends UserAction {
       return null;
    }
 
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public void setRole(String role) {
-      this.role = role;
+   /**
+    * Adding a new user
+    * @param hash the password
+    * @param role the role
+    * @throws IllegalArgumentException if user exists
+    */
+   protected void add(String hash, String... role) throws Exception {
+      FileBasedSecStoreConfig config = getConfiguration();
+      config.addNewUser(username, hash, role);
+      config.save();
+      context.out.println("User added successfully.");
    }
 }

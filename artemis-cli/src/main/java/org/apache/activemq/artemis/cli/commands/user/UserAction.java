@@ -24,63 +24,41 @@ import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import java.io.File;
-import java.util.List;
 
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.ROLE_FILE_PROP_NAME;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.USER_FILE_PROP_NAME;
 
 public abstract class UserAction extends InputAbstract {
 
-   @Option(name = "--user", description = "The user name")
+   @Option(name = "--role", description = "user's role(s), comma separated")
+   String role;
+
+   @Option(name = "--user", description = "The user name (Default: input)")
    String username = null;
 
-   /**
-    * Adding a new user
-    * @param hash the password
-    * @param role the role
-    * @throws IllegalArgumentException if user exists
-    */
-   protected void add(String hash, String... role) throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
-      config.addNewUser(username, hash, role);
-      config.save();
-      context.out.println("User added successfully.");
-   }
+   @Option(name = "--entry", description = "The appConfigurationEntry (default: activemq)")
+   String entry = "activemq";
 
-   /**
-    * list a single user or all users
-    * if username is not specified
-    */
-   protected void list() throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
-      List<String> result = config.listUser(username);
-      for (String str : result) {
-         context.out.println(str);
+   protected void checkInputUser() {
+      if (username == null) {
+         username = input("--user", "Please provider the userName:", null);
       }
    }
 
-   protected void remove() throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
-      config.removeUser(username);
-      config.save();
-      context.out.println("User removed.");
+   public void setRole(String role) {
+      this.role = role;
    }
 
-   protected void reset(String password, String[] roles) throws Exception {
-      if (password == null && roles == null) {
-         context.err.println("Nothing to update.");
-         return;
+   public void checkInputRole() {
+      if (role == null) {
+         role = input("--role", "type a comma separated list of roles", null);
       }
-      FileBasedSecStoreConfig config = getConfiguration();
-      config.updateUser(username, password, roles);
-      config.save();
-      context.out.println("User updated");
    }
 
-   private FileBasedSecStoreConfig getConfiguration() throws Exception {
+   protected FileBasedSecStoreConfig getConfiguration() throws Exception {
 
       Configuration securityConfig = Configuration.getConfiguration();
-      AppConfigurationEntry[] entries = securityConfig.getAppConfigurationEntry("activemq");
+      AppConfigurationEntry[] entries = securityConfig.getAppConfigurationEntry(entry);
 
       for (AppConfigurationEntry entry : entries) {
          if (entry.getLoginModuleName().equals(PropertiesLoginModule.class.getName())) {
