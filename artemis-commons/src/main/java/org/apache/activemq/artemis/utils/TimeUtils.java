@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -72,4 +73,20 @@ public final class TimeUtils {
       return s;
    }
 
+   public static boolean waitOnBoolean(boolean expected, long timeout, CheckMethod check) {
+      long timeLeft = timeout;
+      long interval = 10;
+      while (check.check() != expected && timeLeft > 0) {
+         try {
+            Thread.sleep(interval);
+         } catch (InterruptedException e) {
+         }
+         timeLeft -= interval;
+      }
+      return check.check() == expected;
+   }
+
+   public interface CheckMethod {
+      boolean check();
+   }
 }
