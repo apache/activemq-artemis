@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,32 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.cli.commands.user;
 
-import io.airlift.airline.Command;
-import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
+import io.airlift.airline.Option;
 
-/**
- * Remove a user, example:
- * ./artemis user rm --username guest
- */
-@Command(name = "rm", description = "Remove an existing user")
-public class RemoveUser extends UserAction {
+public class PasswordAction extends UserAction {
 
-   @Override
-   public Object execute(ActionContext context) throws Exception {
-      super.execute(context);
-      checkInputUser();
-      remove();
-      return null;
+   @Option(name = "--password", description = "the password (Default: input)")
+   String password;
+
+   protected void checkInputPassword() {
+      if (password == null) {
+         password = inputPassword("--password", "Please provide the password:", null);
+      }
    }
 
-   protected void remove() throws Exception {
-      FileBasedSecStoreConfig config = getConfiguration();
-      config.removeUser(username);
-      config.save();
-      context.out.println("User removed.");
+   public void setPassword(String password) {
+      this.password = password;
    }
 
 }

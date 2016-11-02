@@ -20,6 +20,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
+import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,13 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * ./artemis user reset --username guest --role admin --password ***
  */
 @Command(name = "reset", description = "Reset user's password or roles")
-public class ResetUser extends UserAction {
-
-   @Option(name = "--password", description = "the password (Default: input)")
-   String password;
-
-   @Option(name = "--role", description = "user's role(s), comma separated")
-   String role;
+public class ResetUser extends PasswordAction {
 
    @Option(name = "--plaintext", description = "using plaintext (Default false)")
    boolean plaintext = false;
@@ -41,6 +36,9 @@ public class ResetUser extends UserAction {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
+
+      checkInputUser();
+      checkInputPassword();
 
       if (password != null) {
          password = plaintext ? password : HashUtil.tryHash(context, password);
@@ -55,11 +53,14 @@ public class ResetUser extends UserAction {
       return null;
    }
 
-   public void setPassword(String password) {
-      this.password = password;
-   }
-
-   public void setRole(String role) {
-      this.role = role;
+   protected void reset(String password, String[] roles) throws Exception {
+      if (password == null && roles == null) {
+         context.err.println("Nothing to update.");
+         return;
+      }
+      FileBasedSecStoreConfig config = getConfiguration();
+      config.updateUser(username, password, roles);
+      config.save();
+      context.out.println("User updated");
    }
 }
