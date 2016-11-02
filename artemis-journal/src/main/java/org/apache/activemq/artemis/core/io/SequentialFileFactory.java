@@ -95,4 +95,8 @@ public interface SequentialFileFactory {
    void createDirs() throws Exception;
 
    void flush();
+
+   SequentialFileFactory setDatasync(boolean enabled);
+
+   boolean isDatasync();
 }

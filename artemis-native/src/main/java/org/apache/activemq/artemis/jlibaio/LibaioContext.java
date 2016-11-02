@@ -49,7 +49,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * <br>
     * Or else the native module won't be loaded because of version mismatches
     */
-   private static final int EXPECTED_NATIVE_VERSION = 6;
+   private static final int EXPECTED_NATIVE_VERSION = 7;
 
    private static boolean loaded = false;
 
@@ -146,6 +146,8 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
 
    final int queueSize;
 
+   final boolean useFdatasync;
+
    /**
     * The queue size here will use resources defined on the kernel parameter
     * <a href="https://www.kernel.org/doc/Documentation/sysctl/fs.txt">fs.aio-max-nr</a> .
@@ -153,11 +155,13 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * @param queueSize    the size to be initialize on libaio
     *                     io_queue_init which can't be higher than /proc/sys/fs/aio-max-nr.
     * @param useSemaphore should block on a semaphore avoiding using more submits than what's available.
+    * @param useFdatasync should use fdatasync before calling callbacks.
     */
-   public LibaioContext(int queueSize, boolean useSemaphore) {
+   public LibaioContext(int queueSize, boolean useSemaphore, boolean useFdatasync) {
       try {
          contexts.incrementAndGet();
          this.ioContext = newContext(queueSize);
+         this.useFdatasync = useFdatasync;
       } catch (Exception e) {
          throw e;
       }
@@ -349,7 +353,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     */
    public void poll() {
       if (!closed.get()) {
-         blockedPoll(ioContext);
+         blockedPoll(ioContext, useFdatasync);
       }
    }
 
@@ -436,7 +440,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
    /**
     * This method will block as long as the context is open.
     */
-   native void blockedPoll(ByteBuffer libaioContext);
+   native void blockedPoll(ByteBuffer libaioContext, boolean useFdatasync);
 
    static native int getNativeVersion();
 

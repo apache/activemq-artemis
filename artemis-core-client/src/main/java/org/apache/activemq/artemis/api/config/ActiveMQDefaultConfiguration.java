@@ -130,6 +130,9 @@ public final class ActiveMQDefaultConfiguration {
    // true means that the server will use the file based journal for persistence.
    private static boolean DEFAULT_PERSISTENCE_ENABLED = true;
 
+   // true means that the server will sync data files
+   private static boolean DEFAULT_JOURNAL_DATASYNC = true;
+
    // Maximum number of threads to use for the scheduled thread pool
    private static int DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE = 5;
 
@@ -454,6 +457,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultPersistenceEnabled() {
       return DEFAULT_PERSISTENCE_ENABLED;
+   }
+
+   public static boolean isDefaultJournalDatasync() {
+      return DEFAULT_JOURNAL_DATASYNC;
    }
 
    /**
