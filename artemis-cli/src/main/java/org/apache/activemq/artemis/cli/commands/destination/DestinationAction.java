@@ -31,13 +31,12 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.cli.commands.InputAbstract;
-import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 
-public abstract class DestinationAction extends InputAbstract {
+public abstract class DestinationAction extends ConnectionAbstract {
 
    public static final String JMS_QUEUE = "jms-queue";
    public static final String JMS_TOPIC = "topic";
@@ -46,24 +45,12 @@ public abstract class DestinationAction extends InputAbstract {
    @Option(name = "--type", description = "type of destination to be created (one of jms-queue, topic and core-queue, default jms-queue")
    String destType = JMS_QUEUE;
 
-   @Option(name = "--url", description = "URL towards the broker. (default: tcp://localhost:61616)")
-   String brokerURL = "tcp://localhost:61616";
-
-   @Option(name = "--user", description = "User used to connect")
-   String user;
-
-   @Option(name = "--password", description = "Password used to connect")
-   String password;
-
    @Option(name = "--name", description = "destination name")
    String name;
 
-   public static void performJmsManagement(String brokerURL,
-                                           String user,
-                                           String password,
-                                           ManagementCallback<Message> cb) throws Exception {
+   public void performJmsManagement(ManagementCallback<Message> cb) throws Exception {
 
-      try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
+      try (ActiveMQConnectionFactory factory = createConnectionFactory();
            ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
            ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
 
@@ -88,12 +75,10 @@ public abstract class DestinationAction extends InputAbstract {
       }
    }
 
-   public static void performCoreManagement(String brokerURL,
-                                            String user,
-                                            String password,
-                                            ManagementCallback<ClientMessage> cb) throws Exception {
+   public void performCoreManagement(ManagementCallback<ClientMessage> cb) throws Exception {
 
-      try (ServerLocator locator = ServerLocatorImpl.newLocator(brokerURL);
+      try (ActiveMQConnectionFactory factory = createConnectionFactory();
+         ServerLocator locator = factory.getServerLocator();
            ClientSessionFactory sessionFactory = locator.createSessionFactory();
            ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
          session.start();
