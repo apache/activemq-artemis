@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -81,6 +82,8 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private ServerSession serverSession;
 
+   private final OperationContext operationContext;
+
    private AMQPSessionContext protonSession;
 
    private final Executor closeExecutor;
@@ -91,12 +94,14 @@ public class AMQPSessionCallback implements SessionCallback {
                               ProtonProtocolManager manager,
                               AMQPConnectionContext connection,
                               Connection transportConnection,
-                              Executor executor) {
+                              Executor executor,
+                              OperationContext operationContext) {
       this.protonSPI = protonSPI;
       this.manager = manager;
       this.connection = connection;
       this.transportConnection = transportConnection;
       this.closeExecutor = executor;
+      this.operationContext = operationContext;
    }
 
    @Override
@@ -151,7 +156,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                                         false, // boolean autoCommitAcks,
                                                         false, // boolean preAcknowledge,
                                                         true, //boolean xa,
-                                                        (String) null, this, true);
+                                                        (String) null, this, true, operationContext);
    }
 
    @Override

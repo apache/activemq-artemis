@@ -93,7 +93,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final long connectionTTL;
 
-   private final Set<ClientSessionInternal> sessions = new HashSet<>();
+   private final Set<ClientSessionInternal> sessions = new ConcurrentHashSet<>();
 
    private final Object createSessionLock = new Object();
 
@@ -506,6 +506,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // this is just a debug, since an interrupt is an expected event (in case of a shutdown)
          logger.debug(e1.getMessage(), e1);
       } catch (Throwable t) {
+         logger.warn(t.getMessage(), t);
          //for anything else just close so clients are un blocked
          close();
          throw t;

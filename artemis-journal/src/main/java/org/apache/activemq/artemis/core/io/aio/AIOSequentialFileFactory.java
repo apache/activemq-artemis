@@ -211,7 +211,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       if (running.compareAndSet(false, true)) {
          super.start();
 
-         this.libaioContext = new LibaioContext(maxIO, true);
+         this.libaioContext = new LibaioContext(maxIO, true, dataSync);
 
          this.running.set(true);
 

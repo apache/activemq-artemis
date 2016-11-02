@@ -213,6 +213,9 @@ public class Create extends InputAbstract {
    @Option(name = "--no-hornetq-acceptor", description = "Disable the HornetQ specific acceptor.")
    boolean noHornetQAcceptor;
 
+   @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
+   boolean noJournalSync;
+
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
@@ -567,6 +570,7 @@ public class Create extends InputAbstract {
          filters.put("${web.protocol}", "http");
          filters.put("${extra.web.attributes}", "");
       }
+      filters.put("${fsync}", String.valueOf(!noJournalSync));
       filters.put("${user}", System.getProperty("user.name", ""));
       filters.put("${default.port}", String.valueOf(defaultPort + portOffset));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
@@ -776,7 +780,7 @@ public class Create extends InputAbstract {
             System.out.println("");
             System.out.println("Auto tuning journal ...");
 
-            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, aio);
+            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, aio);
             long nanoseconds = SyncCalculation.toNanos(time, writes);
             double writesPerMillisecond = (double) writes / (double) time;
 
@@ -807,7 +811,7 @@ public class Create extends InputAbstract {
          // forcing NIO
          return false;
       } else if (LibaioContext.isLoaded()) {
-         try (LibaioContext context = new LibaioContext(1, true)) {
+         try (LibaioContext context = new LibaioContext(1, true, true)) {
             File tmpFile = new File(directory, "validateAIO.bin");
             boolean supportsLibaio = true;
             try {

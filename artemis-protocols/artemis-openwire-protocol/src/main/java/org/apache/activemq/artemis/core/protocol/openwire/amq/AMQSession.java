@@ -107,7 +107,7 @@ public class AMQSession implements SessionCallback {
       // now
 
       try {
-         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true);
+         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext());
 
          long sessionId = sessInfo.getSessionId().getValue();
          if (sessionId == -1) {
@@ -289,8 +289,6 @@ public class AMQSession implements SessionCallback {
          };
       } else {
          final Connection transportConnection = connection.getTransportConnection();
-
-         //         new Exception("Setting to false").printStackTrace();
 
          if (transportConnection == null) {
             // I don't think this could happen, but just in case, avoiding races

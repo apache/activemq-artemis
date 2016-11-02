@@ -60,6 +60,16 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    }
 
    @Override
+   public SequentialFileFactory setDatasync(boolean enabled) {
+      return null;
+   }
+
+   @Override
+   public boolean isDatasync() {
+      return false;
+   }
+
+   @Override
    public int getMaxIO() {
       return 1;
    }
