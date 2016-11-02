@@ -58,7 +58,7 @@ public class CreateDestination extends DestinationAction {
    }
 
    private void createJmsTopic(final ActionContext context) throws Exception {
-      performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
+      performJmsManagement(new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
             JMSManagementHelper.putOperationInvocation(message, "jms.server", "createTopic", getName(), bindings);
@@ -90,7 +90,7 @@ public class CreateDestination extends DestinationAction {
    }
 
    private void createCoreQueue(final ActionContext context) throws Exception {
-      performCoreManagement(brokerURL, user, password, new ManagementCallback<ClientMessage>() {
+      performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             String address = getAddress();
@@ -112,7 +112,7 @@ public class CreateDestination extends DestinationAction {
 
    private void createJmsQueue(final ActionContext context) throws Exception {
 
-      performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
+      performJmsManagement(new ManagementCallback<Message>() {
 
          @Override
          public void setUpInvocation(Message message) throws Exception {

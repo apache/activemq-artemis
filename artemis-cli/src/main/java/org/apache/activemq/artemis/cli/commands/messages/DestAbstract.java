@@ -18,24 +18,14 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.ActionAbstract;
 
-public class DestAbstract extends ActionAbstract {
-
-   @Option(name = "--url", description = "URL towards the broker. (default: tcp://localhost:61616)")
-   String brokerURL = "tcp://localhost:61616";
+public class DestAbstract extends ConnectionAbstract {
 
    @Option(name = "--destination", description = "Destination to be used. it could be prefixed with queue:// or topic:: (Default: queue://TEST")
    String destination = "queue://TEST";
 
    @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
    int messageCount = 1000;
-
-   @Option(name = "--user", description = "User used to connect")
-   String user;
-
-   @Option(name = "--password", description = "Password used to connect")
-   String password;
 
    @Option(name = "--sleep", description = "Time wait between each message")
    int sleep = 0;
