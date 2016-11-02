@@ -134,6 +134,14 @@ public class ByteUtil {
       return buffer.array();
    }
 
+   public static byte[] hexToBytes(String hexStr) {
+      byte[] bytes = new byte[hexStr.length() / 2];
+      for (int i = 0; i < bytes.length; i++) {
+         bytes[i] = (byte) Integer.parseInt(hexStr.substring(2 * i, 2 * i + 2), 16);
+      }
+      return bytes;
+   }
+
    public static String readLine(ActiveMQBuffer buffer) {
       StringBuilder sb = new StringBuilder("");
       char c = buffer.readChar();

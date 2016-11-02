@@ -49,7 +49,7 @@ public class DeleteDestination extends DestinationAction {
    }
 
    private void deleteJmsTopic(final ActionContext context) throws Exception {
-      performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
+      performJmsManagement(new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
             JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyTopic", getName(), removeConsumers);
@@ -74,7 +74,7 @@ public class DeleteDestination extends DestinationAction {
    }
 
    private void deleteJmsQueue(final ActionContext context) throws Exception {
-      performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
+      performJmsManagement(new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
             JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyQueue", getName(), removeConsumers);
@@ -99,7 +99,7 @@ public class DeleteDestination extends DestinationAction {
    }
 
    private void deleteCoreQueue(final ActionContext context) throws Exception {
-      performCoreManagement(brokerURL, user, password, new ManagementCallback<ClientMessage>() {
+      performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             ManagementHelper.putOperationInvocation(message, "core.server", "destroyQueue", getName());

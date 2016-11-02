@@ -14,26 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.activemq.artemis.utils;
 
-package org.apache.activemq.artemis.cli.commands.messages;
 
-import io.airlift.airline.Option;
+/**
+ * Used to process Hash text for passwords
+ */
+public interface HashProcessor {
 
-public class DestAbstract extends ConnectionAbstract {
+   /**
+    * produce hash text from plain text
+    * @param plainText Plain text input
+    * @return the Hash value of the input plain text
+    * @throws Exception
+    */
+   String hash(String plainText) throws Exception;
 
-   @Option(name = "--destination", description = "Destination to be used. it could be prefixed with queue:// or topic:: (Default: queue://TEST")
-   String destination = "queue://TEST";
-
-   @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
-   int messageCount = 1000;
-
-   @Option(name = "--sleep", description = "Time wait between each message")
-   int sleep = 0;
-
-   @Option(name = "--txt-size", description = "TX Batch Size")
-   int txBatchSize;
-
-   @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")
-   int threads = 1;
-
+   /**
+    * compare the plain char array against the hash value
+    * @param inputValue value of the plain text
+    * @param storedHash the existing hash value
+    * @return true if the char array matches the hash value,
+    * otherwise false.
+    */
+   boolean compare(char[] inputValue, String storedHash);
 }

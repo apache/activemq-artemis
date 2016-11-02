@@ -50,7 +50,7 @@ public class Producer extends DestAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
+      ActiveMQConnectionFactory factory = createConnectionFactory();
 
       Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.QUEUE_TYPE);
       try (Connection connection = factory.createConnection()) {

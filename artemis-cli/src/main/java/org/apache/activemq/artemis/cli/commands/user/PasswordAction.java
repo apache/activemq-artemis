@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.messages;
+package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Option;
 
-public class DestAbstract extends ConnectionAbstract {
+public class PasswordAction extends UserAction {
 
-   @Option(name = "--destination", description = "Destination to be used. it could be prefixed with queue:// or topic:: (Default: queue://TEST")
-   String destination = "queue://TEST";
+   @Option(name = "--password", description = "the password (Default: input)")
+   String password;
 
-   @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
-   int messageCount = 1000;
+   protected void checkInputPassword() {
+      if (password == null) {
+         password = inputPassword("--password", "Please provide the password:", null);
+      }
+   }
 
-   @Option(name = "--sleep", description = "Time wait between each message")
-   int sleep = 0;
-
-   @Option(name = "--txt-size", description = "TX Batch Size")
-   int txBatchSize;
-
-   @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")
-   int threads = 1;
+   public void setPassword(String password) {
+      this.password = password;
+   }
 
 }

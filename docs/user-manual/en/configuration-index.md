@@ -396,28 +396,13 @@ will have to be in masked form.
 ### Masking passwords in artemis-users.properties
 
 Apache ActiveMQ Artemis's built-in security manager uses plain properties files
-where the user passwords are specified in plaintext forms by default. To
-mask those parameters the following two properties need to be set
-in the 'bootstrap.xml' file.
+where the user passwords are specified in hash forms by default. 
 
-`mask-password` -- If set to "true" all the passwords are masked.
-Default is false.
+Please use Artemis CLI command to add a password. For example
 
-`password-codec` -- Class name and its parameters for the Decoder used
-to decode the masked password. Ignored if `mask-password` is false. The
-format of this property is a full qualified class name optionally
-followed by key/value pairs. It is the same format as that for JMS
-Bridges. Example:
-
-```xml
-<mask-password>true</mask-password>
-<password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
+```sh
+    ./artemis user add --username guest --password guest --role admin
 ```
-
-When so configured, the Apache ActiveMQ Artemis security manager will initialize a
-DefaultSensitiveStringCodec with the parameters "key"-\>"hello world",
-then use it to decode all the masked passwords in this configuration
-file.
 
 ### Choosing a decoder for password masking
 
