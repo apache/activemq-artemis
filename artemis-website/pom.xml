@@ -14,14 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>1.5.0-SNAPSHOT</version>
+      <version>1.5.0</version>
    </parent>
 
    <artifactId>artemis-website</artifactId>
@@ -170,26 +169,25 @@
                         <phase>generate-sources</phase>
                         <configuration>
                            <target>
-                              <condition property="gitbook.cmd" value="${basedir}/node_modules/.bin/gitbook.cmd"
-                                         else="${basedir}/node_modules/.bin/gitbook">
-                                 <os family="windows"/>
+                              <condition property="gitbook.cmd" value="${basedir}/node_modules/.bin/gitbook.cmd" else="${basedir}/node_modules/.bin/gitbook">
+                                 <os family="windows" />
                               </condition>
                               <!-- lets generate the gitbook -->
-                              <mkdir dir="${webapp-outdir-user-manual}"/>
+                              <mkdir dir="${webapp-outdir-user-manual}" />
                               <echo>executing ${gitbook.cmd}</echo>
                               <exec executable="${gitbook.cmd}" failonerror="true">
-                                 <env key="PATH" path="${basedir}/node"/>
-                                 <arg value="build"/>
-                                 <arg value="${basedir}/../docs/user-manual/en"/>
-                                 <arg value="${webapp-outdir-user-manual}"/>
+                                 <env key="PATH" path="${basedir}/node" />
+                                 <arg value="build" />
+                                 <arg value="${basedir}/../docs/user-manual/en" />
+                                 <arg value="${webapp-outdir-user-manual}" />
                               </exec>
-                              <mkdir dir="${webapp-outdir-hacking-guide}"/>
+                              <mkdir dir="${webapp-outdir-hacking-guide}" />
                               <echo>executing ${gitbook.cmd}</echo>
                               <exec executable="${gitbook.cmd}" failonerror="true">
-                                 <env key="PATH" path="${basedir}/node"/>
-                                 <arg value="build"/>
-                                 <arg value="${basedir}/../docs/hacking-guide/en"/>
-                                 <arg value="${webapp-outdir-hacking-guide}"/>
+                                 <env key="PATH" path="${basedir}/node" />
+                                 <arg value="build" />
+                                 <arg value="${basedir}/../docs/hacking-guide/en" />
+                                 <arg value="${webapp-outdir-hacking-guide}" />
                               </exec>
                            </target>
                         </configuration>
