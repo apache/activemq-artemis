@@ -1727,6 +1727,22 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (connectionTtlCheckInterval != other.connectionTtlCheckInterval)
          return false;
+      if (journalDatasync != other.journalDatasync) {
+         return false;
+      }
+      if (globalMaxSize != other.globalMaxSize) {
+         return false;
+      }
+      if (maxDiskUsage != other.maxDiskUsage) {
+         return false;
+      }
+      if (diskScanPeriod != other.diskScanPeriod) {
+         return false;
+      }
+      if (connectionTtlCheckInterval != other.connectionTtlCheckInterval) {
+         return false;
+      }
+
       return true;
    }
 
