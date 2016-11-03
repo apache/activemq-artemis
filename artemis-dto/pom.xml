@@ -14,14 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>1.5.0-SNAPSHOT</version>
+      <version>1.5.0</version>
    </parent>
 
    <artifactId>artemis-dto</artifactId>
@@ -66,21 +65,19 @@
                   <phase>generate-resources</phase>
                   <configuration>
                      <target>
-                        <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask"/>
-                        <mkdir dir="${project.build.directory}/schema/org.apache.activemq/dto"/>
-                        <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq/dto"/>
-                        <schemagen srcdir="${basedir}/.."
-                                   destdir="${project.build.directory}/schema/org.apache.activemq/dto"
-                                   includeantruntime="false">
-                           <schema namespace="http://activemq.org/schema" file="activemq.xsd"/>
-                           <classpath refid="maven.compile.classpath"/>
-                           <include name="**/package-info.java"/>
-                           <include name="**/*DTO.java"/>
-                           <exclude name="**/.git/**"/>
-                           <exclude name="**/.svn/**"/>
+                        <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" />
+                        <mkdir dir="${project.build.directory}/schema/org.apache.activemq/dto" />
+                        <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq/dto" />
+                        <schemagen srcdir="${basedir}/.." destdir="${project.build.directory}/schema/org.apache.activemq/dto" includeantruntime="false">
+                           <schema namespace="http://activemq.org/schema" file="activemq.xsd" />
+                           <classpath refid="maven.compile.classpath" />
+                           <include name="**/package-info.java" />
+                           <include name="**/*DTO.java" />
+                           <exclude name="**/.git/**" />
+                           <exclude name="**/.svn/**" />
                         </schemagen>
                         <copy todir="${project.build.directory}/classes">
-                           <fileset dir="${project.build.directory}/schema"/>
+                           <fileset dir="${project.build.directory}/schema" />
                         </copy>
                      </target>
                   </configuration>
@@ -128,7 +125,7 @@
                               </goals>
                            </pluginExecutionFilter>
                            <action>
-                              <ignore/>
+                              <ignore />
                            </action>
                         </pluginExecution>
                      </pluginExecutions>
