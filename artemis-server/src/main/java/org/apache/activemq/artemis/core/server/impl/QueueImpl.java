@@ -2915,11 +2915,6 @@ public class QueueImpl implements Queue {
          while (true) {
             if (messagesIterator != null && messagesIterator.hasNext()) {
                MessageReference msg = messagesIterator.next();
-               if (msg.isPaged()) {
-                  System.out.println("** Rejecting because it's paged " + msg.getMessage());
-                  continue;
-               }
-//               System.out.println("** Returning because it's not paged " + msg.getMessage());
                return msg;
             } else {
                break;
