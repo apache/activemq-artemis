@@ -120,7 +120,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       frame = stompConnection.receiveFrame();
       assertTrue(frame.startsWith("CONNECTED"));
 
-      frame = "SUBSCRIBE\n" + "destination:dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
+      frame = "SUBSCRIBE\n" + "destination:" + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
       stompConnection.sendFrame(frame);
 
       // ensure dispatch has started before pause

@@ -222,11 +222,11 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
    private String getCorePattern(org.apache.activemq.command.ActiveMQDestination dest) {
       String physicalName = dest.getPhysicalName();
       String pattern = physicalName.replace(">", "#");
-      if (dest.isTopic()) {
-         pattern = pattern;
-      } else {
-         pattern = pattern;
-      }
+//      if (dest.isTopic()) {
+//         pattern = pattern;
+//      } else {
+//         pattern = pattern;
+//      }
 
       return pattern;
    }
