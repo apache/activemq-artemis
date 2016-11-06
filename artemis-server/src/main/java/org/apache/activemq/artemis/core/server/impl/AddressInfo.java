@@ -33,6 +33,13 @@ public class AddressInfo {
       this.name = name;
    }
 
+   public AddressInfo(SimpleString name, RoutingType routingType,  boolean defaultDeleteOnNoConsumers, int defaultMaxConsumers) {
+      this(name);
+      this.routingType = routingType;
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.defaultMaxQueueConsumers = defaultMaxConsumers;
+   }
+
    public RoutingType getRoutingType() {
       return routingType;
    }

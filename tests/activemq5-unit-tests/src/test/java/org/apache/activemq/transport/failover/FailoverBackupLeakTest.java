@@ -23,7 +23,8 @@ import javax.jms.Session;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
@@ -112,7 +113,7 @@ public class FailoverBackupLeakTest extends OpenwireArtemisBaseTest {
 
    private int getConnectionCount(EmbeddedJMS server) throws Exception {
       ManagementService managementService = server.getActiveMQServer().getManagementService();
-      JMSServerControl jmsControl = (JMSServerControl) managementService.getResource("jms.server");
+      ActiveMQServerControl jmsControl = (ActiveMQServerControl) managementService.getResource(ResourceNames.BROKER);
       String[] ids = jmsControl.listConnectionIDs();
       if (ids != null) {
          return ids.length;

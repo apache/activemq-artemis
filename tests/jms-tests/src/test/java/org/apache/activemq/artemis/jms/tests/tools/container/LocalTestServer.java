@@ -28,12 +28,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -328,7 +330,7 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public Long getMessageCountForQueue(final String queueName) throws Exception {
-      JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(queueName);
+      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource("queue." + queueName);
       if (queue != null) {
          queue.flushExecutor();
          return queue.getMessageCount();
@@ -338,25 +340,19 @@ public class LocalTestServer implements Server, Runnable {
    }
 
    @Override
-   public void removeAllMessages(final String destination, final boolean isQueue) throws Exception {
-      if (isQueue) {
-         JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(destination);
-         queue.removeMessages(null);
-      } else {
-         TopicControl topic = (TopicControl) getActiveMQServer().getManagementService().getResource(destination);
-         topic.removeMessages(null);
-      }
+   public void removeAllMessages(final String queueName) throws Exception {
+      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.QUEUE + queueName);
+      queue.removeMessages(null);
    }
 
    @Override
    public List<String> listAllSubscribersForTopic(final String s) throws Exception {
-      ObjectName objectName = ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(s);
-      TopicControl topic = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), objectName, TopicControl.class, false);
-      Object[] subInfos = topic.listAllSubscriptions();
+      ObjectName objectName = ObjectNameBuilder.DEFAULT.getAddressObjectName(new SimpleString(s));
+      AddressControl topic = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), objectName, AddressControl.class, false);
+      Object[] subInfos = topic.getQueueNames();
       List<String> subs = new ArrayList<>();
       for (Object o : subInfos) {
-         Object[] data = (Object[]) o;
-         subs.add((String) data[2]);
+         subs.add( ((String) o).split("\\.")[1]);
       }
       return subs;
    }

@@ -2354,15 +2354,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
-      AddressInfo result = postOffice.removeAddressInfo(address);
+   public void removeAddressInfo(SimpleString address) throws Exception {
+      postOffice.removeAddressInfo(address);
 
       // TODO: is this the right way to do this?
 //      long txID = storageManager.generateID();
 //      storageManager.deleteAddressBinding(txID, getAddressInfo(address).getID());
 //      storageManager.commitBindings(txID);
 
-      return result;
    }
 
    @Override
@@ -2502,9 +2501,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw e;
       }
 
-      if (!addressAlreadyExists) {
-         managementService.registerAddress(queue.getAddress());
-      }
       managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
       callPostQueueCreationCallbacks(queue.getName());

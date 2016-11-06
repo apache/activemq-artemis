@@ -422,7 +422,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo addAddressInfo(AddressInfo addressInfo) {
       try {
-         getServer().getManagementService().registerAddress(addressInfo.getName());
+         managementService.registerAddress(addressInfo);
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -432,7 +432,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
       try {
-         getServer().getManagementService().registerAddress(addressInfo.getName());
+         managementService.registerAddress(addressInfo);
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -512,7 +512,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (binding.getType() == BindingType.LOCAL_QUEUE) {
          managementService.unregisterQueue(uniqueName, binding.getAddress());
       } else if (binding.getType() == BindingType.DIVERT) {
-         managementService.unregisterDivert(uniqueName);
+         managementService.unregisterDivert(uniqueName, binding.getAddress());
       }
 
       if (binding.getType() != BindingType.DIVERT) {

@@ -423,13 +423,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
          ActiveMQServerLogger.LOGGER.clusterConnectionNotUnique();
          return false;
       }
-
-      if (getAddress() == null) {
-         ActiveMQServerLogger.LOGGER.clusterConnectionNoForwardAddress();
-
-         return false;
-      }
-
       return true;
    }
 

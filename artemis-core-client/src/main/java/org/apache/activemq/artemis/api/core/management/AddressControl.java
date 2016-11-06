@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import javax.management.MBeanOperationInfo;
+import java.util.Map;
+
 /**
  * An AddressControl is used to manage an address.
  */
@@ -26,6 +29,12 @@ public interface AddressControl {
     */
    @Attribute(desc = "managed address")
    String getAddress();
+
+   /*
+   * The routing type of this address, either multicast (topic subscriptions) or anycast (queue semantics).
+   * */
+   @Attribute(desc = "The routing type of this address")
+   String getRoutingType();
 
    /**
     * Returns the roles (name and permissions) associated with this address.
@@ -85,4 +94,25 @@ public interface AddressControl {
     */
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
+
+   @Attribute(desc = "number of messages added to all the queues for this address")
+   long getMessageCount();
+
+
+   /**
+    * @param headers  the message headers and properties to set. Can only
+    *                 container Strings maped to primitive types.
+    * @param body     the text to send
+    * @param durable
+    * @param user
+    * @param password @return
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected address.", impact = MBeanOperationInfo.ACTION)
+   String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
+                      @Parameter(name = "headers", desc = "A type for the message") final int type,
+                      @Parameter(name = "body", desc = "The body (byte[]) of the message encoded as a string using Base64") String body,
+                      @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
+                      @Parameter(name = "user", desc = "The user to authenticate with") String user,
+                      @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
 }

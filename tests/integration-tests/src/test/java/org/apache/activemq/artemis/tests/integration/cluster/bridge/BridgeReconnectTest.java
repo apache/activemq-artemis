@@ -374,7 +374,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
       forwardingConnection.fail(new ActiveMQNotConnectedException());
 
       final ManagementService managementService = server0.getManagementService();
-      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
+      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queueName);
       assertEquals(0, coreQueueControl.getDeliveringCount());
 
       final int numMessages = NUM_MESSAGES;

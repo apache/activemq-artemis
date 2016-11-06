@@ -87,7 +87,7 @@ public class ManagementWithStompTest extends ManagementTestBase {
       // retrieve the address of the queue
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
          "reply-to:" + address + "\n" +
-         "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+         "_AMQ_ResourceName:" + ResourceNames.QUEUE + queue + "\n" +
          "_AMQ_Attribute: Address\n\n" +
          Stomp.NULL;
       sendFrame(frame);
@@ -129,7 +129,7 @@ public class ManagementWithStompTest extends ManagementTestBase {
       // count number of message with filter "color = 'blue'"
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
          "reply-to:" + address + "\n" +
-         "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+         "_AMQ_ResourceName:" + ResourceNames.QUEUE + queue + "\n" +
          "_AMQ_OperationName: countMessages\n\n" +
          "[\"color = 'blue'\"]" +
          Stomp.NULL;

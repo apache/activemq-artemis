@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.security.Role;
@@ -36,7 +35,6 @@ import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfigurat
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
@@ -141,10 +139,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       }
       ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(cfName).setConnectorNames(connectorNames).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setCallTimeout(callTimeout).setReconnectAttempts(reconnectAttempts);
       jmsServer.createConnectionFactory(false, configuration, jndiBindings);
-   }
-
-   protected JMSServerControl getJMSServerControl() throws Exception {
-      return ManagementControlHelper.createJMSServerControl(mbeanServer);
    }
 
    @Override

@@ -412,7 +412,7 @@ public class ScaleDownHandler {
                Pair<byte[], Long> pair = list.get(i);
                array[i] = new String(pair.getA());
             }
-            ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "updateDuplicateIdCache", entry.getKey().toString(), array);
+            ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "updateDuplicateIdCache", entry.getKey().toString(), array);
             producer.send(message);
          }
       }
@@ -442,7 +442,7 @@ public class ScaleDownHandler {
       Object result;
       try (ClientRequestor requestor = new ClientRequestor(session, "activemq.management")) {
          ClientMessage managementMessage = session.createMessage(false);
-         ManagementHelper.putAttribute(managementMessage, "core.queue." + queueName, "ID");
+         ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, "ID");
          session.start();
          logger.debug("Requesting ID for: " + queueName);
          ClientMessage reply = requestor.request(managementMessage);

@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
@@ -50,7 +51,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
-      ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "createQueue", queue, address);
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -66,7 +67,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
-      ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "thereIsNoSuchOperation");
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "thereIsNoSuchOperation");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -101,7 +102,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
 
-      ManagementHelper.putAttribute(message, ResourceNames.CORE_SERVER, "started");
+      ManagementHelper.putAttribute(message, ResourceNames.BROKER, "started");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -119,7 +120,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
 
-      ManagementHelper.putAttribute(message, ResourceNames.CORE_SERVER, "attribute.Does.Not.Exist");
+      ManagementHelper.putAttribute(message, ResourceNames.BROKER, "attribute.Does.Not.Exist");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -134,7 +135,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       managementService.setStorageManager(new NullStorageManager());
 
       SimpleString address = RandomUtil.randomSimpleString();
-      managementService.registerAddress(address);
+      managementService.registerAddress(new AddressInfo(address));
       Queue queue = new FakeQueue(RandomUtil.randomSimpleString());
       managementService.registerQueue(queue, RandomUtil.randomSimpleString(), new FakeStorageManager());
 

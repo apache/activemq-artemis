@@ -328,7 +328,7 @@ public final class XmlDataImporter extends ActionAbstract {
             // address may need the message
             try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
                ClientMessage managementMessage = managementSession.createMessage(false);
-               ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
+               ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queue, "ID");
                managementSession.start();
                if (logger.isDebugEnabled()) {
                   logger.debug("Requesting ID for: " + queue);
@@ -825,20 +825,7 @@ public final class XmlDataImporter extends ActionAbstract {
          reader.next();
       }
 
-      try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
-         ClientMessage managementMessage = managementSession.createMessage(false);
-         ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createConnectionFactory", name, Boolean.parseBoolean(ha), discoveryGroupName.length() > 0, Integer.parseInt(type), connectors, entries, clientId, Long.parseLong(clientFailureCheckPeriod), Long.parseLong(connectionTtl), Long.parseLong(callTimeout), Long.parseLong(callFailoverTimeout), Integer.parseInt(minLargeMessageSize), Boolean.parseBoolean(compressLargeMessages), Integer.parseInt(consumerWindowSize), Integer.parseInt(consumerMaxRate), Integer.parseInt(confirmationWindowSize), Integer.parseInt(producerWindowSize), Integer.parseInt(producerMaxRate), Boolean.parseBoolean(blockOnAcknowledge), Boolean.parseBoolean(blockOnDurableSend), Boolean.parseBoolean(blockOnNonDurableSend), Boolean.parseBoolean(autoGroup), Boolean.parseBoolean(preacknowledge), loadBalancingPolicyClassName, Integer.parseInt(transactionBatchSize), Integer.parseInt(dupsOkBatchSize), Boolean.parseBoolean(useGlobalPools), Integer.parseInt(scheduledThreadMaxPoolSize), Integer.parseInt(threadMaxPoolSize), Long.parseLong(retryInterval), Double.parseDouble(retryIntervalMultiplier), Long.parseLong(maxRetryInterval), Integer.parseInt(reconnectAttempts), Boolean.parseBoolean(failoverOnInitialConnection), groupId);
-         //Boolean.parseBoolean(cacheLargeMessagesClient));
-         managementSession.start();
-         ClientMessage reply = requestor.request(managementMessage);
-         if (ManagementHelper.hasOperationSucceeded(reply)) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Created connection factory " + name);
-            }
-         } else {
-            ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
-         }
-      }
+      ActiveMQServerLogger.LOGGER.error("Ignoring Connection Factory " + name);
    }
 
    private void createJmsDestination() throws Exception {
@@ -886,9 +873,9 @@ public final class XmlDataImporter extends ActionAbstract {
       try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
          ClientMessage managementMessage = managementSession.createMessage(false);
          if ("Queue".equals(type)) {
-            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);
+            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.BROKER, "createQueue", name, entries, selector);
          } else if ("Topic".equals(type)) {
-            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createTopic", name, entries);
+            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.BROKER, "createAddress", name, entries);
          }
          managementSession.start();
          ClientMessage reply = requestor.request(managementMessage);

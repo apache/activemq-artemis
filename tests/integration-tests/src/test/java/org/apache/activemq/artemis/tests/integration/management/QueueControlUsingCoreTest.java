@@ -30,7 +30,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
    protected QueueControl createManagementControl(final SimpleString address,
                                                   final SimpleString queue) throws Exception {
       return new QueueControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_QUEUE + queue);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.QUEUE + queue);
 
          @Override
          public void flushExecutor() {
@@ -316,11 +316,10 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          public String sendMessage(Map<String, String> headers,
                                    int type,
                                    String body,
-                                   String userID,
                                    boolean durable,
                                    String user,
                                    String password) throws Exception {
-            return (String) proxy.invokeOperation("sendMessage", headers, type, body, userID, durable, user, password);
+            return (String) proxy.invokeOperation("sendMessage", headers, type, body, durable, user, password);
          }
 
          public void setDeadLetterAddress(final String deadLetterAddress) throws Exception {
@@ -350,6 +349,17 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          public boolean isPaused() throws Exception {
             return (Boolean) proxy.invokeOperation("isPaused");
          }
+
+         @Override
+         public CompositeData[] browse() throws Exception {
+            Map map = (Map) proxy.invokeOperation("browse");
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
+         }
+
 
          @Override
          public CompositeData[] browse(String filter) throws Exception {

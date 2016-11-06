@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
@@ -103,16 +102,6 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);
 
       return queueControl;
-   }
-
-   protected long getMessageCount(JMSQueueControl control) throws Exception {
-      control.flushExecutor();
-      return control.getMessageCount();
-   }
-
-   protected long getMessagesAdded(JMSQueueControl control) throws Exception {
-      control.flushExecutor();
-      return control.getMessagesAdded();
    }
 
    protected long getMessageCount(QueueControl control) throws Exception {

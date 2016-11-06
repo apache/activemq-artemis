@@ -23,7 +23,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
 
       conn.close();
 
-      JMSQueueControl control = (JMSQueueControl) server.getManagementService().getResource(queue.getQueueName());
+      QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
       System.out.println(control.listMessageCounterAsHTML());
@@ -62,7 +63,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
 
       restartServer();
 
-      control = (JMSQueueControl) server.getManagementService().getResource(queue.getQueueName());
+      control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
       System.out.println(control.listMessageCounterAsHTML());

@@ -34,7 +34,8 @@ import javax.naming.InitialContext;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMX.
@@ -81,13 +82,13 @@ public class JMXExample {
          // Step 11. Retrieve the MBeanServerConnection
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
 
-         // Step 12. Create a JMSQueueControl proxy to manage the queue on the server
-         JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, JMSQueueControl.class, false);
+         // Step 12. Create a QueueControl proxy to manage the queue on the server
+         QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, QueueControl.class, false);
          // Step 13. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
 
          // Step 14. Remove the message sent at step #8
-         System.out.println("message has been removed: " + queueControl.removeMessage(message.getJMSMessageID()));
+         System.out.println("message has been removed: " + queueControl.removeMessage(((ActiveMQTextMessage) message).getCoreMessage().getMessageID()));
 
          // Step 15. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
