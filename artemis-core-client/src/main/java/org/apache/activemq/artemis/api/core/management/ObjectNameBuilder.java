@@ -33,10 +33,6 @@ public final class ObjectNameBuilder {
     */
    public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "localhost", true);
 
-   static final String JMS_MODULE = "JMS";
-
-   static final String CORE_MODULE = "Core";
-
    // Attributes ----------------------------------------------------
 
    private final String domain;
@@ -85,7 +81,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
    public ObjectName getActiveMQServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + "module=Core," + getObjectType() + "=Server");
+      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + getObjectType() + "=Broker");
    }
 
    /**
@@ -94,7 +90,7 @@ public final class ObjectNameBuilder {
     * @see AddressControl
     */
    public ObjectName getAddressObjectName(final SimpleString address) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Address", address.toString());
+      return createObjectName("Address", address.toString());
    }
 
    /**
@@ -103,7 +99,7 @@ public final class ObjectNameBuilder {
     * @see QueueControl
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "module=%s," + getObjectType() + "=%s,address=%s,name=%s", domain, ObjectNameBuilder.CORE_MODULE, "Queue", ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", ObjectName.quote(name.toString())));
    }
 
    /**
@@ -111,8 +107,8 @@ public final class ObjectNameBuilder {
     *
     * @see DivertControl
     */
-   public ObjectName getDivertObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Divert", name);
+   public ObjectName getDivertObjectName(final String name, String address) throws Exception {
+      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Divert", ObjectName.quote(name.toString())));
    }
 
    /**
@@ -121,7 +117,7 @@ public final class ObjectNameBuilder {
     * @see AcceptorControl
     */
    public ObjectName getAcceptorObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Acceptor", name);
+      return createObjectName("Acceptor", name);
    }
 
    /**
@@ -130,7 +126,7 @@ public final class ObjectNameBuilder {
     * @see BroadcastGroupControl
     */
    public ObjectName getBroadcastGroupObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "BroadcastGroup", name);
+      return createObjectName("BroadcastGroup", name);
    }
 
    /**
@@ -139,7 +135,7 @@ public final class ObjectNameBuilder {
     * @see BridgeControl
     */
    public ObjectName getBridgeObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Bridge", name);
+      return createObjectName("Bridge", name);
    }
 
    /**
@@ -148,14 +144,14 @@ public final class ObjectNameBuilder {
     * @see ClusterConnectionControl
     */
    public ObjectName getClusterConnectionObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "ClusterConnection", name);
+      return createObjectName("ClusterConnection", name);
    }
 
    /**
     * Returns the ObjectName used by DiscoveryGroupControl.
     */
    public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "DiscoveryGroup", name);
+      return createObjectName("DiscoveryGroup", name);
    }
 
    /**
@@ -169,25 +165,25 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by JMSQueueControl.
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.JMS_MODULE, "Queue", name);
+      return createObjectName("Queue", name);
    }
 
    /**
     * Returns the ObjectName used by TopicControl.
     */
    public ObjectName getJMSTopicObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.JMS_MODULE, "Topic", name);
+      return createObjectName("Topic", name);
    }
 
    /**
     * Returns the ObjectName used by ConnectionFactoryControl.
     */
    public ObjectName getConnectionFactoryObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.JMS_MODULE, "ConnectionFactory", name);
+      return createObjectName("ConnectionFactory", name);
    }
 
-   private ObjectName createObjectName(final String module, final String type, final String name) throws Exception {
-      String format = String.format("%s:" + getBrokerProperties() + "module=%s," + getObjectType() + "=%s,name=%s", domain, module, type, ObjectName.quote(name));
+   private ObjectName createObjectName(final String type, final String name) throws Exception {
+      String format = String.format("%s:" + getBrokerProperties() + getObjectType() + "=%s,name=%s", domain, type, ObjectName.quote(name));
       return ObjectName.getInstance(format);
    }
 

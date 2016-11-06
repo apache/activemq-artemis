@@ -477,7 +477,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   AddressInfo removeAddressInfo(SimpleString address) throws Exception;
+   void removeAddressInfo(SimpleString address) throws Exception;
 
    String getInternalNamingPrefix();
 }

@@ -297,6 +297,14 @@ public interface ActiveMQServerControl {
    String getManagementAddress();
 
    /**
+    * Returns the node ID of this server.
+    * <br>
+    * Clients can send management messages to this address to manage this server.
+    */
+   @Attribute(desc = "Node ID of this server")
+   String getNodeID();
+
+   /**
     * Returns the management notification address of this server.
     * <br>
     * Clients can bind queues to this address to receive management notifications emitted by this server.
@@ -423,6 +431,15 @@ public interface ActiveMQServerControl {
    long getGlobalMaxSize();
 
    // Operations ----------------------------------------------------
+
+   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
+   void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                      @Parameter(name = "routingType", desc = "the routing type of the address either 0 for multicast or 1 for anycast") int routingType,
+                      @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
+                      @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
+
+   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
+   void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
 
    /**
     * Create a durable queue.
@@ -881,5 +898,8 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)
    void scaleDown(@Parameter(name = "name", desc = "The connector to use to scale down, if not provided the first appropriate connector will be used") String connector) throws Exception;
+
+   @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
+   String listNetworkTopology() throws Exception;
 }
 

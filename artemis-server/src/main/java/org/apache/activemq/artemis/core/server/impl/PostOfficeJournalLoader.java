@@ -166,7 +166,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
          queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
-         managementService.registerAddress(queue.getAddress());
+         //managementService.registerAddress(queue.getAddress());
          managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
       }
@@ -184,7 +184,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .setDefaultMaxQueueConsumers(addressBindingInfo.getDefaultMaxConsumers());
 
          postOffice.addAddressInfo(addressInfo);
-         managementService.registerAddress(addressInfo.getName());
+         managementService.registerAddress(addressInfo);
       }
    }
 

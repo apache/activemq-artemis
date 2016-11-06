@@ -1340,7 +1340,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseClusterConnectionConfiguration(final Element e, final Configuration mainConfig) throws Exception {
       String name = e.getAttribute("name");
 
-      String address = getString(e, "address", null, Validators.NOT_NULL_OR_EMPTY);
+      String address = getString(e, "address", "", Validators.NO_CHECK);
 
       String connectorName = getString(e, "connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
 

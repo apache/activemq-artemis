@@ -174,7 +174,7 @@ public interface Server extends Remote {
 
    InitialContext getInitialContext() throws Exception;
 
-   void removeAllMessages(String destination, boolean isQueue) throws Exception;
+   void removeAllMessages(String destination) throws Exception;
 
    Long getMessageCountForQueue(String queueName) throws Exception;
 

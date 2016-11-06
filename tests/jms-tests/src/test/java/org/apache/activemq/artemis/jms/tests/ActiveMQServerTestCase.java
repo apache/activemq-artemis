@@ -228,27 +228,6 @@ public abstract class ActiveMQServerTestCase {
       queue4 = (Queue) ic.lookup("/queue/Queue4");
    }
 
-   protected void undeployAdministeredObjects() throws Exception {
-      removeAllMessages("Topic1", false);
-      removeAllMessages("Topic2", false);
-      removeAllMessages("Topic3", false);
-      removeAllMessages("Queue1", true);
-      removeAllMessages("Queue2", true);
-      removeAllMessages("Queue3", true);
-      removeAllMessages("Queue4", true);
-
-      destroyTopic("Topic1");
-      destroyTopic("Topic2");
-      destroyTopic("Topic3");
-      destroyQueue("Queue1");
-      destroyQueue("Queue2");
-      destroyQueue("Queue3");
-      destroyQueue("Queue4");
-
-      undeployConnectionFactory("ConnectionFactory");
-      undeployConnectionFactory("CF_TOPIC");
-      undeployConnectionFactory("CF_XA_TRUE");
-   }
 
    @AfterClass
    public static final void tearDownAllServers() {
@@ -362,7 +341,7 @@ public abstract class ActiveMQServerTestCase {
    }
 
    protected void removeAllMessages(final String destName, final boolean isQueue) throws Exception {
-      ActiveMQServerTestCase.servers.get(0).removeAllMessages(destName, isQueue);
+      ActiveMQServerTestCase.servers.get(0).removeAllMessages(destName);
    }
 
    protected boolean assertRemainingMessages(final int expected) throws Exception {

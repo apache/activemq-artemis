@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -89,7 +90,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void unregisterFromRegistry(final String resourceName);
 
-   void registerAddress(SimpleString address) throws Exception;
+   void registerAddress(AddressInfo addressInfo) throws Exception;
 
    void unregisterAddress(SimpleString address) throws Exception;
 
@@ -103,7 +104,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void registerDivert(Divert divert, DivertConfiguration config) throws Exception;
 
-   void unregisterDivert(SimpleString name) throws Exception;
+   void unregisterDivert(SimpleString name, SimpleString address) throws Exception;
 
    void registerBroadcastGroup(BroadcastGroup broadcastGroup,
                                BroadcastGroupConfiguration configuration) throws Exception;

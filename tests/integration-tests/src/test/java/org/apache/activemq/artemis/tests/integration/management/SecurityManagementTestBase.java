@@ -75,7 +75,7 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
          ClientRequestor requestor = new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
 
          ClientMessage mngmntMessage = session.createMessage(false);
-         ManagementHelper.putAttribute(mngmntMessage, ResourceNames.CORE_SERVER, "started");
+         ManagementHelper.putAttribute(mngmntMessage, ResourceNames.BROKER, "started");
          ClientMessage reply = requestor.request(mngmntMessage, 500);
          if (expectSuccess) {
             Assert.assertNotNull(reply);

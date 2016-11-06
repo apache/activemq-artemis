@@ -221,8 +221,6 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          SimpleString notifQueueName = new SimpleString(qName);
 
-         String filterString = flowRecord.getAddress();
-
          SimpleString filter = new SimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
                                                    BindingType.DIVERT.toInt() +
                                                    " AND " +
@@ -261,7 +259,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          if (logger.isTraceEnabled()) {
             logger.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
          }
-         ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
+         ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
          try (ClientProducer prod = sessionConsumer.createProducer(managementAddress)) {
             if (logger.isDebugEnabled()) {

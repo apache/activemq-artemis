@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
-import org.junit.Assert;
 import org.objectweb.jtests.jms.admin.Admin;
 
 /**
@@ -120,8 +120,7 @@ public class AbstractAdmin implements Admin {
    public void createQueue(final String name) {
       Boolean result;
       try {
-         result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "createQueue", name, name);
-         Assert.assertEquals(true, result.booleanValue());
+         invokeSyncOperation(ResourceNames.BROKER, "createQueue", name, name);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -131,8 +130,7 @@ public class AbstractAdmin implements Admin {
    public void deleteQueue(final String name) {
       Boolean result;
       try {
-         result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyQueue", name);
-         Assert.assertEquals(true, result.booleanValue());
+         invokeSyncOperation(ResourceNames.BROKER, "destroyQueue", name);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -152,8 +150,7 @@ public class AbstractAdmin implements Admin {
    public void createTopic(final String name) {
       Boolean result;
       try {
-         result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "createTopic", name, name);
-         Assert.assertEquals(true, result.booleanValue());
+         invokeSyncOperation(ResourceNames.BROKER, "createAddress", name, (int)AddressInfo.RoutingType.MULTICAST.getType(), false, -1);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -163,8 +160,7 @@ public class AbstractAdmin implements Admin {
    public void deleteTopic(final String name) {
       Boolean result;
       try {
-         result = (Boolean) invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyTopic", name);
-         Assert.assertEquals(true, result.booleanValue());
+         invokeSyncOperation(ResourceNames.BROKER, "deleteAddress", name);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }

@@ -22,6 +22,7 @@ import javax.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -38,6 +39,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -59,7 +61,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
-import org.apache.activemq.artemis.utils.UUID;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
@@ -694,7 +695,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    public String sendMessage(final Map<String, String> headers,
                              final int type,
                              final String body,
-                             final String userID,
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
@@ -721,11 +721,13 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       message.setType((byte) type);
       message.setDurable(durable);
       message.setTimestamp(System.currentTimeMillis());
-      message.setUserID(new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(userID)));
       if (body != null) {
          message.getBodyBuffer().writeBytes(Base64.decode(body));
       }
       message.setAddress(queue.getAddress());
+      ByteBuffer buffer = ByteBuffer.allocate(8);
+      buffer.putLong(queue.getID());
+      message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
       postOffice.route(message, null, true);
       return "" + message.getMessageID();
    }
@@ -884,6 +886,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
+   public CompositeData[] browse() throws Exception {
+      return browse(null);
+   }
    @Override
    public CompositeData[] browse(String filterStr) throws Exception {
       checkStarted();

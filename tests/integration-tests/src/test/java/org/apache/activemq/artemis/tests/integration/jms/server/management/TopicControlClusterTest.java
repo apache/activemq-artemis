@@ -20,7 +20,8 @@ import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
@@ -49,11 +50,13 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          session2.createDurableSubscriber(topic2, "sub2");
 
-         TopicControl topicControl1 = ManagementControlHelper.createTopicControl(topic1, mBeanServer1);
-         TopicControl topicControl2 = ManagementControlHelper.createTopicControl(topic2, mBeanServer2);
+         SimpleString add1 = new SimpleString(topic1.getTopicName());
+         SimpleString add2 = new SimpleString(topic2.getTopicName());
+         AddressControl topicControl1 = ManagementControlHelper.createAddressControl(add1, mBeanServer1);
+         AddressControl topicControl2 = ManagementControlHelper.createAddressControl(add2, mBeanServer2);
 
-         assertEquals(2, topicControl1.getSubscriptionCount());
-         assertEquals(1, topicControl2.getSubscriptionCount());
+         assertEquals(2, topicControl1.getQueueNames().length);
+         assertEquals(1, topicControl2.getQueueNames().length);
       } finally {
          conn1.close();
          conn2.close();

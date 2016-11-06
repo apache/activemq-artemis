@@ -123,7 +123,7 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
    }
 
    protected CoreMessagingProxy createProxy(final String name) throws Exception {
-      CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_BRIDGE + name);
+      CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.BRIDGE + name);
 
       return proxy;
    }

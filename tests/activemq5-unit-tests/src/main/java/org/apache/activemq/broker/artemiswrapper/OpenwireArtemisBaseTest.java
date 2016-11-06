@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -193,15 +190,6 @@ public class OpenwireArtemisBaseTest {
                                           int port,
                                           Map<String, String> params) throws Exception {
       return "tcp://" + localhostAddress + ":" + port + "?" + URISupport.createQueryString(params);
-   }
-
-   public static JMSServerControl createJMSServerControl(final MBeanServer mbeanServer) throws Exception {
-      return (JMSServerControl) createProxy(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), JMSServerControl.class, mbeanServer);
-   }
-
-   public static JMSQueueControl createJMSQueueControl(final String name,
-                                                       final MBeanServer mbeanServer) throws Exception {
-      return (JMSQueueControl) createProxy(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(name), JMSQueueControl.class, mbeanServer);
    }
 
    private static Object createProxy(final ObjectName objectName,

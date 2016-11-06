@@ -39,8 +39,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.CORE_ADDRESS;
-import static org.apache.activemq.artemis.api.core.management.ResourceNames.CORE_QUEUE;
+import static org.apache.activemq.artemis.api.core.management.ResourceNames.ADDRESS;
+import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEUE;
 
 public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
@@ -73,8 +73,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       }
 
       // make sure the JMX control was created for the address and queue
-      assertNotNull(server.getManagementService().getResource(CORE_ADDRESS + QUEUE_NAME));
-      assertNotNull(server.getManagementService().getResource(CORE_QUEUE + QUEUE_NAME));
+      assertNotNull(server.getManagementService().getResource(ADDRESS + QUEUE_NAME));
+      assertNotNull(server.getManagementService().getResource(QUEUE + QUEUE_NAME));
 
       connection.close();
    }

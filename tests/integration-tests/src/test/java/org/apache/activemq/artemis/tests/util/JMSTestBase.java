@@ -36,7 +36,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -99,11 +98,6 @@ public class JMSTestBase extends ActiveMQTestBase {
 
    protected Topic createTopic(final String topicName) throws Exception {
       return createTopic(false, topicName);
-   }
-
-   protected long getMessageCount(JMSQueueControl control) throws Exception {
-      control.flushExecutor();
-      return control.getMessageCount();
    }
 
    protected long getMessageCount(QueueControl control) throws Exception {

@@ -2108,7 +2108,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, Base64.encodeBytes("theBody".getBytes()), "myID", true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
       Assert.assertEquals(1, getMessageCount(queueControl));
 
@@ -2133,7 +2133,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, null, "myID", true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, null, true, "myUser", "myPassword");
 
       Assert.assertEquals(1, getMessageCount(queueControl));
 
