@@ -59,8 +59,8 @@ public class ManagementControlHelper {
       return (BridgeControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name), BridgeControl.class, mbeanServer);
    }
 
-   public static DivertControl createDivertControl(final String name, final MBeanServer mbeanServer) throws Exception {
-      return (DivertControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getDivertObjectName(name), DivertControl.class, mbeanServer);
+   public static DivertControl createDivertControl(final String name, String address, final MBeanServer mbeanServer) throws Exception {
+      return (DivertControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address), DivertControl.class, mbeanServer);
    }
 
    public static ClusterConnectionControl createClusterConnectionControl(final String name,

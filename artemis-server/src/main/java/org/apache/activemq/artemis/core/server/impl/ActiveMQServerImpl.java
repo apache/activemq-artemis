@@ -2424,9 +2424,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw e;
       }
 
-      if (!addressAlreadyExists) {
-         managementService.registerAddress(queue.getAddress());
-      }
       managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
       callPostQueueCreationCallbacks(queue.getName());

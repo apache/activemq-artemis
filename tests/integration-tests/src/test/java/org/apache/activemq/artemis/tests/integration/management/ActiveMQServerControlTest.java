@@ -594,12 +594,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
       serverControl.createDivert(name.toString(), null, address, forwardingAddress, true, null, null);
 
-      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
    }
 
    @Test
@@ -611,13 +611,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
       serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
 
-      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
-      DivertControl divertControl = ManagementControlHelper.createDivertControl(name.toString(), mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
+      DivertControl divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);
       assertEquals(name.toString(), divertControl.getUniqueName());
       assertEquals(address, divertControl.getAddress());
       assertEquals(forwardingAddress, divertControl.getForwardingAddress());
@@ -658,7 +658,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       serverControl.destroyDivert(name.toString());
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
       // check that a message is no longer diverted

@@ -86,9 +86,7 @@ import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.artemis.jms.server.management.JMSManagementService;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
-import org.apache.activemq.artemis.jms.server.management.impl.JMSManagementServiceImpl;
 import org.apache.activemq.artemis.jms.transaction.JMSTransactionDetail;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 import org.apache.activemq.artemis.utils.JsonLoader;
@@ -132,8 +130,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private final List<Runnable> cachedCommands = new ArrayList<>();
 
    private final ActiveMQServer server;
-
-   private JMSManagementService jmsManagementService;
 
    private boolean startCalled;
 
@@ -191,10 +187,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
       try {
 
-         jmsManagementService = new JMSManagementServiceImpl(server.getManagementService(), server, this);
-
-         jmsManagementService.registerJMSServer(this);
-
          // Must be set to active before calling initJournal
          active = true;
 
@@ -248,15 +240,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
             topicBindings.clear();
             topics.clear();
-
-            // it could be null if a backup
-            if (jmsManagementService != null) {
-               jmsManagementService.unregisterJMSServer();
-
-               jmsManagementService.stop();
-            }
-
-            jmsManagementService = null;
 
             active = false;
          }
@@ -388,7 +371,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 //      server.setJMSQueueCreator(new JMSDestinationCreator());
 //
 //      server.setJMSQueueDeleter(new JMSQueueDeleter());
-
       server.registerActivateCallback(this);
 
 //      server.registerPostQueueCreationCallback(new JMSPostQueueCreationCallback());
@@ -800,8 +782,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          queues.remove(name);
          queueBindings.remove(name);
 
-         jmsManagementService.unregisterQueue(name);
-
          storage.deleteDestination(PersistedType.Queue, name);
 
          sendNotification(JMSNotificationType.QUEUE_DESTROYED, name);
@@ -839,8 +819,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
             topics.remove(name);
             topicBindings.remove(name);
-
-            jmsManagementService.unregisterTopic(name);
 
             storage.deleteDestination(PersistedType.Topic, name);
 
@@ -1097,8 +1075,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
          this.recoverregistryBindings(queueName, PersistedType.Queue);
 
-         jmsManagementService.registerQueue(activeMQQueue, queue);
-
          return true;
       }
    }
@@ -1133,8 +1109,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
          this.recoverregistryBindings(topicName, PersistedType.Topic);
 
-         jmsManagementService.registerTopic(activeMQTopic);
-
          return true;
       }
    }
@@ -1153,8 +1127,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
 
       connectionFactories.put(cfConfig.getName(), cf);
-
-      jmsManagementService.registerConnectionFactory(cfConfig.getName(), cfConfig, cf);
 
       return cf;
    }
@@ -1280,8 +1252,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
       connectionFactoryBindings.remove(name);
       connectionFactories.remove(name);
-
-      jmsManagementService.unregisterConnectionFactory(name);
 
       return true;
    }

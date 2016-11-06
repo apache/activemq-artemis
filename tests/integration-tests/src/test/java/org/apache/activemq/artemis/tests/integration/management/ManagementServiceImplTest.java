@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
@@ -134,7 +135,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       managementService.setStorageManager(new NullStorageManager());
 
       SimpleString address = RandomUtil.randomSimpleString();
-      managementService.registerAddress(address);
+      managementService.registerAddress(new AddressInfo(address));
       Queue queue = new FakeQueue(RandomUtil.randomSimpleString());
       managementService.registerQueue(queue, RandomUtil.randomSimpleString(), new FakeStorageManager());
 

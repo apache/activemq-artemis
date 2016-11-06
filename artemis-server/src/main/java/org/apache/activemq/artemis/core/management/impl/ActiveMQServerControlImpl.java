@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -546,6 +547,18 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getGlobalMaxSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createAddress(String name, int routingType,  boolean defaultDeleteOnNoConsumers, int defaultMaxConsumers) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         server.createOrUpdateAddressInfo(new AddressInfo(new SimpleString(name), AddressInfo.RoutingType.getType((byte)routingType), defaultDeleteOnNoConsumers, defaultMaxConsumers));
       } finally {
          blockOnIO();
       }

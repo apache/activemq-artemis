@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -210,13 +211,13 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public synchronized void registerAddress(final SimpleString address) throws Exception {
-      ObjectName objectName = objectNameBuilder.getAddressObjectName(address);
-      AddressControlImpl addressControl = new AddressControlImpl(address, postOffice, pagingManager, storageManager, securityRepository);
+   public void registerAddress(AddressInfo addressInfo) throws Exception {
+      ObjectName objectName = objectNameBuilder.getAddressObjectName(addressInfo.getName());
+      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, postOffice, pagingManager, storageManager, securityRepository, securityStore);
 
       registerInJMX(objectName, addressControl);
 
-      registerInRegistry(ResourceNames.CORE_ADDRESS + address, addressControl);
+      registerInRegistry(ResourceNames.ADDRESS + addressInfo.getName(), addressControl);
 
       if (logger.isDebugEnabled()) {
          logger.debug("registered address " + objectName);
@@ -230,7 +231,6 @@ public class ManagementServiceImpl implements ManagementService {
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.CORE_ADDRESS + address);
    }
-
    @Override
    public synchronized void registerQueue(final Queue queue,
                                           final SimpleString address,
@@ -260,7 +260,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public synchronized void registerDivert(final Divert divert, final DivertConfiguration config) throws Exception {
-      ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString());
+      ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString(), config.getAddress());
       DivertControl divertControl = new DivertControlImpl(divert, storageManager, config);
       registerInJMX(objectName, divertControl);
       registerInRegistry(ResourceNames.CORE_DIVERT + config.getName(), divertControl);
@@ -272,7 +272,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public synchronized void unregisterDivert(final SimpleString name) throws Exception {
-      ObjectName objectName = objectNameBuilder.getDivertObjectName(name.toString());
+      ObjectName objectName = objectNameBuilder.getDivertObjectName(name.toString(), null);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.CORE_DIVERT + name);
    }
@@ -470,7 +470,6 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public synchronized void unregisterFromRegistry(final String resourceName) {
-      ActiveMQServerLogger.LOGGER.info("Unregistering: " + resourceName, new Exception());
       registry.remove(resourceName);
    }
 

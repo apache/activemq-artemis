@@ -57,7 +57,6 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    @Override
    public void createConnectionFactory(final String name) {
-      createConnection(name, 0);
       jndiProps.put("connectionFactory." + name, "tcp://127.0.0.1:61616?type=CF");
 
    }
@@ -84,7 +83,6 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    @Override
    public void createQueueConnectionFactory(final String name) {
-      createConnection(name, 1);
       jndiProps.put("connectionFactory." + name, "tcp://127.0.0.1:61616?type=QUEUE_CF");
    }
 
@@ -96,7 +94,6 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    @Override
    public void createTopicConnectionFactory(final String name) {
-      createConnection(name, 2);
       jndiProps.put("connectionFactory." + name, "tcp://127.0.0.1:61616?type=TOPIC_CF");
    }
 

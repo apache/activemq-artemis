@@ -38,10 +38,10 @@ import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
@@ -504,8 +504,8 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          managementService = server1.getManagementService();
       }
-      TopicControl topicControl = (TopicControl) managementService.getResource(topic.getTopicName());
-      Assert.assertEquals(0, topicControl.getSubscriptionCount());
+      AddressControl topicControl = (AddressControl) managementService.getResource("address." + topic.getTopicName());
+      Assert.assertEquals(0, topicControl.getQueueNames().length);
 
    }
 

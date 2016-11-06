@@ -23,10 +23,11 @@ package org.apache.activemq.artemis.api.core.management;
  * For example, the resource name of the "foo" queue is {@code CORE_QUEUE + "foo"}.
  */
 public final class ResourceNames {
+   public static final String ADDRESS = "address.";
 
-   public static final String CORE_SERVER = "core.server";
+   public static final String CORE_SERVER = "broker";
 
-   public static final String CORE_QUEUE = "core.queue.";
+   public static final String CORE_QUEUE = "queue.";
 
    public static final String CORE_ADDRESS = "core.address.";
 

@@ -45,9 +45,9 @@ public class DivertControlTest extends ManagementTestBase {
 
    @Test
    public void testAttributes() throws Exception {
-      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(divertConfig.getName()));
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(divertConfig.getName(), divertConfig.getAddress()));
 
-      DivertControl divertControl = createManagementControl(divertConfig.getName());
+      DivertControl divertControl = createDivertManagementControl(divertConfig.getName(), divertConfig.getAddress());
 
       Assert.assertEquals(divertConfig.getFilterString(), divertControl.getFilter());
 
@@ -86,7 +86,7 @@ public class DivertControlTest extends ManagementTestBase {
       server.start();
    }
 
-   protected DivertControl createManagementControl(final String name) throws Exception {
-      return ManagementControlHelper.createDivertControl(name, mbeanServer);
+   protected DivertControl createDivertManagementControl(final String name, final String address) throws Exception {
+      return ManagementControlHelper.createDivertControl(name, address, mbeanServer);
    }
 }

@@ -21,6 +21,7 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -34,7 +35,13 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
@@ -43,7 +50,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    // Attributes ----------------------------------------------------
 
-   private final SimpleString address;
+   private AddressInfo addressInfo;
 
    private final PostOffice postOffice;
 
@@ -51,20 +58,24 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
+   private final SecurityStore securityStore;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public AddressControlImpl(final SimpleString address,
+   public AddressControlImpl(AddressInfo addressInfo,
                              final PostOffice postOffice,
                              final PagingManager pagingManager,
                              final StorageManager storageManager,
-                             final HierarchicalRepository<Set<Role>> securityRepository) throws Exception {
+                             final HierarchicalRepository<Set<Role>> securityRepository,
+                             final SecurityStore securityStore)throws Exception {
       super(AddressControl.class, storageManager);
-      this.address = address;
+      this.addressInfo = addressInfo;
       this.postOffice = postOffice;
       this.pagingManager = pagingManager;
       this.securityRepository = securityRepository;
+      this.securityStore = securityStore;
    }
 
    // Public --------------------------------------------------------
@@ -73,14 +84,19 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public String getAddress() {
-      return address.toString();
+      return addressInfo.getName().toString();
+   }
+
+   @Override
+   public String getRoutingType() {
+      return addressInfo.getRoutingType().toString();
    }
 
    @Override
    public String[] getQueueNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(address);
+         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
          List<String> queueNames = new ArrayList<>();
          for (Binding binding : bindings.getBindings()) {
             if (binding instanceof QueueBinding) {
@@ -99,7 +115,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String[] getBindingNames() throws Exception {
       clearIO();
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(address);
+         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
          String[] bindingNames = new String[bindings.getBindings().size()];
          int i = 0;
          for (Binding binding : bindings.getBindings()) {
@@ -117,7 +133,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public Object[] getRoles() throws Exception {
       clearIO();
       try {
-         Set<Role> roles = securityRepository.getMatch(address.toString());
+         Set<Role> roles = securityRepository.getMatch(addressInfo.getName().toString());
 
          Object[] objRoles = new Object[roles.size()];
 
@@ -136,7 +152,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
-         Set<Role> roles = securityRepository.getMatch(address.toString());
+         Set<Role> roles = securityRepository.getMatch(addressInfo.getName().toString());
 
          for (Role role : roles) {
             json.add(role.toJson());
@@ -151,7 +167,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public long getNumberOfBytesPerPage() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(address).getPageSizeBytes();
+         return pagingManager.getPageStore(addressInfo.getName()).getPageSizeBytes();
       } finally {
          blockOnIO();
       }
@@ -161,7 +177,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public long getAddressSize() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(address).getAddressSize();
+         return pagingManager.getPageStore(addressInfo.getName()).getAddressSize();
       } finally {
          blockOnIO();
       }
@@ -172,7 +188,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       long totalMsgs = 0;
       try {
-         Bindings bindings = postOffice.getBindingsForAddress(address);
+         Bindings bindings = postOffice.getBindingsForAddress(addressInfo.getName());
          for (Binding binding : bindings.getBindings()) {
             if (binding instanceof QueueBinding) {
                totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
@@ -190,7 +206,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public boolean isPaging() throws Exception {
       clearIO();
       try {
-         return pagingManager.getPageStore(address).isPaging();
+         return pagingManager.getPageStore(addressInfo.getName()).isPaging();
       } finally {
          blockOnIO();
       }
@@ -200,16 +216,75 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public int getNumberOfPages() throws Exception {
       clearIO();
       try {
-         PagingStore pageStore = pagingManager.getPageStore(address);
+         PagingStore pageStore = pagingManager.getPageStore(addressInfo.getName());
 
          if (!pageStore.isPaging()) {
             return 0;
          } else {
-            return pagingManager.getPageStore(address).getNumberOfPages();
+            return pagingManager.getPageStore(addressInfo.getName()).getNumberOfPages();
          }
       } finally {
          blockOnIO();
       }
+   }
+
+  /* @Override
+      public String sendTextMessage(Map<String, String> headers,
+                                    String body,
+                                    String user,
+                                    String password) throws Exception {
+         boolean durable = false;
+         if (headers.containsKey("JMSDeliveryMode")) {
+            String jmsDeliveryMode = headers.remove("JMSDeliveryMode");
+            if (jmsDeliveryMode != null && (jmsDeliveryMode.equals("2") || jmsDeliveryMode.equalsIgnoreCase("PERSISTENT"))) {
+               durable = true;
+            }
+         }
+         String userID = UUIDGenerator.getInstance().generateStringUUID();
+         ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(56);
+         buffer.writeNullableSimpleString(new SimpleString(body));
+         byte[] bytes = new byte[buffer.readableBytes()];
+         buffer.readBytes(bytes);
+         coreQueueControl.sendMessage(headers, Message.TEXT_TYPE, Base64.encodeBytes(bytes), userID, durable, user, password);
+         return userID;
+      }*/
+
+   @Override
+   public String sendMessage(final Map<String, String> headers,
+                             final int type,
+                             final String body,
+                             boolean durable,
+                             final String user,
+                             final String password) throws Exception {
+      securityStore.check(addressInfo.getName(), CheckType.SEND, new SecurityAuth() {
+         @Override
+         public String getUsername() {
+            return user;
+         }
+
+         @Override
+         public String getPassword() {
+            return password;
+         }
+
+         @Override
+         public RemotingConnection getRemotingConnection() {
+            return null;
+         }
+      });
+      ServerMessageImpl message = new ServerMessageImpl(storageManager.generateID(), 50);
+      for (String header : headers.keySet()) {
+         message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+      }
+      message.setType((byte) type);
+      message.setDurable(durable);
+      message.setTimestamp(System.currentTimeMillis());
+      if (body != null) {
+         message.getBodyBuffer().writeBytes(Base64.decode(body));
+      }
+      message.setAddress(addressInfo.getName());
+      postOffice.route(message, null, true);
+      return "" + message.getMessageID();
    }
 
    @Override
