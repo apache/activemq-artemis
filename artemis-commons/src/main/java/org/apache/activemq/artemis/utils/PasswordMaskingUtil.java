@@ -25,64 +25,73 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
-public class PasswordMaskingUtil {
+public final class PasswordMaskingUtil {
 
-   private static final String PLAINTEXT_PROCESSOR = "plaintext";
-   private static final String SECURE_PROCESSOR = "secure";
+   private PasswordMaskingUtil() {
 
-   private static final Map<String, HashProcessor> processors = new HashMap<>();
+   }
+
+   private static final class LazyPlainTextProcessorHolder {
+
+      private LazyPlainTextProcessorHolder() {
+
+      }
+
+      private static final HashProcessor INSTANCE = new NoHashProcessor();
+
+   }
+
+   private static final class LazySecureProcessorHolder {
+
+      private LazySecureProcessorHolder() {
+
+      }
+
+      private static final HashProcessor INSTANCE;
+      private static final Exception EXCEPTION;
+
+      static {
+         HashProcessor processor = null;
+         Exception exception = null;
+         final String codecDesc = "org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;algorithm=one-way";
+         try {
+            final DefaultSensitiveStringCodec codec = (DefaultSensitiveStringCodec) PasswordMaskingUtil.getCodec(codecDesc);
+            processor = new SecureHashProcessor(codec);
+         } catch (Exception e) {
+            //THE STACK TRACE IS THE ORIGINAL ONE!
+            exception = e;
+         } finally {
+            EXCEPTION = exception;
+            INSTANCE = processor;
+         }
+      }
+   }
 
    //stored password takes 2 forms, ENC() or plain text
    public static HashProcessor getHashProcessor(String storedPassword) throws Exception {
 
       if (!isEncoded(storedPassword)) {
-         return getPlaintextProcessor();
+         return LazyPlainTextProcessorHolder.INSTANCE;
       }
-      return getSecureProcessor();
+      final Exception secureProcessorException = LazySecureProcessorHolder.EXCEPTION;
+      if (secureProcessorException != null) {
+         //reuse old descriptions/messages of the exception but refill the stack trace
+         throw new RuntimeException(secureProcessorException);
+      }
+      return LazySecureProcessorHolder.INSTANCE;
    }
 
    private static boolean isEncoded(String storedPassword) {
-      if (storedPassword == null) {
-         return true;
-      }
-
-      if (storedPassword.startsWith("ENC(") && storedPassword.endsWith(")")) {
-         return true;
-      }
-      return false;
+      return storedPassword == null || (storedPassword.startsWith("ENC(") && storedPassword.endsWith(")"));
    }
 
    public static HashProcessor getHashProcessor() {
-      HashProcessor processor = null;
-      try {
-         processor = getSecureProcessor();
-      } catch (Exception e) {
-         processor = getPlaintextProcessor();
+      HashProcessor processor = LazySecureProcessorHolder.INSTANCE;
+      //it can be null due to a previous failed attempts to instantiate it!
+      if (processor == null) {
+         processor = LazyPlainTextProcessorHolder.INSTANCE;
       }
       return processor;
-   }
-
-   public static HashProcessor getPlaintextProcessor() {
-      synchronized (processors) {
-         HashProcessor plain = processors.get(PLAINTEXT_PROCESSOR);
-         if (plain == null) {
-            plain = new NoHashProcessor();
-            processors.put(PLAINTEXT_PROCESSOR, plain);
-         }
-         return plain;
-      }
-   }
-
-   public static HashProcessor getSecureProcessor() throws Exception {
-      synchronized (processors) {
-         HashProcessor processor = processors.get(SECURE_PROCESSOR);
-         if (processor == null) {
-            DefaultSensitiveStringCodec codec = (DefaultSensitiveStringCodec) getCodec("org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;algorithm=one-way");
-            processor = new SecureHashProcessor(codec);
-            processors.put(SECURE_PROCESSOR, processor);
-         }
-         return processor;
-      }
    }
 
    /*
@@ -141,6 +150,5 @@ public class PasswordMaskingUtil {
    public static DefaultSensitiveStringCodec getDefaultCodec() {
       return new DefaultSensitiveStringCodec();
    }
-
 
 }
