@@ -1053,59 +1053,51 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       @Override
       public void run() {
-         try {
-            logger.debug("stopping bridge " + BridgeImpl.this);
-            queue.removeConsumer(BridgeImpl.this);
+         logger.debug("stopping bridge " + BridgeImpl.this);
+         queue.removeConsumer(BridgeImpl.this);
 
-            if (!pendingAcks.await(10, TimeUnit.SECONDS)) {
-               ActiveMQServerLogger.LOGGER.timedOutWaitingCompletions(BridgeImpl.this.toString(), pendingAcks.getCount());
-            }
+         synchronized (BridgeImpl.this) {
+            logger.debug("Closing Session for bridge " + BridgeImpl.this.name);
 
-            synchronized (BridgeImpl.this) {
-               logger.debug("Closing Session for bridge " + BridgeImpl.this.name);
+            started = false;
 
-               started = false;
+            active = false;
 
-               active = false;
-
-            }
-
-            if (session != null) {
-               logger.debug("Cleaning up session " + session);
-               session.removeFailureListener(BridgeImpl.this);
-               try {
-                  session.close();
-                  session = null;
-               } catch (ActiveMQException dontcare) {
-               }
-            }
-
-            if (sessionConsumer != null) {
-               logger.debug("Cleaning up session " + session);
-               try {
-                  sessionConsumer.close();
-                  sessionConsumer = null;
-               } catch (ActiveMQException dontcare) {
-               }
-            }
-
-            internalCancelReferences();
-
-            if (csf != null) {
-               csf.cleanup();
-            }
-
-            synchronized (connectionGuard) {
-               keepConnecting = true;
-            }
-
-            if (logger.isTraceEnabled()) {
-               logger.trace("Removing consumer on stopRunnable " + this + " from queue " + queue);
-            }
-            ActiveMQServerLogger.LOGGER.bridgeStopped(name);
-         } catch (InterruptedException | RuntimeException e) {
-            ActiveMQServerLogger.LOGGER.error("Failed to stop bridge", e);
          }
+
+         if (session != null) {
+            logger.debug("Cleaning up session " + session);
+            session.removeFailureListener(BridgeImpl.this);
+            try {
+               session.close();
+               session = null;
+            } catch (ActiveMQException dontcare) {
+            }
+         }
+
+         if (sessionConsumer != null) {
+            logger.debug("Cleaning up session " + session);
+            try {
+               sessionConsumer.close();
+               sessionConsumer = null;
+            } catch (ActiveMQException dontcare) {
+            }
+         }
+
+         internalCancelReferences();
+
+         if (csf != null) {
+            csf.cleanup();
+         }
+
+         synchronized (connectionGuard) {
+            keepConnecting = true;
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("Removing consumer on stopRunnable " + this + " from queue " + queue);
+         }
+         ActiveMQServerLogger.LOGGER.bridgeStopped(name);
       }
    }
 

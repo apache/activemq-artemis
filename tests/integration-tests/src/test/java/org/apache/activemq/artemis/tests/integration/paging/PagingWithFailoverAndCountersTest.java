@@ -279,7 +279,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
    public void testValidateDeliveryAndCounters() throws Exception {
       startLive();
 
-      ServerLocator locator = SpawnedServerSupport.createLocator(PORT1).setInitialConnectAttempts(100).setReconnectAttempts(-1).setRetryInterval(100);
+      ServerLocator locator = SpawnedServerSupport.createLocator(PORT1).setInitialConnectAttempts(-1).setReconnectAttempts(-1).setRetryInterval(100);
 
       ClientSessionFactory factory = locator.createSessionFactory();
 
