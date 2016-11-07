@@ -653,7 +653,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
+      if (autoCreateJmsTopics) {
+         putAddressInfoIfAbsent(new AddressInfo(address));
+      }
+
+      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
@@ -2153,14 +2157,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()),
-                     SimpleString.toSimpleString(config.getName()),
-                     SimpleString.toSimpleString(config.getFilterString()),
-                     config.isDurable(),
-                     false,
-                     false,
-                     config.getMaxConsumers(),
-                     config.getDeleteOnNoConsumers());
+         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers());
       }
    }
 
@@ -2261,6 +2258,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);
       }
+   }
+
+   @Override
+   public AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception {
+      AddressInfo result = postOffice.addAddressInfo(addressInfo);
+
+      // TODO: is this the right way to do this?
+      long txID = storageManager.generateID();
+      storageManager.addAddressBinding(txID, addressInfo);
+      storageManager.commitBindings(txID);
+
+      return result;
    }
 
    @Override
