@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.qpid.proton.Proton;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Collector;
 import org.apache.qpid.proton.engine.Connection;
@@ -358,9 +359,10 @@ public class ProtonHandler extends ProtonInitializable {
 
    }
 
-   public void open(String containerId) {
+   public void open(String containerId, Map<Symbol, Object> connectionProperties) {
       this.transport.open();
       this.connection.setContainer(containerId);
+      this.connection.setProperties(connectionProperties);
       this.connection.open();
       flush();
    }
