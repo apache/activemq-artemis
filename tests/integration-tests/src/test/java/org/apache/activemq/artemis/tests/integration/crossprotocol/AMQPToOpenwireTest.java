@@ -26,6 +26,7 @@ import javax.jms.Session;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
@@ -60,23 +61,21 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
-      serverManager = new JMSServerManagerImpl(server);
+      server.start();
+      server.waitForActivation(10, TimeUnit.SECONDS);
+
       Configuration serverConfig = server.getConfiguration();
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
-      serverManager.start();
       coreQueue = new SimpleString(queueName);
-      this.server.createQueue(coreQueue, coreQueue, null, false, false);
+      server.createQueue(coreQueue, coreQueue, null, false, false);
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 
    @Override
    @After
    public void tearDown() throws Exception {
-      if (serverManager != null) {
-         serverManager.stop();
-         serverManager = null;
-      }
+      server.stop();
    }
 
    @Test
