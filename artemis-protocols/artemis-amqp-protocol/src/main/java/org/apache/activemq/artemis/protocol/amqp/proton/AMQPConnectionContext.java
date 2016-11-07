@@ -205,8 +205,8 @@ public class AMQPConnectionContext extends ProtonInitializable {
       return ExtCapability.getCapabilities();
    }
 
-   public void open() {
-      handler.open(containerId);
+   public void open(Map<Symbol, Object> connectionProperties) {
+      handler.open(containerId, connectionProperties);
    }
 
    public String getContainer() {
