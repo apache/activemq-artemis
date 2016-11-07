@@ -78,6 +78,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    private final ServerLocatorInternal discoveryLocator;
 
+   private final String storeAndForwardPrefix;
+
    public ClusterConnectionBridge(final ClusterConnection clusterConnection,
                                   final ClusterManager clusterManager,
                                   final ServerLocatorInternal targetLocator,
@@ -104,7 +106,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final SimpleString managementAddress,
                                   final SimpleString managementNotificationAddress,
                                   final MessageFlowRecord flowRecord,
-                                  final TransportConfiguration connector) {
+                                  final TransportConfiguration connector,
+                                  final String storeAndForwardPrefix) {
       super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
             retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, storageManager);
 
@@ -128,6 +131,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       if (logger.isTraceEnabled()) {
          logger.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
       }
+
+      this.storeAndForwardPrefix = storeAndForwardPrefix;
    }
 
    @Override
@@ -216,6 +221,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          SimpleString notifQueueName = new SimpleString(qName);
 
+         String filterString = flowRecord.getAddress();
+
          SimpleString filter = new SimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
                                                    BindingType.DIVERT.toInt() +
                                                    " AND " +
@@ -239,7 +246,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                                    "<" +
                                                    flowRecord.getMaxHops() +
                                                    " AND (" +
-                                                   createSelectorFromAddress(flowRecord.getAddress()) +
+                                                   createSelectorFromAddress(appendIgnoresToFilter(flowRecord.getAddress())) +
                                                    ")");
 
          sessionConsumer.createTemporaryQueue(managementNotificationAddress, notifQueueName, filter);
@@ -265,6 +272,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          }
       }
    }
+
 
    /**
     * Takes in a string of an address filter or comma separated list and generates an appropriate JMS selector for
@@ -330,6 +338,16 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
       builder.append(")");
       return builder.toString();
+   }
+
+   private String appendIgnoresToFilter(String filterString) {
+      if (filterString != null && !filterString.isEmpty()) {
+         filterString += ",";
+      }
+      filterString += "!" + storeAndForwardPrefix;
+      filterString += ",!" + managementAddress;
+      filterString += ",!" + managementNotificationAddress;
+      return filterString;
    }
 
    @Override

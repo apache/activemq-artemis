@@ -34,6 +34,16 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="internal-naming-prefix" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Artemis uses internal queues and addresses for implmenting certain behaviours.  These queues and addresses
+                  will be prefixed by default with "$.activemq.internal" to avoid naming clashes with user namespacing.
+                  This can be overriden by setting this value to a valid Artemis address.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="resolve-protocols" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>

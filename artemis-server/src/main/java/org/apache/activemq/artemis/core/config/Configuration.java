@@ -1013,8 +1013,11 @@ public interface Configuration {
 
    Configuration setMaxDiskUsage(int maxDiskUsage);
 
+   ConfigurationImpl setInternalNamingPrefix(String internalNamingPrefix);
+
    Configuration setDiskScanPeriod(int diskScanPeriod);
 
    int getDiskScanPeriod();
 
+   String getInternalNamingPrefix();
 }
