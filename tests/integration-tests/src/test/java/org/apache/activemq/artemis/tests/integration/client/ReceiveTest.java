@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -143,6 +145,15 @@ public class ReceiveTest extends ActiveMQTestBase {
       cp.send(sendSession.createMessage(false));
       cp.send(sendSession.createMessage(false));
       sendSession.commit();
+
+      final Queue queue = server.locateQueue(queueA);
+
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return queue.getMessageCount() == 3;
+         }
+      });
 
       Assert.assertNotNull(cc2.receive(5000));
       Assert.assertNotNull(cc.receive(5000));

@@ -1175,6 +1175,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSession session = addClientSession(factory.createSession());
       server.createQueue(queueName, queueName, null, false, false);
       addClientConsumer(session.createConsumer(queueName));
+      Thread.sleep(100); // We check the timestamp for the creation time. We need to make sure it's different
       addClientConsumer(session.createConsumer(queueName, SimpleString.toSimpleString(filter), true));
 
       String jsonString = serverControl.listConsumersAsJSON(factory.getConnection().getID().toString());

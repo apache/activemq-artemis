@@ -1616,7 +1616,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
-      serverControl.setMessageCounterSamplePeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD);
+      serverControl.setMessageCounterSamplePeriod(100);
 
       String jsonString = queueControl.listMessageCounter();
       MessageCounterInfo info = MessageCounterInfo.fromJSON(jsonString);
@@ -1627,7 +1627,7 @@ public class QueueControlTest extends ManagementTestBase {
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
 
-      Thread.sleep(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD * 2);
+      Thread.sleep(200);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(1, info.getDepth());
@@ -1637,7 +1637,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       producer.send(session.createMessage(false));
 
-      Thread.sleep(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD * 2);
+      Thread.sleep(200);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(2, info.getDepth());
@@ -1647,7 +1647,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       consumeMessages(2, session, queue);
 
-      Thread.sleep(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD * 2);
+      Thread.sleep(200);
       jsonString = queueControl.listMessageCounter();
       info = MessageCounterInfo.fromJSON(jsonString);
       Assert.assertEquals(0, info.getDepth());

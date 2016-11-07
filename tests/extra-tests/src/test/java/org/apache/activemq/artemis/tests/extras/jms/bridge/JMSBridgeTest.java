@@ -1616,7 +1616,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       }
 
       try {
-         final long MAX_BATCH_TIME = 3000;
+         final long MAX_BATCH_TIME = 300;
 
          final int MAX_BATCH_SIZE = 100000; // something big so it won't reach it
 
@@ -1655,7 +1655,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       }
 
       try {
-         final long MAX_BATCH_TIME = 3000;
+         final long MAX_BATCH_TIME = 300;
 
          final int MAX_BATCH_SIZE = 100000; // something big so it won't reach it
 
