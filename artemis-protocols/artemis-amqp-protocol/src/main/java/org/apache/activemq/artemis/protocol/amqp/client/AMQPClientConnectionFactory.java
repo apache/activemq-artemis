@@ -24,7 +24,9 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.qpid.proton.amqp.Symbol;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
@@ -35,11 +37,13 @@ public class AMQPClientConnectionFactory {
 
    private final ActiveMQServer server;
    private final String containerId;
+   private final Map<Symbol, Object> connectionProperties;
    private final int ttl;
 
-   public AMQPClientConnectionFactory(ActiveMQServer server, String containerId, int ttl) {
+   public AMQPClientConnectionFactory(ActiveMQServer server, String containerId, Map<Symbol, Object> connectionProperties, int ttl) {
       this.server = server;
       this.containerId = containerId;
+      this.connectionProperties = connectionProperties;
       this.ttl = ttl;
    }
 
@@ -55,7 +59,7 @@ public class AMQPClientConnectionFactory {
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 
-      amqpConnection.open();
+      amqpConnection.open(connectionProperties);
       return delegate;
    }
 }
