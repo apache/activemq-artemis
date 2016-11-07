@@ -299,19 +299,31 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (jbd != null) {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
-            if (!response.isExists() && response.isAutoCreateJmsQueues()) {
-               if (jbd.isQueue()) {
-                  session.createAddress(jbd.getSimpleAddress(), false);
-                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
-               } else {
-                  session.createAddress(jbd.getSimpleAddress(), true);
+            if (jbd.isQueue()) {
+               if (!response.isExists()) {
+                  if (response.isAutoCreateJmsQueues()) {
+                     session.createAddress(jbd.getSimpleAddress(), false);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+                  }
                }
 
-            } else if (!response.isExists() && !response.isAutoCreateJmsQueues()) {
-               throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+               if (response.getQueueNames().isEmpty()) {
+                  if (response.isAutoCreateJmsQueues()) {
+                     session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+                  }
+               }
+            } else {
+               if (!response.isExists()) {
+                  if (response.isAutoCreateJmsTopics()) {
+                     session.createAddress(jbd.getSimpleAddress(), true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+                  }
+               }
             }
-
-            connection.addKnownDestination(jbd.getSimpleAddress());
          }
 
          ClientProducer producer = session.createProducer(jbd == null ? null : jbd.getSimpleAddress());

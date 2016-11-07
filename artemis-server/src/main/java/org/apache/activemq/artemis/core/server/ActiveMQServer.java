@@ -473,7 +473,11 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void removeClientConnection(String clientId);
 
+   AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception;
+
    AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
+
+   String getInternalNamingPrefix();
 }

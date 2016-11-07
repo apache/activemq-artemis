@@ -1038,6 +1038,8 @@ public interface Configuration {
 
    Configuration setMaxDiskUsage(int maxDiskUsage);
 
+   ConfigurationImpl setInternalNamingPrefix(String internalNamingPrefix);
+
    Configuration setDiskScanPeriod(int diskScanPeriod);
 
    int getDiskScanPeriod();
@@ -1078,4 +1080,5 @@ public interface Configuration {
 
    Configuration setNetworkCheckPing6Command(String command);
 
+   String getInternalNamingPrefix();
 }

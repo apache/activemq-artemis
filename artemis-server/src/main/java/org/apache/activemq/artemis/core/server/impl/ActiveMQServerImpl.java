@@ -172,6 +172,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private static final Logger logger = Logger.getLogger(ActiveMQServerImpl.class);
 
+   public static final String INTERNAL_NAMING_PREFIX = "$.artemis.internal";
+
    /**
     * JMS Topics (which are outside of the scope of the core API) will require a dumb subscription
     * with a dummy-filter at this current version as a way to keep its existence valid and TCK
@@ -719,7 +721,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
+      if (autoCreateJmsTopics) {
+         putAddressInfoIfAbsent(new AddressInfo(address));
+      }
+
+      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
@@ -2220,14 +2226,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()),
-                     SimpleString.toSimpleString(config.getName()),
-                     SimpleString.toSimpleString(config.getFilterString()),
-                     config.isDurable(),
-                     false,
-                     false,
-                     config.getMaxConsumers(),
-                     config.getDeleteOnNoConsumers());
+         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers());
       }
    }
 
@@ -2331,6 +2330,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception {
+      AddressInfo result = postOffice.addAddressInfo(addressInfo);
+
+      // TODO: is this the right way to do this?
+      long txID = storageManager.generateID();
+      storageManager.addAddressBinding(txID, addressInfo);
+      storageManager.commitBindings(txID);
+
+      return result;
+   }
+
+   @Override
    public AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
       AddressInfo result = postOffice.addOrUpdateAddressInfo(addressInfo);
 
@@ -2352,6 +2363,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 //      storageManager.commitBindings(txID);
 
       return result;
+   }
+
+   @Override
+   public String getInternalNamingPrefix() {
+      return configuration.getInternalNamingPrefix();
    }
 
    @Override
