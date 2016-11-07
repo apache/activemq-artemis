@@ -183,6 +183,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DISK_SCAN_PERIOD = "disk-scan-period";
 
+   private static final String INTERNAL_NAMING_PREFIX = "internal-naming-prefix";
+
    // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
@@ -297,6 +299,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE));
 
       config.setDiskScanPeriod(getInteger(e, DISK_SCAN_PERIOD, config.getDiskScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
+
+      config.setInternalNamingPrefix(getString(e, INTERNAL_NAMING_PREFIX, config.getInternalNamingPrefix(), Validators.NO_CHECK));
 
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);

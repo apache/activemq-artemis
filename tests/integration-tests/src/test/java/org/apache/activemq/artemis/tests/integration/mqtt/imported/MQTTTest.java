@@ -1042,7 +1042,7 @@ public class MQTTTest extends MQTTTestSupport {
       initializeConnection(provider);
 
       // send retained message
-      final String address = "jms/queue/" + mqttAddress;
+      final String address = mqttAddress;
       final String RETAINED = "RETAINED";
 
       final byte[] payload = RETAINED.getBytes();
@@ -1088,7 +1088,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void doTestSendJMSReceiveMQTT(String destinationName) throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
-      provider.subscribe("jms/queue/foo/+", AT_MOST_ONCE);
+      provider.subscribe("foo/+", AT_MOST_ONCE);
 
       Connection connection = cf.createConnection();
       connection.start();
@@ -1279,7 +1279,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       // publish
       for (int i = 0; i < messagesToSend; ++i) {
-         connection.publish("jms/queue/test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
+         connection.publish("test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
       }
 
       connection.disconnect();

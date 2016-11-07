@@ -163,7 +163,7 @@ public class ScaleDownTest extends ClusterTestBase {
       for (Map.Entry<SimpleString, Binding> entry : servers[0].getPostOffice().getAllBindings().entrySet()) {
          String temp = entry.getValue().getAddress().toString();
 
-         if (temp.startsWith("sf.") && temp.endsWith(servers[1].getNodeID().toString())) {
+         if (temp.startsWith(servers[1].getInternalNamingPrefix() + "sf.") && temp.endsWith(servers[1].getNodeID().toString())) {
             // we found the sf queue for the other node
             // need to pause the sfQueue here
             ((LocalQueueBinding) entry.getValue()).getQueue().pause();

@@ -22,12 +22,8 @@ under the License.
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
-   <jms xmlns="urn:activemq:jms">
-      <queue name="DLQ"/>
-      <queue name="ExpiryQueue"/>${jms-list.settings}
-   </jms>
-
-   <core xmlns="urn:activemq:core">
+   <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="urn:activemq:core ">
 
       <name>${name}</name>
 
@@ -89,8 +85,8 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
       <address-settings>
          <!--default for catch all-->
          <address-setting match="#">
-            <dead-letter-address>jms.queue.DLQ</dead-letter-address>
-            <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>-1</max-size-bytes>
@@ -98,5 +94,19 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <address-full-policy>PAGE</address-full-policy>
          </address-setting>
       </address-settings>
+
+      <addresses>
+         <address name="DLQ" type="anycast">
+            <queues>
+               <queue name="DLQ" />
+            </queues>
+         </address>
+         <address name="ExpiryQueue" type="anycast">
+            <queues>
+               <queue name="ExpiryQueue" />
+            </queues>
+         </address>
+      </addresses>
+
    </core>
 </configuration>

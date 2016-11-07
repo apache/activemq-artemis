@@ -76,6 +76,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private static final Logger logger = Logger.getLogger(ClusterConnectionImpl.class);
 
+   private static final String SN_PREFIX = "sf.";
    /**
     * When getting member on node-up and down we have to remove the name from the transport config
     * as the setting we build here doesn't need to consider the name, so use the same name on all
@@ -169,6 +170,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    private final long clusterNotificationInterval;
 
    private final int clusterNotificationAttempts;
+
+   private final String storeAndForwardPrefix;
 
    public ClusterConnectionImpl(final ClusterManager manager,
                                 final TransportConfiguration[] staticTranspConfigs,
@@ -277,6 +280,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
+      this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
    }
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -375,6 +379,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       clusterConnector = new DiscoveryClusterConnector(dg);
 
       this.manager = manager;
+
+      this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
    }
 
    @Override
@@ -702,7 +708,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString("sf." + name + "." + nodeID);
+               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 
@@ -799,7 +805,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(manager, executorFactory.getExecutor()));
       MessageFlowRecordImpl record = new MessageFlowRecordImpl(targetLocator, eventUID, targetNodeID, connector, queueName, queue);
 
-      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server.getStorageManager(), managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector());
+      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server.getStorageManager(), managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix);
 
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 

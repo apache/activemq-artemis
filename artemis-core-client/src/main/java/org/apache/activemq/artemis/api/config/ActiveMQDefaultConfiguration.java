@@ -453,6 +453,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String DEFAULT_NETWORK_CHECK_NIC = null;
 
+   public static final String DEFAULT_INTERNAL_NAMING_PREFIX = "$.artemis.internal.";
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1197,6 +1199,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultDeleteQueueOnNoConsumers() {
       return DEFAULT_DELETE_QUEUE_ON_NO_CONSUMERS;
+   }
+
+   public static String getInternalNamingPrefix() {
+      return DEFAULT_INTERNAL_NAMING_PREFIX;
    }
 
    public static String getDefaultSystemPropertyPrefix() {

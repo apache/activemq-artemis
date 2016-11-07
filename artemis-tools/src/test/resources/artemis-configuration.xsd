@@ -1265,7 +1265,7 @@
 
    <xsd:complexType name="cluster-connectionType">
       <xsd:sequence>
-         <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="1">
+         <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   name of the address this cluster connection applies to
