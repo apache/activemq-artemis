@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -247,6 +246,12 @@ public class TransportConfiguration implements Serializable {
       str.append("(name=" + name + ", ");
       str.append("factory=" + replaceWildcardChars(factoryClassName));
       str.append(") ");
+      str.append(toStringParameters(params, extraProps));
+      return str.toString();
+   }
+
+   public static String toStringParameters(Map<String, Object> params, Map<String, Object> extraProps) {
+      StringBuilder str = new StringBuilder();
       if (params != null) {
          if (!params.isEmpty()) {
             str.append("?");
@@ -262,7 +267,7 @@ public class TransportConfiguration implements Serializable {
 
             // HORNETQ-1281 - don't log passwords
             String val;
-            if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME)) {
+            if (key.toLowerCase().contains("password")) {
                val = "****";
             } else {
                val = entry.getValue() == null ? "null" : entry.getValue().toString();
