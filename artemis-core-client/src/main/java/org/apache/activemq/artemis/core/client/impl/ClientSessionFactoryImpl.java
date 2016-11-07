@@ -1067,11 +1067,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       try {
          if (logger.isDebugEnabled()) {
-            logger.debug("Trying to connect with connector = " + connectorFactory +
-                            ", parameters = " +
-                            connectorConfig.getParams() +
-                            " connector = " +
-                            connector);
+            logger.debug("Trying to connect with connectorFactory = " + connectorFactory +
+                           ", connectorConfig=" + connectorConfig);
          }
 
          Connector liveConnector = createConnector(connectorFactory, connectorConfig);
