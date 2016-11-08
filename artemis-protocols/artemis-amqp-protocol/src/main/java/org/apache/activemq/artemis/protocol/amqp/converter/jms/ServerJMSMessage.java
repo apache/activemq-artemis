@@ -31,9 +31,9 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
-public class ServerJMSMessage implements Message {
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
-   public static final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
+public class ServerJMSMessage implements Message {
 
    protected final MessageInternal message;
 
