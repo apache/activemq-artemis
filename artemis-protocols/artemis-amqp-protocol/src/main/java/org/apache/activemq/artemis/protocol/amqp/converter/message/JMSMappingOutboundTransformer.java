@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_DATA;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_NULL;
@@ -338,7 +339,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             }
             properties.setGroupId(value);
             continue;
-         } else if (key.equals(ServerJMSMessage.NATIVE_MESSAGE_ID)) {
+         } else if (key.equals(NATIVE_MESSAGE_ID)) {
             // skip..internal use only
             continue;
          } else if (key.endsWith(HDR_SCHEDULED_DELIVERY_TIME.toString())) {

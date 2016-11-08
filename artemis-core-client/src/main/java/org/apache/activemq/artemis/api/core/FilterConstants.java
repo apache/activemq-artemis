@@ -72,6 +72,11 @@ public final class FilterConstants {
     */
    public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
 
+   /**
+    * Proton protocol stores JMSMessageID as NATIVE_MESSAGE_ID
+    */
+   public static final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
+
    private FilterConstants() {
       // Utility class
    }

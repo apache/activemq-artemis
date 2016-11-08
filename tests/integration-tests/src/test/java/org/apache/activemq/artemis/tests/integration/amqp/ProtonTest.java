@@ -1606,6 +1606,22 @@ public class ProtonTest extends ProtonTestBase {
       }
    }
 
+   @Test
+   public void testFilterJMSMessageID() throws Exception {
+      javax.jms.Queue queue = createQueue(address);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer p = session.createProducer(queue);
+      TextMessage message = session.createTextMessage();
+      p.send(message);
+      System.out.println("get mid: " + message.getJMSMessageID());
+      connection.start();
+      MessageConsumer messageConsumer = session.createConsumer(queue, "JMSMessageID = '" + message.getJMSMessageID() + "'");
+      TextMessage m = (TextMessage) messageConsumer.receive(5000);
+      Assert.assertNotNull(m);
+      assertEquals(message.getJMSMessageID(), m.getJMSMessageID());
+      connection.close();
+   }
+
    private javax.jms.Queue createQueue(String address) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
