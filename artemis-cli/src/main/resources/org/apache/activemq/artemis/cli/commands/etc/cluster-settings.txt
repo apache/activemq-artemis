@@ -18,7 +18,6 @@
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <address>jms</address>
             <connector-ref>artemis</connector-ref>
             <message-load-balancing>${message-load-balancing}</message-load-balancing>
             <max-hops>${max-hops}</max-hops>
