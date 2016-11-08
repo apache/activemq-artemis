@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+
 /**
  * This class implements an ActiveMQ Artemis filter
  *
@@ -148,6 +150,13 @@ public class FilterImpl implements Filter {
 
    private static Object getHeaderFieldValue(final ServerMessage msg, final SimpleString fieldName) {
       if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
+         if (msg.getUserID() == null) {
+            // Proton stores JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string
+            String amqpNativeID = msg.getStringProperty(NATIVE_MESSAGE_ID);
+            if (amqpNativeID != null) {
+               return new SimpleString(amqpNativeID);
+            }
+         }
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
          return new SimpleString("ID:" + msg.getUserID());
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
