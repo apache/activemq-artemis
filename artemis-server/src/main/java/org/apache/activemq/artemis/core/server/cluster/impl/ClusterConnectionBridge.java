@@ -221,8 +221,6 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          SimpleString notifQueueName = new SimpleString(qName);
 
-         String filterString = flowRecord.getAddress();
-
          SimpleString filter = new SimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
                                                    BindingType.DIVERT.toInt() +
                                                    " AND " +

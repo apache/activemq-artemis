@@ -1707,7 +1707,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         postOffice.sendQueueInfoToQueue(new SimpleString(queueName), new SimpleString(address));
+         postOffice.sendQueueInfoToQueue(new SimpleString(queueName), new SimpleString(address == null ? "" : address));
 
          GroupingHandler handler = server.getGroupingHandler();
          if (handler != null) {

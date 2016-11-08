@@ -888,7 +888,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       @Override
       public String getAddress() {
-         return address.toString();
+         return address != null ? address.toString() : "";
       }
 
       /**
