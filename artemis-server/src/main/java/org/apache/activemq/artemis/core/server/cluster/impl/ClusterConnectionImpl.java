@@ -708,7 +708,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
                // New node - create a new flow record
 
-               final SimpleString queueName = new SimpleString("sf." + name + "." + nodeID);
+               final SimpleString queueName = new SimpleString(storeAndForwardPrefix + name + "." + nodeID);
 
                Binding queueBinding = postOffice.getBinding(queueName);
 
