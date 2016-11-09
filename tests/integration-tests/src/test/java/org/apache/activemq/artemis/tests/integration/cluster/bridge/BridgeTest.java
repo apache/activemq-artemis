@@ -166,7 +166,7 @@ public class BridgeTest extends ActiveMQTestBase {
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      final int messageSize = 1024 * 1024 * 5;
+      final int messageSize = 1024 * 200;
 
       final int numMessages = 10;
 
@@ -220,7 +220,7 @@ public class BridgeTest extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < numMessages; i++) {
-         ClientMessage message = consumer1.receive(500000);
+         ClientMessage message = consumer1.receive(5000);
 
          Assert.assertNotNull(message);
 
