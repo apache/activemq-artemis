@@ -20,12 +20,15 @@ import javax.json.JsonArrayBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -39,6 +42,7 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Base64;
@@ -60,6 +64,8 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    private final SecurityStore securityStore;
 
+   private final ManagementService managementService;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -69,13 +75,15 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              final PagingManager pagingManager,
                              final StorageManager storageManager,
                              final HierarchicalRepository<Set<Role>> securityRepository,
-                             final SecurityStore securityStore)throws Exception {
+                             final SecurityStore securityStore,
+                             final ManagementService managementService)throws Exception {
       super(AddressControl.class, storageManager);
       this.addressInfo = addressInfo;
       this.postOffice = postOffice;
       this.pagingManager = pagingManager;
       this.securityRepository = securityRepository;
       this.securityStore = securityStore;
+      this.managementService = managementService;
    }
 
    // Public --------------------------------------------------------
@@ -228,26 +236,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       }
    }
 
-  /* @Override
-      public String sendTextMessage(Map<String, String> headers,
-                                    String body,
-                                    String user,
-                                    String password) throws Exception {
-         boolean durable = false;
-         if (headers.containsKey("JMSDeliveryMode")) {
-            String jmsDeliveryMode = headers.remove("JMSDeliveryMode");
-            if (jmsDeliveryMode != null && (jmsDeliveryMode.equals("2") || jmsDeliveryMode.equalsIgnoreCase("PERSISTENT"))) {
-               durable = true;
-            }
-         }
-         String userID = UUIDGenerator.getInstance().generateStringUUID();
-         ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(56);
-         buffer.writeNullableSimpleString(new SimpleString(body));
-         byte[] bytes = new byte[buffer.readableBytes()];
-         buffer.readBytes(bytes);
-         coreQueueControl.sendMessage(headers, Message.TEXT_TYPE, Base64.encodeBytes(bytes), userID, durable, user, password);
-         return userID;
-      }*/
+   @Override
+   public long getMessageCount() {
+      return getMessageCount(DurabilityType.ALL);
+   }
+
 
    @Override
    public String sendMessage(final Map<String, String> headers,
@@ -303,5 +296,39 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    // Private -------------------------------------------------------
 
+   private int getMessageCount(final DurabilityType durability) {
+      List<QueueControl> queues = getQueues(durability);
+      int count = 0;
+      for (QueueControl queue : queues) {
+         count += queue.getMessageCount();
+      }
+      return count;
+   }
+
+   private List<QueueControl> getQueues(final DurabilityType durability) {
+      try {
+         List<QueueControl> matchingQueues = new ArrayList<>();
+         String[] queues = getQueueNames();
+         for (String queue : queues) {
+            QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue);
+
+            // Ignore the "special" subscription
+            if (coreQueueControl != null && !coreQueueControl.getName().equals(getAddress())) {
+               if (durability == DurabilityType.ALL || durability == DurabilityType.DURABLE && coreQueueControl.isDurable() ||
+                     durability == DurabilityType.NON_DURABLE && !coreQueueControl.isDurable()) {
+                  matchingQueues.add(coreQueueControl);
+               }
+            }
+         }
+         return matchingQueues;
+      } catch (Exception e) {
+         return Collections.emptyList();
+      }
+   }
+
    // Inner classes -------------------------------------------------
+
+   private enum DurabilityType {
+      ALL, DURABLE, NON_DURABLE
+   }
 }

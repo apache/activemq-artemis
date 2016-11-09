@@ -799,7 +799,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    @Override
    public synchronized boolean destroyTopic(final String name, final boolean removeConsumers) throws Exception {
       checkInitialised();
-      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + name);
+      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.ADDRESS + name);
       if (addressControl != null) {
          for (String queueName : addressControl.getQueueNames()) {
             Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));

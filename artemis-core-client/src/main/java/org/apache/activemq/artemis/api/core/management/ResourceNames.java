@@ -23,33 +23,23 @@ package org.apache.activemq.artemis.api.core.management;
  * For example, the resource name of the "foo" queue is {@code CORE_QUEUE + "foo"}.
  */
 public final class ResourceNames {
-   public static final String ADDRESS = "address.";
-
-   public static final String CORE_SERVER = "broker";
+   public static final String BROKER = "broker";
 
    public static final String CORE_QUEUE = "queue.";
 
-   public static final String CORE_ADDRESS = "core.address.";
+   public static final String ADDRESS = "address.";
 
-   public static final String CORE_BRIDGE = "core.bridge.";
+   public static final String BRIDGE = "bridge.";
 
-   public static final String CORE_ACCEPTOR = "core.acceptor.";
+   public static final String ACCEPTOR = "acceptor.";
 
-   public static final String CORE_DIVERT = "core.divert.";
+   public static final String DIVERT = "divert.";
 
-   public static final String CORE_CLUSTER_CONNECTION = "core.clusterconnection.";
+   public static final String CORE_CLUSTER_CONNECTION = "clusterconnection.";
 
-   public static final String CORE_BROADCAST_GROUP = "core.broadcastgroup.";
+   public static final String BROADCAST_GROUP = "broadcastgroup.";
 
-   public static final String CORE_DISCOVERY_GROUP = "core.discovery.";
-
-   public static final String JMS_SERVER = "jms.server";
-
-//   public static final String JMS_QUEUE = "jms.queue.";
-
-//   public static final String JMS_TOPIC = "jms.topic.";
-
-   public static final String JMS_CONNECTION_FACTORY = "jms.connectionfactory.";
+   public static final String DISCOVERY_GROUP = "discovery.";
 
    private ResourceNames() {
    }

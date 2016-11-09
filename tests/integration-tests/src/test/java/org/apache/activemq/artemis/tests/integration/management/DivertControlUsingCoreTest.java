@@ -34,7 +34,7 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
    @Override
    protected DivertControl createDivertManagementControl(final String name, final String address) throws Exception {
       return new DivertControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_DIVERT + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.DIVERT + name);
 
          @Override
          public String getAddress() {

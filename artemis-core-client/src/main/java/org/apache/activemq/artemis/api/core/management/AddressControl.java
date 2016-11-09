@@ -95,6 +95,9 @@ public interface AddressControl {
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
 
+   @Attribute(desc = "number of messages added to all the queues for this address")
+   long getMessageCount();
+
 
    /**
     * @param headers  the message headers and properties to set. Can only

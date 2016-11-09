@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -340,14 +340,9 @@ public class LocalTestServer implements Server, Runnable {
    }
 
    @Override
-   public void removeAllMessages(final String destination, final boolean isQueue) throws Exception {
-      if (isQueue) {
-         QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource("queue." + destination);
-         queue.removeMessages(null);
-      } else {
-         TopicControl topic = (TopicControl) getActiveMQServer().getManagementService().getResource(destination);
-         topic.removeMessages(null);
-      }
+   public void removeAllMessages(final String queueName) throws Exception {
+      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.CORE_QUEUE + queueName);
+      queue.removeMessages(null);
    }
 
    @Override

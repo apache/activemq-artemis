@@ -565,6 +565,18 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void deleteAddress(String name) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         server.removeAddressInfo(new SimpleString(name));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public void deployQueue(final String address, final String name, final String filterString) throws Exception {
       checkStarted();
 

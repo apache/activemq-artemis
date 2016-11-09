@@ -51,7 +51,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
-      ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "createQueue", queue, address);
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "createQueue", queue, address);
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -67,7 +67,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
-      ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "thereIsNoSuchOperation");
+      ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "thereIsNoSuchOperation");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -102,7 +102,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
 
-      ManagementHelper.putAttribute(message, ResourceNames.CORE_SERVER, "started");
+      ManagementHelper.putAttribute(message, ResourceNames.BROKER, "started");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
@@ -120,7 +120,7 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       // invoke attribute and operation on the server
       ServerMessage message = new ServerMessageImpl(1, 100);
 
-      ManagementHelper.putAttribute(message, ResourceNames.CORE_SERVER, "attribute.Does.Not.Exist");
+      ManagementHelper.putAttribute(message, ResourceNames.BROKER, "attribute.Does.Not.Exist");
 
       ServerMessage reply = server.getManagementService().handleMessage(message);
 

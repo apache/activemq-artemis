@@ -429,6 +429,10 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "routingType", desc = "the routing type of the address either 0 for multicast or 1 for anycast") int routingType,
                       @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
                       @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
+
+   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
+   void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
+
    /**
     * Create a durable queue.
     * <br>

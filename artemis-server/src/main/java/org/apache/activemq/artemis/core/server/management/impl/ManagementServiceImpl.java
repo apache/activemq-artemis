@@ -198,7 +198,7 @@ public class ManagementServiceImpl implements ManagementService {
       messagingServerControl = new ActiveMQServerControlImpl(postOffice, configuration, resourceManager, remotingService, messagingServer, messageCounterManager, storageManager1, broadcaster);
       ObjectName objectName = objectNameBuilder.getActiveMQServerObjectName();
       registerInJMX(objectName, messagingServerControl);
-      registerInRegistry(ResourceNames.CORE_SERVER, messagingServerControl);
+      registerInRegistry(ResourceNames.BROKER, messagingServerControl);
 
       return messagingServerControl;
    }
@@ -207,13 +207,13 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void unregisterServer() throws Exception {
       ObjectName objectName = objectNameBuilder.getActiveMQServerObjectName();
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_SERVER);
+      unregisterFromRegistry(ResourceNames.BROKER);
    }
 
    @Override
    public void registerAddress(AddressInfo addressInfo) throws Exception {
       ObjectName objectName = objectNameBuilder.getAddressObjectName(addressInfo.getName());
-      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, postOffice, pagingManager, storageManager, securityRepository, securityStore);
+      AddressControlImpl addressControl = new AddressControlImpl(addressInfo, postOffice, pagingManager, storageManager, securityRepository, securityStore, this);
 
       registerInJMX(objectName, addressControl);
 
@@ -229,7 +229,7 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getAddressObjectName(address);
 
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_ADDRESS + address);
+      unregisterFromRegistry(ResourceNames.ADDRESS + address);
    }
    @Override
    public synchronized void registerQueue(final Queue queue,
@@ -263,7 +263,7 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString(), config.getAddress());
       DivertControl divertControl = new DivertControlImpl(divert, storageManager, config);
       registerInJMX(objectName, divertControl);
-      registerInRegistry(ResourceNames.CORE_DIVERT + config.getName(), divertControl);
+      registerInRegistry(ResourceNames.DIVERT + config.getName(), divertControl);
 
       if (logger.isDebugEnabled()) {
          logger.debug("registered divert " + objectName);
@@ -274,7 +274,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void unregisterDivert(final SimpleString name) throws Exception {
       ObjectName objectName = objectNameBuilder.getDivertObjectName(name.toString(), null);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_DIVERT + name);
+      unregisterFromRegistry(ResourceNames.DIVERT + name);
    }
 
    @Override
@@ -283,7 +283,7 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getAcceptorObjectName(configuration.getName());
       AcceptorControl control = new AcceptorControlImpl(acceptor, storageManager, configuration);
       registerInJMX(objectName, control);
-      registerInRegistry(ResourceNames.CORE_ACCEPTOR + configuration.getName(), control);
+      registerInRegistry(ResourceNames.ACCEPTOR + configuration.getName(), control);
    }
 
    @Override
@@ -291,14 +291,14 @@ public class ManagementServiceImpl implements ManagementService {
       List<String> acceptors = new ArrayList<>();
       synchronized (this) {
          for (String resourceName : registry.keySet()) {
-            if (resourceName.startsWith(ResourceNames.CORE_ACCEPTOR)) {
+            if (resourceName.startsWith(ResourceNames.ACCEPTOR)) {
                acceptors.add(resourceName);
             }
          }
       }
 
       for (String acceptor : acceptors) {
-         String name = acceptor.substring(ResourceNames.CORE_ACCEPTOR.length());
+         String name = acceptor.substring(ResourceNames.ACCEPTOR.length());
          try {
             unregisterAcceptor(name);
          } catch (Exception e) {
@@ -310,7 +310,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void unregisterAcceptor(final String name) throws Exception {
       ObjectName objectName = objectNameBuilder.getAcceptorObjectName(name);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_ACCEPTOR + name);
+      unregisterFromRegistry(ResourceNames.ACCEPTOR + name);
    }
 
    @Override
@@ -320,14 +320,14 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getBroadcastGroupObjectName(configuration.getName());
       BroadcastGroupControl control = new BroadcastGroupControlImpl(broadcastGroup, storageManager, configuration);
       registerInJMX(objectName, control);
-      registerInRegistry(ResourceNames.CORE_BROADCAST_GROUP + configuration.getName(), control);
+      registerInRegistry(ResourceNames.BROADCAST_GROUP + configuration.getName(), control);
    }
 
    @Override
    public synchronized void unregisterBroadcastGroup(final String name) throws Exception {
       ObjectName objectName = objectNameBuilder.getBroadcastGroupObjectName(name);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_BROADCAST_GROUP + name);
+      unregisterFromRegistry(ResourceNames.BROADCAST_GROUP + name);
    }
 
    @Override
@@ -337,14 +337,14 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getBridgeObjectName(configuration.getName());
       BridgeControl control = new BridgeControlImpl(bridge, storageManager, configuration);
       registerInJMX(objectName, control);
-      registerInRegistry(ResourceNames.CORE_BRIDGE + configuration.getName(), control);
+      registerInRegistry(ResourceNames.BRIDGE + configuration.getName(), control);
    }
 
    @Override
    public synchronized void unregisterBridge(final String name) throws Exception {
       ObjectName objectName = objectNameBuilder.getBridgeObjectName(name);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_BRIDGE + name);
+      unregisterFromRegistry(ResourceNames.BRIDGE + name);
    }
 
    @Override
@@ -535,7 +535,7 @@ public class ManagementServiceImpl implements ManagementService {
             List<String> unexpectedResourceNames = new ArrayList<>();
             for (String name : resourceNames) {
                // only addresses, queues, and diverts should still be registered
-               if (!(name.startsWith(ResourceNames.CORE_ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE) || name.startsWith(ResourceNames.CORE_DIVERT))) {
+               if (!(name.startsWith(ResourceNames.ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE) || name.startsWith(ResourceNames.DIVERT))) {
                   unexpectedResourceNames.add(name);
                }
             }

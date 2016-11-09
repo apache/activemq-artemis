@@ -66,7 +66,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             throw new UnsupportedOperationException();
          }
 
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_SERVER);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.BROKER);
 
          @Override
          public boolean isSharedStore() {
@@ -101,6 +101,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name, @Parameter(name = "routingType", desc = "the routing type of the address either 0 for multicast or 1 for anycast") int routingType, @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers, @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
             proxy.invokeOperation("createAddress", name, routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
+         }
+
+         @Override
+         public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
+            proxy.invokeOperation("deleteAddress", name);
          }
 
          @Override

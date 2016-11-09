@@ -259,7 +259,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          if (logger.isTraceEnabled()) {
             logger.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
          }
-         ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
+         ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
          try (ClientProducer prod = sessionConsumer.createProducer(managementAddress)) {
             if (logger.isDebugEnabled()) {

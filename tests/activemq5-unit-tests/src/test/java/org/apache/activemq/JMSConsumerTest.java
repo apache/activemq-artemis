@@ -40,11 +40,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.jms.management.DestinationControl;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -868,7 +866,6 @@ public class JMSConsumerTest extends JmsTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = (ActiveMQDestination) (destinationType == ActiveMQDestination.QUEUE_TYPE ? session.createQueue("test") : session.createTopic("test"));
 
-      createManagedDestinationOnServer(destination);
       MessageConsumer consumer = session.createConsumer(destination);
       connection.setStatsEnabled(true);
 
@@ -902,42 +899,17 @@ public class JMSConsumerTest extends JmsTestSupport {
       }
       assertEquals("consumer has expiredMessages", count, amqConsumer.getConsumerStats().getExpiredMessageCount().getCount());
 
-      DestinationControl view = createView(destination);
+      QueueControl view = createQueueControl(destination.getPhysicalName());
 
       assertEquals("Wrong inFlightCount: " + view.getDeliveringCount(), 0, view.getDeliveringCount());
       assertEquals("Wrong dispatch count: " + view.getMessagesAdded(), 8, view.getMessagesAdded());
    }
 
-   private void createManagedDestinationOnServer(ActiveMQDestination destination) throws Exception {
-      String destName = destination.getPhysicalName();
+   private QueueControl createQueueControl(String destName) throws Exception {
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
       MBeanServer beanServer = wrapper.getMbeanServer();
-      ObjectName objName = ObjectNameBuilder.DEFAULT.getJMSServerObjectName();
-      JMSServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, JMSServerControl.class, false);
-      serverControl.createQueue(destName);
-   }
-
-   protected DestinationControl createView(ActiveMQDestination destination) throws Exception {
-
-      String destName = destination.getPhysicalName();
-      if (destination.isQueue()) {
-         return createJMSQueueControl(destName);
-      } else {
-         return createJMSTopicControl(destName);
-      }
-   }
-
-   private JMSQueueControl createJMSQueueControl(String destName) throws Exception {
-      ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
-      MBeanServer beanServer = wrapper.getMbeanServer();
-      ObjectName objName = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(destName);
-      return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, JMSQueueControl.class, false);
-   }
-
-   private TopicControl createJMSTopicControl(String destName) throws Exception {
-      ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
-      MBeanServer beanServer = wrapper.getMbeanServer();
-      ObjectName objName = ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(destName);
-      return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, TopicControl.class, false);
+      SimpleString address = new SimpleString(destName);
+      ObjectName objName = ObjectNameBuilder.DEFAULT.getQueueObjectName(address, address);
+      return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, QueueControl.class, false);
    }
 }

@@ -21,7 +21,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.common.AbstractAdmin;
 import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 
@@ -61,15 +60,6 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    }
 
-   private void createConnection(final String name, final int cfType) {
-      try {
-         invokeSyncOperation(ResourceNames.JMS_SERVER, "createConnectionFactory", name, false, false, cfType, "netty", name);
-      } catch (Exception e) {
-         throw new IllegalStateException(e);
-      }
-
-   }
-
    @Override
    public Context createContext() throws NamingException {
       return new InitialContext(jndiProps);
@@ -99,12 +89,7 @@ public class ActiveMQCoreAdmin extends AbstractAdmin {
 
    @Override
    public void deleteConnectionFactory(final String name) {
-      try {
-         invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyConnectionFactory", name);
-         jndiProps.remove("connectionFactory." + name);
-      } catch (Exception e) {
-         throw new IllegalStateException(e);
-      }
+      jndiProps.remove("connectionFactory." + name);
    }
 
    @Override

@@ -24,7 +24,7 @@ public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTes
    @Override
    protected BroadcastGroupControl createManagementControl(final String name) throws Exception {
       return new BroadcastGroupControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_BROADCAST_GROUP + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.BROADCAST_GROUP + name);
 
          @Override
          public long getBroadcastPeriod() {

@@ -412,7 +412,7 @@ public class ScaleDownHandler {
                Pair<byte[], Long> pair = list.get(i);
                array[i] = new String(pair.getA());
             }
-            ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "updateDuplicateIdCache", entry.getKey().toString(), array);
+            ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "updateDuplicateIdCache", entry.getKey().toString(), array);
             producer.send(message);
          }
       }

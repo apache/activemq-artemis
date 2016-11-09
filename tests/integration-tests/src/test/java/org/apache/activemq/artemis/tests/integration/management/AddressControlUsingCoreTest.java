@@ -176,7 +176,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase {
    }
 
    protected CoreMessagingProxy createProxy(final SimpleString address) throws Exception {
-      CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_ADDRESS + address);
+      CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.ADDRESS + address);
 
       return proxy;
    }
