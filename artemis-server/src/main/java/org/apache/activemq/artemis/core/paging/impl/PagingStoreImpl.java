@@ -681,7 +681,11 @@ public class PagingStoreImpl implements PagingStore {
                }
 
                if (!blocking.get()) {
-                  ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, sizeInBytes.get(), maxSize);
+                  if (pagingManager.isDiskFull()) {
+                     ActiveMQServerLogger.LOGGER.blockingDiskFull(address);
+                  } else {
+                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, sizeInBytes.get(), maxSize);
+                  }
                   blocking.set(true);
                }
             }
