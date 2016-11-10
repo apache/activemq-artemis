@@ -71,6 +71,8 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
+      <commons.config.version>2.1</commons.config.version>
+      <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.0</activemq5-version>
       <apache.derby.version>10.11.1.1</apache.derby.version>
       <commons.beanutils.version>1.9.2</commons.beanutils.version>
@@ -381,6 +383,18 @@
             <artifactId>commons-collections</artifactId>
             <version>${commons.collections.version}</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+             <groupId>org.apache.commons</groupId>
+             <artifactId>commons-configuration2</artifactId>
+             <version>${commons.config.version}</version>
+             <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+             <groupId>org.apache.commons</groupId>
+             <artifactId>commons-lang3</artifactId>
+             <version>${commons.lang.version}</version>
+             <!-- License: Apache 2.0 -->
          </dependency>
 
          <!-- End JMS Injection -->
