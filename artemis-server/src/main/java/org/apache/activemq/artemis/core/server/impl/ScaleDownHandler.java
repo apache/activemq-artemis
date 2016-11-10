@@ -442,7 +442,7 @@ public class ScaleDownHandler {
       Object result;
       try (ClientRequestor requestor = new ClientRequestor(session, "activemq.management")) {
          ClientMessage managementMessage = session.createMessage(false);
-         ManagementHelper.putAttribute(managementMessage, "core.queue." + queueName, "ID");
+         ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, "ID");
          session.start();
          logger.debug("Requesting ID for: " + queueName);
          ClientMessage reply = requestor.request(managementMessage);

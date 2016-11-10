@@ -243,7 +243,7 @@ public class ManagementServiceImpl implements ManagementService {
       }
       ObjectName objectName = objectNameBuilder.getQueueObjectName(address, queue.getName());
       registerInJMX(objectName, queueControl);
-      registerInRegistry(ResourceNames.CORE_QUEUE + queue.getName(), queueControl);
+      registerInRegistry(ResourceNames.QUEUE + queue.getName(), queueControl);
 
       if (logger.isDebugEnabled()) {
          logger.debug("registered queue " + objectName);
@@ -254,7 +254,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void unregisterQueue(final SimpleString name, final SimpleString address) throws Exception {
       ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.CORE_QUEUE + name);
+      unregisterFromRegistry(ResourceNames.QUEUE + name);
       messageCounterManager.unregisterMessageCounter(name.toString());
    }
 
@@ -271,8 +271,8 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public synchronized void unregisterDivert(final SimpleString name) throws Exception {
-      ObjectName objectName = objectNameBuilder.getDivertObjectName(name.toString(), null);
+   public synchronized void unregisterDivert(final SimpleString name, final SimpleString address) throws Exception {
+      ObjectName objectName = objectNameBuilder.getDivertObjectName(name.toString(), address.toString());
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.DIVERT + name);
    }
@@ -535,7 +535,7 @@ public class ManagementServiceImpl implements ManagementService {
             List<String> unexpectedResourceNames = new ArrayList<>();
             for (String name : resourceNames) {
                // only addresses, queues, and diverts should still be registered
-               if (!(name.startsWith(ResourceNames.ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE) || name.startsWith(ResourceNames.DIVERT))) {
+               if (!(name.startsWith(ResourceNames.ADDRESS) || name.startsWith(ResourceNames.QUEUE) || name.startsWith(ResourceNames.DIVERT))) {
                   unexpectedResourceNames.add(name);
                }
             }

@@ -341,7 +341,7 @@ public class LocalTestServer implements Server, Runnable {
 
    @Override
    public void removeAllMessages(final String queueName) throws Exception {
-      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.CORE_QUEUE + queueName);
+      QueueControl queue = (QueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.QUEUE + queueName);
       queue.removeMessages(null);
    }
 

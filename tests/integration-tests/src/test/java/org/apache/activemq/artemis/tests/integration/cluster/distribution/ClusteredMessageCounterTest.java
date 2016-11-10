@@ -132,7 +132,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
 
          verifyReceiveAllOnSingleConsumer(true, numMsg, 1);
 
-         QueueControl control = (QueueControl) servers[1].getManagementService().getResource(ResourceNames.CORE_QUEUE + "queue0");
+         QueueControl control = (QueueControl) servers[1].getManagementService().getResource(ResourceNames.QUEUE + "queue0");
 
          //wait up to 30sec to allow the counter get updated
          long timeout = 30000;
@@ -173,7 +173,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
             }
          });
 
-         QueueControl control = (QueueControl) servers[1].getManagementService().getResource(ResourceNames.CORE_QUEUE + "queue0");
+         QueueControl control = (QueueControl) servers[1].getManagementService().getResource(ResourceNames.QUEUE + "queue0");
          ActiveMQServerControl serverControl = (ActiveMQServerControl) servers[1].getManagementService().getResource(ResourceNames.BROKER);
          serverControl.setMessageCounterSamplePeriod(300);
 

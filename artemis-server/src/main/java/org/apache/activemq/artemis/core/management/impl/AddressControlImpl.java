@@ -310,7 +310,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          List<QueueControl> matchingQueues = new ArrayList<>();
          String[] queues = getQueueNames();
          for (String queue : queues) {
-            QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue);
+            QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queue);
 
             // Ignore the "special" subscription
             if (coreQueueControl != null && !coreQueueControl.getName().equals(getAddress())) {

@@ -281,7 +281,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void unregisterDivert(SimpleString name) throws Exception {
+      public void unregisterDivert(SimpleString name, SimpleString address) throws Exception {
 
       }
 

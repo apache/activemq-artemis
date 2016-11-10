@@ -486,7 +486,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       if (index == 1) {
          managementService = server1.getManagementService();
       }
-      QueueControl queueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue.getQueueName());
+      QueueControl queueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queue.getQueueName());
 
       //server may be closed
       if (queueControl != null) {

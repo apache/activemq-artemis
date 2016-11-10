@@ -54,7 +54,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
 
       conn.close();
 
-      QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.CORE_QUEUE + queue.getQueueName());
+      QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
       System.out.println(control.listMessageCounterAsHTML());
@@ -63,7 +63,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
 
       restartServer();
 
-      control = (QueueControl) server.getManagementService().getResource(ResourceNames.CORE_QUEUE + queue.getQueueName());
+      control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
       System.out.println(control.listMessageCounterAsHTML());

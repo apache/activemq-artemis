@@ -30,7 +30,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
    protected QueueControl createManagementControl(final SimpleString address,
                                                   final SimpleString queue) throws Exception {
       return new QueueControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_QUEUE + queue);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.QUEUE + queue);
 
          @Override
          public void flushExecutor() {

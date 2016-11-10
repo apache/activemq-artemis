@@ -328,7 +328,7 @@ public final class XmlDataImporter extends ActionAbstract {
             // address may need the message
             try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
                ClientMessage managementMessage = managementSession.createMessage(false);
-               ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
+               ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queue, "ID");
                managementSession.start();
                if (logger.isDebugEnabled()) {
                   logger.debug("Requesting ID for: " + queue);

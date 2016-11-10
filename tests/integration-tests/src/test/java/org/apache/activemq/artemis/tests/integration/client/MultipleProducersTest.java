@@ -127,7 +127,7 @@ public class MultipleProducersTest extends JMSTestBase {
       // after draining queueOne send 5 message to queueOne
       queueTwoMsgCount = server.locateQueue(queueTwoName).getMessageCount();
 
-      control = (QueueControl) server.getManagementService().getResource(ResourceNames.CORE_QUEUE + queueOne.getQueueName());
+      control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queueOne.getQueueName());
 
       control.removeMessages(null);
 

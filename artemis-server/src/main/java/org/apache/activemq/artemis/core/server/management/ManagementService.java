@@ -104,7 +104,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void registerDivert(Divert divert, DivertConfiguration config) throws Exception;
 
-   void unregisterDivert(SimpleString name) throws Exception;
+   void unregisterDivert(SimpleString name, SimpleString address) throws Exception;
 
    void registerBroadcastGroup(BroadcastGroup broadcastGroup,
                                BroadcastGroupConfiguration configuration) throws Exception;
