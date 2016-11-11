@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.protocol.openwire.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -35,22 +34,6 @@ public class OpenWireUtil {
 
       buffer.writeBytes(bytes.data, bytes.offset, bytes.length);
       return buffer;
-   }
-
-   public static SimpleString toCoreAddress(ActiveMQDestination dest) {
-      if (dest.isQueue()) {
-         if (dest.isTemporary()) {
-            return new SimpleString(dest.getPhysicalName());
-         } else {
-            return new SimpleString(dest.getPhysicalName());
-         }
-      } else {
-         if (dest.isTemporary()) {
-            return new SimpleString(dest.getPhysicalName());
-         } else {
-            return new SimpleString(dest.getPhysicalName());
-         }
-      }
    }
 
    /**
