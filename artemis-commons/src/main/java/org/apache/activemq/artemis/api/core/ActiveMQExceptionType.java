@@ -106,6 +106,12 @@ public enum ActiveMQExceptionType {
          return new ActiveMQSecurityException(msg);
       }
    },
+   ADDRESS_DOES_NOT_EXIST(106) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQAddressDoesNotExistException(msg);
+      }
+   },
    ADDRESS_EXISTS(107) {
       @Override
       public ActiveMQException createException(String msg) {
@@ -230,6 +236,12 @@ public enum ActiveMQExceptionType {
       @Override
       public ActiveMQException createException(String msg) {
          return new ActiveMQInvalidQueueConfiguration(msg);
+      }
+   },
+   DELETE_ADDRESS_ERROR(217) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQDeleteAddressException(msg);
       }
    };
 

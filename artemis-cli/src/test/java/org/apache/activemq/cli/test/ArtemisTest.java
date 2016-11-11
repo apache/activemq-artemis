@@ -538,12 +538,15 @@ public class ArtemisTest {
 
 
       // This is usually set when run from the command line via artemis.profile
-      Run.setEmbedded(true);
+      Run.setEmbedded(false);
       Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.internalExecute("run");
+
+      Artemis.main("queue", "create", "--name", "q1", "--address", "q1", "--user", "admin", "--password", "admin");
+      Artemis.main("queue", "create", "--name", "t2", "--address", "t2", "--user", "admin", "--password", "admin");
 
       try {
          try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
