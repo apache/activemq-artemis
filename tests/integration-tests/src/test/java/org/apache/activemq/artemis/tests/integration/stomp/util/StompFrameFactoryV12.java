@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
-import java.util.StringTokenizer;
-
 public class StompFrameFactoryV12 extends StompFrameFactoryV11 {
 
    @Override

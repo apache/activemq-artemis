@@ -1188,11 +1188,8 @@ public final class ActiveMQDefaultConfiguration {
    public static boolean getDefaultDeleteQueueOnNoConsumers() {
       return DEFAULT_DELETE_QUEUE_ON_NO_CONSUMERS;
    }
-<<<<<<< HEAD
 
    public static String getInternalNamingPrefix() {
       return DEFAULT_INTERNAL_NAMING_PREFIX;
    }
-=======
->>>>>>> af5f1b1... ARTEMIS-782 Added configuration elements for new address model
 }

@@ -35,6 +35,7 @@ public class ExtraStompTest extends StompTestBase {
    private StompClientConnection connV10;
    private StompClientConnection connV11;
 
+   @Override
    public boolean isPersistenceEnabled() {
       return true;
    }
@@ -119,8 +120,8 @@ public class ExtraStompTest extends StompTestBase {
    @Test
    public void testNoGarbageAfterPersistentMessageV11() throws Exception {
       testNoGarbageAfterPersistentMessage(connV11);
-   }   
-   
+   }
+
    public void testNoGarbageAfterPersistentMessage(StompClientConnection conn) throws Exception {
       subscribe(conn, "a-sub");
 

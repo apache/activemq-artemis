@@ -121,7 +121,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       super.setUp();
 
       server = createServer();
-       server.start();
+      server.start();
       connectionFactory = createConnectionFactory();
 
       ((ActiveMQConnectionFactory)connectionFactory).setCompressLargeMessage(isCompressLargeMessages());

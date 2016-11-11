@@ -723,7 +723,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertTrue("Should have received the real message but got: " + frame, frame.getBody().equals("Real message"));
 
-    conn.disconnect();
+      conn.disconnect();
    }
 
    @Test
@@ -737,7 +737,7 @@ public class StompTest extends StompTestBase {
       Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
       ack(conn, null, frame);
 
-    conn.disconnect();
+      conn.disconnect();
 
       // message should not be received since message was acknowledged by the client
       MessageConsumer consumer = session.createConsumer(queue);
@@ -774,34 +774,20 @@ public class StompTest extends StompTestBase {
    }
 
    protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {
-
       conn.connect(defUser, defPass);
-
-//            String frame = Stomp.Commands.SUBSCRIBE + "\n" +
-//               Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE + Stomp.Headers.SEPARATOR + AddressInfo.RoutingType.ANYCAST + "\n" +
-//               Stomp.Headers.Send.DESTINATION + Stomp.Headers.SEPARATOR + getQueuePrefix() + getQueueName() + "\n" +
-//               Stomp.Headers.Message.ACK + Stomp.Headers.SEPARATOR + "client\n\n" +
-//               Stomp.NULL;
-//
-//            sendFrame(frame);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.CLIENT);
       sendJmsMessage(getName());
 
-//            frame = receiveFrame(10000);
-//            Assert.assertTrue(frame.startsWith(Stomp.Responses.MESSAGE));
       ClientStompFrame frame = conn.receiveFrame(10000);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       log.info("Reconnecting!");
 
       if (sendDisconnect) {
-       conn.disconnect();
-//         reconnect();
+         conn.disconnect();
          conn.destroy();
          conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
       } else {
-//         reconnect(100);
-//               waitForFrameToTakeEffect();
          conn.destroy();
          conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
       }
@@ -809,17 +795,8 @@ public class StompTest extends StompTestBase {
       // message should be received since message was not acknowledged
       conn.connect(defUser, defPass);
 
-//            frame = Stomp.Commands.SUBSCRIBE + "\n" +
-//               Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE + Stomp.Headers.SEPARATOR + AddressInfo.RoutingType.ANYCAST + "\n" +
-//               Stomp.Headers.Subscribe.DESTINATION + Stomp.Headers.SEPARATOR + getQueuePrefix() + getQueueName() + "\n\n" +
-//               Stomp.NULL;
-//
-//            sendFrame(frame);
       subscribe(conn, null);
 
-//            frame = receiveFrame(10000);
-//            log.info(frame);
-//            Assert.assertTrue(frame.startsWith(Stomp.Responses.MESSAGE));
       frame = conn.receiveFrame(10000);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
@@ -829,29 +806,13 @@ public class StompTest extends StompTestBase {
       conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
 
       // now let's make sure we don't see the message again
-//      reconnect();
 
       conn.connect(defUser, defPass);
 
-//            frame = Stomp.Commands.SUBSCRIBE + "\n" +
-//               Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE + Stomp.Headers.SEPARATOR + AddressInfo.RoutingType.ANYCAST + "\n" +
-//               Stomp.Headers.Send.DESTINATION + Stomp.Headers.SEPARATOR + getQueuePrefix() + getQueueName() + "\n" +
-//               Stomp.Headers.RECEIPT_REQUESTED + Stomp.Headers.SEPARATOR + " 1234\n\n" +
-//               Stomp.NULL;
-//
-//            sendFrame(frame);
       subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, true);
-
-      // wait for SUBSCRIBE's receipt
-//            frame = receiveFrame(10000);
-//            Assert.assertTrue(frame.startsWith(Stomp.Responses.RECEIPT));
 
       sendJmsMessage("shouldBeNextMessage");
 
-//            frame = receiveFrame(10000);
-//            Assert.assertTrue(frame.startsWith(Stomp.Responses.MESSAGE));
-//            log.info(frame);
-//            Assert.assertTrue(frame.contains("shouldBeNextMessage"));
       frame = conn.receiveFrame(10000);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       Assert.assertEquals("shouldBeNextMessage", frame.getBody());
@@ -1013,9 +974,9 @@ public class StompTest extends StompTestBase {
 
       assertEquals("Subscription queue should be deleted", 0, server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount);
 
-    conn.disconnect();
+      conn.disconnect();
    }
-      //
+
    @Test
    public void testSubscribeToQueue() throws Exception {
       final int baselineQueueCount = server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length;

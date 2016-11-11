@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
-import java.util.StringTokenizer;
-
 /**
  * 1.1 frames
  * <br>

@@ -31,6 +31,7 @@ import org.junit.Test;
 
 public class StompTestWithMessageID extends StompTestBase {
 
+   @Override
    public boolean isEnableStompMessageId() {
       return true;
    }
