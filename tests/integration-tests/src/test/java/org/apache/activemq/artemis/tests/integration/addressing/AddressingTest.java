@@ -229,7 +229,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean deleteOnNoConsumers = true;
-      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers, false);
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -246,7 +246,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers, false);
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -263,7 +263,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address, queueName, null, true, false, 0, deleteOnNoConsumers);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, 0, deleteOnNoConsumers, false);
 
       Exception expectedException = null;
       String expectedMessage = "Maximum Consumer Limit Reached on Queue";
@@ -290,7 +290,7 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
       boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address, queueName, null, true, false, -1, deleteOnNoConsumers);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, -1, deleteOnNoConsumers, false);
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -310,7 +310,7 @@ public class AddressingTest extends ActiveMQTestBase {
       boolean deleteOnNoConsumers = false;
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.setDefaultMaxQueueConsumers(0);
-      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers, false);
 
       ClientSession session = sessionFactory.createSession();
       session.start();

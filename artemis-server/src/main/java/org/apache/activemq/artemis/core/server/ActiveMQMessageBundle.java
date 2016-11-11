@@ -390,4 +390,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119202, value = "Invalid Queue Configuration for Queue {0}, Address {1}.  Expected {2} to be {3} but was {4}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString address, SimpleString queueName, String queuePropertyName, Object expectedValue, Object actualValue);
+
+   @Message(id = 119203, value = "Address Does Not Exist: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQInvalidQueueConfiguration addressDoesNotExist(SimpleString address);
 }

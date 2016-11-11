@@ -1420,8 +1420,14 @@ public class QueueImpl implements Queue {
 
    @Override
    public void deleteQueue(boolean removeConsumers) throws Exception {
+      deleteQueue(removeConsumers, false);
+   }
+
+   @Override
+   public void deleteQueue(boolean removeConsumers, boolean autoDeleteAddress) throws Exception {
       synchronized (this) {
-         if (this.queueDestroyed) return;
+         if (this.queueDestroyed)
+            return;
          this.queueDestroyed = true;
       }
 
@@ -1454,7 +1460,6 @@ public class QueueImpl implements Queue {
          tx.rollback();
          throw e;
       }
-
    }
 
    @Override
@@ -1799,7 +1804,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public synchronized void pause(boolean persist)  {
+   public synchronized void pause(boolean persist) {
       try {
          this.flushDeliveriesInTransit();
          if (persist && isDurable()) {
@@ -2959,8 +2964,6 @@ public class QueueImpl implements Queue {
 
          return false;
       }
-
-
 
       @Override
       public MessageReference next() {

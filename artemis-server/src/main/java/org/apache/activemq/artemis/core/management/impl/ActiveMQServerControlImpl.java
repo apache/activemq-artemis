@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
@@ -627,6 +628,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, durable, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                           @Parameter(name = "name", desc = "Name of the queue") String name,
+                           @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                           @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                           @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                           @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values if one does not exist") boolean autoCreateAddress) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
+      try {
+         if (filterStr != null && !filterStr.trim().equals("")) {
+            filter = new SimpleString(filterStr);
+         }
+
+         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
       } finally {
          blockOnIO();
       }

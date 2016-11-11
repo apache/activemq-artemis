@@ -281,7 +281,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable,
                      boolean temporary,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
@@ -297,7 +298,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable,
                      boolean temporary,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
@@ -315,7 +317,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean temporary,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue deployQueue(SimpleString address,
                      SimpleString queueName,
@@ -343,7 +346,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean temporary,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
@@ -406,7 +410,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean transientQueue,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    /*
          * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will

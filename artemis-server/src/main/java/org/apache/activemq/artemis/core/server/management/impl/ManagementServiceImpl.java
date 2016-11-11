@@ -739,7 +739,6 @@ public class ManagementServiceImpl implements ManagementService {
       }
 
       Object result = method.invoke(resource, params);
-
       return result;
    }
 

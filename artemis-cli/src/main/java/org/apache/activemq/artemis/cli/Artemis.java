@@ -30,9 +30,11 @@ import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
-import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
-import org.apache.activemq.artemis.cli.commands.destination.DeleteDestination;
-import org.apache.activemq.artemis.cli.commands.destination.HelpDestination;
+import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
+import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
+import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
+import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
+import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
 import org.apache.activemq.artemis.cli.commands.messages.Browse;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
@@ -128,8 +130,11 @@ public class Artemis {
       String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Consumer.class).withCommand(Browse.class).withCommand(Mask.class).withDefaultCommand(HelpAction.class);
 
-      builder.withGroup("destination").withDescription("Destination tools group (create|delete) (example ./artemis destination create)").
-         withDefaultCommand(HelpDestination.class).withCommands(CreateDestination.class, DeleteDestination.class);
+      builder.withGroup("queue").withDescription("Queue tools group (create|delete) (example ./artemis queue create)").
+         withDefaultCommand(HelpQueue.class).withCommands(CreateQueue.class, DeleteQueue.class);
+
+      builder.withGroup("address").withDescription("Queue tools group (create|delete) (example ./artemis queue create)").
+         withDefaultCommand(HelpQueue.class).withCommands(CreateAddress.class, DeleteAddress.class);
 
       if (instance != null) {
          builder.withGroup("data").withDescription("data tools group (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)").

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.destination;
+package org.apache.activemq.artemis.cli.commands.queue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-public class HelpDestination extends Help implements Action {
+public class HelpQueue extends Help implements Action {
 
    @Override
    public boolean isVerbose() {
@@ -49,7 +49,7 @@ public class HelpDestination extends Help implements Action {
    @Override
    public Object execute(ActionContext context) throws Exception {
       List<String> commands = new ArrayList<>(1);
-      commands.add("destination");
+      commands.add("queue");
       help(global, commands);
       return null;
    }

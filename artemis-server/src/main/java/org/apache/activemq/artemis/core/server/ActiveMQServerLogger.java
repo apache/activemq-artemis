@@ -785,7 +785,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void noQueueIdDefined(ServerMessage message, ServerMessage messageCopy, SimpleString idsHeaderName);
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.TRACE)
    @Message(id = 222111, value = "exception while invoking {0} on {1}",
       format = Message.Format.MESSAGE_FORMAT)
    void managementOperationError(@Cause Exception e, String op, String resourceName);

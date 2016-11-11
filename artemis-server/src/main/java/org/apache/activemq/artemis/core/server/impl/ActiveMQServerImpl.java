@@ -1406,8 +1406,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean durable,
                             final boolean temporary,
                             final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers) throws Exception {
-      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers);
+                            final Boolean deleteOnNoConsumers,
+                            final boolean autoCreateAddress) throws Exception {
+      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -1428,8 +1429,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             boolean durable,
                             boolean temporary,
                             Integer maxConsumers,
-                            Boolean deleteOnNoConsumers) throws Exception {
-      return createQueue(address, queueName, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers);
+                            Boolean deleteOnNoConsumers,
+                            boolean autoCreateAddress) throws Exception {
+      return createQueue(address, queueName, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -1452,8 +1454,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             boolean temporary,
                             boolean autoCreated,
                             Integer maxConsumers,
-                            Boolean deleteOnNoConsumers) throws Exception {
-      return createQueue(address, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers);
+                            Boolean deleteOnNoConsumers,
+                            boolean autoCreateAddress) throws Exception {
+      return createQueue(address, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -1515,7 +1518,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
-      return deployQueue(address, queueName, filterString, durable, temporary, autoCreated, null, null);
+      return deployQueue(address, queueName, filterString, durable, temporary, autoCreated, null, null, true);
    }
 
    @Override
@@ -1526,12 +1529,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean temporary,
                             final boolean autoCreated,
                             final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers) throws Exception {
+                            final Boolean deleteOnNoConsumers,
+                            final boolean autoCreateAddress) throws Exception {
 
       // TODO: fix logging here as this could be for a topic or queue
       ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
-      return createQueue(address, queueName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers);
+      return createQueue(address, queueName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -2131,7 +2135,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers());
+         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers(), true);
       }
    }
 
@@ -2298,7 +2302,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                          transientQueue,
                          autoCreated,
                          null,
-                         null);
+                         null,
+                         true);
    }
 
    @Override
@@ -2312,7 +2317,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean transientQueue,
                             final boolean autoCreated,
                             final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers) throws Exception {
+                            final Boolean deleteOnNoConsumers,
+                            final boolean autoCreateAddress) throws Exception {
+
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
       if (binding != null) {
          if (ignoreIfExists) {
@@ -2335,11 +2342,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       AddressInfo defaultAddressInfo = new AddressInfo(addressName);
-      // FIXME This boils down to a putIfAbsent (avoids race).  This should be reflected in the API.
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
       if (info == null) {
-         info = defaultAddressInfo;
+         if (autoCreateAddress) {
+            info = defaultAddressInfo;
+         }
+         else {
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         }
       }
 
       final boolean isDeleteOnNoConsumers = deleteOnNoConsumers == null ? info.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;

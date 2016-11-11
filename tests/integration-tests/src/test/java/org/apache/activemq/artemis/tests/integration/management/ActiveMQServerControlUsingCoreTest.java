@@ -122,6 +122,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                                 @Parameter(name = "name", desc = "Name of the queue") String name,
+                                 @Parameter(name = "filter", desc = "Filter of the queue") String filter,
+                                 @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                                 @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                                 @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                                 @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
+
+         }
+
+         @Override
          public void deployQueue(final String address,
                                  final String name,
                                  final String filter,
