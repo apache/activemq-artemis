@@ -168,9 +168,8 @@ public abstract class VersionedStompFrameHandler {
       StompFrame response = null;
       try {
          connection.validate();
-         String destination = frame.getHeader(Stomp.Headers.Send.DESTINATION);
-         String destinationType = frame.getHeader(Headers.Send.DESTINATION_TYPE);
-         AddressInfo.RoutingType routingType = destinationType == null ? null : AddressInfo.RoutingType.valueOf(destinationType);
+         String destination = getDestination(frame);
+         AddressInfo.RoutingType routingType = getRoutingType(frame.getHeader(Headers.Send.DESTINATION_TYPE), frame.getHeader(Headers.Send.DESTINATION));
          connection.autoCreateDestinationIfPossible(destination, routingType);
          connection.checkDestination(destination);
          String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
@@ -238,7 +237,7 @@ public abstract class VersionedStompFrameHandler {
 
    public StompFrame onSubscribe(StompFrame request) {
       StompFrame response = null;
-      String destination = request.getHeader(Stomp.Headers.Subscribe.DESTINATION);
+      String destination = getDestination(request);
 
       String selector = request.getHeader(Stomp.Headers.Subscribe.SELECTOR);
       String ack = request.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
@@ -247,8 +246,7 @@ public abstract class VersionedStompFrameHandler {
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
-      String subscriptionType = request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE);
-      AddressInfo.RoutingType routingType = subscriptionType == null ? null : AddressInfo.RoutingType.valueOf(subscriptionType);
+      AddressInfo.RoutingType routingType = getRoutingType(request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), request.getHeader(Headers.Subscribe.DESTINATION));
       boolean noLocal = false;
 
       if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
@@ -262,6 +260,17 @@ public abstract class VersionedStompFrameHandler {
       }
 
       return response;
+   }
+
+   public String getDestination(StompFrame request) {
+      String destination = request.getHeader(Headers.Subscribe.DESTINATION);
+      if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
+         destination = destination.substring(connection.getMulticastPrefix().length());
+      } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
+         destination = destination.substring(connection.getAnycastPrefix().length());
+      }
+
+      return destination;
    }
 
    public StompFrame postprocess(StompFrame request) {
@@ -332,6 +341,18 @@ public abstract class VersionedStompFrameHandler {
    public void onError(ActiveMQStompException e) {
       this.connection.sendFrame(e.getFrame());
       connection.destroy();
+   }
+
+   private AddressInfo.RoutingType getRoutingType(String typeHeader, String destination) {
+      AddressInfo.RoutingType routingType = AddressInfo.RoutingType.ANYCAST; // default
+      if (typeHeader != null) {
+         routingType = AddressInfo.RoutingType.valueOf(typeHeader);
+      } else if (destination != null && !connection.getAnycastPrefix().equals(connection.getMulticastPrefix())) {
+         if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
+            routingType = AddressInfo.RoutingType.MULTICAST;
+         }
+      }
+      return routingType;
    }
 
 }

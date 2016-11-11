@@ -414,6 +414,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                           boolean receipt,
                                           boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, AddressInfo.RoutingType.MULTICAST.toString())
                                    .addHeader(Stomp.Headers.Subscribe.DESTINATION, getTopicPrefix() + getTopicName());
       if (subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Subscribe.ID, subscriptionId);

@@ -2129,7 +2129,6 @@ public class StompV11Test extends StompTestBase {
 
    @Test
    public void testSendMessageToNonExistentQueueWithoutAutoCreation() throws Exception {
-      // TODO fix this test by checking auto-create settings
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateJmsQueues(false);
       server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
@@ -2139,6 +2138,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame frame = send(conn, "NonExistentQueue" + uuid, null, "Hello World", true, AddressInfo.RoutingType.ANYCAST);
 
+      // TODO fix this test by checking auto-create settings
       assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
       IntegrationTestLogger.LOGGER.info("message: " + frame.getHeader("message"));
 

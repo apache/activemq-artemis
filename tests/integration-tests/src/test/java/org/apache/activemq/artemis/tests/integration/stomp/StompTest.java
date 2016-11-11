@@ -25,6 +25,7 @@ import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -40,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -295,7 +297,7 @@ public class StompTest extends StompTestBase {
       conn.connect(defUser, defPass);
 
       // first send a message to ensure that sending to a non-existent topic won't throw an error
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true);
+      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true, AddressInfo.RoutingType.MULTICAST);
 
       // create a subscription on the topic and send/receive another message
       MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
@@ -317,6 +319,7 @@ public class StompTest extends StompTestBase {
 
       // closing the consumer here should trigger auto-deletion of the subscription queue and address
       consumer.close();
+      Thread.sleep(200);
       assertNull(server.getActiveMQServer()
                        .getAddressInfo(new SimpleString(nonExistentTopic)));
    }
@@ -1245,6 +1248,127 @@ public class StompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(1000);
       assertNotNull(frame);
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testDotAnycastPrefixOnSend() throws Exception {
+      testPrefix("jms.queue.", AddressInfo.RoutingType.ANYCAST, true);
+   }
+
+   @Test
+   public void testDotMulticastPrefixOnSend() throws Exception {
+      testPrefix("jms.topic.", AddressInfo.RoutingType.MULTICAST, true);
+   }
+
+   @Test
+   public void testDotAnycastPrefixOnSubscribe() throws Exception {
+      testPrefix("jms.queue.", AddressInfo.RoutingType.ANYCAST, false);
+   }
+
+   @Test
+   public void testDotMulticastPrefixOnSubscribe() throws Exception {
+      testPrefix("jms.topic.", AddressInfo.RoutingType.MULTICAST, false);
+   }
+
+   @Test
+   public void testSlashAnycastPrefixOnSend() throws Exception {
+      testPrefix("/queue/", AddressInfo.RoutingType.ANYCAST, true);
+   }
+
+   @Test
+   public void testSlashMulticastPrefixOnSend() throws Exception {
+      testPrefix("/topic/", AddressInfo.RoutingType.MULTICAST, true);
+   }
+
+   @Test
+   public void testSlashAnycastPrefixOnSubscribe() throws Exception {
+      testPrefix("/queue/", AddressInfo.RoutingType.ANYCAST, false);
+   }
+
+   @Test
+   public void testSlashMulticastPrefixOnSubscribe() throws Exception {
+      testPrefix("/topic/", AddressInfo.RoutingType.MULTICAST, false);
+   }
+
+   public void testPrefix(final String prefix, final AddressInfo.RoutingType routingType, final boolean send) throws Exception {
+      int port = 61614;
+      final String ADDRESS = UUID.randomUUID().toString();
+      final String PREFIXED_ADDRESS = prefix + ADDRESS;
+      String param = routingType.toString();
+      String urlParam = "stomp" + param.substring(0, 1) + param.substring(1).toLowerCase() + "Prefix";
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
+      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn.connect(defUser, defPass);
+
+      // since this queue doesn't exist the broker should create a new address using the routing type matching the prefix
+      if (send) {
+         send(conn, PREFIXED_ADDRESS, null, "Hello World", true);
+      } else {
+         String uuid = UUID.randomUUID().toString();
+
+         ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                      .addHeader(Stomp.Headers.Subscribe.DESTINATION, PREFIXED_ADDRESS)
+                                      .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+
+         frame = conn.sendFrame(frame);
+
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+      }
+
+      AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
+      assertNotNull("No address was created with the name " + ADDRESS, addressInfo);
+      assertEquals(AddressInfo.RoutingType.valueOf(param), addressInfo.getRoutingType());
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testDotPrefixedSendAndRecieveAnycast() throws Exception {
+      testPrefixedSendAndRecieve("jms.queue.", AddressInfo.RoutingType.ANYCAST);
+   }
+
+   @Test
+   public void testDotPrefixedSendAndRecieveMulticast() throws Exception {
+      testPrefixedSendAndRecieve("jms.topic.", AddressInfo.RoutingType.MULTICAST);
+   }
+
+   @Test
+   public void testSlashPrefixedSendAndRecieveAnycast() throws Exception {
+      testPrefixedSendAndRecieve("/queue/", AddressInfo.RoutingType.ANYCAST);
+   }
+
+   @Test
+   public void testSlashPrefixedSendAndRecieveMulticast() throws Exception {
+      testPrefixedSendAndRecieve("/topic/", AddressInfo.RoutingType.MULTICAST);
+   }
+
+   public void testPrefixedSendAndRecieve(final String prefix, AddressInfo.RoutingType routingType) throws Exception {
+      int port = 61614;
+      final String ADDRESS = UUID.randomUUID().toString();
+      final String PREFIXED_ADDRESS = prefix + ADDRESS;
+      String param = routingType.toString();
+      String urlParam = "stomp" + param.substring(0, 1) + param.substring(1).toLowerCase() + "Prefix";
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
+      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn.connect(defUser, defPass);
+      String uuid = UUID.randomUUID().toString();
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, PREFIXED_ADDRESS)
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+
+      frame = conn.sendFrame(frame);
+      assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
+
+      send(conn, ADDRESS, null, "Hello World", true);
+
+      frame = conn.receiveFrame(10000);
+      Assert.assertNotNull("Should have received a message", frame);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(ADDRESS, frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals("Hello World", frame.getBody());
 
       conn.disconnect();
    }

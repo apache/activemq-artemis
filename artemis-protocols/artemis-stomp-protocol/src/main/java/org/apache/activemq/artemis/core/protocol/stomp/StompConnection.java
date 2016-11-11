@@ -86,6 +86,12 @@ public final class StompConnection implements RemotingConnection {
 
    private final boolean enableMessageID;
 
+   private final int minLargeMessageSize;
+
+   private final String anycastPrefix;
+
+   private final String multicastPrefix;
+
    private StompVersions version;
 
    private VersionedStompFrameHandler frameHandler;
@@ -96,8 +102,6 @@ public final class StompConnection implements RemotingConnection {
    private FrameEventListener stompListener;
 
    private final Object sendLock = new Object();
-
-   private final int minLargeMessageSize;
 
    private final ScheduledExecutorService scheduledExecutorService;
 
@@ -161,6 +165,8 @@ public final class StompConnection implements RemotingConnection {
 
       this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration());
+      this.anycastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_ANYCAST_PREFIX, TransportConstants.DEFAULT_STOMP_ANYCAST_PREFIX, acceptorUsed.getConfiguration());
+      this.multicastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_MULTICAST_PREFIX, TransportConstants.DEFAULT_STOMP_MULTICAST_PREFIX, acceptorUsed.getConfiguration());
    }
 
    @Override
@@ -252,12 +258,14 @@ public final class StompConnection implements RemotingConnection {
 
    public void autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
       try {
-         // TODO check here to see if auto-creation is enabled
-         if (routingType == null || routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
-            manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
-         } else {
-            manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST));
-            manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+         if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
+            // TODO check here to see if auto-creation is enabled
+            if (routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
+               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
+            } else {
+               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
+               manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+            }
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
@@ -561,7 +569,7 @@ public final class StompConnection implements RemotingConnection {
       if (stompSession.isNoLocal()) {
          message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
       }
-      if (enableMessageID()) {
+      if (isEnableMessageID()) {
          message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
       }
       try {
@@ -712,12 +720,20 @@ public final class StompConnection implements RemotingConnection {
       return this.frameHandler;
    }
 
-   public boolean enableMessageID() {
+   public boolean isEnableMessageID() {
       return enableMessageID;
    }
 
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
+   }
+
+   public String getAnycastPrefix() {
+      return anycastPrefix;
+   }
+
+   public String getMulticastPrefix() {
+      return multicastPrefix;
    }
 
    public StompProtocolManager getManager() {
