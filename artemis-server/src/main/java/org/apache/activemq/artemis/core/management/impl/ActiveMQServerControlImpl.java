@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -49,6 +50,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
@@ -62,8 +64,10 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -71,6 +75,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -562,10 +567,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createOrUpdateAddressInfo(new AddressInfo(new SimpleString(name), AddressInfo.RoutingType.getType((byte)routingType), defaultDeleteOnNoConsumers, defaultMaxConsumers));
+         server.createAddressInfo(new AddressInfo(new SimpleString(name), AddressInfo.RoutingType.getType((byte) routingType), defaultDeleteOnNoConsumers, defaultMaxConsumers));
       } finally {
          blockOnIO();
       }
+   }
+
+   @Override
+   public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                             @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
+                             @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
+                             @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
+      AddressInfo.RoutingType rt = AddressInfo.RoutingType.valueOf(routingType.toUpperCase());
+      createAddress(name, rt.ordinal(), defaultDeleteOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override
@@ -627,6 +641,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, durable, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                           @Parameter(name = "name", desc = "Name of the queue") String name,
+                           @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                           @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                           @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                           @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values if one does not exist") boolean autoCreateAddress) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
+      try {
+         if (filterStr != null && !filterStr.trim().equals("")) {
+            filter = new SimpleString(filterStr);
+         }
+
+         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
       } finally {
          blockOnIO();
       }
@@ -727,21 +765,49 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void destroyQueue(final String name, final boolean removeConsumers) throws Exception {
+   public void destroyQueue(final String name, final boolean removeConsumers, final boolean autoDeleteAddress) throws Exception {
       checkStarted();
 
       clearIO();
       try {
          SimpleString queueName = new SimpleString(name);
-         server.destroyQueue(queueName, null, !removeConsumers, removeConsumers);
+         server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, autoDeleteAddress);
       } finally {
          blockOnIO();
       }
    }
 
    @Override
+   public void destroyQueue(final String name, final boolean removeConsumers) throws Exception {
+      destroyQueue(name, removeConsumers, false);
+   }
+
+   @Override
    public void destroyQueue(final String name) throws Exception {
       destroyQueue(name, false);
+   }
+
+   @Override
+   public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
+      AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
+      if (addressInfo == null) {
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+      }
+      else {
+         return addressInfo.toString();
+      }
+   }
+
+   @Override
+   public String[] listBindingsForAddress(String address) throws Exception {
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
+      List<String> result = new ArrayList<>(bindings.getBindings().size());
+
+      int i = 0;
+      for (Binding binding : bindings.getBindings()) {
+
+      }
+      return (String[]) result.toArray();
    }
 
    @Override

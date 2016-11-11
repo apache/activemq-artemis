@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Queues;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -121,6 +122,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @throws IllegalStateException if the server is not properly started.
     */
    ActiveMQServerControlImpl getActiveMQServerControl();
+
+   void destroyQueue(SimpleString queueName,
+                     SecurityAuth session,
+                     boolean checkConsumerCount,
+                     boolean removeConsumers,
+                     boolean autoDeleteAddress) throws Exception;
 
    void registerActivateCallback(ActivateCallback callback);
 
@@ -289,7 +296,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable,
                      boolean temporary,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
@@ -305,7 +313,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable,
                      boolean temporary,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
@@ -323,7 +332,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean temporary,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    Queue deployQueue(SimpleString address,
                      SimpleString queueName,
@@ -351,7 +361,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean temporary,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
@@ -414,7 +425,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean transientQueue,
                      boolean autoCreated,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
 
    /*
          * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
@@ -450,6 +462,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    void removeClientConnection(String clientId);
 
    AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception;
+
+   void createAddressInfo(AddressInfo addressInfo) throws Exception;
 
    AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 

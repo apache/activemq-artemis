@@ -1628,7 +1628,7 @@ public class MQTTTest extends MQTTTestSupport {
          addressInfo.setDefaultMaxQueueConsumers(0);
          getServer().createOrUpdateAddressInfo(addressInfo);
 
-         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false);
+         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, false);
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -1674,7 +1674,7 @@ public class MQTTTest extends MQTTTestSupport {
       try {
          String clientId = "testMqtt";
          SimpleString coreAddress = new SimpleString("foo.bar");
-         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, -1, true);
+         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, -1, true, false);
 
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 

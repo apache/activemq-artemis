@@ -76,5 +76,4 @@ public class ActiveMQException extends Exception {
    public String toString() {
       return this.getClass().getSimpleName() + "[errorType=" + type + " message=" + getMessage() + "]";
    }
-
 }

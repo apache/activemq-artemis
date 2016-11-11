@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.QueueInfo;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -130,6 +131,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
    private final ActiveMQServer server;
+
+   private Object addressLock = new Object();
 
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
@@ -420,38 +423,60 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public AddressInfo addAddressInfo(AddressInfo addressInfo) {
-      try {
-         managementService.registerAddress(addressInfo);
-      } catch (Exception e) {
-         e.printStackTrace();
+      synchronized (addressLock) {
+         try {
+            managementService.registerAddress(addressInfo);
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+         return addressManager.addAddressInfo(addressInfo);
       }
-      return addressManager.addAddressInfo(addressInfo);
    }
 
    @Override
    public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      try {
-         managementService.registerAddress(addressInfo);
-      } catch (Exception e) {
-         e.printStackTrace();
+      synchronized (addressLock) {
+         try {
+            managementService.registerAddress(addressInfo);
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+         return addressManager.addOrUpdateAddressInfo(addressInfo);
       }
-      return addressManager.addOrUpdateAddressInfo(addressInfo);
    }
 
    @Override
-   public AddressInfo removeAddressInfo(SimpleString address) {
-      try {
-         getServer().getManagementService().unregisterAddress(address);
-      } catch (Exception e) {
-         e.printStackTrace();
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      synchronized (addressLock) {
+         Bindings bindingsForAddress = getBindingsForAddress(address);
+         if (bindingsForAddress.getBindings().size() > 0) {
+            throw new IllegalStateException("Address has bindings");
+         }
+         managementService.unregisterAddress(address);
+         return addressManager.removeAddressInfo(address);
       }
-      return addressManager.removeAddressInfo(address);
    }
 
    @Override
    public AddressInfo getAddressInfo(SimpleString addressName) {
-      return addressManager.getAddressInfo(addressName);
+      synchronized (addressLock) {
+         return addressManager.getAddressInfo(addressName);
+      }
    }
+
+   @Override
+   public List<Queue> listQueuesForAddress(SimpleString address) throws Exception {
+      Bindings bindingsForAddress = getBindingsForAddress(address);
+      List<Queue> queues = new ArrayList<>();
+      for (Binding b : bindingsForAddress.getBindings()) {
+         if (b instanceof QueueBinding) {
+            Queue q = ((QueueBinding) b).getQueue();
+            queues.add(q);
+         }
+      }
+      return queues;
+   }
+
 
    // TODO - needs to be synchronized to prevent happening concurrently with activate()
    // (and possible removeBinding and other methods)

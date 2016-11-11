@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.api.core.management;
 import javax.management.MBeanOperationInfo;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
+
 /**
  * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
  */
@@ -438,6 +440,13 @@ public interface ActiveMQServerControl {
                       @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
                       @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
 
+
+   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
+   void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                      @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
+                      @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
+                      @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
+
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
 
@@ -454,6 +463,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Create a queue with the specified address", impact = MBeanOperationInfo.ACTION)
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name) throws Exception;
+
 
    /**
     * Create a queue.
@@ -489,6 +499,25 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "name", desc = "Name of the queue") String name,
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable) throws Exception;
 
+   /**
+    * Create a queue.
+    * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
+    * <br>
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    *
+    * @param address address to bind the queue to
+    * @param name    name of the queue
+    * @param durable whether the queue is durable
+    */
+   @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
+   void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                    @Parameter(name = "name", desc = "Name of the queue") String name,
+                    @Parameter(name = "filter", desc = "Filter of the queue") String filter,
+                    @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                    @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                    @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
    /**
     * Deploy a durable queue.
     * <br>
@@ -535,6 +564,14 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a queue", impact = MBeanOperationInfo.ACTION)
    void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
                      @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers) throws Exception;
+
+   /**
+    * Destroys the queue corresponding to the specified name and delete it's address if there are no other queues
+    */
+   @Operation(desc = "Destroy a queue", impact = MBeanOperationInfo.ACTION)
+   void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
+                     @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers, boolean autoDeleteAddress) throws Exception;
+
 
    /**
     * Enables message counters for this server.
@@ -901,5 +938,10 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
    String listNetworkTopology() throws Exception;
+
+   String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException;
+
+   @Operation(desc = "Get a list of bindings associated with an address", impact = MBeanOperationInfo.INFO)
+   String[] listBindingsForAddress(String address) throws Exception;
 }
 

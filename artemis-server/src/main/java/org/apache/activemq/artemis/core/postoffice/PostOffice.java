@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,8 @@ public interface PostOffice extends ActiveMQComponent {
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
    AddressInfo getAddressInfo(SimpleString address);
+
+   List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 
    void addBinding(Binding binding) throws Exception;
 
