@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -178,6 +179,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private ConnectionEntry connectionEntry;
    private boolean useKeepAlive;
    private long maxInactivityDuration;
+
+   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
 
    // TODO-NOW: check on why there are two connections created for every createConnection on the client.
    public OpenWireConnection(Connection connection,
@@ -708,7 +711,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void addDestination(DestinationInfo info) throws Exception {
       ActiveMQDestination dest = info.getDestination();
       if (dest.isQueue()) {
-         SimpleString qName = OpenWireUtil.toCoreAddress(dest);
+         SimpleString qName = new SimpleString(dest.getPhysicalName());
          QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
             if (dest.isTemporary()) {
@@ -790,6 +793,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       checkInactivity();
    }
 
+   public void addKnownDestination(final SimpleString address) {
+      knownDestinations.add(address);
+   }
+
+   public boolean containsKnownDestination(final SimpleString address) {
+      return knownDestinations.contains(address);
+   }
+
    @Override
    public void tempQueueDeleted(SimpleString bindingName) {
       ActiveMQDestination dest = new ActiveMQTempQueue(bindingName.toString());
@@ -862,7 +873,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
          try {
-            server.destroyQueue(OpenWireUtil.toCoreAddress(dest));
+            server.destroyQueue(new SimpleString(dest.getPhysicalName()));
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             ActiveMQServerLogger.LOGGER.debug("queue never existed");
@@ -870,7 +881,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
 
       } else {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(OpenWireUtil.toCoreAddress(dest));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(dest.getPhysicalName()));
 
          for (Binding binding : bindings.getBindings()) {
             Queue b = (Queue) binding.getBindable();
@@ -900,7 +911,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     */
    private void validateDestination(ActiveMQDestination destination) throws Exception {
       if (destination.isQueue()) {
-         SimpleString physicalName = OpenWireUtil.toCoreAddress(destination);
+         SimpleString physicalName = new SimpleString(destination.getPhysicalName());
          BindingQueryResult result = server.bindingQuery(physicalName);
          if (!result.isExists() && !result.isAutoCreateJmsQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
