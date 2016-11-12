@@ -20,3 +20,7 @@ cmake_install.cmake
 
 # this file is generated
 artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h
+
+# gitbook output
+docs/user-manual/en/_book
+docs/hacking-guide/en/_book
