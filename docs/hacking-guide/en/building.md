@@ -1,6 +1,8 @@
 # Building
 
-We use Apache Maven to build the code, docs, distribution, etc. and to manage dependencies.
+We use Apache Maven to build the code, distribution, etc. and to manage dependencies.
+
+We use `gitbook` to build the docs.
 
 The minimum required Maven version is 3.0.0.
 
@@ -27,7 +29,7 @@ The new npm-shrinkwrap.json should be written, commit it.
 
 Artemis will automate the execution and download of npm. But it may be useful to install it on your system. Simply type:
 
-    $ npm install -g gitbook gitbook-cli
+    $ npm install -g gitbook-cli
 
 If you don't have `npm` installed then you would need to install it first.
 
@@ -67,3 +69,7 @@ It is possible to build a distribution without the manuals and Javadocs.
 simply run
 
     $ mvn package
+
+## Building the docs
+
+From either `docs/hacking-guide/en` or `docs/user-manual/en` run `gitbook build` (after you've installed gitbook)
