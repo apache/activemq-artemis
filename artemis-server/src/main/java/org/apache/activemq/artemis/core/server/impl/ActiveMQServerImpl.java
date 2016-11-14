@@ -641,11 +641,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      if (autoCreateJmsTopics) {
-         putAddressInfoIfAbsent(new AddressInfo(address));
-      }
-
-      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
+      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
