@@ -414,9 +414,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                      }
                   } else if (!destination.isQueue() && query.isAutoCreateJmsTopics()) {
                      clientSession.createAddress(address, true, true);
+                  } else if ((destination.isQueue() && !query.isAutoCreateJmsQueues()) || (!destination.isQueue() && !query.isAutoCreateJmsTopics())) {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }
-               } else if (!query.isExists() && ((destination.isQueue() && !query.isAutoCreateJmsQueues()) || (!destination.isQueue() && !query.isAutoCreateJmsTopics()))) {
-                  throw new InvalidDestinationException("Destination " + address + " does not exist");
                } else {
                   connection.addKnownDestination(address);
                }
