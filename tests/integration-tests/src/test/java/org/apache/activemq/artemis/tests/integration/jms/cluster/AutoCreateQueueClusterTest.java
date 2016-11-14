@@ -58,13 +58,15 @@ public class AutoCreateQueueClusterTest extends JMSClusteredTestBase {
 
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer prod1 = session1.createProducer(ActiveMQJMSClient.createQueue("myQueue"));
+         // TODO the "jms." prefix is required here because the cluster connection only works for queues which start with "jms"
+         MessageProducer prod1 = session1.createProducer(ActiveMQJMSClient.createQueue("jms.myQueue"));
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          prod1.send(session1.createTextMessage("m1"));
 
-         MessageConsumer cons2 = session2.createConsumer(ActiveMQJMSClient.createQueue("myQueue"));
+         // TODO the "jms." prefix is required here because the cluster connection only works for queues which start with "jms"
+         MessageConsumer cons2 = session2.createConsumer(ActiveMQJMSClient.createQueue("jms.myQueue"));
 
          TextMessage received = (TextMessage) cons2.receive(5000);
 

@@ -301,6 +301,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
             if (!response.isExists()) {
                if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
+                  // TODO create queue here in such a way that it is deleted when consumerCount == 0
+                  // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
                   session.createAddress(jbd.getSimpleAddress(), false, true);
                   session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
                } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
