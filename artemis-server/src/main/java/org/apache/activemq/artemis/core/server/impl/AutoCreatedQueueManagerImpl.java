@@ -33,14 +33,14 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
    private final Runnable runnable = new Runnable() {
       @Override
       public void run() {
-         // TODO check auto created and deleteOnNoConsumers
          Queue queue = server.locateQueue(queueName);
          SimpleString address = queue.getAddress();
          AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
          long consumerCount = queue.getConsumerCount();
          long messageCount = queue.getMessageCount();
 
-         if (queue.getMessageCount() == 0) {
+         // TODO make sure this is the right check
+         if ((queue.isAutoCreated() || queue.isDeleteOnNoConsumers()) && queue.getMessageCount() == 0) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; getAutoDeleteJmsQueues = " + settings.getAutoDeleteJmsQueues());
             }
