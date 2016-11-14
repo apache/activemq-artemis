@@ -23,16 +23,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -145,11 +145,10 @@ public class AMQSession implements SessionCallback {
 
       for (ActiveMQDestination openWireDest : dests) {
          if (openWireDest.isQueue()) {
-            SimpleString queueName = OpenWireUtil.toCoreAddress(openWireDest);
-            try {
-               getCoreServer().createQueue(queueName, queueName, null, true, false);
-            } catch (ActiveMQQueueExistsException e) {
-               // ignore
+            SimpleString queueName = new SimpleString(openWireDest.getPhysicalName());
+
+            if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
+               throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
             }
          }
          AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool);
@@ -160,6 +159,27 @@ public class AMQSession implements SessionCallback {
       }
 
       return consumersList;
+   }
+
+   private boolean checkAutoCreateQueue(SimpleString queueName, boolean isTemporary) throws Exception {
+      boolean hasQueue = true;
+      if (!connection.containsKnownDestination(queueName)) {
+
+         BindingQueryResult bindingQuery = server.bindingQuery(queueName);
+         QueueQueryResult queueBinding = server.queueQuery(queueName);
+
+         boolean isAutoCreate = bindingQuery.isExists() ? bindingQuery.isAutoCreateJmsQueues() : true;
+
+         if (!queueBinding.isExists()) {
+            if (isAutoCreate) {
+               server.createQueue(queueName, queueName, null, true, isTemporary);
+               connection.addKnownDestination(queueName);
+            } else {
+               hasQueue = false;
+            }
+         }
+      }
+      return hasQueue;
    }
 
    public void start() {
@@ -338,7 +358,7 @@ public class AMQSession implements SessionCallback {
       // We fillup addresses, pagingStores and we will throw failure if that's the case
       for (int i = 0; i < actualDestinations.length; i++) {
          ActiveMQDestination dest = actualDestinations[i];
-         addresses[i] = OpenWireUtil.toCoreAddress(dest);
+         addresses[i] = new SimpleString(dest.getPhysicalName());
          pagingStores[i] = server.getPagingManager().getPageStore(addresses[i]);
          if (pagingStores[i].getAddressFullMessagePolicy() == AddressFullMessagePolicy.FAIL && pagingStores[i].isFull()) {
             throw new ResourceAllocationException("Queue is full");
@@ -355,6 +375,10 @@ public class AMQSession implements SessionCallback {
 
          if (store.isFull()) {
             connection.getTransportConnection().setAutoRead(false);
+         }
+
+         if (actualDestinations[i].isQueue()) {
+            checkAutoCreateQueue(new SimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
          }
 
          RoutingStatus result = getCoreSession().send(coreMsg, false, actualDestinations[i].isTemporary());
