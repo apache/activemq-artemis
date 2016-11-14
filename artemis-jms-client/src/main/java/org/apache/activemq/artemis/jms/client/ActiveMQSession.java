@@ -299,28 +299,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (jbd != null) {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
-            if (!response.isExists() && response.isAutoCreateJmsQueues()) {
-               if (jbd.isQueue()) {
+            if (!response.isExists()) {
+               if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
                   session.createAddress(jbd.getSimpleAddress(), false, true);
                   session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
-               } else {
+               } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
                   session.createAddress(jbd.getSimpleAddress(), true, true);
-               }
-
-               if (response.getQueueNames().isEmpty()) {
-                  if (response.isAutoCreateJmsQueues()) {
-                     session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
-                  } else {
-                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-                  }
-               }
-            } else {
-               if (!response.isExists()) {
-                  if (response.isAutoCreateJmsTopics()) {
-                     session.createAddress(jbd.getSimpleAddress(), true, true);
-                  } else {
-                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-                  }
+               } else {
+                  throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
                }
             }
          }
