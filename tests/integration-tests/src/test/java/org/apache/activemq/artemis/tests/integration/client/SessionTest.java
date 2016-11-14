@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
@@ -228,6 +229,7 @@ public class SessionTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueQueryNoQ() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
