@@ -439,12 +439,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public AddressInfo removeAddressInfo(SimpleString address) {
-      try {
-         getServer().getManagementService().unregisterAddress(address);
-      } catch (Exception e) {
-         e.printStackTrace();
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      Bindings bindingsForAddress = getBindingsForAddress(address);
+      if (bindingsForAddress.getBindings().size() > 0) {
+         throw new IllegalStateException("Address has bindings");
       }
+      managementService.unregisterAddress(address);
       return addressManager.removeAddressInfo(address);
    }
 

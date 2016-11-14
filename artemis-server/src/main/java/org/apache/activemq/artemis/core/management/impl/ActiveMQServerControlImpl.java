@@ -50,6 +50,8 @@ import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
@@ -75,6 +77,8 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
@@ -1975,6 +1979,42 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    }
 
+
+   @Override
+   public String listNetworkTopology() throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         JsonArrayBuilder brokers = JsonLoader.createArrayBuilder();
+         ClusterManager clusterManager = server.getClusterManager();
+         if (clusterManager != null) {
+            Set<ClusterConnection> clusterConnections = clusterManager.getClusterConnections();
+            for (ClusterConnection clusterConnection : clusterConnections) {
+               Topology topology = clusterConnection.getTopology();
+               Collection<TopologyMemberImpl> members = topology.getMembers();
+               for (TopologyMemberImpl member : members) {
+
+                  JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
+                  TransportConfiguration live = member.getLive();
+                  if (live != null) {
+                     obj.add("nodeID", member.getNodeId()).add("live", live.getParams().get("host") + ":" + live.getParams().get("port"));
+                     TransportConfiguration backup = member.getBackup();
+                     if (backup != null) {
+                        obj.add("backup", backup.getParams().get("host") + ":" + backup.getParams().get("port"));
+                     }
+                  }
+                  brokers.add(obj);
+               }
+            }
+         }
+         return brokers.build().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
    // NotificationEmitter implementation ----------------------------
 
    @Override
@@ -2068,6 +2108,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Override
    public String getManagementAddress() {
       return configuration.getManagementAddress().toString();
+   }
+
+   @Override
+   public String getNodeID() {
+      return server.getNodeID().toString();
    }
 
    @Override
