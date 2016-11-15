@@ -15,6 +15,24 @@ This is the main core server configuration file which contains to elements
 The 'core' element contains the main server configuration while the 'jms'
 element is used by the server side JMS service to load JMS Queues, Topics
 
+# System properties
+
+It is possible to use System properties to replace some of the configuration properties. If you define a System property starting with "brokerconfig." that will be passed along to Bean Utils and the configuration would be replaced.
+
+To define global-max-size=1000000 using a system property you would have to define this property, for example through java arguments:
+
+```
+java -Dbrokerconfig.globalMaxSize=1000000
+```
+
+You can also change the prefix through the broker.xml by setting:
+
+```
+<system-property-prefix>yourprefix</system-property-prefix>
+```
+
+This is to help you customize artemis on embedded systems.
+
 # The core configuration
 
 This describes the root of the XML configuration. You will see here also multiple sub-types listed.
@@ -87,6 +105,7 @@ Name | Description
 [scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
 [security-enabled](security.md "Security")  |  true means that security is enabled. Default=true
 [security-invalidation-interval](security.md "Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
+system-property-prefix | Prefix for replacing configuration settings using Bean Utils.
 [populate-validated-user](security.md "Security")                                          |  whether or not to add the name of the validated user to the messages that user sends. Default=false
 [security-settings](security.md "Role based security for addresses")                             |  [a list of security-setting](#security-setting-type)
 [thread-pool-max-size](thread-pooling.md "Server Scheduled Thread Pool")                       |  Maximum number of threads to use for the thread pool. -1 means 'no limits'.. Default=30

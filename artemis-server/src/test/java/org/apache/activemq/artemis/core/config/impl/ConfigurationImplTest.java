@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -541,6 +542,20 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          }
       }
 
+   }
+
+
+   @Test
+   public void testSetSystemProperty() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      properties.put(configuration.getSystemPropertyPrefix() + "fileDeployerScanPeriod", "1234");
+      properties.put(configuration.getSystemPropertyPrefix() + "globalMaxSize", "4321");
+
+      configuration.parseSystemProperties(properties);
+
+      Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
+      Assert.assertEquals(4321, configuration.getGlobalMaxSize());
    }
 
    @Override
