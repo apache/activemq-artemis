@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -63,9 +64,13 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.jboss.logging.Logger;
 
 public class ConfigurationImpl implements Configuration, Serializable {
    // Constants ------------------------------------------------------------------------------
+
+   private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
@@ -254,12 +259,54 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int diskScanPeriod = ActiveMQDefaultConfiguration.getDefaultDiskScanPeriod();
 
+   private String systemPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix();
+
    /**
     * Parent folder for all data folders.
     */
    private File artemisInstance;
 
    // Public -------------------------------------------------------------------------
+
+   @Override
+   public Configuration setSystemPropertyPrefix(String systemPropertyPrefix) {
+      this.systemPropertyPrefix = systemPropertyPrefix;
+      return this;
+   }
+
+   @Override
+   public String getSystemPropertyPrefix() {
+      return systemPropertyPrefix;
+   }
+
+
+   @Override
+   public Configuration parseSystemProperties() throws Exception {
+      parseSystemProperties(System.getProperties());
+      return this;
+   }
+
+   @Override
+   public Configuration parseSystemProperties(Properties properties) throws Exception {
+
+      Map<String, Object> beanProperties = new HashMap<>();
+
+
+      for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+         if (entry.getKey().toString().startsWith(systemPropertyPrefix)) {
+            String key = entry.getKey().toString().substring(systemPropertyPrefix.length());
+            logger.debug("Setting up config, " + key + "=" + entry.getValue());
+            beanProperties.put(key, entry.getValue());
+         }
+      }
+
+      if (!beanProperties.isEmpty()) {
+         BeanSupport.setData(this, beanProperties);
+      }
+
+      return this;
+   }
+
 
    @Override
    public boolean isClustered() {

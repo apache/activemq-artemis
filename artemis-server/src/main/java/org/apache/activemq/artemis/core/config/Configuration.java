@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -48,6 +49,30 @@ public interface Configuration {
     * To be used on dependency management on the application server
     */
    Configuration setName(String name);
+
+
+   /**
+    * We use Bean-utils to pass in System.properties that start with {@link #setSystemPropertyPrefix(String)}.
+    * The default should be 'brokerconfig.' (Including the ".").
+    * For example if you want to set clustered through a system property you must do:
+    *
+    * -Dbrokerconfig.clustered=true
+    *
+    * The prefix is configured here.
+    * @param systemPropertyPrefix
+    * @return
+    */
+   Configuration setSystemPropertyPrefix(String systemPropertyPrefix);
+
+   /**
+    * See doc at {@link #setSystemPropertyPrefix(String)}.
+    * @return
+    */
+   String getSystemPropertyPrefix();
+
+   Configuration parseSystemProperties() throws Exception;
+
+   Configuration parseSystemProperties(Properties properties) throws Exception;
 
    /**
     * Returns whether this server is clustered. <br>
