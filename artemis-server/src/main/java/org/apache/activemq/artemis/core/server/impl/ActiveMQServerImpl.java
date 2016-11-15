@@ -435,6 +435,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
+      configuration.parseSystemProperties();
+
       startDate = new Date();
 
       state = SERVER_STATE.STARTING;
