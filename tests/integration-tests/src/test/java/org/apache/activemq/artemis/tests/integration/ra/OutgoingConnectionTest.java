@@ -82,7 +82,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       securityManager.getConfiguration().setDefaultUser("guest");
       securityManager.getConfiguration().addRole("testuser", "arole");
       securityManager.getConfiguration().addRole("guest", "arole");
-      Role role = new Role("arole", true, true, true, true, true, true, true, true, true);
+      Role role = new Role("arole", true, true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);

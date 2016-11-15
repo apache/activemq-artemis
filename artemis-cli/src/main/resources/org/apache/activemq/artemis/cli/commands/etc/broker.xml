@@ -74,6 +74,8 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <permission type="deleteNonDurableQueue" roles="${role}"/>
             <permission type="createDurableQueue" roles="${role}"/>
             <permission type="deleteDurableQueue" roles="${role}"/>
+            <permission type="createAddress" roles="${role}"/>
+            <permission type="deleteAddress" roles="${role}"/>
             <permission type="consume" roles="${role}"/>
             <permission type="browse" roles="${role}"/>
             <permission type="send" roles="${role}"/>
@@ -105,7 +107,7 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <queues>
                <queue name="ExpiryQueue" />
             </queues>
-         </address>
+         </address>${address-queue.settings}
       </addresses>
 
    </core>

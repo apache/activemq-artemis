@@ -125,6 +125,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String BROWSE_NAME = "browse";
 
+   private static final String CREATEADDRESS_NAME = "createAddress";
+
+   private static final String DELETEADDRESS_NAME = "deleteAddress";
+
    // Address parsing
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
@@ -170,6 +174,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String AUTO_CREATE_JMS_TOPICS = "auto-create-jms-topics";
 
    private static final String AUTO_DELETE_JMS_TOPICS = "auto-delete-jms-topics";
+
+   private static final String AUTO_CREATE_QUEUES = "auto-create-queues";
+
+   private static final String AUTO_DELETE_QUEUES = "auto-delete-queues";
+
+   private static final String AUTO_CREATE_ADDRESSES = "auto-create-addresses";
+
+   private static final String AUTO_DELETE_ADDRESSES = "auto-delete-addresses";
 
    private static final String MANAGEMENT_BROWSE_PAGE_SIZE = "management-browse-page-size";
 
@@ -696,6 +708,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
       ArrayList<String> manageRoles = new ArrayList<>();
       ArrayList<String> browseRoles = new ArrayList<>();
+      ArrayList<String> createAddressRoles = new ArrayList<>();
+      ArrayList<String> deleteAddressRoles = new ArrayList<>();
       ArrayList<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
@@ -726,6 +740,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                   manageRoles.add(role.trim());
                } else if (BROWSE_NAME.equals(type)) {
                   browseRoles.add(role.trim());
+               } else if (CREATEADDRESS_NAME.equals(type)) {
+                  createAddressRoles.add(role.trim());
+               } else if (DELETEADDRESS_NAME.equals(type)) {
+                  deleteAddressRoles.add(role.trim());
                } else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
@@ -842,6 +860,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoCreateJmsTopics(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_JMS_TOPICS.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteJmsTopics(XMLUtil.parseBoolean(child));
+         } else if (AUTO_CREATE_QUEUES.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateQueues(XMLUtil.parseBoolean(child));
+         } else if (AUTO_DELETE_QUEUES.equalsIgnoreCase(name)) {
+            addressSettings.setAutoDeleteQueues(XMLUtil.parseBoolean(child));
+         } else if (AUTO_CREATE_ADDRESSES.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateAddresses(XMLUtil.parseBoolean(child));
+         } else if (AUTO_DELETE_ADDRESSES.equalsIgnoreCase(name)) {
+            addressSettings.setAutoDeleteAddresses(XMLUtil.parseBoolean(child));
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          }

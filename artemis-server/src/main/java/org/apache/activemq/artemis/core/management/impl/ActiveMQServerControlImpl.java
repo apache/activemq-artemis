@@ -67,7 +67,6 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -75,7 +74,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -789,12 +787,18 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
-      AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
-      if (addressInfo == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
-      }
-      else {
-         return addressInfo.toString();
+      checkStarted();
+
+      clearIO();
+      try {
+         AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
+         if (addressInfo == null) {
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+         } else {
+            return addressInfo.toString();
+         }
+      } finally {
+         blockOnIO();
       }
    }
 
@@ -1600,7 +1604,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String deleteNonDurableQueueRoles,
                                    final String manageRoles,
                                    final String browseRoles) throws Exception {
-      addSecuritySettings(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, "");
+      addSecuritySettings(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, "", "");
    }
 
    @Override
@@ -1613,16 +1617,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String deleteNonDurableQueueRoles,
                                    final String manageRoles,
                                    final String browseRoles,
-                                   final String createAddressRoles) throws Exception {
+                                   final String createAddressRoles,
+                                   final String deleteAddressRoles) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles);
+         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
 
          server.getSecurityRepository().addMatch(addressMatch, roles);
 
-         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles);
+         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddressRoles, deleteAddressRoles);
 
          storageManager.storeSecurityRoles(persistedRoles);
       } finally {
@@ -1697,7 +1702,31 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (addressSettings.getExpiryAddress() != null) {
          settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
       }
-      return settings.add("expiryDelay", addressSettings.getExpiryDelay()).add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts()).add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize()).add("maxSizeBytes", addressSettings.getMaxSizeBytes()).add("pageSizeBytes", addressSettings.getPageSizeBytes()).add("redeliveryDelay", addressSettings.getRedeliveryDelay()).add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier()).add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay()).add("redistributionDelay", addressSettings.getRedistributionDelay()).add("lastValueQueue", addressSettings.isLastValueQueue()).add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute()).add("addressFullMessagePolicy", policy).add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold()).add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod()).add("slowConsumerPolicy", consumerPolicy).add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues()).add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics()).add("autoDeleteJmsQueues", addressSettings.getAutoDeleteJmsQueues()).add("autoDeleteJmsTopics", addressSettings.getAutoDeleteJmsQueues()).build().toString();
+      return settings.add("expiryDelay", addressSettings.getExpiryDelay())
+                     .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
+                     .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
+                     .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
+                     .add("pageSizeBytes", addressSettings.getPageSizeBytes())
+                     .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
+                     .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
+                     .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
+                     .add("redistributionDelay", addressSettings.getRedistributionDelay())
+                     .add("lastValueQueue", addressSettings.isLastValueQueue())
+                     .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
+                     .add("addressFullMessagePolicy", policy)
+                     .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
+                     .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
+                     .add("slowConsumerPolicy", consumerPolicy)
+                     .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
+                     .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
+                     .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
+                     .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsQueues())
+                     .add("autoCreateQueues", addressSettings.isAutoCreateQueues())
+                     .add("autoDeleteQueues", addressSettings.isAutoDeleteQueues())
+                     .add("autoCreateAddress", addressSettings.isAutoCreateAddresses())
+                     .add("autoDeleteAddress", addressSettings.isAutoDeleteAddresses())
+                     .build()
+                     .toString();
    }
 
    @Override
@@ -1723,6 +1752,36 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final boolean autoDeleteJmsQueues,
                                   final boolean autoCreateJmsTopics,
                                   final boolean autoDeleteJmsTopics) throws Exception {
+      addAddressSettings(address, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
+   }
+
+   @Override
+   public void addAddressSettings(final String address,
+                                  final String DLA,
+                                  final String expiryAddress,
+                                  final long expiryDelay,
+                                  final boolean lastValueQueue,
+                                  final int deliveryAttempts,
+                                  final long maxSizeBytes,
+                                  final int pageSizeBytes,
+                                  final int pageMaxCacheSize,
+                                  final long redeliveryDelay,
+                                  final double redeliveryMultiplier,
+                                  final long maxRedeliveryDelay,
+                                  final long redistributionDelay,
+                                  final boolean sendToDLAOnNoRoute,
+                                  final String addressFullMessagePolicy,
+                                  final long slowConsumerThreshold,
+                                  final long slowConsumerCheckPeriod,
+                                  final String slowConsumerPolicy,
+                                  final boolean autoCreateJmsQueues,
+                                  final boolean autoDeleteJmsQueues,
+                                  final boolean autoCreateJmsTopics,
+                                  final boolean autoDeleteJmsTopics,
+                                  final boolean autoCreateQueues,
+                                  final boolean autoDeleteQueues,
+                                  final boolean autoCreateAddresses,
+                                  final boolean autoDeleteAddresses) throws Exception {
       checkStarted();
 
       // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
@@ -1770,6 +1829,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
       addressSettings.setAutoDeleteJmsQueues(autoDeleteJmsQueues);
+      addressSettings.setAutoCreateJmsTopics(autoCreateJmsTopics);
+      addressSettings.setAutoDeleteJmsTopics(autoDeleteJmsTopics);
+      addressSettings.setAutoCreateQueues(autoCreateQueues);
+      addressSettings.setAutoDeleteQueues(autoDeleteQueues);
+      addressSettings.setAutoCreateAddresses(autoCreateAddresses);
+      addressSettings.setAutoDeleteAddresses(autoDeleteAddresses);
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));

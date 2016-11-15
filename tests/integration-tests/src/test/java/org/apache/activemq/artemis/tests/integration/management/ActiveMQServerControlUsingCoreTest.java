@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-
-import java.util.Map;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
@@ -607,8 +608,9 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                          String deleteNonDurableQueueRoles,
                                          String manageRoles,
                                          String browseRoles,
-                                         String createAddress) throws Exception {
-            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress);
+                                         String createAddress,
+                                         String deleteAddress) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress);
          }
 
          @Override
@@ -649,7 +651,37 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
                                         @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                                         @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception {
-            proxy.invokeOperation("addAddressSettings", addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
+            addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, AddressSettings.DEFAULT_AUTO_CREATE_QUEUES, AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES);
+         }
+
+         @Override
+         public void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                                        @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
+                                        @Parameter(desc = "the expiry address setting", name = "expiryAddress") String expiryAddress,
+                                        @Parameter(desc = "the expiry delay setting", name = "expiryDelay") long expiryDelay,
+                                        @Parameter(desc = "are any queues created for this address a last value queue", name = "lastValueQueue") boolean lastValueQueue,
+                                        @Parameter(desc = "the delivery attempts", name = "deliveryAttempts") int deliveryAttempts,
+                                        @Parameter(desc = "the max size in bytes", name = "maxSizeBytes") long maxSizeBytes,
+                                        @Parameter(desc = "the page size in bytes", name = "pageSizeBytes") int pageSizeBytes,
+                                        @Parameter(desc = "the max number of pages in the soft memory cache", name = "pageMaxCacheSize") int pageMaxCacheSize,
+                                        @Parameter(desc = "the redelivery delay", name = "redeliveryDelay") long redeliveryDelay,
+                                        @Parameter(desc = "the redelivery delay multiplier", name = "redeliveryMultiplier") double redeliveryMultiplier,
+                                        @Parameter(desc = "the maximum redelivery delay", name = "maxRedeliveryDelay") long maxRedeliveryDelay,
+                                        @Parameter(desc = "the redistribution delay", name = "redistributionDelay") long redistributionDelay,
+                                        @Parameter(desc = "do we send to the DLA when there is no where to route the message", name = "sendToDLAOnNoRoute") boolean sendToDLAOnNoRoute,
+                                        @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy,
+                                        @Parameter(desc = "when a consumer falls below this threshold in terms of messages consumed per second it will be considered 'slow'", name = "slowConsumerThreshold") long slowConsumerThreshold,
+                                        @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
+                                        @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
+                                        @Parameter(desc = "allow jms queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
+                                        @Parameter(desc = "allow auto-created jms queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
+                                        @Parameter(desc = "allow jms topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
+                                        @Parameter(desc = "allow auto-created jms topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics,
+                                        @Parameter(desc = "allow queues to be created automatically", name = "autoCreateQueues") boolean autoCreateQueues,
+                                        @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteQueues") boolean autoDeleteQueues,
+                                        @Parameter(desc = "allow topics to be created automatically", name = "autoCreateAddresses") boolean autoCreateAddresses,
+                                        @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteAddresses") boolean autoDeleteAddresses) throws Exception {
+            proxy.invokeOperation("addAddressSettings", addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics, autoCreateQueues, autoDeleteQueues, autoCreateAddresses, autoDeleteAddresses);
          }
 
          @Override

@@ -108,7 +108,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean temporary,
                      boolean durable) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address, final boolean multicast) throws Exception;
+   AddressInfo createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
 

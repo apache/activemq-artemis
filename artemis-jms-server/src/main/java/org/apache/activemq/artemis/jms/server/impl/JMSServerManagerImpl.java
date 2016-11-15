@@ -1637,9 +1637,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 //         long consumerCount = queue.getConsumerCount();
 //         long messageCount = queue.getMessageCount();
 //
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.getAutoDeleteJmsQueues() && queue.getMessageCount() == 0) {
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoDeleteJmsQueues() && queue.getMessageCount() == 0) {
 //            if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
-//               ActiveMQJMSServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; getAutoDeleteJmsQueues = " + settings.getAutoDeleteJmsQueues());
+//               ActiveMQJMSServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + settings.isAutoDeleteJmsQueues());
 //            }
 //
 //            return destroyQueue(queueName.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), false);

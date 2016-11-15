@@ -251,6 +251,8 @@ public class PacketImpl implements Packet {
 
    public static final byte CREATE_ADDRESS = -11;
 
+   public static final byte CREATE_QUEUE_V2 = -12;
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {

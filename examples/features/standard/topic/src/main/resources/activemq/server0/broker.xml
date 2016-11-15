@@ -45,9 +45,11 @@ under the License.
       <!-- Other config -->
       <security-settings>
          <!--security for example topic-->
-         <security-setting match="jms.topic.exampleTopic">
+         <security-setting match="exampleTopic">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createAddress" roles="guest"/>
+            <permission type="deleteAddress" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="deleteNonDurableQueue" roles="guest"/>
             <permission type="consume" roles="guest"/>

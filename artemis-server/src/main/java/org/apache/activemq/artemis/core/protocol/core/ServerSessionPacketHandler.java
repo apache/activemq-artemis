@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage;
@@ -85,6 +86,7 @@ import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DELETE_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_ACKNOWLEDGE;
@@ -225,7 +227,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_ADDRESS: {
                   CreateAddressMessage request = (CreateAddressMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createAddress(request.getAddress(), request.isMulticast());
+                  session.createAddress(request.getAddress(), request.isMulticast(), request.isAutoCreated());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -235,6 +237,15 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   CreateQueueMessage request = (CreateQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
                   session.createQueue(request.getAddress(), request.getQueueName(), request.getFilterString(), request.isTemporary(), request.isDurable());
+                  if (requiresResponse) {
+                     response = new NullResponseMessage();
+                  }
+                  break;
+               }
+               case CREATE_QUEUE_V2: {
+                  CreateQueueMessage_V2 request = (CreateQueueMessage_V2) packet;
+                  requiresResponse = request.isRequiresResponse();
+                  session.createQueue(request.getAddress(), request.getQueueName(), request.getFilterString(), request.isTemporary(), request.isDurable(), null, null, request.isAutoCreated());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }

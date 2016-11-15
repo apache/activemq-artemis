@@ -46,8 +46,8 @@ public class AutoCreateQueueClusterTest extends JMSClusteredTestBase {
 
    @Test
    public void testAutoCreate() throws Exception {
-      server1.getAddressSettingsRepository().getMatch("#").setAutoCreateJmsQueues(true).setRedistributionDelay(0);
-      server2.getAddressSettingsRepository().getMatch("#").setAutoCreateJmsQueues(true).setRedistributionDelay(0);
+      server1.getAddressSettingsRepository().getMatch("#").setAutoCreateQueues(true).setAutoCreateAddresses(true).setRedistributionDelay(0);
+      server2.getAddressSettingsRepository().getMatch("#").setAutoCreateQueues(true).setAutoCreateAddresses(true).setRedistributionDelay(0);
       Connection conn1 = cf1.createConnection();
       Connection conn2 = cf2.createConnection();
       conn1.start();
@@ -58,15 +58,13 @@ public class AutoCreateQueueClusterTest extends JMSClusteredTestBase {
 
          Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // TODO the "jms." prefix is required here because the cluster connection only works for queues which start with "jms"
-         MessageProducer prod1 = session1.createProducer(ActiveMQJMSClient.createQueue("jms.myQueue"));
+         MessageProducer prod1 = session1.createProducer(ActiveMQJMSClient.createQueue("myQueue"));
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          prod1.send(session1.createTextMessage("m1"));
 
-         // TODO the "jms." prefix is required here because the cluster connection only works for queues which start with "jms"
-         MessageConsumer cons2 = session2.createConsumer(ActiveMQJMSClient.createQueue("jms.myQueue"));
+         MessageConsumer cons2 = session2.createConsumer(ActiveMQJMSClient.createQueue("myQueue"));
 
          TextMessage received = (TextMessage) cons2.receive(5000);
 

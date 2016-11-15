@@ -115,6 +115,8 @@ public class TopicSessionTest extends PubSubTestCase {
          TextMessage m = (TextMessage) subscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertEquals("test", m.getText());
+         subscriber.close();
+         subscriberSession.unsubscribe("testTopic");
       } catch (JMSException e) {
          fail(e);
       }

@@ -77,7 +77,6 @@ under the License.
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>

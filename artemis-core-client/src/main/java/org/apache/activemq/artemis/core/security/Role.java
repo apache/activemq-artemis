@@ -36,6 +36,8 @@ public class Role implements Serializable {
 
    private final boolean createAddress;
 
+   private final boolean deleteAddress;
+
    private final boolean createDurableQueue;
 
    private final boolean deleteDurableQueue;
@@ -49,7 +51,7 @@ public class Role implements Serializable {
    private final boolean browse;
 
    public JsonObject toJson() {
-      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).add("createAddress", createAddress).build();
+      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).add("createAddress", createAddress).add("deleteAddress", deleteAddress).build();
    }
 
    /**
@@ -87,8 +89,8 @@ public class Role implements Serializable {
                final boolean manage,
                final boolean browse) {
       // This constructor exists for version compatibility on the API. If either createDurableQueue or createNonDurableQueue
-      // is true then createAddress will be true.
-      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createDurableQueue || createNonDurableQueue);
+      // is true then createAddress will be true. If either deleteDurableQueue or deleteNonDurableQueue is true then deleteAddress will be true.
+      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, browse, createDurableQueue || createNonDurableQueue, deleteDurableQueue || deleteNonDurableQueue);
    }
 
    public Role(final String name,
@@ -100,7 +102,8 @@ public class Role implements Serializable {
                final boolean deleteNonDurableQueue,
                final boolean manage,
                final boolean browse,
-               final boolean createAddress) {
+               final boolean createAddress,
+               final boolean deleteAddress) {
       if (name == null) {
          throw new NullPointerException("name is null");
       }
@@ -108,6 +111,7 @@ public class Role implements Serializable {
       this.send = send;
       this.consume = consume;
       this.createAddress = createAddress;
+      this.deleteAddress = deleteAddress;
       this.createDurableQueue = createDurableQueue;
       this.deleteDurableQueue = deleteDurableQueue;
       this.createNonDurableQueue = createNonDurableQueue;
@@ -130,6 +134,10 @@ public class Role implements Serializable {
 
    public boolean isCreateAddress() {
       return createAddress;
+   }
+
+   public boolean isDeleteAddress() {
+      return deleteAddress;
    }
 
    public boolean isCreateDurableQueue() {
@@ -160,6 +168,9 @@ public class Role implements Serializable {
       }
       if (createAddress) {
          stringReturn.append(" createAddress ");
+      }
+      if (deleteAddress) {
+         stringReturn.append(" deleteAddress ");
       }
       if (createDurableQueue) {
          stringReturn.append(" createDurableQueue ");
@@ -202,6 +213,9 @@ public class Role implements Serializable {
       if (createAddress != role.createAddress) {
          return false;
       }
+      if (deleteAddress != role.deleteAddress) {
+         return false;
+      }
       if (createDurableQueue != role.createDurableQueue) {
          return false;
       }
@@ -237,6 +251,7 @@ public class Role implements Serializable {
       result = 31 * result + (send ? 1 : 0);
       result = 31 * result + (consume ? 1 : 0);
       result = 31 * result + (createAddress ? 1 : 0);
+      result = 31 * result + (deleteAddress ? 1 : 0);
       result = 31 * result + (createDurableQueue ? 1 : 0);
       result = 31 * result + (deleteDurableQueue ? 1 : 0);
       result = 31 * result + (createNonDurableQueue ? 1 : 0);

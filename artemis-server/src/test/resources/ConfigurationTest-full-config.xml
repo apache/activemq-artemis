@@ -268,6 +268,10 @@
             <auto-delete-jms-queues>true</auto-delete-jms-queues>
             <auto-create-jms-topics>true</auto-create-jms-topics>
             <auto-delete-jms-topics>true</auto-delete-jms-topics>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-delete-queues>true</auto-delete-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-delete-addresses>true</auto-delete-addresses>
          </address-setting>
          <address-setting match="a2">
             <dead-letter-address>a2.1</dead-letter-address>
@@ -284,6 +288,10 @@
             <auto-delete-jms-queues>false</auto-delete-jms-queues>
             <auto-create-jms-topics>false</auto-create-jms-topics>
             <auto-delete-jms-topics>false</auto-delete-jms-topics>
+            <auto-create-queues>false</auto-create-queues>
+            <auto-delete-queues>false</auto-delete-queues>
+            <auto-create-addresses>false</auto-create-addresses>
+            <auto-delete-addresses>false</auto-delete-addresses>
          </address-setting>
       </address-settings>
       <resource-limit-settings>

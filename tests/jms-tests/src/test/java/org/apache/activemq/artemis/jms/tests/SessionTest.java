@@ -104,7 +104,7 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateNonExistentQueue() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
@@ -134,7 +134,8 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateQueueWhileTopicWithSameNameExists() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
+      addressSettings.setAutoCreateAddresses(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
@@ -169,8 +170,8 @@ public class SessionTest extends ActiveMQServerTestCase {
 
    @Test
    public void testCreateNonExistentTopic() throws Exception {
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false));
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
@@ -198,8 +199,8 @@ public class SessionTest extends ActiveMQServerTestCase {
 
    @Test
    public void testCreateTopicWhileQueueWithSameNameExists() throws Exception {
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsQueues(false));
-      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false));
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {

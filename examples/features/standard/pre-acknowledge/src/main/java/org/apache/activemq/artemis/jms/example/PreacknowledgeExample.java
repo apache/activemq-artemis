@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
@@ -113,7 +114,7 @@ public class PreacknowledgeExample {
 
       Message m = session.createMessage();
 
-      JMSManagementHelper.putAttribute(m, "exampleQueue", "messageCount");
+      JMSManagementHelper.putAttribute(m, ResourceNames.QUEUE + "exampleQueue", "messageCount");
 
       Message response = requestor.request(m);
 

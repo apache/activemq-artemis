@@ -49,7 +49,7 @@ pwd
 sleep 5
 
 ./artemis producer
-./artemis consumer
+./artemis consumer --receive-timeout 10000 --break-on-null
 
 ./artemis stop
 
@@ -64,7 +64,7 @@ sleep 5
 sleep 5
 
 ./artemis producer
-./artemis consumer
+./artemis consumer --receive-timeout 10000 --break-on-null
 
 ./artemis-service stop
 

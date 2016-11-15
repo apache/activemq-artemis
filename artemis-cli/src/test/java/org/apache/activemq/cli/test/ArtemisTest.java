@@ -533,20 +533,20 @@ public class ArtemisTest {
       File instanceFolder = temporaryFolder.newFolder(folderName);
 
       setupAuth(instanceFolder);
-      String queues = "q1,t2";
-      String topics = "t1,t2";
+      String queues = "q1,q2";
+      String addresses = "a1,a2";
 
 
       // This is usually set when run from the command line via artemis.profile
-      Run.setEmbedded(false);
-      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login");
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", addresses, "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.internalExecute("run");
 
-      Artemis.main("queue", "create", "--name", "q1", "--address", "q1", "--user", "admin", "--password", "admin");
-      Artemis.main("queue", "create", "--name", "t2", "--address", "t2", "--user", "admin", "--password", "admin");
+//      Artemis.main("queue", "create", "--name", "q1", "--address", "q1", "--user", "admin", "--password", "admin", "--autoCreateAddress");
+//      Artemis.main("queue", "create", "--name", "t2", "--address", "t2", "--user", "admin", "--password", "admin", "--autoCreateAddress");
 
       try {
          try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
@@ -556,9 +556,9 @@ public class ArtemisTest {
                ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
                assertTrue("Couldn't find queue " + str, queryResult.isExists());
             }
-            for (String str : topics.split(",")) {
-               ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString(str));
-               assertTrue("Couldn't find topic " + str, queryResult.isExists());
+            for (String str : addresses.split(",")) {
+               ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(str));
+               assertTrue("Couldn't find address " + str, queryResult.isExists());
             }
          }
 

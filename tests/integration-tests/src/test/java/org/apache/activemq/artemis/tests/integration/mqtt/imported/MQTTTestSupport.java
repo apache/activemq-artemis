@@ -132,7 +132,8 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       addMQTTConnector();
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setMaxSizeBytes(999999999);
-      addressSettings.setAutoCreateJmsQueues(true);
+      addressSettings.setAutoCreateQueues(true);
+      addressSettings.setAutoCreateAddresses(true);
 
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
       server.start();

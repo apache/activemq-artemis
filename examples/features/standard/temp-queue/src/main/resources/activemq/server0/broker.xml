@@ -45,7 +45,7 @@ under the License.
       <!-- Other config -->
       <security-settings>
          <!--security for example queues -->
-         <security-setting match="jms.queue.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -54,7 +54,7 @@ under the License.
             <permission type="send" roles="guest"/>
          </security-setting>
          <!-- security settings for JMS temporary queue -->
-         <security-setting match="jms.tempqueue.#">
+         <security-setting match="#">
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="deleteNonDurableQueue" roles="guest"/>
             <permission type="consume" roles="guest"/>

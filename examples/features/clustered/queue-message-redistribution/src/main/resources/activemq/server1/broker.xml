@@ -68,7 +68,6 @@ under the License.
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>
@@ -82,7 +81,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -98,7 +97,7 @@ under the License.
          Setting it to a value > 0 means how long to wait before redistributing, if a consumer is closed
          then another one quickly recreated you might want to set it thus, to avoid unnecessary
          redistribution -->
-         <address-setting match="jms.#">
+         <address-setting match="#">
             <redistribution-delay>0</redistribution-delay>
          </address-setting>
       </address-settings>

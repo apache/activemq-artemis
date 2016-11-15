@@ -162,8 +162,8 @@ public final class ActiveMQDefaultConfiguration {
    // the name of the address that consumers bind to receive management notifications
    private static SimpleString DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS = new SimpleString("activemq.notifications");
 
-   // The default address used for clustering
-   private static String DEFAULT_CLUSTER_ADDRESS = "jms";
+   // The default address used for clustering, empty string means all addresses
+   private static String DEFAULT_CLUSTER_ADDRESS = "";
 
    // Cluster username. It applies to all cluster configurations.
    private static String DEFAULT_CLUSTER_USER = "ACTIVEMQ.CLUSTER.ADMIN.USER";

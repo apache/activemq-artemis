@@ -49,7 +49,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -61,7 +61,7 @@ under the License.
 
       <address-settings>
          <!--override the redelivery-delay  for the example queue-->
-         <address-setting match="jms.queue.exampleQueue">
+         <address-setting match="exampleQueue">
             <redelivery-delay>5000</redelivery-delay>
          </address-setting>
       </address-settings>

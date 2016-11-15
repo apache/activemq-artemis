@@ -367,7 +367,7 @@ public class QueueImpl implements Queue {
 
       this.address = address;
 
-      this.addressInfo = postOffice.getAddressInfo(address);
+      this.addressInfo = postOffice == null ? null : postOffice.getAddressInfo(address);
 
       this.name = name;
 

@@ -99,7 +99,7 @@ under the License.
       <address-settings>
          <!--default for catch all-->
          <address-setting match="#">
-            <auto-create-jms-queues>false</auto-create-jms-queues>
+            <auto-create-queues>false</auto-create-queues>
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>

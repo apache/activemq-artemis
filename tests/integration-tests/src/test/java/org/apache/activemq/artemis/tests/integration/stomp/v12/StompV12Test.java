@@ -354,7 +354,8 @@ public class StompV12Test extends StompTestBase {
    @Test
    public void testHeaderRepetitive() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
+      addressSettings.setAutoCreateAddresses(false);
       server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       conn.connect(defUser, defPass);
@@ -378,7 +379,7 @@ public class StompV12Test extends StompTestBase {
       //subscribe
       StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
       newConn.connect(defUser, defPass);
-      subscribe(newConn, "a-sub");
+      subscribe(newConn, "a-sub", null, null, true);
 
       frame = newConn.receiveFrame();
 
@@ -389,7 +390,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals("value1", frame.getHeader("foo"));
 
       //unsub
-      unsubscribe(newConn, "a-sub");
+      unsubscribe(newConn, "a-sub", true);
 
       newConn.disconnect();
 

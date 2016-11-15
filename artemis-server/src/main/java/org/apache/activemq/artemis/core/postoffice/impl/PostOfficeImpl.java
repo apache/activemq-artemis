@@ -132,7 +132,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
-   private Object addressLock = new Object();
+   private final Object addressLock = new Object();
 
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
@@ -450,7 +450,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       synchronized (addressLock) {
          Bindings bindingsForAddress = getBindingsForAddress(address);
          if (bindingsForAddress.getBindings().size() > 0) {
-            throw new IllegalStateException("Address has bindings");
+            throw ActiveMQMessageBundle.BUNDLE.addressHasBindings(address);
          }
          managementService.unregisterAddress(address);
          return addressManager.removeAddressInfo(address);
