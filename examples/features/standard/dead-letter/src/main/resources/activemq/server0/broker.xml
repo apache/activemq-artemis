@@ -49,7 +49,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -61,8 +61,8 @@ under the License.
 
       <address-settings>
          <!--override the max-delivery-attempts and dead letter address for the example queue-->
-         <address-setting match="jms.queue.exampleQueue">
-            <dead-letter-address>jms.queue.deadLetterQueue</dead-letter-address>
+         <address-setting match="exampleQueue">
+            <dead-letter-address>deadLetterQueue</dead-letter-address>
             <max-delivery-attempts>3</max-delivery-attempts>
          </address-setting>
       </address-settings>

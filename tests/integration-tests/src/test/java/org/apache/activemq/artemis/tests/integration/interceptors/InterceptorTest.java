@@ -64,8 +64,6 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
 
-   private final SimpleString JMS_QUEUE = SimpleString.toSimpleString(QUEUE.toString());
-
    private ServerLocator locator;
 
    @Override
@@ -103,12 +101,12 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-         if (packet.getType() == PacketImpl.CREATE_QUEUE) {
+         if (packet.getType() == PacketImpl.CREATE_QUEUE || packet.getType() == PacketImpl.CREATE_QUEUE_V2) {
             String userName = getUsername(packet, connection);
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            System.out.println("userName = " + userName);
+            System.out.println("userName on createQueue = " + userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
@@ -1054,7 +1052,7 @@ public class InterceptorTest extends ActiveMQTestBase {
    public void testInterceptorOnURI() throws Exception {
       locator.close();
 
-      server.createQueue(JMS_QUEUE, JMS_QUEUE, null, true, false);
+      server.createQueue(QUEUE, QUEUE, null, true, false);
 
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 

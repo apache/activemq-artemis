@@ -682,15 +682,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return postOffice.isAddressBound(SimpleString.toSimpleString(address));
    }
 
-   // TODO: this should probably look at the addresses too, not just queue bindings
    @Override
    public BindingQueryResult bindingQuery(SimpleString address) throws Exception {
       if (address == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
-      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
-      boolean autoCreateJmsTopics = getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsTopics();
+      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateQueues();
+      boolean autoCreateJmsTopics = getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateAddresses();
 
       List<SimpleString> names = new ArrayList<>();
 
@@ -710,7 +709,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
+      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
@@ -719,7 +718,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
-      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
+      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateQueues();
 
       QueueQueryResult response;
 
@@ -1626,7 +1625,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void destroyQueue(final SimpleString queueName,
                             final SecurityAuth session,
                             final boolean checkConsumerCount) throws Exception {
-      destroyQueue(queueName, session, checkConsumerCount, false, true);
+      destroyQueue(queueName, session, checkConsumerCount, false);
    }
 
    @Override
@@ -1678,7 +1677,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (autoDeleteAddress && postOffice != null) {
          try {
-            postOffice.removeAddressInfo(address);
+            removeAddressInfo(address);
          } catch (ActiveMQDeleteAddressException e) {
             // Could be thrown if the address has bindings or is not deletable.
          }
@@ -2319,7 +2318,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       List<PersistedRoles> roles = storageManager.recoverPersistedRoles();
 
       for (PersistedRoles roleItem : roles) {
-         Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles());
+         Set<Role> setRoles = SecurityFormatter.createSecurity(roleItem.getSendRoles(), roleItem.getConsumeRoles(), roleItem.getCreateDurableQueueRoles(), roleItem.getDeleteDurableQueueRoles(), roleItem.getCreateNonDurableQueueRoles(), roleItem.getDeleteNonDurableQueueRoles(), roleItem.getManageRoles(), roleItem.getBrowseRoles(), roleItem.getCreateAddressRoles(), roleItem.getDeleteAddressRoles());
 
          securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);
       }
@@ -2358,15 +2357,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void removeAddressInfo(SimpleString address) throws Exception {
+      AddressInfo addressInfo = getAddressInfo(address);
       if (postOffice.removeAddressInfo(address) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
-      };
+      }
 
-      // TODO: is this the right way to do this?
-      //      long txID = storageManager.generateID();
-      //      storageManager.deleteAddressBinding(txID, getAddressInfo(address).getID());
-      //      storageManager.commitBindings(txID);
-
+      // TODO: is this the right way to do this? Should it use a transaction?
+      long txID = storageManager.generateID();
+      storageManager.deleteAddressBinding(txID, addressInfo.getId());
+      storageManager.commitBindings(txID);
    }
 
    @Override

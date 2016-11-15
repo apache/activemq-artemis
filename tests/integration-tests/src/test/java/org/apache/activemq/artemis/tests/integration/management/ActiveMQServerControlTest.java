@@ -440,7 +440,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String exactAddress = "test.whatever";
 
       assertEquals(1, serverControl.getRoles(addressMatch).length);
-      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", "foo", "bar", "foo, bar", "", "", "bar", "foo");
+      serverControl.addSecuritySettings(addressMatch, "foo", "foo, bar", "foo", "bar", "foo, bar", "", "", "bar", "foo", "foo");
 
       // Restart the server. Those settings should be persisted
 
@@ -1416,7 +1416,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.start();
 
       HashSet<Role> role = new HashSet<>();
-      role.add(new Role("guest", true, true, true, true, true, true, true, true, true));
+      role.add(new Role("guest", true, true, true, true, true, true, true, true, true, true));
       server.getSecurityRepository().addMatch("#", role);
    }
 

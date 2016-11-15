@@ -197,11 +197,11 @@ public class Create extends InputAbstract {
    @Option(name = "--no-web", description = "This will remove the web server definition from bootstrap.xml")
    boolean noWeb;
 
-   @Option(name = "--queues", description = "comma separated list of jms queues.")
+   @Option(name = "--queues", description = "comma separated list of queues.")
    String queues;
 
-   @Option(name = "--topics", description = "comma separated list of jms topics ")
-   String topics;
+   @Option(name = "--addresses", description = "comma separated list of addresses ")
+   String addresses;
 
    @Option(name = "--aio", description = "Force aio journal on the configuration regardless of the library being available or not.")
    boolean forceLibaio;
@@ -632,7 +632,7 @@ public class Create extends InputAbstract {
          filters.put("${cluster-password}", "");
       }
 
-      applyJMSObjects(filters);
+      applyAddressesAndQueues(filters);
 
       if (home != null) {
          filters.put("${home}", path(home, false));
@@ -784,10 +784,31 @@ public class Create extends InputAbstract {
       for (String str : getQueueList()) {
          printWriter.println("      <queue name=\"" + str + "\"/>");
       }
-      for (String str : getTopicList()) {
+      for (String str : getAddressList()) {
          printWriter.println("      <topic name=\"" + str + "\"/>");
       }
       filters.put("${jms-list.settings}", writer.toString());
+   }
+
+   /**
+    * It will create the address and queue configurations
+    */
+   private void applyAddressesAndQueues(HashMap<String, String> filters) {
+      StringWriter writer = new StringWriter();
+      PrintWriter printWriter = new PrintWriter(writer);
+      printWriter.println();
+
+      for (String str : getQueueList()) {
+         printWriter.println("         <address name=\"" + str + "\" type=\"anycast\">");
+         printWriter.println("            <queues>");
+         printWriter.println("               <queue name=\"" + str + "\" />");
+         printWriter.println("            </queues>");
+         printWriter.println("         </address>");
+      }
+      for (String str : getAddressList()) {
+         printWriter.println("         <address name=\"" + str + "\" type=\"multicast\"/>");
+      }
+      filters.put("${address-queue.settings}", writer.toString());
    }
 
    private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder) {
@@ -862,11 +883,11 @@ public class Create extends InputAbstract {
       }
    }
 
-   private String[] getTopicList() {
-      if (topics == null) {
+   private String[] getAddressList() {
+      if (addresses == null) {
          return new String[0];
       } else {
-         return topics.split(",");
+         return addresses.split(",");
       }
    }
 

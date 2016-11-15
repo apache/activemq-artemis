@@ -64,7 +64,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       Configuration serverConfig = server.getConfiguration();
 
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
 
       serverConfig.setSecurityEnabled(enableSecurity);
 
@@ -75,23 +75,23 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireSender", "sender");
          securityManager.getConfiguration().addUser("openwireSender", "SeNdEr");
          //sender cannot receive
-         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true);
+         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false, true, true);
 
          securityManager.getConfiguration().addRole("openwireReceiver", "receiver");
          securityManager.getConfiguration().addUser("openwireReceiver", "ReCeIvEr");
          //receiver cannot send
-         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false);
+         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true, false, false);
 
          securityManager.getConfiguration().addRole("openwireGuest", "guest");
          securityManager.getConfiguration().addUser("openwireGuest", "GuEsT");
 
          //guest cannot do anything
-         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false);
+         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false, false, false);
 
          securityManager.getConfiguration().addRole("openwireDestinationManager", "manager");
          securityManager.getConfiguration().addUser("openwireDestinationManager", "DeStInAtIoN");
 
-         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, false);
+         Role destRole = new Role("manager", false, false, false, false, true, true, false, false, false, false);
 
          Set<Role> roles = new HashSet<>();
          roles.add(senderRole);

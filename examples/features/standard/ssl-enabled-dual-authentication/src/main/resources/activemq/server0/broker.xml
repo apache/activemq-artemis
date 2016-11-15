@@ -47,7 +47,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="consume" roles="consumers"/>
             <permission type="send" roles="producers"/>
          </security-setting>

@@ -30,6 +30,7 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
@@ -107,7 +108,7 @@ public class ProtonCPPExample {
 
       Message m = session.createMessage();
 
-      JMSManagementHelper.putAttribute(m, "exampleQueue", "messageCount");
+      JMSManagementHelper.putAttribute(m, ResourceNames.QUEUE + "exampleQueue", "messageCount");
 
       Message response = requestor.request(m);
 

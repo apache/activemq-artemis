@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientRequestor;

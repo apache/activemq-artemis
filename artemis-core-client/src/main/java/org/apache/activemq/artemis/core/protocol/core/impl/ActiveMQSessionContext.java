@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
@@ -594,8 +595,9 @@ public class ActiveMQSessionContext extends SessionContext {
                            SimpleString queueName,
                            SimpleString filterString,
                            boolean durable,
-                           boolean temp) throws ActiveMQException {
-      CreateQueueMessage request = new CreateQueueMessage(address, queueName, filterString, durable, temp, true);
+                           boolean temp,
+                           boolean autoCreated) throws ActiveMQException {
+      CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, filterString, durable, temp, autoCreated, true);
       sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 

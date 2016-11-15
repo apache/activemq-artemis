@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
-   public static final String QUEUE_NAME = "jms.target";
+   public static final String QUEUE_NAME = "target";
 
    // Constants -----------------------------------------------------
 

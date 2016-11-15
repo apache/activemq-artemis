@@ -1278,6 +1278,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       try {
          long recordID = idGenerator.generateID();
          bindingEncoding.setId(recordID);
+         addressInfo.setId(recordID);
          bindingsJournal.appendAddRecordTransactional(tx, recordID, JournalRecordIds.ADDRESS_BINDING_RECORD, bindingEncoding);
       } finally {
          readUnLock();

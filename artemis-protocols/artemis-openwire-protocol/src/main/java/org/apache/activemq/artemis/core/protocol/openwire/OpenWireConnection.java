@@ -722,7 +722,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                server.getSecurityStore().check(qName, checkType, this);
                server.checkQueueCreationLimit(getUsername());
                server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
-
             }
          }
       }

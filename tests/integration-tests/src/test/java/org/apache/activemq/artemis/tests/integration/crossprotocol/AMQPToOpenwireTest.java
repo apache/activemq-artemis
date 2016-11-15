@@ -64,7 +64,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
       server.waitForActivation(10, TimeUnit.SECONDS);
 
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       coreQueue = new SimpleString(queueName);
       server.createQueue(coreQueue, coreQueue, null, false, false);

@@ -2407,7 +2407,7 @@
             <xsd:element name="auto-create-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
+                     DEPRECATED: whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
                      queue
                   </xsd:documentation>
                </xsd:annotation>
@@ -2416,7 +2416,7 @@
             <xsd:element name="auto-delete-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
+                     DEPRECATED: whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2424,7 +2424,7 @@
             <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
+                     DEPRECATED: whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
                      a topic
                   </xsd:documentation>
                </xsd:annotation>
@@ -2433,7 +2433,42 @@
             <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to delete auto-created JMS topics when the last subscription is closed
+                     DEPRECATED: whether or not to delete auto-created JMS topics when the last subscription is closed
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create a queue when a client sends a message to or attempts to consume
+                     a message from a queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created queues when the queue has 0 consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create addresses when a client sends a message to or attempts to
+                     consume a message from a queue mapped to an address that doesn't exist
+                     a queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created addresses when it no longer has any queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

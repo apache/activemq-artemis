@@ -80,6 +80,8 @@ under the License.
             <permission type="deleteNonDurableQueue" roles="manager"/>
             <permission type="createDurableQueue" roles="manager"/>
             <permission type="deleteDurableQueue" roles="manager"/>
+            <permission type="createAddress" roles="manager"/>
+            <permission type="deleteAddress" roles="manager"/>
             <permission type="consume" roles="manager"/>
             <permission type="send" roles="manager"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
@@ -97,7 +99,7 @@ under the License.
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-queues>true</auto-create-queues>
          </address-setting>
       </address-settings>
    </core>

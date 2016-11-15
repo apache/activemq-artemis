@@ -172,7 +172,8 @@ public abstract class SessionContext {
                                     SimpleString queueName,
                                     SimpleString filterString,
                                     boolean durable,
-                                    boolean temp) throws ActiveMQException;
+                                    boolean temp,
+                                    boolean autoCreated) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 

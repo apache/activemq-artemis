@@ -301,10 +301,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
             if (!response.isExists()) {
                if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
-                  // TODO create queue here in such a way that it is deleted when consumerCount == 0
                   // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
                   session.createAddress(jbd.getSimpleAddress(), false, true);
-                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true);
+                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true, true);
                } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
                   session.createAddress(jbd.getSimpleAddress(), true, true);
                } else {
@@ -647,9 +646,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
-                  // TODO create queue here in such a way that it is deleted when consumerCount == 0
-                  // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
-                  session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), true);
+                  session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), null, true, true);
                } else {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
                }
@@ -797,7 +794,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
          if (!response.isExists()) {
             if (response.isAutoCreateJmsQueues()) {
-               session.createQueue(activeMQDestination.getSimpleAddress(), activeMQDestination.getSimpleAddress(), true);
+               session.createQueue(activeMQDestination.getSimpleAddress(), activeMQDestination.getSimpleAddress(), null, true, true);
             } else {
                throw new InvalidDestinationException("Destination " + activeMQDestination.getName() + " does not exist");
             }

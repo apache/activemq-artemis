@@ -294,6 +294,34 @@ public interface ClientSession extends XAResource, AutoCloseable {
    void createQueue(String address, String queueName, String filter, boolean durable) throws ActiveMQException;
 
    /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address     the queue will be bound to this address
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
+    * @param autoCreated whether to mark this queue as autoCreated or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(SimpleString address,
+                    SimpleString queueName,
+                    SimpleString filter,
+                    boolean durable,
+                    boolean autoCreated) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em>queue.
+    *
+    * @param address     the queue will be bound to this address
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
+    * @param autoCreated whether to mark this queue as autoCreated or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(String address, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
+
+   /**
     * Creates a <em>temporary</em> queue.
     *
     * @param address   the queue will be bound to this address

@@ -54,7 +54,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -63,7 +63,7 @@ under the License.
             <permission type="send" roles="guest"/>
          </security-setting>
 
-         <security-setting match="jms.queue.pagingQueue">
+         <security-setting match="pagingQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -74,12 +74,12 @@ under the License.
       </security-settings>
 
       <address-settings>
-         <address-setting match="jms.queue.pagingQueue">
+         <address-setting match="pagingQueue">
             <max-size-bytes>100000</max-size-bytes>
             <page-size-bytes>20000</page-size-bytes>
          </address-setting>
 
-         <address-setting match="jms.queue.exampleQueue">
+         <address-setting match="exampleQueue">
             <max-size-bytes>10485760</max-size-bytes>
             <page-size-bytes>1048576</page-size-bytes>
          </address-setting>

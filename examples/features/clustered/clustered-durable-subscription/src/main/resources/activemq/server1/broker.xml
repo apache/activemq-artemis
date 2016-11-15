@@ -67,7 +67,6 @@ under the License.
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>
@@ -81,7 +80,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.topic.exampleTopic">
+         <security-setting match="exampleTopic">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

@@ -21,6 +21,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class AddressInfo {
 
+   private long id;
+
    private final SimpleString name;
 
    private RoutingType routingType = RoutingType.MULTICAST;
@@ -84,10 +86,19 @@ public class AddressInfo {
       return name;
    }
 
+   public void setId(long id) {
+      this.id = id;
+   }
+
+   public long getId() {
+      return id;
+   }
+
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer();
       buff.append("Address [name=" + name);
+      buff.append(", id=" + id);
       buff.append(", routingType=" + routingType);
       buff.append(", defaultMaxQueueConsumers=" + defaultMaxQueueConsumers);
       buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);

@@ -67,7 +67,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
       securityManager.getConfiguration().addRole("testuser", "arole");
-      Role role = new Role("arole", false, true, false, false, false, false, false, false, false);
+      Role role = new Role("arole", false, true, false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);

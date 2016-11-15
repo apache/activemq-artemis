@@ -237,14 +237,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
-      internalCreateQueue(address, queueName, null, false, false);
+      internalCreateQueue(address, queueName, null, false, false, false);
    }
 
    @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final boolean durable) throws ActiveMQException {
-      internalCreateQueue(address, queueName, null, durable, false);
+      internalCreateQueue(address, queueName, null, durable, false, false);
    }
 
    @Override
@@ -295,7 +295,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final SimpleString queueName,
                            final SimpleString filterString,
                            final boolean durable) throws ActiveMQException {
-      internalCreateQueue(address, queueName, filterString, durable, false);
+      internalCreateQueue(address, queueName, filterString, durable, false, false);
    }
 
    @Override
@@ -307,27 +307,45 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
+   public void createQueue(final SimpleString address,
+                           final SimpleString queueName,
+                           final SimpleString filterString,
+                           final boolean durable,
+                           final boolean autoCreated) throws ActiveMQException {
+      internalCreateQueue(address, queueName, filterString, durable, false, autoCreated);
+   }
+
+   @Override
+   public void createQueue(final String address,
+                           final String queueName,
+                           final String filterString,
+                           final boolean durable,
+                           final boolean autoCreated) throws ActiveMQException {
+      createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), durable, autoCreated);
+   }
+
+   @Override
    public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
-      internalCreateQueue(address, queueName, null, false, true);
+      internalCreateQueue(address, queueName, null, false, true, false);
    }
 
    @Override
    public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
-      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
+      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true, false);
    }
 
    @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final SimpleString queueName,
                                     final SimpleString filter) throws ActiveMQException {
-      internalCreateQueue(address, queueName, filter, false, true);
+      internalCreateQueue(address, queueName, filter, false, true, false);
    }
 
    @Override
    public void createTemporaryQueue(final String address,
                                     final String queueName,
                                     final String filter) throws ActiveMQException {
-      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
+      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true, false);
    }
 
    @Override
@@ -1551,7 +1569,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     final SimpleString queueName,
                                     final SimpleString filterString,
                                     final boolean durable,
-                                    final boolean temp) throws ActiveMQException {
+                                    final boolean temp,
+                                    final boolean autoCreated) throws ActiveMQException {
       checkClosed();
 
       if (durable && temp) {
@@ -1560,7 +1579,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       startCall();
       try {
-         sessionContext.createQueue(address, queueName, filterString, durable, temp);
+         sessionContext.createQueue(address, queueName, filterString, durable, temp, autoCreated);
       } finally {
          endCall();
       }

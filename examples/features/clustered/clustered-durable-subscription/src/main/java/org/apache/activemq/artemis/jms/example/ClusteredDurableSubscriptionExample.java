@@ -124,6 +124,8 @@ public class ClusteredDurableSubscriptionExample {
          if (connection1 != null) {
             connection1.close();
          }
+
+         Thread.sleep(1000);
       }
    }
 }

@@ -175,8 +175,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
                                                                    .addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination)))
                                                                    .addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source)))
                                                                    .addClusterConfiguration(new ClusterConnectionConfiguration().setName(destinationLabel)
-                                                                                                                                // TODO should this be changed?
-                                                                                                                                .setAddress("jms")
                                                                                                                                 .setConnectorName(sourceLabel)
                                                                                                                                 .setRetryInterval(250)
                                                                                                                                 .setMaxHops(MAX_HOPS)

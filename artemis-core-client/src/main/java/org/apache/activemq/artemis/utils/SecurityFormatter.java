@@ -33,7 +33,8 @@ public class SecurityFormatter {
                                           String deleteNonDurableQueueRoles,
                                           String manageRoles,
                                           String browseRoles,
-                                          String createAddressRoles) {
+                                          String createAddressRoles,
+                                          String deleteAddressRoles) {
       List<String> createDurableQueue = toList(createDurableQueueRoles);
       List<String> deleteDurableQueue = toList(deleteDurableQueueRoles);
       List<String> createNonDurableQueue = toList(createNonDurableQueueRoles);
@@ -43,6 +44,7 @@ public class SecurityFormatter {
       List<String> manage = toList(manageRoles);
       List<String> browse = toList(browseRoles);
       List<String> createAddress = toList(createAddressRoles);
+      List<String> deleteAddress = toList(deleteAddressRoles);
 
       Set<String> allRoles = new HashSet<>();
       allRoles.addAll(createDurableQueue);
@@ -54,10 +56,11 @@ public class SecurityFormatter {
       allRoles.addAll(manage);
       allRoles.addAll(browse);
       allRoles.addAll(createAddress);
+      allRoles.addAll(deleteAddress);
 
       Set<Role> roles = new HashSet<>(allRoles.size());
       for (String role : allRoles) {
-         roles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browse.contains(role), createAddressRoles.contains(role)));
+         roles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browse.contains(role), createAddressRoles.contains(role), deleteAddressRoles.contains(role)));
       }
       return roles;
    }

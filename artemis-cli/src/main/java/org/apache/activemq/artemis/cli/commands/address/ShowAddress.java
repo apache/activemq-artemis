@@ -46,8 +46,7 @@ public class ShowAddress extends AbstractAction {
          public void setUpInvocation(ClientMessage message) throws Exception {
             if (bindings) {
                ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName());
-            }
-            else {
+            } else {
                ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName());
             }
          }
