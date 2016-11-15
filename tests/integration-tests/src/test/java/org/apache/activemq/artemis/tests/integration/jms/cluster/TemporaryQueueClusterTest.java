@@ -28,6 +28,7 @@ import org.junit.Test;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
+   // TODO had to prefix this with "jms." to deal with cluster connection address match
    public static final String QUEUE_NAME = "jms.target";
 
    // Constants -----------------------------------------------------
