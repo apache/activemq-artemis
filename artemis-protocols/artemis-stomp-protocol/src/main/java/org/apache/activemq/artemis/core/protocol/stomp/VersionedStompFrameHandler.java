@@ -172,6 +172,7 @@ public abstract class VersionedStompFrameHandler {
          AddressInfo.RoutingType routingType = getRoutingType(frame.getHeader(Headers.Send.DESTINATION_TYPE), frame.getHeader(Headers.Send.DESTINATION));
          connection.autoCreateDestinationIfPossible(destination, routingType);
          connection.checkDestination(destination);
+         connection.checkRoutingSemantics(destination, routingType);
          String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
 
          long timestamp = System.currentTimeMillis();
@@ -344,12 +345,15 @@ public abstract class VersionedStompFrameHandler {
    }
 
    private AddressInfo.RoutingType getRoutingType(String typeHeader, String destination) {
-      AddressInfo.RoutingType routingType = AddressInfo.RoutingType.ANYCAST; // default
+      // null is valid to return here so we know when the user didn't provide any routing info
+      AddressInfo.RoutingType routingType = null;
       if (typeHeader != null) {
          routingType = AddressInfo.RoutingType.valueOf(typeHeader);
       } else if (destination != null && !connection.getAnycastPrefix().equals(connection.getMulticastPrefix())) {
          if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
             routingType = AddressInfo.RoutingType.MULTICAST;
+         } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
+            routingType = AddressInfo.RoutingType.ANYCAST;
          }
       }
       return routingType;

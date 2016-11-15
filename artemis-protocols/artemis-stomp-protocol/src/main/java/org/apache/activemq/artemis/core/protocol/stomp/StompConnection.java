@@ -256,7 +256,9 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public void autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+   public boolean autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+      boolean result = false;
+
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
             // TODO check here to see if auto-creation is enabled
@@ -266,11 +268,21 @@ public final class StompConnection implements RemotingConnection {
                manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
                manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
             }
+            result = true;
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
       } catch (Exception e) {
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
+      }
+
+      return result;
+   }
+
+   public void checkRoutingSemantics(String destination, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+      AddressInfo.RoutingType actualRoutingTypeOfAddress = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingType();
+      if (routingType != null && !routingType.equals(actualRoutingTypeOfAddress)) {
+         throw BUNDLE.illegalSemantics(routingType.toString(), actualRoutingTypeOfAddress.toString());
       }
    }
 
@@ -629,6 +641,8 @@ public final class StompConnection implements RemotingConnection {
                   boolean noLocal,
                   AddressInfo.RoutingType subscriptionType) throws ActiveMQStompException {
       autoCreateDestinationIfPossible(destination, subscriptionType);
+      checkDestination(destination);
+      checkRoutingSemantics(destination, subscriptionType);
       if (noLocal) {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
          if (selector == null) {
@@ -657,7 +671,7 @@ public final class StompConnection implements RemotingConnection {
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
-         throw BUNDLE.errorCreatSubscription(subscriptionID, e).setHandler(frameHandler);
+         throw BUNDLE.errorCreatingSubscription(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
@@ -667,7 +681,7 @@ public final class StompConnection implements RemotingConnection {
       } catch (ActiveMQStompException e) {
          throw e;
       } catch (Exception e) {
-         throw BUNDLE.errorUnsubscrib(subscriptionID, e).setHandler(frameHandler);
+         throw BUNDLE.errorUnsubscribing(subscriptionID, e).setHandler(frameHandler);
       }
    }
 

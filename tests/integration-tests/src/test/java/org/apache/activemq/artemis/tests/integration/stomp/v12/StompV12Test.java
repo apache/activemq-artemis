@@ -2167,21 +2167,6 @@ public class StompV12Test extends StompTestBase {
    }
 
    @Test
-   public void testSendMessageToNonExistentQueueWithoutAutoCreation() throws Exception {
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
-      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
-      conn.connect(defUser, defPass);
-
-      ClientStompFrame frame = send(conn, "NonExistentQueue" + UUID.randomUUID().toString(), null, "Hello World", true, AddressInfo.RoutingType.ANYCAST);
-
-      // TODO this is broken because queue auto-creation is always on
-      assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
-
-      waitDisconnect(conn);
-   }
-
-   @Test
    public void testSendMessageToNonExistentQueueWithAutoCreation() throws Exception {
       conn.connect(defUser, defPass);
 

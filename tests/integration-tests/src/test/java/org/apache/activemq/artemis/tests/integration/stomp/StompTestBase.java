@@ -218,7 +218,6 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       MessageProducer producer = session.createProducer(destination);
       TextMessage message = session.createTextMessage(msg);
       producer.send(message);
-      IntegrationTestLogger.LOGGER.info("Sent message from JMS client to: " + destination);
    }
 
    public void sendJmsMessage(byte[] data, Destination destination) throws Exception {
@@ -525,6 +524,8 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          assertEquals(Stomp.Responses.RECEIPT, frame.getCommand());
          assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
+
+      IntegrationTestLogger.LOGGER.info("Received: " + frame);
 
       return frame;
    }

@@ -1372,4 +1372,38 @@ public class StompTest extends StompTestBase {
 
       conn.disconnect();
    }
+
+   @Test
+   public void testMulticastOperationsOnAnycastAddress() throws Exception {
+      testRoutingSemantics(AddressInfo.RoutingType.MULTICAST.toString(), getQueuePrefix() + getQueueName());
+   }
+
+   @Test
+   public void testAnycastOperationsOnMulticastAddress() throws Exception {
+      testRoutingSemantics(AddressInfo.RoutingType.ANYCAST.toString(), getTopicPrefix() + getTopicName());
+   }
+
+   public void testRoutingSemantics(String routingType, String destination) throws Exception {
+      conn.connect(defUser, defPass);
+
+      String uuid = UUID.randomUUID().toString();
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, routingType)
+                                   .addHeader(Stomp.Headers.Subscribe.DESTINATION, destination)
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+
+      frame = conn.sendFrame(frame);
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
+
+      uuid = UUID.randomUUID().toString();
+
+      frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION_TYPE, AddressInfo.RoutingType.MULTICAST.toString())
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+                                   .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
+
+      frame = conn.sendFrame(frame);
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
+   }
 }
