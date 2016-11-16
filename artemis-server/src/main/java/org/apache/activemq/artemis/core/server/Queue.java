@@ -106,8 +106,6 @@ public interface Queue extends Bindable {
 
    void deleteQueue(boolean removeConsumers) throws Exception;
 
-   void deleteQueue(boolean removeConsumers, boolean autoDeleteAddress) throws Exception;
-
    void destroyPaging() throws Exception;
 
    long getMessageCount();

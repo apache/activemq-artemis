@@ -31,6 +31,8 @@ public class AddressInfo {
 
    private boolean autoCreated = false;
 
+   private boolean deletable = false;
+
    public AddressInfo(SimpleString name) {
       this.name = name;
    }
@@ -85,7 +87,7 @@ public class AddressInfo {
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer();
-      buff.append("AddressInfo [name=" + name);
+      buff.append("Address [name=" + name);
       buff.append(", routingType=" + routingType);
       buff.append(", defaultMaxQueueConsumers=" + defaultMaxQueueConsumers);
       buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);

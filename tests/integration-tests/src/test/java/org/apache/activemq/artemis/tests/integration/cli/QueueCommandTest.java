@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
-import org.apache.activemq.artemis.cli.commands.queue.QueueAction;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -209,17 +209,18 @@ public class QueueCommandTest extends JMSTestBase {
       delete.setRemoveConsumers(true);
       delete.setAutoDeleteAddress(true);
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+
       checkExecutionPassed(command);
       assertNull(server.getAddressInfo(queueName));
    }
 
-   private void checkExecutionPassed(QueueAction command) throws Exception {
+   private void checkExecutionPassed(AbstractAction command) throws Exception {
       String fullMessage = output.toString();
       System.out.println("output: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
-   private void checkExecutionFailure(QueueAction command, String message) throws Exception {
+   private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
       String fullMessage = error.toString();
       System.out.println("error: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));

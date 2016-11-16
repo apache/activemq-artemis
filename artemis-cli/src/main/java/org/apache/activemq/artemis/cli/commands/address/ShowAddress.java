@@ -15,71 +15,70 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.queue;
+package org.apache.activemq.artemis.cli.commands.address;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "delete", description = "delete a queue")
-public class DeleteQueue extends AbstractAction {
+@Command(name = "show", description = "delete a queue")
+public class ShowAddress extends AbstractAction {
 
-   @Option(name = "--name", description = "queue name")
+   @Option(name = "--name", description = "The name of this address")
    String name;
 
-   @Option(name = "--removeConsumers", description = "whether deleting destination with consumers or not (default false)")
-   boolean removeConsumers = false;
-
-   @Option(name = "--autoDeleteAddress", description = "delete the address if this it's last last queue")
-   boolean autoDeleteAddress = false;
+   @Option(name = "--bindings", description = "Shows the bindings for this address")
+   boolean bindings;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      deleteQueue(context);
+      showAddress(context);
       return null;
    }
 
-   private void deleteQueue(final ActionContext context) throws Exception {
+   private void showAddress(final ActionContext context) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "destroyQueue", getName(), removeConsumers, autoDeleteAddress);
+            if (bindings) {
+               ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName());
+            }
+            else {
+               ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName());
+            }
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Queue " + getName() + " deleted successfully.");
+            String result = (String) ManagementHelper.getResult(reply, String.class);
+            context.out.println(result);
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete queue " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to show address " + getName() + ". Reason: " + errMsg);
          }
       });
    }
 
-   public void setRemoveConsumers(boolean removeConsumers) {
-      this.removeConsumers = removeConsumers;
-   }
-
-   public void setAutoDeleteAddress(boolean autoDeleteAddress) {
-      this.autoDeleteAddress = autoDeleteAddress;
+   public String getName() {
+      return name;
    }
 
    public void setName(String name) {
       this.name = name;
    }
 
-   public String getName() {
-      if (name == null) {
-         name = input("--name", "Please provide the destination name:", "");
-      }
+   public boolean isBindings() {
+      return bindings;
+   }
 
-      return name;
+   public void setBindings(boolean bindings) {
+      this.bindings = bindings;
    }
 }

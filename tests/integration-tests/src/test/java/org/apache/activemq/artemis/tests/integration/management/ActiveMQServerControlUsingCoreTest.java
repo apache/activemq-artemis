@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -104,6 +105,14 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
+                                   @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
+                                   @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
+            proxy.invokeOperation("createAddress", name, routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
+         }
+
+         @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
             proxy.invokeOperation("deleteAddress", name);
          }
@@ -153,6 +162,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public void destroyQueue(final String name, final boolean removeConsumers) throws Exception {
             proxy.invokeOperation("destroyQueue", name, removeConsumers);
+         }
+
+         @Override
+         public void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
+                                  @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers,
+                                  boolean autoDeleteAddress) throws Exception {
          }
 
          @Override
@@ -640,6 +655,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String listNetworkTopology() throws Exception {
             return (String) proxy.invokeOperation("listNetworkTopology");
+         }
+
+         @Override
+         public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
+            return null;
+         }
+
+         @Override
+         public String[] listBindingsForAddress(String address) throws Exception {
+            return new String[0];
          }
 
          @Override

@@ -18,9 +18,12 @@ package org.apache.activemq.artemis.core.server;
 
 import java.io.File;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateMetaDataException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -392,5 +395,11 @@ public interface ActiveMQMessageBundle {
    ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString address, SimpleString queueName, String queuePropertyName, Object expectedValue, Object actualValue);
 
    @Message(id = 119203, value = "Address Does Not Exist: {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInvalidQueueConfiguration addressDoesNotExist(SimpleString address);
+   ActiveMQAddressDoesNotExistException addressDoesNotExist(SimpleString address);
+
+   @Message(id = 119204, value = "Address already exists: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAddressExistsException addressAlreadyExists(SimpleString address);
+
+   @Message(id = 119205, value = "Address {0} has bindings", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQDeleteAddressException addressHasBindings(SimpleString address);
 }

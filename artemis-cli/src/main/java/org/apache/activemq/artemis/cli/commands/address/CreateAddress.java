@@ -21,52 +21,81 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
-@Command(name = "create", description = "create a queue or topic")
-public class CreateAddress extends AddressAction {
+@Command(name = "create", description = "create an address")
+public class CreateAddress extends AbstractAction {
 
-   @Option(name = "--address", description = "address of the core queue (default queue's name)")
-   String address;
+   @Option(name = "--name", description = "The name of this address")
+   String name;
 
-   @Option(name = "--durable", description = "whether the queue is durable or not (default false)")
-   boolean durable = false;
+   @Option(name = "--routingType", description = "The routing type of the address, options are 'anycast' or 'multicast', defaults to 1 = 'multicast'")
+   String routingType = "multicast";
 
-   @Option(name = "--autoCreateAddress", description = "auto create an address for this queue if one doesn't exist")
-   boolean autoCreateAddress = true;
+   @Option(name = "--defaultMaxConsumers", description = "Sets the default max consumers for any queues created under this address, default = -1 (no limit)")
+   int defaultMaxConsumers = -1;
+
+   @Option(name = "--defaultDeleteOnNoConsumers", description = "Sets the default delete on no consumers for any queues created under this address, default = false")
+   boolean defaultDeleteOnNoConsumers = false;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      createQueue(context);
+      createAddress(context);
       return null;
    }
 
-   public String getAddress() {
-      if (address == null || "".equals(address.trim())) {
-         address = getName();
-      }
-      return address.trim();
-   }
-
-   private void createQueue(final ActionContext context) throws Exception {
+   private void createAddress(final ActionContext context) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            String address = getAddress();
-            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, getName(), durable);
+            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Core queue " + getName() + " created successfully.");
+            context.out.println("Address " + getName() + " created successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create queue " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to create address " + getName() + ". Reason: " + errMsg);
          }
       });
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public String getRoutingType() {
+      return routingType;
+   }
+
+   public void setRoutingType(String routingType) {
+      this.routingType = routingType;
+   }
+
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
+   }
+
+   public void setDefaultMaxConsumers(int defaultMaxConsumers) {
+      this.defaultMaxConsumers = defaultMaxConsumers;
+   }
+
+   public boolean getDefaultDeleteOnNoConsumers() {
+      return defaultDeleteOnNoConsumers;
+   }
+
+   public void setDefaultDeleteOnNoConsumers(boolean defaultDeleteOnNoConsumers) {
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
    }
 }

@@ -22,9 +22,13 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 @Command(name = "create", description = "create a queue or topic")
-public class CreateQueue extends QueueAction {
+public class CreateQueue extends AbstractAction {
+
+   @Option(name = "--name", description = "queue name")
+   String name;
 
    @Option(name = "--filter", description = "queue's filter string (default null)")
    String filter = null;
@@ -97,5 +101,17 @@ public class CreateQueue extends QueueAction {
 
    public void setAddress(String address) {
       this.address = address;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public String getName() {
+      if (name == null) {
+         name = input("--name", "Please provide the destination name:", "");
+      }
+
+      return name;
    }
 }

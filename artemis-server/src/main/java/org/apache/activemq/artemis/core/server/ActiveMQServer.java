@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Queues;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -113,6 +114,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @throws IllegalStateException if the server is not properly started.
     */
    ActiveMQServerControlImpl getActiveMQServerControl();
+
+   void destroyQueue(SimpleString queueName,
+                     SecurityAuth session,
+                     boolean checkConsumerCount,
+                     boolean removeConsumers,
+                     boolean autoDeleteAddress) throws Exception;
 
    void registerActivateCallback(ActivateCallback callback);
 
@@ -447,6 +454,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    void removeClientConnection(String clientId);
 
    AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception;
+
+   void createAddressInfo(AddressInfo addressInfo) throws Exception;
 
    AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 

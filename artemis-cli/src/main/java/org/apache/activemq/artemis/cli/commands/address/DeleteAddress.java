@@ -21,41 +21,47 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "delete", description = "delete a queue")
-public class DeleteAddress extends AddressAction {
+public class DeleteAddress extends AbstractAction {
 
-   @Option(name = "--removeConsumers", description = "whether deleting destination with consumers or not (default false)")
-   boolean removeConsumers = false;
-
-   @Option(name = "--autoDeleteAddress", description = "delete the address if this it's last last queue")
-   boolean autoDeleteAddress = false;
+   @Option(name = "--name", description = "The name of this address")
+   String name;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      deleteQueue(context);
+      deleteAddress(context);
       return null;
    }
 
-   private void deleteQueue(final ActionContext context) throws Exception {
+   private void deleteAddress(final ActionContext context) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "destroyQueue", getName(), removeConsumers);
+            ManagementHelper.putOperationInvocation(message, "broker", "deleteAddress", getName());
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Queue " + getName() + " deleted successfully.");
+            context.out.println("Address " + getName() + " deleted successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete queue " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to delete address " + getName() + ". Reason: " + errMsg);
          }
       });
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
    }
 }
