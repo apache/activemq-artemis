@@ -25,7 +25,7 @@ public class MySQLSQLProvider extends GenericSQLProvider {
 
    private final String createFileTableSQL;
 
-   private final String createJournalTableSQL;
+   private final String[] createJournalTableSQL;
 
    private final String copyFileRecordByIdSQL;
 
@@ -36,8 +36,10 @@ public class MySQLSQLProvider extends GenericSQLProvider {
          "(ID INTEGER NOT NULL AUTO_INCREMENT," +
          "FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA LONGBLOB, PRIMARY KEY(ID)) ENGINE=InnoDB;";
 
-      createJournalTableSQL = "CREATE TABLE " + tableName +
-         "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record LONGBLOB,txDataSize INTEGER,txData LONGBLOB,txCheckNoRecords INTEGER,seq BIGINT) ENGINE=InnoDB;";
+      createJournalTableSQL = new String[] {
+         "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record LONGBLOB,txDataSize INTEGER,txData LONGBLOB,txCheckNoRecords INTEGER,seq BIGINT) ENGINE=InnoDB;",
+         "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (id)"
+      };
 
       copyFileRecordByIdSQL = " UPDATE " + tableName + ", (SELECT DATA AS FROM_DATA FROM " + tableName +
          " WHERE id=?) SELECT_COPY SET DATA=FROM_DATA WHERE id=?;";
@@ -54,7 +56,7 @@ public class MySQLSQLProvider extends GenericSQLProvider {
    }
 
    @Override
-   public String getCreateJournalTableSQL() {
+   public String[] getCreateJournalTableSQL() {
       return createJournalTableSQL;
    }
 
