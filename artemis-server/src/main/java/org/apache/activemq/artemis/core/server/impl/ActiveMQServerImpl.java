@@ -2290,7 +2290,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void removeAddressInfo(SimpleString address) throws Exception {
       if (postOffice.removeAddressInfo(address) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
-      };
+      }
 
       // TODO: is this the right way to do this?
       //      long txID = storageManager.generateID();

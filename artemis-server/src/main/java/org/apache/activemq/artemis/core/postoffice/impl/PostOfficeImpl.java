@@ -132,7 +132,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final ActiveMQServer server;
 
-   private Object addressLock = new Object();
+   private final Object addressLock = new Object();
 
    public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,

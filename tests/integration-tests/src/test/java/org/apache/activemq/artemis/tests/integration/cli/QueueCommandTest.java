@@ -51,7 +51,7 @@ public class QueueCommandTest extends JMSTestBase {
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(command, "AMQ119203: Address Does Not Exist:");;
+      checkExecutionFailure(command, "AMQ119203: Address Does Not Exist:");
       assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -74,7 +74,7 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testCreateCoreQueueAddressExists() throws Exception {
       String queueName = "queue";
-      String address= "address";
+      String address = "address";
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName);

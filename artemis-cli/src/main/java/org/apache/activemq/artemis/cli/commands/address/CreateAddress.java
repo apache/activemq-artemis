@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 @Command(name = "create", description = "create an address")
 public class CreateAddress extends AbstractAction {
