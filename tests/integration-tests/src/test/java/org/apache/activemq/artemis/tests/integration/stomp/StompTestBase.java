@@ -314,20 +314,20 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    public ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId) throws IOException, InterruptedException {
-      return subscribe(conn, subscriptionId, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null);
+      return subscribe(conn, subscriptionId, Stomp.Headers.Subscribe.AckModeValues.AUTO);
    }
 
    public ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack) throws IOException, InterruptedException {
-      return subscribe(conn, subscriptionId, ack, null, null);
+      return subscribe(conn, subscriptionId, ack, null);
    }
 
    public ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
                                      String durableId) throws IOException, InterruptedException {
-      return subscribe(conn, subscriptionId, ack, durableId, null);
+      return subscribe(conn, subscriptionId, ack, durableId, false);
    }
 
    public ClientStompFrame subscribe(StompClientConnection conn,

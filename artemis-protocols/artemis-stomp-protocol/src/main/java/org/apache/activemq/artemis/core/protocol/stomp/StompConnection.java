@@ -262,7 +262,7 @@ public final class StompConnection implements RemotingConnection {
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
             // TODO check here to see if auto-creation is enabled
-            if (routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
+            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
                manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
             } else {
                manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));

@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -38,6 +39,8 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -1405,5 +1408,60 @@ public class StompTest extends StompTestBase {
 
       frame = conn.sendFrame(frame);
       assertEquals(Stomp.Responses.ERROR, frame.getCommand());
+   }
+
+   @Test
+   public void testGetManagementAttributeFromStomp() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString())
+                                   .addHeader(Stomp.Headers.Send.REPLY_TO, getQueuePrefix() + getQueueName())
+                                   .addHeader(ManagementHelper.HDR_RESOURCE_NAME.toString(), ResourceNames.QUEUE + getQueuePrefix() + getQueueName())
+                                   .addHeader(ManagementHelper.HDR_ATTRIBUTE.toString(), "Address");
+
+      conn.sendFrame(frame);
+
+      frame = conn.receiveFrame(10000);
+
+      IntegrationTestLogger.LOGGER.info("Received: " + frame);
+
+      Assert.assertEquals(Boolean.TRUE.toString(), frame.getHeader(ManagementHelper.HDR_OPERATION_SUCCEEDED.toString()));
+      // the address will be returned in the message body in a JSON array
+      Assert.assertEquals("[\"" + getQueuePrefix() + getQueueName() + "\"]", frame.getBody());
+
+      unsubscribe(conn, null);
+
+      conn.disconnect();
+   }
+
+   @Test
+   public void testInvokeOperationFromStomp() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString())
+                                   .addHeader(Stomp.Headers.Send.REPLY_TO, getQueuePrefix() + getQueueName())
+                                   .addHeader(ManagementHelper.HDR_RESOURCE_NAME.toString(), ResourceNames.QUEUE + getQueuePrefix() + getQueueName())
+                                   .addHeader(ManagementHelper.HDR_OPERATION_NAME.toString(), "countMessages")
+                                   .setBody("[\"color = 'blue'\"]");
+
+      conn.sendFrame(frame);
+
+      frame = conn.receiveFrame(10000);
+
+      IntegrationTestLogger.LOGGER.info("Received: " + frame);
+
+      Assert.assertEquals(Boolean.TRUE.toString(), frame.getHeader(ManagementHelper.HDR_OPERATION_SUCCEEDED.toString()));
+      // there is no such messages => 0 returned in a JSON array
+      Assert.assertEquals("[0]", frame.getBody());
+
+      unsubscribe(conn, null);
+
+      conn.disconnect();
    }
 }
