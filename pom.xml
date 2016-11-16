@@ -1266,6 +1266,7 @@
                   <exclude>**/.checkstyle</exclude>
                   <exclude>**/.factorypath</exclude>
                   <exclude>**/org.apache.activemq.artemis.cfg</exclude>
+                  <exclude>**/nb-configuration.xml</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
                   <exclude>**/*.bin</exclude>

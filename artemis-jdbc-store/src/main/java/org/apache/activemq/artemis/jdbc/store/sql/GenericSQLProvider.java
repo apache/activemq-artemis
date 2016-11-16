@@ -45,7 +45,7 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String dropFileTableSQL;
 
-   private final String createJournalTableSQL;
+   private final String[] createJournalTableSQL;
 
    private final String insertJournalRecordsSQL;
 
@@ -84,7 +84,10 @@ public class GenericSQLProvider implements SQLProvider {
 
       dropFileTableSQL = "DROP TABLE " + tableName;
 
-      createJournalTableSQL = "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT)";
+      createJournalTableSQL = new String[] {
+         "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT NOT NULL, PRIMARY KEY(seq))",
+         "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (id)"
+      };
 
       insertJournalRecordsSQL = "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -109,7 +112,7 @@ public class GenericSQLProvider implements SQLProvider {
 
    // Journal SQL Statements
    @Override
-   public String getCreateJournalTableSQL() {
+   public String[] getCreateJournalTableSQL() {
       return createJournalTableSQL;
    }
 
