@@ -217,6 +217,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setName(getString(e, "name", config.getName(), Validators.NO_CHECK));
 
+      config.setSystemPropertyPrefix(getString(e, "system-property-prefix", config.getSystemPropertyPrefix(), Validators.NOT_NULL_OR_EMPTY));
+
       NodeList haPolicyNodes = e.getElementsByTagName("ha-policy");
 
       if (haPolicyNodes.getLength() > 0) {

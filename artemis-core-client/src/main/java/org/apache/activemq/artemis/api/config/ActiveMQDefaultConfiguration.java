@@ -438,6 +438,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final int DEFAULT_DISK_SCAN = 5000;
 
+   public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1174,5 +1176,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultDiskScanPeriod() {
       return DEFAULT_DISK_SCAN;
+   }
+
+   public static String getDefaultSystemPropertyPrefix() {
+      return DEFAULT_SYSTEM_PROPERTY_PREFIX;
    }
 }
