@@ -23,6 +23,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -76,8 +77,8 @@ public abstract class AbstractJDBCDriver {
 
    protected abstract void createSchema() throws SQLException;
 
-   protected void createTable(String schemaSql) throws SQLException {
-      createTableIfNotExists(connection, sqlProvider.getTableName(), schemaSql);
+   protected void createTable(String... schemaSqls) throws SQLException {
+      createTableIfNotExists(connection, sqlProvider.getTableName(), schemaSqls);
    }
 
    protected void connect() throws Exception {
@@ -107,15 +108,17 @@ public abstract class AbstractJDBCDriver {
       }
    }
 
-   private static void createTableIfNotExists(Connection connection, String tableName, String sql) throws SQLException {
+   private static void createTableIfNotExists(Connection connection, String tableName, String... sqls) throws SQLException {
       logger.tracef("Validating if table %s didn't exist before creating", tableName);
       try {
          connection.setAutoCommit(false);
          try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
             if (rs != null && !rs.next()) {
-               logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
+               logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
                try (Statement statement = connection.createStatement()) {
-                  statement.executeUpdate(sql);
+                  for (String sql : sqls) {
+                     statement.executeUpdate(sql);
+                  }
                }
             }
          }

@@ -20,7 +20,7 @@ public interface SQLProvider {
 
    int getMaxBlobSize();
 
-   String getCreateJournalTableSQL();
+   String[] getCreateJournalTableSQL();
 
    String getInsertJournalRecordsSQL();
 
