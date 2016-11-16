@@ -789,7 +789,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException {
       AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
       if (addressInfo == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+//         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+         return null;
       } else {
          return addressInfo.toString();
       }
