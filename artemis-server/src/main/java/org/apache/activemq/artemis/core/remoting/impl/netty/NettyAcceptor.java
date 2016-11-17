@@ -87,8 +87,10 @@ import org.jboss.logging.Logger;
 public class NettyAcceptor extends AbstractAcceptor {
 
    static {
-      // Disable resource leak detection for performance reasons by default
-      ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+      // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
+      if ( System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
+         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+      }
    }
 
    //just for debug
