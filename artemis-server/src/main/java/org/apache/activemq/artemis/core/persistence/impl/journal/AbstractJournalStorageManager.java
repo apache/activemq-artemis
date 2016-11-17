@@ -1437,7 +1437,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    @Override
    public void stop() throws Exception {
-      stop(false);
+      stop(false, true);
    }
 
    @Override
@@ -1454,7 +1454,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    protected abstract void performCachedLargeMessageDeletes();
 
    @Override
-   public synchronized void stop(boolean ioCriticalError) throws Exception {
+   public synchronized void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
       if (!started) {
          return;
       }
