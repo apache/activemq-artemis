@@ -440,6 +440,16 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
 
+   public static String DEFAULT_NETWORK_CHECK_LIST = null;
+
+   public static String DEFAULT_NETWORK_CHECK_URL_LIST = null;
+
+   public static long DEFAULT_NETWORK_CHECK_PERIOD = 5000;
+
+   public static int DEFAULT_NETWORK_CHECK_TIMEOUT = 1000;
+
+   public static String DEFAULT_NETWORK_CHECK_NIC = null;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1181,4 +1191,25 @@ public final class ActiveMQDefaultConfiguration {
    public static String getDefaultSystemPropertyPrefix() {
       return DEFAULT_SYSTEM_PROPERTY_PREFIX;
    }
+
+   public static String getDefaultNetworkCheckList() {
+      return DEFAULT_NETWORK_CHECK_LIST;
+   }
+
+   public static String getDefaultNetworkCheckURLList() {
+      return DEFAULT_NETWORK_CHECK_URL_LIST;
+   }
+
+   public static long getDefaultNetworkCheckPeriod() {
+      return DEFAULT_NETWORK_CHECK_PERIOD;
+   }
+
+   public static int getDefaultNetworkCheckTimeout() {
+      return DEFAULT_NETWORK_CHECK_TIMEOUT;
+   }
+
+   public static String getDefaultNetworkCheckNic() {
+      return DEFAULT_NETWORK_CHECK_NIC;
+   }
+
 }

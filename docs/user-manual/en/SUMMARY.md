@@ -20,6 +20,7 @@
 * [Configuration Reload](config-reload.md)
 * [Detecting Dead Connections](connection-ttl.md)
 * [Detecting Slow Consumers](slow-consumers.md)
+* [Avoiding Network Isolation](network-isolation.md)
 * [Resource Manager Configuration](transaction-config.md)
 * [Flow Control](flow-control.md)
 * [Guarantees of sends and commits](send-guarantees.md)

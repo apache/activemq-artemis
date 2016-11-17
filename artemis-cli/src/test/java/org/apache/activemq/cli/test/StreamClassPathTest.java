@@ -54,6 +54,9 @@ public class StreamClassPathTest {
       openStream(Create.ETC_MQTT_ACCEPTOR_TXT);
       openStream(Create.ETC_HORNETQ_ACCEPTOR_TXT);
       openStream(Create.ETC_STOMP_ACCEPTOR_TXT);
+      openStream(Create.ETC_PING_TXT);
+      openStream(Create.ETC_COMMENTED_PING_TXT);
+
    }
 
    private void openStream(String source) throws Exception {

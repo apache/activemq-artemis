@@ -278,13 +278,18 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    protected void crash(final ClientSession... sessions) throws Exception {
-      liveServer.crash(sessions);
+      this.crash(true, sessions);
    }
 
    protected void crash(final boolean waitFailure, final ClientSession... sessions) throws Exception {
-      liveServer.crash(waitFailure, sessions);
+      this.crash(true, waitFailure, sessions);
    }
 
+   protected void crash(final boolean failover,
+                        final boolean waitFailure,
+                        final ClientSession... sessions) throws Exception {
+      liveServer.crash(failover, waitFailure, sessions);
+   }
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
