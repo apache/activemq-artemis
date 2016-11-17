@@ -821,23 +821,29 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                               final boolean durable) throws ActiveMQException {
       }
 
-      public void createQueue(final SimpleString address,
-                              final SimpleString queueName,
-                              final boolean durable,
-                              final boolean temporary) throws ActiveMQException {
-      }
-
-      public void createQueue(final String address,
-                              final String queueName,
-                              final boolean durable,
-                              final boolean temporary) throws ActiveMQException {
-      }
-
       @Override
       public void createQueue(final String address,
                               final String queueName,
                               final String filterString,
                               final boolean durable) throws ActiveMQException {
+      }
+
+      @Override
+      public void createQueue(SimpleString address,
+                              SimpleString queueName,
+                              SimpleString filter,
+                              boolean durable,
+                              boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createQueue(String address,
+                              String queueName,
+                              String filter,
+                              boolean durable,
+                              boolean autoCreated) throws ActiveMQException {
+
       }
 
       @Override

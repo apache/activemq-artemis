@@ -40,9 +40,9 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
          long messageCount = queue.getMessageCount();
 
          // TODO make sure this is the right check
-         if ((queue.isAutoCreated() || queue.isDeleteOnNoConsumers()) && queue.getMessageCount() == 0) {
+         if (((queue.isAutoCreated() && settings.isAutoDeleteJmsQueues()) || queue.isDeleteOnNoConsumers()) && queue.getMessageCount() == 0) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; getAutoDeleteJmsQueues = " + settings.getAutoDeleteJmsQueues());
+               ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + settings.isAutoDeleteJmsQueues());
             }
 
             // TODO handle this exception better

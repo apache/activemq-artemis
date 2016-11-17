@@ -174,7 +174,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean getAutoDeleteJmsQueues() {
+   public boolean isAutoDeleteJmsQueues() {
       return autoDeleteJmsQueues != null ? autoDeleteJmsQueues : AddressSettings.DEFAULT_AUTO_DELETE_JMS_QUEUES;
    }
 
