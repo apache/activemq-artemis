@@ -175,7 +175,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public void stop() throws Exception {
-      stop(false);
+      stop(false, true);
    }
 
    public boolean isReplicated() {
@@ -193,7 +193,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public synchronized void stop(boolean ioCriticalError) throws Exception {
+   public synchronized void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
       if (!started) {
          return;
       }
@@ -224,12 +224,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       // and we want to ensure a stop here just in case
       ReplicationManager replicatorInUse = replicator;
       if (replicatorInUse != null) {
-         final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
-         if (token != null) {
-            try {
-               token.waitCompletion(5000);
-            } catch (Exception e) {
-               // ignore it
+         if (sendFailover) {
+            final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
+            if (token != null) {
+               try {
+                  token.waitCompletion(5000);
+               } catch (Exception e) {
+                  // ignore it
+               }
             }
          }
          replicatorInUse.stop();

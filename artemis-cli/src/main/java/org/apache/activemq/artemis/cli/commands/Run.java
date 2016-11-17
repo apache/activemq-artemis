@@ -151,7 +151,7 @@ public class Run extends LockAbstract {
          }
       }, 500, 500);
 
-      Runtime.getRuntime().addShutdownHook(new Thread() {
+      Runtime.getRuntime().addShutdownHook(new Thread("shutdown-hook") {
          @Override
          public void run() {
             try {

@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -261,6 +262,20 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String systemPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix();
 
+   private String networkCheckList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckList();
+
+   private String networkURLList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckURLList();
+
+   private long networkCheckPeriod = ActiveMQDefaultConfiguration.getDefaultNetworkCheckPeriod();
+
+   private int networkCheckTimeout = ActiveMQDefaultConfiguration.getDefaultNetworkCheckTimeout();
+
+   private String networkCheckNIC = ActiveMQDefaultConfiguration.getDefaultNetworkCheckNic();
+
+   private String networkCheckPingCommand = NetworkHealthCheck.IPV4_DEFAULT_COMMAND;
+
+   private String networkCheckPing6Command = NetworkHealthCheck.IPV6_DEFAULT_COMMAND;
+
    /**
     * Parent folder for all data folders.
     */
@@ -279,7 +294,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return systemPropertyPrefix;
    }
 
-
    @Override
    public Configuration parseSystemProperties() throws Exception {
       parseSystemProperties(System.getProperties());
@@ -290,7 +304,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public Configuration parseSystemProperties(Properties properties) throws Exception {
 
       Map<String, Object> beanProperties = new HashMap<>();
-
 
       for (Map.Entry<Object, Object> entry : properties.entrySet()) {
          if (entry.getKey().toString().startsWith(systemPropertyPrefix)) {
@@ -306,7 +319,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       return this;
    }
-
 
    @Override
    public boolean isClustered() {
@@ -1871,6 +1883,89 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setDiskScanPeriod(int diskScanPeriod) {
       this.diskScanPeriod = diskScanPeriod;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setNetworkCheckList(String list) {
+      this.networkCheckList = list;
+      return this;
+   }
+
+   @Override
+   public String getNetworkCheckList() {
+      return networkCheckList;
+   }
+
+   @Override
+   public ConfigurationImpl setNetworkCheckURLList(String urls) {
+      this.networkURLList = urls;
+      return this;
+   }
+
+   @Override
+   public String getNetworkCheckURLList() {
+      return networkURLList;
+   }
+
+   /**
+    * The interval on which we will perform network checks.
+    */
+   @Override
+   public ConfigurationImpl setNetworkCheckPeriod(long period) {
+      this.networkCheckPeriod = period;
+      return this;
+   }
+
+   @Override
+   public long getNetworkCheckPeriod() {
+      return this.networkCheckPeriod;
+   }
+
+   /**
+    * Time in ms for how long we should wait for a ping to finish.
+    */
+   @Override
+   public ConfigurationImpl setNetworkCheckTimeout(int timeout) {
+      this.networkCheckTimeout = timeout;
+      return this;
+   }
+
+   @Override
+   public int getNetworkCheckTimeout() {
+      return this.networkCheckTimeout;
+   }
+
+   @Override
+   public Configuration setNetworCheckNIC(String nic) {
+      this.networkCheckNIC = nic;
+      return this;
+   }
+
+   @Override
+   public String getNetworkCheckNIC() {
+      return networkCheckNIC;
+   }
+
+   @Override
+   public String getNetworkCheckPingCommand() {
+      return networkCheckPingCommand;
+   }
+
+   @Override
+   public ConfigurationImpl setNetworkCheckPingCommand(String command) {
+      this.networkCheckPingCommand = command;
+      return this;
+   }
+
+   @Override
+   public String getNetworkCheckPing6Command() {
+      return networkCheckPing6Command;
+   }
+
+   @Override
+   public Configuration setNetworkCheckPing6Command(String command) {
+      this.networkCheckPing6Command = command;
       return this;
    }
 

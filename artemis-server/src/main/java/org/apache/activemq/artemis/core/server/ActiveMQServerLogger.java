@@ -1265,6 +1265,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222212, value = "Disk Full! Blocking message production on address ''{0}''. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)
    void blockingDiskFull(SimpleString addressName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222213,
+      value = "There was an issue on the network, server is isolated!",
+      format = Message.Format.MESSAGE_FORMAT)
+   void serverIsolatedOnNetwork();
+
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

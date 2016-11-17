@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
@@ -71,6 +72,7 @@ public final class SharedNothingBackupActivation extends Activation {
    ClusterControl clusterControl;
    private boolean closed;
    private volatile boolean backupUpToDate = true;
+   private final NetworkHealthCheck networkHealthCheck;
 
    private final ReusableLatch backupSyncLatch = new ReusableLatch(0);
 
@@ -78,13 +80,15 @@ public final class SharedNothingBackupActivation extends Activation {
                                         boolean attemptFailBack,
                                         Map<String, Object> activationParams,
                                         ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO,
-                                        ReplicaPolicy replicaPolicy) {
+                                        ReplicaPolicy replicaPolicy,
+                                        NetworkHealthCheck networkHealthCheck) {
       this.activeMQServer = activeMQServer;
       this.attemptFailBack = attemptFailBack;
       this.activationParams = activationParams;
       this.shutdownOnCriticalIO = shutdownOnCriticalIO;
       this.replicaPolicy = replicaPolicy;
       backupSyncLatch.setCount(1);
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public void init() throws Exception {
@@ -117,7 +121,7 @@ public final class SharedNothingBackupActivation extends Activation {
          synchronized (this) {
             if (closed)
                return;
-            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool());
+            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck);
             activeMQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
          }
 
@@ -269,9 +273,10 @@ public final class SharedNothingBackupActivation extends Activation {
                   public void run() {
                      try {
                         if (logger.isTraceEnabled()) {
-                           logger.trace("Calling activeMQServer.stop()");
+                           logger.trace("Calling activeMQServer.stop() and start() to restart the server");
                         }
                         activeMQServer.stop();
+                        activeMQServer.start();
                      } catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
                      }

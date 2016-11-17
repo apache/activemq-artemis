@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
@@ -52,7 +53,7 @@ public final class ConfigurationUtils {
       throw new ActiveMQIllegalStateException("Missing cluster-configuration for replication-clustername '" + replicationCluster + "'.");
    }
 
-   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf) throws ActiveMQIllegalStateException {
+   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf, ActiveMQServer server) throws ActiveMQIllegalStateException {
       if (conf == null) {
          return new LiveOnlyPolicy();
       }
@@ -64,11 +65,11 @@ public final class ConfigurationUtils {
          }
          case REPLICATED: {
             ReplicatedPolicyConfiguration pc = (ReplicatedPolicyConfiguration) conf;
-            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getInitialReplicationSyncTimeout());
+            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck());
          }
          case REPLICA: {
             ReplicaPolicyConfiguration pc = (ReplicaPolicyConfiguration) conf;
-            return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()));
+            return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()), server.getNetworkHealthCheck());
          }
          case SHARED_STORE_MASTER: {
             SharedStoreMasterPolicyConfiguration pc = (SharedStoreMasterPolicyConfiguration) conf;
@@ -85,22 +86,22 @@ public final class ConfigurationUtils {
             HAPolicy livePolicy;
             //if null default to colocated
             if (liveConf == null) {
-               livePolicy = new ReplicatedPolicy();
+               livePolicy = new ReplicatedPolicy(server.getNetworkHealthCheck());
             } else {
-               livePolicy = getHAPolicy(liveConf);
+               livePolicy = getHAPolicy(liveConf, server);
             }
             HAPolicyConfiguration backupConf = pc.getBackupConfig();
             BackupPolicy backupPolicy;
             if (backupConf == null) {
                if (livePolicy instanceof ReplicatedPolicy) {
-                  backupPolicy = new ReplicaPolicy();
+                  backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck());
                } else if (livePolicy instanceof SharedStoreMasterPolicy) {
                   backupPolicy = new SharedStoreSlavePolicy();
                } else {
                   throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
                }
             } else {
-               backupPolicy = (BackupPolicy) getHAPolicy(backupConf);
+               backupPolicy = (BackupPolicy) getHAPolicy(backupConf, server);
             }
 
             if ((livePolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) || (livePolicy instanceof SharedStoreMasterPolicy && !(backupPolicy instanceof SharedStoreSlavePolicy))) {

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.ha;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.LiveActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
@@ -44,18 +45,23 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    * */
    private ReplicaPolicy replicaPolicy;
 
-   public ReplicatedPolicy() {
-      replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
+   private final NetworkHealthCheck networkHealthCheck;
+
+   public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck) {
+      replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this, networkHealthCheck);
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
                            String groupName,
                            String clusterName,
-                           long initialReplicationSyncTimeout) {
+                           long initialReplicationSyncTimeout,
+                           NetworkHealthCheck networkHealthCheck) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
+      this.networkHealthCheck = networkHealthCheck;
       /*
       * we create this with sensible defaults in case we start after a failover
       * */
@@ -66,13 +72,15 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            long initialReplicationSyncTimeout,
                            String groupName,
                            String clusterName,
-                           ReplicaPolicy replicaPolicy) {
+                           ReplicaPolicy replicaPolicy,
+                           NetworkHealthCheck networkHealthCheck) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
       this.allowAutoFailBack = allowAutoFailBack;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.replicaPolicy = replicaPolicy;
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public boolean isCheckForLiveServer() {
@@ -114,7 +122,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public ReplicaPolicy getReplicaPolicy() {
       if (replicaPolicy == null) {
-         replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
+         replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this, networkHealthCheck);
       }
       return replicaPolicy;
    }

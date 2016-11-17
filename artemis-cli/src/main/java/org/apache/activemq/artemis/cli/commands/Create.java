@@ -63,6 +63,11 @@ public class Create extends InputAbstract {
 
    private static final Integer MQTT_PORT = 1883;
 
+   /*  **********************************************************************************
+    *  Note for developers: These are tested at StreamClassPathTest on the unit test.
+    *  This is to make sure maven or something else is not hiding these resources.
+    *  ********************************************************************************** */
+
    public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
@@ -90,12 +95,17 @@ public class Create extends InputAbstract {
    public static final String ETC_HORNETQ_ACCEPTOR_TXT = "etc/hornetq-acceptor.txt";
    public static final String ETC_MQTT_ACCEPTOR_TXT = "etc/mqtt-acceptor.txt";
    public static final String ETC_STOMP_ACCEPTOR_TXT = "etc/stomp-acceptor.txt";
+   public static final String ETC_PING_TXT = "etc/ping-settings.txt";
+   public static final String ETC_COMMENTED_PING_TXT = "etc/commented-ping-settings.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    File directory;
 
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    String host;
+
+   @Option(name = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
+   String ping;
 
    @Option(name = "--default-port", description = "The port number to use for the main 'artemis' acceptor (Default: 61616)")
    int defaultPort = DEFAULT_PORT;
@@ -512,7 +522,6 @@ public class Create extends InputAbstract {
    }
 
    public Object run(ActionContext context) throws Exception {
-
       if (forceLibaio && forceNIO) {
          throw new RuntimeException("You can't specify --nio and --aio in the same execution.");
       }
@@ -534,6 +543,13 @@ public class Create extends InputAbstract {
       filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
 
       filters.put("${persistence-enabled}", isDisablePersistence() ? "false" : "true");
+
+      if (ping != null && !ping.isEmpty()) {
+         filters.put("${ping}", ping);
+         filters.put("${ping-config.settings}", applyFilters(readTextFile(ETC_PING_TXT), filters));
+      } else {
+         filters.put("${ping-config.settings}", readTextFile(ETC_COMMENTED_PING_TXT));
+      }
 
       if (replicated) {
          clustered = true;
