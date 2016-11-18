@@ -90,10 +90,10 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       securityManager.getConfiguration().addRole(invalidAdminUser, "guest");
 
       Set<Role> adminRole = securityRepository.getMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString());
-      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true));
+      adminRole.add(new Role("admin", true, true, true, true, true, true, true, true, true, true));
       securityRepository.addMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString(), adminRole);
       Set<Role> guestRole = securityRepository.getMatch("*");
-      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true));
+      guestRole.add(new Role("guest", true, true, true, true, true, true, false, true, true, true));
       securityRepository.addMatch("*", guestRole);
 
       return server;

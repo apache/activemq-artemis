@@ -128,8 +128,8 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      Role sendRole = new Role("producers", true, false, true, false, true, false, false, false, false);
-      Role receiveRole = new Role("consumers", false, true, false, false, false, false, false, false, false);
+      Role sendRole = new Role("producers", true, false, true, false, true, false, false, false, false, false);
+      Role receiveRole = new Role("consumers", false, true, false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(receiveRole);

@@ -538,7 +538,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public AddressInfo createAddress(final SimpleString address, final boolean multicast) throws Exception {
-      // make sure the user has privileges to create this queue
       securityCheck(address, CheckType.CREATE_ADDRESS, this);
       AddressInfo.RoutingType routingType = multicast ? AddressInfo.RoutingType.MULTICAST : AddressInfo.RoutingType.ANYCAST;
 

@@ -607,8 +607,9 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                          String deleteNonDurableQueueRoles,
                                          String manageRoles,
                                          String browseRoles,
-                                         String createAddress) throws Exception {
-            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress);
+                                         String createAddress,
+                                         String deleteAddress) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles, createAddress, deleteAddress);
          }
 
          @Override
