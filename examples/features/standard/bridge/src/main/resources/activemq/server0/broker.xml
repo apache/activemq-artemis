@@ -50,8 +50,8 @@ under the License.
       <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
       before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
       <queues>
-         <queue name="jms.queue.sausage-factory">
-            <address>jms.queue.sausage-factory</address>
+         <queue name="sausage-factory">
+            <address>sausage-factory</address>
          </queue>
       </queues>
 
@@ -59,8 +59,8 @@ under the License.
       We specify a filter with the bridge, and a transformer too. The filter and transformer are optional -->
       <bridges>
          <bridge name="my-bridge">
-            <queue-name>jms.queue.sausage-factory</queue-name>
-            <forwarding-address>jms.queue.mincing-machine</forwarding-address>
+            <queue-name>sausage-factory</queue-name>
+            <forwarding-address>mincing-machine</forwarding-address>
             <filter string="name='aardvark'"/>
             <transformer-class-name>org.apache.activemq.artemis.jms.example.HatColourChangeTransformer</transformer-class-name>
             <reconnect-attempts>-1</reconnect-attempts>
@@ -74,7 +74,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

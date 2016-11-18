@@ -49,7 +49,7 @@ under the License.
 
       <security-settings>
          <!-- any user can have full control of generic topics -->
-         <security-setting match="jms.topic.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="user"/>
             <permission type="deleteDurableQueue" roles="user"/>
             <permission type="createNonDurableQueue" roles="user"/>
@@ -58,7 +58,7 @@ under the License.
             <permission type="consume" roles="user"/>
          </security-setting>
 
-         <security-setting match="jms.topic.news.europe.#">
+         <security-setting match="news.europe.#">
             <permission type="createDurableQueue" roles="user"/>
             <permission type="deleteDurableQueue" roles="user"/>
             <permission type="createNonDurableQueue" roles="user"/>
@@ -67,7 +67,7 @@ under the License.
             <permission type="consume" roles="news-user"/>
          </security-setting>
 
-         <security-setting match="jms.topic.news.us.#">
+         <security-setting match="news.us.#">
             <permission type="createDurableQueue" roles="user"/>
             <permission type="deleteDurableQueue" roles="user"/>
             <permission type="createNonDurableQueue" roles="user"/>

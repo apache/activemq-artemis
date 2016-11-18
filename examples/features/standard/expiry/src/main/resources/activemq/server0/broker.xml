@@ -49,7 +49,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -61,8 +61,8 @@ under the License.
 
       <address-settings>
          <!--override the expiry address for the example-->
-         <address-setting match="jms.queue.exampleQueue">
-            <expiry-address>jms.queue.expiryQueue</expiry-address>
+         <address-setting match="exampleQueue">
+            <expiry-address>expiryQueue</expiry-address>
          </address-setting>
       </address-settings>
 

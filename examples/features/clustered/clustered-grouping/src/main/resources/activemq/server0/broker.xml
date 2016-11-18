@@ -69,7 +69,6 @@ under the License.
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>
@@ -81,7 +80,7 @@ under the License.
 
       <grouping-handler name="my-grouping-handler">
          <type>LOCAL</type>
-         <address>jms</address>
+         <address>exampleQueue</address>
          <timeout>5000</timeout>
          <group-timeout>-1</group-timeout>
          <reaper-period>30000</reaper-period>
@@ -91,7 +90,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

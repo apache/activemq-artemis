@@ -38,7 +38,7 @@ under the License.
       <paging-directory>./data/messaging/paging</paging-directory>
 
 
-      <management-address>jms.queue.activemq.management</management-address>
+      <management-address>activemq.management</management-address>
 
       <!-- Netty standard TCP acceptor -->
       <acceptors>
@@ -48,7 +48,7 @@ under the License.
       <security-settings>
 
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -58,12 +58,12 @@ under the License.
          </security-setting>
 
          <!--security for management queue-->
-         <security-setting match="jms.queue.activemq.management">
+         <security-setting match="activemq.management">
             <permission type="manage" roles="guest"/>
          </security-setting>
 
          <!-- security settings for JMS temporary queue -->
-         <security-setting match="jms.tempqueue.#">
+         <security-setting match="#">
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="deleteNonDurableQueue" roles="guest"/>
             <permission type="consume" roles="guest"/>

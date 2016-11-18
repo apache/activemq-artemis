@@ -43,8 +43,8 @@ under the License.
       </acceptors>
 
       <queues>
-         <queue name="jms.queue.exampleQueue">
-            <address>jms.queue.exampleQueue</address>
+         <queue name="exampleQueue">
+            <address>exampleQueue</address>
             <filter string="color='red'"/>
          </queue>
       </queues>
@@ -53,7 +53,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

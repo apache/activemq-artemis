@@ -41,7 +41,7 @@ under the License.
       <paging-directory>./data/messaging/paging</paging-directory>
 
 
-      <management-notification-address>jms.topic.notificationsTopic</management-notification-address>
+      <management-notification-address>notificationsTopic</management-notification-address>
 
       <!-- Netty standard TCP acceptor -->
       <acceptors>
@@ -52,7 +52,7 @@ under the License.
 
       <security-settings>
          <!--security for example queue-->
-         <security-setting match="jms.queue.exampleQueue">
+         <security-setting match="exampleQueue">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -62,7 +62,7 @@ under the License.
          </security-setting>
 
          <!--security for notification queue-->
-         <security-setting match="jms.topic.notificationsTopic">
+         <security-setting match="notificationsTopic">
             <permission type="consume" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="deleteNonDurableQueue" roles="guest"/>

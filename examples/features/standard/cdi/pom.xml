@@ -137,6 +137,18 @@
                            <clientClass>org.apache.activemq.artemis.core.example.CDIExample</clientClass>
                         </configuration>
                      </execution>
+                     <execution>
+                        <id>stop</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <ignore>${noServer}</ignore>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
                   </executions>
                   <dependencies>
                      <dependency>

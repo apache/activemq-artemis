@@ -165,7 +165,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by JMSQueueControl.
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception {
-      return createObjectName("Queue", name);
+      return getQueueObjectName(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
    }
 
    /**

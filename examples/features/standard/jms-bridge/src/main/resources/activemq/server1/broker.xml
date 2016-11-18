@@ -41,7 +41,7 @@ under the License.
       </acceptors>
 
       <security-settings>
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="consume" roles="guest"/>
             <permission type="send" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>

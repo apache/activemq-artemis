@@ -30,6 +30,8 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.core.FilterConstants;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMS messages.
@@ -81,7 +83,7 @@ public class ManagementExample {
          // Step 13. Use a helper class to fill the JMS message with management information:
          // * the name of the resource to manage
          // * in this case, we want to retrieve the value of the messageCount of the queue
-         JMSManagementHelper.putAttribute(m, "exampleQueue", "messageCount");
+         JMSManagementHelper.putAttribute(m, ResourceNames.QUEUE + "exampleQueue", "messageCount");
 
          // Step 14. Use the requestor to send the request and wait for the reply
          Message reply = requestor.request(m);
@@ -97,7 +99,7 @@ public class ManagementExample {
          // * the object name of the resource to manage (i.e. the queue)
          // * in this case, we want to call the "removeMessage" operation with the JMS MessageID
          // of the message sent to the queue in step 8.
-         JMSManagementHelper.putOperationInvocation(m, "exampleQueue", "removeMessage", message.getJMSMessageID());
+         JMSManagementHelper.putOperationInvocation(m, ResourceNames.QUEUE + "exampleQueue", "removeMessages", FilterConstants.ACTIVEMQ_USERID + " = '" + message.getJMSMessageID() + "'");
 
          // Step 18 Use the requestor to send the request and wait for the reply
          reply = requestor.request(m);
@@ -107,8 +109,8 @@ public class ManagementExample {
          System.out.println("operation invocation has succeeded: " + success);
 
          // Step 20. Use a helper class to retrieve the operation result
-         // in that case, a boolean which is true if the message was removed, false else
-         boolean messageRemoved = (Boolean) JMSManagementHelper.getResult(reply);
+         // in that case, a long which is 1 if the message was removed, 0 else
+         boolean messageRemoved = 1 == (long) JMSManagementHelper.getResult(reply);
          System.out.println("message has been removed: " + messageRemoved);
 
          // Step 21. Create a JMS Message Consumer on the queue

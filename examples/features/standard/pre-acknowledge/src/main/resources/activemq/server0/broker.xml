@@ -45,7 +45,7 @@ under the License.
       <!-- Other config -->
 
       <security-settings>
-         <security-setting match="jms.#">
+         <security-setting match="#">
             <permission type="createDurableQueue" roles="guest"/>
             <permission type="deleteDurableQueue" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
@@ -54,7 +54,7 @@ under the License.
             <permission type="send" roles="guest"/>
          </security-setting>
 
-         <security-setting match="jms.queue.activemq.management">
+         <security-setting match="activemq.management">
             <permission type="manage" roles="guest"/>
          </security-setting>
       </security-settings>
