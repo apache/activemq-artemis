@@ -125,6 +125,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String BROWSE_NAME = "browse";
 
+   private static final String CREATEADDRESS_NAME = "createAddress";
+
+   private static final String DELETEADDRESS_NAME = "deleteAddress";
+
    // Address parsing
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
@@ -680,6 +684,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
       ArrayList<String> manageRoles = new ArrayList<>();
       ArrayList<String> browseRoles = new ArrayList<>();
+      ArrayList<String> createAddressRoles = new ArrayList<>();
+      ArrayList<String> deleteAddressRoles = new ArrayList<>();
       ArrayList<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
@@ -710,6 +716,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                   manageRoles.add(role.trim());
                } else if (BROWSE_NAME.equals(type)) {
                   browseRoles.add(role.trim());
+               } else if (CREATEADDRESS_NAME.equals(type)) {
+                  createAddressRoles.add(role.trim());
+               } else if (DELETEADDRESS_NAME.equals(type)) {
+                  deleteAddressRoles.add(role.trim());
                } else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
