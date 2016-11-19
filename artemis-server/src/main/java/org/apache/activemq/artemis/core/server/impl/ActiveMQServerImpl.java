@@ -2271,6 +2271,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (putAddressInfoIfAbsent(addressInfo) != null) {
          throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
       }
+
+      // TODO: is this the right way to do this?
+      long txID = storageManager.generateID();
+      storageManager.addAddressBinding(txID, addressInfo);
+      storageManager.commitBindings(txID);
    }
 
    @Override
@@ -2292,10 +2297,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       // TODO: is this the right way to do this?
-      //      long txID = storageManager.generateID();
-      //      storageManager.deleteAddressBinding(txID, getAddressInfo(address).getID());
-      //      storageManager.commitBindings(txID);
-
+      long txID = storageManager.generateID();
+      storageManager.deleteAddressBinding(txID, getAddressInfo(address).getId());
+      storageManager.commitBindings(txID);
    }
 
    @Override
@@ -2347,6 +2351,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       final long txID = storageManager.generateID();
       final long queueID = storageManager.generateID();
+      final long addressID = storageManager.generateID();
 
       final QueueConfig.Builder queueConfigBuilder;
       if (addressName == null) {
