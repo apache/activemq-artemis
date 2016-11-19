@@ -65,4 +65,27 @@
    </dependencies>
 
    <packaging>bundle</packaging>
+
+   <build>
+      <plugins>
+
+         <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <version>3.0.0</version>
+            <extensions>true</extensions>
+            <configuration>
+               <instructions>
+                  <Embed-Dependency>activemq-client</Embed-Dependency>
+                  <Import-Package>
+                     !org.apache.commons.net.ftp,
+                     !javax.jmdns,
+                     javax.jms;version="[2,3)",
+                     *
+                  </Import-Package>
+               </instructions>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>
