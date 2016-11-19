@@ -25,6 +25,7 @@
     <feature>artemis-stomp</feature>
     <feature>artemis-mqtt</feature>
     <feature>artemis-hornetq</feature>
+    <feature>artemis-openwire</feature>
   </feature>
 
 	<feature name="netty-core" version="${netty.version}" description="Netty libraries">
@@ -82,6 +83,13 @@
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${pom.version}</bundle>
+	</feature>
+
+	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis HornetQ protocol libraries">
+		<feature>artemis-core</feature>
+		<bundle>mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
+		<bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${pom.version}</bundle>
 	</feature>
 
 </features>
