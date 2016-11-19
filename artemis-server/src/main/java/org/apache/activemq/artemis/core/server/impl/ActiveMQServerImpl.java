@@ -614,7 +614,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return postOffice.isAddressBound(SimpleString.toSimpleString(address));
    }
 
-   // TODO: this should probably look at the addresses too, not just queue bindings
    @Override
    public BindingQueryResult bindingQuery(SimpleString address) throws Exception {
       if (address == null) {
@@ -642,7 +641,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
+      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override

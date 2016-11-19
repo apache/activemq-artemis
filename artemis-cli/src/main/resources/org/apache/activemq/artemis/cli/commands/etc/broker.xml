@@ -106,7 +106,7 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <queues>
                <queue name="ExpiryQueue" />
             </queues>
-         </address>
+         </address>${address-queue.settings}
       </addresses>
 
    </core>
