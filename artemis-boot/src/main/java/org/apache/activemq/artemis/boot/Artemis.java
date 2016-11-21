@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -34,6 +36,8 @@ import java.util.List;
  * </p>
  */
 public class Artemis {
+
+   private static final Logger logger = Logger.getLogger(Artemis.class.getName());
 
    public static void main(String[] args) throws Throwable {
       String home = System.getProperty("artemis.home");
@@ -143,7 +147,7 @@ public class Artemis {
       try {
          urls.add(file.toURI().toURL());
       } catch (MalformedURLException e) {
-         e.printStackTrace();
+         logger.log(Level.WARNING, e.getMessage(), e);
       }
    }
 

@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -198,10 +199,10 @@ public class AMQConsumer {
          currentWindow.decrementAndGet();
          return size;
       } catch (IOException e) {
-         e.printStackTrace();
+         ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", e);
          return 0;
       } catch (Throwable t) {
-         t.printStackTrace();
+         ActiveMQServerLogger.LOGGER.warn("Error during message dispatch", t);
          return 0;
       }
    }

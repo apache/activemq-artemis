@@ -223,7 +223,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          if (success)
             cleanupTxRecords(deletedRecords, committedTransactions);
       } catch (SQLException e) {
-         e.printStackTrace();
+         logger.warn("Failed to remove the Tx Records", e.getMessage(), e);
       }
 
       executeCallbacks(recordRef, success);

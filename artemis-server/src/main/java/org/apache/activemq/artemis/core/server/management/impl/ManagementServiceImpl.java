@@ -302,7 +302,7 @@ public class ManagementServiceImpl implements ManagementService {
          try {
             unregisterAcceptor(name);
          } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("Failed to unregister acceptors", e.getMessage(), e);
          }
       }
    }
