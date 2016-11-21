@@ -2271,11 +2271,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (putAddressInfoIfAbsent(addressInfo) != null) {
          throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
       }
-
-      // TODO: is this the right way to do this?
-      long txID = storageManager.generateID();
-      storageManager.addAddressBinding(txID, addressInfo);
-      storageManager.commitBindings(txID);
    }
 
    @Override
@@ -2292,13 +2287,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void removeAddressInfo(SimpleString address) throws Exception {
+      AddressInfo addressInfo = getAddressInfo(address);
       if (postOffice.removeAddressInfo(address) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
       }
 
-      // TODO: is this the right way to do this?
+      // TODO: is this the right way to do this? Should it use a transaction?
       long txID = storageManager.generateID();
-      storageManager.deleteAddressBinding(txID, getAddressInfo(address).getId());
+      storageManager.deleteAddressBinding(txID, addressInfo.getId());
       storageManager.commitBindings(txID);
    }
 
