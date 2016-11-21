@@ -440,6 +440,8 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
          tagGenerator.returnTag(delivery.getTag());
          delivery.settle();
          toRemove.add(delivery);
+
+         doDeliveryUpdate(delivery);
       }
 
       pending.removeAll(toRemove);
@@ -448,5 +450,14 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    @Override
    public String toString() {
       return getClass().getSimpleName() + "{ address = " + address + "}";
+   }
+
+   @Override
+   protected void doDeliveryUpdate(Delivery delivery) {
+      try {
+         getStateInspector().inspectDeliveryUpdate(delivery);
+      } catch (Throwable error) {
+         getStateInspector().markAsInvalid(error.getMessage());
+      }
    }
 }
