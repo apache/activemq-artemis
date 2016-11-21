@@ -30,8 +30,6 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <winsw.version>1.18</winsw.version>
-      <commons.config.version>2.1</commons.config.version>
-      <commons.lang.version>3.0</commons.lang.version>
    </properties>
 
    <dependencies>
