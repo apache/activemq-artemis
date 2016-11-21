@@ -120,14 +120,11 @@ import org.apache.activemq.state.SessionState;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.wireformat.WireFormat;
-import org.jboss.logging.Logger;
 
 /**
  * Represents an activemq connection.
  */
 public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth {
-
-   private static final Logger logger = Logger.getLogger(OpenWireConnection.class);
 
    private static final KeepAliveInfo PING = new KeepAliveInfo();
 
@@ -260,8 +257,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                setLastCommand(command);
                response = command.visit(commandProcessorInstance);
             } catch (Exception e) {
-               // TODO: logging
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Errors occurred during the buffering operation ", e);
                if (responseRequired) {
                   response = convertException(e);
                }
@@ -801,8 +797,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, amqConsumer.getId().toString());
                protocolManager.fireAdvisory(context, topic, advisoryMessage, amqConsumer.getId());
             } catch (Exception e) {
-               // TODO-NOW: LOGGING
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
             }
          }
       }
@@ -1164,7 +1159,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                internalSession.xaForget(xid);
             } catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                throw e;
             }
          } else {
@@ -1184,7 +1179,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                   internalSession.xaPrepare(xid);
                } catch (Exception e) {
-                  e.printStackTrace();
+                  ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                   throw e;
                }
             } else {
@@ -1213,7 +1208,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   internalSession.resetTX(null);
                }
             } catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                throw e;
             }
          } else {

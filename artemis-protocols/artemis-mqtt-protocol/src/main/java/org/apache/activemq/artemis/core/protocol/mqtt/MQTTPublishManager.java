@@ -221,8 +221,7 @@ public class MQTTPublishManager {
                payload.writeBytes(stringPayload);
                break;
             } catch (UnsupportedEncodingException e) {
-               e.printStackTrace();
-               // Do nothing default to sending raw bytes.
+               log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
             }
          default:
             payload = message.getBodyBufferDuplicate().byteBuf();

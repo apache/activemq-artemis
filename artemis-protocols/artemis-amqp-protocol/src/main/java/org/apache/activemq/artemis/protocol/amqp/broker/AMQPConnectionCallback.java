@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
@@ -168,8 +169,8 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       if (amqpConnection.isSyncOnFlush()) {
          try {
             latch.await(5, TimeUnit.SECONDS);
-         } catch (Exception e) {
-            e.printStackTrace();
+         } catch (InterruptedException e) {
+            ActiveMQServerLogger.LOGGER.warn("Error during await invocation", e);
          }
       }
 
