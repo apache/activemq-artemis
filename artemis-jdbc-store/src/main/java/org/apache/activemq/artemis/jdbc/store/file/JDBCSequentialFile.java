@@ -155,7 +155,7 @@ public class JDBCSequentialFile implements SequentialFile {
             return noBytes;
          }
       } catch (Exception e) {
-         e.printStackTrace();
+         logger.warn("Failed to write to file", e.getMessage(), e);
          if (callback != null)
             callback.onError(-1, e.getMessage());
       }
@@ -251,7 +251,7 @@ public class JDBCSequentialFile implements SequentialFile {
          } catch (Exception e) {
             if (callback != null)
                callback.onError(-1, e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to read from file", e.getMessage(), e);
             return 0;
          }
       }

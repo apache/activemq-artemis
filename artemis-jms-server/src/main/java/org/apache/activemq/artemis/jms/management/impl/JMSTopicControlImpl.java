@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
@@ -51,6 +52,8 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
    private final ManagementService managementService;
 
    private final JMSServerManager jmsServerManager;
+
+   private static final Logger logger = Logger.getLogger(JMSTopicControlImpl.class);
 
    // Static --------------------------------------------------------
 
@@ -318,7 +321,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
          return array.build().toString();
       } catch (Exception e) {
-         e.printStackTrace();
+         logger.warn("Unable to list subscribers as JSON", e.getMessage(), e);
          return e.toString();
       }
    }

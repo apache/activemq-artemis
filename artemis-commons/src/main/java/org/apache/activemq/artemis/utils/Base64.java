@@ -10,6 +10,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import org.jboss.logging.Logger;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -148,6 +150,8 @@ public class Base64 {
     * The new line character (\n) as a byte.
     */
    private static final byte NEW_LINE = (byte) '\n';
+
+   private static final Logger logger = Logger.getLogger(Base64.class);
 
    /**
     * Preferred encoding.
@@ -539,7 +543,7 @@ public class Base64 {
 
          oos.writeObject(serializableObject);
       } catch (java.io.IOException e) {
-         e.printStackTrace();
+         logger.warn("Object cannot be serialized", e.getMessage(), e);
          return null;
       } finally {
          try {
@@ -657,7 +661,7 @@ public class Base64 {
             gzos.write(source, off, len);
             gzos.close();
          } catch (java.io.IOException e) {
-            e.printStackTrace();
+            logger.warn("Unable to encode byte array into Base64 notation", e.getMessage(), e);
             return null;
          } finally {
             try {
@@ -945,11 +949,8 @@ public class Base64 {
          ois = new java.io.ObjectInputStream(bais);
 
          obj = ois.readObject();
-      } catch (java.io.IOException e) {
-         e.printStackTrace();
-         obj = null;
-      } catch (java.lang.ClassNotFoundException e) {
-         e.printStackTrace();
+      } catch (java.io.IOException | java.lang.ClassNotFoundException e) {
+         logger.warn("Unable to deserialize object", e.getMessage(), e);
          obj = null;
       } finally {
          try {

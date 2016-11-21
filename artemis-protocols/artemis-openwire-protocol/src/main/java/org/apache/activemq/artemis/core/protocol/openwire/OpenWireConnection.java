@@ -262,8 +262,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                setLastCommand(command);
                response = command.visit(commandProcessorInstance);
             } catch (Exception e) {
-               // TODO: logging
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Errors occurred during the buffering operation ", e);
                if (responseRequired) {
                   response = convertException(e);
                }
@@ -821,8 +820,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, amqConsumer.getId().toString());
                protocolManager.fireAdvisory(context, topic, advisoryMessage, amqConsumer.getId());
             } catch (Exception e) {
-               // TODO-NOW: LOGGING
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
             }
          }
       }
@@ -1184,7 +1182,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                internalSession.xaForget(xid);
             } catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                throw e;
             }
          } else {
@@ -1204,7 +1202,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                   internalSession.xaPrepare(xid);
                } catch (Exception e) {
-                  e.printStackTrace();
+                  ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                   throw e;
                }
             } else {
@@ -1233,7 +1231,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   internalSession.resetTX(null);
                }
             } catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn("Error during method invocation", e);
                throw e;
             }
          } else {
