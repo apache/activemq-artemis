@@ -537,11 +537,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public AddressInfo createAddress(final SimpleString address, final boolean multicast) throws Exception {
+   public AddressInfo createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws Exception {
       securityCheck(address, CheckType.CREATE_ADDRESS, this);
       AddressInfo.RoutingType routingType = multicast ? AddressInfo.RoutingType.MULTICAST : AddressInfo.RoutingType.ANYCAST;
 
-      AddressInfo addressInfo = server.createOrUpdateAddressInfo(new AddressInfo(address).setRoutingType(routingType));
+      AddressInfo addressInfo = server.createOrUpdateAddressInfo(new AddressInfo(address).setRoutingType(routingType).setAutoCreated(autoCreated));
 
       return addressInfo;
    }

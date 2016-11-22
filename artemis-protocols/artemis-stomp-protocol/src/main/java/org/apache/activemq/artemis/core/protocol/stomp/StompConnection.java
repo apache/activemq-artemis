@@ -39,8 +39,10 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -259,21 +261,24 @@ public final class StompConnection implements RemotingConnection {
 
    public boolean autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
       boolean result = false;
+      ServerSession session = getSession().getSession();
 
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
-            // TODO check here to see if auto-creation is enabled
-            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateAddresses()) {
-               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
+            AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
+            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST) && addressSettings.isAutoCreateAddresses()) {
+               session.createAddress(SimpleString.toSimpleString(queue), true, true);
+               result = true;
             } else {
-               if (manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateAddresses()) {
-                  manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
+               if (addressSettings.isAutoCreateAddresses()) {
+                  session.createAddress(SimpleString.toSimpleString(queue), false, true);
+                  result = true;
                }
-               if (manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateQueues()) {
-                  manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+               if (addressSettings.isAutoCreateQueues()) {
+                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, false, true, null, null, true);
+                  result = true;
                }
             }
-            result = true;
          }
       } catch (ActiveMQQueueExistsException e) {
          // ignore
@@ -557,6 +562,10 @@ public final class StompConnection implements RemotingConnection {
 
    public ServerMessageImpl createServerMessage() {
       return manager.createServerMessage();
+   }
+
+   public StompSession getSession() throws ActiveMQStompException {
+      return getSession(null);
    }
 
    public StompSession getSession(String txID) throws ActiveMQStompException {

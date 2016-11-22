@@ -227,7 +227,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_ADDRESS: {
                   CreateAddressMessage request = (CreateAddressMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createAddress(request.getAddress(), request.isMulticast());
+                  session.createAddress(request.getAddress(), request.isMulticast(), request.isAutoCreated());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
