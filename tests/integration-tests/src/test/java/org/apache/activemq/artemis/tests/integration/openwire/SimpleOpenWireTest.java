@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.openwire;
 
 import javax.jms.Connection;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
+import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -1144,6 +1146,52 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       }
 
+   }
+
+   @Test
+   public void testTempQueueSendAfterConnectionClose() throws Exception {
+
+      Connection connection1 = null;
+      Connection connection2 = null;
+
+      try {
+         connection1 = factory.createConnection();
+         connection2 = factory.createConnection();
+         connection1.start();
+         connection2.start();
+
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue tempQueue = session1.createTemporaryQueue();
+
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session2.createProducer(tempQueue);
+         producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+         TextMessage m = session2.createTextMessage("Hello temp queue");
+         producer.send(m);
+
+         MessageConsumer consumer = session1.createConsumer(tempQueue);
+         TextMessage received = (TextMessage) consumer.receive(5000);
+         assertNotNull(received);
+         assertEquals("Hello temp queue", received.getText());
+
+         //close first connection, let temp queue die
+         connection1.close();
+
+         //send again
+         try {
+            producer.send(m);
+            fail("Send should fail since temp destination should not exist anymore.");
+         } catch (InvalidDestinationException e) {
+            //ignore
+         }
+      } finally {
+         if (connection1 != null) {
+            connection1.close();
+         }
+         if (connection2 != null) {
+            connection2.close();
+         }
+      }
    }
 
    private void checkQueueEmpty(String qName) {

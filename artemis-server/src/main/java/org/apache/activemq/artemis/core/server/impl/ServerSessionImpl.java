@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -526,6 +527,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          // It is up to the user to delete the queue when finished with it
 
          TempQueueCleanerUpper cleaner = new TempQueueCleanerUpper(server, name);
+         if (remotingConnection instanceof TempQueueObserver) {
+            cleaner.setObserver((TempQueueObserver) remotingConnection);
+         }
 
          remotingConnection.addCloseListener(cleaner);
          remotingConnection.addFailureListener(cleaner);
@@ -566,10 +570,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       private final ActiveMQServer server;
 
+      private TempQueueObserver observer;
+
       public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName) {
          this.server = server;
 
          this.bindingName = bindingName;
+      }
+
+      public void setObserver(TempQueueObserver observer) {
+         this.observer = observer;
       }
 
       private void run() {
@@ -579,6 +589,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
             try {
                server.destroyQueue(bindingName, null, false);
+               if (observer != null) {
+                  observer.tempQueueDeleted(bindingName);
+               }
             } catch (ActiveMQException e) {
                // that's fine.. it can happen due to queue already been deleted
                logger.debug(e.getMessage(), e);

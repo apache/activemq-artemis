@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
@@ -76,6 +77,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.ActiveMQTempQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.BrokerSubscriptionInfo;
@@ -125,7 +127,7 @@ import org.jboss.logging.Logger;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth {
+public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempQueueObserver {
 
    private static final Logger logger = Logger.getLogger(OpenWireConnection.class);
 
@@ -787,6 +789,24 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
       }, inactivityDurationInitialDelay, TimeUnit.MILLISECONDS);
       checkInactivity();
+   }
+
+   @Override
+   public void tempQueueDeleted(SimpleString bindingName) {
+      String amqName = OpenWireUtil.toAMQAddress(bindingName.toString());
+      ActiveMQDestination dest = new ActiveMQTempQueue(amqName);
+
+      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
+         AMQConnectionContext context = getContext();
+         DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.REMOVE_OPERATION_TYPE, dest);
+
+         ActiveMQTopic topic = AdvisorySupport.getDestinationAdvisoryTopic(dest);
+         try {
+            protocolManager.fireAdvisory(context, topic, advInfo);
+         } catch (Exception e) {
+            logger.warn("Failed to fire advisory on " + topic, e);
+         }
+      }
    }
 
    class SlowConsumerDetection implements SlowConsumerDetectionListener {
