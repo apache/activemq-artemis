@@ -354,7 +354,8 @@ public class StompV12Test extends StompTestBase {
    @Test
    public void testHeaderRepetitive() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
+      addressSettings.setAutoCreateAddresses(false);
       server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       conn.connect(defUser, defPass);

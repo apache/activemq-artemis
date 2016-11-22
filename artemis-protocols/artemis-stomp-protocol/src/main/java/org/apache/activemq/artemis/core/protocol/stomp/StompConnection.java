@@ -250,6 +250,7 @@ public final class StompConnection implements RemotingConnection {
       return res;
    }
 
+   // TODO this should take a type - send or receive so it knows whether to check the address or the queue
    public void checkDestination(String destination) throws ActiveMQStompException {
       if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
@@ -262,11 +263,15 @@ public final class StompConnection implements RemotingConnection {
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
             // TODO check here to see if auto-creation is enabled
-            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST)) {
+            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateAddresses()) {
                manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setAutoCreated(true));
             } else {
-               manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
-               manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+               if (manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateAddresses()) {
+                  manager.getServer().createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queue)).setRoutingType(AddressInfo.RoutingType.ANYCAST).setAutoCreated(true));
+               }
+               if (manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateQueues()) {
+                  manager.getServer().createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, null, true, false, true);
+               }
             }
             result = true;
          }
