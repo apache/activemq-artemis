@@ -1831,10 +1831,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setAutoDeleteJmsQueues(autoDeleteJmsQueues);
       addressSettings.setAutoCreateJmsTopics(autoCreateJmsTopics);
       addressSettings.setAutoDeleteJmsTopics(autoDeleteJmsTopics);
-      addressSettings.setAutoCreateQueues(autoCreateJmsQueues);
-      addressSettings.setAutoDeleteQueues(autoDeleteJmsQueues);
-      addressSettings.setAutoCreateAddresses(autoCreateJmsTopics);
-      addressSettings.setAutoDeleteAddresses(autoDeleteJmsTopics);
+      addressSettings.setAutoCreateQueues(autoCreateQueues);
+      addressSettings.setAutoDeleteQueues(autoDeleteQueues);
+      addressSettings.setAutoCreateAddresses(autoCreateAddresses);
+      addressSettings.setAutoDeleteAddresses(autoDeleteAddresses);
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));

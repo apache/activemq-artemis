@@ -502,7 +502,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    @Test
    public void testAutoDestinationNoCreationOnConsumer() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
-      addressSetting.setAutoCreateJmsQueues(false);
+      addressSetting.setAutoCreateQueues(false);
 
       String address = "foo";
       server.getAddressSettingsRepository().addMatch(address, addressSetting);

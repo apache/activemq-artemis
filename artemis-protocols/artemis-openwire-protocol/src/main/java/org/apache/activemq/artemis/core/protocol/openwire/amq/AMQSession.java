@@ -168,7 +168,7 @@ public class AMQSession implements SessionCallback {
          BindingQueryResult bindingQuery = server.bindingQuery(queueName);
          QueueQueryResult queueBinding = server.queueQuery(queueName);
 
-         boolean isAutoCreate = bindingQuery.isExists() ? bindingQuery.isAutoCreateJmsQueues() : true;
+         boolean isAutoCreate = bindingQuery.isExists() ?  true : bindingQuery.isAutoCreateJmsQueues();
 
          if (!queueBinding.isExists()) {
             if (isAutoCreate) {
