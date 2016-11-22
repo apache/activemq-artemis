@@ -650,7 +650,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
-      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
+      boolean autoCreateJmsQueues = getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateQueues();
 
       QueueQueryResult response;
 
@@ -1555,7 +1555,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void destroyQueue(final SimpleString queueName,
                             final SecurityAuth session,
                             final boolean checkConsumerCount) throws Exception {
-      destroyQueue(queueName, session, checkConsumerCount, false, true);
+      destroyQueue(queueName, session, checkConsumerCount, false);
    }
 
    @Override
@@ -1607,7 +1607,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (autoDeleteAddress && postOffice != null) {
          try {
-            postOffice.removeAddressInfo(address);
+            removeAddressInfo(address);
          } catch (ActiveMQDeleteAddressException e) {
             // Could be thrown if the address has bindings or is not deletable.
          }

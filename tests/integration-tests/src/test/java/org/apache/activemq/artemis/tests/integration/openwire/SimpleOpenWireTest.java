@@ -402,6 +402,13 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testSimpleTempQueue() throws Exception {
+      AddressSettings addressSetting = new AddressSettings();
+      addressSetting.setAutoCreateQueues(true);
+      addressSetting.setAutoCreateAddresses(true);
+
+      String address = "#";
+      server.getAddressSettingsRepository().addMatch(address, addressSetting);
+
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -438,17 +445,13 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testInvalidDestinationExceptionWhenNoQueueExistsOnCreateProducer() throws Exception {
-      AddressSettings addressSetting = new AddressSettings();
-      addressSetting.setAutoCreateJmsQueues(false);
-
-      server.getAddressSettingsRepository().addMatch("foo", addressSetting);
-
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue("foo");
 
       try {
          session.createProducer(queue);
+         fail("Should have thrown an exception creating a producer here");
       } catch (JMSException expected) {
       }
       session.close();
@@ -457,7 +460,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    @Test
    public void testAutoDestinationCreationOnProducerSend() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
-      addressSetting.setAutoCreateJmsQueues(true);
+      addressSetting.setAutoCreateQueues(true);
+      addressSetting.setAutoCreateAddresses(true);
 
       String address = "foo";
       server.getAddressSettingsRepository().addMatch(address, addressSetting);
@@ -479,7 +483,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    @Test
    public void testAutoDestinationCreationOnConsumer() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
-      addressSetting.setAutoCreateJmsQueues(true);
+      addressSetting.setAutoCreateQueues(true);
+      addressSetting.setAutoCreateAddresses(true);
 
       String address = "foo";
       server.getAddressSettingsRepository().addMatch(address, addressSetting);

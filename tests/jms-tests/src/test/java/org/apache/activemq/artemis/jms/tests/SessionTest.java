@@ -104,7 +104,7 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateNonExistentQueue() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
@@ -134,7 +134,8 @@ public class SessionTest extends ActiveMQServerTestCase {
    @Test
    public void testCreateQueueWhileTopicWithSameNameExists() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAutoCreateJmsQueues(false);
+      addressSettings.setAutoCreateQueues(false);
+      addressSettings.setAutoCreateAddresses(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
