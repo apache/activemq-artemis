@@ -100,6 +100,7 @@ import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.XMLUtil;
+import org.jboss.logging.Logger;
 import org.w3c.dom.Element;
 
 /**
@@ -150,6 +151,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private JMSStorageManager storage;
 
    private final Map<String, List<String>> unRecoveredBindings = new HashMap<>();
+
+   private static final Logger logger = Logger.getLogger(JMSServerManagerImpl.class);
 
    public JMSServerManagerImpl(final ActiveMQServer server) throws Exception {
       this.server = server;
@@ -265,7 +268,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             active = false;
          }
       } catch (Exception e) {
-         e.printStackTrace();
+         logger.warn("Unable to deactivate server", e.getMessage(), e);
       }
    }
 

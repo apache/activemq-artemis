@@ -175,8 +175,7 @@ public class UriStrategy implements PushStrategy {
                }
             }
          } catch (Exception e) {
-            ActiveMQRestLogger.LOGGER.debug("failed to push message to " + uri, e);
-            e.printStackTrace();
+            ActiveMQRestLogger.LOGGER.warn("failed to push message to " + uri, e);
             return false;
          } finally {
             if (res != null)

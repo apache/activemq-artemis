@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.jboss.logging.Logger;
 
 public class JournalFileImpl implements JournalFile {
 
@@ -46,6 +47,8 @@ public class JournalFileImpl implements JournalFile {
    private final int version;
 
    private final ConcurrentMap<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
+
+   private static final Logger logger = Logger.getLogger(JournalFileImpl.class);
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
       this.file = file;
@@ -152,7 +155,7 @@ public class JournalFileImpl implements JournalFile {
       try {
          return "JournalFileImpl: (" + file.getFileName() + " id = " + fileID + ", recordID = " + recordID + ")";
       } catch (Exception e) {
-         e.printStackTrace();
+         logger.warn("Error during method invocation", e.getMessage(), e);
          return "Error:" + e.toString();
       }
    }

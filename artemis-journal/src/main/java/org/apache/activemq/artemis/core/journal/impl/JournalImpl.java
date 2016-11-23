@@ -1351,7 +1351,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             } catch (Throwable e) {
                errors.incrementAndGet();
                ActiveMQJournalLogger.LOGGER.errorCompacting(e);
-               e.printStackTrace();
             } finally {
                latch.countDown();
             }
@@ -2911,7 +2910,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       try {
          scheduleCompactAndBlock(60);
       } catch (Exception e) {
-         e.printStackTrace();
+         logger.warn("Error during compact", e.getMessage(), e);
          throw new RuntimeException(e);
       }
    }
