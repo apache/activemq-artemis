@@ -58,6 +58,10 @@ public class OpenWireUtil {
       }
    }
 
+   public static String toAMQAddress(String coreAddress) {
+      return coreAddress.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
+   }
+
    /**
     * We convert the core address to an ActiveMQ Destination. We use the actual address on the message rather than the
     * destination set on the consumer because it maybe different and the JMS spec says that it should be what ever was
@@ -66,7 +70,7 @@ public class OpenWireUtil {
     */
    public static ActiveMQDestination toAMQAddress(ServerMessage message, ActiveMQDestination actualDestination) {
       String address = message.getAddress().toString();
-      String strippedAddress = address.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
+      String strippedAddress = toAMQAddress(address);
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
       } else {
