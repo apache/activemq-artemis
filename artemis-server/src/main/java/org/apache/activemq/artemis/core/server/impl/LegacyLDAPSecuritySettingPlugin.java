@@ -412,7 +412,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             }
          }
       } catch (NamingException e) {
-         e.printStackTrace();
+         logger.warn("Failed to process an event", e.getMessage(), e);
       }
    }
 
@@ -464,7 +464,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             }
          }
       } catch (NamingException e) {
-         e.printStackTrace();
+         logger.warn("Failed to process an event", e.getMessage(), e);
       }
    }
 
