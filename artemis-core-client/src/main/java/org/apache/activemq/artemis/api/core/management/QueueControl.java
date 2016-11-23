@@ -140,6 +140,18 @@ public interface QueueControl {
    @Attribute(desc = "dead-letter address associated with this queue")
    String getDeadLetterAddress();
 
+   /**
+    *
+    */
+   @Attribute(desc = "maximum number of consumers allowed on this queue at any one time")
+   int getMaxConsumers();
+
+   /**
+    *
+    */
+   @Attribute(desc = "delete this queue when the last consumer disconnects")
+   boolean isDeleteOnNoConsumers();
+
    // Operations ----------------------------------------------------
 
    /**

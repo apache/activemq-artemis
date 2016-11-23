@@ -82,7 +82,7 @@ public class AutoDeleteJmsDestinationTest extends JMSTestBase {
 
    @Test
    public void testAutoDeleteNegative() throws Exception {
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteJmsQueues(false));
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteQueues(false));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

@@ -82,6 +82,16 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public int getMaxConsumers() {
+            return (Integer) proxy.retrieveAttributeValue("maxConsumers");
+         }
+
+         @Override
+         public boolean isDeleteOnNoConsumers() {
+            return (Boolean) proxy.retrieveAttributeValue("deleteOnNoConsumers");
+         }
+
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount", Integer.class);
          }

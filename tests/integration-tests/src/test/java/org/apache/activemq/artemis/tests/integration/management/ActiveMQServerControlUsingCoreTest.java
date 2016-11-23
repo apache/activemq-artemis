@@ -17,13 +17,11 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
@@ -103,15 +101,15 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                                 @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
-                                 @Parameter(name = "name", desc = "Name of the queue") String name,
-                                 @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
-                                 @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                                 @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                                 @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                                 @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
-
+         public void createQueue(String address,
+                                 String routingType,
+                                 String name,
+                                 String filterStr,
+                                 boolean durable,
+                                 int maxConsumers,
+                                 boolean deleteOnNoConsumers,
+                                 boolean autoCreateAddress) throws Exception {
+            proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
          }
 
 
@@ -158,9 +156,10 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
-                                  @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers,
+         public void destroyQueue(String name,
+                                  boolean removeConsumers,
                                   boolean autoDeleteAddress) throws Exception {
+            proxy.invokeOperation("destroyQueue", name, removeConsumers, autoDeleteAddress);
          }
 
          @Override
@@ -567,7 +566,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                                   @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
+                                   @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
 
          }
 

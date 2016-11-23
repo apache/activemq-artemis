@@ -134,7 +134,10 @@ public class CreateAddressMessage extends PacketImpl {
             return false;
       } else if (!address.equals(other.address))
          return false;
-      if (routingTypes.equals(other.routingTypes))
+      if (routingTypes == null) {
+         if (other.routingTypes != null)
+            return false;
+      } else if (!routingTypes.equals(other.routingTypes))
          return false;
       if (autoCreated != other.autoCreated)
          return false;

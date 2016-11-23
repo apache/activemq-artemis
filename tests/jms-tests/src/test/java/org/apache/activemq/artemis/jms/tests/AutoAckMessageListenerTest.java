@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-public class AutoAckMesageListenerTest extends JMSTestCase {
+public class AutoAckMessageListenerTest extends JMSTestCase {
 
    // Constants -----------------------------------------------------
 

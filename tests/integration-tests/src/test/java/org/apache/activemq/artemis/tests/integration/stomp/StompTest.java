@@ -83,7 +83,11 @@ public class StompTest extends StompTestBase {
          boolean connected = conn != null && conn.isConnected();
          log.debug("Connection 1.0 connected: " + connected);
          if (connected) {
-            conn.disconnect();
+            try {
+               conn.disconnect();
+            } catch (Exception e) {
+               // ignore
+            }
          }
       } finally {
          super.tearDown();

@@ -456,7 +456,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   void removeAddressInfo(SimpleString address) throws Exception;
+   void removeAddressInfo(SimpleString address, SecurityAuth session) throws Exception;
 
    String getInternalNamingPrefix();
 }

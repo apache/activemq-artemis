@@ -230,11 +230,11 @@ public class SessionTest extends ActiveMQTestBase {
    @Test
    public void testQueueQueryNoQ() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateQueues(false));
-      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateAddresses(false));
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
       Assert.assertFalse(resp.isExists());
+      Assert.assertFalse(resp.isAutoCreateJmsQueues());
       Assert.assertEquals(null, resp.getAddress());
       clientSession.close();
    }
