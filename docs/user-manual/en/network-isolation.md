@@ -101,6 +101,6 @@ Once you re establish your network connections towards the configured check list
 
 # Warning
 
-> Make sure you understand your network topology as this is meant to validate if your network.
+> Make sure you understand your network topology as this is meant to validate your network.
 > Using IPs that could eventually disappear or be partially visible may defeat the purpose.
-> You can use a list of multiple IPs, and if any successful ping will make the server OK to continue running
+> You can use a list of multiple IPs. Any successful ping will make the server OK to continue running
