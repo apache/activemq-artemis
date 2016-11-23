@@ -35,6 +35,12 @@ public enum CheckType {
          return role.isCreateAddress();
       }
    },
+   DELETE_ADDRESS {
+      @Override
+      public boolean hasRole(final Role role) {
+         return role.isDeleteAddress();
+      }
+   },
    CREATE_DURABLE_QUEUE {
       @Override
       public boolean hasRole(final Role role) {

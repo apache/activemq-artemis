@@ -580,7 +580,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.removeAddressInfo(new SimpleString(name));
+         server.removeAddressInfo(new SimpleString(name), null);
       } finally {
          blockOnIO();
       }

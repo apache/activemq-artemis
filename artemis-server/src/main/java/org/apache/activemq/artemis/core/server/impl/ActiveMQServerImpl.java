@@ -1647,7 +1647,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (autoDeleteAddress && postOffice != null) {
          try {
-            removeAddressInfo(address);
+            removeAddressInfo(address, session);
          } catch (ActiveMQDeleteAddressException e) {
             // Could be thrown if the address has bindings or is not deletable.
          }
@@ -2322,7 +2322,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void removeAddressInfo(SimpleString address) throws Exception {
+   public void removeAddressInfo(final SimpleString address,
+                                 final SecurityAuth session) throws Exception {
+      if (session != null) {
+         securityStore.check(address, CheckType.DELETE_ADDRESS, session);
+      }
+
       AddressInfo addressInfo = getAddressInfo(address);
       if (postOffice.removeAddressInfo(address) == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
