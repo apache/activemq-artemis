@@ -87,9 +87,12 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    void setContext(OperationContext context);
 
    /**
-    * @param ioCriticalError is the server being stopped due to an IO critical error
+    *
+    * @param ioCriticalError is the server being stopped due to an IO critical error.
+    * @param sendFailover this is to send the replication stopping in case of replication.
+    * @throws Exception
     */
-   void stop(boolean ioCriticalError) throws Exception;
+   void stop(boolean ioCriticalError, boolean sendFailover) throws Exception;
 
    // Message related operations
 

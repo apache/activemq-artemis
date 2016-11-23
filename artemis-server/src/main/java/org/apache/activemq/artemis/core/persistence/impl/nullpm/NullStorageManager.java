@@ -507,7 +507,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void stop(final boolean ioCriticalError) throws Exception {
+   public void stop(final boolean ioCriticalError, boolean sendFailover) throws Exception {
    }
 
    @Override

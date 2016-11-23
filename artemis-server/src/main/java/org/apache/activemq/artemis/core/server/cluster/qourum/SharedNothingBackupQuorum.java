@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 
 public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener {
@@ -52,6 +53,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private CoreRemotingConnection connection;
 
+   private final NetworkHealthCheck networkHealthCheck;
+
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
     * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
@@ -63,11 +66,13 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    public SharedNothingBackupQuorum(StorageManager storageManager,
                                     NodeManager nodeManager,
-                                    ScheduledExecutorService scheduledPool) {
+                                    ScheduledExecutorService scheduledPool,
+                                    NetworkHealthCheck networkHealthCheck) {
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
       this.latch = new CountDownLatch(1);
       this.nodeManager = nodeManager;
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    private volatile BACKUP_ACTIVATION signal;
@@ -90,6 +95,9 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       //we may get called via multiple paths so need to guard
       synchronized (decisionGuard) {
          if (signal == BACKUP_ACTIVATION.FAIL_OVER) {
+            if (networkHealthCheck != null && !networkHealthCheck.check()) {
+               signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
+            }
             return;
          }
          if (!isLiveDown()) {
@@ -102,8 +110,14 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                   ActiveMQServerLogger.LOGGER.errorReConnecting(e);
             }
          }
-         // live is assumed to be down, backup fails-over
-         signal = BACKUP_ACTIVATION.FAIL_OVER;
+
+         if (networkHealthCheck != null && networkHealthCheck.check()) {
+            // live is assumed to be down, backup fails-over
+            signal = BACKUP_ACTIVATION.FAIL_OVER;
+         } else {
+            ActiveMQServerLogger.LOGGER.serverIsolatedOnNetwork();
+            signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
+         }
       }
       latch.countDown();
    }

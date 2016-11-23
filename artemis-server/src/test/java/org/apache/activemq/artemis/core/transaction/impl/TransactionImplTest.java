@@ -229,7 +229,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void stop(boolean ioCriticalError) throws Exception {
+      public void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
 
       }
 

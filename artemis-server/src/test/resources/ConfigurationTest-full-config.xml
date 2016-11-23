@@ -236,6 +236,13 @@
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>
       <large-messages-directory>largemessagesdir</large-messages-directory>
+      <network-check-list>127.0.0.1</network-check-list>
+      <network-check-NIC>some-nick</network-check-NIC>
+      <network-check-period>123</network-check-period>
+      <network-check-timeout>321</network-check-timeout>
+      <network-check-URL-list>www.apache.org</network-check-URL-list>
+      <network-check-ping-command>ping-four</network-check-ping-command>
+      <network-check-ping6-command>ping-six</network-check-ping6-command>
       <security-settings>
          <security-setting match="a1">
             <permission type="createNonDurableQueue" roles="a1.1"/>

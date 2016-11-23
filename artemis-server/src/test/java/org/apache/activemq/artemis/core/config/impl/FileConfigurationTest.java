@@ -106,6 +106,13 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(98765, conf.getConnectionTtlCheckInterval());
       Assert.assertEquals(1234567, conf.getConfigurationFileRefreshPeriod());
 
+      Assert.assertEquals("127.0.0.1", conf.getNetworkCheckList());
+      Assert.assertEquals("some-nick", conf.getNetworkCheckNIC());
+      Assert.assertEquals(123, conf.getNetworkCheckPeriod());
+      Assert.assertEquals(321, conf.getNetworkCheckTimeout());
+      Assert.assertEquals("ping-four", conf.getNetworkCheckPingCommand());
+      Assert.assertEquals("ping-six", conf.getNetworkCheckPing6Command());
+
       Assert.assertEquals("largemessagesdir", conf.getLargeMessagesDirectory());
       Assert.assertEquals(95, conf.getMemoryWarningThreshold());
 
