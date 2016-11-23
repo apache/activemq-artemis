@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.utils;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -75,6 +76,67 @@ public class ActiveMQScheduledComponentTest {
       local.stop();
 
       Assert.assertTrue("just because one took a lot of time, it doesn't mean we can accumulate many, we got " + count + " executions", count.get() < 5);
+   }
+
+   @Test
+   public void testUsingOwnExecutors() throws Exception {
+      final CountDownLatch latch = new CountDownLatch(1);
+
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(10, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      local.start();
+      local.start(); // should be ok to call start again
+
+      try {
+         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+         // re-scheduling the executor at a big interval..
+         // just to make sure it won't hung
+         local.setTimeUnit(TimeUnit.HOURS);
+         local.setPeriod(1);
+      } finally {
+         local.stop();
+         local.stop(); // should be ok to call stop again
+      }
+   }
+
+   @Test
+   public void testUsingOwnExecutorsOnDemand() throws Throwable {
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(10, TimeUnit.MILLISECONDS, true) {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      local.start();
+      local.start(); // should be ok to call start again
+
+      try {
+
+         Assert.assertFalse(latch.await(20, TimeUnit.MILLISECONDS));
+
+         local.delay();
+         Assert.assertTrue(latch.await(20, TimeUnit.MILLISECONDS));
+         latch.setCount(1);
+
+         Assert.assertFalse(latch.await(20, TimeUnit.MILLISECONDS));
+
+         // re-scheduling the executor at a big interval..
+         // just to make sure it won't hung
+         local.setTimeUnit(TimeUnit.HOURS);
+         local.setPeriod(1);
+      } finally {
+         local.stop();
+         local.stop(); // calling stop again should not be an issue.
+      }
    }
 
 }

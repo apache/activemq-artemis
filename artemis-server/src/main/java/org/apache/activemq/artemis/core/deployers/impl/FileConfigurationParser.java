@@ -538,7 +538,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setMemoryWarningThreshold(getInteger(e, "memory-warning-threshold", config.getMemoryWarningThreshold(), Validators.PERCENTAGE));
 
-      config.setMemoryMeasureInterval(getLong(e, "memory-measure-interval", config.getMemoryMeasureInterval(), Validators.MINUS_ONE_OR_GT_ZERO)); // in
+      config.setMemoryMeasureInterval(getLong(e, "memory-measure-interval", config.getMemoryMeasureInterval(), Validators.MINUS_ONE_OR_GT_ZERO));
+
+      config.setNetworkCheckList(getString(e, "network-check-list", config.getNetworkCheckList(), Validators.NO_CHECK));
+
+      config.setNetworkCheckURLList(getString(e, "network-check-URL-list", config.getNetworkCheckURLList(), Validators.NO_CHECK));
+
+      config.setNetworkCheckPeriod(getLong(e, "network-check-period", config.getNetworkCheckPeriod(), Validators.GT_ZERO));
+
+      config.setNetworkCheckTimeout(getInteger(e, "network-check-timeout", config.getNetworkCheckTimeout(), Validators.GT_ZERO));
+
+      config.setNetworCheckNIC(getString(e, "network-check-NIC", config.getNetworkCheckNIC(), Validators.NO_CHECK));
+
+      config.setNetworkCheckPing6Command(getString(e, "network-check-ping6-command", config.getNetworkCheckPing6Command(), Validators.NO_CHECK));
+
+      config.setNetworkCheckPingCommand(getString(e, "network-check-ping-command", config.getNetworkCheckPingCommand(), Validators.NO_CHECK));
 
       parseAddressSettings(e, config);
 

@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -92,9 +93,16 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    ActiveMQSecurityManager getSecurityManager();
 
+   NetworkHealthCheck getNetworkHealthCheck();
+
    Version getVersion();
 
    NodeManager getNodeManager();
+
+   /**
+    * @return
+    */
+   ReplicationEndpoint getReplicationEndpoint();
 
    /**
     * it will release hold a lock for the activation.
@@ -284,7 +292,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @param filterString
     * @param durable
     * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
-    * @throws NullPointerException                      if {@code address} is {@code null}
+    * @throws NullPointerException                                                           if {@code address} is {@code null}
     */
    void createSharedQueue(final SimpleString address,
                           final SimpleString name,

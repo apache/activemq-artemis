@@ -93,6 +93,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
@@ -111,6 +112,7 @@ import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MemoryManager;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
 import org.apache.activemq.artemis.core.server.PostQueueDeletionCallback;
@@ -240,6 +242,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    private volatile ExecutorFactory ioExecutorFactory;
 
+   private final NetworkHealthCheck networkHealthCheck = new NetworkHealthCheck(ActiveMQDefaultConfiguration.getDefaultNetworkCheckNic(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckPeriod(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckTimeout());
+
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
    private volatile ResourceManager resourceManager;
@@ -325,6 +329,28 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
 
+   private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
+      @Override
+      public void start() throws Exception {
+         internalStart();
+      }
+
+      @Override
+      public void stop() throws Exception {
+         internalStop();
+      }
+
+      @Override
+      public String toString() {
+         return ActiveMQServerImpl.this.toString();
+      }
+
+      @Override
+      public boolean isStarted() {
+         return ActiveMQServerImpl.this.isStarted();
+      }
+   };
+
    // Constructors
    // ---------------------------------------------------------------------------------
 
@@ -405,6 +431,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return reloadManager;
    }
 
+   @Override
+   public NetworkHealthCheck getNetworkHealthCheck() {
+      return networkHealthCheck;
+   }
+
    // life-cycle methods
    // ----------------------------------------------------------------
 
@@ -430,6 +461,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public final synchronized void start() throws Exception {
+      SERVER_STATE originalState = state;
+      try {
+         internalStart();
+      } finally {
+         if (originalState == SERVER_STATE.STOPPED) {
+            networkHealthCheck.setTimeUnit(TimeUnit.MILLISECONDS).setPeriod(configuration.getNetworkCheckPeriod()).
+               setNetworkTimeout(configuration.getNetworkCheckTimeout()).
+               parseAddressList(configuration.getNetworkCheckList()).
+               parseURIList(configuration.getNetworkCheckURLList()).
+               setNICName(configuration.getNetworkCheckNIC()).
+               setIpv4Command(configuration.getNetworkCheckPingCommand()).
+               setIpv6Command(configuration.getNetworkCheckPing6Command());
+
+            networkHealthCheck.addComponent(networkCheckMonitor);
+         }
+      }
+   }
+
+   private void internalStart() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
          logger.debug("Server already started!");
          return;
@@ -442,7 +492,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       state = SERVER_STATE.STARTING;
 
       if (haPolicy == null) {
-         haPolicy = ConfigurationUtils.getHAPolicy(configuration.getHAPolicyConfiguration());
+         haPolicy = ConfigurationUtils.getHAPolicy(configuration.getHAPolicyConfiguration(), this);
       }
 
       activationLatch.setCount(1);
@@ -490,6 +540,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // this avoids embedded applications using dirty contexts from startup
          OperationContextImpl.clearContext();
       }
+   }
+
+   @Override
+   public ReplicationEndpoint getReplicationEndpoint() {
+      if (activation instanceof SharedNothingBackupActivation) {
+         return ((SharedNothingBackupActivation) activation).getReplicationEndpoint();
+      }
+      return null;
    }
 
    @Override
@@ -611,6 +669,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public final void stop() throws Exception {
+      try {
+         internalStop();
+      } finally {
+         networkHealthCheck.stop();
+      }
+   }
+
+   private void internalStop() throws Exception {
       stop(false);
    }
 
@@ -774,7 +840,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             fileStoreMonitor = null;
          }
 
-         activation.sendLiveIsStopping();
+         if (failoverOnServerShutdown) {
+            activation.sendLiveIsStopping();
+         }
 
          stopComponent(connectorsService);
 
@@ -838,7 +906,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (storageManager != null)
          try {
-            storageManager.stop(criticalIOError);
+            storageManager.stop(criticalIOError, failoverOnServerShutdown);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, storageManager.getClass().getName());
          }
@@ -1846,7 +1914,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.threadPoolSupplied = true;
       }
       this.executorFactory = new OrderedExecutorFactory(threadPool);
-
 
       if (serviceRegistry.getIOExecutorService() != null) {
          this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());

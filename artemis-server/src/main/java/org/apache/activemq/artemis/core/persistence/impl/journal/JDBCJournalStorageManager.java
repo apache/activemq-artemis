@@ -75,7 +75,7 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
    }
 
    @Override
-   public synchronized void stop(boolean ioCriticalError) throws Exception {
+   public synchronized void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
       if (!started) {
          return;
       }

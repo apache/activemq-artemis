@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.ha;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
@@ -40,7 +41,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private ReplicatedPolicy replicatedPolicy;
 
-   public ReplicaPolicy() {
+   private final NetworkHealthCheck networkHealthCheck;
+
+   public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck) {
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public ReplicaPolicy(String clusterName,
@@ -49,7 +53,8 @@ public class ReplicaPolicy extends BackupPolicy {
                         boolean restartBackup,
                         boolean allowFailback,
                         long initialReplicationSyncTimeout,
-                        ScaleDownPolicy scaleDownPolicy) {
+                        ScaleDownPolicy scaleDownPolicy,
+                        NetworkHealthCheck networkHealthCheck) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
@@ -57,16 +62,19 @@ public class ReplicaPolicy extends BackupPolicy {
       this.allowFailback = allowFailback;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.scaleDownPolicy = scaleDownPolicy;
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public ReplicaPolicy(String clusterName,
                         int maxSavedReplicatedJournalsSize,
                         String groupName,
-                        ReplicatedPolicy replicatedPolicy) {
+                        ReplicatedPolicy replicatedPolicy,
+                        NetworkHealthCheck networkHealthCheck) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
       this.replicatedPolicy = replicatedPolicy;
+      this.networkHealthCheck = networkHealthCheck;
    }
 
    public String getClusterName() {
@@ -87,7 +95,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck);
       }
       return replicatedPolicy;
    }
@@ -162,7 +170,7 @@ public class ReplicaPolicy extends BackupPolicy {
                                       boolean wasLive,
                                       Map<String, Object> activationParams,
                                       ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception {
-      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, shutdownOnCriticalIO, this);
+      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, shutdownOnCriticalIO, this, networkHealthCheck);
       backupActivation.init();
       return backupActivation;
    }

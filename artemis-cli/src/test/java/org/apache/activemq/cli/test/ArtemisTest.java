@@ -47,6 +47,8 @@ import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
 import org.apache.activemq.artemis.cli.commands.user.ResetUser;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -603,6 +605,29 @@ public class ArtemisTest {
       } finally {
          stopServer();
       }
+   }
+
+
+   @Test
+   public void testPing() throws Exception {
+      File instanceFolder = temporaryFolder.newFolder("pingTest");
+
+      setupAuth(instanceFolder);
+      String queues = "q1,t2";
+      String topics = "t1,t2";
+
+      // This is usually set when run from the command line via artemis.profile
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login", "--ping", "127.0.0.1");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(new File(instanceFolder, "./etc/broker.xml").toURI().toString());
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      Assert.assertEquals("127.0.0.1", fc.getNetworkCheckList());
+
    }
 
    private void testCli(String... args) {
