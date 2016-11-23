@@ -332,6 +332,30 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public int getMaxConsumers() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getMaxConsumers();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isDeleteOnNoConsumers() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isDeleteOnNoConsumers();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
       checkStarted();
 

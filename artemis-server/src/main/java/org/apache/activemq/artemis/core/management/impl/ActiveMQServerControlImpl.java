@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,9 +78,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -563,12 +564,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
+                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.createAddressInfo(new AddressInfo(new SimpleString(name), routingTypes));
+         Set<RoutingType> set = new HashSet<>();
+         for (Object routingType : routingTypes) {
+            set.add(RoutingType.valueOf(routingType.toString()));
+         }
+         server.createAddressInfo(new AddressInfo(new SimpleString(name), set));
       } finally {
          blockOnIO();
       }
@@ -580,7 +585,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.removeAddressInfo(new SimpleString(name));
+         server.removeAddressInfo(new SimpleString(name), null);
       } finally {
          blockOnIO();
       }
@@ -642,14 +647,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                           @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
-                           @Parameter(name = "name", desc = "Name of the queue") String name,
-                           @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
-                           @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                           @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                           @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
+   public void createQueue(String address,
+                           String routingType,
+                           String name,
+                           String filterStr,
+                           boolean durable,
+                           int maxConsumers,
+                           boolean deleteOnNoConsumers,
+                           boolean autoCreateAddress) throws Exception {
       checkStarted();
 
       clearIO();
@@ -660,7 +665,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(SimpleString.toSimpleString(address), routingType, new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
       } finally {
          blockOnIO();
       }

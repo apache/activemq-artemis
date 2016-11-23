@@ -799,14 +799,14 @@ public class Create extends InputAbstract {
       printWriter.println();
 
       for (String str : getQueueList()) {
-         printWriter.println("         <address name=\"" + str + "\" type=\"anycast\">");
-         printWriter.println("            <queues>");
+         printWriter.println("         <address name=\"" + str + "\">");
+         printWriter.println("            <anycast>");
          printWriter.println("               <queue name=\"" + str + "\" />");
-         printWriter.println("            </queues>");
+         printWriter.println("            </anycast>");
          printWriter.println("         </address>");
       }
       for (String str : getAddressList()) {
-         printWriter.println("         <address name=\"" + str + "\" type=\"multicast\"/>");
+         printWriter.println("         <address name=\"" + str + "\"/>");
       }
       filters.put("${address-queue.settings}", writer.toString());
    }

@@ -98,15 +98,15 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
       </address-settings>
 
       <addresses>
-         <address name="DLQ" type="anycast">
-            <queues>
+         <address name="DLQ">
+            <anycast>
                <queue name="DLQ" />
-            </queues>
+            </anycast>
          </address>
-         <address name="ExpiryQueue" type="anycast">
-            <queues>
+         <address name="ExpiryQueue">
+            <anycast>
                <queue name="ExpiryQueue" />
-            </queues>
+            </anycast>
          </address>${address-queue.settings}
       </addresses>
 
