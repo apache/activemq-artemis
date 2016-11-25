@@ -18,16 +18,24 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
-public class CreateQueueMessage_V2 extends CreateQueueMessage {
+public class CreateQueueMessage_V3 extends CreateQueueMessage_V2 {
 
-   protected boolean autoCreated;
+   private RoutingType routingType;
 
-   public CreateQueueMessage_V2(final SimpleString address,
+   private int maxConsumers;
+
+   private boolean deleteOnNoConsumers;
+
+   public CreateQueueMessage_V3(final SimpleString address,
                                 final SimpleString queueName,
+                                final RoutingType routingType,
                                 final SimpleString filterString,
                                 final boolean durable,
                                 final boolean temporary,
+                                final int maxConsumers,
+                                final boolean deleteOnNoConsumers,
                                 final boolean autoCreated,
                                 final boolean requiresResponse) {
       this();
@@ -39,14 +47,13 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.temporary = temporary;
       this.autoCreated = autoCreated;
       this.requiresResponse = requiresResponse;
+      this.routingType = routingType;
+      this.maxConsumers = maxConsumers;
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
    }
 
-   public CreateQueueMessage_V2() {
-      super(CREATE_QUEUE_V2);
-   }
-
-   public CreateQueueMessage_V2(byte packet) {
-      super(packet);
+   public CreateQueueMessage_V3() {
+      super(CREATE_QUEUE_V3);
    }
 
    // Public --------------------------------------------------------
@@ -54,36 +61,60 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(super.getParentString());
-      buff.append(", autoCreated=" + autoCreated);
+      buff.append(", routingType=" + routingType);
+      buff.append(", maxConsumers=" + maxConsumers);
+      buff.append(", deleteOnNoConsumers=" + deleteOnNoConsumers);
       buff.append("]");
       return buff.toString();
    }
 
-   public boolean isAutoCreated() {
-      return autoCreated;
+   public RoutingType getRoutingType() {
+      return routingType;
    }
 
-   public void setAutoCreated(boolean autoCreated) {
-      this.autoCreated = autoCreated;
+   public void setRoutingType(RoutingType routingType) {
+      this.routingType = routingType;
+   }
+
+   public int getMaxConsumers() {
+      return maxConsumers;
+   }
+
+   public void setMaxConsumers(int maxConsumers) {
+      this.maxConsumers = maxConsumers;
+   }
+
+   public boolean isDeleteOnNoConsumers() {
+      return deleteOnNoConsumers;
+   }
+
+   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(autoCreated);
+      buffer.writeByte(routingType.getType());
+      buffer.writeInt(maxConsumers);
+      buffer.writeBoolean(deleteOnNoConsumers);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      autoCreated = buffer.readBoolean();
+      routingType = RoutingType.getType(buffer.readByte());
+      maxConsumers = buffer.readInt();
+      deleteOnNoConsumers = buffer.readBoolean();
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (autoCreated ? 1231 : 1237);
+      result = prime * result + (routingType.getType());
+      result = prime * result + (maxConsumers);
+      result = prime * result + (deleteOnNoConsumers ? 1231 : 1237);
       return result;
    }
 
@@ -93,9 +124,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateQueueMessage_V2))
+      if (!(obj instanceof CreateQueueMessage_V3))
          return false;
-      CreateQueueMessage_V2 other = (CreateQueueMessage_V2) obj;
+      CreateQueueMessage_V3 other = (CreateQueueMessage_V3) obj;
       if (autoCreated != other.autoCreated)
          return false;
       return true;

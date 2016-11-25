@@ -14,18 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.persistence;
+package org.apache.activemq.artemis.core.server;
 
-import java.util.Set;
+public enum RoutingType {
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.RoutingType;
+   MULTICAST, ANYCAST;
 
-public interface AddressBindingInfo {
+   public byte getType() {
+      switch (this) {
+         case MULTICAST:
+            return 0;
+         case ANYCAST:
+            return 1;
+         default:
+            return -1;
+      }
+   }
 
-   long getId();
-
-   SimpleString getName();
-
-   Set<RoutingType> getRoutingTypes();
+   public static RoutingType getType(byte type) {
+      switch (type) {
+         case 0:
+            return MULTICAST;
+         case 1:
+            return ANYCAST;
+         default:
+            return null;
+      }
+   }
 }

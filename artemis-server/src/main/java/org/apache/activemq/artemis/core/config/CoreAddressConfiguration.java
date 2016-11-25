@@ -18,20 +18,17 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 public class CoreAddressConfiguration implements Serializable {
 
    private String name = null;
 
-   private AddressInfo.RoutingType routingType = null;
-
-   private Integer defaultMaxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-
-   private Boolean defaultDeleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+   private Set<RoutingType> routingTypes = new HashSet<>();
 
    private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
 
@@ -47,12 +44,12 @@ public class CoreAddressConfiguration implements Serializable {
       return this;
    }
 
-   public AddressInfo.RoutingType getRoutingType() {
-      return routingType;
+   public Set<RoutingType> getRoutingTypes() {
+      return routingTypes;
    }
 
-   public CoreAddressConfiguration setRoutingType(AddressInfo.RoutingType routingType) {
-      this.routingType = routingType;
+   public CoreAddressConfiguration addDeliveryMode(RoutingType routingType) {
+      routingTypes.add(routingType);
       return this;
    }
 
@@ -68,74 +65,5 @@ public class CoreAddressConfiguration implements Serializable {
 
    public List<CoreQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
-   }
-
-   public Boolean getDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
-   }
-
-   public CoreAddressConfiguration setDefaultDeleteOnNoConsumers(Boolean defaultDeleteOnNoConsumers) {
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
-      return this;
-   }
-
-   public Integer getDefaultMaxConsumers() {
-      return defaultMaxConsumers;
-   }
-
-   public CoreAddressConfiguration setDefaultMaxConsumers(Integer defaultMaxConsumers) {
-      this.defaultMaxConsumers = defaultMaxConsumers;
-      return this;
-   }
-
-   @Override
-   public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
-      result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
-      result = prime * result + ((defaultMaxConsumers == null) ? 0 : defaultMaxConsumers.hashCode());
-      result = prime * result + ((defaultDeleteOnNoConsumers == null) ? 0 : defaultDeleteOnNoConsumers.hashCode());
-      return result;
-   }
-
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      CoreAddressConfiguration other = (CoreAddressConfiguration) obj;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType))
-         return false;
-      if (queueConfigurations == null) {
-         if (other.queueConfigurations != null)
-            return false;
-      } else if (!queueConfigurations.equals(other.queueConfigurations))
-         return false;
-      if (defaultMaxConsumers == null) {
-         if (other.defaultMaxConsumers != null)
-            return false;
-      } else if (!defaultMaxConsumers.equals(other.defaultMaxConsumers))
-         return false;
-      if (defaultDeleteOnNoConsumers == null) {
-         if (other.defaultDeleteOnNoConsumers != null)
-            return false;
-      } else if (!defaultDeleteOnNoConsumers.equals(other.defaultDeleteOnNoConsumers)) {
-         return false;
-      }
-
-      return true;
    }
 }

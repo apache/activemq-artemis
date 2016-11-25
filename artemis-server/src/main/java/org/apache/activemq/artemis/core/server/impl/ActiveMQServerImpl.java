@@ -110,6 +110,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -1462,11 +1463,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary) throws Exception {
-      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false);
+      return createQueue(address, routingType, queueName, filterString, null, durable, temporary, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
    }
 
    @Override
@@ -1474,51 +1476,61 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
-                            final boolean temporary,
-                            final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers,
-                            final boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+                            final boolean temporary) throws Exception {
+       return createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filterString, durable, temporary);
    }
 
    @Override
    public Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary,
+                            final int maxConsumers,
+                            final boolean deleteOnNoConsumers,
+                            final boolean autoCreateAddress) throws Exception {
+      return createQueue(address, queueName, routingType, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary) throws Exception {
-      return createQueue(address, queueName, filterString, user, durable, temporary, false, false, false);
+      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
    }
 
    @Override
-   public Queue createQueue(SimpleString address,
-                            SimpleString queueName,
-                            SimpleString filter,
+   public Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                             SimpleString user,
                             boolean durable,
                             boolean temporary,
-                            Integer maxConsumers,
-                            Boolean deleteOnNoConsumers,
+                            int maxConsumers,
+                            boolean deleteOnNoConsumers,
                             boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      return createQueue(address, queueName, routingType, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
    public Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
-      return createQueue(address, queueName, filterString, user, durable, temporary, false, false, autoCreated);
+      return createQueue(address, routingType, queueName, filterString, user, durable, temporary,
+                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
+                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), autoCreated);
    }
 
    @Override
-   public Queue createQueue(SimpleString address,
-                            SimpleString queueName,
-                            SimpleString filter,
+   public Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                             SimpleString user,
                             boolean durable,
                             boolean temporary,
@@ -1526,20 +1538,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Integer maxConsumers,
                             Boolean deleteOnNoConsumers,
                             boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      return createQueue(address, queueName, routingType, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
-   public void createSharedQueue(final SimpleString address,
-                                 final SimpleString name,
-                                 final SimpleString filterString,
+   public void createSharedQueue(final SimpleString address, RoutingType routingType, final SimpleString name, final SimpleString filterString,
                                  final SimpleString user,
                                  boolean durable) throws Exception {
       //force the old contract about address
       if (address == null) {
          throw new NullPointerException("address can't be null!");
       }
-      final Queue queue = createQueue(address, name, filterString, user, durable, !durable, true, !durable, false);
+
+      if (routingType == null) {
+         AddressInfo addressInfo = getAddressInfo(address);
+         routingType = addressInfo.getRoutingTypes().size() == 1 ? addressInfo.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType();
+         if (routingType == null) {
+            // TODO (mtaylor) throw exception Can not determine routing type info from address
+         }
+      }
+
+      final Queue queue = createQueue(address, routingType, name, filterString, user, durable, !durable, false);
 
       if (!queue.getAddress().equals(address)) {
          throw ActiveMQMessageBundle.BUNDLE.queueSubscriptionBelongsToDifferentAddress(name);
@@ -1578,34 +1597,55 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary) throws Exception {
-      return deployQueue(address, resourceName, filterString, durable, temporary, false);
+      return deployQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), resourceName, filterString, durable, temporary, false);
+   }
+
+   @Override
+   public Queue deployQueue(final String address,
+                            final String resourceName,
+                            final String filterString,
+                            final boolean durable,
+                            final boolean temporary) throws Exception {
+      return deployQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(resourceName), SimpleString.toSimpleString(filterString), durable, temporary);
    }
 
    @Override
    public Queue deployQueue(final SimpleString address,
+                            final RoutingType routingType,
+                            final SimpleString resourceName,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary) throws Exception {
+      return deployQueue(address, routingType, resourceName, filterString, durable, temporary, false);
+   }
+
+   @Override
+   public Queue deployQueue(final SimpleString address,
+                            final RoutingType routingType,
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
-      return deployQueue(address, queueName, filterString, durable, temporary, autoCreated, null, null, true);
+      return deployQueue(address, routingType, queueName, filterString, durable, temporary, autoCreated, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
    }
 
    @Override
    public Queue deployQueue(final SimpleString address,
+                            final RoutingType routingType,
                             final SimpleString queueName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated,
-                            final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers,
+                            final int maxConsumers,
+                            final boolean deleteOnNoConsumers,
                             final boolean autoCreateAddress) throws Exception {
 
       // TODO: fix logging here as this could be for a topic or queue
       ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
-      return createQueue(address, queueName, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      return createQueue(address, queueName, routingType, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -2209,11 +2249,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployAddressesFromConfiguration() throws Exception {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
-         AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()));
-         info.setRoutingType(config.getRoutingType());
-         info.setDefaultDeleteOnNoConsumers(config.getDefaultDeleteOnNoConsumers());
-         info.setDefaultMaxQueueConsumers(config.getDefaultMaxConsumers());
-
+         AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()), config.getRoutingTypes());
          createOrUpdateAddressInfo(info);
          deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
       }
@@ -2221,7 +2257,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers(), true);
+         deployQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers(), true);
       }
    }
 
@@ -2378,21 +2414,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return postOffice.getAddressInfo(address);
    }
 
-   private Queue createQueue(final SimpleString addressName,
-                             final SimpleString queueName,
-                             final SimpleString filterString,
-                             final SimpleString user,
-                             final boolean durable,
-                             final boolean temporary,
-                             final boolean ignoreIfExists,
-                             final boolean transientQueue,
-                             final boolean autoCreated) throws Exception {
-      return createQueue(addressName, queueName, filterString, user, durable, temporary, ignoreIfExists, transientQueue, autoCreated, null, null, true);
-   }
-
    @Override
    public Queue createQueue(final SimpleString addressName,
                             final SimpleString queueName,
+                            final RoutingType routingType,
                             final SimpleString filterString,
                             final SimpleString user,
                             final boolean durable,
@@ -2400,8 +2425,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean ignoreIfExists,
                             final boolean transientQueue,
                             final boolean autoCreated,
-                            final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers,
+                            final int maxConsumers,
+                            final boolean deleteOnNoConsumers,
                             final boolean autoCreateAddress) throws Exception {
 
       final QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
@@ -2426,27 +2451,32 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       AddressInfo defaultAddressInfo = new AddressInfo(addressName);
+      defaultAddressInfo.addRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType());
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
       if (info == null) {
          if (autoCreateAddress) {
-            info = defaultAddressInfo;
+            postOffice.addAddressInfo(defaultAddressInfo);
+            info = postOffice.getAddressInfo(addressName);
          } else {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
          }
       }
 
-      final boolean isDeleteOnNoConsumers = deleteOnNoConsumers == null ? info.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;
-      final int noMaxConsumers = maxConsumers == null ? info.getDefaultMaxQueueConsumers() : maxConsumers;
+      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).deliveryMode(routingType).maxConsumers(maxConsumers).deleteOnNoConsumers(deleteOnNoConsumers).build();
 
-      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).deleteOnNoConsumers(isDeleteOnNoConsumers).maxConsumers(noMaxConsumers).build();
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 
       boolean addressAlreadyExists = true;
 
-      if (postOffice.getAddressInfo(queue.getAddress()) == null) {
-         postOffice.addAddressInfo(new AddressInfo(queue.getAddress()).setRoutingType(AddressInfo.RoutingType.MULTICAST).setDefaultMaxQueueConsumers(maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers));
+      AddressInfo addressInfo = postOffice.getAddressInfo(queue.getAddress());
+      if (addressInfo == null) {
+         postOffice.addAddressInfo(new AddressInfo(queue.getAddress()));
          addressAlreadyExists = false;
+      } else {
+         if (!addressInfo.getRoutingTypes().contains(routingType)) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, addressInfo.getName().toString(), addressInfo.getRoutingTypes());
+         }
       }
 
       if (transientQueue) {
@@ -2455,7 +2485,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this, queue.getName()));
       }
 
-      final QueueBinding localQueueBinding = new LocalQueueBinding(getAddressInfo(queue.getAddress()), queue, nodeManager.getNodeId());
+      final QueueBinding localQueueBinding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
 
       if (queue.isDurable()) {
          storageManager.addQueueBinding(txID, localQueueBinding);

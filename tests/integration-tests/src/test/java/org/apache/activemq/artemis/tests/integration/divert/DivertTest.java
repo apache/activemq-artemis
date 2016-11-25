@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -71,9 +72,9 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = new SimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName2, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
       session.start();
 
@@ -148,11 +149,11 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName2 = new SimpleString("queue2");
 
-      session.createQueue(new SimpleString(forwardAddress), queueName1, null, true);
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, true);
 
-      session.createQueue(new SimpleString(testAddress), queueName2, null, true);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, true);
 
-      session.createQueue(new SimpleString(expiryAddress), new SimpleString(expiryAddress), null, true);
+      session.createQueue(new SimpleString(expiryAddress), RoutingType.MULTICAST, new SimpleString(expiryAddress), null, true);
 
       session.start();
 
@@ -253,13 +254,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName2, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName3, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -355,7 +356,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName1 = new SimpleString("queue1");
 
-      session.createQueue(new SimpleString(forwardAddress), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
       session.start();
 
@@ -415,11 +416,11 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName2, null, false);
-      session.createQueue(new SimpleString(testAddress), queueName3, null, false);
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName3, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -497,13 +498,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -612,13 +613,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -716,13 +717,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -814,13 +815,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -960,13 +961,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -1085,13 +1086,13 @@ public class DivertTest extends ActiveMQTestBase {
 
       final SimpleString queueName4 = new SimpleString("queue4");
 
-      session.createQueue(new SimpleString(forwardAddress1), queueName1, null, false);
+      session.createQueue(new SimpleString(forwardAddress1), RoutingType.MULTICAST, queueName1, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress2), queueName2, null, false);
+      session.createQueue(new SimpleString(forwardAddress2), RoutingType.MULTICAST, queueName2, null, false);
 
-      session.createQueue(new SimpleString(forwardAddress3), queueName3, null, false);
+      session.createQueue(new SimpleString(forwardAddress3), RoutingType.MULTICAST, queueName3, null, false);
 
-      session.createQueue(new SimpleString(testAddress), queueName4, null, false);
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName4, null, false);
 
       session.start();
 
@@ -1173,7 +1174,7 @@ public class DivertTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(null, null, null, null, serviceRegistry));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.deployQueue(ADDRESS, SimpleString.toSimpleString("myQueue"), null, false, false);
+      server.deployQueue(ADDRESS, RoutingType.MULTICAST, SimpleString.toSimpleString("myQueue"), null, false, false);
       server.deployDivert(new DivertConfiguration().setName(DIVERT).setAddress(ADDRESS.toString()).setForwardingAddress(ADDRESS.toString()));
       Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(ADDRESS).getBindings();
       Divert divert = null;

@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistentAddressBindingEncoding implements EncodingSupport, AddressBindingInfo {
@@ -29,42 +32,31 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
 
    public SimpleString name;
 
-   public int defaultMaxConsumers;
-
-   public boolean defaultDeleteOnNoConsumers;
-
    public boolean autoCreated;
 
-   public AddressInfo.RoutingType routingType;
+   public Set<RoutingType> routingTypes;
 
    public PersistentAddressBindingEncoding() {
+      routingTypes = new HashSet<>();
    }
 
    @Override
    public String toString() {
-      return "PersistentAddressBindingEncoding [id=" + id +
-         ", name=" +
-         name +
-         ", routingType=" +
-         routingType +
-         ", defaultMaxConsumers=" +
-         defaultMaxConsumers +
-         ", defaultDeleteOnNoConsumers=" +
-         defaultDeleteOnNoConsumers +
-         ", autoCreated=" +
-         autoCreated +
-         "]";
+      StringBuilder sb = new StringBuilder("PersistentAddressBindingEncoding [id=" + id);
+      sb.append(", name=" + name);
+      sb.append(", routingTypes={");
+      for (RoutingType routingType : routingTypes) {
+         sb.append(routingType.toString() + ",");
+      }
+      sb.append(", autoCreated=" + autoCreated + "]");
+      return sb.toString();
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
-                                           final AddressInfo.RoutingType routingType,
-                                           final int defaultMaxConsumers,
-                                           final boolean defaultDeleteOnNoConsumers,
+                                           final Set<RoutingType> routingTypes,
                                            final boolean autoCreated) {
       this.name = name;
-      this.routingType = routingType;
-      this.defaultMaxConsumers = defaultMaxConsumers;
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.routingTypes = routingTypes;
       this.autoCreated = autoCreated;
    }
 
@@ -83,35 +75,35 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
-   public AddressInfo.RoutingType getRoutingType() {
-      return routingType;
-   }
-
-   @Override
-   public int getDefaultMaxConsumers() {
-      return defaultMaxConsumers;
+   public Set<RoutingType> getRoutingTypes() {
+      return routingTypes;
    }
 
    @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
-      routingType = AddressInfo.RoutingType.getType(buffer.readByte());
-      defaultMaxConsumers = buffer.readInt();
-      defaultDeleteOnNoConsumers = buffer.readBoolean();
+      int size = buffer.readInt();
+      for (int i = 0; i < size; i++) {
+         routingTypes.add(RoutingType.getType(buffer.readByte()));
+      }
       autoCreated = buffer.readBoolean();
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(name);
-      buffer.writeByte(routingType.getType());
-      buffer.writeInt(defaultMaxConsumers);
-      buffer.writeBoolean(defaultDeleteOnNoConsumers);
+      buffer.writeInt(routingTypes.size());
+      for (RoutingType d : routingTypes) {
+         buffer.writeByte(d.getType());
+      }
       buffer.writeBoolean(autoCreated);
    }
 
    @Override
    public int getEncodeSize() {
-      return SimpleString.sizeofString(name) + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_BOOLEAN + DataConstants.SIZE_BOOLEAN;
+      return SimpleString.sizeofString(name) +
+         DataConstants.SIZE_INT +
+         (DataConstants.SIZE_BYTE * routingTypes.size()) +
+         DataConstants.SIZE_BOOLEAN;
    }
 }

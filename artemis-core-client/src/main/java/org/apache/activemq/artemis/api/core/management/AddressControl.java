@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
  * An AddressControl is used to manage an address.
@@ -31,10 +34,10 @@ public interface AddressControl {
    String getAddress();
 
    /*
-   * The routing type of this address, either multicast (topic subscriptions) or anycast (queue semantics).
+   * Whether multicast routing is enabled for this address
    * */
-   @Attribute(desc = "The routing type of this address")
-   String getRoutingType();
+   @Attribute(desc = "Get the delivery modes enabled on this address")
+   Set<RoutingType> getDeliveryModes();
 
    /**
     * Returns the roles (name and permissions) associated with this address.

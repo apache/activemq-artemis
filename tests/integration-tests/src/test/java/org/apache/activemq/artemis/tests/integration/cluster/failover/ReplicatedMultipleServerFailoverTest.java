@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
 
@@ -66,7 +67,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          ClientSession[] sessions = new ClientSession[liveServers.size()];
          for (int i = 0; i < factories.length; i++) {
             sessions[i] = createSession(factories[i], true, true);
-            sessions[i].createQueue(ADDRESS, ADDRESS, null, true);
+            sessions[i].createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, null, true);
          }
 
          //make sure bindings are ready before sending messages

@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 public class AddressInfo {
 
@@ -25,52 +29,36 @@ public class AddressInfo {
 
    private final SimpleString name;
 
-   private RoutingType routingType = RoutingType.MULTICAST;
-
-   private boolean defaultDeleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
-
-   private int defaultMaxQueueConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-
    private boolean autoCreated = false;
 
    private boolean deletable = false;
 
+   private Set<RoutingType> routingTypes;
+
    public AddressInfo(SimpleString name) {
       this.name = name;
+      routingTypes = new HashSet<>();
    }
 
-   public AddressInfo(SimpleString name, RoutingType routingType,  boolean defaultDeleteOnNoConsumers, int defaultMaxConsumers) {
-      this(name);
-      this.routingType = routingType;
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
-      this.defaultMaxQueueConsumers = defaultMaxConsumers;
+   /**
+    * Creates an AddressInfo object with a Set of routing types
+    * @param name
+    * @param routingTypes
+    */
+   public AddressInfo(SimpleString name, Set<RoutingType> routingTypes) {
+      this.name = name;
+      this.routingTypes = routingTypes;
    }
 
-   public RoutingType getRoutingType() {
-      return routingType;
-   }
-
-   public AddressInfo setRoutingType(RoutingType routingType) {
-      this.routingType = routingType;
-      return this;
-   }
-
-   public boolean isDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
-   }
-
-   public AddressInfo setDefaultDeleteOnNoConsumers(boolean defaultDeleteOnNoConsumers) {
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
-      return this;
-   }
-
-   public int getDefaultMaxQueueConsumers() {
-      return defaultMaxQueueConsumers;
-   }
-
-   public AddressInfo setDefaultMaxQueueConsumers(int defaultMaxQueueConsumers) {
-      this.defaultMaxQueueConsumers = defaultMaxQueueConsumers;
-      return this;
+   /**
+    * Creates an AddressInfo object with a single RoutingType associated with it.
+    * @param name
+    * @param routingType
+    */
+   public AddressInfo(SimpleString name, RoutingType routingType) {
+      this.name = name;
+      this.routingTypes = new HashSet<>();
+      routingTypes.add(routingType);
    }
 
    public boolean isAutoCreated() {
@@ -94,42 +82,47 @@ public class AddressInfo {
       return id;
    }
 
+   public Set<RoutingType> getRoutingTypes() {
+      return routingTypes;
+   }
+
+   public AddressInfo setRoutingTypes(Set<RoutingType> routingTypes) {
+      this.routingTypes = routingTypes;
+      return this;
+   }
+
+   public AddressInfo addRoutingType(RoutingType routingType) {
+      if (routingTypes == null) {
+         routingTypes = new HashSet<>();
+      }
+      routingTypes.add(routingType);
+      return this;
+   }
+
+   public RoutingType getRoutingType() {
+      /* We want to use a Set to guarantee only a single entry for ANYCAST, MULTICAST can be added to routing types.
+         There are cases where we also want to get any routing type (when a queue doesn't specifyc it's routing type for
+         example.  For this reason we return the first element in the Set.
+         */
+      // TODO There must be a better way of doing this.  This creates an iterator on each lookup.
+      for (RoutingType routingType : routingTypes) {
+         return routingType;
+      }
+      return null;
+   }
+
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer();
       buff.append("Address [name=" + name);
       buff.append(", id=" + id);
-      buff.append(", routingType=" + routingType);
-      buff.append(", defaultMaxQueueConsumers=" + defaultMaxQueueConsumers);
-      buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);
+      buff.append(", routingTypes={");
+      for (RoutingType routingType : routingTypes) {
+         buff.append(routingType.toString() + ",");
+      }
       buff.append(", autoCreated=" + autoCreated);
       buff.append("]");
       return buff.toString();
    }
 
-   public enum RoutingType {
-      MULTICAST, ANYCAST;
-
-      public byte getType() {
-         switch (this) {
-            case MULTICAST:
-               return 0;
-            case ANYCAST:
-               return 1;
-            default:
-               return -1;
-         }
-      }
-
-      public static RoutingType getType(byte type) {
-         switch (type) {
-            case 0:
-               return MULTICAST;
-            case 1:
-               return ANYCAST;
-            default:
-               return null;
-         }
-      }
-   }
 }

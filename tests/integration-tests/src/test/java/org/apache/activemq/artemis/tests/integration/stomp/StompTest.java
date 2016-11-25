@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.stomp;
 
 import javax.jms.BytesMessage;
-import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -25,6 +24,8 @@ import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -269,7 +271,7 @@ public class StompTest extends StompTestBase {
    public void testSendMessageToNonExistentQueue() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
       conn.connect(defUser, defPass);
-      send(conn, getQueuePrefix() + nonExistentQueue, null, "Hello World", true, AddressInfo.RoutingType.ANYCAST);
+      send(conn, getQueuePrefix() + nonExistentQueue, null, "Hello World", true, RoutingType.ANYCAST);
 
       MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistentQueue));
       TextMessage message = (TextMessage) consumer.receive(1000);
@@ -300,7 +302,7 @@ public class StompTest extends StompTestBase {
       conn.connect(defUser, defPass);
 
       // first send a message to ensure that sending to a non-existent topic won't throw an error
-      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true, AddressInfo.RoutingType.MULTICAST);
+      send(conn, getTopicPrefix() + nonExistentTopic, null, "Hello World", true, RoutingType.MULTICAST);
 
       // create a subscription on the topic and send/receive another message
       MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
@@ -488,7 +490,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
       Assert.assertEquals("getJMSType", "t345", message.getJMSType());
       Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
-      Assert.assertEquals(DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
       Assert.assertEquals("bar", "123", message.getStringProperty("bar"));
 
@@ -527,7 +529,7 @@ public class StompTest extends StompTestBase {
       Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
       Assert.assertEquals("getJMSType", "t345", message.getJMSType());
       Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
-      Assert.assertEquals(DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
       Assert.assertEquals("longHeader", 1024, message.getStringProperty("longHeader")
                                                      .length());
@@ -1257,45 +1259,45 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testDotAnycastPrefixOnSend() throws Exception {
-      testPrefix("jms.queue.", AddressInfo.RoutingType.ANYCAST, true);
+      testPrefix("jms.queue.", RoutingType.ANYCAST, true);
    }
 
    @Test
    public void testDotMulticastPrefixOnSend() throws Exception {
-      testPrefix("jms.topic.", AddressInfo.RoutingType.MULTICAST, true);
+      testPrefix("jms.topic.", RoutingType.MULTICAST, true);
    }
 
    @Test
    public void testDotAnycastPrefixOnSubscribe() throws Exception {
-      testPrefix("jms.queue.", AddressInfo.RoutingType.ANYCAST, false);
+      testPrefix("jms.queue.", RoutingType.ANYCAST, false);
    }
 
    @Test
    public void testDotMulticastPrefixOnSubscribe() throws Exception {
-      testPrefix("jms.topic.", AddressInfo.RoutingType.MULTICAST, false);
+      testPrefix("jms.topic.", RoutingType.MULTICAST, false);
    }
 
    @Test
    public void testSlashAnycastPrefixOnSend() throws Exception {
-      testPrefix("/queue/", AddressInfo.RoutingType.ANYCAST, true);
+      testPrefix("/queue/", RoutingType.ANYCAST, true);
    }
 
    @Test
    public void testSlashMulticastPrefixOnSend() throws Exception {
-      testPrefix("/topic/", AddressInfo.RoutingType.MULTICAST, true);
+      testPrefix("/topic/", RoutingType.MULTICAST, true);
    }
 
    @Test
    public void testSlashAnycastPrefixOnSubscribe() throws Exception {
-      testPrefix("/queue/", AddressInfo.RoutingType.ANYCAST, false);
+      testPrefix("/queue/", RoutingType.ANYCAST, false);
    }
 
    @Test
    public void testSlashMulticastPrefixOnSubscribe() throws Exception {
-      testPrefix("/topic/", AddressInfo.RoutingType.MULTICAST, false);
+      testPrefix("/topic/", RoutingType.MULTICAST, false);
    }
 
-   public void testPrefix(final String prefix, final AddressInfo.RoutingType routingType, final boolean send) throws Exception {
+   public void testPrefix(final String prefix, final RoutingType routingType, final boolean send) throws Exception {
       int port = 61614;
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
@@ -1322,32 +1324,35 @@ public class StompTest extends StompTestBase {
 
       AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
       assertNotNull("No address was created with the name " + ADDRESS, addressInfo);
-      assertEquals(AddressInfo.RoutingType.valueOf(param), addressInfo.getRoutingType());
+
+      Set<RoutingType> deliveryModest = new HashSet<>();
+      deliveryModest.add(RoutingType.valueOf(param));
+      assertEquals(deliveryModest, addressInfo.getRoutingTypes());
 
       conn.disconnect();
    }
 
    @Test
    public void testDotPrefixedSendAndRecieveAnycast() throws Exception {
-      testPrefixedSendAndRecieve("jms.queue.", AddressInfo.RoutingType.ANYCAST);
+      testPrefixedSendAndRecieve("jms.queue.", RoutingType.ANYCAST);
    }
 
    @Test
    public void testDotPrefixedSendAndRecieveMulticast() throws Exception {
-      testPrefixedSendAndRecieve("jms.topic.", AddressInfo.RoutingType.MULTICAST);
+      testPrefixedSendAndRecieve("jms.topic.", RoutingType.MULTICAST);
    }
 
    @Test
    public void testSlashPrefixedSendAndRecieveAnycast() throws Exception {
-      testPrefixedSendAndRecieve("/queue/", AddressInfo.RoutingType.ANYCAST);
+      testPrefixedSendAndRecieve("/queue/", RoutingType.ANYCAST);
    }
 
    @Test
    public void testSlashPrefixedSendAndRecieveMulticast() throws Exception {
-      testPrefixedSendAndRecieve("/topic/", AddressInfo.RoutingType.MULTICAST);
+      testPrefixedSendAndRecieve("/topic/", RoutingType.MULTICAST);
    }
 
-   public void testPrefixedSendAndRecieve(final String prefix, AddressInfo.RoutingType routingType) throws Exception {
+   public void testPrefixedSendAndRecieve(final String prefix, RoutingType routingType) throws Exception {
       int port = 61614;
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
@@ -1378,12 +1383,12 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testMulticastOperationsOnAnycastAddress() throws Exception {
-      testRoutingSemantics(AddressInfo.RoutingType.MULTICAST.toString(), getQueuePrefix() + getQueueName());
+      testRoutingSemantics(RoutingType.MULTICAST.toString(), getQueuePrefix() + getQueueName());
    }
 
    @Test
    public void testAnycastOperationsOnMulticastAddress() throws Exception {
-      testRoutingSemantics(AddressInfo.RoutingType.ANYCAST.toString(), getTopicPrefix() + getTopicName());
+      testRoutingSemantics(RoutingType.ANYCAST.toString(), getTopicPrefix() + getTopicName());
    }
 
    public void testRoutingSemantics(String routingType, String destination) throws Exception {
@@ -1402,7 +1407,7 @@ public class StompTest extends StompTestBase {
       uuid = UUID.randomUUID().toString();
 
       frame = conn.createFrame(Stomp.Commands.SEND)
-                                   .addHeader(Stomp.Headers.Send.DESTINATION_TYPE, AddressInfo.RoutingType.MULTICAST.toString())
+                                   .addHeader(Stomp.Headers.Send.DESTINATION_TYPE, RoutingType.MULTICAST.toString())
                                    .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
                                    .addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
 

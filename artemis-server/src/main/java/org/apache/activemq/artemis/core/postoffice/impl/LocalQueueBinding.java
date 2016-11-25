@@ -21,33 +21,33 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.Bindable;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class LocalQueueBinding implements QueueBinding {
 
-   private final AddressInfo address;
+   private final SimpleString address;
 
    private final Queue queue;
 
    private final Filter filter;
 
-   private final SimpleString name;
-
    private final SimpleString clusterName;
 
-   public LocalQueueBinding(final AddressInfo address, final Queue queue, final SimpleString nodeID) {
+   private SimpleString name;
+
+   public LocalQueueBinding(final SimpleString address, final Queue queue, final SimpleString nodeID) {
       this.address = address;
 
       this.queue = queue;
 
+      this.name = queue.getName();
+
       filter = queue.getFilter();
 
-      name = queue.getName();
-
-      clusterName = name.concat(nodeID);
+      clusterName = queue.getName().concat(nodeID);
    }
 
    @Override
@@ -62,7 +62,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public SimpleString getAddress() {
-      return address.getName();
+      return address;
    }
 
    @Override
@@ -77,12 +77,15 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public SimpleString getRoutingName() {
-      return (address.getRoutingType() == AddressInfo.RoutingType.MULTICAST) ? name : address.getName();
+      if (queue.getRoutingType() == RoutingType.ANYCAST) {
+         return address;
+      }
+      return name;
    }
 
    @Override
    public SimpleString getUniqueName() {
-      return name;
+      return queue.getName();
    }
 
    @Override

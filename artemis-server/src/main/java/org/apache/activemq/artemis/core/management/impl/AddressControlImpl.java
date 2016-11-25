@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -96,8 +97,8 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public String getRoutingType() {
-      return addressInfo.getRoutingType().toString();
+   public Set<RoutingType> getDeliveryModes() {
+      return addressInfo.getRoutingTypes();
    }
 
    @Override

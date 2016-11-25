@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -1625,10 +1627,9 @@ public class MQTTTest extends MQTTTestSupport {
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
          AddressInfo addressInfo = new AddressInfo(coreAddress);
-         addressInfo.setDefaultMaxQueueConsumers(0);
          getServer().createOrUpdateAddressInfo(addressInfo);
 
-         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, false);
+         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, false);
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -1652,7 +1653,7 @@ public class MQTTTest extends MQTTTestSupport {
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
          AddressInfo addressInfo = new AddressInfo(coreAddress);
-         addressInfo.setRoutingType(AddressInfo.RoutingType.ANYCAST);
+         addressInfo.addRoutingType(RoutingType.ANYCAST);
          getServer().createOrUpdateAddressInfo(addressInfo);
 
          MQTT mqtt = createMQTTConnection();
@@ -1674,7 +1675,7 @@ public class MQTTTest extends MQTTTestSupport {
       try {
          String clientId = "testMqtt";
          SimpleString coreAddress = new SimpleString("foo.bar");
-         getServer().createQueue(coreAddress, new SimpleString(clientId + "." + coreAddress), null, false, true, -1, true, false);
+         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, Queue.MAX_CONSUMERS_UNLIMITED, true, false);
 
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 

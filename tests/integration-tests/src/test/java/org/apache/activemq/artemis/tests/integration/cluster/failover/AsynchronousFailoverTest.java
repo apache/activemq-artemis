@@ -143,7 +143,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                ClientSession createSession = sf.createSession(true, true);
 
-               createSession.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+               createSession.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, (SimpleString) null, true);
 
                RemotingConnection conn = ((ClientSessionInternal) createSession).getConnection();
 

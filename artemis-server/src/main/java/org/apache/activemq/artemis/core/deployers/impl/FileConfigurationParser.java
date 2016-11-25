@@ -60,11 +60,11 @@ import org.apache.activemq.artemis.core.config.storage.FileStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -625,15 +625,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
          Element node = (Element) elements.item(0);
-         config.setQueueConfigurations(parseQueueConfigurations(node));
+         config.setQueueConfigurations(parseQueueConfigurations(node, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE));
       }
    }
 
-   private List<CoreQueueConfiguration> parseQueueConfigurations(final Element node) {
+   private List<CoreQueueConfiguration> parseQueueConfigurations(final Element node, RoutingType routingType) {
       List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
       NodeList list = node.getElementsByTagName("queue");
       for (int i = 0; i < list.getLength(); i++) {
          CoreQueueConfiguration queueConfig = parseQueueConfiguration(list.item(i));
+         queueConfig.setRoutingType(routingType);
          queueConfigurations.add(queueConfig);
       }
       return queueConfigurations;
@@ -903,14 +904,15 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String address = null;
       String filterString = null;
       boolean durable = true;
-      Integer maxConsumers = null;
-      Boolean deleteOnNoConsumers = null;
+      int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+      boolean deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
          Node item = attributes.item(i);
          if (item.getNodeName().equals("max-consumers")) {
             maxConsumers = Integer.parseInt(item.getNodeValue());
+            Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
          } else if (item.getNodeName().equals("delete-on-no-consumers")) {
             deleteOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          }
@@ -929,40 +931,33 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration()
-         .setAddress(address)
-         .setName(name)
-         .setFilterString(filterString)
-         .setDurable(durable)
-         .setMaxConsumers(maxConsumers)
-         .setDeleteOnNoConsumers(deleteOnNoConsumers);
+      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setDeleteOnNoConsumers(deleteOnNoConsumers);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {
-      String name = getAttributeValue(node, "name");
-      String routingType = getAttributeValue(node, "type");
-
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration();
-      addressConfiguration.setName(name)
-         .setRoutingType(AddressInfo.RoutingType.valueOf(routingType.toUpperCase()));
 
+      String name = getAttributeValue(node, "name");
+      addressConfiguration.setName(name);
+
+      List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
-         if (child.getNodeName().equals("queues")) {
-            addressConfiguration.setQueueConfigurations(parseQueueConfigurations((Element) child));
+         if (child.getNodeName().equals("multicast")) {
+            addressConfiguration.addDeliveryMode(RoutingType.MULTICAST);
+            queueConfigurations.addAll(parseQueueConfigurations((Element) child, RoutingType.MULTICAST));
+         } else if (child.getNodeName().equals("anycast")) {
+            addressConfiguration.addDeliveryMode(RoutingType.ANYCAST);
+            queueConfigurations.addAll(parseQueueConfigurations((Element) child, RoutingType.ANYCAST));
          }
       }
 
-      for (CoreQueueConfiguration coreQueueConfiguration : addressConfiguration.getQueueConfigurations()) {
-         coreQueueConfiguration.setAddress(addressConfiguration.getName());
-         if (coreQueueConfiguration.getMaxConsumers() == null) {
-            coreQueueConfiguration.setMaxConsumers(addressConfiguration.getDefaultMaxConsumers());
-         }
-         if (coreQueueConfiguration.getDeleteOnNoConsumers() == null) {
-            coreQueueConfiguration.setDeleteOnNoConsumers(addressConfiguration.getDefaultDeleteOnNoConsumers());
-         }
+      for (CoreQueueConfiguration coreQueueConfiguration : queueConfigurations) {
+         coreQueueConfiguration.setAddress(name);
       }
+
+      addressConfiguration.setQueueConfigurations(queueConfigurations);
       return addressConfiguration;
    }
 

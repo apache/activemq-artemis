@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.RoutingType;
+
 public class CoreQueueConfiguration implements Serializable {
 
    private static final long serialVersionUID = 650404974977490254L;
@@ -30,9 +33,11 @@ public class CoreQueueConfiguration implements Serializable {
 
    private boolean durable = true;
 
-   private Integer maxConsumers = null;
+   private Integer maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
-   private Boolean deleteOnNoConsumers = null;
+   private Boolean deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+
+   private RoutingType routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
 
    public CoreQueueConfiguration() {
    }
@@ -52,8 +57,6 @@ public class CoreQueueConfiguration implements Serializable {
    public boolean isDurable() {
       return durable;
    }
-
-
 
    /**
     * @param address the address to set
@@ -103,12 +106,20 @@ public class CoreQueueConfiguration implements Serializable {
       return this;
    }
 
-   public Boolean getDeleteOnNoConsumers() {
+   public boolean getDeleteOnNoConsumers() {
       return deleteOnNoConsumers;
    }
 
-   public Integer getMaxConsumers() {
+   public int getMaxConsumers() {
       return maxConsumers;
+   }
+
+   public RoutingType getRoutingType() {
+      return routingType;
+   }
+
+   public void setRoutingType(RoutingType routingType) {
+      this.routingType = routingType;
    }
 
    @Override

@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
@@ -867,6 +868,218 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                                        final String filter) throws ActiveMQException {
       }
 
+      /**
+       * Creates a <em>non-temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param durable     whether the queue is durable or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+       * <p>
+       * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param durable     if the queue is durable
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+       * <p>
+       * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      whether the queue is durable or not
+       * @param durable     if the queue is durable
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                                    boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param durable     whether the queue is durable or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @param durable     whether the queue is durable or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                              boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em>queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @param durable     whether the queue is durable or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @param durable     whether the queue is durable or not
+       * @param autoCreated whether to mark this queue as autoCreated or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                              boolean durable,
+                              boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>non-temporary</em>queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @param durable     whether the queue is durable or not
+       * @param autoCreated whether to mark this queue as autoCreated or not
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createQueue(String address, RoutingType routingType, String queueName, String filter,
+                              boolean durable,
+                              boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>temporary</em> queue.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>temporary</em> queue with a filter.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createTemporaryQueue(SimpleString address,
+                                       RoutingType routingType,
+                                       SimpleString queueName,
+                                       SimpleString filter) throws ActiveMQException {
+
+      }
+
+      /**
+       * Creates a <em>temporary</em> queue with a filter.
+       *
+       * @param address     the queue will be bound to this address
+       * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+       * @param queueName   the name of the queue
+       * @param filter      only messages which match this filter will be put in the queue
+       * @throws ActiveMQException in an exception occurs while creating the queue
+       */
+      @Override
+      public void createTemporaryQueue(String address, RoutingType routingType, String queueName, String filter) throws ActiveMQException {
+
+      }
+
       @Override
       public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       }
@@ -1130,8 +1343,32 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return 0;
       }
 
+      /**
+       * Create Address with a single initial routing type
+       *
+       * @param address
+       * @param routingTypes
+       * @param autoCreated  @throws ActiveMQException
+       */
       @Override
-      public void createAddress(SimpleString address, boolean multicast, final boolean autoCreated) throws ActiveMQException {
+      public void createAddress(SimpleString address,
+                                Set<RoutingType> routingTypes,
+                                boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      /**
+       * Create Address with a single initial routing type
+       *
+       * @param address
+       * @param routingType
+       * @param autoCreated
+       * @throws ActiveMQException
+       */
+      @Override
+      public void createAddress(SimpleString address,
+                                RoutingType routingType,
+                                boolean autoCreated) throws ActiveMQException {
 
       }
 

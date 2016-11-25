@@ -23,10 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,16 +45,15 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.ANYCAST;
-import static org.apache.activemq.artemis.core.server.impl.AddressInfo.RoutingType.MULTICAST;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
@@ -373,12 +374,14 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    }
 
    private void verifyAddresses() {
-      assertEquals(2, conf.getAddressConfigurations().size());
+      assertEquals(3, conf.getAddressConfigurations().size());
 
       // Addr 1
       CoreAddressConfiguration addressConfiguration = conf.getAddressConfigurations().get(0);
       assertEquals("addr1", addressConfiguration.getName());
-      assertEquals(ANYCAST, addressConfiguration.getRoutingType());
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.ANYCAST);
+      assertEquals(routingTypes, addressConfiguration.getRoutingTypes());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 1 Queue 1
@@ -387,9 +390,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("q1", queueConfiguration.getName());
       assertFalse(queueConfiguration.isDurable());
       assertEquals("color='blue'", queueConfiguration.getFilterString());
-      assertEquals(addressConfiguration.getDefaultDeleteOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress());
-      assertEquals(addressConfiguration.getDefaultMaxConsumers(), queueConfiguration.getMaxConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queueConfiguration.getMaxConsumers());
 
       // Addr 1 Queue 2
       queueConfiguration = addressConfiguration.getQueueConfigurations().get(1);
@@ -397,14 +400,16 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("q2", queueConfiguration.getName());
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='green'", queueConfiguration.getFilterString());
-      assertEquals(new Integer(-1), queueConfiguration.getMaxConsumers());
+      assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers());
       assertFalse(queueConfiguration.getDeleteOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress());
 
       // Addr 2
       addressConfiguration = conf.getAddressConfigurations().get(1);
       assertEquals("addr2", addressConfiguration.getName());
-      assertEquals(MULTICAST, addressConfiguration.getRoutingType());
+      routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.MULTICAST);
+      assertEquals(routingTypes, addressConfiguration.getRoutingTypes());
       assertEquals(2, addressConfiguration.getQueueConfigurations().size());
 
       // Addr 2 Queue 1
@@ -413,8 +418,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("q3", queueConfiguration.getName());
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='red'", queueConfiguration.getFilterString());
-      assertEquals(new Integer(10), queueConfiguration.getMaxConsumers());
-      assertEquals(addressConfiguration.getDefaultDeleteOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals(10, queueConfiguration.getMaxConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress());
 
       // Addr 2 Queue 2
@@ -423,9 +428,17 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("q4", queueConfiguration.getName());
       assertTrue(queueConfiguration.isDurable());
       assertNull(queueConfiguration.getFilterString());
-      assertEquals(addressConfiguration.getDefaultMaxConsumers(), queueConfiguration.getMaxConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queueConfiguration.getMaxConsumers());
       assertTrue(queueConfiguration.getDeleteOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress());
+
+      // Addr 3
+      addressConfiguration = conf.getAddressConfigurations().get(2);
+      assertEquals("addr2", addressConfiguration.getName());
+      routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.MULTICAST);
+      routingTypes.add(RoutingType.ANYCAST);
+      assertEquals(routingTypes, addressConfiguration.getRoutingTypes());
    }
 
    @Test

@@ -18,9 +18,11 @@ package org.apache.activemq.artemis.api.core.client;
 
 import javax.transaction.xa.XAResource;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
@@ -198,7 +200,22 @@ public interface ClientSession extends XAResource, AutoCloseable {
     */
    int getVersion();
 
-   void createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws ActiveMQException;
+   /**
+    * Create Address with a single initial routing type
+    * @param address
+    * @param autoCreated
+    * @throws ActiveMQException
+    */
+   void createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws ActiveMQException;
+
+   /**
+    * Create Address with a single initial routing type
+    * @param address
+    * @param routingType
+    * @param autoCreated
+    * @throws ActiveMQException
+    */
+   void createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws ActiveMQException;
 
    // Queue Operations ----------------------------------------------
 
@@ -210,6 +227,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -222,6 +240,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -235,6 +254,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createSharedQueue(SimpleString address,
                           SimpleString queueName,
                           SimpleString filter,
@@ -248,6 +268,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, String queueName, boolean durable) throws ActiveMQException;
 
    /**
@@ -257,6 +278,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, String queueName) throws ActiveMQException;
 
    /**
@@ -266,6 +288,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
    /**
@@ -277,6 +300,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address,
                     SimpleString queueName,
                     SimpleString filter,
@@ -291,6 +315,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, String queueName, String filter, boolean durable) throws ActiveMQException;
 
    /**
@@ -303,6 +328,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(SimpleString address,
                     SimpleString queueName,
                     SimpleString filter,
@@ -319,6 +345,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createQueue(String address, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
 
    /**
@@ -328,6 +355,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
    /**
@@ -337,6 +365,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(String address, String queueName) throws ActiveMQException;
 
    /**
@@ -347,6 +376,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(SimpleString address,
                              SimpleString queueName,
                              SimpleString filter) throws ActiveMQException;
@@ -359,7 +389,176 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
+   @Deprecated
    void createTemporaryQueue(String address, String queueName, String filter) throws ActiveMQException;
+
+   /** Deprecate **/
+
+
+   /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param durable   whether the queue is durable or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * <p>
+    * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param durable   if the queue is durable
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * <p>
+    * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param filter    whether the queue is durable or not
+    * @param durable   if the queue is durable
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                          boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param durable   whether the queue is durable or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param filter    only messages which match this filter will be put in the queue
+    * @param durable   whether the queue is durable or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                    boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em>queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param filter    only messages which match this filter will be put in the queue
+    * @param durable   whether the queue is durable or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em> queue.
+    *
+    * @param address     the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
+    * @param autoCreated whether to mark this queue as autoCreated or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                    boolean durable,
+                    boolean autoCreated) throws ActiveMQException;
+
+   /**
+    * Creates a <em>non-temporary</em>queue.
+    *
+    * @param address     the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
+    * @param autoCreated whether to mark this queue as autoCreated or not
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
+
+   /**
+    * Creates a <em>temporary</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
+
+   /**
+    * Creates a <em>temporary</em> queue.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
+
+   /**
+    * Creates a <em>temporary</em> queue with a filter.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param filter    only messages which match this filter will be put in the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter) throws ActiveMQException;
+
+   /**
+    * Creates a <em>temporary</em> queue with a filter.
+    *
+    * @param address   the queue will be bound to this address
+    * @param routingType the delivery mode for this queue, MULTICAST or ANYCAST
+    * @param queueName the name of the queue
+    * @param filter    only messages which match this filter will be put in the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
+    */
+   void createTemporaryQueue(String address, RoutingType routingType, String queueName, String filter) throws ActiveMQException;
 
    /**
     * Deletes the queue.

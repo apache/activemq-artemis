@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -64,7 +66,7 @@ public abstract class SessionContext {
    public abstract int getReconnectID();
 
    /**
-    * it will eather reattach or reconnect, preferably reattaching it.
+    * it will either reattach or reconnect, preferably reattaching it.
     *
     * @param newConnection
     * @return true if it was possible to reattach
@@ -159,20 +161,49 @@ public abstract class SessionContext {
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
 
+   /**
+    * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
+    * then the default delivery mode (MULTICAST) is used.
+    *
+    * @param address
+    * @param queueName
+    * @param routingType
+    * @param filterString
+    * @param durable
+    * @throws ActiveMQException
+    */
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
+                                          RoutingType routingType,
                                           SimpleString filterString,
                                           boolean durable) throws ActiveMQException;
 
+   public abstract void createSharedQueue(SimpleString address,
+                                   SimpleString queueName,
+                                   SimpleString filterString,
+                                   boolean durable) throws ActiveMQException;
+
    public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
-   public abstract void createAddress(SimpleString address, boolean multicast, boolean autoCreated) throws ActiveMQException;
+   public abstract void createAddress(SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
+
+   @Deprecated
    public abstract void createQueue(SimpleString address,
                                     SimpleString queueName,
                                     SimpleString filterString,
                                     boolean durable,
                                     boolean temp,
+                                    boolean autoCreated) throws ActiveMQException;
+
+   public abstract void createQueue(SimpleString address,
+                                    RoutingType routingType,
+                                    SimpleString queueName,
+                                    SimpleString filterString,
+                                    boolean durable,
+                                    boolean temp,
+                                    int maxConsumers,
+                                    boolean deleteOnNoConsumers,
                                     boolean autoCreated) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
