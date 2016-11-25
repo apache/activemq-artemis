@@ -26,6 +26,8 @@
 
    <core xmlns="urn:activemq:core">
 
+      <name>broker2</name>
+
       <bindings-directory>./data/bindings</bindings-directory>
 
       <journal-directory>./data/journal</journal-directory>
@@ -52,7 +54,7 @@
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>
             <message-load-balancing>STRICT</message-load-balancing>
-            <max-hops>2</max-hops>
+            <max-hops>0</max-hops>
          </cluster-connection>
       </cluster-connections>
 
