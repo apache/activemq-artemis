@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import java.util.Collections;
+import java.util.HashSet;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis ClientConsumer into a test.
@@ -85,6 +90,7 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
       try {
          if (!session.queueQuery(queueName).isExists() && autoCreateQueue) {
             log.warn("{}: queue does not exist - creating queue: address = {}, name = {}", this.getClass().getSimpleName(), queueName.toString(), queueName.toString());
+            session.createAddress(queueName, RoutingType.MULTICAST, true);
             session.createQueue(queueName, queueName);
          }
          consumer = session.createConsumer(queueName, browseOnly);

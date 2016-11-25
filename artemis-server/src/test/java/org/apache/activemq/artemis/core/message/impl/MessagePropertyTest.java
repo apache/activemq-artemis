@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,10 @@ public class MessagePropertyTest extends ActiveMQTestBase {
 
    private void sendMessages() throws Exception {
       ClientSession session = sf.createSession(true, true);
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+
+      String filter = null;
+      session.createAddress(SimpleString.toSimpleString(ADDRESS), RoutingType.MULTICAST, false);
+      session.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, filter, true);
       ClientProducer producer = session.createProducer(ADDRESS);
 
       for (int i = 0; i < numMessages; i++) {

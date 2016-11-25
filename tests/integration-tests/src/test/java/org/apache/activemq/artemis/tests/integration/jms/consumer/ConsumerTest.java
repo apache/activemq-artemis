@@ -640,7 +640,7 @@ public class ConsumerTest extends JMSTestBase {
    }
 
    @Test
-   public void testShareDurale() throws Exception {
+   public void testShareDurable() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
       conn.start();

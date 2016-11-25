@@ -65,7 +65,7 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
       System.out.println("Created session: " + session);
       System.out.println("Created consumeSession: " + consumeSession);
       producer = session.createProducer(null);
-      // producer.setDeliveryMode(deliveryMode);
+      // producer.setRoutingType(deliveryMode);
 
       System.out.println("Created producer: " + producer);
 

@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
  * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
@@ -434,18 +436,9 @@ public interface ActiveMQServerControl {
 
    // Operations ----------------------------------------------------
 
-   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingType", desc = "the routing type of the address either 0 for multicast or 1 for anycast") int routingType,
-                      @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
-                      @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
-
-
-   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
-   void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
-                      @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
-                      @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception;
+                      @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
@@ -464,6 +457,14 @@ public interface ActiveMQServerControl {
    void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "name", desc = "Name of the queue") String name) throws Exception;
 
+   void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                    @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
+                    @Parameter(name = "name", desc = "Name of the queue") String name,
+                    @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                    @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                    @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                    @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
 
    /**
     * Create a queue.
@@ -499,25 +500,6 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "name", desc = "Name of the queue") String name,
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable) throws Exception;
 
-   /**
-    * Create a queue.
-    * <br>
-    * If {@code address} is {@code null} it will be defaulted to {@code name}.
-    * <br>
-    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
-    *
-    * @param address address to bind the queue to
-    * @param name    name of the queue
-    * @param durable whether the queue is durable
-    */
-   @Operation(desc = "Create a queue with the specified address, name and durability", impact = MBeanOperationInfo.ACTION)
-   void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                    @Parameter(name = "name", desc = "Name of the queue") String name,
-                    @Parameter(name = "filter", desc = "Filter of the queue") String filter,
-                    @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                    @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                    @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
    /**
     * Deploy a durable queue.
     * <br>

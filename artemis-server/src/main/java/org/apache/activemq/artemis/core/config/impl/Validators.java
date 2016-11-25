@@ -163,4 +163,14 @@ public final class Validators {
          }
       }
    };
+
+   public static final Validator MAX_QUEUE_CONSUMERS = new Validator() {
+      @Override
+      public void validate(String name, Object value) {
+         int val = (Integer) value;
+         if (val < -1) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumers(name, val);
+         }
+      }
+   };
 }

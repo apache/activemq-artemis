@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
@@ -360,7 +362,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       boolean temporary = false;
       Queue queue = null;
       try {
-         queue = server.getActiveMQServer().createQueue(address, name, filter, isUseDurableQueue(), temporary);
+         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s", address.toString(), name.toString()), ex);
       }
@@ -379,7 +381,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    public void createSharedQueue(SimpleString address, SimpleString name, SimpleString user) {
       SimpleString filter = null;
       try {
-         server.getActiveMQServer().createSharedQueue(address, name, filter, user, isUseDurableQueue());
+         server.getActiveMQServer().createSharedQueue(address, RoutingType.MULTICAST, name, filter, user, isUseDurableQueue());
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create shared queue: queueName = %s, name = %s, user = %s", address.toString(), name.toString(), user.toString()), ex);
       }

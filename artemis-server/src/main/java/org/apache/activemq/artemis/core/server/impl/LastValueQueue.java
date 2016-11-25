@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -56,6 +57,7 @@ public class LastValueQueue extends QueueImpl {
                          final boolean durable,
                          final boolean temporary,
                          final boolean autoCreated,
+                         final RoutingType routingType,
                          final Integer maxConsumers,
                          final Boolean deleteOnNoConsumers,
                          final ScheduledExecutorService scheduledExecutor,
@@ -63,7 +65,7 @@ public class LastValueQueue extends QueueImpl {
                          final StorageManager storageManager,
                          final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                          final Executor executor) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, deleteOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
       new Exception("LastValueQeue " + this).toString();
    }
 

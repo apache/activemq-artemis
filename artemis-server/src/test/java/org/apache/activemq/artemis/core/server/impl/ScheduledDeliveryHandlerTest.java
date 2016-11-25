@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -883,6 +884,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public PageSubscription getPageSubscription() {
          return null;
+      }
+
+      @Override
+      public RoutingType getRoutingType() {
+         return null;
+      }
+
+      @Override
+      public void setRoutingType(RoutingType routingType) {
+
       }
 
       @Override

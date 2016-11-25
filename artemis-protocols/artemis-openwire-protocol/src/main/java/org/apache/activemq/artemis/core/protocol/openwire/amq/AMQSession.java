@@ -172,7 +172,7 @@ public class AMQSession implements SessionCallback {
 
          if (!queueBinding.isExists()) {
             if (isAutoCreate) {
-               server.createQueue(queueName, queueName, null, true, isTemporary);
+               server.createQueue(queueName, null, queueName, null, true, isTemporary);
                connection.addKnownDestination(queueName);
             } else {
                hasQueue = false;

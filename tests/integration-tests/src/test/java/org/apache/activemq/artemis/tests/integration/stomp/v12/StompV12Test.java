@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.stomp.v12;
 
 import javax.jms.BytesMessage;
-import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -33,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
@@ -1719,7 +1718,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
       Assert.assertEquals("getJMSType", "t345", message.getJMSType());
       Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
-      Assert.assertEquals(DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
       Assert.assertEquals("bar", "123", message.getStringProperty("bar"));
 
@@ -1758,7 +1757,7 @@ public class StompV12Test extends StompTestBase {
       Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
       Assert.assertEquals("getJMSType", "t345", message.getJMSType());
       Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
-      Assert.assertEquals(DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
       Assert.assertEquals("very-very-long-stomp-message-header", 2048, message.getStringProperty("very-very-long-stomp-message-header").length());
 
@@ -2171,7 +2170,7 @@ public class StompV12Test extends StompTestBase {
    public void testSendMessageToNonExistentQueueWithAutoCreation() throws Exception {
       conn.connect(defUser, defPass);
 
-      send(conn, "NonExistentQueue" + UUID.randomUUID().toString(), null, "Hello World", true, AddressInfo.RoutingType.ANYCAST);
+      send(conn, "NonExistentQueue" + UUID.randomUUID().toString(), null, "Hello World", true, RoutingType.ANYCAST);
 
       conn.disconnect();
    }

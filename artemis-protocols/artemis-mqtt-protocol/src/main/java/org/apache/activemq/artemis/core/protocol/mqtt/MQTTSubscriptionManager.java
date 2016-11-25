@@ -26,6 +26,7 @@ import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -93,7 +94,7 @@ public class MQTTSubscriptionManager {
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, -1, false, true);
+         q = session.getServerSession().createQueue(new SimpleString(address), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, true);
       } else {
          if (q.isDeleteOnNoConsumers()) {
             throw ActiveMQMessageBundle.BUNDLE.invalidQueueConfiguration(q.getAddress(), q.getName(), "deleteOnNoConsumers", false, true);
@@ -122,8 +123,8 @@ public class MQTTSubscriptionManager {
 
       String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic);
       AddressInfo addressInfo = session.getServer().getAddressInfo(new SimpleString(coreAddress));
-      if (addressInfo != null && addressInfo.getRoutingType() != AddressInfo.RoutingType.MULTICAST) {
-         throw ActiveMQMessageBundle.BUNDLE.unexpectedRoutingTypeForAddress(new SimpleString(coreAddress), AddressInfo.RoutingType.MULTICAST, addressInfo.getRoutingType());
+      if (addressInfo != null && !addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
+         throw ActiveMQMessageBundle.BUNDLE.unexpectedRoutingTypeForAddress(new SimpleString(coreAddress), RoutingType.MULTICAST, addressInfo.getRoutingTypes());
       }
 
       session.getSessionState().addSubscription(subscription);

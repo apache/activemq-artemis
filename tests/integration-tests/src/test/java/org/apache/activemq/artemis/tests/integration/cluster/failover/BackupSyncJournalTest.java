@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
@@ -331,7 +332,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    protected void createProducerSendSomeMessages() throws ActiveMQException {
       session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(ADDRESS, ADDRESS, null, true);
+      session.createQueue(ADDRESS, RoutingType.MULTICAST, ADDRESS, null, true);
       if (producer != null)
          producer.close();
       producer = addClientProducer(session.createProducer(ADDRESS));

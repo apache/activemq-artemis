@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
@@ -302,10 +303,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             if (!response.isExists()) {
                if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
                   // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
-                  session.createAddress(jbd.getSimpleAddress(), false, true);
-                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), null, true, true);
+                  session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
+                  session.createQueue(jbd.getSimpleAddress(), RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true);
                } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
-                  session.createAddress(jbd.getSimpleAddress(), true, true);
+                  session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
                } else {
                   throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
                }
@@ -579,7 +580,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          if (durability == ConsumerDurability.DURABLE) {
             try {
-               session.createSharedQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
+               session.createSharedQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString, true);
             } catch (ActiveMQQueueExistsException ignored) {
                // We ignore this because querying and then creating the queue wouldn't be idempotent
                // we could also add a parameter to ignore existence what would require a bigger work around to avoid
@@ -646,7 +647,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
-                  session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), null, true, true);
+                  session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true);
                } else {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
                }
@@ -660,7 +661,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
             if (!response.isExists()) {
                if (response.isAutoCreateJmsTopics()) {
-                  session.createAddress(dest.getSimpleAddress(), true, true);
+                  session.createAddress(dest.getSimpleAddress(), RoutingType.MULTICAST, true);
                } else {
                   throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
                }
@@ -677,7 +678,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                queueName = new SimpleString(UUID.randomUUID().toString());
 
-               session.createTemporaryQueue(dest.getSimpleAddress(), queueName, coreFilterString);
+               session.createTemporaryQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString);
 
                consumer = session.createConsumer(queueName, null, false);
 
@@ -699,7 +700,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                QueueQuery subResponse = session.queueQuery(queueName);
 
                if (!subResponse.isExists()) {
-                  session.createQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
+                  session.createQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString, true);
                } else {
                   // Already exists
                   if (subResponse.getConsumerCount() > 0) {

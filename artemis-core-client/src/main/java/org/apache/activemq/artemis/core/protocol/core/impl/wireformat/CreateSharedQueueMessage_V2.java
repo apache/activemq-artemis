@@ -16,97 +16,74 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.RoutingType;
 
-public class CreateAddressMessage extends PacketImpl {
+public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
 
-   private SimpleString address;
+   private RoutingType routingType;
 
-   private Set<RoutingType> routingTypes;
-
-   private boolean autoCreated;
-
-   private boolean requiresResponse;
-
-   public CreateAddressMessage(final SimpleString address,
-                               Set<RoutingType> routingTypes,
-                               final boolean autoCreated,
-                               final boolean requiresResponse) {
+   public CreateSharedQueueMessage_V2(final SimpleString address,
+                                      final SimpleString queueName,
+                                      final RoutingType routingType,
+                                      final SimpleString filterString,
+                                      final boolean durable,
+                                      final boolean requiresResponse) {
       this();
 
       this.address = address;
-      this.routingTypes = routingTypes;
-      this.autoCreated = autoCreated;
+      this.queueName = queueName;
+      this.filterString = filterString;
+      this.durable = durable;
       this.requiresResponse = requiresResponse;
+      this.routingType = routingType;
    }
 
-   public CreateAddressMessage() {
-      super(CREATE_ADDRESS);
+   public CreateSharedQueueMessage_V2() {
+      super(CREATE_SHARED_QUEUE_V2);
    }
 
-   // Public --------------------------------------------------------
+   public RoutingType getRoutingType() {
+      return routingType;
+   }
+
+   public void setRoutingType(RoutingType routingType) {
+      this.routingType = routingType;
+   }
 
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", address=" + address);
-      buff.append(", routingTypes=" + routingTypes);
-      buff.append(", autoCreated=" + autoCreated);
+      buff.append(", queueName=" + queueName);
+      buff.append(", filterString=" + filterString);
+      buff.append(", durable=" + durable);
+      buff.append(", requiresResponse=" + requiresResponse);
       buff.append("]");
       return buff.toString();
    }
 
-   public SimpleString getAddress() {
-      return address;
-   }
-
-   public boolean isRequiresResponse() {
-      return requiresResponse;
-   }
-
-   public boolean isAutoCreated() {
-      return autoCreated;
-   }
-
-   public void setAddress(SimpleString address) {
-      this.address = address;
-   }
-
-   public Set<RoutingType> getRoutingTypes() {
-      return routingTypes;
-   }
-
-   public void setRoutingTypes(Set<RoutingType> routingTypes) {
-      this.routingTypes = routingTypes;
-   }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(address);
-      buffer.writeInt(routingTypes.size());
-      for (RoutingType routingType : routingTypes) {
-         buffer.writeByte(routingType.getType());
-      }
+      buffer.writeSimpleString(queueName);
+      buffer.writeNullableSimpleString(filterString);
+      buffer.writeBoolean(durable);
+      buffer.writeByte(routingType.getType());
       buffer.writeBoolean(requiresResponse);
-      buffer.writeBoolean(autoCreated);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       address = buffer.readSimpleString();
-      int routingTypeSetSize = buffer.readInt();
-      routingTypes = new HashSet<>(routingTypeSetSize);
-      for (int i = 0; i < routingTypeSetSize; i++) {
-         routingTypes.add(RoutingType.getType(buffer.readByte()));
-      }
+      queueName = buffer.readSimpleString();
+      filterString = buffer.readNullableSimpleString();
+      durable = buffer.readBoolean();
+      routingType = RoutingType.getType(buffer.readByte());
       requiresResponse = buffer.readBoolean();
-      autoCreated = buffer.readBoolean();
    }
 
    @Override
@@ -114,8 +91,10 @@ public class CreateAddressMessage extends PacketImpl {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (routingTypes.hashCode());
-      result = prime * result + (autoCreated ? 1231 : 1237);
+      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
+      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+      result = prime * result + (durable ? 1231 : 1237);
+      result = prime * result + routingType.getType();
       result = prime * result + (requiresResponse ? 1231 : 1237);
       return result;
    }
@@ -126,17 +105,27 @@ public class CreateAddressMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateAddressMessage))
+      if (!(obj instanceof CreateSharedQueueMessage_V2))
          return false;
-      CreateAddressMessage other = (CreateAddressMessage) obj;
+      CreateSharedQueueMessage_V2 other = (CreateSharedQueueMessage_V2) obj;
       if (address == null) {
          if (other.address != null)
             return false;
       } else if (!address.equals(other.address))
          return false;
-      if (routingTypes.equals(other.routingTypes))
+      if (filterString == null) {
+         if (other.filterString != null)
+            return false;
+      } else if (!filterString.equals(other.filterString))
          return false;
-      if (autoCreated != other.autoCreated)
+      if (queueName == null) {
+         if (other.queueName != null)
+            return false;
+      } else if (!queueName.equals(other.queueName))
+         return false;
+      if (durable != other.durable)
+         return false;
+      if (routingType != other.routingType)
          return false;
       if (requiresResponse != other.requiresResponse)
          return false;

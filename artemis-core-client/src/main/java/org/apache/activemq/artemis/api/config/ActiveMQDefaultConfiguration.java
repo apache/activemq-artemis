@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.config;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
@@ -440,6 +441,8 @@ public final class ActiveMQDefaultConfiguration {
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
 
    public static final boolean DEFAULT_DELETE_QUEUE_ON_NO_CONSUMERS = false;
+
+   public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
    public static final String DEFAULT_INTERNAL_NAMING_PREFIX = "$.artemis.internal.";
 
@@ -1191,5 +1194,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getInternalNamingPrefix() {
       return DEFAULT_INTERNAL_NAMING_PREFIX;
+   }
+
+   public static RoutingType getDefaultRoutingType() {
+      return DEFAULT_ROUTING_TYPE;
    }
 }

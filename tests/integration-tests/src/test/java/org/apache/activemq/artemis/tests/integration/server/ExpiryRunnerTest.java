@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -71,7 +72,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
    @Test
    public void testExpireFromMultipleQueues() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
-      clientSession.createQueue(qName2, qName2, null, false);
+      clientSession.createQueue(qName2, RoutingType.MULTICAST, qName2, null, false);
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       ClientProducer producer2 = clientSession.createProducer(qName2);
@@ -136,8 +137,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.deleteQueue(qName);
-      clientSession.createQueue(qName, qName, null, false);
-      clientSession.createQueue(qName, qName2, null, false);
+      clientSession.createQueue(qName, RoutingType.MULTICAST, qName, null, false);
+      clientSession.createQueue(qName, RoutingType.MULTICAST, qName2, null, false);
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
@@ -241,13 +242,13 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
       clientSession = sessionFactory.createSession(false, true, true);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(qName, RoutingType.MULTICAST, qName, null, false);
       expiryAddress = new SimpleString("EA");
       expiryQueue = new SimpleString("expiryQ");
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
-      clientSession.createQueue(expiryAddress, expiryQueue, null, false);
+      clientSession.createQueue(expiryAddress, RoutingType.MULTICAST, expiryQueue, null, false);
    }
 
    private static class DummyMessageHandler implements Runnable {

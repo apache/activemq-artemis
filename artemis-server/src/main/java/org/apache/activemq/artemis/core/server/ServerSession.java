@@ -104,11 +104,48 @@ public interface ServerSession extends SecurityAuth {
 
    Queue createQueue(SimpleString address,
                      SimpleString name,
+                     RoutingType routingType,
                      SimpleString filterString,
                      boolean temporary,
                      boolean durable) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws Exception;
+   /** Create queue with default delivery mode
+    *
+    * @param address
+    * @param name
+    * @param filterString
+    * @param temporary
+    * @param durable
+    * @return
+    * @throws Exception
+    */
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     int maxConsumers,
+                     boolean deleteOnNoConsumers,
+                     boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     RoutingType routingType,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     boolean autoCreated) throws Exception;
+
+   AddressInfo createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws Exception;
+
+   AddressInfo createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
 
@@ -186,14 +223,11 @@ public interface ServerSession extends SecurityAuth {
 
    boolean isClosed();
 
-   Queue createQueue(SimpleString address,
-                     SimpleString name,
-                     SimpleString filterString,
-                     boolean temporary,
-                     boolean durable,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
-                     final Boolean autoCreated) throws Exception;
+   void createSharedQueue(SimpleString address,
+                          SimpleString name,
+                          final RoutingType routingType,
+                          boolean durable,
+                          SimpleString filterString) throws Exception;
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,

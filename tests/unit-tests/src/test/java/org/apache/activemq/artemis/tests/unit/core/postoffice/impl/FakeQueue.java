@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -557,6 +558,16 @@ public class FakeQueue implements Queue {
    @Override
    public PageSubscription getPageSubscription() {
       return subs;
+   }
+
+   @Override
+   public RoutingType getRoutingType() {
+      return null;
+   }
+
+   @Override
+   public void setRoutingType(RoutingType routingType) {
+
    }
 
    public void setPageSubscription(PageSubscription sub) {

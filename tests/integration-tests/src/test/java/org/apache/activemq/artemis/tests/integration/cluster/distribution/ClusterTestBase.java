@@ -68,6 +68,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFa
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -521,14 +522,11 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected void createAddressInfo(final int node,
                                     final String address,
-                                    final AddressInfo.RoutingType routingType,
+                                    final RoutingType routingType,
                                     final int defaulMaxConsumers,
                                     boolean defaultDeleteOnNoConsumers) throws Exception {
       AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
-      addressInfo.setRoutingType(routingType);
-      addressInfo.setDefaultMaxQueueConsumers(defaulMaxConsumers);
-      addressInfo.setDefaultDeleteOnNoConsumers(defaultDeleteOnNoConsumers);
-
+      addressInfo.addRoutingType(routingType);
       servers[node].createOrUpdateAddressInfo(addressInfo);
    }
 

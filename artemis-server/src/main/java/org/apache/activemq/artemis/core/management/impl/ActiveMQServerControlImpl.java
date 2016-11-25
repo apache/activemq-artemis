@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -76,6 +77,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -560,24 +562,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void createAddress(String name, int routingType,  boolean defaultDeleteOnNoConsumers, int defaultMaxConsumers) throws Exception {
+   public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.createAddressInfo(new AddressInfo(new SimpleString(name), AddressInfo.RoutingType.getType((byte) routingType), defaultDeleteOnNoConsumers, defaultMaxConsumers));
+         server.createAddressInfo(new AddressInfo(new SimpleString(name), routingTypes));
       } finally {
          blockOnIO();
       }
-   }
-
-   @Override
-   public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                             @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
-                             @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
-                             @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
-      AddressInfo.RoutingType rt = AddressInfo.RoutingType.valueOf(routingType.toUpperCase());
-      createAddress(name, rt.ordinal(), defaultDeleteOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override
@@ -592,18 +586,20 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Deprecated
    @Override
    public void deployQueue(final String address, final String name, final String filterString) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), new SimpleString(filterString), true, false);
+         server.deployQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), new SimpleString(filterString), true, false);
       } finally {
          blockOnIO();
       }
    }
 
+   @Deprecated
    @Override
    public void deployQueue(final String address,
                            final String name,
@@ -614,19 +610,20 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
       try {
-         server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
+         server.deployQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }
    }
 
+   @Deprecated
    @Override
    public void createQueue(final String address, final String name) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, true, false);
+         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), null, true, false);
       } finally {
          blockOnIO();
       }
@@ -638,7 +635,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), null, durable, false);
       } finally {
          blockOnIO();
       }
@@ -646,12 +643,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                           @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
                            @Parameter(name = "name", desc = "Name of the queue") String name,
                            @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
                            @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
                            @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
                            @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values if one does not exist") boolean autoCreateAddress) throws Exception {
+                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
       checkStarted();
 
       clearIO();
@@ -662,7 +660,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         server.createQueue(SimpleString.toSimpleString(address), routingType, new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
       } finally {
          blockOnIO();
       }
@@ -682,7 +680,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }

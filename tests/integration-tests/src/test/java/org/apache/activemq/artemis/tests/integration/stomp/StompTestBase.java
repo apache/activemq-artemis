@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
@@ -363,7 +363,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                      String destination,
                                      boolean receipt) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
-                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, AddressInfo.RoutingType.ANYCAST.toString())
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, RoutingType.ANYCAST.toString())
                                    .addHeader(Stomp.Headers.Subscribe.DESTINATION, destination);
       if (subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Subscribe.ID, subscriptionId);
@@ -413,7 +413,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
                                           boolean receipt,
                                           boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SUBSCRIBE)
-                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, AddressInfo.RoutingType.MULTICAST.toString())
+                                   .addHeader(Stomp.Headers.Subscribe.SUBSCRIPTION_TYPE, RoutingType.MULTICAST.toString())
                                    .addHeader(Stomp.Headers.Subscribe.DESTINATION, getTopicPrefix() + getTopicName());
       if (subscriptionId != null) {
          frame.addHeader(Stomp.Headers.Subscribe.ID, subscriptionId);
@@ -492,11 +492,11 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return send(conn, destination, contentType, body, receipt, null);
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, AddressInfo.RoutingType destinationType) throws IOException, InterruptedException {
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType) throws IOException, InterruptedException {
       return send(conn, destination, contentType, body, receipt, destinationType, null);
    }
 
-   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, AddressInfo.RoutingType destinationType, String txId) throws IOException, InterruptedException {
+   public ClientStompFrame send(StompClientConnection conn, String destination, String contentType, String body, boolean receipt, RoutingType destinationType, String txId) throws IOException, InterruptedException {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, destination)
                                    .setBody(body);

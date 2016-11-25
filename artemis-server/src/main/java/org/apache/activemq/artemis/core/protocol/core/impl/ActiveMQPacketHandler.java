@@ -233,7 +233,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private void handleCreateQueue(final CreateQueueMessage request) {
       try {
-         server.createQueue(request.getAddress(), request.getQueueName(), request.getFilterString(), request.isDurable(), request.isTemporary());
+         server.createQueue(request.getAddress(), null, request.getQueueName(), request.getFilterString(), request.isDurable(), request.isTemporary());
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.failedToHandleCreateQueue(e);
       }

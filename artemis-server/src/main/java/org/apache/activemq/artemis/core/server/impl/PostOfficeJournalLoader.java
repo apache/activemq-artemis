@@ -160,7 +160,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             }
          }
 
-         final Binding binding = new LocalQueueBinding(postOffice.getAddressInfo(queue.getAddress()), queue, nodeManager.getNodeId());
+         final Binding binding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
 
          queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
@@ -178,9 +178,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
          // TODO: figure out what else to set here
          AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName())
-            .setRoutingType(addressBindingInfo.getRoutingType())
-            .setDefaultMaxQueueConsumers(addressBindingInfo.getDefaultMaxConsumers());
-
+            .setRoutingTypes(addressBindingInfo.getRoutingTypes());
          postOffice.addAddressInfo(addressInfo);
          managementService.registerAddress(addressInfo);
       }
