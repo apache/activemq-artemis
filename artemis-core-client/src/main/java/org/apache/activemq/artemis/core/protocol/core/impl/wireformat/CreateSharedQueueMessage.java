@@ -22,15 +22,15 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class CreateSharedQueueMessage extends PacketImpl {
 
-   private SimpleString address;
+   protected SimpleString address;
 
-   private SimpleString queueName;
+   protected SimpleString queueName;
 
-   private SimpleString filterString;
+   protected SimpleString filterString;
 
-   private boolean durable;
+   protected boolean durable;
 
-   private boolean requiresResponse;
+   protected boolean requiresResponse;
 
    public CreateSharedQueueMessage(final SimpleString address,
                                    final SimpleString queueName,
@@ -47,7 +47,11 @@ public class CreateSharedQueueMessage extends PacketImpl {
    }
 
    public CreateSharedQueueMessage() {
-      super(CREATE_SHARED_QUEUE);
+      this(CREATE_SHARED_QUEUE);
+   }
+
+   public CreateSharedQueueMessage(byte packetType) {
+      super(packetType);
    }
 
    // Public --------------------------------------------------------

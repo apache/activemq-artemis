@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.FilterUtils;
@@ -33,7 +34,8 @@ public final class QueueConfig {
    private final boolean durable;
    private final boolean temporary;
    private final boolean autoCreated;
-   private final Integer maxConsumers;
+   private final RoutingType routingType;
+   private final int maxConsumers;
    private final boolean deleteOnNoConsumers;
 
    public static final class Builder {
@@ -47,7 +49,8 @@ public final class QueueConfig {
       private boolean durable;
       private boolean temporary;
       private boolean autoCreated;
-      private Integer maxConsumers;
+      private RoutingType routingType;
+      private int maxConsumers;
       private boolean deleteOnNoConsumers;
 
       private Builder(final long id, final SimpleString name) {
@@ -64,8 +67,9 @@ public final class QueueConfig {
          this.durable = true;
          this.temporary = false;
          this.autoCreated = true;
-         this.maxConsumers = -1;
-         this.deleteOnNoConsumers = false;
+         this.routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
+         this.maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+         this.deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
          validateState();
       }
 
@@ -112,13 +116,18 @@ public final class QueueConfig {
          return this;
       }
 
-      public Builder maxConsumers(final Integer maxConsumers) {
+      public Builder maxConsumers(final int maxConsumers) {
          this.maxConsumers = maxConsumers;
          return this;
       }
 
       public Builder deleteOnNoConsumers(final boolean deleteOnNoConsumers) {
          this.deleteOnNoConsumers = deleteOnNoConsumers;
+         return this;
+      }
+
+      public Builder deliveryMode(RoutingType routingType) {
+         this.routingType = routingType;
          return this;
       }
 
@@ -143,7 +152,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, deleteOnNoConsumers);
       }
 
    }
@@ -185,7 +194,8 @@ public final class QueueConfig {
                        final boolean durable,
                        final boolean temporary,
                        final boolean autoCreated,
-                       final Integer maxConsumers,
+                       final RoutingType routingType,
+                       final int maxConsumers,
                        final boolean deleteOnNoConsumers) {
       this.id = id;
       this.address = address;
@@ -196,6 +206,7 @@ public final class QueueConfig {
       this.durable = durable;
       this.temporary = temporary;
       this.autoCreated = autoCreated;
+      this.routingType = routingType;
       this.deleteOnNoConsumers = deleteOnNoConsumers;
       this.maxConsumers = maxConsumers;
    }
@@ -240,8 +251,12 @@ public final class QueueConfig {
       return deleteOnNoConsumers;
    }
 
-   public Integer maxConsumers() {
+   public int maxConsumers() {
       return maxConsumers;
+   }
+
+   public RoutingType deliveryMode() {
+      return routingType;
    }
 
    @Override
@@ -269,6 +284,8 @@ public final class QueueConfig {
          return false;
       if (pageSubscription != null ? !pageSubscription.equals(that.pageSubscription) : that.pageSubscription != null)
          return false;
+      if (routingType != that.routingType)
+         return false;
       if (maxConsumers != that.maxConsumers)
          return false;
       if (deleteOnNoConsumers != that.deleteOnNoConsumers)
@@ -288,6 +305,7 @@ public final class QueueConfig {
       result = 31 * result + (durable ? 1 : 0);
       result = 31 * result + (temporary ? 1 : 0);
       result = 31 * result + (autoCreated ? 1 : 0);
+      result = 31 * result + routingType.getType();
       result = 31 * result + maxConsumers;
       result = 31 * result + (deleteOnNoConsumers ? 1 : 0);
       return result;
@@ -305,6 +323,7 @@ public final class QueueConfig {
          + ", durable=" + durable
          + ", temporary=" + temporary
          + ", autoCreated=" + autoCreated
+         + ", routingType=" + routingType
          + ", maxConsumers=" + maxConsumers
          + ", deleteOnNoConsumers=" + deleteOnNoConsumers + '}';
    }

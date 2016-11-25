@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -65,6 +66,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -489,18 +491,44 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address, name, filterString, temporary, durable, null, null, false);
+      return createQueue(address,
+                         name,
+                         ActiveMQDefaultConfiguration.getDefaultRoutingType(),
+                         filterString,
+                         temporary,
+                         durable,
+                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
+                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                         false);
    }
 
    @Override
    public Queue createQueue(final SimpleString address,
                             final SimpleString name,
+                            final RoutingType routingType,
+                            final SimpleString filterString,
+                            final boolean temporary,
+                            final boolean durable) throws Exception {
+      return createQueue(address,
+                         name, routingType,
+                         filterString,
+                         temporary,
+                         durable,
+                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
+                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                         false);
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString name,
+                            final RoutingType routingType,
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable,
-                            final Integer maxConsumers,
-                            final Boolean deleteOnNoConsumers,
-                            final Boolean autoCreated) throws Exception {
+                            final int maxConsumers,
+                            final boolean deleteOnNoConsumers,
+                            final boolean autoCreated) throws Exception {
       if (durable) {
          // make sure the user has privileges to create this queue
          securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
@@ -510,7 +538,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers, true);
+      Queue queue = server.createQueue(address, routingType, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers, true);
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -541,13 +569,46 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public AddressInfo createAddress(final SimpleString address, final boolean multicast, final boolean autoCreated) throws Exception {
+   public Queue createQueue(SimpleString address,
+                            SimpleString name,
+                            RoutingType routingType,
+                            SimpleString filterString,
+                            boolean temporary,
+                            boolean durable,
+                            boolean autoCreated) throws Exception {
+      return createQueue(address,
+                         name, routingType,
+                         filterString,
+                         temporary,
+                         durable,
+                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
+                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                         autoCreated);
+   }
+
+   @Override
+   public AddressInfo createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws Exception {
       securityCheck(address, CheckType.CREATE_ADDRESS, this);
-      AddressInfo.RoutingType routingType = multicast ? AddressInfo.RoutingType.MULTICAST : AddressInfo.RoutingType.ANYCAST;
+      return server.createOrUpdateAddressInfo(new AddressInfo(address, routingTypes).setAutoCreated(autoCreated));
+   }
 
-      AddressInfo addressInfo = server.createOrUpdateAddressInfo(new AddressInfo(address).setRoutingType(routingType).setAutoCreated(autoCreated));
+   @Override
+   public AddressInfo createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws Exception {
+      securityCheck(address, CheckType.CREATE_ADDRESS, this);
+      return server.createOrUpdateAddressInfo(new AddressInfo(address, routingType).setAutoCreated(autoCreated));
+   }
 
-      return addressInfo;
+   @Override
+   public void createSharedQueue(final SimpleString address,
+                                 final SimpleString name,
+                                 final RoutingType routingType,
+                                 boolean durable,
+                                 final SimpleString filterString) throws Exception {
+      securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+
+      server.checkQueueCreationLimit(getUsername());
+
+      server.createSharedQueue(address, routingType, name, filterString, SimpleString.toSimpleString(getUsername()), durable);
    }
 
    @Override
@@ -555,11 +616,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  final SimpleString name,
                                  boolean durable,
                                  final SimpleString filterString) throws Exception {
-      securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
-
-      server.checkQueueCreationLimit(getUsername());
-
-      server.createSharedQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable);
+      createSharedQueue(address, name, null, durable, filterString);
    }
 
    @Override

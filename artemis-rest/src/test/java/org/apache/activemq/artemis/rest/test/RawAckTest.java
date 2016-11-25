@@ -34,6 +34,8 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -64,9 +66,11 @@ public class RawAckTest {
       sessionFactory = serverLocator.createSessionFactory();
       consumerSessionFactory = serverLocator.createSessionFactory();
 
-      activeMQServer.createQueue(new SimpleString("testQueue"), new SimpleString("testQueue"), null, false, false);
+      SimpleString addr = SimpleString.toSimpleString("testQueue");
+      activeMQServer.createAddressInfo(new AddressInfo(addr, RoutingType.MULTICAST));
+      activeMQServer.createQueue(addr, RoutingType.MULTICAST, addr, null, false, false);
       session = sessionFactory.createSession(true, true);
-      producer = session.createProducer("testQueue");
+      producer = session.createProducer(addr);
       session.start();
    }
 

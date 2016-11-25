@@ -2577,12 +2577,6 @@
 
 
    <!-- 2.0 Addressing configuration -->
-   <xsd:simpleType name="routingType">
-      <xsd:restriction base="xsd:string">
-         <xsd:enumeration value="multicast" />
-         <xsd:enumeration value="anycast" />
-      </xsd:restriction>
-   </xsd:simpleType>
 
    <xsd:complexType name="queueType">
       <xsd:all>
@@ -2596,7 +2590,19 @@
 
    <xsd:complexType name="addressType">
       <xsd:all>
-         <xsd:element name="queues" maxOccurs="1" minOccurs="0">
+         <xsd:element name="anycast" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a list of pre configured queues to create
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="queue" type="queueType" maxOccurs="unbounded" minOccurs="0" />
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
+         <xsd:element name="multicast" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   a list of pre configured queues to create
@@ -2613,31 +2619,6 @@
          <xsd:annotation>
             <xsd:documentation>
                The address name to matches incoming message addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="type" type="routingType" use="required">
-         <xsd:annotation>
-            <xsd:documentation>
-               The address name to matches incoming message addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="default-max-consumers" type="xsd:int" use="optional" default="-1">
-         <xsd:annotation>
-            <xsd:documentation>
-               The default value of max-consumers applied to all queues that are
-               auto-created under this address.  Also applies to any queues that do not
-               specify a value for max-consumers.
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="default-delete-on-no-consumers" type="xsd:boolean" use="optional" default="false">
-         <xsd:annotation>
-            <xsd:documentation>
-               The default value of delete-on-no-consumers applied to all queues that are
-               auto-created under this address.  Also applies to any queues that do not
-               specify a value for delete-on-no-consumers.
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>

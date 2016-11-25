@@ -24,8 +24,10 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -52,9 +54,9 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
@@ -100,6 +102,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAR
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -240,9 +243,18 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
+                                 RoutingType routingType,
                                  SimpleString filterString,
                                  boolean durable) throws ActiveMQException {
-      sessionChannel.sendBlocking(new CreateSharedQueueMessage(address, queueName, filterString, durable, true), PacketImpl.NULL_RESPONSE);
+      sessionChannel.sendBlocking(new CreateSharedQueueMessage_V2(address, queueName, routingType, filterString, durable, true), PacketImpl.NULL_RESPONSE);
+   }
+
+   @Override
+   public void createSharedQueue(SimpleString address,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 boolean durable) throws ActiveMQException {
+      createSharedQueue(address, queueName, null, filterString, durable);
    }
 
    @Override
@@ -585,11 +597,14 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void createAddress(SimpleString address, final boolean multicast, final boolean autoCreated) throws ActiveMQException {
-      CreateAddressMessage request = new CreateAddressMessage(address, multicast, autoCreated, true);
+   public void createAddress(SimpleString address,
+                             Set<RoutingType> routingTypes,
+                             final boolean autoCreated) throws ActiveMQException {
+      CreateAddressMessage request = new CreateAddressMessage(address, routingTypes, autoCreated, true);
       sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 
+   @Deprecated
    @Override
    public void createQueue(SimpleString address,
                            SimpleString queueName,
@@ -597,7 +612,20 @@ public class ActiveMQSessionContext extends SessionContext {
                            boolean durable,
                            boolean temp,
                            boolean autoCreated) throws ActiveMQException {
-      CreateQueueMessage request = new CreateQueueMessage_V2(address, queueName, filterString, durable, temp, autoCreated, true);
+      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filterString, durable, temp, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), autoCreated);
+   }
+
+   @Override
+   public void createQueue(SimpleString address,
+                           RoutingType routingType,
+                           SimpleString queueName,
+                           SimpleString filterString,
+                           boolean durable,
+                           boolean temp,
+                           int maxConsumers,
+                           boolean deleteOnNoConsumers,
+                           boolean autoCreated) throws ActiveMQException {
+      CreateQueueMessage request = new CreateQueueMessage_V3(address, queueName, routingType, filterString, durable, temp, maxConsumers, deleteOnNoConsumers, autoCreated, true);
       sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 
@@ -682,6 +710,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // they are defined in broker.xml
       // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover
       if (!queueInfo.isDurable()) {
+         // TODO (mtaylor) QueueInfo needs updating to include new parameters, this method should pass in del mode
          CreateQueueMessage createQueueRequest = new CreateQueueMessage(queueInfo.getAddress(), queueInfo.getName(), queueInfo.getFilterString(), false, queueInfo.isTemporary(), false);
 
          sendPacketWithoutLock(sessionChannel, createQueueRequest);

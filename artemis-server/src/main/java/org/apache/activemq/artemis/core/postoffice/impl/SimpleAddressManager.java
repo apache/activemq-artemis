@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
@@ -194,9 +195,9 @@ public class SimpleAddressManager implements AddressManager {
 
    private AddressInfo updateAddressInfo(AddressInfo from, AddressInfo to) {
       synchronized (from) {
-         from.setRoutingType(to.getRoutingType());
-         from.setDefaultMaxQueueConsumers(to.getDefaultMaxQueueConsumers());
-         from.setDefaultDeleteOnNoConsumers(to.isDefaultDeleteOnNoConsumers());
+         for (RoutingType routingType : to.getRoutingTypes()) {
+            from.addRoutingType(routingType);
+         }
          return from;
       }
    }

@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -405,15 +406,15 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
                if (!query.isExists()) {
                   if (destination.isQueue() && query.isAutoCreateJmsQueues()) {
-                     clientSession.createAddress(address, false, true);
+                     clientSession.createAddress(address, RoutingType.ANYCAST, true);
                      if (destination.isTemporary()) {
                         // TODO is it right to use the address for the queue name here?
-                        clientSession.createTemporaryQueue(address, address);
+                        clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
                      } else {
-                        clientSession.createQueue(address, address, null, true, true);
+                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true);
                      }
                   } else if (!destination.isQueue() && query.isAutoCreateJmsTopics()) {
-                     clientSession.createAddress(address, true, true);
+                     clientSession.createAddress(address, RoutingType.MULTICAST, true);
                   } else if ((destination.isQueue() && !query.isAutoCreateJmsQueues()) || (!destination.isQueue() && !query.isAutoCreateJmsTopics())) {
                      throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }

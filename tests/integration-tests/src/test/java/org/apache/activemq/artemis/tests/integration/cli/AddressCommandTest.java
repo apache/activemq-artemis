@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
 import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
 import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
@@ -120,10 +121,10 @@ public class AddressCommandTest extends JMSTestBase {
 
       // Create bindings
       SimpleString address = new SimpleString("address");
-      server.createAddressInfo(new AddressInfo(address));
-      server.createQueue(address, new SimpleString("queue1"), null, true, false);
-      server.createQueue(address, new SimpleString("queue2"), null, true, false);
-      server.createQueue(address, new SimpleString("queue3"), null, true, false);
+      server.createAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
+      server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
+      server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue2"), null, true, false);
+      server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue3"), null, true, false);
 
       DivertConfiguration divertConfiguration = new DivertConfiguration();
       divertConfiguration.setName(address.toString());

@@ -133,12 +133,12 @@ public class MessageHeaderTest extends PTPTestCase {
    /**
     * Test that the <code>JMSDeliveryMode</code> header field value is ignored
     * when the message is sent and that it holds the value specified by the sending
-    * method (i.e. <code>Message.DEFAULT_DELIVERY_MODE</code> in this test when the message is received.
+    * method (i.e. <code>Message.DEFAULT_ROUTING_TYPE</code> in this test when the message is received.
     */
    @Test
    public void testJMSDeliveryMode() {
       try {
-         // sender has been created with the DEFAULT_DELIVERY_MODE which is PERSISTENT
+         // sender has been created with the DEFAULT_ROUTING_TYPE which is PERSISTENT
          Assert.assertEquals(DeliveryMode.PERSISTENT, sender.getDeliveryMode());
          Message message = senderSession.createMessage();
          // send a message specfiying NON_PERSISTENT for the JMSDeliveryMode header field

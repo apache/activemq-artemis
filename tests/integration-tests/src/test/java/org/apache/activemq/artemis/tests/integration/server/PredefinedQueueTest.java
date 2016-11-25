@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -87,7 +88,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       try {
-         session.createQueue(testAddress, queueName1, null, false);
+         session.createQueue(testAddress, queueName1, "", false);
 
          Assert.fail("Should throw exception");
       } catch (ActiveMQQueueExistsException se) {

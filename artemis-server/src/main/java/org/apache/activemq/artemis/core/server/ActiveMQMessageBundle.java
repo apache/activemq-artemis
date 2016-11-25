@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.io.File;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
@@ -45,7 +46,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -389,7 +389,7 @@ public interface ActiveMQMessageBundle {
    ActiveMQQueueMaxConsumerLimitReached maxConsumerLimitReachedForQueue(SimpleString address, SimpleString queueName);
 
    @Message(id = 119201, value = "Expected Routing Type {1} but found {2} for address {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(SimpleString address, AddressInfo.RoutingType expectedRoutingType, AddressInfo.RoutingType actualRoutingType);
+   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(SimpleString address, RoutingType expectedRoutingType, Set<RoutingType> supportedRoutingTypes);
 
    @Message(id = 119202, value = "Invalid Queue Configuration for Queue {0}, Address {1}.  Expected {2} to be {3} but was {4}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString address, SimpleString queueName, String queuePropertyName, Object expectedValue, Object actualValue);
@@ -402,4 +402,12 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119205, value = "Address {0} has bindings", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQDeleteAddressException addressHasBindings(SimpleString address);
+
+   @Message(id = 119206, value = "Queue {0} has invalid max consumer setting: {1}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidMaxConsumers(String queueName, int value);
+
+   @Message(id = 119207, value = "Can not create queue with delivery mode: {0}, Supported delivery modes for address: {1} are {2}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidRoutingTypeForAddress(RoutingType routingType,
+                                                         String address,
+                                                         Set<RoutingType> supportedRoutingTypes);
 }

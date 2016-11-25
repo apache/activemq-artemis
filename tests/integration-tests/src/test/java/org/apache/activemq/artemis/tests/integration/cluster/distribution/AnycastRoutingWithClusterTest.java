@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 
@@ -55,7 +55,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       List<Queue> queues;
       for (int i = 0; i < 3; i++) {
-         createAddressInfo(i, address, AddressInfo.RoutingType.ANYCAST, -1, false);
+         createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
          createQueue(i, address, queueName, null, false);
          addConsumer(i, i, queueName, null);
@@ -116,7 +116,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       List<Queue> queues;
       for (int i = 0; i < 3; i++) {
-         createAddressInfo(i, address, AddressInfo.RoutingType.ANYCAST, -1, false);
+         createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
          createQueue(i, address, queueNamePrefix + i, null, false);
          addConsumer(i, i, queueNamePrefix + i, null);
@@ -176,7 +176,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       List<Queue> queues;
       for (int i = 0; i < 3; i++) {
-         createAddressInfo(i, address, AddressInfo.RoutingType.ANYCAST, -1, false);
+         createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
 
       }
@@ -238,7 +238,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
       List<Queue> queues;
       for (int i = 0; i < 3; i++) {
-         createAddressInfo(i, address, AddressInfo.RoutingType.MULTICAST, -1, false);
+         createAddressInfo(i, address, RoutingType.MULTICAST, -1, false);
          setupSessionFactory(i, isNetty());
          createQueue(i, address, queueNamePrefix + i, null, false);
          addConsumer(i, i, queueNamePrefix + i, null);

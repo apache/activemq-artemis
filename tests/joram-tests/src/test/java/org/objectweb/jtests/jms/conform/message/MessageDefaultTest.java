@@ -30,7 +30,7 @@ import org.objectweb.jtests.jms.framework.JMSTestCase;
 public class MessageDefaultTest extends JMSTestCase {
 
    /**
-    * test that the <code>DEFAULT_DELIVERY_MODE</code> of <code>javax.jms.Message</code>
+    * test that the <code>DEFAULT_ROUTING_TYPE</code> of <code>javax.jms.Message</code>
     * corresponds to <code>javax.jms.Delivery.PERSISTENT</code>.
     */
    @Test

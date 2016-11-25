@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
@@ -97,7 +98,7 @@ public class AMQConsumer {
       } else {
          SimpleString queueName = new SimpleString(openwireDestination.getPhysicalName());
          try {
-            session.getCoreServer().createQueue(queueName, queueName, null, true, false);
+            session.getCoreServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
          } catch (ActiveMQQueueExistsException e) {
             // ignore
          }
@@ -151,10 +152,10 @@ public class AMQConsumer {
                session.getCoreSession().deleteQueue(queueName);
 
                // Create the new one
-               session.getCoreSession().createQueue(address, queueName, selector, false, true);
+               session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, false, true);
             }
          } else {
-            session.getCoreSession().createQueue(address, queueName, selector, false, true);
+            session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, false, true);
          }
       } else {
          queueName = new SimpleString(UUID.randomUUID().toString());

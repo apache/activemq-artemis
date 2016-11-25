@@ -307,8 +307,8 @@
       </connector-services>
 
       <addresses>
-         <address name="addr1" type="anycast">
-            <queues>
+         <address name="addr1">
+            <anycast>
                <queue name="q1">
                   <durable>false</durable>
                   <filter string="color='blue'"/>
@@ -317,17 +317,27 @@
                   <durable>true</durable>
                   <filter string="color='green'"/>
                </queue>
-            </queues>
+            </anycast>
          </address>
-         <address name="addr2" type="multicast">
-            <queues>
+         <address name="addr2">
+            <multicast>
                <queue name="q3" max-consumers="10" >
                   <filter string="color='red'"/>
                </queue>
                <queue name="q4" delete-on-no-consumers="true">
                   <durable>true</durable>
                </queue>
-            </queues>
+            </multicast>
+         </address>
+         <address name="addr2">
+            <multicast>
+               <queue name="q5" max-consumers="1" />
+               <queue name="q6" max-consumers="1" />
+            </multicast>
+            <anycast>
+               <queue name="q7" max-consumers="-1" />
+               <queue name="q8" max-consumers="-1" />
+            </anycast>
          </address>
       </addresses>
 

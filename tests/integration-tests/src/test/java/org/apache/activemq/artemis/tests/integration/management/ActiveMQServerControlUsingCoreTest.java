@@ -17,11 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
@@ -101,17 +103,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name, @Parameter(name = "routingType", desc = "the routing type of the address either 0 for multicast or 1 for anycast") int routingType, @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers, @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
-            proxy.invokeOperation("createAddress", name, routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
+         public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+                                 @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
+                                 @Parameter(name = "name", desc = "Name of the queue") String name,
+                                 @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
+                                 @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
+                                 @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
+                                 @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                                 @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
+
          }
 
-         @Override
-         public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                                   @Parameter(name = "routingType", desc = "The routing type for the address either 'MULTICAST' or 'ANYCAST'") String routingType,
-                                   @Parameter(name = "defaultDeleteOnNoConsumers", desc = "Whether or not a queue with this address is deleted when it has no consumers") boolean defaultDeleteOnNoConsumers,
-                                   @Parameter(name = "defaultMaxConsumers", desc = "The maximim number of consumer a queue with this address can have") int defaultMaxConsumers) throws Exception {
-            proxy.invokeOperation("createAddress", name, routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
-         }
 
          @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
@@ -131,16 +133,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("createQueue", address, name, durable);
          }
 
-         @Override
-         public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                                 @Parameter(name = "name", desc = "Name of the queue") String name,
-                                 @Parameter(name = "filter", desc = "Filter of the queue") String filter,
-                                 @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                                 @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                                 @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                                 @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
-
-         }
 
          @Override
          public void deployQueue(final String address,
@@ -571,6 +563,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public long getGlobalMaxSize() {
             return (Long) proxy.retrieveAttributeValue("GlobalMaxSize", Long.class);
+         }
+
+         @Override
+         public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                                   @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
+
          }
 
          @Override

@@ -38,9 +38,9 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -260,23 +260,23 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public boolean autoCreateDestinationIfPossible(String queue, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
+   public boolean autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
       boolean result = false;
       ServerSession session = getSession().getSession();
 
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
             AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(queue);
-            if (routingType != null && routingType.equals(AddressInfo.RoutingType.MULTICAST) && addressSettings.isAutoCreateAddresses()) {
-               session.createAddress(SimpleString.toSimpleString(queue), true, true);
+            if (routingType != null && routingType == RoutingType.MULTICAST && addressSettings.isAutoCreateAddresses()) {
+               session.createAddress(SimpleString.toSimpleString(queue), RoutingType.MULTICAST, true);
                result = true;
             } else {
                if (addressSettings.isAutoCreateAddresses()) {
-                  session.createAddress(SimpleString.toSimpleString(queue), false, true);
+                  session.createAddress(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, true);
                   result = true;
                }
                if (addressSettings.isAutoCreateQueues()) {
-                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, false, true, null, null, true);
+                  session.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), RoutingType.ANYCAST, null, false, true, true);
                   result = true;
                }
             }
@@ -290,10 +290,10 @@ public final class StompConnection implements RemotingConnection {
       return result;
    }
 
-   public void checkRoutingSemantics(String destination, AddressInfo.RoutingType routingType) throws ActiveMQStompException {
-      AddressInfo.RoutingType actualRoutingTypeOfAddress = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingType();
-      if (routingType != null && !routingType.equals(actualRoutingTypeOfAddress)) {
-         throw BUNDLE.illegalSemantics(routingType.toString(), actualRoutingTypeOfAddress.toString());
+   public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
+      Set<RoutingType> actualDeliveryModesOfAddres = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingTypes();
+      if (routingType != null && !actualDeliveryModesOfAddres.contains(routingType)) {
+         throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddres.toString());
       }
    }
 
@@ -654,7 +654,7 @@ public final class StompConnection implements RemotingConnection {
                   String id,
                   String durableSubscriptionName,
                   boolean noLocal,
-                  AddressInfo.RoutingType subscriptionType) throws ActiveMQStompException {
+                  RoutingType subscriptionType) throws ActiveMQStompException {
       autoCreateDestinationIfPossible(destination, subscriptionType);
       checkDestination(destination);
       checkRoutingSemantics(destination, subscriptionType);

@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -89,7 +90,7 @@ public class ProducerTest extends ActiveMQTestBase {
       server.getConfiguration().getAddressesSettings().put(QUEUE.toString(), setting);
       server.start();
 
-      server.createQueue(QUEUE, QUEUE, null, true, false);
+      server.createQueue(QUEUE, RoutingType.MULTICAST, QUEUE, null, true, false);
 
       for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);

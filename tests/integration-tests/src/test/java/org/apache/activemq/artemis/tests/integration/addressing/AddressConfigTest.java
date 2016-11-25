@@ -17,9 +17,13 @@
 
 package org.apache.activemq.artemis.tests.integration.addressing;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -45,6 +49,9 @@ public class AddressConfigTest extends ActiveMQTestBase {
       server.start();
       AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));
       assertNotNull(addressInfo);
-      assertEquals(AddressInfo.RoutingType.MULTICAST, addressInfo.getRoutingType());
+
+      Set<RoutingType> routingTypeSet = new HashSet<>();
+      routingTypeSet.add(RoutingType.MULTICAST);
+      assertEquals(RoutingType.MULTICAST, addressInfo.getRoutingTypes());
    }
 }

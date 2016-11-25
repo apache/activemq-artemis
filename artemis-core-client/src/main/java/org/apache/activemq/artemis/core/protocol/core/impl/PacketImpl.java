@@ -253,6 +253,10 @@ public class PacketImpl implements Packet {
 
    public static final byte CREATE_QUEUE_V2 = -12;
 
+   public static final byte CREATE_QUEUE_V3 = -13;
+
+   public static final byte CREATE_SHARED_QUEUE_V2 = -14;
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {

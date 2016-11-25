@@ -721,7 +721,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
                server.getSecurityStore().check(qName, checkType, this);
                server.checkQueueCreationLimit(getUsername());
-               server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
+               server.createQueue(qName, null, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
             }
          }
       }

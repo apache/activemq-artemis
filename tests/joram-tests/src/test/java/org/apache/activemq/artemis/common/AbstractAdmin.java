@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.objectweb.jtests.jms.admin.Admin;
 
@@ -150,7 +150,7 @@ public class AbstractAdmin implements Admin {
    public void createTopic(final String name) {
       Boolean result;
       try {
-         invokeSyncOperation(ResourceNames.BROKER, "createAddress", name, (int)AddressInfo.RoutingType.MULTICAST.getType(), false, -1);
+         invokeSyncOperation(ResourceNames.BROKER, "createAddress", name, (int) RoutingType.MULTICAST.getType(), false, -1);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }

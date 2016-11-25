@@ -17,12 +17,16 @@
 
 package org.apache.activemq.artemis.cli.commands.address;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 @Command(name = "create", description = "create an address")
 public class CreateAddress extends AbstractAction {
@@ -30,8 +34,8 @@ public class CreateAddress extends AbstractAction {
    @Option(name = "--name", description = "The name of this address")
    String name;
 
-   @Option(name = "--routingType", description = "The routing type of the address, options are 'anycast' or 'multicast', defaults to 1 = 'multicast'")
-   String routingType = "multicast";
+   @Option(name = "--routingTypes", description = "The routing types supported by this address, options are 'anycast' or 'multicast', enter comma separated list, defaults to 'multicast' only")
+   Set<RoutingType> routingTypes = new HashSet<>();
 
    @Option(name = "--defaultMaxConsumers", description = "Sets the default max consumers for any queues created under this address, default = -1 (no limit)")
    int defaultMaxConsumers = -1;
@@ -50,7 +54,7 @@ public class CreateAddress extends AbstractAction {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingType, defaultDeleteOnNoConsumers, defaultMaxConsumers);
+            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingTypes, defaultDeleteOnNoConsumers, defaultMaxConsumers);
          }
 
          @Override
@@ -74,12 +78,14 @@ public class CreateAddress extends AbstractAction {
       return name;
    }
 
-   public String getRoutingType() {
-      return routingType;
+   public Set<RoutingType> getRoutingTypes() {
+      return routingTypes;
    }
 
-   public void setRoutingType(String routingType) {
-      this.routingType = routingType;
+   public void setRoutingTypes(String routingTypes) {
+      for (String s : routingTypes.split(",")) {
+         this.routingTypes.add(RoutingType.valueOf(s.trim()));
+      }
    }
 
    public int getDefaultMaxConsumers() {

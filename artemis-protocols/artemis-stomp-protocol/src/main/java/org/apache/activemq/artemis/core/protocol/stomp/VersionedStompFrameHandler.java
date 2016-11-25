@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp.Headers;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -169,7 +169,7 @@ public abstract class VersionedStompFrameHandler {
       try {
          connection.validate();
          String destination = getDestination(frame);
-         AddressInfo.RoutingType routingType = getRoutingType(frame.getHeader(Headers.Send.DESTINATION_TYPE), frame.getHeader(Headers.Send.DESTINATION));
+         RoutingType routingType = getRoutingType(frame.getHeader(Headers.Send.DESTINATION_TYPE), frame.getHeader(Headers.Send.DESTINATION));
          connection.autoCreateDestinationIfPossible(destination, routingType);
          connection.checkDestination(destination);
          connection.checkRoutingSemantics(destination, routingType);
@@ -247,7 +247,7 @@ public abstract class VersionedStompFrameHandler {
       if (durableSubscriptionName == null) {
          durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
       }
-      AddressInfo.RoutingType routingType = getRoutingType(request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), request.getHeader(Headers.Subscribe.DESTINATION));
+      RoutingType routingType = getRoutingType(request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), request.getHeader(Headers.Subscribe.DESTINATION));
       boolean noLocal = false;
 
       if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
@@ -344,16 +344,16 @@ public abstract class VersionedStompFrameHandler {
       connection.destroy();
    }
 
-   private AddressInfo.RoutingType getRoutingType(String typeHeader, String destination) {
+   private RoutingType getRoutingType(String typeHeader, String destination) {
       // null is valid to return here so we know when the user didn't provide any routing info
-      AddressInfo.RoutingType routingType = null;
+      RoutingType routingType = null;
       if (typeHeader != null) {
-         routingType = AddressInfo.RoutingType.valueOf(typeHeader);
+         routingType = RoutingType.valueOf(typeHeader);
       } else if (destination != null && !connection.getAnycastPrefix().equals(connection.getMulticastPrefix())) {
          if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
-            routingType = AddressInfo.RoutingType.MULTICAST;
+            routingType = RoutingType.MULTICAST;
          } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
-            routingType = AddressInfo.RoutingType.ANYCAST;
+            routingType = RoutingType.ANYCAST;
          }
       }
       return routingType;

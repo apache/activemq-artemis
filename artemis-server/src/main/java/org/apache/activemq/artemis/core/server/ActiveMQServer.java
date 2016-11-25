@@ -264,6 +264,15 @@ public interface ActiveMQServer extends ActiveMQComponent {
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
 
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
+
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers.
     * The queue will be deleted as soon as all the consumers are removed.
@@ -277,72 +286,54 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
     * @throws NullPointerException                                                           if {@code address} is {@code null}
     */
-   void createSharedQueue(final SimpleString address,
-                          final SimpleString name,
-                          final SimpleString filterString,
+   void createSharedQueue(final SimpleString address, final RoutingType routingType, final SimpleString name, final SimpleString filterString,
                           final SimpleString user,
                           boolean durable) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filter,
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      boolean durable,
                      boolean temporary) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filterString,
+   @Deprecated
+   Queue createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable, boolean temporary) throws Exception;
+
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
                      boolean durable,
                      boolean temporary,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
+                     int maxConsumers,
+                     boolean deleteOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filter,
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user,
                      boolean durable,
                      boolean temporary) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filter,
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user,
                      boolean durable,
                      boolean temporary,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
+                     int maxConsumers,
+                     boolean deleteOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filter,
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user,
                      boolean durable,
                      boolean temporary,
                      boolean autoCreated) throws Exception;
 
-   Queue createQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filter,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary,
-                     boolean autoCreated,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
+   @Deprecated
+   Queue deployQueue(String address, String queue, String filter, boolean durable, boolean temporary) throws Exception;
 
-   Queue deployQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filterString,
+   @Deprecated
+   Queue deployQueue(SimpleString address, SimpleString queue, SimpleString filter, boolean durable, boolean temporary) throws Exception;
+
+   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString resourceName, SimpleString filterString,
                      boolean durable,
                      boolean temporary) throws Exception;
 
-   Queue deployQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filterString,
+   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
                      boolean durable,
                      boolean temporary,
                      boolean autoCreated) throws Exception;
@@ -353,14 +344,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
 
-   Queue deployQueue(SimpleString address,
-                     SimpleString queueName,
-                     SimpleString filterString,
+   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
                      boolean durable,
                      boolean temporary,
                      boolean autoCreated,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
+                     int maxConsumers,
+                     boolean deleteOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
@@ -416,6 +405,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    Queue createQueue(SimpleString addressName,
                      SimpleString queueName,
+                     RoutingType routingType,
                      SimpleString filterString,
                      SimpleString user,
                      boolean durable,
@@ -423,14 +413,14 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean ignoreIfExists,
                      boolean transientQueue,
                      boolean autoCreated,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
+                     int maxConsumers,
+                     boolean deleteOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
    /*
-         * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
-         * replace any factories with the same protocol
-         * */
+            * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
+            * replace any factories with the same protocol
+            * */
    void addProtocolManagerFactory(ProtocolManagerFactory factory);
 
    /*

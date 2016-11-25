@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -247,6 +248,8 @@ public class QueueImpl implements Queue {
 
    private final AtomicInteger noConsumers = new AtomicInteger(0);
 
+   private RoutingType routingType;
+
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
     * to guarantee ordering will be always be correct
@@ -343,7 +346,7 @@ public class QueueImpl implements Queue {
                     final StorageManager storageManager,
                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                     final Executor executor) {
-      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
    }
 
    public QueueImpl(final long id,
@@ -355,6 +358,7 @@ public class QueueImpl implements Queue {
                     final boolean durable,
                     final boolean temporary,
                     final boolean autoCreated,
+                    final RoutingType routingType,
                     final Integer maxConsumers,
                     final Boolean deleteOnNoConsumers,
                     final ScheduledExecutorService scheduledExecutor,
@@ -369,6 +373,8 @@ public class QueueImpl implements Queue {
 
       this.addressInfo = postOffice == null ? null : postOffice.getAddressInfo(address);
 
+      this.routingType = routingType;
+
       this.name = name;
 
       this.filter = filter;
@@ -381,9 +387,9 @@ public class QueueImpl implements Queue {
 
       this.autoCreated = autoCreated;
 
-      this.maxConsumers = maxConsumers == null ? (addressInfo == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : addressInfo.getDefaultMaxQueueConsumers()) : maxConsumers;
+      this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
 
-      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? (addressInfo == null ? ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers() : addressInfo.isDefaultDeleteOnNoConsumers()) : deleteOnNoConsumers;
+      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers() : deleteOnNoConsumers;
 
       this.postOffice = postOffice;
 
@@ -499,6 +505,18 @@ public class QueueImpl implements Queue {
    @Override
    public PageSubscription getPageSubscription() {
       return pageSubscription;
+   }
+
+   @Override
+   public RoutingType getRoutingType() {
+      return routingType;
+   }
+
+   @Override
+   public void setRoutingType(RoutingType routingType) {
+      if (addressInfo.getRoutingTypes().contains(routingType)) {
+         this.routingType = routingType;
+      }
    }
 
    @Override
@@ -755,7 +773,7 @@ public class QueueImpl implements Queue {
 
       synchronized (this) {
 
-         if (maxConsumers != -1 && noConsumers.get() >= maxConsumers) {
+         if (maxConsumers != MAX_CONSUMERS_UNLIMITED && noConsumers.get() >= maxConsumers) {
             throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
          }
 

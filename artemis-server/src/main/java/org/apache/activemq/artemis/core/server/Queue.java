@@ -32,6 +32,8 @@ import org.apache.activemq.artemis.utils.ReferenceCounter;
 
 public interface Queue extends Bindable {
 
+   int MAX_CONSUMERS_UNLIMITED = -1;
+
    SimpleString getName();
 
    long getID();
@@ -39,6 +41,10 @@ public interface Queue extends Bindable {
    Filter getFilter();
 
    PageSubscription getPageSubscription();
+
+   RoutingType getRoutingType();
+
+   void setRoutingType(RoutingType routingType);
 
    boolean isDurable();
 
@@ -233,6 +239,7 @@ public interface Queue extends Bindable {
 
    /**
     * if the pause was persisted
+    *
     * @return
     */
    boolean isPersistedPause();
@@ -283,4 +290,5 @@ public interface Queue extends Bindable {
    SimpleString getUser();
 
    void decDelivering(int size);
+
 }
