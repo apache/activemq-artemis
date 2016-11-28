@@ -111,7 +111,7 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
 
    @Override
    public void allVotesCast(Topology voteTopology) {
-
+      latch.countDown();
    }
 
    @Override
