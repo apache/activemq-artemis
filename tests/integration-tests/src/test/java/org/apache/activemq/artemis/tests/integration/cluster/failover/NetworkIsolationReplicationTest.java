@@ -24,11 +24,23 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class NetworkIsolationReplicationTest extends FailoverTestBase {
+
+   private static final Logger logger = Logger.getLogger(NetworkIsolationReplicationTest.class);
+
+   @Before
+   @Override
+   public void setUp() throws Exception {
+      this.startBackupServer = false;
+      super.setUp();
+   }
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
@@ -49,37 +61,59 @@ public class NetworkIsolationReplicationTest extends FailoverTestBase {
 
    @Test
    public void testDoNotActivateOnIsolation() throws Exception {
-      ServerLocator locator = getServerLocator();
+      AssertionLoggerHandler.startCapture();
 
-      backupServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName("203.0.113.1"));
+      try {
+         ServerLocator locator = getServerLocator();
 
-      ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
+         // this block here is just to validate if ignoring loopback addresses logic is in place
+         {
+            backupServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName("127.0.0.1"));
 
-      ClientSession session = createSession(sf, false, true, true);
+            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ202001"));
 
-      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+            AssertionLoggerHandler.clear();
 
-      Assert.assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
+            backupServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress(InetAddress.getByName("127.0.0.1"));
 
-      crash(false, true, session);
+            Assert.assertFalse(AssertionLoggerHandler.findText("AMQ202001"));
 
-      for (int i = 0; i < 1000 && !backupServer.isStarted(); i++) {
-         Thread.sleep(10);
+            backupServer.getServer().getNetworkHealthCheck().clearAddresses();
+         }
+
+         backupServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName("203.0.113.1"));
+         backupServer.getServer().start();
+
+         ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
+
+         ClientSession session = createSession(sf, false, true, true);
+
+         session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+
+         Assert.assertFalse(backupServer.getServer().getNetworkHealthCheck().check());
+
+         crash(false, true, session);
+
+         for (int i = 0; i < 1000 && !backupServer.isStarted(); i++) {
+            Thread.sleep(10);
+         }
+
+         Assert.assertTrue(backupServer.isStarted());
+         Assert.assertFalse(backupServer.isActive());
+
+         liveServer.start();
+
+         for (int i = 0; i < 1000 && backupServer.getServer().getReplicationEndpoint() != null && !backupServer.getServer().getReplicationEndpoint().isStarted(); i++) {
+            Thread.sleep(10);
+         }
+
+         backupServer.getServer().getNetworkHealthCheck().clearAddresses();
+
+         // This will make sure the backup got synchronized after the network was activated again
+         Assert.assertTrue(backupServer.getServer().getReplicationEndpoint().isStarted());
+      } finally {
+         AssertionLoggerHandler.stopCapture();
       }
-
-      Assert.assertTrue(backupServer.isStarted());
-      Assert.assertFalse(backupServer.isActive());
-
-      liveServer.start();
-
-      for (int i = 0; i < 1000 && backupServer.getServer().getReplicationEndpoint() != null && !backupServer.getServer().getReplicationEndpoint().isStarted(); i++) {
-         Thread.sleep(10);
-      }
-
-      backupServer.getServer().getNetworkHealthCheck().clearAddresses();
-
-      // This will make sure the backup got synchronized after the network was activated again
-      Assert.assertTrue(backupServer.getServer().getReplicationEndpoint().isStarted());
    }
 
    @Test
@@ -90,29 +124,39 @@ public class NetworkIsolationReplicationTest extends FailoverTestBase {
       liveServer.getServer().getConfiguration().setNetworkCheckList("203.0.113.1").
          setNetworkCheckPeriod(100).setNetworkCheckTimeout(100);
 
-      liveServer.start();
+      try {
 
-      Assert.assertEquals(100L, liveServer.getServer().getNetworkHealthCheck().getPeriod());
+         liveServer.start();
 
-      liveServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
+         Assert.assertEquals(100L, liveServer.getServer().getNetworkHealthCheck().getPeriod());
 
-      Assert.assertFalse(liveServer.getServer().getNetworkHealthCheck().check());
+         liveServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
 
-      long timeout = System.currentTimeMillis() + 30000;
-      while (liveServer.isStarted() && System.currentTimeMillis() < timeout) {
-         Thread.sleep(100);
+         Assert.assertFalse(liveServer.getServer().getNetworkHealthCheck().check());
+
+         long timeout = System.currentTimeMillis() + 30000;
+         while (liveServer.isStarted() && System.currentTimeMillis() < timeout) {
+            Thread.sleep(100);
+         }
+
+         Assert.assertFalse(liveServer.isStarted());
+
+         liveServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress(InetAddress.getByName("127.0.0.1"));
+
+         timeout = System.currentTimeMillis() + 30000;
+         while (!liveServer.isStarted() && System.currentTimeMillis() < timeout) {
+            Thread.sleep(100);
+         }
+
+         Assert.assertTrue(liveServer.isStarted());
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+         throw e;
+      } finally {
+         liveServer.getServer().stop();
+         backupServer.getServer().stop();
       }
 
-      Assert.assertFalse(liveServer.isStarted());
-
-      liveServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName("127.0.0.1"));
-
-      timeout = System.currentTimeMillis() + 30000;
-      while (!liveServer.isStarted() && System.currentTimeMillis() < timeout) {
-         Thread.sleep(100);
-      }
-
-      Assert.assertTrue(liveServer.isStarted());
    }
 
    @Override
