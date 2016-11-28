@@ -182,8 +182,8 @@ The message journal is configured using the following attributes in
 
     Valid values are `NIO` or `ASYNCIO`.
 
-    Choosing `NIO` chooses the Java NIO journal. Choosing `AIO` chooses
-    the Linux asynchronous IO journal. If you choose `AIO` but are not
+    Choosing `NIO` chooses the Java NIO journal. Choosing `ASYNCIO` chooses
+    the Linux asynchronous IO journal. If you choose `ASYNCIO` but are not
     running Linux or you do not have libaio installed then Apache ActiveMQ Artemis will
     detect this and automatically fall back to using `NIO`.
 
