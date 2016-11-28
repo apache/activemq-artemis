@@ -719,7 +719,8 @@ public class ManagementServiceImpl implements ManagementService {
                   paramTypes[i] == Long.TYPE && params[i].getClass() == Long.class ||
                   paramTypes[i] == Double.TYPE && params[i].getClass() == Double.class ||
                   paramTypes[i] == Integer.TYPE && params[i].getClass() == Integer.class ||
-                  paramTypes[i] == Boolean.TYPE && params[i].getClass() == Boolean.class) {
+                  paramTypes[i] == Boolean.TYPE && params[i].getClass() == Boolean.class ||
+                  paramTypes[i] == Object[].class && params[i].getClass() == Object[].class) {
                   // parameter match
                } else {
                   match = false;

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.core.server.RoutingType;
@@ -438,7 +437,7 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception;
+                      @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;

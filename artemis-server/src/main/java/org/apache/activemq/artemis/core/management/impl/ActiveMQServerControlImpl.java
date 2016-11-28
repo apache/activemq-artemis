@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,9 +78,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -563,12 +564,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
+                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         server.createAddressInfo(new AddressInfo(new SimpleString(name), routingTypes));
+         Set<RoutingType> set = new HashSet<>();
+         for (Object routingType : routingTypes) {
+            set.add(RoutingType.valueOf(routingType.toString()));
+         }
+         server.createAddressInfo(new AddressInfo(new SimpleString(name), set));
       } finally {
          blockOnIO();
       }

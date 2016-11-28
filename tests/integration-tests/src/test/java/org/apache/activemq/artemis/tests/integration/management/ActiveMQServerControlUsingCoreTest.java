@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -567,7 +566,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                                   @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Set<RoutingType> routingTypes) throws Exception {
+                                   @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
 
          }
 
