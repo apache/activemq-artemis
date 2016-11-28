@@ -464,7 +464,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
                                            final String... bindings) throws Exception {
       return internalCreateJMSQueue(storeConfig, queueName, selectorString, durable, false, bindings);
    }
-tt
+
    protected boolean internalCreateJMSQueue(final boolean storeConfig,
                                             final String queueName,
                                             final String selectorString,
