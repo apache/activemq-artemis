@@ -26,6 +26,8 @@
 
    <core xmlns="urn:activemq:core">
 
+      <name>broker0</name>
+
       <bindings-directory>./data/bindings</bindings-directory>
 
       <journal-directory>./data/journal</journal-directory>
