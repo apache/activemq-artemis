@@ -79,6 +79,32 @@ public class ActiveMQScheduledComponentTest {
    }
 
    @Test
+   public void testAccumulationOwnPool() throws Exception {
+      final AtomicInteger count = new AtomicInteger(0);
+
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(100, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+            if (count.get() == 0) {
+               try {
+                  Thread.sleep(500);
+               } catch (Exception e) {
+               }
+            }
+            count.incrementAndGet();
+         }
+      };
+
+      local.start();
+
+      Thread.sleep(1000);
+
+      local.stop();
+
+      Assert.assertTrue("just because one took a lot of time, it doesn't mean we can accumulate many, we got " + count + " executions", count.get() < 5 && count.get() > 0);
+   }
+
+   @Test
    public void testUsingOwnExecutors() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
