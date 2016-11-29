@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQEx
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
@@ -80,7 +79,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -91,7 +89,6 @@ import org.jboss.logging.Logger;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE_V2;
-import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE_V3;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DELETE_QUEUE;
@@ -250,23 +247,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                }
                case CREATE_QUEUE_V2: {
                   CreateQueueMessage_V2 request = (CreateQueueMessage_V2) packet;
-                  requiresResponse = request.isRequiresResponse();
-                  session.createQueue(request.getAddress(),
-                                      request.getQueueName(),
-                                      RoutingType.MULTICAST,
-                                      request.getFilterString(),
-                                      request.isTemporary(),
-                                      request.isDurable(),
-                                      Queue.MAX_CONSUMERS_UNLIMITED,
-                                      false,
-                                      request.isAutoCreated());
-                  if (requiresResponse) {
-                     response = new NullResponseMessage();
-                  }
-                  break;
-               }
-               case CREATE_QUEUE_V3: {
-                  CreateQueueMessage_V3 request = (CreateQueueMessage_V3) packet;
                   requiresResponse = request.isRequiresResponse();
                   session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isDeleteOnNoConsumers(),
                                       request.isAutoCreated());
