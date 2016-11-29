@@ -57,7 +57,7 @@ public class NetworkHealthTest {
 
    NetworkHealthCheck addCheck(NetworkHealthCheck check) {
       list.add(check);
-      return check;
+      return check.setIgnoreLoopback(true);
    }
 
    HttpServer httpServer;
@@ -137,7 +137,26 @@ public class NetworkHealthTest {
       Assert.assertTrue(check.purePing(address));
 
       Assert.assertTrue(check.check(address));
+   }
 
+   @Test
+   public void testParseSpaces() throws Exception {
+      NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
+
+      // using two addresses for URI and localhost
+      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      Assert.assertEquals(2, check.getAddresses().size());
+      Assert.assertEquals(2, check.getUrls().size());
+   }
+
+   @Test
+   public void testParseLogger() throws Exception {
+      NetworkHealthCheck check = addCheck(new NetworkHealthCheck(null, 100, 100));
+
+      // using two addresses for URI and localhost
+      check.parseAddressList("localhost, , 127.0.0.2").parseURIList("http://www.redhat.com, , http://www.apache.org");
+      Assert.assertEquals(2, check.getAddresses().size());
+      Assert.assertEquals(2, check.getUrls().size());
    }
 
    @Test
