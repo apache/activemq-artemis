@@ -1472,7 +1472,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void createSharedQueue(final SimpleString address, RoutingType routingType, final SimpleString name, final SimpleString filterString,
+   public void createSharedQueue(final SimpleString address,
+                                 RoutingType routingType,
+                                 final SimpleString name,
+                                 final SimpleString filterString,
                                  final SimpleString user,
                                  boolean durable) throws Exception {
       //force the old contract about address
@@ -1488,7 +1491,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      final Queue queue = createQueue(address, routingType, name, filterString, user, durable, !durable, false);
+      final Queue queue = createQueue(address,
+                                      name,
+                                      routingType,
+                                      filterString,
+                                      user,
+                                      durable,
+                                      !durable,
+                                      true,
+                                      !durable,
+                                      false,
+                                      Queue.MAX_CONSUMERS_UNLIMITED,
+                                      false,
+                                      true);
 
       if (!queue.getAddress().equals(address)) {
          throw ActiveMQMessageBundle.BUNDLE.queueSubscriptionBelongsToDifferentAddress(name);
