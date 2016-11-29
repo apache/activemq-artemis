@@ -560,7 +560,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           routingType,
                           filter,
                           durable,
-                          !durable,
+                          false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
                           false);
