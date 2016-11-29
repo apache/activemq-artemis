@@ -52,6 +52,21 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
       return "ActiveMQTemporaryQueue[" + name + "]";
    }
 
+   @Override
+   public boolean equals(final Object o) {
+      if (this == o) {
+         return true;
+      }
+
+      if (!(o instanceof ActiveMQTemporaryQueue)) {
+         return false;
+      }
+
+      ActiveMQTemporaryQueue that = (ActiveMQTemporaryQueue) o;
+
+      return super.getAddress().equals(that.getAddress());
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
