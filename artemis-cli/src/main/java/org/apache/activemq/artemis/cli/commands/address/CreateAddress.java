@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.cli.commands.address;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
