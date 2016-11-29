@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.AddressSettingsInfo;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -249,6 +251,41 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.destroyQueue(name.toString());
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+   }
+
+   @Test
+   public void testCreateAndDestroyQueue_4() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = RandomUtil.randomBoolean();
+      boolean deleteOnNoConsumers = RandomUtil.randomBoolean();
+      boolean autoCreateAddress = true;
+      int maxConsumers = RandomUtil.randomInt();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+
+      serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      Assert.assertEquals(address.toString(), queueControl.getAddress());
+      Assert.assertEquals(name.toString(), queueControl.getName());
+      Assert.assertNull(queueControl.getFilter());
+      Assert.assertEquals(durable, queueControl.isDurable());
+      Assert.assertEquals(deleteOnNoConsumers, queueControl.isDeleteOnNoConsumers());
+      Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
+      Assert.assertEquals(false, queueControl.isTemporary());
+
+      checkResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mbeanServer);
+      Assert.assertEquals(address.toString(), addressControl.getAddress());
+
+      serverControl.destroyQueue(name.toString(), true, true);
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getAddressObjectName(address));
    }
 
    @Test

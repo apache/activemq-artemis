@@ -647,14 +647,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
-                           @Parameter(name = "routingType", desc = "The routing type used for this address, 0=multicast, 1=anycast") RoutingType routingType,
-                           @Parameter(name = "name", desc = "Name of the queue") String name,
-                           @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
-                           @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
-                           @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                           @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
-                           @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception {
+   public void createQueue(String address,
+                           String routingType,
+                           String name,
+                           String filterStr,
+                           boolean durable,
+                           int maxConsumers,
+                           boolean deleteOnNoConsumers,
+                           boolean autoCreateAddress) throws Exception {
       checkStarted();
 
       clearIO();
@@ -665,7 +665,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(SimpleString.toSimpleString(address), routingType, new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
       } finally {
          blockOnIO();
       }

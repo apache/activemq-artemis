@@ -2386,7 +2386,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       AddressInfo defaultAddressInfo = new AddressInfo(addressName);
-      defaultAddressInfo.addRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType());
+      defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
       if (info == null) {
