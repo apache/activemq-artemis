@@ -31,6 +31,7 @@ import java.security.PrivilegedAction;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.jboss.logging.Logger;
@@ -55,6 +56,9 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    private String ipv4Command = IPV4_DEFAULT_COMMAND;
 
    private String ipv6Command = IPV6_DEFAULT_COMMAND;
+
+   // To be used on tests. As we use the loopback as a valid address on tests.
+   private boolean ignoreLoopback = false;
 
    /**
     * The timeout to be used on isReachable
@@ -88,6 +92,23 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       return this;
    }
 
+   public boolean isIgnoreLoopback() {
+      return ignoreLoopback;
+   }
+
+   public NetworkHealthCheck setIgnoreLoopback(boolean ignoreLoopback) {
+      this.ignoreLoopback = ignoreLoopback;
+      return this;
+   }
+
+   public Set<InetAddress> getAddresses() {
+      return addresses;
+   }
+
+   public Set<URL> getUrls() {
+      return urls;
+   }
+
    public String getNICName() {
       if (networkInterface != null) {
          return networkInterface.getName();
@@ -101,10 +122,12 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          String[] addresses = addressList.split(",");
 
          for (String address : addresses) {
-            try {
-               this.addAddress(InetAddress.getByName(address));
-            } catch (Exception e) {
-               logger.warn(e.getMessage(), e);
+            if (!address.trim().isEmpty()) {
+               try {
+                  this.addAddress(InetAddress.getByName(address.trim()));
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
             }
          }
       }
@@ -117,10 +140,12 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          String[] addresses = addressList.split(",");
 
          for (String address : addresses) {
-            try {
-               this.addURL(new URL(address));
-            } catch (Exception e) {
-               logger.warn(e.getMessage(), e);
+            if (!address.trim().isEmpty()) {
+               try {
+                  this.addURL(new URL(address.trim()));
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
             }
          }
       }
@@ -180,9 +205,13 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       if (!check(address)) {
          logger.warn("Ping Address " + address + " wasn't reacheable");
       }
-      addresses.add(address);
 
-      checkStart();
+      if (!ignoreLoopback && address.isLoopbackAddress()) {
+         ActiveMQUtilLogger.LOGGER.addressloopback(address.toString());
+      } else {
+         addresses.add(address);
+         checkStart();
+      }
       return this;
    }
 

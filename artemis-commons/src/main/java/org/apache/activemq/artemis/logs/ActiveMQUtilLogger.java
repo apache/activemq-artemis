@@ -48,4 +48,9 @@ public interface ActiveMQUtilLogger extends BasicLogger {
    @Message(id = 202000, value = "Missing privileges to set Thread Context Class Loader on Thread Factory. Using current Thread Context Class Loader",
       format = Message.Format.MESSAGE_FORMAT)
    void missingPrivsForClassloader();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 202001, value = "{0} is a loopback address and will be discarded.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void addressloopback(String address);
 }
