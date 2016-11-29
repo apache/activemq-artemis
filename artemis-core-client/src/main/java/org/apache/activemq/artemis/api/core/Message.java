@@ -112,6 +112,11 @@ public interface Message {
     */
    SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_VALIDATED_USER");
 
+   /**
+    * The Routing Type for this message.  Ensures that this message is only routed to queues with matching routing type.
+    */
+   SimpleString HDR_ROUTING_TYPE = new SimpleString("_AMQ_ROUTING_TYPE");
+
    byte DEFAULT_TYPE = 0;
 
    byte OBJECT_TYPE = 2;

@@ -25,18 +25,28 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class MessageProducerTest extends JMSTestCase {
 
@@ -695,6 +705,42 @@ public class MessageProducerTest extends JMSTestCase {
 
       ProxyAssertSupport.assertTrue(listener.exception instanceof javax.jms.IllegalStateException);
    }
+
+   @Test
+   public void testSendToQueueOnlyWhenTopicWithSameAddress() throws Exception {
+      SimpleString addr = SimpleString.toSimpleString("testAddr");
+
+      Set<RoutingType> supportedRoutingTypes = new HashSet<>();
+      supportedRoutingTypes.add(RoutingType.ANYCAST);
+      supportedRoutingTypes.add(RoutingType.MULTICAST);
+
+      servers.get(0).getActiveMQServer().createAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
+      servers.get(0).getActiveMQServer().createQueue(addr, RoutingType.ANYCAST, addr, null, false, false);
+
+      Connection pconn = createConnection();
+      pconn.start();
+
+      Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      Queue queue = ps.createQueue(addr.toString());
+      Topic topic = ps.createTopic(addr.toString());
+
+      MessageConsumer queueConsumer = ps.createConsumer(queue);
+      MessageConsumer topicConsumer = ps.createConsumer(topic);
+
+      MessageProducer queueProducer = ps.createProducer(queue);
+      queueProducer.send(ps.createMessage());
+
+      assertNotNull(queueConsumer.receive(1000));
+      assertNull(topicConsumer.receive(1000));
+
+      MessageProducer topicProducer = ps.createProducer(topic);
+      topicProducer.send(ps.createMessage());
+
+      assertNull(queueConsumer.receive(1000));
+      assertNotNull(topicConsumer.receive(1000));
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

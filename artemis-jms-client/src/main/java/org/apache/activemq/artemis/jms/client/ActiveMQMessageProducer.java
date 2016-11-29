@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -490,6 +491,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
       ClientMessage coreMessage = activeMQJmsMessage.getCoreMessage();
       coreMessage.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME, connID);
+
+      byte routingType = destination.isQueue() ? RoutingType.ANYCAST.getType() : RoutingType.MULTICAST.getType();
+      coreMessage.putByteProperty(MessageImpl.HDR_ROUTING_TYPE, routingType);
 
       try {
          /**
