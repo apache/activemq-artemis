@@ -18,12 +18,13 @@ package org.apache.activemq.artemis.core.postoffice.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.Bindable;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class LocalQueueBinding implements QueueBinding {
@@ -117,12 +118,23 @@ public class LocalQueueBinding implements QueueBinding {
 
    @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
-      queue.route(message, context);
+      if (isMatchRoutingType(message)) {
+         queue.route(message, context);
+      }
    }
 
    @Override
    public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
-      queue.routeWithAck(message, context);
+      if (isMatchRoutingType(message)) {
+         queue.routeWithAck(message, context);
+      }
+   }
+
+   private boolean isMatchRoutingType(ServerMessage message) {
+      if (message.containsProperty(MessageInternal.HDR_ROUTING_TYPE)) {
+         return message.getByteProperty(MessageInternal.HDR_ROUTING_TYPE) == queue.getRoutingType().getType();
+      }
+      return true;
    }
 
    public boolean isQueueBinding() {

@@ -655,6 +655,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                               final RoutingContext context,
                               final boolean direct,
                               boolean rejectDuplicates) throws Exception {
+
       RoutingStatus result = RoutingStatus.OK;
       // Sanity check
       if (message.getRefCount() > 0) {
@@ -662,6 +663,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       SimpleString address = message.getAddress();
+
+      if (address.toString().equals("testQueue")) {
+         System.out.println("f");
+      }
 
       setPagingStore(message);
 
