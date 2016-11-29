@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -133,7 +134,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
+      coreSession.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 
       Queue queue = sess.createQueue("myqueue");
 
@@ -206,7 +207,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSessionLive.createQueue(jmsQueueName, jmsQueueName, null, true);
+      coreSessionLive.createQueue(jmsQueueName, RoutingType.ANYCAST, jmsQueueName, null, true);
 
       Queue queue = sessLive.createQueue("myqueue");
 
