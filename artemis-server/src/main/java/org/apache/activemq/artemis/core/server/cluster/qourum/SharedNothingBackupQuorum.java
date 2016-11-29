@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
@@ -82,8 +81,6 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     */
    private static final int LATCH_TIMEOUT = 30;
 
-   private static final int RECONNECT_ATTEMPTS = 5;
-
    private final Object decisionGuard = new Object();
 
    @Override
@@ -101,14 +98,11 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             return;
          }
          if (!isLiveDown()) {
-            try {
-               // no point in repeating all the reconnection logic
-               sessionFactory.connect(RECONNECT_ATTEMPTS, false);
-               return;
-            } catch (ActiveMQException e) {
-               if (e.getType() != ActiveMQExceptionType.NOT_CONNECTED)
-                  ActiveMQServerLogger.LOGGER.errorReConnecting(e);
-            }
+            //lost connection but don't know if live is down so restart as backup as we can't replicate any more
+            signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
+         } else {
+            // live is assumed to be down, backup fails-over
+            signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
 
          if (networkHealthCheck != null && networkHealthCheck.check()) {
