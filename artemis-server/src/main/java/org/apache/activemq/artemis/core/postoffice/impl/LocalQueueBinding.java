@@ -132,7 +132,7 @@ public class LocalQueueBinding implements QueueBinding {
 
    private boolean isMatchRoutingType(ServerMessage message) {
       if (message.containsProperty(MessageInternal.HDR_ROUTING_TYPE)) {
-         return message.getByteProperty(MessageInternal.HDR_ROUTING_TYPE) == queue.getRoutingType().getType();
+         return message.getByteProperty(MessageInternal.HDR_ROUTING_TYPE).equals(queue.getRoutingType().getType());
       }
       return true;
    }

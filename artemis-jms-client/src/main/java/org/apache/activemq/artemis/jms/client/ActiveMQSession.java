@@ -820,7 +820,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          SimpleString simpleAddress = queue.getSimpleAddress();
 
-         session.createTemporaryQueue(simpleAddress, simpleAddress);
+         session.createTemporaryQueue(simpleAddress, RoutingType.ANYCAST, simpleAddress);
 
          connection.addTemporaryQueue(simpleAddress);
 

@@ -1587,7 +1587,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean deleteOnNoConsumers,
                             final boolean autoCreateAddress) throws Exception {
 
-      // TODO: fix logging here as this could be for a topic or queue
       ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
       return createQueue(address, queueName, routingType, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
@@ -2413,7 +2412,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).deliveryMode(routingType).maxConsumers(maxConsumers).deleteOnNoConsumers(deleteOnNoConsumers).build();
+      final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(routingType).maxConsumers(maxConsumers).deleteOnNoConsumers(deleteOnNoConsumers).build();
 
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 

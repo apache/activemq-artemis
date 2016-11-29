@@ -53,4 +53,8 @@ public interface QueueBindingInfo {
    boolean isDeleteOnNoConsumers();
 
    void setDeleteOnNoConsumers(boolean deleteOnNoConsumers);
+
+   byte getRoutingType();
+
+   void setRoutingType(byte routingType);
 }

@@ -564,7 +564,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                             @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
+                             @Parameter(name = "routingType", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
