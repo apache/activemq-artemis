@@ -46,7 +46,7 @@ public class SelectorTest extends MessageTestBase {
 
    public static ConnectionFactory connectionFactory;
    public static String topicName = "testTopic";
-   public static String prefixedTopicName = ActiveMQDestination.createQueueAddressFromName(topicName).toString();
+   public static String prefixedTopicName = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
 
    @BeforeClass
    public static void setup() throws Exception {
