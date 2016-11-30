@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
@@ -470,7 +471,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
       sourceConn.close();
       SimpleString add = new SimpleString(JMSBridgeImplTest.SOURCE);
-      QueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), ObjectNameBuilder.DEFAULT.getQueueObjectName(add, add), QueueControl.class, false);
+      QueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), ObjectNameBuilder.DEFAULT.getQueueObjectName(add, add, RoutingType.ANYCAST), QueueControl.class, false);
       assertNotEquals(jmsQueueControl.getDeliveringCount(), numMessages);
 
       bridge.stop();

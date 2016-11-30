@@ -436,7 +436,7 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "deliveryMode", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception;
+                      @Parameter(name = "routingType", desc = "Comma separated list of Routing Typles (anycast/multicast)") String routingTypes) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;

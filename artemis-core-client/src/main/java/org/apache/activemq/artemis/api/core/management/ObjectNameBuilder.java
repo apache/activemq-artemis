@@ -20,6 +20,7 @@ import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
  * Helper class to build ObjectNames for ActiveMQ Artemis resources.
@@ -98,9 +99,19 @@ public final class ObjectNameBuilder {
     *
     * @see QueueControl
     */
-   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", ObjectName.quote(name.toString())));
+   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name, RoutingType routingType) throws Exception {
+      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s, routingType=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", routingType.toString(), ObjectName.quote(name.toString())));
    }
+
+   /**
+    * Returns the ObjectName used by QueueControl.
+    *
+    * @see QueueControl
+    */
+   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
+      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s, routingType=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", ActiveMQDefaultConfiguration.getDefaultRoutingType(), ObjectName.quote(name.toString())));
+   }
+
 
    /**
     * Returns the ObjectName used by DivertControl.
@@ -165,7 +176,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by JMSQueueControl.
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception {
-      return getQueueObjectName(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name));
+      return getQueueObjectName(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name), RoutingType.ANYCAST);
    }
 
    /**

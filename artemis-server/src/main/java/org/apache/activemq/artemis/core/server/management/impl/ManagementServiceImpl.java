@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
@@ -241,7 +242,7 @@ public class ManagementServiceImpl implements ManagementService {
          queueControl.setMessageCounter(counter);
          messageCounterManager.registerMessageCounter(queue.getName().toString(), counter);
       }
-      ObjectName objectName = objectNameBuilder.getQueueObjectName(address, queue.getName());
+      ObjectName objectName = objectNameBuilder.getQueueObjectName(address, queue.getName(),queue.getRoutingType());
       registerInJMX(objectName, queueControl);
       registerInRegistry(ResourceNames.QUEUE + queue.getName(), queueControl);
 
@@ -251,8 +252,8 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public synchronized void unregisterQueue(final SimpleString name, final SimpleString address) throws Exception {
-      ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name);
+   public synchronized void unregisterQueue(final SimpleString name, final SimpleString address, RoutingType routingType) throws Exception {
+      ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name, routingType);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.QUEUE + name);
       messageCounterManager.unregisterMessageCounter(name.toString());
