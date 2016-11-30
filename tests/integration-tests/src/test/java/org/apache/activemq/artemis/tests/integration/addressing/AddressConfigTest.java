@@ -52,6 +52,6 @@ public class AddressConfigTest extends ActiveMQTestBase {
 
       Set<RoutingType> routingTypeSet = new HashSet<>();
       routingTypeSet.add(RoutingType.MULTICAST);
-      assertEquals(RoutingType.MULTICAST, addressInfo.getRoutingTypes());
+      assertEquals(routingTypeSet, addressInfo.getRoutingTypes());
    }
 }

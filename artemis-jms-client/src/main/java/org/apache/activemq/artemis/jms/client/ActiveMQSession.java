@@ -301,15 +301,21 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
             if (!response.isExists()) {
-               if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
-                  // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
-                  session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
-                  session.createQueue(jbd.getSimpleAddress(), RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true);
-               } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
-                  session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
-               } else {
-                  throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+               try {
+                  if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
+                     // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
+                     session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
+                     session.createQueue(jbd.getSimpleAddress(), RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true);
+                  } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
+                     session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
+                  } else {
+                     throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+                  }
                }
+               catch (ActiveMQQueueExistsException e) {
+                  // Queue was created between our query and create queue request.  Ignore.
+               }
+
             }
          }
 
@@ -647,7 +653,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
-                  session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true);
+                  try {
+                     session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true);
+                  }
+                  catch (ActiveMQQueueExistsException e) {
+                     // The queue was created by another client/admin between the query check and send create queue packet
+                  }
                } else {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
                }

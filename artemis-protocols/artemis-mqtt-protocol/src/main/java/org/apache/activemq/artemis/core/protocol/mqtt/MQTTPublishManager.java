@@ -83,7 +83,7 @@ public class MQTTPublishManager {
    }
 
    private void createManagementAddress() {
-      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX +  state.getClientId());
+      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX + state.getClientId());
    }
 
    private void createManagementQueue() throws Exception {
@@ -113,10 +113,13 @@ public class MQTTPublishManager {
          if (qos == 0) {
             sendServerMessage((int) message.getMessageID(), (ServerMessageImpl) message, deliveryCount, qos);
             session.getServerSession().acknowledge(consumer.getID(), message.getMessageID());
-         } else {
+         } else if (qos == 1 || qos == 2) {
             int mqttid = outboundStore.generateMqttId(message.getMessageID(), consumer.getID());
             outboundStore.publish(mqttid, message.getMessageID(), consumer.getID());
             sendServerMessage(mqttid, (ServerMessageImpl) message, deliveryCount, qos);
+         } else {
+            // Client must have disconnected and it's Subscription QoS cleared
+            consumer.individualCancel(message.getMessageID(), false);
          }
       }
    }
@@ -231,7 +234,14 @@ public class MQTTPublishManager {
    }
 
    private int decideQoS(ServerMessage message, ServerConsumer consumer) {
-      int subscriptionQoS = session.getSubscriptionManager().getConsumerQoSLevels().get(consumer.getID());
+
+      int subscriptionQoS = -1;
+      try {
+         subscriptionQoS = session.getSubscriptionManager().getConsumerQoSLevels().get(consumer.getID());
+      } catch (NullPointerException e) {
+         // This can happen if the client disconnected during a server send.
+         return subscriptionQoS;
+      }
 
       int qos = 2;
       if (message.containsProperty(MQTTUtil.MQTT_QOS_LEVEL_KEY)) {

@@ -1096,8 +1096,8 @@ public class MQTTTest extends MQTTTestSupport {
       connection.start();
 
       Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      javax.jms.Queue queue = s.createQueue(destinationName);
-      MessageProducer producer = s.createProducer(queue);
+      javax.jms.Topic topic = s.createTopic(destinationName);
+      MessageProducer producer = s.createProducer(topic);
 
       // send retained message from JMS
       final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -1626,10 +1626,7 @@ public class MQTTTest extends MQTTTestSupport {
          SimpleString coreAddress = new SimpleString("foo.bar");
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 
-         AddressInfo addressInfo = new AddressInfo(coreAddress);
-         getServer().createOrUpdateAddressInfo(addressInfo);
-
-         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, false);
+         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, 0, false, true);
 
          MQTT mqtt = createMQTTConnection();
          mqtt.setClientId(clientId);
@@ -1675,7 +1672,7 @@ public class MQTTTest extends MQTTTestSupport {
       try {
          String clientId = "testMqtt";
          SimpleString coreAddress = new SimpleString("foo.bar");
-         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, Queue.MAX_CONSUMERS_UNLIMITED, true, false);
+         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, Queue.MAX_CONSUMERS_UNLIMITED, true, true);
 
          Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
 

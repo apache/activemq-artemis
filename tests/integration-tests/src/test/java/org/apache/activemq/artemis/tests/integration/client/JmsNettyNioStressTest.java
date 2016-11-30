@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -128,8 +130,10 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       // create the 2 queues used in the test
       ClientSessionFactory sf = locator.createSessionFactory(transpConf);
       ClientSession session = sf.createTransactedSession();
-      session.createQueue("queue", "queue");
-      session.createQueue("queue2", "queue2");
+      session.createAddress(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, false);
+      session.createAddress(SimpleString.toSimpleString("queue2"), RoutingType.ANYCAST, false);
+      session.createQueue("queue", RoutingType.ANYCAST, "queue");
+      session.createQueue("queue2", RoutingType.ANYCAST, "queue2");
       session.commit();
       sf.close();
       session.close();
