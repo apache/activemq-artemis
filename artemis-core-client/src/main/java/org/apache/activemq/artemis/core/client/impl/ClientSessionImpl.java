@@ -1823,8 +1823,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     filterString,
                                     durable,
                                     temp,
-                                    ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                                    ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                                    maxConsumers,
+                                    deleteOnNoConsumers,
                                     autoCreated);
       } finally {
          endCall();
