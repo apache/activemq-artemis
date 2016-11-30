@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
 
@@ -83,14 +84,12 @@ public class TopicServiceManager extends DestinationServiceManager {
       }
       String queueName = topicDeployment.getName();
       boolean defaultDurable;
+
       try (ClientSession session = sessionFactory.createSession(false, false, false)) {
-         ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
          defaultDurable = topicDeployment.isDurableSend();
-         if (query.isExists()) {
-            defaultDurable = query.isDurable();
-         } else {
-            session.createQueue(queueName, queueName, topicDeployment.isDurableSend());
-         }
+         ClientSession.AddressQuery query = session.addressQuery(new SimpleString(queueName));
+         if (!query.isExists())
+            session.createAddress(SimpleString.toSimpleString(queueName), RoutingType.MULTICAST, true);
       }
 
       destination.createTopicResource(queueName, defaultDurable, topicDeployment.getConsumerSessionTimeoutSeconds(), topicDeployment.isDuplicatesAllowed());
