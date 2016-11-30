@@ -94,7 +94,7 @@ public class MQTTSubscriptionManager {
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         q = session.getServerSession().createQueue(new SimpleString(address), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, true);
+         q = session.getServerSession().createQueue(new SimpleString(address), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
       } else {
          if (q.isDeleteOnNoConsumers()) {
             throw ActiveMQMessageBundle.BUNDLE.invalidQueueConfiguration(q.getAddress(), q.getName(), "deleteOnNoConsumers", false, true);

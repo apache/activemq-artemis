@@ -36,6 +36,7 @@ import javax.jms.TopicPublisher;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -421,7 +422,10 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                } else {
                   connection.addKnownDestination(address);
                }
-            } catch (ActiveMQException e) {
+            } catch (ActiveMQQueueExistsException e) {
+               // The queue was created by another client/admin between the query check and send create queue packet
+            }
+            catch (ActiveMQException e) {
                throw JMSExceptionHelper.convertFromActiveMQException(e);
             }
          }

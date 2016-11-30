@@ -48,6 +48,10 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       for (RoutingType routingType : routingTypes) {
          sb.append(routingType.toString() + ",");
       }
+      if (sb.charAt(sb.length() - 1) == ',') {
+         sb.deleteCharAt(sb.length() - 1);
+      }
+      sb.append("}");
       sb.append(", autoCreated=" + autoCreated + "]");
       return sb.toString();
    }
