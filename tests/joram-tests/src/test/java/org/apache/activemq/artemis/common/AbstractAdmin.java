@@ -149,7 +149,7 @@ public class AbstractAdmin implements Admin {
    @Override
    public void createTopic(final String name) {
       try {
-         invokeSyncOperation(ResourceNames.BROKER, "createAddress", name, new Object[]{"MULTICAST"});
+         invokeSyncOperation(ResourceNames.BROKER, "createAddress", name, "MULTICAST");
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
