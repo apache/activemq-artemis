@@ -59,7 +59,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("myUser", "password");
       securityManager.getConfiguration().addRole("myUser", "arole");
-      Role role = new Role("arole", false, false, false, false, true, true, false, true, false, false);
+      Role role = new Role("arole", false, false, false, false, true, true, false, true, false, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
