@@ -52,7 +52,6 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
-import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
@@ -563,14 +562,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                             @Parameter(name = "routingType", desc = "The delivery modes enabled for this address'") Object[] routingTypes) throws Exception {
+   public void createAddress(String name, String routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
       try {
          Set<RoutingType> set = new HashSet<>();
-         for (Object routingType : routingTypes) {
+         for (Object routingType : toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType.toString()));
          }
          server.createAddressInfo(new AddressInfo(new SimpleString(name), set));

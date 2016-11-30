@@ -20,6 +20,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -69,7 +70,7 @@ public class ManagementControlHelper {
    public static QueueControl createQueueControl(final SimpleString address,
                                                  final SimpleString name,
                                                  final MBeanServer mbeanServer) throws Exception {
-      return (QueueControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name), QueueControl.class, mbeanServer);
+      return (QueueControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, ActiveMQDefaultConfiguration.getDefaultRoutingType()), QueueControl.class, mbeanServer);
    }
 
    public static AddressControl createAddressControl(final SimpleString address,
