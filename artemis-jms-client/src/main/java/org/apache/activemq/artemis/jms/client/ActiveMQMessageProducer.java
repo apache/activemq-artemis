@@ -491,9 +491,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       ClientMessage coreMessage = activeMQJmsMessage.getCoreMessage();
       coreMessage.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME, connID);
 
-      byte routingType = destination.isQueue() ? RoutingType.ANYCAST.getType() : RoutingType.MULTICAST.getType();
-      coreMessage.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, routingType);
-
       try {
          /**
           * Using a completionListener requires wrapping using a {@link CompletionListenerWrapper},

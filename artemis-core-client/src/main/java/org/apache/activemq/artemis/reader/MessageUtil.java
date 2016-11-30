@@ -120,19 +120,11 @@ public class MessageUtil {
    }
 
    public static void clearProperties(Message message) {
-      /**
-       * JavaDoc for this method states:
-       *    Clears a message's properties.
-       *    The message's header fields and body are not cleared.
-       *
-       * Since the {@code Message.HDR_ROUTING_TYPE} is used for the JMSDestination header it isn't cleared
-       */
-
       List<SimpleString> toRemove = new ArrayList<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
-         if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
-            propName.startsWith(JMS_)) && !propName.equals(Message.HDR_ROUTING_TYPE)) {
+         if (!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
+            propName.startsWith(JMS_)) {
             toRemove.add(propName);
          }
       }
@@ -147,7 +139,7 @@ public class MessageUtil {
 
       for (SimpleString propName : message.getPropertyNames()) {
          if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
-            propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME) && !propName.equals(Message.HDR_ROUTING_TYPE)) {
+            propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME)) {
             set.add(propName.toString());
          }
       }

@@ -202,9 +202,11 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private long jmsDeliveryTime;
 
+   private boolean fromQueue;
+
    // Constructors --------------------------------------------------
 
-   /*
+   /*g
     * Create a new message prior to sending
     */
    protected ActiveMQMessage(final byte type, final ClientSession session) {
@@ -398,17 +400,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    public Destination getJMSDestination() throws JMSException {
       if (dest == null) {
          SimpleString address = message.getAddress();
-         String prefix = "";
-         if (message.containsProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE)) {
-            RoutingType routingType = RoutingType.getType(message.getByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE));
-            if (routingType.equals(RoutingType.ANYCAST)) {
-               prefix = QUEUE_QUALIFIED_PREFIX;
-            } else if (routingType.equals(RoutingType.MULTICAST)) {
-               prefix = TOPIC_QUALIFIED_PREFIX;
-            }
-         }
 
-         dest = address == null ? null : ActiveMQDestination.fromPrefixedName(prefix + address.toString());
+         dest = address == null ? null : ActiveMQDestination.fromPrefixedName((fromQueue ? QUEUE_QUALIFIED_PREFIX : TOPIC_QUALIFIED_PREFIX) + address.toString());
       }
 
       return dest;
@@ -785,7 +778,11 @@ public class ActiveMQMessage implements javax.jms.Message {
       return message.getBodySize() == 0;
    }
 
-   // Public --------------------------------------------------------
+   // Public ---------------------------------------------------------
+
+   public void setFromQueue(boolean fromQueue) {
+      this.fromQueue = fromQueue;
+   }
 
    public void setIndividualAcknowledge() {
       this.individualAck = true;

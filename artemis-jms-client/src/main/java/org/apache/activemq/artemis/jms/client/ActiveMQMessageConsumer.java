@@ -60,6 +60,8 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    private final ActiveMQDestination destination;
 
+   private final boolean destinationIsQueue;
+
    private final String selector;
 
    private final SimpleString autoDeleteQueueName;
@@ -87,6 +89,8 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       this.noLocal = noLocal;
 
       this.destination = destination;
+
+      this.destinationIsQueue = destination instanceof ActiveMQQueue;
 
       this.selector = selector;
 
@@ -240,6 +244,9 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             } else {
                coreMessage.acknowledge();
             }
+
+            // TODO find a more elegant way to do this
+            jmsMsg.setFromQueue(destinationIsQueue);
          }
 
          return jmsMsg;
