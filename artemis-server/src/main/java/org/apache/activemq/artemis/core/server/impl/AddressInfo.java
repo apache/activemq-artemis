@@ -120,7 +120,9 @@ public class AddressInfo {
          buff.append(routingType.toString() + ",");
       }
       // delete hanging comma
-      buff.deleteCharAt(buff.length() - 1);
+      if (buff.charAt(buff.length() - 1) == ',') {
+         buff.deleteCharAt(buff.length() - 1);
+      }
       buff.append("}");
       buff.append(", autoCreated=" + autoCreated);
       buff.append("]");

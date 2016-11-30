@@ -671,9 +671,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // make an exception for the management address (see HORNETQ-29)
          response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateQueues, true, false, false, RoutingType.MULTICAST, -1);
       } else if (autoCreateQueues) {
-         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false, false, false, null, 0);
+         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false, false, false, RoutingType.MULTICAST, 0);
       } else {
-         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false, false, false, null, 0);
+         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false, false, false, RoutingType.MULTICAST, 0);
       }
 
       return response;
@@ -2405,7 +2405,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (info == null) {
          if (autoCreateAddress) {
-            postOffice.addAddressInfo(defaultAddressInfo);
+            postOffice.addAddressInfo(defaultAddressInfo.setAutoCreated(true));
             info = postOffice.getAddressInfo(addressName);
          } else {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
