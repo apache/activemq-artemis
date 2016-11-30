@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
@@ -55,7 +56,7 @@ public class TopicDestinationsResource {
 
    @POST
    @Consumes("application/activemq.jms.topic+xml")
-   public Response createJmsQueue(@Context UriInfo uriInfo, Document document) {
+   public Response createJmsTopic(@Context UriInfo uriInfo, Document document) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       try {
@@ -65,9 +66,9 @@ public class TopicDestinationsResource {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
 
-            ClientSession.QueueQuery query = session.queueQuery(new SimpleString(topicName));
+            ClientSession.AddressQuery query = session.addressQuery(new SimpleString(topicName));
             if (!query.isExists()) {
-               session.createQueue(topicName, topicName, "__AMQX=-1", true);
+               session.createAddress(SimpleString.toSimpleString(topicName), RoutingType.MULTICAST, true);
 
             } else {
                throw new WebApplicationException(Response.status(412).type("text/plain").entity("Queue already exists.").build());
@@ -93,13 +94,13 @@ public class TopicDestinationsResource {
       if (topic == null) {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try {
-            ClientSession.QueueQuery query = session.queueQuery(new SimpleString(name));
+            ClientSession.AddressQuery query = session.addressQuery(new SimpleString(name));
             if (!query.isExists()) {
                System.err.println("Topic '" + name + "' does not exist");
                throw new WebApplicationException(Response.status(404).type("text/plain").entity("Topic '" + name + "' does not exist").build());
             }
             DestinationSettings queueSettings = manager.getDefaultSettings();
-            boolean defaultDurable = queueSettings.isDurableSend() || query.isDurable();
+            boolean defaultDurable = queueSettings.isDurableSend();
 
             topic = createTopicResource(name, defaultDurable, queueSettings.getConsumerSessionTimeoutSeconds(), queueSettings.isDuplicatesAllowed());
          } finally {
