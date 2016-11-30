@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -721,7 +722,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
                server.getSecurityStore().check(qName, checkType, this);
                server.checkQueueCreationLimit(getUsername());
-               server.createQueue(qName, null, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
+               server.createQueue(qName, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
             }
          }
       }

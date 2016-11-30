@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -172,7 +173,7 @@ public class AMQSession implements SessionCallback {
 
          if (!queueBinding.isExists()) {
             if (isAutoCreate) {
-               server.createQueue(queueName, null, queueName, null, true, isTemporary);
+               server.createQueue(queueName, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE, queueName, null, true, isTemporary);
                connection.addKnownDestination(queueName);
             } else {
                hasQueue = false;
