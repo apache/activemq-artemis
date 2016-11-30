@@ -268,7 +268,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
 
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());

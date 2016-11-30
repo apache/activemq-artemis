@@ -539,7 +539,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (binding.getType() == BindingType.LOCAL_QUEUE) {
-         managementService.unregisterQueue(uniqueName, binding.getAddress());
+         Queue queue = (Queue) binding.getBindable();
+         managementService.unregisterQueue(uniqueName, binding.getAddress(), queue.getRoutingType());
       } else if (binding.getType() == BindingType.DIVERT) {
          managementService.unregisterDivert(uniqueName, binding.getAddress());
       }
