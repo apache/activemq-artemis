@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.RoutingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 import org.apache.activemq.artemis.rest.queue.push.PushStore;
@@ -88,8 +87,7 @@ public class QueueServiceManager extends DestinationServiceManager {
          if (!query.isExists()) {
             session.createAddress(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, true);
             session.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), queueDeployment.isDurableSend());
-         }
-         else {
+         } else {
             ClientSession.QueueQuery qquery = session.queueQuery(SimpleString.toSimpleString(queueName));
             if (!qquery.isExists()) {
                session.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), queueDeployment.isDurableSend());
