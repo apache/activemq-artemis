@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
@@ -82,6 +85,9 @@ public class RestDeserializationTest extends RestTestBase {
 
    @Test
    public void testWithoutBlackWhiteListTopic() throws Exception {
+
+      jmsServer.getActiveMQServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("ordersTopic"), RoutingType.MULTICAST));
+
       deployAndconfigureRESTService("rest-test.war");
 
       RestMessageContext topicContext = restConnection.createTopicContext("ordersTopic");
