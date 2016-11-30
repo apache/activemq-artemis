@@ -1074,7 +1074,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       QueueQuery response = session.queueQuery(queue.getSimpleAddress());
 
-      if (!response.isExists() && !response.isAutoCreateJmsQueues()) {
+      if (!response.isExists() && !response.isAutoCreateQueues()) {
          return null;
       } else {
          return queue;

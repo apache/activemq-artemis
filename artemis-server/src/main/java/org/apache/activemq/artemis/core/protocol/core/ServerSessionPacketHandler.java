@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionInd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
@@ -218,7 +219,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover
                      QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
-                     if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
+                     if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
+                        response = new SessionQueueQueryResponseMessage_V3(queueQueryResult);
+                     } else if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                         response = new SessionQueueQueryResponseMessage_V2(queueQueryResult);
                      } else {
                         response = new SessionQueueQueryResponseMessage(queueQueryResult);
@@ -284,7 +287,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
-                  if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
+                  if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
+                     response = new SessionQueueQueryResponseMessage_V3(result);
+                  } else if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                      response = new SessionQueueQueryResponseMessage_V2(result);
                   } else {
                      response = new SessionQueueQueryResponseMessage(result);

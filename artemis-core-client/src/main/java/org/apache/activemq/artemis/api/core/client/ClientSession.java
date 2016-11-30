@@ -100,7 +100,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
        * Returns <code>true</code> if auto-creation for this queue is enabled and if the queue queried is a JMS queue,
        * <code>false</code> else.
        */
-      boolean isAutoCreateJmsQueues();
+      boolean isAutoCreateQueues();
 
       /**
        * Returns the number of consumers attached to the queue.
@@ -128,6 +128,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
        * @return
        */
       SimpleString getName();
+
+      RoutingType getRoutingType();
+
+      int getMaxConsumers();
+
+      boolean isDeleteOnNoConsumers();
+
+      boolean isAutoCreated();
    }
 
    // Lifecycle operations ------------------------------------------

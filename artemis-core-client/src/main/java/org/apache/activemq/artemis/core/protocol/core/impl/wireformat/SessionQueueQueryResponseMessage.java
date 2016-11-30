@@ -49,8 +49,8 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
       this(null, null, false, false, null, 0, 0, false);
    }
 
-   public SessionQueueQueryResponseMessage(byte v2) {
-      super(v2);
+   public SessionQueueQueryResponseMessage(byte v) {
+      super(v);
    }
 
    private SessionQueueQueryResponseMessage(final SimpleString name,
@@ -159,6 +159,13 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
+   public String getParentString() {
+      StringBuffer buff = new StringBuffer(super.getParentString());
       buff.append(", address=" + address);
       buff.append(", name=" + name);
       buff.append(", consumerCount=" + consumerCount);
@@ -167,7 +174,6 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
       buff.append(", exists=" + exists);
       buff.append(", temporary=" + temporary);
       buff.append(", messageCount=" + messageCount);
-      buff.append("]");
       return buff.toString();
    }
 

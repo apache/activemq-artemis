@@ -67,6 +67,11 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
       return super.getAddress().equals(that.getAddress());
    }
 
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

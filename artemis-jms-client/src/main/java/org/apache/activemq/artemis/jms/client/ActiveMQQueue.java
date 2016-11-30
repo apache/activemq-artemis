@@ -91,6 +91,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
       return super.getAddress().equals(that.getAddress());
    }
 
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

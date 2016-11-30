@@ -86,6 +86,11 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       return super.getAddress().equals(that.getAddress());
    }
 
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

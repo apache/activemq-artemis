@@ -51,6 +51,11 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
       return super.getAddress().equals(that.getAddress());
    }
 
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
