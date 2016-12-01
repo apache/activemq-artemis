@@ -109,6 +109,7 @@ import org.w3c.dom.Element;
  * If a JMSConfiguration object is used, the JMS resources can not be
  * redeployed.
  */
+@Deprecated
 public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback {
 
    private static final String REJECT_FILTER = ActiveMQServerImpl.GENERIC_IGNORED_FILTER;

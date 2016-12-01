@@ -118,8 +118,9 @@ public class CoreQueueConfiguration implements Serializable {
       return routingType;
    }
 
-   public void setRoutingType(RoutingType routingType) {
+   public CoreQueueConfiguration setRoutingType(RoutingType routingType) {
       this.routingType = routingType;
+      return this;
    }
 
    @Override

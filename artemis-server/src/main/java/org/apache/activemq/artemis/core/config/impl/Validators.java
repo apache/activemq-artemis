@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -160,6 +161,19 @@ public final class Validators {
             !val.equals(MessageLoadBalancingType.STRICT.toString()) &&
             !val.equals(MessageLoadBalancingType.ON_DEMAND.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidMessageLoadBalancingType(val);
+         }
+      }
+   };
+
+   public static final Validator ROUTING_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !val.equals(RoutingType.ANYCAST.toString()) &&
+            !val.equals(RoutingType.MULTICAST.toString()) &&
+            !val.equals(RoutingType.PASS.toString()) &&
+            !val.equals(RoutingType.STRIP.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
          }
       }
    };

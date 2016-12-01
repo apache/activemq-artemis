@@ -99,6 +99,16 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
    }
 
    @Override
+   public String getRoutingType() {
+      clearIO();
+      try {
+         return configuration.getRoutingType().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getUniqueName() {
       clearIO();
       try {

@@ -360,6 +360,9 @@ public final class ActiveMQDefaultConfiguration {
    // whether this is an exclusive divert
    private static boolean DEFAULT_DIVERT_EXCLUSIVE = false;
 
+   // how the divert should handle the message's routing type
+   private static String DEFAULT_DIVERT_ROUTING_TYPE = RoutingType.STRIP.toString();
+
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;
 
@@ -1016,6 +1019,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultDivertExclusive() {
       return DEFAULT_DIVERT_EXCLUSIVE;
+   }
+
+   /**
+    * how the divert should handle the message's routing type
+    */
+   public static String getDefaultDivertRoutingType() {
+      return DEFAULT_DIVERT_ROUTING_TYPE;
    }
 
    /**

@@ -55,18 +55,16 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
 
    private static final boolean DEFAULT_QUEUE_DURABILITY = true;
 
-   private boolean parsed = false;
-
    @Override
    public void parse(Element config, URL url) throws Exception {
       parseConfiguration(config);
       setConfigurationUrl(url);
-      parsed = true;
    }
 
    @Override
    public boolean isParsed() {
-      return parsed;
+      // always return false here so that the FileDeploymentManager will not invoke buildService()
+      return false;
    }
 
    @Override

@@ -48,7 +48,7 @@ public class CoreAddressConfiguration implements Serializable {
       return routingTypes;
    }
 
-   public CoreAddressConfiguration addDeliveryMode(RoutingType routingType) {
+   public CoreAddressConfiguration addRoutingType(RoutingType routingType) {
       routingTypes.add(routingType);
       return this;
    }

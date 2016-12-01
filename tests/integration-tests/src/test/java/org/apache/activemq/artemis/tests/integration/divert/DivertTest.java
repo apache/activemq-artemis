@@ -122,6 +122,142 @@ public class DivertTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSingleNonExclusiveDivertWithRoutingType() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, true, true);
+
+      final SimpleString queueName1 = new SimpleString("queue1");
+
+      final SimpleString queueName2 = new SimpleString("queue2");
+
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+
+      session.start();
+
+      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+
+      ClientConsumer consumer1 = session.createConsumer(queueName1);
+
+      ClientConsumer consumer2 = session.createConsumer(queueName2);
+
+      final int numMessages = 1;
+
+      final SimpleString propKey = new SimpleString("testkey");
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(false);
+
+         message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+
+         message.putIntProperty(propKey, i);
+
+         producer.send(message);
+      }
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
+
+         Assert.assertNotNull(message);
+
+         Assert.assertEquals(i, message.getObjectProperty(propKey));
+
+         message.acknowledge();
+      }
+
+      Assert.assertNull(consumer1.receiveImmediate());
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
+
+         Assert.assertNotNull(message);
+
+         Assert.assertEquals(i, message.getObjectProperty(propKey));
+
+         message.acknowledge();
+      }
+
+      Assert.assertNull(consumer2.receiveImmediate());
+   }
+
+   @Test
+   public void testSingleExclusiveDivertWithRoutingType() throws Exception {
+      final String testAddress = "testAddress";
+
+      final String forwardAddress = "forwardAddress";
+
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, true, true);
+
+      final SimpleString queueName1 = new SimpleString("queue1");
+
+      final SimpleString queueName2 = new SimpleString("queue2");
+
+      session.createQueue(new SimpleString(forwardAddress), RoutingType.ANYCAST, queueName1, null, false);
+
+      session.createQueue(new SimpleString(testAddress), RoutingType.MULTICAST, queueName2, null, false);
+
+      session.start();
+
+      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+
+      ClientConsumer consumer1 = session.createConsumer(queueName1);
+
+      final int numMessages = 1;
+
+      final SimpleString propKey = new SimpleString("testkey");
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(false);
+
+         message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+
+         message.putIntProperty(propKey, i);
+
+         producer.send(message);
+      }
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
+
+         Assert.assertNotNull(message);
+
+         Assert.assertEquals(i, message.getObjectProperty(propKey));
+
+         message.acknowledge();
+      }
+
+      Assert.assertNull(consumer1.receiveImmediate());
+   }
+
+   @Test
    public void testSingleDivertWithExpiry() throws Exception {
       final String testAddress = "testAddress";
 

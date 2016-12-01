@@ -945,10 +945,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
          if (child.getNodeName().equals("multicast")) {
-            addressConfiguration.addDeliveryMode(RoutingType.MULTICAST);
+            addressConfiguration.addRoutingType(RoutingType.MULTICAST);
             queueConfigurations.addAll(parseQueueConfigurations((Element) child, RoutingType.MULTICAST));
          } else if (child.getNodeName().equals("anycast")) {
-            addressConfiguration.addDeliveryMode(RoutingType.ANYCAST);
+            addressConfiguration.addRoutingType(RoutingType.ANYCAST);
             queueConfigurations.addAll(parseQueueConfigurations((Element) child, RoutingType.ANYCAST));
          }
       }
@@ -1570,6 +1570,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String transformerClassName = getString(e, "transformer-class-name", null, Validators.NO_CHECK);
 
+      RoutingType routingType = RoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.ROUTING_TYPE));
+
       String filterString = null;
 
       NodeList children = e.getChildNodes();
@@ -1582,7 +1584,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName);
+      DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName).setRoutingType(routingType);
 
       mainConfig.getDivertConfigurations().add(config);
    }
