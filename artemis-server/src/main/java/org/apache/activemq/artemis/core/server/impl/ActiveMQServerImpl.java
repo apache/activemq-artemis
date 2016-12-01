@@ -2244,15 +2244,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       recoverStoredConfigs();
 
+      Map<Long, AddressBindingInfo> addressBindingInfosMap = new HashMap<>();
+
+      journalLoader.initAddresses(addressBindingInfosMap, addressBindingInfos);
+
       Map<Long, QueueBindingInfo> queueBindingInfosMap = new HashMap<>();
 
       journalLoader.initQueues(queueBindingInfosMap, queueBindingInfos);
 
       journalLoader.handleGroupingBindings(groupingInfos);
-
-      Map<Long, AddressBindingInfo> addressBindingInfosMap = new HashMap<>();
-
-      journalLoader.initAddresses(addressBindingInfosMap, addressBindingInfos);
 
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
 
@@ -2403,10 +2403,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
+      boolean addressAlreadyExists = true;
+
       if (info == null) {
          if (autoCreateAddress) {
             postOffice.addAddressInfo(defaultAddressInfo.setAutoCreated(true));
-            info = postOffice.getAddressInfo(addressName);
+            addressAlreadyExists = false;
          } else {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
          }
@@ -2416,12 +2418,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 
-      boolean addressAlreadyExists = true;
-
       AddressInfo addressInfo = postOffice.getAddressInfo(queue.getAddress());
       if (addressInfo == null) {
          postOffice.addAddressInfo(new AddressInfo(queue.getAddress()));
-         addressAlreadyExists = false;
       } else {
          if (!addressInfo.getRoutingTypes().contains(routingType)) {
             throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, addressInfo.getName().toString(), addressInfo.getRoutingTypes());
