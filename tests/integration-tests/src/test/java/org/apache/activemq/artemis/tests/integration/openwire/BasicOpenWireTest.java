@@ -33,6 +33,7 @@ import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.After;
 import org.junit.Before;
@@ -65,15 +66,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    public void setUp() throws Exception {
       super.setUp();
       SimpleString coreQueue = new SimpleString(queueName);
-      this.server.createQueue(coreQueue, RoutingType.MULTICAST, coreQueue, null, false, false);
+      this.server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
       testQueues.put(queueName, coreQueue);
 
       SimpleString coreQueue2 = new SimpleString(queueName2);
-      this.server.createQueue(coreQueue2, RoutingType.MULTICAST, coreQueue2, null, false, false);
+      this.server.createQueue(coreQueue2, RoutingType.ANYCAST, coreQueue2, null, false, false);
       testQueues.put(queueName2, coreQueue2);
 
       SimpleString durableQueue = new SimpleString(durableQueueName);
-      this.server.createQueue(durableQueue, RoutingType.MULTICAST, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false);
       testQueues.put(durableQueueName, durableQueue);
 
       if (!enableSecurity) {
@@ -139,7 +140,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       SimpleString coreQ = testQueues.get(qname);
       if (coreQ == null) {
          coreQ = new SimpleString(qname);
-         this.server.createQueue(coreQ, RoutingType.MULTICAST, coreQ, null, false, false);
+         this.server.createQueue(coreQ, RoutingType.ANYCAST, coreQ, null, false, false);
          testQueues.put(qname, coreQ);
       }
    }

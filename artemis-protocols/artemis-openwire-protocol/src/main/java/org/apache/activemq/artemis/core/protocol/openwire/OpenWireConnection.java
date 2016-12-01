@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.advisory.AdvisorySupport;
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -63,6 +62,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
@@ -716,13 +716,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
             if (dest.isTemporary()) {
-               internalSession.createQueue(qName, qName, null, dest.isTemporary(), false);
+               internalSession.createQueue(qName, qName, RoutingType.ANYCAST, null, dest.isTemporary(), false);
             } else {
                ConnectionInfo connInfo = getState().getInfo();
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
                server.getSecurityStore().check(qName, checkType, this);
                server.checkQueueCreationLimit(getUsername());
-               server.createQueue(qName, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
+               server.createQueue(qName, RoutingType.ANYCAST, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), true, false);
             }
          }
       }

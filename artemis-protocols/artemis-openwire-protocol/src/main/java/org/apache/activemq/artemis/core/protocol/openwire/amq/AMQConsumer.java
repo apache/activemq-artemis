@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.command.ConsumerControl;
@@ -130,6 +131,10 @@ public class AMQConsumer {
 
       SimpleString queueName;
 
+      AddressInfo addressInfo = session.getCoreServer().getAddressInfo(address);
+      if (addressInfo != null) {
+         addressInfo.addRoutingType(RoutingType.MULTICAST);
+      }
       if (isDurable) {
          queueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName));
          QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
@@ -160,7 +165,7 @@ public class AMQConsumer {
       } else {
          queueName = new SimpleString(UUID.randomUUID().toString());
 
-         session.getCoreSession().createQueue(address, queueName, selector, true, false);
+         session.getCoreSession().createQueue(address, queueName, RoutingType.MULTICAST, selector, true, false);
 
       }
 
