@@ -121,6 +121,7 @@ public final class StompConnection implements RemotingConnection {
                frame = decode(buffer);
                break;
             case ActiveMQStompException.INVALID_COMMAND:
+            case ActiveMQStompException.UNDEFINED_ESCAPE:
                frameHandler.onError(e);
                break;
             default:

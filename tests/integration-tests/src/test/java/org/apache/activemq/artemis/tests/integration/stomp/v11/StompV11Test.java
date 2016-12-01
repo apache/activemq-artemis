@@ -389,6 +389,39 @@ public class StompV11Test extends StompV11TestBase {
       newConn.disconnect();
    }
 
+   /**
+    * In 1.1, undefined escapes must cause a fatal protocol error.
+    */
+   @Test
+   public void testHeaderUndefinedEscape() throws Exception {
+      connV11.connect(defUser, defPass);
+      ClientStompFrame frame = connV11.createFrame("SEND");
+
+      String body = "Hello World 1!";
+      String cLen = String.valueOf(body.getBytes(StandardCharsets.UTF_8).length);
+
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.addHeader("content-length", cLen);
+      String hKey = "undefined-escape";
+      String hVal = "is\\ttab";
+      frame.addHeader(hKey, hVal);
+
+      System.out.println("key: |" + hKey + "| val: |" + hVal + "|");
+
+      frame.setBody(body);
+
+      connV11.sendFrame(frame);
+
+      ClientStompFrame error = connV11.receiveFrame();
+
+      System.out.println("received " + error);
+
+      String desc = "Should have received an ERROR for undefined escape sequence";
+      Assert.assertNotNull(desc, error);
+      Assert.assertEquals(desc, "ERROR", error.getCommand());
+   }
+
    @Test
    public void testHeartBeat() throws Exception {
       //no heart beat at all if heat-beat absent

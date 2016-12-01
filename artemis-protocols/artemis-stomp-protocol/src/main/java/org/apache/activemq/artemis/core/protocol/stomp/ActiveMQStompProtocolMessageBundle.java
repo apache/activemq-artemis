@@ -150,4 +150,7 @@ public interface ActiveMQStompProtocolMessageBundle {
 
    @Message(id = 339039, value = "No id header in ACK/NACK frame.")
    ActiveMQStompException noIDInAck();
+
+   @Message(id = 339040, value = "Undefined escape sequence: {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQStompException undefinedEscapeSequence(String sequence);
 }
