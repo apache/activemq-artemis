@@ -705,6 +705,10 @@ public class PagingStoreImpl implements PagingStore {
       boolean globalFull = pagingManager.addSize(size).isGlobalFull();
       long newSize = sizeInBytes.addAndGet(size);
 
+      if (newSize < 0) {
+         ActiveMQServerLogger.LOGGER.negativeAddressSize(newSize, address.toString());
+      }
+
       if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
          if (usingGlobalMaxSize && !globalFull || maxSize != -1) {
             checkReleaseMemory(globalFull, newSize);

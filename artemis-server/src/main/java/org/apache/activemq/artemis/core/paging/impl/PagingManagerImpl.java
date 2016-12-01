@@ -109,7 +109,11 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public PagingManagerImpl addSize(int size) {
-      globalSizeBytes.addAndGet(size);
+      long newSize = globalSizeBytes.addAndGet(size);
+
+      if (newSize < 0) {
+         ActiveMQServerLogger.LOGGER.negativeGlobalAddressSize(newSize);
+      }
 
       if (size < 0) {
          checkMemoryRelease();
