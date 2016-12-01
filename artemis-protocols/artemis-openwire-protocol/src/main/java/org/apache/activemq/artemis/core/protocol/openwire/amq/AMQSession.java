@@ -23,7 +23,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -34,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -173,7 +173,7 @@ public class AMQSession implements SessionCallback {
 
          if (!queueBinding.isExists()) {
             if (isAutoCreate) {
-               server.createQueue(queueName, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE, queueName, null, true, isTemporary);
+               server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, isTemporary);
                connection.addKnownDestination(queueName);
             } else {
                hasQueue = false;
@@ -279,6 +279,7 @@ public class AMQSession implements SessionCallback {
       messageSend.setBrokerInTime(System.currentTimeMillis());
 
       ActiveMQDestination destination = messageSend.getDestination();
+
       ActiveMQDestination[] actualDestinations = null;
       if (destination.isComposite()) {
          actualDestinations = destination.getCompositeDestinations();
@@ -382,6 +383,11 @@ public class AMQSession implements SessionCallback {
             checkAutoCreateQueue(new SimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
          }
 
+         if (actualDestinations[i].isQueue()) {
+            coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+         } else {
+            coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+         }
          RoutingStatus result = getCoreSession().send(coreMsg, false, actualDestinations[i].isTemporary());
 
          if (result == RoutingStatus.NO_BINDINGS && actualDestinations[i].isQueue()) {
