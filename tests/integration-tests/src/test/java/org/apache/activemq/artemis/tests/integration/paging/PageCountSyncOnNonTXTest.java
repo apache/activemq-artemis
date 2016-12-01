@@ -28,8 +28,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,6 +44,23 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
    private long timeToRun;
 
    Process process;
+
+   @Before
+   public void checkLoggerStart() throws Exception {
+      AssertionLoggerHandler.startCapture();
+   }
+
+   @After
+   public void checkLoggerEnd() throws Exception {
+      try {
+         // These are the message errors for the negative size address size
+         Assert.assertFalse(AssertionLoggerHandler.findText("222214"));
+         Assert.assertFalse(AssertionLoggerHandler.findText("222215"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
+
 
    @Override
    @Before
