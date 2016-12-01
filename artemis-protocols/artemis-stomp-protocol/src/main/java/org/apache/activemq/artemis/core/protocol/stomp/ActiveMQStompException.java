@@ -25,6 +25,7 @@ public class ActiveMQStompException extends Exception {
    public static final int NONE = 0;
    public static final int INVALID_EOL_V10 = 1;
    public static final int INVALID_COMMAND = 2;
+   public static final int UNDEFINED_ESCAPE = 3;
 
    private static final long serialVersionUID = -274452327574950068L;
 
