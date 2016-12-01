@@ -311,8 +311,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   } else {
                      throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
                   }
-               }
-               catch (ActiveMQQueueExistsException e) {
+               } catch (ActiveMQQueueExistsException e) {
                   // Queue was created between our query and create queue request.  Ignore.
                }
 
@@ -655,8 +654,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                if (response.isAutoCreateJmsQueues()) {
                   try {
                      session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true);
-                  }
-                  catch (ActiveMQQueueExistsException e) {
+                  } catch (ActiveMQQueueExistsException e) {
                      // The queue was created by another client/admin between the query check and send create queue packet
                   }
                } else {

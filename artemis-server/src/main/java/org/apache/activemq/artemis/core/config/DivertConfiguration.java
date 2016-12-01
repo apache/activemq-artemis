@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public class DivertConfiguration implements Serializable {
@@ -38,6 +39,8 @@ public class DivertConfiguration implements Serializable {
    private String filterString = null;
 
    private String transformerClassName = null;
+
+   private RoutingType routingType = RoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
 
    public DivertConfiguration() {
    }
@@ -68,6 +71,10 @@ public class DivertConfiguration implements Serializable {
 
    public String getTransformerClassName() {
       return transformerClassName;
+   }
+
+   public RoutingType getRoutingType() {
+      return routingType;
    }
 
    /**
@@ -130,6 +137,14 @@ public class DivertConfiguration implements Serializable {
       return this;
    }
 
+   /**
+    * @param routingType the routingType to set
+    */
+   public DivertConfiguration setRoutingType(final RoutingType routingType) {
+      this.routingType = routingType;
+      return this;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -141,6 +156,7 @@ public class DivertConfiguration implements Serializable {
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((routingName == null) ? 0 : routingName.hashCode());
       result = prime * result + ((transformerClassName == null) ? 0 : transformerClassName.hashCode());
+      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
       return result;
    }
 
@@ -184,6 +200,11 @@ public class DivertConfiguration implements Serializable {
          if (other.transformerClassName != null)
             return false;
       } else if (!transformerClassName.equals(other.transformerClassName))
+         return false;
+      if (routingType == null) {
+         if (other.routingType != null)
+            return false;
+      } else if (!routingType.equals(other.routingType))
          return false;
       return true;
    }

@@ -410,4 +410,7 @@ public interface ActiveMQMessageBundle {
    IllegalArgumentException invalidRoutingTypeForAddress(RoutingType routingType,
                                                          String address,
                                                          Set<RoutingType> supportedRoutingTypes);
+
+   @Message(id = 119208, value = "Invalid routing type {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidRoutingType(String val);
 }

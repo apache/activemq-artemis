@@ -65,4 +65,10 @@ public interface DivertControl {
     */
    @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert")
    String getTransformerClassName();
+
+   /**
+    * Returns the routing type used by this divert.
+    */
+   @Attribute(desc = "routing type used by this divert")
+   String getRoutingType();
 }

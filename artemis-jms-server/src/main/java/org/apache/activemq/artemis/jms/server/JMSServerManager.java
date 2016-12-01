@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 /**
  * The JMS Management interface.
  */
+@Deprecated
 public interface JMSServerManager extends ActiveMQComponent {
 
    String getVersion();

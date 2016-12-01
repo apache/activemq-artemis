@@ -899,6 +899,16 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName) throws Exception;
 
+   @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
+   void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
+                     @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
+                     @Parameter(name = "address", desc = "Address to divert from") String address,
+                     @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
+                     @Parameter(name = "exclusive", desc = "Is the divert exclusive?") boolean exclusive,
+                     @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
+                     @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
 

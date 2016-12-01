@@ -62,6 +62,11 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
          }
 
          @Override
+         public String getRoutingType() {
+            return (String) proxy.retrieveAttributeValue("routingType");
+         }
+
+         @Override
          public String getUniqueName() {
             return (String) proxy.retrieveAttributeValue("uniqueName");
          }

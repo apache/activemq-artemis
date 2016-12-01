@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.logging.Logger;
@@ -49,6 +51,8 @@ public class DivertImpl implements Divert {
 
    private final StorageManager storageManager;
 
+   private final RoutingType routingType;
+
    public DivertImpl(final SimpleString forwardAddress,
                      final SimpleString uniqueName,
                      final SimpleString routingName,
@@ -56,7 +60,8 @@ public class DivertImpl implements Divert {
                      final Filter filter,
                      final Transformer transformer,
                      final PostOffice postOffice,
-                     final StorageManager storageManager) {
+                     final StorageManager storageManager,
+                     final RoutingType routingType) {
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;
@@ -72,6 +77,8 @@ public class DivertImpl implements Divert {
       this.postOffice = postOffice;
 
       this.storageManager = storageManager;
+
+      this.routingType = routingType;
    }
 
    @Override
@@ -96,6 +103,20 @@ public class DivertImpl implements Divert {
          copy.setAddress(forwardAddress);
 
          copy.setExpiration(message.getExpiration());
+
+         switch (routingType) {
+            case ANYCAST:
+               copy.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+               break;
+            case MULTICAST:
+               copy.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+               break;
+            case STRIP:
+               copy.removeProperty(Message.HDR_ROUTING_TYPE);
+               break;
+            case PASS:
+               break;
+         }
 
          if (transformer != null) {
             copy = transformer.transform(copy);

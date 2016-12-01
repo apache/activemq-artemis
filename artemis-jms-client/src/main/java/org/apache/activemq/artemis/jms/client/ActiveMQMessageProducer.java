@@ -424,8 +424,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                }
             } catch (ActiveMQQueueExistsException e) {
                // The queue was created by another client/admin between the query check and send create queue packet
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                throw JMSExceptionHelper.convertFromActiveMQException(e);
             }
          }

@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -190,6 +191,9 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
       AddressInfo from = addAddressInfo(addressInfo);
+      if (from != null) {
+         ActiveMQServerLogger.LOGGER.info("Address " + addressInfo.getName() + " exists already as " + from + ", updating instead with: " + addressInfo);
+      }
       return (from == null) ? addressInfo : updateAddressInfo(from, addressInfo);
    }
 
@@ -198,6 +202,7 @@ public class SimpleAddressManager implements AddressManager {
          for (RoutingType routingType : to.getRoutingTypes()) {
             from.addRoutingType(routingType);
          }
+         ActiveMQServerLogger.LOGGER.info("Update result: " + from);
          return from;
       }
    }

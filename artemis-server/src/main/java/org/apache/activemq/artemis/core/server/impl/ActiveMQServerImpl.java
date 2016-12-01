@@ -1872,7 +1872,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
-      Divert divert = new DivertImpl(new SimpleString(config.getForwardingAddress()), sName, new SimpleString(config.getRoutingName()), config.isExclusive(), filter, transformer, postOffice, storageManager);
+      Divert divert = new DivertImpl(new SimpleString(config.getForwardingAddress()), sName, new SimpleString(config.getRoutingName()), config.isExclusive(), filter, transformer, postOffice, storageManager, config.getRoutingType());
 
       Binding binding = new DivertBinding(storageManager.generateID(), sAddress, divert);
 
@@ -2398,6 +2398,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       AddressInfo result = postOffice.addOrUpdateAddressInfo(addressInfo);
 
       // TODO: is this the right way to do this?
+      // TODO: deal with possible duplicates, may be adding new records when old ones already exist
       long txID = storageManager.generateID();
       storageManager.addAddressBinding(txID, addressInfo);
       storageManager.commitBindings(txID);

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 public enum RoutingType {
 
-   MULTICAST, ANYCAST;
+   MULTICAST, ANYCAST, STRIP, PASS;
 
    public byte getType() {
       switch (this) {
@@ -26,6 +26,10 @@ public enum RoutingType {
             return 0;
          case ANYCAST:
             return 1;
+         case STRIP:
+            return 2;
+         case PASS:
+            return 3;
          default:
             return -1;
       }
@@ -37,6 +41,10 @@ public enum RoutingType {
             return MULTICAST;
          case 1:
             return ANYCAST;
+         case 2:
+            return STRIP;
+         case 3:
+            return PASS;
          default:
             return null;
       }
