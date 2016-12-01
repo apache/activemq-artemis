@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logging.Logger;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,6 +103,25 @@ public class PagingTest extends ActiveMQTestBase {
    protected static final int PAGE_SIZE = 10 * 1024;
 
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+
+
+   @Before
+   public void checkLoggerStart() throws Exception {
+      AssertionLoggerHandler.startCapture();
+   }
+
+   @After
+   public void checkLoggerEnd() throws Exception {
+      try {
+         // These are the message errors for the negative size address size
+         Assert.assertFalse(AssertionLoggerHandler.findText("222214"));
+         Assert.assertFalse(AssertionLoggerHandler.findText("222215"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+   }
+
+
 
    @Override
    @Before
