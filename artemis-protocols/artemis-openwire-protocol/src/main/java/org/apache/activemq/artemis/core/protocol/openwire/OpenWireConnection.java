@@ -122,14 +122,11 @@ import org.apache.activemq.state.SessionState;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.wireformat.WireFormat;
-import org.jboss.logging.Logger;
 
 /**
  * Represents an activemq connection.
  */
 public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempQueueObserver {
-
-   private static final Logger logger = Logger.getLogger(OpenWireConnection.class);
 
    private static final KeepAliveInfo PING = new KeepAliveInfo();
 
