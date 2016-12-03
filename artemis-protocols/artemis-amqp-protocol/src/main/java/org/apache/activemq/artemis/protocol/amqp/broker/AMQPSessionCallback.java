@@ -28,12 +28,15 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
@@ -192,28 +195,40 @@ public class AMQPSessionCallback implements SessionCallback {
       serverConsumer.receiveCredits(-1);
    }
 
-   public void createTemporaryQueue(String queueName) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(queueName), null, true, false);
+   public void createTemporaryQueue(String queueName, RoutingType routingType) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(queueName), routingType, null, true, false);
    }
 
-   public void createTemporaryQueue(String address, String queueName, String filter) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), true, false);
+   public void createTemporaryQueue(String address, String queueName, RoutingType routingType, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName),  routingType, SimpleString.toSimpleString(filter), true, false);
    }
 
-   public void createDurableQueue(String address, String queueName, String filter) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
+   public void createUnsharedDurableQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, true, 1, false, false);
    }
 
-   public QueueQueryResult queueQuery(String queueName, boolean autoCreate) throws Exception {
+   public void createSharedDurableQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, true, -1, false, false);
+   }
+
+   public void createSharedVolatileQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, false, -1, true, true);
+   }
+
+   public QueueQueryResult queueQuery(String queueName, RoutingType routingType, boolean autoCreate) throws Exception {
       QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
+            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), routingType, null, false, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
-         queueQueryResult = new QueueQueryResult(queueQueryResult.getName(), queueQueryResult.getAddress(), queueQueryResult.isDurable(), queueQueryResult.isTemporary(), queueQueryResult.getFilterString(), queueQueryResult.getConsumerCount(), queueQueryResult.getMessageCount(), queueQueryResult.isAutoCreateQueues(), true, queueQueryResult.isAutoCreated(), queueQueryResult.isDeleteOnNoConsumers(), queueQueryResult.getRoutingType(), queueQueryResult.getMaxConsumers());
+         queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
+      }
+
+      if (queueQueryResult.getRoutingType() != routingType) {
+         throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
       return queueQueryResult;
    }
@@ -229,6 +244,20 @@ public class AMQPSessionCallback implements SessionCallback {
          bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
       }
       return bindingQueryResult.isExists();
+   }
+
+   public AddressQueryResult addressQuery(String addressName, RoutingType routingType, boolean autoCreate) throws Exception {
+      AddressQueryResult addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
+
+      if (!addressQueryResult.isExists() && addressQueryResult.isAutoCreateAddresses() && autoCreate) {
+         try {
+            serverSession.createAddress(SimpleString.toSimpleString(addressName), routingType, true);
+         } catch (ActiveMQQueueExistsException e) {
+            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+         }
+         addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
+      }
+      return addressQueryResult;
    }
 
    public void closeSender(final Object brokerConsumer) throws Exception {
@@ -521,5 +550,22 @@ public class AMQPSessionCallback implements SessionCallback {
       tx.rollback();
       protonSPI.removeTransaction(txid);
 
+   }
+
+   public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {
+      return serverSession.getMatchingQueue(address, routingType);
+   }
+
+
+   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception {
+      return serverSession.getMatchingQueue(address, queueName, routingType);
+   }
+
+   public AddressInfo getAddress(SimpleString address) {
+      return  serverSession.getAddress(address);
+   }
+
+   public void removeTemporaryQueue(String address) throws Exception {
+      serverSession.deleteQueue(SimpleString.toSimpleString(address));
    }
 }

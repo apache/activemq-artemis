@@ -76,6 +76,44 @@ public class AmqpClient {
    }
 
    /**
+    * Creates a connection with the broker at the given location, this method initiates a
+    * connect attempt immediately and will fail if the remote peer cannot be reached.
+    *
+    * @throws Exception if an error occurs attempting to connect to the Broker.
+    * @return a new connection object used to interact with the connected peer.
+    */
+   public AmqpConnection connect(boolean noContainerId) throws Exception {
+
+      AmqpConnection connection = createConnection();
+      connection.setNoContainerID();
+
+      LOG.debug("Attempting to create new connection to peer: {}", remoteURI);
+      connection.connect();
+
+      return connection;
+   }
+
+
+   /**
+    * Creates a connection with the broker at the given location, this method initiates a
+    * connect attempt immediately and will fail if the remote peer cannot be reached.
+    *
+    * @throws Exception if an error occurs attempting to connect to the Broker.
+    * @return a new connection object used to interact with the connected peer.
+    */
+   public AmqpConnection connect(String containerId) throws Exception {
+
+      AmqpConnection connection = createConnection();
+      connection.setContainerId(containerId);
+
+      LOG.debug("Attempting to create new connection to peer: {}", remoteURI);
+      connection.connect();
+
+      return connection;
+   }
+
+
+   /**
     * Creates a connection object using the configured values for user, password, remote URI
     * etc.  This method does not immediately initiate a connection to the remote leaving that
     * to the caller which provides a connection object that can have additional configuration

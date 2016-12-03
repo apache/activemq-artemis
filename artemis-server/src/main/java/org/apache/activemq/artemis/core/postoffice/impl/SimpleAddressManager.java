@@ -119,6 +119,37 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
+   public SimpleString getMatchingQueue(final SimpleString address, RoutingType routingType) throws Exception {
+
+      Binding binding = nameMap.get(address);
+
+      if (binding == null || !(binding instanceof  LocalQueueBinding)
+            || !binding.getAddress().equals(address)) {
+         Bindings bindings = mappings.get(address);
+         if (bindings != null) {
+            for (Binding theBinding : bindings.getBindings()) {
+               if (theBinding instanceof LocalQueueBinding) {
+                  binding = theBinding;
+                  break;
+               }
+            }
+         }
+      }
+
+      return binding != null ? binding.getUniqueName() : null;
+   }
+
+   @Override
+   public SimpleString getMatchingQueue(final SimpleString address, final SimpleString queueName, RoutingType routingType) throws Exception {
+      Binding binding = nameMap.get(queueName);
+
+      if (binding != null && !binding.getAddress().equals(address)) {
+         throw new IllegalStateException("queue belongs to address" + binding.getAddress());
+      }
+      return binding != null ? binding.getUniqueName() : null;
+   }
+
+   @Override
    public void clear() {
       nameMap.clear();
       mappings.clear();

@@ -104,6 +104,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private long closeTimeout = DEFAULT_CLOSE_TIMEOUT;
    private long drainTimeout = DEFAULT_DRAIN_TIMEOUT;
    private boolean trace;
+   private boolean noContainerID = false;
 
    public AmqpConnection(org.apache.activemq.transport.amqp.client.transport.NettyTransport transport,
                          String username,
@@ -139,7 +140,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
          serializer.execute(new Runnable() {
             @Override
             public void run() {
-               getEndpoint().setContainer(safeGetContainerId());
+               if (!noContainerID) {
+                  getEndpoint().setContainer(safeGetContainerId());
+               }
                getEndpoint().setHostname(remoteURI.getHost());
                if (!getOfferedCapabilities().isEmpty()) {
                   getEndpoint().setOfferedCapabilities(getOfferedCapabilities().toArray(new Symbol[0]));
@@ -734,5 +737,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    @Override
    public String toString() {
       return "AmqpConnection { " + connectionId + " }";
+   }
+
+   public void setNoContainerID() {
+      noContainerID = true;
    }
 }

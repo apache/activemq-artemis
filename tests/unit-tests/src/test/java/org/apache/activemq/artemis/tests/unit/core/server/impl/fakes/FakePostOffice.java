@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
@@ -47,6 +48,17 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public Set<SimpleString> getAddresses() {
+      return null;
+   }
+
+   @Override
+   public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) {
+
+      return null;
+   }
+
+   @Override
+   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) {
       return null;
    }
 

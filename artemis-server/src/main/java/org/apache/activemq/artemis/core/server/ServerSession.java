@@ -163,6 +163,8 @@ public interface ServerSession extends SecurityAuth {
 
    QueueQueryResult executeQueueQuery(SimpleString name) throws Exception;
 
+   AddressQueryResult executeAddressQuery(SimpleString name) throws Exception;
+
    BindingQueryResult executeBindingQuery(SimpleString address) throws Exception;
 
    void closeConsumer(long consumerID) throws Exception;
@@ -237,4 +239,10 @@ public interface ServerSession extends SecurityAuth {
    List<MessageReference> getInTXMessagesForConsumer(long consumerId);
 
    String getValidatedUser();
+
+   SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
+
+   SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
+
+   AddressInfo getAddress(SimpleString address);
 }

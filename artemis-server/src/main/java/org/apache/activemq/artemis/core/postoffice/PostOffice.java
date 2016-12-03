@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -79,6 +80,10 @@ public interface PostOffice extends ActiveMQComponent {
 
    Map<SimpleString, Binding> getAllBindings();
 
+   SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
+
+   SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
+
    RoutingStatus route(ServerMessage message, boolean direct) throws Exception;
 
    RoutingStatus route(ServerMessage message,
@@ -119,6 +124,4 @@ public interface PostOffice extends ActiveMQComponent {
    boolean isAddressBound(final SimpleString address) throws Exception;
 
    Set<SimpleString> getAddresses();
-
-
 }

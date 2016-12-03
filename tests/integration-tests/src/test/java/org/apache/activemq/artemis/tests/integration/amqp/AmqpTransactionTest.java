@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -28,18 +27,12 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Test various aspects of Transaction support.
  */
 public class AmqpTransactionTest extends AmqpClientTestSupport {
-
-   @Before
-   public void createQueue() throws Exception {
-      server.createQueue(SimpleString.toSimpleString(getTestName()), SimpleString.toSimpleString(getTestName()), null, true, false);
-   }
 
    @Test(timeout = 30000)
    public void testBeginAndCommitTransaction() throws Exception {

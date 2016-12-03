@@ -344,6 +344,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
 
+   AddressQueryResult addressQuery(SimpleString name) throws Exception;
+
    Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
                      boolean durable,
                      boolean temporary,
