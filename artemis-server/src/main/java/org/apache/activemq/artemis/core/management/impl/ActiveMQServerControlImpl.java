@@ -619,7 +619,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
-   @Deprecated
    @Override
    public void createQueue(final String address, final String name) throws Exception {
       checkStarted();
@@ -633,12 +632,78 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void createQueue(final String address, final String name, final String routingType) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), null, true, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public void createQueue(final String address, final String name, final boolean durable) throws Exception {
       checkStarted();
 
       clearIO();
       try {
          server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), null, durable, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createQueue(final String address, final String name, final boolean durable, final String routingType) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), null, durable, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void createQueue(final String address,
+                           final String name,
+                           final String filterStr,
+                           final boolean durable) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         SimpleString filter = null;
+         if (filterStr != null && !filterStr.trim().equals("")) {
+            filter = new SimpleString(filterStr);
+         }
+
+         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
+   public void createQueue(final String address,
+                           final String name,
+                           final String filterStr,
+                           final boolean durable,
+                           final String routingType) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         SimpleString filter = null;
+         if (filterStr != null && !filterStr.trim().equals("")) {
+            filter = new SimpleString(filterStr);
+         }
+
+         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }
@@ -669,25 +734,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
-   @Override
-   public void createQueue(final String address,
-                           final String name,
-                           final String filterStr,
-                           final boolean durable) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         SimpleString filter = null;
-         if (filterStr != null && !filterStr.trim().equals("")) {
-            filter = new SimpleString(filterStr);
-         }
-
-         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
-      } finally {
-         blockOnIO();
-      }
-   }
 
    @Override
    public String[] getQueueNames() {
@@ -1704,30 +1750,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
       }
       return settings.add("expiryDelay", addressSettings.getExpiryDelay())
-                     .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
-                     .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
-                     .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
-                     .add("pageSizeBytes", addressSettings.getPageSizeBytes())
-                     .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
-                     .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
-                     .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
-                     .add("redistributionDelay", addressSettings.getRedistributionDelay())
-                     .add("lastValueQueue", addressSettings.isLastValueQueue())
-                     .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
-                     .add("addressFullMessagePolicy", policy)
-                     .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
-                     .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
-                     .add("slowConsumerPolicy", consumerPolicy)
-                     .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
-                     .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
-                     .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
-                     .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsQueues())
-                     .add("autoCreateQueues", addressSettings.isAutoCreateQueues())
-                     .add("autoDeleteQueues", addressSettings.isAutoDeleteQueues())
-                     .add("autoCreateAddress", addressSettings.isAutoCreateAddresses())
-                     .add("autoDeleteAddress", addressSettings.isAutoDeleteAddresses())
-                     .build()
-                     .toString();
+            .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
+            .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
+            .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
+            .add("pageSizeBytes", addressSettings.getPageSizeBytes())
+            .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
+            .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
+            .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
+            .add("redistributionDelay", addressSettings.getRedistributionDelay())
+            .add("lastValueQueue", addressSettings.isLastValueQueue())
+            .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
+            .add("addressFullMessagePolicy", policy)
+            .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
+            .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
+            .add("slowConsumerPolicy", consumerPolicy)
+            .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
+            .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
+            .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
+            .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsQueues())
+            .add("autoCreateQueues", addressSettings.isAutoCreateQueues())
+            .add("autoDeleteQueues", addressSettings.isAutoDeleteQueues())
+            .add("autoCreateAddress", addressSettings.isAutoCreateAddresses())
+            .add("autoDeleteAddress", addressSettings.isAutoDeleteAddresses())
+            .build()
+            .toString();
    }
 
    @Override

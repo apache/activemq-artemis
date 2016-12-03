@@ -22,14 +22,21 @@ import java.util.LinkedList;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.junit.After;
 import org.junit.Before;
 
@@ -38,6 +45,10 @@ import org.junit.Before;
  * This is to make it easier to migrate tests from ActiveMQ5
  */
 public class AmqpClientTestSupport extends ActiveMQTestBase {
+
+   protected static Symbol SHARED = Symbol.getSymbol("shared");
+   protected static Symbol GLOBAL = Symbol.getSymbol("global");
+
 
    private boolean useSSL;
 
@@ -86,6 +97,12 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, true);
       serverManager = new JMSServerManagerImpl(server);
       Configuration serverConfig = server.getConfiguration();
+      CoreAddressConfiguration address = new CoreAddressConfiguration();
+      address.setName(getTestName()).getRoutingTypes().add(RoutingType.ANYCAST);
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration();
+      queueConfig.setName(getTestName()).setAddress(getTestName()).setRoutingType(RoutingType.ANYCAST);
+      address.getQueueConfigurations().add(queueConfig);
+      serverConfig.addAddressConfiguration(address);
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       serverManager.start();
@@ -178,5 +195,20 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
 
    public AmqpClient createAmqpClient(URI brokerURI, String username, String password) throws Exception {
       return new AmqpClient(brokerURI, username, password);
+   }
+
+
+   protected void sendMessages(int numMessages, String address) throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+      AmqpSender sender = session.createSender(address);
+      for (int i = 0; i < numMessages; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText("message-" +  i);
+         sender.send(message);
+      }
+      sender.close();
+      connection.connect();
    }
 }

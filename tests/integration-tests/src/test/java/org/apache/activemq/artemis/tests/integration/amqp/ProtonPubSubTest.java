@@ -30,6 +30,8 @@ import javax.jms.TopicSubscriber;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -55,6 +57,8 @@ public class ProtonPubSubTest extends ProtonTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
+      server.createAddressInfo(new AddressInfo(ssPubAddress, RoutingType.MULTICAST));
+      server.createAddressInfo(new AddressInfo(ssprefixedPubAddress, RoutingType.MULTICAST));
       server.createQueue(ssPubAddress, ssPubAddress, new SimpleString("foo=bar"), false, true);
       server.createQueue(ssprefixedPubAddress, ssprefixedPubAddress, new SimpleString("foo=bar"), false, true);
       factory = new JmsConnectionFactory("amqp://localhost:5672");

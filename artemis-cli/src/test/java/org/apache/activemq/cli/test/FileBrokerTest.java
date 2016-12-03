@@ -45,30 +45,6 @@ import static org.junit.Assert.fail;
 public class FileBrokerTest {
 
    @Test
-   public void startWithJMS() throws Exception {
-      ServerDTO serverDTO = new ServerDTO();
-      serverDTO.configuration = "broker.xml";
-      FileBroker broker = null;
-      try {
-         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager());
-         broker.start();
-         JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
-         Assert.assertNotNull(jmsServerManager);
-         Assert.assertTrue(jmsServerManager.isStarted());
-         //this tells us the jms server is activated
-         Assert.assertTrue(jmsServerManager.getJMSStorageManager().isStarted());
-         ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
-         Assert.assertNotNull(activeMQServer);
-         Assert.assertTrue(activeMQServer.isStarted());
-         Assert.assertTrue(broker.isStarted());
-      } finally {
-         if (broker != null) {
-            broker.stop();
-         }
-      }
-   }
-
-   @Test
    public void startWithoutJMS() throws Exception {
       ServerDTO serverDTO = new ServerDTO();
       serverDTO.configuration = "broker-nojms.xml";

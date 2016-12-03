@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -705,6 +706,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception {
       return server.queueQuery(name);
+   }
+
+   @Override
+   public AddressQueryResult executeAddressQuery(SimpleString name) throws Exception {
+      return server.addressQuery(name);
    }
 
    @Override
@@ -1481,6 +1487,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public String getValidatedUser() {
       return validatedUser;
+   }
+
+   @Override
+   public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {
+      return server.getPostOffice().getMatchingQueue(address, routingType);
+   }
+
+   @Override
+   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception {
+      return server.getPostOffice().getMatchingQueue(address, queueName, routingType);
+   }
+
+   @Override
+   public AddressInfo getAddress(SimpleString address) {
+      return server.getPostOffice().getAddressInfo(address);
    }
 
    @Override

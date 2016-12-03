@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -185,12 +186,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, false);
 
-      serverControl.createQueue(address.toString(), name.toString());
-
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
@@ -211,12 +212,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(),  "ANYCAST", name.toString(), filter, durable, -1, false, false);
 
-      serverControl.createQueue(address.toString(), name.toString(), filter, durable);
-
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertEquals(filter, queueControl.getFilter());
@@ -236,12 +237,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, durable, -1, false, false);
 
-      serverControl.createQueue(address.toString(), name.toString(), durable);
-
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
@@ -264,12 +265,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
       serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
@@ -297,8 +298,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-
-      serverControl.createQueue(address.toString(), name.toString(), durable);
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, durable, -1, false, false);
 
       ServerLocator receiveLocator = createInVMNonHALocator();
       ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
@@ -307,7 +308,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertFalse(consumer.isClosed());
 
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       serverControl.destroyQueue(name.toString(), true);
       Wait.waitFor(new Wait.Condition() {
          @Override
@@ -329,12 +330,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), filter, durable, -1, false, false);
 
-      serverControl.createQueue(address.toString(), name.toString(), filter, durable);
-
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
@@ -355,12 +356,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), filter, durable, -1, false, false);
 
-      serverControl.createQueue(address.toString(), name.toString(), filter, durable);
-
-      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name));
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, mbeanServer);
+      checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
       Assert.assertEquals(address.toString(), queueControl.getAddress());
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
@@ -383,8 +384,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // management operations
 
       Assert.assertFalse(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
-
-      serverControl.createQueue(address.toString(), name.toString());
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, false);
       Assert.assertTrue(ActiveMQServerControlTest.contains(name.toString(), serverControl.getQueueNames()));
 
       serverControl.destroyQueue(name.toString());
@@ -402,8 +403,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // management operations
 
       Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
-
-      serverControl.createQueue(address.toString(), name.toString());
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, false);
       Assert.assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
 
       serverControl.destroyQueue(name.toString());
@@ -1212,7 +1213,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession());
-      server.createQueue(queueName, queueName, null, false, false);
+      server.createAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
       addClientConsumer(session.createConsumer(queueName));
       Thread.sleep(100); // We check the timestamp for the creation time. We need to make sure it's different
       addClientConsumer(session.createConsumer(queueName, SimpleString.toSimpleString(filter), true));
@@ -1269,8 +1271,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator locator2 = createInVMNonHALocator();
       ClientSessionFactory factory2 = createSessionFactory(locator2);
       ClientSession session2 = addClientSession(factory2.createSession());
-
-      server.createQueue(queueName, queueName, null, false, false);
+      serverControl.createAddress(queueName.toString(), "ANYCAST");
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
 
       addClientConsumer(session.createConsumer(queueName));
       Thread.sleep(200);
@@ -1335,7 +1337,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @Test
    public void testListSessionsAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
-      server.createQueue(queueName, queueName, null, false, false);
+      server.createAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
       ActiveMQServerControl serverControl = createManagementControl();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -1400,8 +1403,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       this.conf.clearConnectorConfigurations().addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
 
       server2.start();
-      server.createQueue(address, address, null, true, false);
-      server2.createQueue(address, address, null, true, false);
+      server.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false, -1, false, false);
+      server2.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server2.createQueue(address, RoutingType.ANYCAST, address, null, true, false, -1, false, false);
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();

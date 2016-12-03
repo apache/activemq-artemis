@@ -33,7 +33,6 @@ import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.RoutingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.After;
 import org.junit.Before;

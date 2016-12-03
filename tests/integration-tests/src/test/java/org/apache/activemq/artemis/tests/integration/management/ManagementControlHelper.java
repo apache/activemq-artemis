@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.server.RoutingType;
 
 public class ManagementControlHelper {
 
@@ -71,6 +72,13 @@ public class ManagementControlHelper {
                                                  final SimpleString name,
                                                  final MBeanServer mbeanServer) throws Exception {
       return (QueueControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, ActiveMQDefaultConfiguration.getDefaultRoutingType()), QueueControl.class, mbeanServer);
+   }
+
+   public static QueueControl createQueueControl(final SimpleString address,
+                                                 final SimpleString name,
+                                                 final RoutingType routingType,
+                                                 final MBeanServer mbeanServer) throws Exception {
+      return (QueueControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, routingType), QueueControl.class, mbeanServer);
    }
 
    public static AddressControl createAddressControl(final SimpleString address,

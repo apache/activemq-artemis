@@ -55,6 +55,7 @@ public class AmqpSupport {
    public static final Symbol PLATFORM = Symbol.valueOf("platform");
    public static final Symbol RESOURCE_DELETED = Symbol.valueOf("amqp:resource-deleted");
    public static final Symbol CONNECTION_FORCED = Symbol.valueOf("amqp:connection:forced");
+   public static final Symbol SHARED_SUBS = Symbol.valueOf("SHARED-SUBS");
 
 
    // Symbols used in configuration of newly opened links.

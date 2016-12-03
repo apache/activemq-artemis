@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -44,6 +45,10 @@ public interface AddressManager {
 
    Bindings getMatchingBindings(SimpleString address) throws Exception;
 
+   SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
+
+   SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
+
    void clear();
 
    Binding getBinding(SimpleString queueName);
@@ -59,4 +64,5 @@ public interface AddressManager {
    AddressInfo removeAddressInfo(SimpleString address);
 
    AddressInfo getAddressInfo(SimpleString address);
+
 }

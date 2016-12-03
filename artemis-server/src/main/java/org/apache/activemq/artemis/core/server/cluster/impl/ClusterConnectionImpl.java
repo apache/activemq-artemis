@@ -720,7 +720,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                } else {
                   // Add binding in storage so the queue will get reloaded on startup and we can find it - it's never
                   // actually routed to at that address though
-                  queue = server.createQueue(queueName, RoutingType.MULTICAST, queueName, null, true, false);
+                  queue = server.createQueue(queueName, RoutingType.MULTICAST, queueName, null, true, false, -1, false, true);
                }
 
                // There are a few things that will behave differently when it's an internal queue

@@ -25,7 +25,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Random;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
@@ -42,6 +45,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
+      server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString("exampleQueue"), RoutingType.ANYCAST));
       server.start();
    }
 
