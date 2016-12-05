@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "delete", description = "delete a queue")
+@Command(name = "delete", description = "delete an address")
 public class DeleteAddress extends AbstractAction {
 
    @Option(name = "--name", description = "The name of this address")

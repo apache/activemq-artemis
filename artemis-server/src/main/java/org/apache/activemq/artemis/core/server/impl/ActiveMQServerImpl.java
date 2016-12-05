@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -2393,6 +2394,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          securityRepository.addMatch(roleItem.getAddressMatch().toString(), setRoles);
       }
+   }
+
+   @Override
+   public void addRoutingType(String address, RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
+      final SimpleString addressName = new SimpleString(address);
+      postOffice.addRoutingType(addressName,routingType);
+   }
+
+   @Override
+   public void removeRoutingType(String address, RoutingType routingType) throws Exception {
+      final SimpleString addressName = new SimpleString(address);
+      postOffice.removeRoutingType(addressName,routingType);
    }
 
    @Override

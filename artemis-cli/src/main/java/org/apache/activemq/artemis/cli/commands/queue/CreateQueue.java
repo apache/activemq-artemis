@@ -48,6 +48,9 @@ public class CreateQueue extends AbstractAction {
    @Option(name = "--autoCreateAddress", description = "Auto create the address (if it doesn't exist) with default values")
    boolean autoCreateAddress = false;
 
+   @Option(name = "--routingType", description = "The routing type supported by this queue, options are 'anycast' or 'multicast'", required = true)
+   String routingType;
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
@@ -67,7 +70,7 @@ public class CreateQueue extends AbstractAction {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             String address = getAddress();
-            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, getName(), filter, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, routingType, getName(), filter, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
          }
 
          @Override
@@ -113,5 +116,13 @@ public class CreateQueue extends AbstractAction {
       }
 
       return name;
+   }
+
+   public void setRoutingType(String routingType) {
+      this.routingType = routingType;
+   }
+
+   public String getRoutingType() {
+      return routingType;
    }
 }

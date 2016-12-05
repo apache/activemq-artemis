@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "show", description = "delete a queue")
+@Command(name = "show", description = "Get the selected address")
 public class ShowAddress extends AbstractAction {
 
    @Option(name = "--name", description = "The name of this address")
@@ -53,7 +53,7 @@ public class ShowAddress extends AbstractAction {
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            String result = (String) ManagementHelper.getResult(reply, String.class);
+            final String result = (String) ManagementHelper.getResult(reply, String.class);
             context.out.println(result);
          }
 

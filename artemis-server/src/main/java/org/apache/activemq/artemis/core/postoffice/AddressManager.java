@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.postoffice;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.RoutingType;
@@ -58,6 +59,9 @@ public interface AddressManager {
    Set<SimpleString> getAddresses();
 
    AddressInfo addAddressInfo(AddressInfo addressInfo);
+
+   AddressInfo updateAddressInfoIfPresent(SimpleString addressName,
+                                          BiFunction<? super SimpleString, ? super AddressInfo, ? extends AddressInfo> remappingFunction);
 
    AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
 

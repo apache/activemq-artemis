@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
@@ -50,6 +51,7 @@ public class QueueCommandTest extends JMSTestBase {
       String queueName = "queue1";
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(command, "AMQ119203: Address Does Not Exist:");
       assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
@@ -61,6 +63,7 @@ public class QueueCommandTest extends JMSTestBase {
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
       assertNotNull(server.getAddressInfo(new SimpleString(queueName)));
@@ -79,9 +82,10 @@ public class QueueCommandTest extends JMSTestBase {
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
       command.setAutoCreateAddress(false);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.setAddress(address);
 
-      server.createOrUpdateAddressInfo(new AddressInfo(new SimpleString(address)));
+      server.createOrUpdateAddressInfo(new AddressInfo(new SimpleString(address), RoutingType.MULTICAST));
 
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
@@ -102,6 +106,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName);
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       checkExecutionPassed(command);
@@ -119,6 +124,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName);
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(command, "AMQ119019: Queue already exists " + queueName);
@@ -132,6 +138,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName.toString());
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext());
 
       DeleteQueue delete = new DeleteQueue();
@@ -162,6 +169,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName.toString());
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext());
 
       server.locateQueue(queueName).addConsumer(new DummyServerConsumer());
@@ -180,6 +188,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName.toString());
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext());
 
       server.locateQueue(queueName).addConsumer(new DummyServerConsumer());
@@ -199,6 +208,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setName(queueName.toString());
       command.setFilter("color='green'");
       command.setAutoCreateAddress(true);
+      command.setRoutingType(RoutingType.MULTICAST.name());
       command.execute(new ActionContext());
       assertNotNull(server.getAddressInfo(queueName));
 

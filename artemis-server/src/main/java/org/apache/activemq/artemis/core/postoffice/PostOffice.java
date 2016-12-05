@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -51,6 +52,10 @@ public interface PostOffice extends ActiveMQComponent {
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
    AddressInfo getAddressInfo(SimpleString address);
+
+   void addRoutingType(SimpleString addressName, RoutingType routingType) throws ActiveMQAddressDoesNotExistException;
+
+   void removeRoutingType(SimpleString addressName, RoutingType routingType) throws Exception;
 
    List<Queue> listQueuesForAddress(SimpleString address) throws Exception;
 

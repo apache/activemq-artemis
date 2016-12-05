@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -453,6 +454,25 @@ public interface ActiveMQServer extends ActiveMQComponent {
    boolean addClientConnection(String clientId, boolean unique);
 
    void removeClientConnection(String clientId);
+
+   /**
+    * Add the {@code routingType} from the specified {@code address}.
+    *
+    * @param address     the address name
+    * @param routingType the routing type to be added
+    * @throws ActiveMQAddressDoesNotExistException
+    */
+   void addRoutingType(String address, RoutingType routingType) throws ActiveMQAddressDoesNotExistException;
+
+   /**
+    * Remove the {@code routingType} from the specified {@code address}.
+    *
+    * @param address     the address name
+    * @param routingType the routing type to be removed
+    * @throws ActiveMQAddressDoesNotExistException
+    * @throws IllegalStateException                when a binding already exists and is requested to remove {@link org.apache.activemq.artemis.core.server.RoutingType#MULTICAST}.
+    */
+   void removeRoutingType(String address, RoutingType routingType) throws Exception;
 
    AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception;
 
