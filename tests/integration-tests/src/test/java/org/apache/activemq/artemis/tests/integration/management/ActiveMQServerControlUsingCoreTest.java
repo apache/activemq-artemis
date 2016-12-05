@@ -58,6 +58,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
       return new ActiveMQServerControl() {
+
+         @Override
+         public void addRoutingType(String name, String routingType) throws Exception {
+            proxy.invokeOperation("addRoutingType", name, routingType);
+         }
+
+         @Override
+         public void removeRoutingType(String name, String routingType) throws Exception {
+            proxy.invokeOperation("removeRoutingType", name, routingType);
+         }
+
          @Override
          public void updateDuplicateIdCache(String address, Object[] ids) {
 
@@ -707,8 +718,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public String[] listBindingsForAddress(String address) throws Exception {
-            return new String[0];
+         public String listBindingsForAddress(String address) throws Exception {
+            return "";
          }
 
          @Override

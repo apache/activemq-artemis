@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Address;
@@ -217,6 +218,12 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public AddressInfo addAddressInfo(AddressInfo addressInfo) {
       return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo);
+   }
+
+   @Override
+   public AddressInfo updateAddressInfoIfPresent(SimpleString addressName,
+                                        BiFunction<? super SimpleString, ? super AddressInfo, ? extends AddressInfo> remappingFunction) {
+      return addressInfoMap.computeIfPresent(addressName, remappingFunction);
    }
 
    @Override

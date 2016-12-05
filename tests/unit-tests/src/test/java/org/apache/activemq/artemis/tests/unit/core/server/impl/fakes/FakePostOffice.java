@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
@@ -39,6 +40,17 @@ import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class FakePostOffice implements PostOffice {
+
+   @Override
+   public void addRoutingType(SimpleString addressName,
+                              RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
+
+   }
+
+   @Override
+   public void removeRoutingType(SimpleString addressName, RoutingType routingType) throws Exception {
+
+   }
 
    @Override
    public boolean isStarted() {

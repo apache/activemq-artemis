@@ -434,9 +434,17 @@ public interface ActiveMQServerControl {
 
    // Operations ----------------------------------------------------
 
-   @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
    void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingType", desc = "Comma separated list of Routing Typles (anycast/multicast)") String routingTypes) throws Exception;
+                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Typles (anycast/multicast)") String routingTypes) throws Exception;
+
+   @Operation(desc = "add the provided routing type to an address", impact = MBeanOperationInfo.ACTION)
+   void addRoutingType(@Parameter(name = "name", desc = "The name of the address") String name,
+                       @Parameter(name = "routingType", desc = "The routing types to be added to this address, options are 'anycast' or 'multicast'") String routingType) throws Exception;
+
+   @Operation(desc = "remove the provided routing type to an address", impact = MBeanOperationInfo.ACTION)
+   void removeRoutingType(@Parameter(name = "name", desc = "The name of the address") String name,
+                          @Parameter(name = "routingType", desc = "The routing types to be added to this address, options are 'anycast' or 'multicast'") String routingType) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
@@ -1038,9 +1046,10 @@ public interface ActiveMQServerControl {
    @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
    String listNetworkTopology() throws Exception;
 
+   @Operation(desc = "Get the selected address", impact = MBeanOperationInfo.INFO)
    String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException;
 
    @Operation(desc = "Get a list of bindings associated with an address", impact = MBeanOperationInfo.INFO)
-   String[] listBindingsForAddress(String address) throws Exception;
+   String listBindingsForAddress(String address) throws Exception;
 }
 

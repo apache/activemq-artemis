@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
@@ -568,10 +569,36 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Set<RoutingType> set = new HashSet<>();
-         for (Object routingType : toList(routingTypes)) {
-            set.add(RoutingType.valueOf(routingType.toString()));
+         for (String routingType : toList(routingTypes)) {
+            set.add(RoutingType.valueOf(routingType));
          }
          server.createAddressInfo(new AddressInfo(new SimpleString(name), set));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void addRoutingType(String name, String routingTypeName) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         final RoutingType routingType = RoutingType.valueOf(routingTypeName);
+         server.addRoutingType(name, routingType);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void removeRoutingType(String name, String routingTypeName) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         final RoutingType routingType = RoutingType.valueOf(routingTypeName);
+         server.removeRoutingType(name, routingType);
       } finally {
          blockOnIO();
       }
@@ -838,7 +865,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
+         final AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString(address));
          if (addressInfo == null) {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
          } else {
@@ -850,15 +877,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public String[] listBindingsForAddress(String address) throws Exception {
-      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
-      List<String> result = new ArrayList<>(bindings.getBindings().size());
+   public String listBindingsForAddress(String address) throws Exception {
+      checkStarted();
 
-      int i = 0;
-      for (Binding binding : bindings.getBindings()) {
-
+      clearIO();
+      try {
+         final Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
+         return bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
+      } finally {
+         blockOnIO();
       }
-      return (String[]) result.toArray();
    }
 
    @Override

@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -443,6 +444,39 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             e.printStackTrace();
          }
          return addressManager.addOrUpdateAddressInfo(addressInfo);
+      }
+   }
+
+   @Override
+   public void addRoutingType(SimpleString addressName, RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
+      synchronized (addressLock) {
+         final AddressInfo updateAddressInfo = addressManager.updateAddressInfoIfPresent(addressName, (name, addressInfo) -> {
+            addressInfo.getRoutingTypes().add(routingType);
+            return addressInfo;
+         });
+         if (updateAddressInfo == null) {
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         }
+      }
+   }
+
+   @Override
+   public void removeRoutingType(SimpleString addressName, RoutingType routingType) throws Exception {
+      synchronized (addressLock) {
+         if (RoutingType.MULTICAST.equals(routingType)) {
+            final Bindings bindings = addressManager.getBindingsForRoutingAddress(addressName);
+            final boolean existsQueueBindings = bindings.getBindings().stream().anyMatch(QueueBinding.class::isInstance);
+            if (existsQueueBindings) {
+               throw ActiveMQMessageBundle.BUNDLE.invalidMulticastRoutingTypeDelete();
+            }
+         }
+         final AddressInfo updateAddressInfo = addressManager.updateAddressInfoIfPresent(addressName, (name, addressInfo) -> {
+            addressInfo.getRoutingTypes().remove(routingType);
+            return addressInfo;
+         });
+         if (updateAddressInfo == null) {
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         }
       }
    }
 

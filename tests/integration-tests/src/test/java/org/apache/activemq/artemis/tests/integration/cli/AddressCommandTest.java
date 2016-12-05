@@ -18,12 +18,15 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.address.AddRoutingType;
 import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
 import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
+import org.apache.activemq.artemis.cli.commands.address.RemoveRoutingType;
 import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.RoutingType;
@@ -98,6 +101,20 @@ public class AddressCommandTest extends JMSTestBase {
    }
 
    @Test
+   public void testFailDeleteAddressWhenExistsQueues() throws Exception {
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
+      server.createAddressInfo(addressInfo);
+      server.createQueue(addressSimpleString, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
+
+      final DeleteAddress deleteAddress = new DeleteAddress();
+      deleteAddress.setName(addressName);
+      deleteAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(deleteAddress, "Address " + addressName + " has bindings");
+   }
+
+   @Test
    public void testShowAddress() throws Exception {
       String address = "address";
       CreateAddress command = new CreateAddress();
@@ -140,6 +157,79 @@ public class AddressCommandTest extends JMSTestBase {
       showAddress.setBindings(true);
       showAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       System.out.println(output.toString());
+   }
+
+   @Test
+   public void testAddRoutingType() throws Exception {
+      final String addressName = "address";
+      final SimpleString address = new SimpleString(addressName);
+      server.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+
+      final AddRoutingType addRoutingType = new AddRoutingType();
+      addRoutingType.setName(addressName);
+      addRoutingType.setRoutingType(RoutingType.MULTICAST.toString());
+      addRoutingType.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionPassed(addRoutingType);
+
+      final AddressInfo addressInfo = server.getAddressInfo(address);
+      assertNotNull(addressInfo);
+      assertEquals(EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST), addressInfo.getRoutingTypes());
+   }
+
+   @Test
+   public void testFailAddRoutingTypeAddressDoesNotExist() throws Exception {
+      final String addressName = "address";
+      final AddRoutingType addRoutingType = new AddRoutingType();
+      addRoutingType.setName(addressName);
+      addRoutingType.setRoutingType(RoutingType.MULTICAST.toString());
+      addRoutingType.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(addRoutingType, "Address Does Not Exist");
+      final AddressInfo addressInfo = server.getAddressInfo(new SimpleString(addressName));
+      assertNull(addressInfo);
+   }
+
+   @Test
+   public void testRemoveRoutingType() throws Exception {
+      final String addressName = "address";
+      final SimpleString address = new SimpleString(addressName);
+      server.createAddressInfo(new AddressInfo(address, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST)));
+
+      final RemoveRoutingType removeRoutingType = new RemoveRoutingType();
+      removeRoutingType.setName(addressName);
+      removeRoutingType.setRoutingType(RoutingType.MULTICAST.toString());
+      removeRoutingType.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionPassed(removeRoutingType);
+
+      final AddressInfo addressInfo = server.getAddressInfo(new SimpleString(addressName));
+      assertNotNull(addressInfo);
+      assertEquals(EnumSet.of(RoutingType.ANYCAST), addressInfo.getRoutingTypes());
+   }
+
+   @Test
+   public void testFailRemoveRoutingTypeAddressDoesNotExist() throws Exception {
+      final String addressName = "address";
+      final RemoveRoutingType removeRoutingType = new RemoveRoutingType();
+      removeRoutingType.setName(addressName);
+      removeRoutingType.setRoutingType(RoutingType.MULTICAST.toString());
+      removeRoutingType.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(removeRoutingType, "Address Does Not Exist");
+      final AddressInfo addressInfo = server.getAddressInfo(new SimpleString(addressName));
+      assertNull(addressInfo);
+   }
+
+   @Test
+   public void testFailRemoveMulticastRoutingTypeWhenExistsQueues() throws Exception {
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
+      server.createAddressInfo(addressInfo);
+      server.createQueue(addressSimpleString, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
+
+      final RemoveRoutingType removeRoutingType = new RemoveRoutingType();
+      removeRoutingType.setName(addressName);
+      removeRoutingType.setRoutingType(RoutingType.MULTICAST.toString());
+      removeRoutingType.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(removeRoutingType, "Can't remove MULTICAST routing type, queues exists. Please delete queues before removing this routing type.");
    }
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {
