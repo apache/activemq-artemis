@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.hornetq.client;
 
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -71,7 +72,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       SessionBindingQueryResponseMessage response = (SessionBindingQueryResponseMessage) getSessionChannel().sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
 
-      return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, false);
+      return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false, false, ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
    }
 
    @Override

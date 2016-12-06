@@ -406,17 +406,17 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
 
                if (!query.isExists()) {
-                  if (destination.isQueue() && query.isAutoCreateJmsQueues()) {
+                  if (destination.isQueue() && query.isAutoCreateQueues()) {
                      clientSession.createAddress(address, RoutingType.ANYCAST, true);
                      if (destination.isTemporary()) {
                         // TODO is it right to use the address for the queue name here?
                         clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
                      } else {
-                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true);
+                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultDeleteOnNoConsumers());
                      }
-                  } else if (!destination.isQueue() && query.isAutoCreateJmsTopics()) {
+                  } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
                      clientSession.createAddress(address, RoutingType.MULTICAST, true);
-                  } else if ((destination.isQueue() && !query.isAutoCreateJmsQueues()) || (!destination.isQueue() && !query.isAutoCreateJmsTopics())) {
+                  } else if ((destination.isQueue() && !query.isAutoCreateQueues()) || (!destination.isQueue() && !query.isAutoCreateAddresses())) {
                      throw new InvalidDestinationException("Destination " + address + " does not exist");
                   }
                } else {

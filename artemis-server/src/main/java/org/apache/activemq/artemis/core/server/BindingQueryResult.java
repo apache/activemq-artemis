@@ -26,36 +26,54 @@ public class BindingQueryResult {
 
    private List<SimpleString> queueNames;
 
-   private boolean autoCreateJmsQueues;
+   private boolean autoCreateQueues;
 
-   private boolean autoCreateJmsTopics;
+   private boolean autoCreateAddresses;
+
+   private boolean defaultDeleteOnNoConsumers;
+
+   private int defaultMaxConsumers;
 
    public BindingQueryResult(final boolean exists,
                              final List<SimpleString> queueNames,
-                             final boolean autoCreateJmsQueues,
-                             final boolean autoCreateJmsTopics) {
+                             final boolean autoCreateQueues,
+                             final boolean autoCreateAddresses,
+                             final boolean defaultDeleteOnNoConsumers,
+                             final int defaultMaxConsumers) {
       this.exists = exists;
 
       this.queueNames = queueNames;
 
-      this.autoCreateJmsQueues = autoCreateJmsQueues;
+      this.autoCreateQueues = autoCreateQueues;
 
-      this.autoCreateJmsTopics = autoCreateJmsTopics;
+      this.autoCreateAddresses = autoCreateAddresses;
+
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+
+      this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
    public boolean isExists() {
       return exists;
    }
 
-   public boolean isAutoCreateJmsQueues() {
-      return autoCreateJmsQueues;
+   public boolean isAutoCreateQueues() {
+      return autoCreateQueues;
    }
 
-   public boolean isAutoCreateJmsTopics() {
-      return autoCreateJmsTopics;
+   public boolean isAutoCreateAddresses() {
+      return autoCreateAddresses;
    }
 
    public List<SimpleString> getQueueNames() {
       return queueNames;
+   }
+
+   public boolean isDefaultDeleteOnNoConsumers() {
+      return defaultDeleteOnNoConsumers;
+   }
+
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
    }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -47,6 +48,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, addressSettings.isAutoDeleteQueues());
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, addressSettings.isAutoCreateAddresses());
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES, addressSettings.isAutoDeleteAddresses());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), addressSettings.isDefaultDeleteOnNoConsumers());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), addressSettings.getDefaultMaxConsumers());
    }
 
    @Test

@@ -174,6 +174,8 @@ public final class ChannelImpl implements Channel {
             return version >= 127;
          case PacketImpl.SESS_QUEUEQUERY_RESP_V3:
             return version >= 129;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V4:
+            return version >= 129;
          default:
             return true;
       }

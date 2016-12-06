@@ -170,6 +170,17 @@ public final class Validators {
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(RoutingType.ANYCAST.toString()) &&
+            !val.equals(RoutingType.MULTICAST.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
+         }
+      }
+   };
+
+   public static final Validator DIVERT_ROUTING_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !val.equals(RoutingType.ANYCAST.toString()) &&
             !val.equals(RoutingType.MULTICAST.toString()) &&
             !val.equals(RoutingType.PASS.toString()) &&
             !val.equals(RoutingType.STRIP.toString())) {

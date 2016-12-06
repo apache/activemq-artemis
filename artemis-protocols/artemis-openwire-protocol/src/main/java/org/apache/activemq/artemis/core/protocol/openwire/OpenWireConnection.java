@@ -913,7 +913,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (destination.isQueue()) {
          SimpleString physicalName = new SimpleString(destination.getPhysicalName());
          BindingQueryResult result = server.bindingQuery(physicalName);
-         if (!result.isExists() && !result.isAutoCreateJmsQueues()) {
+         if (!result.isExists() && !result.isAutoCreateQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
          }
       }

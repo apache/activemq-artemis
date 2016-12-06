@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +87,7 @@ public class SimpleTest extends ActiveMQTestBase {
       final String addressName = "simpleAddress";
 
       // Create a queue bound to a particular address where the test will send to & consume from.
-      session.createQueue(addressName, queueName);
+      session.createQueue(addressName, RoutingType.ANYCAST, queueName);
 
       // Create a producer to send a message to the previously created address.
       ClientProducer producer = session.createProducer(addressName);

@@ -1005,6 +1005,18 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       }
 
+      @Override
+      public void createQueue(SimpleString address,
+                              RoutingType routingType,
+                              SimpleString queueName,
+                              SimpleString filter,
+                              boolean durable,
+                              boolean autoCreated,
+                              int maxConsumers,
+                              boolean deleteOnNoConsumers) throws ActiveMQException {
+
+      }
+
       /**
        * Creates a <em>non-temporary</em>queue.
        *
@@ -1020,6 +1032,18 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       public void createQueue(String address, RoutingType routingType, String queueName, String filter,
                               boolean durable,
                               boolean autoCreated) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void createQueue(String address,
+                              RoutingType routingType,
+                              String queueName,
+                              String filter,
+                              boolean durable,
+                              boolean autoCreated,
+                              int maxConsumers,
+                              boolean deleteOnNoConsumers) throws ActiveMQException {
 
       }
 

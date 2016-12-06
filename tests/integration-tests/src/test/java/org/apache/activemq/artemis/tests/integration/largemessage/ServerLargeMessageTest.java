@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          fileMessage.releaseResources();
 
-         session.createQueue("A", "A");
+         session.createQueue("A", RoutingType.ANYCAST, "A");
 
          ClientProducer prod = session.createProducer("A");
 

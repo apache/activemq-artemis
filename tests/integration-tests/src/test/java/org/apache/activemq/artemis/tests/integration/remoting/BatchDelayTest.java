@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(foo, foo);
+      session.createQueue(foo, RoutingType.ANYCAST, foo);
 
       ClientProducer prod = session.createProducer(foo);
 
@@ -93,7 +94,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
 
       final String foo = "foo";
 
-      session.createQueue(foo, foo);
+      session.createQueue(foo, RoutingType.ANYCAST, foo);
 
       ClientProducer prod = session.createProducer(foo);
 

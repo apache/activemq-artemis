@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -148,7 +149,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
    protected ClientSession checkSessionOrReconnect(ClientSession session, ServerLocator locator) throws Exception {
       try {
          String rand = RandomUtil.randomString();
-         session.createQueue(rand, rand);
+         session.createQueue(rand, RoutingType.MULTICAST, rand);
          session.deleteQueue(rand);
          return session;
       } catch (ActiveMQObjectClosedException oce) {

@@ -1577,20 +1577,12 @@
 
          <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="routing-type" default="STRIP" maxOccurs="1" minOccurs="0">
+         <xsd:element name="routing-type" type="divert-routing-type" default="STRIP" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   how should the routing-type on the diverted messages be set?
                </xsd:documentation>
             </xsd:annotation>
-            <xsd:simpleType>
-               <xsd:restriction base="xsd:string">
-                  <xsd:enumeration value="ANYCAST"/>
-                  <xsd:enumeration value="MULTICAST"/>
-                  <xsd:enumeration value="STRIP"/>
-                  <xsd:enumeration value="PASS"/>
-               </xsd:restriction>
-            </xsd:simpleType>
          </xsd:element>
       </xsd:all>
 
@@ -2489,11 +2481,42 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1"
-                         minOccurs="0">
+            <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      how many message a management resource can browse
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-delete-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Purge and pause this queue when the last consumer disconnects
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-max-consumers" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the maximum number of consumers allowed on this queue at any one time
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-queue-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the routing-type used on auto-created queues
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="default-address-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the routing-type used on auto-created addresses
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2593,6 +2616,22 @@
 
 
    <!-- 2.0 Addressing configuration -->
+
+   <xsd:simpleType name="routing-type">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="ANYCAST"/>
+         <xsd:enumeration value="MULTICAST"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:simpleType name="divert-routing-type">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="ANYCAST"/>
+         <xsd:enumeration value="MULTICAST"/>
+         <xsd:enumeration value="STRIP"/>
+         <xsd:enumeration value="PASS"/>
+      </xsd:restriction>
+   </xsd:simpleType>
 
    <xsd:complexType name="queueType">
       <xsd:all>

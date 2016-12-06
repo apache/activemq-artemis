@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -45,7 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConsumerTest extends JMSTestBase {
+public class JmsConsumerTest extends JMSTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -67,7 +68,7 @@ public class ConsumerTest extends JMSTestBase {
       topic = ActiveMQJMSClient.createTopic(T_NAME);
       topic2 = ActiveMQJMSClient.createTopic(T2_NAME);
 
-      jmsServer.createQueue(false, ConsumerTest.Q_NAME, null, true, ConsumerTest.Q_NAME);
+      jmsServer.createQueue(false, JmsConsumerTest.Q_NAME, null, true, JmsConsumerTest.Q_NAME);
       jmsServer.createTopic(true, T_NAME, "/topic/" + T_NAME);
       jmsServer.createTopic(true, T2_NAME, "/topic/" + T2_NAME);
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -117,7 +118,7 @@ public class ConsumerTest extends JMSTestBase {
    public void testPreCommitAcks() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -131,7 +132,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -140,7 +141,7 @@ public class ConsumerTest extends JMSTestBase {
    public void testIndividualACK() throws Exception {
       Connection conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -177,7 +178,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -187,7 +188,7 @@ public class ConsumerTest extends JMSTestBase {
    public void testIndividualACKMessageConsumer() throws Exception {
       Connection conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -251,7 +252,7 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -263,7 +264,7 @@ public class ConsumerTest extends JMSTestBase {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -278,18 +279,18 @@ public class ConsumerTest extends JMSTestBase {
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
 
    @Test
    public void testPreCommitAcksWithMessageExpiry() throws Exception {
-      ConsumerTest.log.info("starting test");
+      JmsConsumerTest.log.info("starting test");
 
       conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -317,7 +318,7 @@ public class ConsumerTest extends JMSTestBase {
       ((ActiveMQConnectionFactory) cf).setPreAcknowledge(true);
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -344,7 +345,7 @@ public class ConsumerTest extends JMSTestBase {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
 
       QueueBrowser browser = session.createBrowser(jBossQueue);
@@ -390,7 +391,7 @@ public class ConsumerTest extends JMSTestBase {
       Session sessionConsumer = connConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = sessionConsumer.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -428,7 +429,7 @@ public class ConsumerTest extends JMSTestBase {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       int noOfMessages = 10;
       for (int i = 0; i < noOfMessages; i++) {
@@ -461,7 +462,7 @@ public class ConsumerTest extends JMSTestBase {
    public void testClearExceptionListener() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener() {
          @Override
@@ -477,7 +478,7 @@ public class ConsumerTest extends JMSTestBase {
    public void testCantReceiveWhenListenerIsSet() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener() {
          @Override
@@ -738,5 +739,28 @@ public class ConsumerTest extends JMSTestBase {
 
       conn.unsubscribe("c1");
 
+   }
+
+   @Test
+   public void defaultAutoCreatedQueueConfigTest() throws Exception {
+      final String queueName = "q1";
+
+      server.getAddressSettingsRepository()
+            .addMatch(queueName, new AddressSettings()
+               .setDefaultMaxConsumers(5)
+               .setDefaultDeleteOnNoConsumers(true));
+
+      Connection connection = cf.createConnection();
+
+      Session session = connection.createSession();
+
+      session.createConsumer(session.createQueue(queueName));
+
+      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+
+      assertEquals(5, queue.getMaxConsumers());
+      assertEquals(true, queue.isDeleteOnNoConsumers());
+
+      connection.close();
    }
 }

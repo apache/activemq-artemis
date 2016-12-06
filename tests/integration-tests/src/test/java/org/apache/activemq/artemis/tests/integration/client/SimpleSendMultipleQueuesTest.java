@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -91,9 +92,9 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
 
       session = cf.createSession();
 
-      session.createQueue(SimpleSendMultipleQueuesTest.address, "queue1");
-      session.createQueue(SimpleSendMultipleQueuesTest.address, "queue2");
-      session.createQueue(SimpleSendMultipleQueuesTest.address, "queue3");
+      session.createQueue(SimpleSendMultipleQueuesTest.address, RoutingType.MULTICAST, "queue1");
+      session.createQueue(SimpleSendMultipleQueuesTest.address, RoutingType.MULTICAST, "queue2");
+      session.createQueue(SimpleSendMultipleQueuesTest.address, RoutingType.MULTICAST, "queue3");
 
       producer = session.createProducer(SimpleSendMultipleQueuesTest.address);
 

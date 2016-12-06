@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -79,6 +78,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.Transaction.State;
@@ -503,7 +503,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address, name, ActiveMQDefaultConfiguration.getDefaultRoutingType(), filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), false);
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
+      return createQueue(address, name, as.getDefaultQueueRoutingType(), filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), false);
    }
 
    @Override
@@ -513,7 +514,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address, name, routingType, filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), false);
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
+      return createQueue(address, name, routingType, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), false);
    }
 
    @Override
@@ -576,7 +578,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             boolean temporary,
                             boolean durable,
                             boolean autoCreated) throws Exception {
-      return createQueue(address, name, routingType, filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), autoCreated);
+      AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
+      return createQueue(address, name, routingType, filterString, temporary, durable, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), autoCreated);
    }
 
    @Override

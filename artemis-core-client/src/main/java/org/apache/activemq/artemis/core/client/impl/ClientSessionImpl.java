@@ -239,14 +239,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
-      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName);
+      createQueue(address, queueName, false);
    }
 
    @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final boolean durable) throws ActiveMQException {
-      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, durable);
+      createQueue(address, queueName, null, durable, false);
    }
 
    @Override
@@ -260,7 +260,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
                                  boolean durable) throws ActiveMQException {
-      createSharedQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, null, durable);
+      createSharedQueue(address, queueName, null, durable);
    }
 
    @Override
@@ -295,8 +295,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final SimpleString queueName,
                            final SimpleString filterString,
                            final boolean durable) throws ActiveMQException {
-      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filterString,
-                  durable);
+      createQueue(address, queueName, filterString, durable, false);
    }
 
    @Override
@@ -316,9 +315,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                            final SimpleString filterString,
                            final boolean durable,
                            final boolean autoCreated) throws ActiveMQException {
-      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filterString,
-                  durable,
-                  autoCreated);
+      createQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filterString, durable, autoCreated);
    }
 
    @Override
@@ -332,7 +329,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
-      createTemporaryQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName);
+      createTemporaryQueue(address, queueName, null);
    }
 
    @Override
@@ -351,7 +348,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createTemporaryQueue(final String address,
                                     final String queueName,
                                     final String filter) throws ActiveMQException {
-      createTemporaryQueue(address, ActiveMQDefaultConfiguration.getDefaultRoutingType(), queueName, filter);
+      createTemporaryQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
    }
 
 
@@ -377,8 +374,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
-                           final boolean durable,
-                           final boolean autoCreated) throws ActiveMQException {
+                           final boolean durable, final boolean autoCreated) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address),
                   SimpleString.toSimpleString(queueName),
                   SimpleString.toSimpleString(filterString),
@@ -386,18 +382,38 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                   autoCreated);
    }
 
+
+   @Override
+   public void createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString filterString,
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean deleteOnNoConsumers) throws ActiveMQException {
+      internalCreateQueue(address,
+                          queueName, routingType,
+                          filterString,
+                          durable,
+                          false,
+                          maxConsumers,
+                          deleteOnNoConsumers,
+                          autoCreated);
+   }
+
+   @Override
+   public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean deleteOnNoConsumers) throws ActiveMQException {
+      createQueue(SimpleString.toSimpleString(address),
+                  routingType,
+                  SimpleString.toSimpleString(queueName),
+                  SimpleString.toSimpleString(filterString),
+                  durable,
+                  autoCreated,
+                  maxConsumers,
+                  deleteOnNoConsumers);
+   }
+
    @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final RoutingType routingType,
                                     final SimpleString queueName) throws ActiveMQException {
-      internalCreateQueue(address,
-                          queueName, routingType,
-                          null,
-                          false,
-                          true,
-                          ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
-                          false);
+      createTemporaryQueue(address, routingType, queueName, null);
    }
 
    @Override

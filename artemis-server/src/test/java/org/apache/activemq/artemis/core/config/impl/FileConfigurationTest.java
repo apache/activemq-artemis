@@ -305,6 +305,10 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsQueues());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsTopics());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsTopics());
+      assertEquals(false, conf.getAddressesSettings().get("a1").isDefaultDeleteOnNoConsumers());
+      assertEquals(5, conf.getAddressesSettings().get("a1").getDefaultMaxConsumers());
+      assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
+      assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a1").getDefaultAddressRoutingType());
 
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
@@ -320,6 +324,10 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsQueues());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsTopics());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsTopics());
+      assertEquals(true, conf.getAddressesSettings().get("a2").isDefaultDeleteOnNoConsumers());
+      assertEquals(15, conf.getAddressesSettings().get("a2").getDefaultMaxConsumers());
+      assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
+      assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
 
       assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
       assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());

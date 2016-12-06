@@ -302,11 +302,11 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
             if (!response.isExists()) {
                try {
-                  if (jbd.isQueue() && response.isAutoCreateJmsQueues()) {
+                  if (jbd.isQueue() && response.isAutoCreateQueues()) {
                      // perhaps just relying on the broker to do it is simplest (i.e. deleteOnNoConsumers)
                      session.createAddress(jbd.getSimpleAddress(), RoutingType.ANYCAST, true);
-                     session.createQueue(jbd.getSimpleAddress(), RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true);
-                  } else if (!jbd.isQueue() && response.isAutoCreateJmsTopics()) {
+                     session.createQueue(jbd.getSimpleAddress(), RoutingType.ANYCAST, jbd.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultDeleteOnNoConsumers());
+                  } else if (!jbd.isQueue() && response.isAutoCreateAddresses()) {
                      session.createAddress(jbd.getSimpleAddress(), RoutingType.MULTICAST, true);
                   } else {
                      throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
@@ -571,7 +571,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
-         if (!response.isExists() && !response.isAutoCreateJmsTopics()) {
+         if (!response.isExists() && !response.isAutoCreateAddresses()) {
             throw ActiveMQJMSClientBundle.BUNDLE.destinationDoesNotExist(dest.getSimpleAddress());
          }
 
@@ -651,9 +651,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
              * not a LOCAL binding for the address exists. If no LOCAL binding exists then it should be created here.
              */
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
-               if (response.isAutoCreateJmsQueues()) {
+               if (response.isAutoCreateQueues()) {
                   try {
-                     session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true);
+                     session.createQueue(dest.getSimpleAddress(), RoutingType.ANYCAST, dest.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultDeleteOnNoConsumers());
                   } catch (ActiveMQQueueExistsException e) {
                      // The queue was created by another client/admin between the query check and send create queue packet
                   }
@@ -669,7 +669,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
             if (!response.isExists()) {
-               if (response.isAutoCreateJmsTopics()) {
+               if (response.isAutoCreateAddresses()) {
                   session.createAddress(dest.getSimpleAddress(), RoutingType.MULTICAST, true);
                } else {
                   throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
@@ -709,7 +709,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                QueueQuery subResponse = session.queueQuery(queueName);
 
                if (!subResponse.isExists()) {
-                  session.createQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString, true);
+                  // durable subscription queues are not technically considered to be auto-created
+                  session.createQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString, true, false, response.getDefaultMaxConsumers(), response.isDefaultDeleteOnNoConsumers());
                } else {
                   // Already exists
                   if (subResponse.getConsumerCount() > 0) {
@@ -718,12 +719,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                   // From javax.jms.Session Javadoc (and also JMS 1.1 6.11.1):
                   // A client can change an existing durable subscription by
-                  // creating a durable
-                  // TopicSubscriber with the same name and a new topic and/or
-                  // message selector.
-                  // Changing a durable subscriber is equivalent to
-                  // unsubscribing (deleting) the old
-                  // one and creating a new one.
+                  // creating a durable TopicSubscriber with the same name and
+                  // a new topic and/or message selector.
+                  // Changing a durable subscriber is equivalent to unsubscribing
+                  // (deleting) the old one and creating a new one.
 
                   SimpleString oldFilterString = subResponse.getFilterString();
 
@@ -742,7 +741,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                      session.deleteQueue(queueName);
 
                      // Create the new one
-                     session.createQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
+                     session.createQueue(dest.getSimpleAddress(), RoutingType.MULTICAST, queueName, coreFilterString, true, false, response.getDefaultMaxConsumers(), response.isDefaultDeleteOnNoConsumers());
                   }
                }
 
@@ -803,8 +802,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       try {
          AddressQuery response = session.addressQuery(new SimpleString(activeMQDestination.getAddress()));
          if (!response.isExists()) {
-            if (response.isAutoCreateJmsQueues()) {
-               session.createQueue(activeMQDestination.getSimpleAddress(), activeMQDestination.getSimpleAddress(), null, true, true);
+            if (response.isAutoCreateQueues()) {
+               session.createQueue(activeMQDestination.getSimpleAddress(), RoutingType.ANYCAST, activeMQDestination.getSimpleAddress(), null, true, true, response.getDefaultMaxConsumers(), response.isDefaultDeleteOnNoConsumers());
             } else {
                throw new InvalidDestinationException("Destination " + activeMQDestination.getName() + " does not exist");
             }
@@ -1102,7 +1101,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       AddressQuery query = session.addressQuery(topic.getSimpleAddress());
 
-      if (!query.isExists() && !query.isAutoCreateJmsTopics()) {
+      if (!query.isExists() && !query.isAutoCreateAddresses()) {
          return null;
       } else {
          return topic;

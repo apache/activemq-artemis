@@ -584,7 +584,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-//      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+//      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
@@ -610,7 +610,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-//      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+//      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       ex = false;
@@ -675,8 +675,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String divertQueue = RandomUtil.randomString();
       String queue = RandomUtil.randomString();
-      session.createQueue(forwardingAddress, divertQueue);
-      session.createQueue(address, queue);
+      session.createQueue(forwardingAddress, RoutingType.ANYCAST, divertQueue);
+      session.createQueue(address, RoutingType.ANYCAST, queue);
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
@@ -737,8 +737,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      session.createQueue(sourceAddress, sourceQueue);
-      session.createQueue(targetAddress, targetQueue);
+      session.createQueue(sourceAddress, RoutingType.ANYCAST, sourceQueue);
+      session.createQueue(targetAddress, RoutingType.ANYCAST, targetQueue);
 
       serverControl.createBridge(name, sourceQueue, targetAddress, null, // forwardingAddress
                                  null, // filterString
@@ -985,8 +985,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      session.createQueue(random1, random1);
-      session.createQueue(random2, random2);
+      session.createQueue(random1, RoutingType.ANYCAST, random1);
+      session.createQueue(random2, RoutingType.ANYCAST, random2);
 
       ClientProducer producer1 = session.createProducer(random1);
       ClientProducer producer2 = session.createProducer(random2);
@@ -1034,8 +1034,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      session.createQueue(random1, random1);
-      session.createQueue(random2, random2);
+      session.createQueue(random1, RoutingType.ANYCAST, random1);
+      session.createQueue(random2, RoutingType.ANYCAST, random2);
 
       ClientProducer producer1 = session.createProducer(random1);
       ClientProducer producer2 = session.createProducer(random2);
@@ -1080,8 +1080,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      session.createQueue(random1, random1);
-      session.createQueue(random2, random2);
+      session.createQueue(random1, RoutingType.ANYCAST, random1);
+      session.createQueue(random2, RoutingType.ANYCAST, random2);
 
       ClientProducer producer1 = session.createProducer(random1);
       ClientProducer producer2 = session.createProducer(random2);
@@ -1121,15 +1121,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String random2 = RandomUtil.randomString();
 
       ActiveMQServerControl serverControl = createManagementControl();
-      QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random1), SimpleString.toSimpleString(random1), mbeanServer);
-      QueueControl queueControl2 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random2), SimpleString.toSimpleString(random2), mbeanServer);
+      QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random1), SimpleString.toSimpleString(random1), RoutingType.ANYCAST, mbeanServer);
+      QueueControl queueControl2 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random2), SimpleString.toSimpleString(random2), RoutingType.ANYCAST, mbeanServer);
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      session.createQueue(random1, random1);
-      session.createQueue(random2, random2);
+      session.createQueue(random1, RoutingType.ANYCAST, random1);
+      session.createQueue(random2, RoutingType.ANYCAST, random2);
 
       ClientConsumer consumer1 = session.createConsumer(random1);
       ClientConsumer consumer2 = session.createConsumer(random2);

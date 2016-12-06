@@ -183,6 +183,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_ADDRESSES = "auto-delete-addresses";
 
+   private static final String DEFAULT_DELETE_ON_NO_CONSUMERS = "default-delete-on-no-consumers";
+
+   private static final String DEFAULT_MAX_CONSUMERS = "default-max-consumers";
+
+   private static final String DEFAULT_QUEUE_ROUTING_TYPE = "default-queue-routing-type";
+
+   private static final String DEFAULT_ADDRESS_ROUTING_TYPE = "default-address-routing-type";
+
    private static final String MANAGEMENT_BROWSE_PAGE_SIZE = "management-browse-page-size";
 
    private static final String MAX_CONNECTIONS_NODE_NAME = "max-connections";
@@ -871,6 +879,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoDeleteAddresses(XMLUtil.parseBoolean(child));
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
+         } else if (DEFAULT_DELETE_ON_NO_CONSUMERS.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultDeleteOnNoConsumers(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_MAX_CONSUMERS.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultMaxConsumers(XMLUtil.parseInt(child));
+         } else if (DEFAULT_QUEUE_ROUTING_TYPE.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.ROUTING_TYPE.validate(DEFAULT_QUEUE_ROUTING_TYPE, value);
+            RoutingType routingType = RoutingType.valueOf(value);
+            addressSettings.setDefaultQueueRoutingType(routingType);
+         } else if (DEFAULT_ADDRESS_ROUTING_TYPE.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.ROUTING_TYPE.validate(DEFAULT_ADDRESS_ROUTING_TYPE, value);
+            RoutingType routingType = RoutingType.valueOf(value);
+            addressSettings.setDefaultAddressRoutingType(routingType);
          }
       }
       return setting;
@@ -1570,7 +1592,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String transformerClassName = getString(e, "transformer-class-name", null, Validators.NO_CHECK);
 
-      RoutingType routingType = RoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.ROUTING_TYPE));
+      RoutingType routingType = RoutingType.valueOf(getString(e, "routing-type", ActiveMQDefaultConfiguration.getDefaultDivertRoutingType(), Validators.DIVERT_ROUTING_TYPE));
 
       String filterString = null;
 
