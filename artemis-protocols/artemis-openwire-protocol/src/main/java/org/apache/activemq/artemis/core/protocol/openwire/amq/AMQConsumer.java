@@ -48,7 +48,6 @@ import org.apache.activemq.command.RemoveInfo;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQConsumer {
-
    private AMQSession session;
    private org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private ConsumerInfo info;
@@ -318,6 +317,13 @@ public class AMQConsumer {
    public boolean updateDeliveryCountAfterCancel(MessageReference ref) {
       long seqId = ref.getMessage().getMessageID();
       long lastDelSeqId = info.getLastDeliveredSequenceId();
+
+      //in activemq5, closing a durable subscription won't close the consumer
+      //at broker. Messages will be treated as if being redelivered to
+      //the same consumer.
+      if (this.info.isDurable() && this.getOpenwireDestination().isTopic()) {
+         return true;
+      }
 
       //because delivering count is always one greater than redelivery count
       //we adjust it down before further calculating.
