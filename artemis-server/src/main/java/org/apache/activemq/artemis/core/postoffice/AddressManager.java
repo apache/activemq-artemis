@@ -58,12 +58,20 @@ public interface AddressManager {
 
    Set<SimpleString> getAddresses();
 
-   AddressInfo addAddressInfo(AddressInfo addressInfo);
+   /**
+    * @param addressInfo
+    * @return true if the address was added, false if it wasn't added
+    */
+   boolean addAddressInfo(AddressInfo addressInfo);
 
    AddressInfo updateAddressInfoIfPresent(SimpleString addressName,
                                           BiFunction<? super SimpleString, ? super AddressInfo, ? extends AddressInfo> remappingFunction);
 
-   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
+   /**
+    * @param addressInfo
+    * @return true if the address was added, false if it was updated
+    */
+   boolean addOrUpdateAddressInfo(AddressInfo addressInfo);
 
    AddressInfo removeAddressInfo(SimpleString address);
 

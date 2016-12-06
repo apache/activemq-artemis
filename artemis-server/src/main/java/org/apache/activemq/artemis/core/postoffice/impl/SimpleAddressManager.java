@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -216,8 +215,8 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
-      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo);
+   public boolean addAddressInfo(AddressInfo addressInfo) {
+      return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
    }
 
    @Override
@@ -226,23 +225,20 @@ public class SimpleAddressManager implements AddressManager {
       return addressInfoMap.computeIfPresent(addressName, remappingFunction);
    }
 
-   @Override
-   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      AddressInfo from = addAddressInfo(addressInfo);
-      if (from != null) {
-         ActiveMQServerLogger.LOGGER.info("Address " + addressInfo.getName() + " exists already as " + from + ", updating instead with: " + addressInfo);
-      }
-      return (from == null) ? addressInfo : updateAddressInfo(from, addressInfo);
-   }
+   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      boolean isNew = addAddressInfo(addressInfo);
 
-   private AddressInfo updateAddressInfo(AddressInfo from, AddressInfo to) {
-      synchronized (from) {
-         for (RoutingType routingType : to.getRoutingTypes()) {
-            from.addRoutingType(routingType);
+      // address already exists so update it
+      if (!isNew) {
+         AddressInfo toUpdate = getAddressInfo(addressInfo.getName());
+         synchronized (toUpdate) {
+            for (RoutingType routingType : addressInfo.getRoutingTypes()) {
+               toUpdate.addRoutingType(routingType);
+            }
          }
-         ActiveMQServerLogger.LOGGER.info("Update result: " + from);
-         return from;
       }
+
+      return isNew;
    }
 
    @Override

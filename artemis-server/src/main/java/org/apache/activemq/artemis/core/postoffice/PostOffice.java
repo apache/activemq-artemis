@@ -45,9 +45,17 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public interface PostOffice extends ActiveMQComponent {
 
-   AddressInfo addAddressInfo(AddressInfo addressInfo);
+   /**
+    * @param addressInfo
+    * @return true if the address was added, false if it wasn't added
+    */
+   boolean addAddressInfo(AddressInfo addressInfo);
 
-   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
+   /**
+    * @param addressInfo
+    * @return true if the address was added, false if it was updated
+    */
+   boolean addOrUpdateAddressInfo(AddressInfo addressInfo);
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 

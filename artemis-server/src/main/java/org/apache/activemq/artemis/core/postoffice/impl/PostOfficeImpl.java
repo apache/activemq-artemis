@@ -424,26 +424,34 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    // PostOffice implementation -----------------------------------------------
 
    @Override
-   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
+   public boolean addAddressInfo(AddressInfo addressInfo) {
       synchronized (addressLock) {
-         try {
-            managementService.registerAddress(addressInfo);
-         } catch (Exception e) {
-            e.printStackTrace();
+         boolean result = addressManager.addAddressInfo(addressInfo);
+         // only register address if it is new
+         if (result) {
+            try {
+               managementService.registerAddress(addressInfo);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
          }
-         return addressManager.addAddressInfo(addressInfo);
+         return result;
       }
    }
 
    @Override
-   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
       synchronized (addressLock) {
-         try {
-            managementService.registerAddress(addressInfo);
-         } catch (Exception e) {
-            e.printStackTrace();
+         boolean result = addressManager.addOrUpdateAddressInfo(addressInfo);
+         // only register address if it is newly added
+         if (result) {
+            try {
+               managementService.registerAddress(addressInfo);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
          }
-         return addressManager.addOrUpdateAddressInfo(addressInfo);
+         return result;
       }
    }
 
