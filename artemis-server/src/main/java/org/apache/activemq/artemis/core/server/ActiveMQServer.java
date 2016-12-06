@@ -474,11 +474,9 @@ public interface ActiveMQServer extends ActiveMQComponent {
     */
    void removeRoutingType(String address, RoutingType routingType) throws Exception;
 
-   AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception;
+   boolean createAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   void createAddressInfo(AddressInfo addressInfo) throws Exception;
-
-   AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
+   boolean createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
    void removeAddressInfo(SimpleString address, SecurityAuth session) throws Exception;
 

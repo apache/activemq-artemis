@@ -85,13 +85,13 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public AddressInfo addAddressInfo(AddressInfo addressInfo) {
-      return null;
+   public boolean addAddressInfo(AddressInfo addressInfo) {
+      return false;
    }
 
    @Override
-   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      return null;
+   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      return false;
    }
 
 

@@ -2198,16 +2198,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // Deploy any predefined queues
       deployQueuesFromConfiguration();
 
-      //      registerPostQueueDeletionCallback(new PostQueueDeletionCallback() {
-      //         // TODO delete auto-created addresses when queueCount == 0
-      //         @Override
-      //         public void callback(SimpleString address, SimpleString queueName) throws Exception {
-      //            if (getAddressInfo(address).isAutoCreated()) {
-      //               removeAddressInfo(address);
-      //            }
-      //         }
-      //      });
-
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses
       // this needs to be done before clustering is fully activated
       callActivateCallbacks();
@@ -2408,34 +2398,34 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       postOffice.removeRoutingType(addressName,routingType);
    }
 
-   @Override
-   public AddressInfo putAddressInfoIfAbsent(AddressInfo addressInfo) throws Exception {
-      AddressInfo result = postOffice.addAddressInfo(addressInfo);
+   public boolean createAddressInfo(AddressInfo addressInfo) throws Exception {
+      boolean result = postOffice.addAddressInfo(addressInfo);
 
-      // TODO: is this the right way to do this?
-      long txID = storageManager.generateID();
-      storageManager.addAddressBinding(txID, addressInfo);
-      storageManager.commitBindings(txID);
+      if (result) {
+         long txID = storageManager.generateID();
+         storageManager.addAddressBinding(txID, addressInfo);
+         storageManager.commitBindings(txID);
+      } else {
+         throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
+      }
 
       return result;
    }
 
    @Override
-   public void createAddressInfo(AddressInfo addressInfo) throws Exception {
-      if (putAddressInfoIfAbsent(addressInfo) != null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
-      }
-   }
+   public boolean createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
+      boolean result = postOffice.addOrUpdateAddressInfo(addressInfo);
 
-   @Override
-   public AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
-      AddressInfo result = postOffice.addOrUpdateAddressInfo(addressInfo);
-
-      // TODO: is this the right way to do this?
-      // TODO: deal with possible duplicates, may be adding new records when old ones already exist
       long txID = storageManager.generateID();
-      storageManager.addAddressBinding(txID, addressInfo);
-      storageManager.commitBindings(txID);
+      if (result) {
+         storageManager.addAddressBinding(txID, addressInfo);
+         storageManager.commitBindings(txID);
+      } else {
+         AddressInfo updatedAddressInfo = getAddressInfo(addressInfo.getName());
+         storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
+         storageManager.addAddressBinding(txID, updatedAddressInfo);
+         storageManager.commitBindings(txID);
+      }
 
       return result;
    }
@@ -2452,7 +2442,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
       }
 
-      // TODO: is this the right way to do this? Should it use a transaction?
       long txID = storageManager.generateID();
       storageManager.deleteAddressBinding(txID, addressInfo.getId());
       storageManager.commitBindings(txID);
