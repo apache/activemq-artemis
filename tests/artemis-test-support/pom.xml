@@ -19,7 +19,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>1.5.1</version>
+      <version>1.6.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>artemis-test-support</artifactId>
