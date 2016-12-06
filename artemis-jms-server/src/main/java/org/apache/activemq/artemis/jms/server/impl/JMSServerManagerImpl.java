@@ -1618,9 +1618,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 //      @Override
 //      public boolean create(SimpleString address) throws Exception {
 //         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateJmsQueues()) {
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateQueues()) {
 //            return internalCreateJMSQueue(false, address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), null, true, true);
-//         } else if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics()) {
+//         } else if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateAddresses()) {
 //            return createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
 //         } else {
 //            return false;
@@ -1667,7 +1667,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 //          * for that dummy subscription is created we don't want to call createTopic again. Therefore we make sure the
 //          * queue name doesn't start with the topic prefix.
 //          */
-//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateJmsTopics() && !queueName.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
+//         if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoCreateAddresses() && !queueName.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
 //            createTopic(false, address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()), true);
 //         }
 //      }

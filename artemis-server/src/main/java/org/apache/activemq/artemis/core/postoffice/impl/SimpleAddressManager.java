@@ -225,6 +225,7 @@ public class SimpleAddressManager implements AddressManager {
       return addressInfoMap.computeIfPresent(addressName, remappingFunction);
    }
 
+   @Override
    public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
       boolean isNew = addAddressInfo(addressInfo);
 

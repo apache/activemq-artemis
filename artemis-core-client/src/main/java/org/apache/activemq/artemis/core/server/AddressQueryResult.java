@@ -28,8 +28,10 @@ public class AddressQueryResult {
    private final boolean autoCreated;
    private final boolean exists;
    private final boolean autoCreateAddresses;
+   private final boolean defaultDeleteOnNoConsumers;
+   private final int defaultMaxConsumers;
 
-   public AddressQueryResult(SimpleString name, Set<RoutingType> routingTypes, long id, boolean autoCreated, boolean exists, boolean autoCreateAddresses) {
+   public AddressQueryResult(SimpleString name, Set<RoutingType> routingTypes, long id, boolean autoCreated, boolean exists, boolean autoCreateAddresses, boolean defaultDeleteOnNoConsumers, int defaultMaxConsumers) {
 
       this.name = name;
       this.routingTypes = routingTypes;
@@ -38,6 +40,8 @@ public class AddressQueryResult {
       this.autoCreated = autoCreated;
       this.exists = exists;
       this.autoCreateAddresses = autoCreateAddresses;
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
    public SimpleString getName() {
@@ -62,5 +66,13 @@ public class AddressQueryResult {
 
    public boolean isAutoCreateAddresses() {
       return autoCreateAddresses;
+   }
+
+   public boolean isDefaultDeleteOnNoConsumers() {
+      return defaultDeleteOnNoConsumers;
+   }
+
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
    }
 }

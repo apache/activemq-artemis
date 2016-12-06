@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
@@ -381,7 +382,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
          simpleTXSession.commit();
 
          // This test needs 2 queues
-         simpleTXSession.createQueue(outQueue, outQueue);
+         simpleTXSession.createQueue(outQueue, RoutingType.MULTICAST, outQueue);
 
          simpleTXSession.close();
       }

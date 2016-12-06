@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -201,9 +202,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard() throws Exception {
-      session.createQueue("a.b", "queue1");
-      session.createTemporaryQueue("a.#", "queue2");
-      session.createTemporaryQueue("a.#", "queue3");
+      session.createQueue("a.b", RoutingType.MULTICAST, "queue1");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue2");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue3");
 
       ClientProducer producer = session.createProducer("a.b");
       producer.send(session.createMessage(false));
@@ -240,9 +241,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard2() throws Exception {
-      session.createQueue("a.b", "queue1");
-      session.createTemporaryQueue("a.#", "queue2");
-      session.createTemporaryQueue("a.#", "queue3");
+      session.createQueue("a.b", RoutingType.MULTICAST, "queue1");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue2");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue3");
 
       ClientProducer producer = session.createProducer("a.b");
       producer.send(session.createMessage(false));
@@ -279,9 +280,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueWithWildcard3() throws Exception {
-      session.createQueue("a.b", "queue1");
-      session.createTemporaryQueue("a.#", "queue2");
-      session.createTemporaryQueue("a.#", "queue2.1");
+      session.createQueue("a.b", RoutingType.MULTICAST, "queue1");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue2");
+      session.createTemporaryQueue("a.#", RoutingType.MULTICAST, "queue2.1");
 
       session.deleteQueue("queue2");
    }

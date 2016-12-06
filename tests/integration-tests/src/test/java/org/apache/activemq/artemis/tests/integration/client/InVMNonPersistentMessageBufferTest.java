@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -227,7 +228,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       session = cf.createSession();
 
-      session.createQueue(InVMNonPersistentMessageBufferTest.address, InVMNonPersistentMessageBufferTest.queueName);
+      session.createQueue(InVMNonPersistentMessageBufferTest.address, RoutingType.ANYCAST, InVMNonPersistentMessageBufferTest.queueName);
 
       producer = session.createProducer(InVMNonPersistentMessageBufferTest.address);
 

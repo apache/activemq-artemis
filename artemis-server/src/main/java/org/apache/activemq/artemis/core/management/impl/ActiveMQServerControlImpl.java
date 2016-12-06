@@ -619,14 +619,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Deprecated
    @Override
    public void deployQueue(final String address, final String name, final String filterString) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         server.deployQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), new SimpleString(filterString), true, false);
-      } finally {
-         blockOnIO();
-      }
+      deployQueue(address, name, filterString, true);
    }
 
    @Deprecated
@@ -640,7 +633,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
       try {
-         server.deployQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
+         server.deployQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }
@@ -648,92 +641,34 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createQueue(final String address, final String name) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), null, true, false);
-      } finally {
-         blockOnIO();
-      }
+      createQueue(address, name, true);
    }
 
    @Override
    public void createQueue(final String address, final String name, final String routingType) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), null, true, false);
-      } finally {
-         blockOnIO();
-      }
+      createQueue(address, name, routingType, true);
    }
 
    @Override
    public void createQueue(final String address, final String name, final boolean durable) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), null, durable, false);
-      } finally {
-         blockOnIO();
-      }
+      createQueue(address, name, null, durable);
    }
 
    @Override
    public void createQueue(final String address, final String name, final boolean durable, final String routingType) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), null, durable, false);
-      } finally {
-         blockOnIO();
-      }
+      createQueue(address, name, null, durable, routingType);
    }
 
    @Override
-   public void createQueue(final String address,
-                           final String name,
-                           final String filterStr,
-                           final boolean durable) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         SimpleString filter = null;
-         if (filterStr != null && !filterStr.trim().equals("")) {
-            filter = new SimpleString(filterStr);
-         }
-
-         server.createQueue(SimpleString.toSimpleString(address), ActiveMQDefaultConfiguration.getDefaultRoutingType(), new SimpleString(name), filter, durable, false);
-      } finally {
-         blockOnIO();
-      }
+   public void createQueue(final String address, final String name, final String filterStr, final boolean durable) throws Exception {
+      createQueue(address, name, filterStr, durable, server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType().toString());
    }
 
 
    @Override
-   public void createQueue(final String address,
-                           final String name,
-                           final String filterStr,
-                           final boolean durable,
-                           final String routingType) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         SimpleString filter = null;
-         if (filterStr != null && !filterStr.trim().equals("")) {
-            filter = new SimpleString(filterStr);
-         }
-
-         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false);
-      } finally {
-         blockOnIO();
-      }
+   public void createQueue(final String address, final String name, final String filterStr, final boolean durable, final String routingType) throws Exception {
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
+      createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultDeleteOnNoConsumers(), addressSettings.isAutoCreateAddresses());
    }
 
    @Override

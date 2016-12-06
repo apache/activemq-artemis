@@ -21,15 +21,19 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryResponseMessage_V2 {
+public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryResponseMessage_V3 {
 
-   protected boolean autoCreateAddresses;
+   private boolean defaultDeleteOnNoConsumers;
 
-   public SessionBindingQueryResponseMessage_V3(final boolean exists,
+   private int defaultMaxConsumers;
+
+   public SessionBindingQueryResponseMessage_V4(final boolean exists,
                                                 final List<SimpleString> queueNames,
                                                 final boolean autoCreateQueues,
-                                                final boolean autoCreateAddresses) {
-      super(SESS_BINDINGQUERY_RESP_V3);
+                                                final boolean autoCreateAddresses,
+                                                final boolean defaultDeleteOnNoConsumers,
+                                                final int defaultMaxConsumers) {
+      super(SESS_BINDINGQUERY_RESP_V4);
 
       this.exists = exists;
 
@@ -38,37 +42,44 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
       this.autoCreateQueues = autoCreateQueues;
 
       this.autoCreateAddresses = autoCreateAddresses;
+
+      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+
+      this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
-   public SessionBindingQueryResponseMessage_V3() {
-      super(SESS_BINDINGQUERY_RESP_V3);
+   public SessionBindingQueryResponseMessage_V4() {
+      super(SESS_BINDINGQUERY_RESP_V4);
    }
 
-   public SessionBindingQueryResponseMessage_V3(byte v) {
-      super(v);
+   public boolean isDefaultDeleteOnNoConsumers() {
+      return defaultDeleteOnNoConsumers;
    }
 
-   public boolean isAutoCreateAddresses() {
-      return autoCreateAddresses;
+   public int getDefaultMaxConsumers() {
+      return defaultMaxConsumers;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(autoCreateAddresses);
+      buffer.writeBoolean(defaultDeleteOnNoConsumers);
+      buffer.writeInt(defaultMaxConsumers);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      autoCreateAddresses = buffer.readBoolean();
+      defaultDeleteOnNoConsumers = buffer.readBoolean();
+      defaultMaxConsumers = buffer.readInt();
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (autoCreateAddresses ? 1231 : 1237);
+      result = prime * result + (defaultDeleteOnNoConsumers ? 1231 : 1237);
+      result = prime * result + defaultMaxConsumers;
       return result;
    }
 
@@ -82,7 +93,8 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
    @Override
    public String getParentString() {
       StringBuffer buff = new StringBuffer(super.getParentString());
-      buff.append(", autoCreateAddresses=" + autoCreateAddresses);
+      buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);
+      buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
       return buff.toString();
    }
 
@@ -92,10 +104,12 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V3))
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V4))
          return false;
-      SessionBindingQueryResponseMessage_V3 other = (SessionBindingQueryResponseMessage_V3) obj;
-      if (autoCreateAddresses != other.autoCreateAddresses)
+      SessionBindingQueryResponseMessage_V4 other = (SessionBindingQueryResponseMessage_V4) obj;
+      if (defaultDeleteOnNoConsumers != other.defaultDeleteOnNoConsumers)
+         return false;
+      if (defaultMaxConsumers != other.defaultMaxConsumers)
          return false;
       return true;
    }

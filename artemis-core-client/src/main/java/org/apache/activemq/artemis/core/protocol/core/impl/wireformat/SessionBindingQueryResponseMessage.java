@@ -92,9 +92,15 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
+   public String getParentString() {
+      StringBuffer buff = new StringBuffer(super.getParentString());
       buff.append(", exists=" + exists);
       buff.append(", queueNames=" + queueNames);
-      buff.append("]");
       return buff.toString();
    }
 

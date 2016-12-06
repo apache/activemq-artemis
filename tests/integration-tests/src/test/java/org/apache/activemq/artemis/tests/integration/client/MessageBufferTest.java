@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +56,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
 
-      session.createQueue(addressName, queueName);
+      session.createQueue(addressName, RoutingType.ANYCAST, queueName);
       ClientProducer producer = session.createProducer(addressName);
 
       ClientMessageImpl message = (ClientMessageImpl) session.createMessage(true);

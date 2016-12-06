@@ -16,18 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.MessageFormatRuntimeException;
 import javax.jms.Queue;
+import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
@@ -131,6 +134,42 @@ public class JmsProducerTest extends JMSTestBase {
 
       consumer.close();
       context.close();
+   }
+
+   @Test
+   public void defaultAutoCreatedQueueConfigTest() throws Exception {
+      final String queueName = "q1";
+
+      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultDeleteOnNoConsumers(true));
+
+      Queue q1 = context.createQueue(queueName);
+
+      context.createProducer().setProperty("prop1", 1).setProperty("prop2", 2).send(q1, "Text1");
+
+      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+
+      assertEquals(5, queue.getMaxConsumers());
+      assertEquals(true, queue.isDeleteOnNoConsumers());
+   }
+
+   @Test
+   public void defaultAutoCreatedQueueConfigTest2() throws Exception {
+      final String queueName = "q1";
+
+      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultDeleteOnNoConsumers(true));
+
+      Connection connection = cf.createConnection();
+
+      Session session = connection.createSession();
+
+      session.createProducer(session.createQueue(queueName));
+
+      org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+
+      assertEquals(5, queue.getMaxConsumers());
+      assertEquals(true, queue.isDeleteOnNoConsumers());
+
+      connection.close();
    }
 
    @Test

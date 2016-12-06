@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -362,7 +361,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       boolean temporary = false;
       Queue queue = null;
       try {
-         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
+         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultMaxConsumers(), server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).isDefaultDeleteOnNoConsumers(), true);
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s", address.toString(), name.toString()), ex);
       }

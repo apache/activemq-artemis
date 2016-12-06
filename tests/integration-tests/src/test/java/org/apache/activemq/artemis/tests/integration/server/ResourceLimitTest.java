@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -97,20 +98,20 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(createNonHALocator(false));
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
-      clientSession.createQueue("address", "queue");
+      clientSession.createQueue("address", RoutingType.ANYCAST, "queue");
 
       try {
-         clientSession.createQueue("address", "anotherQueue");
+         clientSession.createQueue("address", RoutingType.ANYCAST, "anotherQueue");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
       clientSession.deleteQueue("queue");
 
-      clientSession.createQueue("address", "queue");
+      clientSession.createQueue("address", RoutingType.ANYCAST, "queue");
 
       try {
-         clientSession.createQueue("address", "anotherQueue");
+         clientSession.createQueue("address", RoutingType.ANYCAST, "anotherQueue");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }

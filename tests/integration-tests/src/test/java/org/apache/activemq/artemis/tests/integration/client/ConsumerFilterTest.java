@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -53,7 +54,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       session = sf.createSession();
 
       session.start();
-      session.createQueue("foo", "foo");
+      session.createQueue("foo", RoutingType.ANYCAST, "foo");
 
       producer = session.createProducer("foo");
       consumer = session.createConsumer("foo", "animal='giraffe'");

@@ -23,18 +23,18 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage {
 
-   protected boolean autoCreateJmsQueues;
+   protected boolean autoCreateQueues;
 
    public SessionBindingQueryResponseMessage_V2(final boolean exists,
                                                 final List<SimpleString> queueNames,
-                                                final boolean autoCreateJmsQueues) {
+                                                final boolean autoCreateQueues) {
       super(SESS_BINDINGQUERY_RESP_V2);
 
       this.exists = exists;
 
       this.queueNames = queueNames;
 
-      this.autoCreateJmsQueues = autoCreateJmsQueues;
+      this.autoCreateQueues = autoCreateQueues;
    }
 
    public SessionBindingQueryResponseMessage_V2() {
@@ -45,37 +45,41 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
       super(v);
    }
 
-   public boolean isAutoCreateJmsQueues() {
-      return autoCreateJmsQueues;
+   public boolean isAutoCreateQueues() {
+      return autoCreateQueues;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(autoCreateJmsQueues);
+      buffer.writeBoolean(autoCreateQueues);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      autoCreateJmsQueues = buffer.readBoolean();
+      autoCreateQueues = buffer.readBoolean();
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (autoCreateJmsQueues ? 1231 : 1237);
+      result = prime * result + (autoCreateQueues ? 1231 : 1237);
       return result;
    }
 
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
-      buff.append(", exists=" + exists);
-      buff.append(", queueNames=" + queueNames);
-      buff.append(", autoCreateJmsQueues=" + autoCreateJmsQueues);
       buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
+   public String getParentString() {
+      StringBuffer buff = new StringBuffer(super.getParentString());
+      buff.append(", autoCreateQueues=" + autoCreateQueues);
       return buff.toString();
    }
 
@@ -88,7 +92,7 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
       if (!(obj instanceof SessionBindingQueryResponseMessage_V2))
          return false;
       SessionBindingQueryResponseMessage_V2 other = (SessionBindingQueryResponseMessage_V2) obj;
-      if (autoCreateJmsQueues != other.autoCreateJmsQueues)
+      if (autoCreateQueues != other.autoCreateQueues)
          return false;
       return true;
    }
