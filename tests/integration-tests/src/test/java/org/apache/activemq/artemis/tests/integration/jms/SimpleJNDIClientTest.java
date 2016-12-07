@@ -468,4 +468,19 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic");
       Assert.assertTrue(destination instanceof Topic);
    }
+
+   @Test
+   public void testRemoteCFWithTCPUserPassword() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      //user and password set on URL
+      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?user=myUser&password=myPassword");
+      Context ctx = new InitialContext(props);
+
+      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
+
+      Assert.assertEquals("ensure user is set","myUser", connectionFactory.getUser());
+      Assert.assertEquals("ensure password is set", "myPassword",connectionFactory.getPassword());
+
+   }
 }
