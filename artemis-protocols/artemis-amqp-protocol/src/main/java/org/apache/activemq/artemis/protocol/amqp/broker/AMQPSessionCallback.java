@@ -65,6 +65,7 @@ import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import io.netty.buffer.ByteBuf;
 import org.jboss.logging.Logger;
@@ -108,8 +109,9 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public boolean isWritable(ReadyListener callback) {
-      return transportConnection.isWritable(callback);
+   public boolean isWritable(ReadyListener callback, Object protocolContext) {
+      ProtonServerSenderContext senderContext = (ProtonServerSenderContext) protocolContext;
+      return transportConnection.isWritable(callback) && senderContext.getSender().getLocalState() != EndpointState.CLOSED;
    }
 
    public void onFlowConsumer(Object consumer, int credits, final boolean drain) {

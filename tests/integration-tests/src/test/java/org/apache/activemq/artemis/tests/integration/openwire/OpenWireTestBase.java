@@ -101,6 +101,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          server.getConfiguration().putSecurityRoles("#", roles);
       }
+      addServer(server);
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(namingContext));

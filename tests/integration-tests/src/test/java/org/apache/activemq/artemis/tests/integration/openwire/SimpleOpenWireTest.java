@@ -574,7 +574,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -616,7 +616,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -653,7 +653,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection openConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 
@@ -693,7 +693,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       Connection conn1 = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 

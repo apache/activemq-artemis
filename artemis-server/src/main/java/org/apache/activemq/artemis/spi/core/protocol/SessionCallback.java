@@ -72,7 +72,7 @@ public interface SessionCallback {
 
    void disconnect(ServerConsumer consumerId, String queueName);
 
-   boolean isWritable(ReadyListener callback);
+   boolean isWritable(ReadyListener callback, Object protocolContext);
 
    /**
     * Some protocols (Openwire) needs a special message with the browser is finished.

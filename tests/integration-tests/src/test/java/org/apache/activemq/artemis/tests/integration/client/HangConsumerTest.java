@@ -501,7 +501,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isWritable(ReadyListener callback) {
+      public boolean isWritable(ReadyListener callback, Object protocolContext) {
          return true;
       }
 

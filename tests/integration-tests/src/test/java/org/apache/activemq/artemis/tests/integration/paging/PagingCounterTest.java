@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -78,7 +80,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession();
 
       try {
-         Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
+         server.createAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -107,7 +110,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession();
 
       try {
-         Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
+         server.createAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -162,7 +166,9 @@ public class PagingCounterTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession();
 
       try {
-         Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
+
+         server.createAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+         Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
 
@@ -215,7 +221,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
    @Test
    public void testRestartCounter() throws Exception {
-      Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
+      server.createAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+      Queue queue = server.createQueue(new SimpleString("A1"), RoutingType.ANYCAST, new SimpleString("A1"), null, true, false);
 
       PageSubscriptionCounter counter = locateCounter(queue);
 

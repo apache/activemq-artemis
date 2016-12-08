@@ -473,9 +473,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       synchronized (addressLock) {
          if (RoutingType.MULTICAST.equals(routingType)) {
             final Bindings bindings = addressManager.getBindingsForRoutingAddress(addressName);
-            final boolean existsQueueBindings = bindings.getBindings().stream().anyMatch(QueueBinding.class::isInstance);
-            if (existsQueueBindings) {
-               throw ActiveMQMessageBundle.BUNDLE.invalidMulticastRoutingTypeDelete();
+            if (bindings != null) {
+               final boolean existsQueueBindings = bindings.getBindings().stream().anyMatch(QueueBinding.class::isInstance);
+               if (existsQueueBindings) {
+                  throw ActiveMQMessageBundle.BUNDLE.invalidMulticastRoutingTypeDelete();
+               }
             }
          }
          final AddressInfo updateAddressInfo = addressManager.updateAddressInfoIfPresent(addressName, (name, addressInfo) -> {

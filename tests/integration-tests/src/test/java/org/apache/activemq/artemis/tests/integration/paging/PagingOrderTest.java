@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -93,7 +95,8 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -182,9 +185,10 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      Queue q1 = server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      Queue q1 = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
-      Queue q2 = server.createQueue(ADDRESS, new SimpleString("inactive"), null, true, false);
+      Queue q2 = server.createQueue(ADDRESS, RoutingType.ANYCAST, new SimpleString("inactive"), null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -311,9 +315,10 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      Queue q1 = server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      Queue q1 = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
-      Queue q2 = server.createQueue(ADDRESS, new SimpleString("inactive"), null, true, false);
+      Queue q2 = server.createQueue(ADDRESS, RoutingType.ANYCAST, new SimpleString("inactive"), null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -404,7 +409,8 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
@@ -488,7 +494,8 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      QueueImpl queue = (QueueImpl) server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      QueueImpl queue = (QueueImpl) server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 

@@ -591,9 +591,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                                   @Parameter(name = "routingType", desc = "The delivery modes enabled for this address'") String routingTypes) throws Exception {
-
+         public void createAddress(String name, String routingTypes) throws Exception {
+            proxy.invokeOperation("createAddress", name, routingTypes);
          }
 
          @Override
