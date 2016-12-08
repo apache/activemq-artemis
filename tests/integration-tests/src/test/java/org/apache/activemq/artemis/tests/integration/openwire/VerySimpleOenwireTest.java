@@ -26,6 +26,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class VerySimpleOenwireTest extends OpenWireTestBase {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -79,7 +80,7 @@ public class VerySimpleOenwireTest extends OpenWireTestBase {
       Connection openConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
 
       ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
 

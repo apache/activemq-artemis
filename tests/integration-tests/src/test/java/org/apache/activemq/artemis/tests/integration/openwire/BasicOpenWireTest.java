@@ -65,15 +65,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    public void setUp() throws Exception {
       super.setUp();
       SimpleString coreQueue = new SimpleString(queueName);
-      this.server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
+      this.server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false, -1, false, true);
       testQueues.put(queueName, coreQueue);
 
       SimpleString coreQueue2 = new SimpleString(queueName2);
-      this.server.createQueue(coreQueue2, RoutingType.ANYCAST, coreQueue2, null, false, false);
+      this.server.createQueue(coreQueue2, RoutingType.ANYCAST, coreQueue2, null, false, false, -1, false, true);
       testQueues.put(queueName2, coreQueue2);
 
       SimpleString durableQueue = new SimpleString(durableQueueName);
-      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false);
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
       testQueues.put(durableQueueName, durableQueue);
 
       if (!enableSecurity) {
@@ -139,7 +139,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       SimpleString coreQ = testQueues.get(qname);
       if (coreQ == null) {
          coreQ = new SimpleString(qname);
-         this.server.createQueue(coreQ, RoutingType.ANYCAST, coreQ, null, false, false);
+         this.server.createQueue(coreQ, RoutingType.ANYCAST, coreQ, null, false, false, -1, false, true);
          testQueues.put(qname, coreQ);
       }
    }

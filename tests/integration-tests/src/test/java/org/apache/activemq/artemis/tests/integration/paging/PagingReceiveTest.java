@@ -25,6 +25,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -57,7 +59,8 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       super.setUp();
       server = internalCreateServer();
 
-      Queue queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
       queue.getPageSubscription().getPagingStore().startPaging();
 
       for (int i = 0; i < 10; i++) {

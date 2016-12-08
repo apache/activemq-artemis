@@ -72,7 +72,9 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordId
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
@@ -356,8 +358,8 @@ public class PagingTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
-
-      Queue queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
+      Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       queue.getPageSubscription().getPagingStore().startPaging();
 
@@ -3600,7 +3602,8 @@ public class PagingTest extends ActiveMQTestBase {
       server.start();
 
       try {
-         server.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true, false);
+         server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
+         server.createQueue(PagingTest.ADDRESS, RoutingType.ANYCAST, PagingTest.ADDRESS, null, true, false);
 
          final CountDownLatch pageUp = new CountDownLatch(0);
          final CountDownLatch pageDone = new CountDownLatch(1);
@@ -3639,7 +3642,7 @@ public class PagingTest extends ActiveMQTestBase {
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
       server.start();
-
+     // server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
       server.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true, false);
 
       final CountDownLatch pageUp = new CountDownLatch(0);

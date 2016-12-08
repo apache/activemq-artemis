@@ -58,6 +58,7 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
 
@@ -580,6 +581,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          int size = nettyBuffer.writerIndex();
 
          synchronized (connection.getLock()) {
+            if (sender.getLocalState() == EndpointState.CLOSED) {
+               return 0;
+            }
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
             delivery.setMessageFormat((int) messageFormat);

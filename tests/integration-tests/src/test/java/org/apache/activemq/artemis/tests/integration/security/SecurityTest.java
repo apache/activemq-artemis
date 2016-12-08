@@ -46,7 +46,9 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -227,8 +229,9 @@ public class SecurityTest extends ActiveMQTestBase {
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
-      server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
-      server.createQueue(ADDRESS, NON_DURABLE_QUEUE, null, false, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
@@ -315,8 +318,9 @@ public class SecurityTest extends ActiveMQTestBase {
       bRoles.add(new Role(QUEUE_B.toString(), false, true, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
       server.start();
-      server.createQueue(ADDRESS, QUEUE_A, null, true, false);
-      server.createQueue(ADDRESS, QUEUE_B, null, true, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_A, null, true, false);
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_B, null, true, false);
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession aSession = addClientSession(cf.createSession("a", "a", false, true, true, false, 0));
@@ -389,8 +393,9 @@ public class SecurityTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory cf = createSessionFactory(locator);
 
-      server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
-      server.createQueue(ADDRESS, NON_DURABLE_QUEUE, null, false, false);
+      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
 
       ClientSession session = addClientSession(cf.createSession());
 

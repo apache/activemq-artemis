@@ -621,7 +621,7 @@ public class ArtemisTest {
 
       // This is usually set when run from the command line via artemis.profile
       Run.setEmbedded(true);
-      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune", "--require-login", "--ping", "127.0.0.1");
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", topics, "--no-autotune", "--require-login", "--ping", "127.0.0.1");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
       FileConfiguration fc = new FileConfiguration();

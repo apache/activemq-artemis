@@ -2519,6 +2519,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             createOrUpdateAddressInfo(defaultAddressInfo.setAutoCreated(true));
             addressAlreadyExists = false;
          }
+      } else if (info == null) {
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
       }
 
       final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(routingType).maxConsumers(maxConsumers).deleteOnNoConsumers(deleteOnNoConsumers).build();

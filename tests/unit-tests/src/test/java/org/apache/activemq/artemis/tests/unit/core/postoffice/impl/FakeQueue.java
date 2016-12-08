@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -562,7 +563,7 @@ public class FakeQueue implements Queue {
 
    @Override
    public RoutingType getRoutingType() {
-      return null;
+      return ActiveMQDefaultConfiguration.getDefaultRoutingType();
    }
 
    @Override

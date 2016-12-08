@@ -436,7 +436,7 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
    void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
-                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Typles (anycast/multicast)") String routingTypes) throws Exception;
+                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
    @Operation(desc = "add the provided routing type to an address", impact = MBeanOperationInfo.ACTION)
    void addRoutingType(@Parameter(name = "name", desc = "The name of the address") String name,

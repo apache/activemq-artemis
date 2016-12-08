@@ -37,7 +37,7 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public boolean isWritable(ReadyListener callback) {
+   public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
 

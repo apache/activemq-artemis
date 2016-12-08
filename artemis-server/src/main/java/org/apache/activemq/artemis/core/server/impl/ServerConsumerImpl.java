@@ -326,7 +326,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          // should go back into the
          // queue for delivery later.
          // TCP-flow control has to be done first than everything else otherwise we may lose notifications
-         if (!callback.isWritable(this) || !started || transferring) {
+         if (!callback.isWritable(this, protocolContext) || !started || transferring) {
             return HandleStatus.BUSY;
          }
 
