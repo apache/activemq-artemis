@@ -30,7 +30,8 @@ import org.apache.activemq.artemis.utils.IPV6Util;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
-public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
+public class
+TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    public String getSchemaName() {
@@ -45,9 +46,9 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
       TransportConfiguration[] tcs = new TransportConfiguration[configurations.size()];
       configurations.toArray(tcs);
       if (options.isHa()) {
-         return ActiveMQClient.createServerLocatorWithHA(tcs);
+         return BeanSupport.setData(uri, ActiveMQClient.createServerLocatorWithHA(tcs), query);
       } else {
-         return ActiveMQClient.createServerLocatorWithoutHA(tcs);
+         return BeanSupport.setData(uri, ActiveMQClient.createServerLocatorWithoutHA(tcs), query);
       }
    }
 

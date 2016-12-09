@@ -204,7 +204,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public ActiveMQConnectionFactory(String url) {
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
-         URI uri = new URI(url);
+         URI uri = cfParser.expandURI(url);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       } catch (Exception e) {
