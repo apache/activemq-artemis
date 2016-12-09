@@ -1256,7 +1256,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final String defaultAddress,
                                       final SessionCallback callback,
                                       final boolean autoCreateQueues,
-                                      final OperationContext context) throws Exception {
+                                      final OperationContext context,
+                                      final Map<SimpleString, RoutingType> prefixes) throws Exception {
       String validatedUser = "";
 
       if (securityStore != null) {
@@ -1269,7 +1270,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       checkSessionLimit(validatedUser);
 
-      final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues);
+      final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes);
 
       sessions.put(name, session);
 
@@ -1341,8 +1342,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      String defaultAddress,
                                                      SessionCallback callback,
                                                      OperationContext context,
-                                                     boolean autoCreateJMSQueues) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager);
+                                                     boolean autoCreateJMSQueues,
+                                                     Map<SimpleString, RoutingType> prefixes) throws Exception {
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, pagingManager, prefixes);
    }
 
    @Override
@@ -2495,12 +2497,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       boolean addressAlreadyExists = true;
 
-      if (info == null) {
-         if (autoCreateAddress) {
-            createAddressInfo(defaultAddressInfo.setAutoCreated(true));
+      if (autoCreateAddress) {
+         if (info == null || !info.getRoutingTypes().contains(routingType)) {
+            createOrUpdateAddressInfo(defaultAddressInfo.setAutoCreated(true));
             addressAlreadyExists = false;
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
          }
       }
 

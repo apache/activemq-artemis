@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -37,7 +39,9 @@ import io.netty.handler.codec.mqtt.MqttSubAckPayload;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 
 /**
@@ -53,6 +57,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    private MQTTSession session;
 
    private ActiveMQServer server;
+
    private MQTTProtocolManager protocolManager;
 
    // This Channel Handler is not sharable, therefore it can only ever be associated with a single ctx.
@@ -62,15 +67,18 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    private boolean stopped = false;
 
+   private Map<SimpleString, RoutingType> prefixes;
+
    public MQTTProtocolHandler(ActiveMQServer server, MQTTProtocolManager protocolManager) {
       this.server = server;
       this.protocolManager = protocolManager;
+      this.prefixes = protocolManager.getPrefixes();
    }
 
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
       this.connectionEntry = entry;
       this.connection = connection;
-      this.session = new MQTTSession(this, connection);
+      this.session = new MQTTSession(this, connection, protocolManager);
    }
 
    void stop(boolean error) {

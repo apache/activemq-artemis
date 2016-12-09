@@ -660,7 +660,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void createInternalSession(ConnectionInfo info) throws Exception {
-      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext);
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes());
    }
 
    //raise the refCount of context
@@ -847,7 +847,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public AMQSession addSession(SessionInfo ss, boolean internal) {
-      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager.getScheduledPool());
+      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager);
       amqSession.initialize();
 
       if (internal) {

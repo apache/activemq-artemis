@@ -67,12 +67,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
 import org.jboss.logging.Logger;
@@ -182,6 +183,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // concurrently.
    private volatile boolean closed = false;
 
+   private boolean prefixEnabled = false;
+
+   private Map<SimpleString, RoutingType> prefixes;
+
    public ServerSessionImpl(final String name,
                             final String username,
                             final String password,
@@ -203,7 +208,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final PagingManager pagingManager) throws Exception {
+                            final PagingManager pagingManager,
+                            final Map<SimpleString, RoutingType> prefixes) throws Exception {
       this.username = username;
 
       this.password = password;
@@ -241,6 +247,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       this.server = server;
 
+      this.prefixes = prefixes;
+      if (this.prefixes != null && !this.prefixes.isEmpty()) {
+         prefixEnabled = true;
+      }
+
       this.managementAddress = managementAddress;
 
       this.callback = callback;
@@ -255,8 +266,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   // ServerSession implementation ----------------------------------------------------------------------------
-
+   // ServerSession implementation ---------------------------------------------------------------------------
    @Override
    public void enableSecurity() {
       this.securityEnabled = true;
@@ -387,7 +397,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   protected void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
+   private void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
       if (securityEnabled) {
          securityStore.check(address, checkType, auth);
       }
@@ -414,17 +424,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
+      SimpleString address = removePrefix(binding.getAddress());
       if (browseOnly) {
          try {
-            securityCheck(binding.getAddress(), CheckType.BROWSE, this);
+            securityCheck(address, CheckType.BROWSE, this);
          } catch (Exception e) {
-            securityCheck(binding.getAddress().concat(".").concat(queueName), CheckType.BROWSE, this);
+            securityCheck(address.concat(".").concat(queueName), CheckType.BROWSE, this);
          }
       } else {
          try {
-            securityCheck(binding.getAddress(), CheckType.CONSUME, this);
+            securityCheck(address, CheckType.CONSUME, this);
          } catch (Exception e) {
-            securityCheck(binding.getAddress().concat(".").concat(queueName), CheckType.CONSUME, this);
+            securityCheck(address.concat(".").concat(queueName), CheckType.CONSUME, this);
          }
       }
 
@@ -436,7 +447,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, binding.getAddress());
+         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
 
          props.putSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME, binding.getClusterName());
 
@@ -492,15 +503,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address,
-                         name,
-                         ActiveMQDefaultConfiguration.getDefaultRoutingType(),
-                         filterString,
-                         temporary,
-                         durable,
-                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
-                         false);
+      return createQueue(address, name, ActiveMQDefaultConfiguration.getDefaultRoutingType(), filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), false);
    }
 
    @Override
@@ -510,14 +513,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
-      return createQueue(address,
-                         name, routingType,
-                         filterString,
-                         temporary,
-                         durable,
-                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
-                         false);
+      return createQueue(address, name, routingType, filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), false);
    }
 
    @Override
@@ -530,6 +526,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final int maxConsumers,
                             final boolean deleteOnNoConsumers,
                             final boolean autoCreated) throws Exception {
+
+      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(address, routingType);
+
       if (durable) {
          // make sure the user has privileges to create this queue
          securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
@@ -539,7 +538,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.checkQueueCreationLimit(getUsername());
 
-      Queue queue = server.createQueue(address, routingType, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers, true);
+      Queue queue = server.createQueue(art.getA(), art.getB(), name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers, true);
 
       if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -577,34 +576,36 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             boolean temporary,
                             boolean durable,
                             boolean autoCreated) throws Exception {
-      return createQueue(address,
-                         name, routingType,
-                         filterString,
-                         temporary,
-                         durable,
-                         ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                         ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
-                         autoCreated);
+      return createQueue(address, name, routingType, filterString, temporary, durable, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), autoCreated);
    }
 
    @Override
-   public AddressInfo createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws Exception {
-      securityCheck(address, CheckType.CREATE_ADDRESS, this);
-      return server.createOrUpdateAddressInfo(new AddressInfo(address, routingTypes).setAutoCreated(autoCreated));
+   public AddressInfo createAddress(final SimpleString address,
+                                    Set<RoutingType> routingTypes,
+                                    final boolean autoCreated) throws Exception {
+      Pair<SimpleString, Set<RoutingType>> art = getAddressAndRoutingTypes(address, routingTypes);
+      securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
+      return server.createOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
    }
 
    @Override
-   public AddressInfo createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws Exception {
-      securityCheck(address, CheckType.CREATE_ADDRESS, this);
-      return server.createOrUpdateAddressInfo(new AddressInfo(address, routingType).setAutoCreated(autoCreated));
+   public AddressInfo createAddress(final SimpleString address,
+                                    RoutingType routingType,
+                                    final boolean autoCreated) throws Exception {
+      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(address, routingType);
+      securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
+      return server.createOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
    }
 
    @Override
-   public void createSharedQueue(final SimpleString address,
+   public void createSharedQueue(SimpleString address,
                                  final SimpleString name,
                                  final RoutingType routingType,
                                  boolean durable,
                                  final SimpleString filterString) throws Exception {
+
+      address = removePrefix(address);
+
       securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
       server.checkQueueCreationLimit(getUsername());
@@ -715,7 +716,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception {
-      return server.bindingQuery(address);
+      return server.bindingQuery(removePrefix(address));
    }
 
    @Override
@@ -1317,7 +1318,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          message.putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
       }
 
-      SimpleString address = message.getAddress();
+      SimpleString address = removePrefix(message.getAddress());
 
       if (defaultAddress == null && address != null) {
          defaultAddress = address;
@@ -1338,12 +1339,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
       }
 
-      if (message.getAddress() == null) {
+      if (address == null) {
          // This could happen with some tests that are ignoring messages
          throw ActiveMQMessageBundle.BUNDLE.noAddress();
       }
 
-      if (message.getAddress().equals(managementAddress)) {
+      if (address.equals(managementAddress)) {
          // It's a management message
 
          handleManagementMessage(tx, message, direct);
@@ -1381,8 +1382,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void requestProducerCredits(final SimpleString address, final int credits) throws Exception {
-      PagingStore store = server.getPagingManager().getPageStore(address);
+   public void requestProducerCredits(SimpleString address, final int credits) throws Exception {
+      final SimpleString addr = removePrefix(address);
+      PagingStore store = server.getPagingManager().getPageStore(addr);
 
       if (!store.checkMemory(new Runnable() {
          @Override
@@ -1572,7 +1574,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                                  final ServerMessage message,
                                                  final boolean direct) throws Exception {
       try {
-         securityCheck(message.getAddress(), CheckType.MANAGE, this);
+         securityCheck(removePrefix(message.getAddress()), CheckType.MANAGE, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends) {
             tx.markAsRollbackOnly(e);
@@ -1655,9 +1657,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                final boolean direct,
                                final boolean noAutoCreateQueue) throws Exception {
       RoutingStatus result = RoutingStatus.OK;
+
+      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddress(), null);
+
+      // Consumer
       // check the user has write access to this address.
       try {
-         securityCheck(msg.getAddress(), CheckType.SEND, this);
+         securityCheck(art.getA(), CheckType.SEND, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);
@@ -1671,6 +1677,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       try {
+         routingContext.setAddress(art.getA());
+         routingContext.setRoutingType(art.getB());
+
          result = postOffice.route(msg, routingContext, direct);
 
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
@@ -1700,5 +1709,28 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       } else {
          return Collections.emptyList();
       }
+   }
+
+   private SimpleString removePrefix(SimpleString address) {
+      if (prefixEnabled) {
+         return PrefixUtil.getAddress(address, prefixes);
+      }
+      return address;
+   }
+
+   private Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address,
+                                                                    RoutingType defaultRoutingType) {
+      if (prefixEnabled) {
+         return PrefixUtil.getAddressAndRoutingType(address, defaultRoutingType, prefixes);
+      }
+      return new Pair<>(address, defaultRoutingType);
+   }
+
+   private Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+                                                                          Set<RoutingType> defaultRoutingTypes) {
+      if (prefixEnabled) {
+         return PrefixUtil.getAddressAndRoutingTypes(address, defaultRoutingTypes, prefixes);
+      }
+      return new Pair<>(address, defaultRoutingTypes);
    }
 }

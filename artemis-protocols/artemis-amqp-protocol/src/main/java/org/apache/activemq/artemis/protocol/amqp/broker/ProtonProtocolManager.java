@@ -17,16 +17,20 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -53,6 +57,8 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    private MessageConverter protonConverter;
 
    private final ProtonProtocolManagerFactory factory;
+
+   private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
@@ -167,5 +173,24 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    public void setMaxFrameSize(int maxFrameSize) {
       this.maxFrameSize = maxFrameSize;
+   }
+
+   @Override
+   public void setAnycastPrefix(String anycastPrefix) {
+      for (String prefix : anycastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+      }
+   }
+
+   @Override
+   public void setMulticastPrefix(String multicastPrefix) {
+      for (String prefix : multicastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+      }
+   }
+
+   @Override
+   public Map<SimpleString, RoutingType> getPrefixes() {
+      return prefixes;
    }
 }

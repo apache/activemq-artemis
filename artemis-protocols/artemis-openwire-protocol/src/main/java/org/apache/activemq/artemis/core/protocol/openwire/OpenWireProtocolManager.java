@@ -34,6 +34,7 @@ import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
@@ -117,6 +119,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    private boolean useKeepAlive = true;
 
    private final OpenWireMessageConverter messageConverter;
+
+   private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -557,5 +561,24 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    @SuppressWarnings("unused")
    public void setMaxInactivityDurationInitalDelay(long maxInactivityDurationInitalDelay) {
       this.maxInactivityDurationInitalDelay = maxInactivityDurationInitalDelay;
+   }
+
+   @Override
+   public void setAnycastPrefix(String anycastPrefix) {
+      for (String prefix : anycastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+      }
+   }
+
+   @Override
+   public void setMulticastPrefix(String multicastPrefix) {
+      for (String prefix : multicastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+      }
+   }
+
+   @Override
+   public Map<SimpleString, RoutingType> getPrefixes() {
+      return prefixes;
    }
 }

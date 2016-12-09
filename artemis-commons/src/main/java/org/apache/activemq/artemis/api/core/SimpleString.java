@@ -118,6 +118,11 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
    @Override
    public CharSequence subSequence(final int start, final int end) {
+      return subSeq(start, end);
+   }
+
+
+   public SimpleString subSeq(final int start, final int end) {
       int len = data.length >> 1;
 
       if (end < start || start < 0 || end > len) {
@@ -399,5 +404,4 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          dst[d++] = (char) (low | high);
       }
    }
-
 }

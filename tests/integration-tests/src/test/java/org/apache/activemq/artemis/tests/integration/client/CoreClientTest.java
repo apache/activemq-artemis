@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.hazelcast.util.UuidUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -30,8 +35,11 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -139,6 +147,97 @@ public class CoreClientTest extends ActiveMQTestBase {
          Assert.assertEquals("testINVMCoreClient", buffer.readString());
 
          message2.acknowledge();
+      }
+
+      sf.close();
+   }
+
+   @Test
+   public void testCoreClientPrefixes() throws Exception {
+
+      Configuration configuration = createBasicConfig();
+      configuration.clearAcceptorConfigurations();
+      configuration.addAddressesSetting("#", new AddressSettings().setMaxSizeBytes(10 * 1024 * 1024).setPageSizeBytes(1024 * 1024));
+
+      String baseAddress = "foo";
+
+      List<String> anycastPrefixes = new ArrayList<>();
+      anycastPrefixes.add("anycast://");
+      anycastPrefixes.add("queue://");
+      anycastPrefixes.add("jms.queue.");
+
+      List<String> multicastPrefixes = new ArrayList<>();
+      multicastPrefixes.add("multicast://");
+      multicastPrefixes.add("topic://");
+      multicastPrefixes.add("jms.topic.");
+
+      String locatorString = "tcp://localhost:5445";
+      StringBuilder acceptor = new StringBuilder(locatorString + "?PROTOCOLS=CORE;anycastPrefix=");
+      for (String prefix : anycastPrefixes) {
+         acceptor.append(prefix + ",");
+      }
+      acceptor.append(";multicastPrefix=");
+      for (String prefix : multicastPrefixes) {
+         acceptor.append(prefix + ",");
+      }
+
+      configuration.addAcceptorConfiguration("prefix", acceptor.toString());
+
+      ActiveMQServer server = createServer(configuration);
+      server.start();
+
+      ServerLocator locator = ServerLocatorImpl.newLocator(locatorString);
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, true, true);
+
+      Map<String, ClientConsumer> consumerMap = new HashMap<>();
+
+      for (String prefix : anycastPrefixes) {
+         String queueName = UuidUtil.buildRandomUuidString();
+         String address = prefix + baseAddress;
+
+         session.createQueue(prefix + baseAddress, null, queueName, null, false);
+         consumerMap.put(address, session.createConsumer(queueName));
+      }
+
+      for (String prefix : multicastPrefixes) {
+         String queueName = UuidUtil.buildRandomUuidString();
+         String address = prefix + baseAddress;
+
+         session.createQueue(prefix + baseAddress, null, queueName, null, false);
+         consumerMap.put(address, session.createConsumer(queueName));
+      }
+
+      session.start();
+
+      final int numMessages = 3;
+
+      for (String prefix : anycastPrefixes) {
+         ClientProducer producer = session.createProducer(prefix + baseAddress);
+         for (int i = 0; i < numMessages; i++) {
+            ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
+            message.getBodyBuffer().writeString("testINVMCoreClient");
+            producer.send(message);
+         }
+
+         // Ensure that messages are load balanced across all queues
+
+         for (String queuePrefix : anycastPrefixes) {
+            ClientConsumer consumer = consumerMap.get(queuePrefix + baseAddress);
+            for (int i = 0; i < numMessages / anycastPrefixes.size(); i++) {
+               ClientMessage message = consumer.receive(1000);
+               assertNotNull(message);
+               message.acknowledge();
+            }
+            assertNull(consumer.receive(1000));
+         }
+
+         for (String multicastPrefix : multicastPrefixes) {
+            ClientConsumer consumer = consumerMap.get(multicastPrefix + baseAddress);
+            assertNull(consumer.receive(100));
+         }
       }
 
       sf.close();

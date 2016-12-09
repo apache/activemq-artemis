@@ -107,7 +107,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(autoCreated);
-      buffer.writeByte(routingType.getType());
+      buffer.writeByte(routingType == null ? -1 : routingType.getType());
       buffer.writeInt(maxConsumers);
       buffer.writeBoolean(deleteOnNoConsumers);
    }

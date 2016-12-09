@@ -53,8 +53,14 @@ public class MQTTSession {
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTSession(MQTTProtocolHandler protocolHandler, MQTTConnection connection) throws Exception {
+   private MQTTProtocolManager protocolManager;
+
+   public MQTTSession(MQTTProtocolHandler protocolHandler,
+                      MQTTConnection connection,
+                      MQTTProtocolManager protocolManager) throws Exception {
       this.protocolHandler = protocolHandler;
+      this.protocolManager = protocolManager;
+
       this.connection = connection;
 
       mqttConnectionManager = new MQTTConnectionManager(this);
@@ -148,5 +154,9 @@ public class MQTTSession {
 
    MQTTConnection getConnection() {
       return connection;
+   }
+
+   MQTTProtocolManager getProtocolManager() {
+      return protocolManager;
    }
 }

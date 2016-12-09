@@ -109,7 +109,8 @@ public interface ServerSession extends SecurityAuth {
                      boolean temporary,
                      boolean durable) throws Exception;
 
-   /** Create queue with default delivery mode
+   /**
+    * Create queue with default delivery mode
     *
     * @param address
     * @param name
@@ -143,9 +144,13 @@ public interface ServerSession extends SecurityAuth {
                      boolean durable,
                      boolean autoCreated) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws Exception;
+   AddressInfo createAddress(final SimpleString address,
+                             Set<RoutingType> routingTypes,
+                             final boolean autoCreated) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws Exception;
+   AddressInfo createAddress(final SimpleString address,
+                             RoutingType routingType,
+                             final boolean autoCreated) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
 

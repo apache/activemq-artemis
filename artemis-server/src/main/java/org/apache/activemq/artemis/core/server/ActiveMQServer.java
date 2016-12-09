@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import javax.management.MBeanServer;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -197,7 +198,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
                                String defaultAddress,
                                SessionCallback callback,
                                boolean autoCreateQueues,
-                               OperationContext context) throws Exception;
+                               OperationContext context,
+                               Map<SimpleString, RoutingType> prefixes) throws Exception;
 
    SecurityStore getSecurityStore();
 
