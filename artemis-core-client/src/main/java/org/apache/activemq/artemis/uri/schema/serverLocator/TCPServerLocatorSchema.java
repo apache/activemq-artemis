@@ -30,8 +30,7 @@ import org.apache.activemq.artemis.utils.IPV6Util;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
-public class
-TCPServerLocatorSchema extends AbstractServerLocatorSchema {
+public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    public String getSchemaName() {
