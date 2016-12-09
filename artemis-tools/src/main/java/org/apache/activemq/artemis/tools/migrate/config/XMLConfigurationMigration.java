@@ -26,8 +26,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -41,83 +43,96 @@ import org.w3c.dom.NodeList;
 
 public class XMLConfigurationMigration {
 
-   private static XMLConfigurationMigration migration;
+   // Attributes
+   private static final String xPathAttrName = "@name";
+
+   // JMS XPaths
+   private static final String xPathJMS = "/configuration/jms";
+
+   private static final String xPathJMSQueues = "/configuration/jms/queue";
+
+   private static final String xPathJMSTopics = "/configuration/jms/topic";
+
+   // Core Queue XPaths
+   private static final String xPathQueues = "/configuration/core/queues";
+
+   private static final String xPathQueue = "/configuration/core/queues/queue";
+
+   private static final String xPathAddress = "address";
+
+   private static final String xPathFilter = "filter/@string";
+
+   private static final String xPathSelector = "selector/@string";
+
+   private static final String xPathDurable = "durable";
+
+   private static final String jmsQueuePrefix = "jms.queue.";
+
+   private static final String jmsTopicPrefix = "jms.topic.";
+
+   private final Map<String, Address> jmsQueueAddresses = new HashMap<>();
+
+   private final Map<String, Address> jmsTopicAddresses = new HashMap<>();
+
+   private final Map<String, Address> coreAddresses = new HashMap<>();
+
+   private final Map<String, Address> aliases = new HashMap<>();
 
    private final Document document;
 
-   public static void main(String[] args) throws Exception {
+   private final File input;
 
-      if (args.length == 0) {
-         System.err.println("Invalid args");
-         printUsage();
-      } else {
-         File input = new File(args[0]);
-         if (input.isDirectory()) {
-            System.out.println("Scanning directory: " + input.getAbsolutePath());
-            recursiveTransform(input);
-         } else {
-            if (args.length != 2) {
-               System.err.println("Invalid args");
-               printUsage();
-            } else {
-               transform(input, new File(args[1]));
-            }
-         }
-      }
-   }
+   private final File output;
 
-   private static void recursiveTransform(File root) throws Exception {
-      for (File file : root.listFiles()) {
-         scanAndTransform(file);
-      }
-   }
+   private final Node coreElement;
 
-   public static void scanAndTransform(File pFile) throws Exception {
-      try {
-         for (File f : pFile.listFiles()) {
-            if (f.isDirectory()) {
-               scanAndTransform(f);
-            } else {
-               try {
-                  if (f.getName().endsWith("xml")) {
-                     File file = new File(f.getAbsolutePath() + ".new");
-                     if (transform(f, file)) {
-                        File r = new File(f.getAbsolutePath());
+   private final XPath xPath;
 
-                        f.renameTo(new File(f.getAbsolutePath() + ".bk"));
-                        file.renameTo(r);
-                     }
-                  }
-               } catch (Exception e) {
-                  //continue
-               }
-            }
-         }
-      } catch (NullPointerException e) {
-         System.out.println(pFile.getAbsoluteFile());
-      }
-   }
+   public XMLConfigurationMigration(File input, File output) throws Exception {
 
-   public static void printUsage() {
-      System.out.println("Please specify a directory to scan, or input and output file");
-   }
+      this.input = input;
+      this.output = output;
 
-   public static boolean transform(File input, File output) throws Exception {
-
-      migration = new XMLConfigurationMigration(input);
       try {
          if (!input.exists()) {
-            System.err.println("Input file not found: " + input);
+            throw new Exception("Input file not found: " + input);
          }
 
-         if (migration.convertQueuesToAddresses()) {
+         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+         factory.setIgnoringElementContentWhitespace(true);
+
+         DocumentBuilder db = factory.newDocumentBuilder();
+         this.document = db.parse(this.input);
+
+         xPath = XPathFactory.newInstance().newXPath();
+         coreElement = (Node) xPath.evaluate("/configuration/core", document, XPathConstants.NODE);
+
+         if (coreElement == null) {
+            throw new Exception("Not a artemis config");
+         }
+      } catch (Exception e) {
+         throw new Exception(e);
+      }
+   }
+
+   public boolean transform() throws Exception {
+      try {
+
+         boolean queuesChanged = convertQueuesToAddresses();
+         boolean jmsChanged = convertJMSToAddresses();
+
+         writeAddressesToDocument();
+         document.normalize();
+
+         if (queuesChanged || jmsChanged) {
             Properties properties = new Properties();
             properties.put(OutputKeys.INDENT, "yes");
             properties.put("{http://xml.apache.org/xslt}indent-amount", "3");
             properties.put(OutputKeys.ENCODING, "UTF-8");
-            migration.write(output, properties);
+            write(output, properties);
             return true;
          }
+
       } catch (Exception e) {
          System.err.println("Error tranforming document");
          e.printStackTrace();
@@ -125,97 +140,146 @@ public class XMLConfigurationMigration {
       return false;
    }
 
-   public XMLConfigurationMigration(File input) throws Exception {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setIgnoringElementContentWhitespace(true);
-
-      DocumentBuilder db = factory.newDocumentBuilder();
-      this.document = db.parse(input);
-   }
-
    public boolean convertQueuesToAddresses() throws Exception {
 
-      Map<String, Address> addresses = new HashMap<>();
-
-      String xPathQueues = "/configuration/core/queues";
-      String xPathQueue = "/configuration/core/queues/queue";
-      String xPathAttrName = "@name";
-      String xPathAddress = "address";
-      String xPathFilter = "filter/@string";
-      String xPathDurable = "durable";
-
-      XPath xPath = XPathFactory.newInstance().newXPath();
-
-      NodeList xpathResult = (NodeList) xPath.evaluate(xPathQueue, document, XPathConstants.NODESET);
-      if (xpathResult == null || xpathResult.getLength() == 0) {
-         // doesn't require change
+      Node coreQueuesElement = getNode(xPathQueues);
+      if (coreQueuesElement == null) {
          return false;
       }
 
-      for (int i = 0; i < xpathResult.getLength(); i++) {
-         Node queueNode = xpathResult.item(i);
+      NodeList coreQueueElements = getNodeList(xPathQueue);
+      for (int i = 0; i < coreQueueElements.getLength(); i++) {
+         Node queueNode = coreQueueElements.item(i);
 
          Queue queue = new Queue();
-         queue.setName(xPath.evaluate(xPathAttrName, queueNode, XPathConstants.STRING).toString());
-         queue.setDurable(xPath.evaluate(xPathDurable, queueNode, XPathConstants.STRING).toString());
-         queue.setFilter(xPath.evaluate(xPathFilter, queueNode, XPathConstants.STRING).toString());
+         queue.setName(getString(queueNode, xPathAttrName));
+         queue.setDurable(getString(queueNode, xPathDurable));
+         queue.setFilter(getString(queueNode, xPathFilter));
 
-         String addressName = xPath.evaluate(xPathAddress, queueNode, XPathConstants.STRING).toString();
+         String addressName = getString(queueNode, xPathAddress);
+
          Address address;
-
-         if (addresses.containsKey(addressName)) {
-            address = addresses.get(addressName);
+         if (coreAddresses.containsKey(addressName)) {
+            address = coreAddresses.get(addressName);
          } else {
             address = new Address();
             address.setName(addressName);
-            addresses.put(addressName, address);
+            coreAddresses.put(addressName, address);
          }
          address.getQueues().add(queue);
       }
 
-      Node queues = ((Node) xPath.evaluate(xPathQueues, document, XPathConstants.NODE));
-
+      // Remove Core Queues Element from Core
+      Node queues = getNode(xPathQueues);
       if (queues != null) {
-         Node core = queues.getParentNode();
-         core.removeChild(queues);
-
-         Element a = document.createElement("addresses");
-         for (Address addr : addresses.values()) {
-            Element eAddr = document.createElement("address");
-            eAddr.setAttribute("name", addr.getName());
-            eAddr.setAttribute("type", addr.getRoutingType());
-
-            if (addr.getQueues().size() > 0) {
-               Element eQueues = document.createElement("queues");
-               for (Queue queue : addr.getQueues()) {
-                  Element eQueue = document.createElement("queue");
-                  eQueue.setAttribute("name", queue.getName());
-                  eQueue.setAttribute("max-consumers", addr.getDefaultMaxConsumers());
-                  eQueue.setAttribute("delete-on-no-consumers", addr.getDefaultDeleteOnNoConsumers());
-
-                  if (queue.getDurable() != null && !queue.getDurable().isEmpty()) {
-                     Element eDurable = document.createElement("durable");
-                     eDurable.setTextContent(queue.getDurable());
-                     eQueue.appendChild(eDurable);
-                  }
-
-                  if (queue.getFilter() != null && !queue.getFilter().isEmpty()) {
-                     Element eFilter = document.createElement("filter");
-                     eFilter.setAttribute("string", queue.getFilter());
-                     eQueue.appendChild(eFilter);
-                  }
-
-                  eQueues.appendChild(eQueue);
-               }
-               eAddr.appendChild(eQueues);
-            }
-            a.appendChild(eAddr);
-         }
-         core.appendChild(a);
+         coreElement.removeChild(queues);
       }
 
-      document.normalize();
       return true;
+   }
+
+   public boolean convertJMSToAddresses() throws Exception {
+      Node jmsElement = getNode(xPathJMS);
+      if (jmsElement == null) {
+         return false;
+      }
+
+      NodeList jmsQueueElements = getNodeList(xPathJMSQueues);
+      for (int i = 0; i < jmsQueueElements.getLength(); i++) {
+         Node jmsQueueElement = jmsQueueElements.item(i);
+         String name = jmsQueuePrefix + getString(jmsQueueElement, xPathAttrName);
+
+         Address address;
+         if (jmsQueueAddresses.containsKey(name)) {
+            address = jmsQueueAddresses.get(name);
+         } else {
+            address = new Address();
+            address.setName(name);
+            address.setRoutingType("anycast");
+            jmsQueueAddresses.put(name, address);
+         }
+
+         Queue queue = new Queue();
+         queue.setName(name);
+         queue.setDurable(getString(jmsQueueElement, xPathDurable));
+         queue.setFilter(getString(jmsQueueElement, xPathSelector));
+         address.getQueues().add(queue);
+      }
+
+      NodeList jmsTopicElements = getNodeList(xPathJMSTopics);
+      for (int i = 0; i < jmsTopicElements.getLength(); i++) {
+         Node jmsTopicElement = jmsTopicElements.item(i);
+         String name = jmsTopicPrefix + getString(jmsTopicElement, xPathAttrName);
+
+         Address address;
+         if (jmsTopicAddresses.containsKey(name)) {
+            address = jmsTopicAddresses.get(name);
+         } else {
+            address = new Address();
+            address.setName(name);
+            address.setRoutingType("multicast");
+            jmsTopicAddresses.put(name, address);
+         }
+
+         Queue queue = new Queue();
+         queue.setName(name);
+         address.getQueues().add(queue);
+      }
+
+      jmsElement.getParentNode().removeChild(jmsElement);
+      return true;
+   }
+
+   public void writeAddressesToDocument() {
+
+      Element addressElement = document.createElement("addresses");
+
+      writeAddressListToDoc("=   JMS Queues   =", jmsQueueAddresses.values(), addressElement);
+      writeAddressListToDoc("=   JMS Topics   =", jmsTopicAddresses.values(), addressElement);
+      writeAddressListToDoc("=   Core Queues  =", coreAddresses.values(), addressElement);
+
+      coreElement.appendChild(addressElement);
+
+   }
+
+   private void writeAddressListToDoc(String comment, Collection<Address> addresses, Node addressElement) {
+      if (addresses.isEmpty())
+         return;
+
+      addressElement.appendChild(document.createComment("=================="));
+      addressElement.appendChild(document.createComment(comment));
+      addressElement.appendChild(document.createComment("=================="));
+      for (Address addr : addresses) {
+         Element eAddr = document.createElement("address");
+         eAddr.setAttribute("name", addr.getName());
+         eAddr.setAttribute("type", addr.getRoutingType());
+
+         if (addr.getQueues().size() > 0) {
+            Element eQueues = document.createElement("queues");
+            for (Queue queue : addr.getQueues()) {
+               Element eQueue = document.createElement("queue");
+               eQueue.setAttribute("name", queue.getName());
+               eQueue.setAttribute("max-consumers", addr.getDefaultMaxConsumers());
+               eQueue.setAttribute("delete-on-no-consumers", addr.getDefaultDeleteOnNoConsumers());
+
+               if (queue.getDurable() != null && !queue.getDurable().isEmpty()) {
+                  Element eDurable = document.createElement("durable");
+                  eDurable.setTextContent(queue.getDurable());
+                  eQueue.appendChild(eDurable);
+               }
+
+               if (queue.getFilter() != null && !queue.getFilter().isEmpty()) {
+                  Element eFilter = document.createElement("filter");
+                  eFilter.setAttribute("string", queue.getFilter());
+                  eQueue.appendChild(eFilter);
+               }
+
+               eQueues.appendChild(eQueue);
+            }
+            eAddr.appendChild(eQueues);
+         }
+         addressElement.appendChild(eAddr);
+      }
    }
 
    public void write(File output, Properties outputProperties) throws TransformerException {
@@ -224,4 +288,17 @@ public class XMLConfigurationMigration {
       StreamResult streamResult = new StreamResult(output);
       transformer.transform(new DOMSource(document), streamResult);
    }
+
+   private String getString(Node node, String xPathQuery) throws XPathExpressionException {
+      return xPath.evaluate(xPathQuery, node, XPathConstants.STRING).toString();
+   }
+
+   private NodeList getNodeList(String xPathQuery) throws XPathExpressionException {
+      return (NodeList) xPath.evaluate(xPathQuery, document, XPathConstants.NODESET);
+   }
+
+   private Node getNode(String xPathQuery) throws XPathExpressionException {
+      return (Node) xPath.evaluate(xPathQuery, document, XPathConstants.NODE);
+   }
+
 }

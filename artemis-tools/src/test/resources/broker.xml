@@ -18,8 +18,17 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
    <jms xmlns="urn:activemq:jms">
-      <!--the queue used by the example-->
-      <queue name="exampleQueue"/>
+      <queue name="queue1">
+         <durable>true</durable>
+         <selector string="car='red'" />
+      </queue>
+
+      <queue name="queue2"/>
+      <queue name="queue3"/>
+
+      <topic name="topic1"/>
+      <topic name="topic2"/>
+      <topic name="topic3"/>
    </jms>
 
    <core xmlns="urn:activemq:core">

@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: org.apache.activemq.artemis.tools.migrate.config.XMLConfigurationMigration
+Main-Class: org.apache.activemq.artemis.tools.migrate.config.Main
