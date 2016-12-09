@@ -238,6 +238,14 @@ public class QueueImpl implements Queue {
 
    private SlowConsumerReaperRunnable slowConsumerReaperRunnable;
 
+   private int maxConsumers;
+
+   private boolean deleteOnNoConsumers;
+
+   private final AddressInfo addressInfo;
+
+   private final AtomicInteger noConsumers = new AtomicInteger(0);
+
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
     * to guarantee ordering will be always be correct
@@ -334,9 +342,31 @@ public class QueueImpl implements Queue {
                     final StorageManager storageManager,
                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                     final Executor executor) {
+      this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
+   }
+
+   public QueueImpl(final long id,
+                    final SimpleString address,
+                    final SimpleString name,
+                    final Filter filter,
+                    final PageSubscription pageSubscription,
+                    final SimpleString user,
+                    final boolean durable,
+                    final boolean temporary,
+                    final boolean autoCreated,
+                    final Integer maxConsumers,
+                    final Boolean deleteOnNoConsumers,
+                    final ScheduledExecutorService scheduledExecutor,
+                    final PostOffice postOffice,
+                    final StorageManager storageManager,
+                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                    final Executor executor) {
+
       this.id = id;
 
       this.address = address;
+
+      this.addressInfo = postOffice.getAddressInfo(address);
 
       this.name = name;
 
@@ -349,6 +379,10 @@ public class QueueImpl implements Queue {
       this.temporary = temporary;
 
       this.autoCreated = autoCreated;
+
+      this.maxConsumers = maxConsumers == null ? addressInfo.getDefaultMaxConsumers() : maxConsumers;
+
+      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? addressInfo.isDefaultDeleteOnNoConsumers() : deleteOnNoConsumers;
 
       this.postOffice = postOffice;
 
@@ -434,6 +468,16 @@ public class QueueImpl implements Queue {
    @Override
    public boolean isAutoCreated() {
       return autoCreated;
+   }
+
+   @Override
+   public boolean isDeleteOnNoConsumers() {
+      return deleteOnNoConsumers;
+   }
+
+   @Override
+   public int getMaxConsumers() {
+      return maxConsumers;
    }
 
    @Override
@@ -709,6 +753,11 @@ public class QueueImpl implements Queue {
       }
 
       synchronized (this) {
+
+         if (maxConsumers != -1 && noConsumers.get() >= maxConsumers) {
+            throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
+         }
+
          flushDeliveriesInTransit();
 
          consumersChanged = true;
@@ -722,6 +771,8 @@ public class QueueImpl implements Queue {
          if (refCountForConsumers != null) {
             refCountForConsumers.increment();
          }
+
+         noConsumers.incrementAndGet();
       }
 
    }
@@ -769,6 +820,14 @@ public class QueueImpl implements Queue {
 
          if (refCountForConsumers != null) {
             refCountForConsumers.decrement();
+         }
+
+         if (noConsumers.decrementAndGet() == 0 && deleteOnNoConsumers) {
+            try {
+               deleteQueue();
+            } catch (Exception e) {
+               logger.error("Error deleting queue on no consumers.  " + this.toString(), e);
+            }
          }
       }
    }
@@ -1361,6 +1420,7 @@ public class QueueImpl implements Queue {
    @Override
    public void deleteQueue(boolean removeConsumers) throws Exception {
       synchronized (this) {
+         if (this.queueDestroyed) return;
          this.queueDestroyed = true;
       }
 

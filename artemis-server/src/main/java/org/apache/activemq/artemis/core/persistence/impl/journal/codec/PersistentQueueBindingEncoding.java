@@ -41,6 +41,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public List<QueueStatusEncoding> queueStatusEncodings;
 
+   public int maxConsumers;
+
+   public boolean deleteOnNoConsumers;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -57,6 +61,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          user +
          ", autoCreated=" +
          autoCreated +
+         ", maxConsumers=" +
+         maxConsumers +
+         ", deleteOnNoConsumers=" +
+         deleteOnNoConsumers +
          "]";
    }
 
@@ -125,6 +133,26 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public int getMaxConsumers() {
+      return 0;
+   }
+
+   @Override
+   public void setMaxConsumers(int maxConsumers) {
+
+   }
+
+   @Override
+   public boolean isDeleteOnNoConsumers() {
+      return false;
+   }
+
+   @Override
+   public void setDeleteOnNoConsumers() {
+
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -144,6 +172,14 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       }
 
       autoCreated = buffer.readBoolean();
+
+      if (buffer.readableBytes() > 0) {
+         maxConsumers = buffer.readInt();
+         deleteOnNoConsumers = buffer.readBoolean();
+      } else {
+         maxConsumers = -1;
+         deleteOnNoConsumers = false;
+      }
    }
 
    @Override
@@ -153,13 +189,17 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeNullableSimpleString(filterString);
       buffer.writeNullableSimpleString(createMetadata());
       buffer.writeBoolean(autoCreated);
+      buffer.writeInt(maxConsumers);
+      buffer.writeBoolean(deleteOnNoConsumers);
    }
 
    @Override
    public int getEncodeSize() {
       return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
          SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +
-         SimpleString.sizeofNullableString(createMetadata());
+         SimpleString.sizeofNullableString(createMetadata()) +
+         DataConstants.SIZE_INT +
+         DataConstants.SIZE_BOOLEAN;
    }
 
    private SimpleString createMetadata() {

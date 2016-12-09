@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.tests.integration.addressing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -156,7 +158,7 @@ public class AddressingTest extends ActiveMQTestBase {
       ClientConsumer consumer1 = session.createConsumer(q1.getName());
       ClientConsumer consumer2 = session.createConsumer(q2.getName());
       ClientConsumer consumer3 = session.createConsumer(q3.getName());
-      List<ClientConsumer> consumers = new ArrayList<>(Arrays.asList(new ClientConsumer[] {consumer1, consumer2, consumer3}));
+      List<ClientConsumer> consumers = new ArrayList<>(Arrays.asList(new ClientConsumer[]{consumer1, consumer2, consumer3}));
 
       List<String> messages = new ArrayList<>();
       messages.add("Message1");
@@ -186,8 +188,6 @@ public class AddressingTest extends ActiveMQTestBase {
       }
       assertEquals(0, count);
    }
-
-
 
    @Test
    public void testMulticastRoutingBackwardsCompat() throws Exception {
@@ -222,34 +222,102 @@ public class AddressingTest extends ActiveMQTestBase {
       }
    }
 
-   @Ignore
    @Test
-   public void testDeleteQueueOnNoConsumersTrue() {
-      fail("Not Implemented");
+   public void testDeleteQueueOnNoConsumersTrue() throws Exception {
+
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      // For each address, create 2 Queues with the same address, assert both queues receive message
+      boolean deleteOnNoConsumers = true;
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
+
+      ClientSession session = sessionFactory.createSession();
+      session.start();
+
+      ClientConsumer consumer1 = session.createConsumer(q1.getName());
+      consumer1.close();
+
+      assertFalse(server.queueQuery(queueName).isExists());
+   }
+
+   @Test
+   public void testDeleteQueueOnNoConsumersFalse() throws Exception {
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      // For each address, create 2 Queues with the same address, assert both queues receive message
+      boolean deleteOnNoConsumers = false;
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
+
+      ClientSession session = sessionFactory.createSession();
+      session.start();
+
+      ClientConsumer consumer1 = session.createConsumer(q1.getName());
+      consumer1.close();
+
+      assertTrue(server.queueQuery(queueName).isExists());
+   }
+
+   @Test
+   public void testLimitOnMaxConsumers() throws Exception {
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      // For each address, create 2 Queues with the same address, assert both queues receive message
+      boolean deleteOnNoConsumers = false;
+      Queue q1 = server.createQueue(address, queueName, null, true, false, 0, deleteOnNoConsumers);
+
+      Exception expectedException = null;
+      String expectedMessage = "Maximum Consumer Limit Reached on Queue";
+      try {
+         ClientSession session = sessionFactory.createSession();
+         session.start();
+
+         session.createConsumer(q1.getName());
+      } catch (ActiveMQQueueMaxConsumerLimitReached e) {
+         expectedException = e;
+      }
+
+      assertNotNull(expectedException);
+      assertTrue(expectedException.getMessage().contains(expectedMessage));
+      assertTrue(expectedException.getMessage().contains(address));
+      assertTrue(expectedException.getMessage().contains(queueName));
    }
 
    @Ignore
    @Test
-   public void testDeleteQueueOnNoConsumersFalse() {
-      fail("Not Implemented");
+   public void testUnlimitedMaxConsumers() throws Exception {
+      int noConsumers = 50;
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      // For each address, create 2 Queues with the same address, assert both queues receive message
+      boolean deleteOnNoConsumers = false;
+      Queue q1 = server.createQueue(address, queueName, null, true, false, -1, deleteOnNoConsumers);
+
+      ClientSession session = sessionFactory.createSession();
+      session.start();
+
+      for (int i = 0; i < noConsumers; i++) {
+         session.createConsumer(q1.getName());
+      }
    }
 
    @Ignore
    @Test
-   public void testLimitOnMaxConsumers() {
-      fail("Not Implemented");
-   }
+   public void testDefaultMaxConsumersFromAddress() throws Exception {
+      int noConsumers = 50;
+      SimpleString address = new SimpleString("test.address");
+      SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
+      // For each address, create 2 Queues with the same address, assert both queues receive message
+      boolean deleteOnNoConsumers = false;
+      AddressInfo addressInfo = new AddressInfo(address);
+      addressInfo.setDefaultMaxConsumers(0);
+      Queue q1 = server.createQueue(address, queueName, null, true, false, null, deleteOnNoConsumers);
 
-   @Ignore
-   @Test
-   public void testUnlimitedMaxConsumers() {
-      fail("Not Implemented");
-   }
+      ClientSession session = sessionFactory.createSession();
+      session.start();
 
-   @Ignore
-   @Test
-   public void testDefaultMaxConsumersFromAddress() {
-      fail("Not Implemented");
+      for (int i = 0; i < noConsumers; i++) {
+         session.createConsumer(q1.getName());
+      }
    }
 
    @Ignore

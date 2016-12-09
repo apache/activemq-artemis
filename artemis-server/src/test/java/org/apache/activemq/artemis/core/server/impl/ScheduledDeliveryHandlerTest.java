@@ -901,6 +901,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public boolean isDeleteOnNoConsumers() {
+         return false;
+      }
+
+      @Override
+      public int getMaxConsumers() {
+         return -1;
+      }
+
+      @Override
       public void addConsumer(Consumer consumer) throws Exception {
 
       }

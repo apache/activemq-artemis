@@ -29,16 +29,20 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidQueueConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
+import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddress;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -378,4 +382,12 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119119, value = "Disk Capacity is Low, cannot produce more messages.")
    ActiveMQIOErrorException diskBeyondLimit();
 
+   @Message(id = 119200, value = "Maximum Consumer Limit Reached on Queue:(address={0},queue={1})", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQQueueMaxConsumerLimitReached maxConsumerLimitReachedForQueue(SimpleString address, SimpleString queueName);
+
+   @Message(id = 119201, value = "Expected Routing Type {1} but found {2} for address {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(SimpleString address, AddressInfo.RoutingType expectedRoutingType, AddressInfo.RoutingType actualRoutingType);
+
+   @Message(id = 119202, value = "Invalid Queue Configuration for Queue {0}, Address {1}.  Expected {2} to be {3} but was {4}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString address, SimpleString queueName, String queuePropertyName, Object expectedValue, Object actualValue);
 }

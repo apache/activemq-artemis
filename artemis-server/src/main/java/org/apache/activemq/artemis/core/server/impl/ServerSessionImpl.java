@@ -501,6 +501,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString filterString,
                             final boolean temporary,
                             final boolean durable) throws Exception {
+      return createQueue(address, name, filterString, temporary, durable, null, null);
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString name,
+                            final SimpleString filterString,
+                            final boolean temporary,
+                            final boolean durable,
+                            final Integer maxConsumers,
+                            final Boolean deleteOnNoConsumers) throws Exception {
       if (durable) {
          // make sure the user has privileges to create this queue
          securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
@@ -514,9 +525,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       // any non-temporary JMS destination created via this method should be marked as auto-created
       if (!temporary && ((address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name)) || address.toString().startsWith(ResourceNames.JMS_TOPIC))) {
-         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true);
+         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true, maxConsumers, deleteOnNoConsumers);
       } else {
-         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
+         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, maxConsumers, deleteOnNoConsumers);
       }
 
       if (temporary) {
