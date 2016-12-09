@@ -68,15 +68,7 @@ public class XMLConfigurationMigration {
 
    private static final String jmsQueuePrefix = "jms.queue.";
 
-   private static final String jmsTopicPrefix = "jms.topic.";
-
-   private final Map<String, Address> jmsQueueAddresses = new HashMap<>();
-
-   private final Map<String, Address> jmsTopicAddresses = new HashMap<>();
-
    private final Map<String, Address> coreAddresses = new HashMap<>();
-
-   private final Map<String, Address> aliases = new HashMap<>();
 
    private final Document document;
 
@@ -155,6 +147,7 @@ public class XMLConfigurationMigration {
          queue.setName(getString(queueNode, xPathAttrName));
          queue.setDurable(getString(queueNode, xPathDurable));
          queue.setFilter(getString(queueNode, xPathFilter));
+         queue.setRoutingType("multicast");
 
          String addressName = getString(queueNode, xPathAddress);
 
@@ -167,6 +160,7 @@ public class XMLConfigurationMigration {
             coreAddresses.put(addressName, address);
          }
          address.getQueues().add(queue);
+         address.getRoutingTypes().add("multicast");
       }
 
       // Remove Core Queues Element from Core
@@ -187,80 +181,86 @@ public class XMLConfigurationMigration {
       NodeList jmsQueueElements = getNodeList(xPathJMSQueues);
       for (int i = 0; i < jmsQueueElements.getLength(); i++) {
          Node jmsQueueElement = jmsQueueElements.item(i);
-         String name = jmsQueuePrefix + getString(jmsQueueElement, xPathAttrName);
+         String name = getString(jmsQueueElement, xPathAttrName);
 
          Address address;
-         if (jmsQueueAddresses.containsKey(name)) {
-            address = jmsQueueAddresses.get(name);
+         if (coreAddresses.containsKey(name)) {
+            address = coreAddresses.get(name);
          } else {
             address = new Address();
             address.setName(name);
-            address.setRoutingType("anycast");
-            jmsQueueAddresses.put(name, address);
+            address.getRoutingTypes().add("anycast");
+            coreAddresses.put(name, address);
          }
 
          Queue queue = new Queue();
-         queue.setName(name);
+         queue.setName(jmsQueuePrefix + name);
          queue.setDurable(getString(jmsQueueElement, xPathDurable));
          queue.setFilter(getString(jmsQueueElement, xPathSelector));
+         queue.setRoutingType("anycast");
          address.getQueues().add(queue);
+         address.getRoutingTypes().add("anycast");
       }
 
       NodeList jmsTopicElements = getNodeList(xPathJMSTopics);
       for (int i = 0; i < jmsTopicElements.getLength(); i++) {
          Node jmsTopicElement = jmsTopicElements.item(i);
-         String name = jmsTopicPrefix + getString(jmsTopicElement, xPathAttrName);
+         String name = getString(jmsTopicElement, xPathAttrName);
 
          Address address;
-         if (jmsTopicAddresses.containsKey(name)) {
-            address = jmsTopicAddresses.get(name);
+         if (coreAddresses.containsKey(name)) {
+            address = coreAddresses.get(name);
          } else {
             address = new Address();
             address.setName(name);
-            address.setRoutingType("multicast");
-            jmsTopicAddresses.put(name, address);
+            address.getRoutingTypes().add("multicast");
+            coreAddresses.put(name, address);
          }
-
-         Queue queue = new Queue();
-         queue.setName(name);
-         address.getQueues().add(queue);
+         address.getRoutingTypes().add("multicast");
       }
 
       jmsElement.getParentNode().removeChild(jmsElement);
       return true;
    }
 
-   public void writeAddressesToDocument() {
+   public void writeAddressesToDocument() throws XPathExpressionException {
 
       Element addressElement = document.createElement("addresses");
-
-      writeAddressListToDoc("=   JMS Queues   =", jmsQueueAddresses.values(), addressElement);
-      writeAddressListToDoc("=   JMS Topics   =", jmsTopicAddresses.values(), addressElement);
-      writeAddressListToDoc("=   Core Queues  =", coreAddresses.values(), addressElement);
-
+      writeAddressListToDoc(coreAddresses.values(), addressElement);
       coreElement.appendChild(addressElement);
-
    }
 
-   private void writeAddressListToDoc(String comment, Collection<Address> addresses, Node addressElement) {
+   private void writeAddressListToDoc(Collection<Address> addresses,
+                                      Node addressElement) throws XPathExpressionException {
       if (addresses.isEmpty())
          return;
 
-      addressElement.appendChild(document.createComment("=================="));
-      addressElement.appendChild(document.createComment(comment));
-      addressElement.appendChild(document.createComment("=================="));
       for (Address addr : addresses) {
          Element eAddr = document.createElement("address");
          eAddr.setAttribute("name", addr.getName());
-         eAddr.setAttribute("type", addr.getRoutingType());
+
+         Element eMulticast = null;
+         if (addr.getRoutingTypes().contains("multicast")) {
+            eMulticast = (Element) eAddr.getElementsByTagName("multicast").item(0);
+            if (eMulticast == null) {
+               eMulticast = document.createElement("multicast");
+               eAddr.appendChild(eMulticast);
+            }
+         }
+
+         Element eAnycast = null;
+         if (addr.getRoutingTypes().contains("anycast")) {
+            eAnycast = (Element) eAddr.getElementsByTagName("anycast").item(0);
+            if (eAnycast == null) {
+               eAnycast = document.createElement("anycast");
+               eAddr.appendChild(eAnycast);
+            }
+         }
 
          if (addr.getQueues().size() > 0) {
-            Element eQueues = document.createElement("queues");
             for (Queue queue : addr.getQueues()) {
                Element eQueue = document.createElement("queue");
                eQueue.setAttribute("name", queue.getName());
-               eQueue.setAttribute("max-consumers", addr.getDefaultMaxConsumers());
-               eQueue.setAttribute("delete-on-no-consumers", addr.getDefaultDeleteOnNoConsumers());
 
                if (queue.getDurable() != null && !queue.getDurable().isEmpty()) {
                   Element eDurable = document.createElement("durable");
@@ -274,9 +274,14 @@ public class XMLConfigurationMigration {
                   eQueue.appendChild(eFilter);
                }
 
-               eQueues.appendChild(eQueue);
+               if (queue.getRoutingType().equals("anycast")) {
+                  eAnycast.appendChild(eQueue);
+               } else if (queue.getRoutingType().equals("multicast")) {
+                  eMulticast.appendChild(eQueue);
+               } else {
+                  System.err.print("Unknown Routing Type Found for Queue: " + queue.getName());
+               }
             }
-            eAddr.appendChild(eQueues);
          }
          addressElement.appendChild(eAddr);
       }

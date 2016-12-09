@@ -29,6 +29,9 @@
       <topic name="topic1"/>
       <topic name="topic2"/>
       <topic name="topic3"/>
+
+      <queue name="orders"/>
+      <topic name="orders"/>
    </jms>
 
    <core xmlns="urn:activemq:core">
