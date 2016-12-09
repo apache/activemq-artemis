@@ -833,7 +833,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, true, false, false, false, false, false, false);
+      Role role = new Role("arole", false, false, true, true, false, false, false, false, false, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -923,7 +923,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, true, true, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, true, true, false, false, false, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);

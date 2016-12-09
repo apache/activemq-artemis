@@ -497,8 +497,28 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               final String queueName,
                               final String filterVal,
                               final boolean durable,
+                              RoutingType routingType) throws Exception {
+      createQueue(node, address, queueName, filterVal, durable, null, null, routingType);
+   }
+
+   protected void createQueue(final int node,
+                              final String address,
+                              final String queueName,
+                              final String filterVal,
+                              final boolean durable,
                               final String user,
                               final String password) throws Exception {
+      createQueue(node, address, queueName, filterVal, durable, user, password, RoutingType.MULTICAST);
+   }
+
+   protected void createQueue(final int node,
+                              final String address,
+                              final String queueName,
+                              final String filterVal,
+                              final boolean durable,
+                              final String user,
+                              final String password,
+                              RoutingType routingType) throws Exception {
       ClientSessionFactory sf = sfs[node];
 
       if (sf == null) {
@@ -515,7 +535,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       log.info("Creating " + queueName + " , address " + address + " on " + servers[node]);
 
-      session.createQueue(address, queueName, filterString, durable);
+      session.createQueue(address, routingType, queueName, filterString, durable);
 
       session.close();
    }

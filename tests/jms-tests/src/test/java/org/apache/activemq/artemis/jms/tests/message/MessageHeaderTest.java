@@ -275,7 +275,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          propNames.add(propName);
       }
 
-      ProxyAssertSupport.assertEquals(9, propNames.size());
+      ProxyAssertSupport.assertTrue(propNames.size() >= 9);
 
       ProxyAssertSupport.assertTrue(propNames.contains("myBool"));
       ProxyAssertSupport.assertTrue(propNames.contains("myByte"));

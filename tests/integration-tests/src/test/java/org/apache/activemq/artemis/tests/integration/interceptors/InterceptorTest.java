@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCre
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -1052,7 +1053,7 @@ public class InterceptorTest extends ActiveMQTestBase {
    public void testInterceptorOnURI() throws Exception {
       locator.close();
 
-      server.createQueue(QUEUE, QUEUE, null, true, false);
+      server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
 
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 
