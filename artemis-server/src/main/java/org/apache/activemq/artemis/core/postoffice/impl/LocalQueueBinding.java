@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.Bindable;
@@ -131,8 +131,8 @@ public class LocalQueueBinding implements QueueBinding {
    }
 
    private boolean isMatchRoutingType(ServerMessage message) {
-      if (message.containsProperty(MessageInternal.HDR_ROUTING_TYPE)) {
-         return message.getByteProperty(MessageInternal.HDR_ROUTING_TYPE) == queue.getRoutingType().getType();
+      if (message.containsProperty(Message.HDR_ROUTING_TYPE)) {
+         return message.getByteProperty(Message.HDR_ROUTING_TYPE).equals(queue.getRoutingType().getType());
       }
       return true;
    }

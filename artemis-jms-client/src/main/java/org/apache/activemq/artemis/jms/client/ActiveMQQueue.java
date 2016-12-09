@@ -76,6 +76,26 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
       return "ActiveMQQueue[" + name + "]";
    }
 
+   @Override
+   public boolean equals(final Object o) {
+      if (this == o) {
+         return true;
+      }
+
+      if (!(o instanceof ActiveMQQueue)) {
+         return false;
+      }
+
+      ActiveMQQueue that = (ActiveMQQueue) o;
+
+      return super.getAddress().equals(that.getAddress());
+   }
+
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

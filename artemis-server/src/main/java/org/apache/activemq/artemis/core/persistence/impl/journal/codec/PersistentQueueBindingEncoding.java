@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -45,6 +46,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public boolean deleteOnNoConsumers;
 
+   public byte routingType;
+
    public PersistentQueueBindingEncoding() {
    }
 
@@ -65,6 +68,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          maxConsumers +
          ", deleteOnNoConsumers=" +
          deleteOnNoConsumers +
+         ", routingType=" +
+         routingType +
          "]";
    }
 
@@ -74,7 +79,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final SimpleString user,
                                          final boolean autoCreated,
                                          final int maxConsumers,
-                                         final boolean deleteOnNoConsumers) {
+                                         final boolean deleteOnNoConsumers,
+                                         final byte routingType) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -82,6 +88,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.autoCreated = autoCreated;
       this.maxConsumers = maxConsumers;
       this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.routingType = routingType;
    }
 
    @Override
@@ -157,6 +164,16 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public byte getRoutingType() {
+      return routingType;
+   }
+
+   @Override
+   public void setRoutingType(byte routingType) {
+      this.routingType = routingType;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -180,9 +197,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       if (buffer.readableBytes() > 0) {
          maxConsumers = buffer.readInt();
          deleteOnNoConsumers = buffer.readBoolean();
+         routingType = buffer.readByte();
       } else {
-         maxConsumers = -1;
-         deleteOnNoConsumers = false;
+         maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
+         deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+         routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType().getType();
       }
    }
 
@@ -195,6 +214,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeBoolean(autoCreated);
       buffer.writeInt(maxConsumers);
       buffer.writeBoolean(deleteOnNoConsumers);
+      buffer.writeByte(routingType);
    }
 
    @Override
@@ -203,7 +223,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +
          SimpleString.sizeofNullableString(createMetadata()) +
          DataConstants.SIZE_INT +
-         DataConstants.SIZE_BOOLEAN;
+         DataConstants.SIZE_BOOLEAN +
+         DataConstants.SIZE_BYTE;
    }
 
    private SimpleString createMetadata() {

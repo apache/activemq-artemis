@@ -119,6 +119,11 @@ public class AddressInfo {
       for (RoutingType routingType : routingTypes) {
          buff.append(routingType.toString() + ",");
       }
+      // delete hanging comma
+      if (buff.charAt(buff.length() - 1) == ',') {
+         buff.deleteCharAt(buff.length() - 1);
+      }
+      buff.append("}");
       buff.append(", autoCreated=" + autoCreated);
       buff.append("]");
       return buff.toString();

@@ -36,7 +36,15 @@ public class QueueQueryResult {
 
    private boolean temporary;
 
-   private boolean autoCreateJmsQueues;
+   private boolean autoCreateQueues;
+
+   private boolean autoCreated;
+
+   private boolean deleteOnNoConsumers;
+
+   private RoutingType routingType;
+
+   private int maxConsumers;
 
    public QueueQueryResult(final SimpleString name,
                            final SimpleString address,
@@ -45,19 +53,12 @@ public class QueueQueryResult {
                            final SimpleString filterString,
                            final int consumerCount,
                            final long messageCount,
-                           final boolean autoCreateJmsQueues) {
-      this(name, address, durable, temporary, filterString, consumerCount, messageCount, autoCreateJmsQueues, true);
-   }
-
-   public QueueQueryResult(final SimpleString name,
-                           final SimpleString address,
-                           final boolean durable,
-                           final boolean temporary,
-                           final SimpleString filterString,
-                           final int consumerCount,
-                           final long messageCount,
-                           final boolean autoCreateJmsQueues,
-                           final boolean exists) {
+                           final boolean autoCreateQueues,
+                           final boolean exists,
+                           final boolean autoCreated,
+                           final boolean deleteOnNoConsumers,
+                           final RoutingType routingType,
+                           final int maxConsumers) {
       this.durable = durable;
 
       this.temporary = temporary;
@@ -72,9 +73,17 @@ public class QueueQueryResult {
 
       this.name = name;
 
-      this.autoCreateJmsQueues = autoCreateJmsQueues;
+      this.autoCreateQueues = autoCreateQueues;
 
       this.exists = exists;
+
+      this.autoCreated = autoCreated;
+
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
+
+      this.routingType = routingType;
+
+      this.maxConsumers = maxConsumers;
    }
 
    public boolean isExists() {
@@ -109,8 +118,23 @@ public class QueueQueryResult {
       return temporary;
    }
 
-   public boolean isAutoCreateJmsQueues() {
-      return autoCreateJmsQueues;
+   public boolean isAutoCreateQueues() {
+      return autoCreateQueues;
    }
 
+   public boolean isAutoCreated() {
+      return autoCreated;
+   }
+
+   public boolean isDeleteOnNoConsumers() {
+      return deleteOnNoConsumers;
+   }
+
+   public RoutingType getRoutingType() {
+      return routingType;
+   }
+
+   public int getMaxConsumers() {
+      return maxConsumers;
+   }
 }
