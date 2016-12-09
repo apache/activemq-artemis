@@ -25,8 +25,10 @@ import java.util.concurrent.ConcurrentMap;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class MQTTSubscriptionManager {
 
@@ -61,7 +63,8 @@ public class MQTTSubscriptionManager {
 
    synchronized void start() throws Exception {
       for (MqttTopicSubscription subscription : session.getSessionState().getSubscriptions()) {
-         Queue q = createQueueForSubscription(subscription.topicName(), subscription.qualityOfService().value());
+         String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName());
+         Queue q = createQueueForSubscription(coreAddress, subscription.qualityOfService().value());
          createConsumerForSubscriptionQueue(q, subscription.topicName(), subscription.qualityOfService().value());
       }
    }
@@ -84,13 +87,17 @@ public class MQTTSubscriptionManager {
    /**
     * Creates a Queue if it doesn't already exist, based on a topic and address.  Returning the queue name.
     */
-   private Queue createQueueForSubscription(String topic, int qos) throws Exception {
-      String address = MQTTUtil.convertMQTTAddressFilterToCore(topic);
+   private Queue createQueueForSubscription(String address, int qos) throws Exception {
+
       SimpleString queue = getQueueNameForTopic(address);
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
+         q = session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, -1, false);
+      } else {
+         if (q.isDeleteOnNoConsumers()) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidQueueConfiguration(q.getAddress(), q.getName(), "deleteOnNoConsumers", false, true);
+         }
       }
       return q;
    }
@@ -113,9 +120,15 @@ public class MQTTSubscriptionManager {
       int qos = subscription.qualityOfService().value();
       String topic = subscription.topicName();
 
+      String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic);
+      AddressInfo addressInfo = session.getServer().getAddressInfo(new SimpleString(coreAddress));
+      if (addressInfo != null && addressInfo.getRoutingType() != AddressInfo.RoutingType.MULTICAST) {
+         throw ActiveMQMessageBundle.BUNDLE.unexpectedRoutingTypeForAddress(new SimpleString(coreAddress), AddressInfo.RoutingType.MULTICAST, addressInfo.getRoutingType());
+      }
+
       session.getSessionState().addSubscription(subscription);
 
-      Queue q = createQueueForSubscription(topic, qos);
+      Queue q = createQueueForSubscription(coreAddress, qos);
 
       if (s == null) {
          createConsumerForSubscriptionQueue(q, topic, qos);
