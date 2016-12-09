@@ -57,7 +57,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
-         createQueue(i, address, queueName, null, false);
+         createQueue(i, address, queueName, null, false, RoutingType.ANYCAST);
          addConsumer(i, i, queueName, null);
       }
 
@@ -118,7 +118,7 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
-         createQueue(i, address, queueNamePrefix + i, null, false);
+         createQueue(i, address, queueNamePrefix + i, null, false, RoutingType.ANYCAST);
          addConsumer(i, i, queueNamePrefix + i, null);
       }
 
@@ -184,9 +184,9 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       String filter1 = "giraffe";
       String filter2 = "platypus";
 
-      createQueue(0, address, queueNamePrefix + 0, filter1, false);
-      createQueue(1, address, queueNamePrefix + 1, filter1, false);
-      createQueue(2, address, queueNamePrefix + 2, filter2, false);
+      createQueue(0, address, queueNamePrefix + 0, filter1, false, RoutingType.ANYCAST);
+      createQueue(1, address, queueNamePrefix + 1, filter1, false, RoutingType.ANYCAST);
+      createQueue(2, address, queueNamePrefix + 2, filter2, false, RoutingType.ANYCAST);
 
       for (int i = 0; i < 3; i++) {
          addConsumer(i, i, queueNamePrefix + i, null);

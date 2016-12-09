@@ -51,9 +51,13 @@ public class AddressCommandTest extends JMSTestBase {
       String address = "address";
       CreateAddress command = new CreateAddress();
       command.setName(address);
+      command.setRoutingTypes(RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
-      assertNotNull(server.getAddressInfo(new SimpleString(address)));
+      AddressInfo addressInfo = server.getAddressInfo(new SimpleString(address));
+      assertNotNull(addressInfo);
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
    }
 
    @Test
