@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.cli.commands.address;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -35,7 +32,7 @@ public class CreateAddress extends AbstractAction {
    String name;
 
    @Option(name = "--routingTypes", description = "The routing types supported by this address, options are 'anycast' or 'multicast', enter comma separated list, defaults to 'multicast' only")
-   Set<RoutingType> routingTypes = new HashSet<>();
+   String[] routingTypes = new String[] {RoutingType.MULTICAST.toString()};
 
    @Option(name = "--defaultMaxConsumers", description = "Sets the default max consumers for any queues created under this address, default = -1 (no limit)")
    int defaultMaxConsumers = -1;
@@ -54,7 +51,7 @@ public class CreateAddress extends AbstractAction {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingTypes, defaultDeleteOnNoConsumers, defaultMaxConsumers);
+            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingTypes);
          }
 
          @Override
@@ -78,13 +75,16 @@ public class CreateAddress extends AbstractAction {
       return name;
    }
 
-   public Set<RoutingType> getRoutingTypes() {
+   public String[] getRoutingTypes() {
       return routingTypes;
    }
 
    public void setRoutingTypes(String routingTypes) {
-      for (String s : routingTypes.split(",")) {
-         this.routingTypes.add(RoutingType.valueOf(s.trim()));
+      String[] split = routingTypes.split(",");
+      this.routingTypes = new String[split.length];
+      for (int i = 0; i < split.length; i++) {
+         RoutingType.valueOf(split[i].trim());
+         this.routingTypes[i] = split[i].trim();
       }
    }
 
