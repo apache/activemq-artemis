@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -493,6 +494,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
             } else {
                ActiveMQServerLogger.LOGGER.caughtXaException(e);
+            }
+         } catch (ActiveMQQueueMaxConsumerLimitReached e) {
+            if (requiresResponse) {
+               logger.debug("Sending exception to client", e);
+               response = new ActiveMQExceptionMessage(e);
+            } else {
+               ActiveMQServerLogger.LOGGER.caughtException(e);
             }
          } catch (ActiveMQException e) {
             if (requiresResponse) {

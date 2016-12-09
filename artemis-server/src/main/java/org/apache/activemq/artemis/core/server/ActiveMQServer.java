@@ -309,6 +309,14 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
+                     SimpleString filterString,
+                     boolean durable,
+                     boolean temporary,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
                      SimpleString filter,
                      SimpleString user,
                      boolean durable,
@@ -320,7 +328,26 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      SimpleString user,
                      boolean durable,
                      boolean temporary,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
                      boolean autoCreated) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
 
    Queue deployQueue(SimpleString address,
                      SimpleString queueName,
@@ -340,6 +367,15 @@ public interface ActiveMQServer extends ActiveMQComponent {
    BindingQueryResult bindingQuery(SimpleString address) throws Exception;
 
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
+
+   Queue deployQueue(SimpleString address,
+                     SimpleString resourceName,
+                     SimpleString filterString,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
@@ -392,10 +428,22 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    AddressInfo getAddressInfo(SimpleString address);
 
+   Queue createQueue(SimpleString addressName,
+                     SimpleString queueName,
+                     SimpleString filterString,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary,
+                     boolean ignoreIfExists,
+                     boolean transientQueue,
+                     boolean autoCreated,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
    /*
-      * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
-      * replace any factories with the same protocol
-      * */
+         * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
+         * replace any factories with the same protocol
+         * */
    void addProtocolManagerFactory(ProtocolManagerFactory factory);
 
    /*

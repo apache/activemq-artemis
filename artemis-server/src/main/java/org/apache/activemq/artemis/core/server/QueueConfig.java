@@ -33,6 +33,8 @@ public final class QueueConfig {
    private final boolean durable;
    private final boolean temporary;
    private final boolean autoCreated;
+   private final int maxConsumers;
+   private final boolean deleteOnNoConsumers;
 
    public static final class Builder {
 
@@ -45,6 +47,8 @@ public final class QueueConfig {
       private boolean durable;
       private boolean temporary;
       private boolean autoCreated;
+      private int maxConsumers;
+      private boolean deleteOnNoConsumers;
 
       private Builder(final long id, final SimpleString name) {
          this(id, name, name);
@@ -60,6 +64,8 @@ public final class QueueConfig {
          this.durable = true;
          this.temporary = false;
          this.autoCreated = true;
+         this.maxConsumers = -1;
+         this.deleteOnNoConsumers = false;
          validateState();
       }
 
@@ -106,6 +112,16 @@ public final class QueueConfig {
          return this;
       }
 
+      public Builder maxConsumers(final int maxConsumers) {
+         this.maxConsumers = maxConsumers;
+         return this;
+      }
+
+      public Builder deleteOnNoConsumers(final boolean deleteOnNoConsumers) {
+         this.deleteOnNoConsumers = deleteOnNoConsumers;
+         return this;
+      }
+
       /**
        * Returns a new {@link QueueConfig} using the parameters configured on the {@link Builder}.
        * <br>
@@ -127,7 +143,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, maxConsumers, deleteOnNoConsumers);
       }
 
    }
@@ -168,7 +184,9 @@ public final class QueueConfig {
                        final SimpleString user,
                        final boolean durable,
                        final boolean temporary,
-                       final boolean autoCreated) {
+                       final boolean autoCreated,
+                       final int maxConsumers,
+                       final boolean deleteOnNoConsumers) {
       this.id = id;
       this.address = address;
       this.name = name;
@@ -178,6 +196,8 @@ public final class QueueConfig {
       this.durable = durable;
       this.temporary = temporary;
       this.autoCreated = autoCreated;
+      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.maxConsumers = maxConsumers;
    }
 
    public long id() {
@@ -216,6 +236,14 @@ public final class QueueConfig {
       return autoCreated;
    }
 
+   public boolean isDeleteOnNoConsumers() {
+      return deleteOnNoConsumers;
+   }
+
+   public int maxConsumers() {
+      return maxConsumers;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o)
@@ -241,6 +269,10 @@ public final class QueueConfig {
          return false;
       if (pageSubscription != null ? !pageSubscription.equals(that.pageSubscription) : that.pageSubscription != null)
          return false;
+      if (maxConsumers != that.maxConsumers)
+         return false;
+      if (deleteOnNoConsumers != that.deleteOnNoConsumers)
+         return false;
       return user != null ? user.equals(that.user) : that.user == null;
 
    }
@@ -256,11 +288,24 @@ public final class QueueConfig {
       result = 31 * result + (durable ? 1 : 0);
       result = 31 * result + (temporary ? 1 : 0);
       result = 31 * result + (autoCreated ? 1 : 0);
+      result = 31 * result + maxConsumers;
+      result = 31 * result + (deleteOnNoConsumers ? 1 : 0);
       return result;
    }
 
    @Override
    public String toString() {
-      return "QueueConfig{" + "id=" + id + ", address=" + address + ", name=" + name + ", filter=" + filter + ", pageSubscription=" + pageSubscription + ", user=" + user + ", durable=" + durable + ", temporary=" + temporary + ", autoCreated=" + autoCreated + '}';
+      return "QueueConfig{"
+         + "id=" + id
+         + ", address=" + address
+         + ", name=" + name
+         + ", filter=" + filter
+         + ", pageSubscription=" + pageSubscription
+         + ", user=" + user
+         + ", durable=" + durable
+         + ", temporary=" + temporary
+         + ", autoCreated=" + autoCreated
+         + ", maxConsumers=" + maxConsumers
+         + ", deleteOnNoConsumers=" + deleteOnNoConsumers + '}';
    }
 }

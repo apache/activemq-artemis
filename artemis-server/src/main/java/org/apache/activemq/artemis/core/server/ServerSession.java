@@ -185,6 +185,14 @@ public interface ServerSession extends SecurityAuth {
 
    boolean isClosed();
 
+   Queue createQueue(SimpleString address,
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
    void createSharedQueue(SimpleString address,
                           SimpleString name,
                           boolean durable,

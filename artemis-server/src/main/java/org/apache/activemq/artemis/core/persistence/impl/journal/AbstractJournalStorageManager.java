@@ -1266,6 +1266,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void addAddressBinding(final long tx, final AddressInfo addressInfo) throws Exception {
       PersistentAddressBindingEncoding bindingEncoding = new PersistentAddressBindingEncoding(addressInfo.getName(), addressInfo.getRoutingType());
 

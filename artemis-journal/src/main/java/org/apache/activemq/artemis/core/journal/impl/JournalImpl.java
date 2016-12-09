@@ -48,8 +48,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -866,7 +866,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    private static SimpleFuture<Boolean> newSyncAndCallbackResult(boolean sync, IOCompletion callback) {
-      return (sync && callback == null) ? new SimpleFuture<>() : null;
+      return (sync && callback == null) ? new SimpleFuture<Boolean>() : null;
    }
 
    @Override
@@ -2226,7 +2226,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
          });
 
-         threadPool = new ThreadPoolExecutor(0,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS, new SynchronousQueue<>(), factory);
+         threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L,TimeUnit.SECONDS, new SynchronousQueue(), factory);
          ioExecutorFactory = new OrderedExecutorFactory(threadPool);
       } else {
          ioExecutorFactory = providedIOThreadPool;
