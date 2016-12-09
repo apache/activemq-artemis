@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core.client;
 
-import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ExecutorService;
