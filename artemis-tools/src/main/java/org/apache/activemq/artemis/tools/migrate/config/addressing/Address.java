@@ -17,13 +17,15 @@
 package org.apache.activemq.artemis.tools.migrate.config.addressing;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Address {
 
    private String name;
 
-   private String routingType = "multicast";
+   private Set<String> routingTypes = new HashSet<>();
 
    private String defaultMaxConsumers = "-1";
 
@@ -39,28 +41,16 @@ public class Address {
       this.name = name;
    }
 
-   public String getRoutingType() {
-      return routingType;
+   public Set<String> getRoutingTypes() {
+      return routingTypes;
    }
 
-   public void setRoutingType(String routingType) {
-      this.routingType = routingType;
+   public void setRoutingTypes(Set<String> routingTypes) {
+      this.routingTypes = routingTypes;
    }
 
    public String getDefaultMaxConsumers() {
       return defaultMaxConsumers;
-   }
-
-   public void setDefaultMaxConsumers(String defaultMaxConsumers) {
-      this.defaultMaxConsumers = defaultMaxConsumers;
-   }
-
-   public String getDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
-   }
-
-   public void setDefaultDeleteOnNoConsumers(String defaultDeleteOnNoConsumers) {
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
    }
 
    public List<Queue> getQueues() {

@@ -24,6 +24,8 @@ public class Queue {
 
    String durable;
 
+   String routingType;
+
    public String getName() {
       return name;
    }
@@ -46,5 +48,13 @@ public class Queue {
 
    public void setDurable(String durable) {
       this.durable = durable;
+   }
+
+   public String getRoutingType() {
+      return routingType;
+   }
+
+   public void setRoutingType(String routingType) {
+      this.routingType = routingType;
    }
 }
