@@ -159,7 +159,7 @@ public class AMQPSessionCallback implements SessionCallback {
                                                         false, // boolean autoCommitAcks,
                                                         false, // boolean preAcknowledge,
                                                         true, //boolean xa,
-                                                        (String) null, this, true, operationContext);
+                                                        (String) null, this, true, operationContext, manager.getPrefixes());
    }
 
    @Override

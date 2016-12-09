@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
@@ -51,6 +53,7 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -73,6 +76,8 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
    private final List<Interceptor> outgoingInterceptors;
 
    private final CoreProtocolManagerFactory protocolManagerFactory;
+
+   private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
    public CoreProtocolManager(final CoreProtocolManagerFactory factory,
                               final ActiveMQServer server,
@@ -187,6 +192,25 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
    @Override
    public List<String> websocketSubprotocolIdentifiers() {
       return websocketRegistryNames;
+   }
+
+   @Override
+   public void setAnycastPrefix(String anycastPrefix) {
+      for (String prefix : anycastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.ANYCAST);
+      }
+   }
+
+   @Override
+   public void setMulticastPrefix(String multicastPrefix) {
+      for (String prefix : multicastPrefix.split(",")) {
+         prefixes.put(SimpleString.toSimpleString(prefix), RoutingType.MULTICAST);
+      }
+   }
+
+   @Override
+   public Map<SimpleString, RoutingType> getPrefixes() {
+      return prefixes;
    }
 
    private boolean isArtemis(ActiveMQBuffer buffer) {

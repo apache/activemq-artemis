@@ -664,11 +664,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new IllegalStateException("Message cannot be routed more than once");
       }
 
-      SimpleString address = message.getAddress();
-
       setPagingStore(message);
 
       AtomicBoolean startedTX = new AtomicBoolean(false);
+
+      final SimpleString address = message.getAddress();
 
       applyExpiryDelay(message, address);
 
@@ -682,7 +682,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          cleanupInternalPropertiesBeforeRouting(message);
       }
 
-      Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
+      Bindings bindings = addressManager.getBindingsForRoutingAddress(context.getAddress() == null ? message.getAddress() : context.getAddress());
 
       // TODO auto-create queues here?
       // first check for the auto-queue creation thing

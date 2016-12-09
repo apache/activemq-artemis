@@ -17,11 +17,14 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
+import java.util.Map;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
@@ -71,4 +74,10 @@ public interface ProtocolManager<P extends BaseInterceptor> {
     * @return A list of subprotocol ids
     */
    List<String> websocketSubprotocolIdentifiers();
+
+   void setAnycastPrefix(String anycastPrefix);
+
+   void setMulticastPrefix(String multicastPrefix);
+
+   Map<SimpleString, RoutingType> getPrefixes();
 }

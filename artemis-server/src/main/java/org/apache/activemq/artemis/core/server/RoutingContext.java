@@ -45,4 +45,12 @@ public interface RoutingContext {
    void addQueueWithAck(SimpleString address, Queue queue);
 
    boolean isAlreadyAcked(SimpleString address, Queue queue);
+
+   void setAddress(SimpleString address);
+
+   void setRoutingType(RoutingType routingType);
+
+   SimpleString getAddress();
+
+   RoutingType getRoutingType();
 }

@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
@@ -75,17 +76,20 @@ public class AMQSession implements SessionCallback {
    // so we make a new one per AMQSession
    private final OpenWireMessageConverter converter;
 
+   private final OpenWireProtocolManager protocolManager;
+
    public AMQSession(ConnectionInfo connInfo,
                      SessionInfo sessInfo,
                      ActiveMQServer server,
                      OpenWireConnection connection,
-                     ScheduledExecutorService scheduledPool) {
+                     OpenWireProtocolManager protocolManager) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
 
       this.server = server;
       this.connection = connection;
-      this.scheduledPool = scheduledPool;
+      this.protocolManager = protocolManager;
+      this.scheduledPool = protocolManager.getScheduledPool();
       OpenWireFormat marshaller = (OpenWireFormat) connection.getMarshaller();
 
       this.converter = new OpenWireMessageConverter(marshaller.copy());
@@ -109,7 +113,7 @@ public class AMQSession implements SessionCallback {
       // now
 
       try {
-         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext());
+         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext(), protocolManager.getPrefixes());
 
          long sessionId = sessInfo.getSessionId().getValue();
          if (sessionId == -1) {
@@ -169,7 +173,7 @@ public class AMQSession implements SessionCallback {
          BindingQueryResult bindingQuery = server.bindingQuery(queueName);
          QueueQueryResult queueBinding = server.queueQuery(queueName);
 
-         boolean isAutoCreate = bindingQuery.isExists() ?  true : bindingQuery.isAutoCreateJmsQueues();
+         boolean isAutoCreate = bindingQuery.isExists() ? true : bindingQuery.isAutoCreateJmsQueues();
 
          if (!queueBinding.isExists()) {
             if (isAutoCreate) {
