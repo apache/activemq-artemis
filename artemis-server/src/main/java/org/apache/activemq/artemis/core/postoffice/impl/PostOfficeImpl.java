@@ -664,10 +664,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       SimpleString address = message.getAddress();
 
-      if (address.toString().equals("testQueue")) {
-         System.out.println("f");
-      }
-
       setPagingStore(message);
 
       AtomicBoolean startedTX = new AtomicBoolean(false);

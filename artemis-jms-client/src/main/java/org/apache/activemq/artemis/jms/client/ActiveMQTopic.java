@@ -71,6 +71,26 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       return "ActiveMQTopic[" + name + "]";
    }
 
+   @Override
+   public boolean equals(final Object o) {
+      if (this == o) {
+         return true;
+      }
+
+      if (!(o instanceof ActiveMQTopic)) {
+         return false;
+      }
+
+      ActiveMQTopic that = (ActiveMQTopic) o;
+
+      return super.getAddress().equals(that.getAddress());
+   }
+
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

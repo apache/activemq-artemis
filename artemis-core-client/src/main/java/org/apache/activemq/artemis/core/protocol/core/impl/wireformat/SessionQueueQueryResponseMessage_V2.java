@@ -24,10 +24,10 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 
 public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryResponseMessage {
 
-   private boolean autoCreationEnabled;
+   protected boolean autoCreateQueues;
 
    public SessionQueueQueryResponseMessage_V2(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateJmsQueues());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues());
    }
 
    public SessionQueueQueryResponseMessage_V2() {
@@ -42,7 +42,7 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
                                                final int consumerCount,
                                                final long messageCount,
                                                final boolean exists,
-                                               final boolean autoCreationEnabled) {
+                                               final boolean autoCreateQueues) {
       super(SESS_QUEUEQUERY_RESP_V2);
 
       this.durable = durable;
@@ -61,52 +61,53 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
       this.exists = exists;
 
-      this.autoCreationEnabled = autoCreationEnabled;
+      this.autoCreateQueues = autoCreateQueues;
+   }
+   public SessionQueueQueryResponseMessage_V2(byte v) {
+      super(v);
    }
 
-   public boolean isAutoCreationEnabled() {
-      return autoCreationEnabled;
+   public boolean isAutoCreateQueues() {
+      return autoCreateQueues;
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(autoCreationEnabled);
+      buffer.writeBoolean(autoCreateQueues);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      autoCreationEnabled = buffer.readBoolean();
+      autoCreateQueues = buffer.readBoolean();
    }
 
    @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (autoCreationEnabled ? 1231 : 1237);
+      result = prime * result + (autoCreateQueues ? 1231 : 1237);
       return result;
    }
 
    @Override
    public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
-      buff.append(", address=" + address);
-      buff.append(", name=" + name);
-      buff.append(", consumerCount=" + consumerCount);
-      buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + durable);
-      buff.append(", exists=" + exists);
-      buff.append(", temporary=" + temporary);
-      buff.append(", messageCount=" + messageCount);
-      buff.append(", autoCreationEnabled=" + autoCreationEnabled);
       buff.append("]");
       return buff.toString();
    }
 
    @Override
+   public String getParentString() {
+      StringBuffer buff = new StringBuffer(super.getParentString());
+      buff.append(", autoCreationEnabled=" + autoCreateQueues);
+      return buff.toString();
+   }
+
+   @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreationEnabled());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues());
    }
 
    @Override
@@ -118,7 +119,7 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
       if (!(obj instanceof SessionQueueQueryResponseMessage_V2))
          return false;
       SessionQueueQueryResponseMessage_V2 other = (SessionQueueQueryResponseMessage_V2) obj;
-      if (autoCreationEnabled != other.autoCreationEnabled)
+      if (autoCreateQueues != other.autoCreateQueues)
          return false;
       return true;
    }

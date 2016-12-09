@@ -36,6 +36,26 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
 
    // Public --------------------------------------------------------
 
+   @Override
+   public boolean equals(final Object o) {
+      if (this == o) {
+         return true;
+      }
+
+      if (!(o instanceof ActiveMQTemporaryTopic)) {
+         return false;
+      }
+
+      ActiveMQTemporaryTopic that = (ActiveMQTemporaryTopic) o;
+
+      return super.getAddress().equals(that.getAddress());
+   }
+
+   @Override
+   public int hashCode() {
+      return super.getAddress().hashCode();
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

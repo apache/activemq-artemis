@@ -126,7 +126,7 @@ public final class QueueConfig {
          return this;
       }
 
-      public Builder deliveryMode(RoutingType routingType) {
+      public Builder routingType(RoutingType routingType) {
          this.routingType = routingType;
          return this;
       }

@@ -422,7 +422,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createTemporaryQueue(final String address, final RoutingType routingType, final String queueName, final String filter) throws ActiveMQException {
-      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName));
+      createTemporaryQueue(SimpleString.toSimpleString(address), routingType, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter));
    }
 
    /**
@@ -560,7 +560,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           routingType,
                           filter,
                           durable,
-                          !durable,
+                          false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
                           false);
@@ -1823,8 +1823,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     filterString,
                                     durable,
                                     temp,
-                                    ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                                    ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                                    maxConsumers,
+                                    deleteOnNoConsumers,
                                     autoCreated);
       } finally {
          endCall();
