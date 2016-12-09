@@ -397,7 +397,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    public static ServerLocator newLocator(String uri) {
       try {
-         return newLocator(new URI(uri));
+         ServerLocatorParser parser = new ServerLocatorParser();
+         URI newURI = parser.expandURI(uri);
+         return parser.newObject(newURI, null);
       } catch (Exception e) {
          throw new RuntimeException(e);
       }
