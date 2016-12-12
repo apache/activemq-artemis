@@ -1502,7 +1502,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception {
+   public SimpleString getMatchingQueue(SimpleString address,
+                                        SimpleString queueName,
+                                        RoutingType routingType) throws Exception {
       return server.getPostOffice().getMatchingQueue(address, queueName, routingType);
    }
 
@@ -1663,7 +1665,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                final boolean noAutoCreateQueue) throws Exception {
       RoutingStatus result = RoutingStatus.OK;
 
-      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddress(), null);
+      /**
+       *  TODO Checking message properties on each message is expensive.  Instead we should update the API and Core Packets
+       *  to add the RoutingType information directly.
+       */
+      RoutingType routingType = null;
+      if (msg.containsProperty(Message.HDR_ROUTING_TYPE)) {
+         routingType = RoutingType.getType(msg.getByteProperty(Message.HDR_ROUTING_TYPE));
+      }
+      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddress(), routingType);
 
       // Consumer
       // check the user has write access to this address.
