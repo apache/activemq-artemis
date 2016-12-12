@@ -109,6 +109,20 @@ svn co https://svn.apache.org/repos/infra/websites/production/activemq/content/a
 ```
 
 
+### Upload release
+
+Upload the binaries at this svn, using your apache id:
+
+```sh
+https://dist.apache.org/repos/dist/release/activemq
+```
+
+
+You may get the valid binaries from this maven central location:
+
+https://repo1.maven.org/maven2/org/apache/activemq/apache-artemis/${CURRENT-RELEASE}
+
+
 ## Common Pittfals
 
 Everything is documented at the Apache guide, but these are common issues you may go through:
