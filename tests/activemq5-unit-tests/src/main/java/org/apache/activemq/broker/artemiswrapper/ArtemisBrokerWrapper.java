@@ -89,7 +89,8 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       }
       SimpleString dla = new SimpleString("ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
-      commonSettings.setAutoCreateJmsQueues(true);
+      commonSettings.setAutoCreateQueues(true);
+      commonSettings.setAutoCreateAddresses(true);
 
       if (bservice.extraConnectors.size() == 0) {
          serverConfig.addAcceptorConfiguration("home", "tcp://localhost:61616");
