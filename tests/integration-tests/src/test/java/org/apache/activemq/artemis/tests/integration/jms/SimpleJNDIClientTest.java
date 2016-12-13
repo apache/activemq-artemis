@@ -483,7 +483,6 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    @Test
    public void testRemoteCFWithTCPUserPassword() throws Exception {
 
-
       //setup user and role on broker
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addUser("myUser", "myPassword");
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addRole("myUser", "consumeCreateRole");
@@ -499,12 +498,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?user=myUser&password=myPassword");
       Context ctx = new InitialContext(props);
 
-
       //create a connection factory
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
-      Assert.assertEquals("ensure user is set","myUser", connectionFactory.getUser());
-      Assert.assertEquals("ensure password is set", "myPassword",connectionFactory.getPassword());
-
+      Assert.assertEquals("ensure user is set", "myUser", connectionFactory.getUser());
+      Assert.assertEquals("ensure password is set", "myPassword", connectionFactory.getPassword());
 
       //Connect to broker to verify credentials are used with connection
       Connection connection = connectionFactory.createConnection();
@@ -519,15 +516,14 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
             MessageProducer producer = session.createProducer(queue);
             producer.send(session.createTextMessage("test Msg"));
             Assert.fail("Sending message should throw a JMSSecurityException");
-         }catch (JMSSecurityException e) {
-          //expected
+         } catch (JMSSecurityException e) {
+            //expected
          }
 
          MessageConsumer consumer = session.createConsumer(queue);
-
       } finally {
-        connection.close();
-     }
+         connection.close();
+      }
 
    }
 }
