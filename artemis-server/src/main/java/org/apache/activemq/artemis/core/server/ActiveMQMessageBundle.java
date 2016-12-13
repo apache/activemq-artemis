@@ -406,7 +406,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119206, value = "Queue {0} has invalid max consumer setting: {1}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidMaxConsumers(String queueName, int value);
 
-   @Message(id = 119207, value = "Can not create queue with delivery mode: {0}, Supported delivery modes for address: {1} are {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 119207, value = "Can not create queue with routing type: {0}, Supported routing types for address: {1} are {2}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidRoutingTypeForAddress(RoutingType routingType,
                                                          String address,
                                                          Set<RoutingType> supportedRoutingTypes);
