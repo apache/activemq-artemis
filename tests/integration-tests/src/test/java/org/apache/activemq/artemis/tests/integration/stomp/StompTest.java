@@ -1306,7 +1306,7 @@ public class StompTest extends StompTestBase {
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
       String param = routingType.toString();
-      String urlParam = "stomp" + param.substring(0, 1) + param.substring(1).toLowerCase() + "Prefix";
+      String urlParam = param.toLowerCase() + "Prefix";
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
       conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
       conn.connect(defUser, defPass);
@@ -1329,9 +1329,9 @@ public class StompTest extends StompTestBase {
       AddressInfo addressInfo = server.getActiveMQServer().getAddressInfo(SimpleString.toSimpleString(ADDRESS));
       assertNotNull("No address was created with the name " + ADDRESS, addressInfo);
 
-      Set<RoutingType> deliveryModest = new HashSet<>();
-      deliveryModest.add(RoutingType.valueOf(param));
-      assertEquals(deliveryModest, addressInfo.getRoutingTypes());
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.valueOf(param));
+      assertEquals(routingTypes, addressInfo.getRoutingTypes());
 
       conn.disconnect();
    }
@@ -1360,8 +1360,7 @@ public class StompTest extends StompTestBase {
       int port = 61614;
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
-      String param = routingType.toString();
-      String urlParam = "stomp" + param.substring(0, 1) + param.substring(1).toLowerCase() + "Prefix";
+      String urlParam = routingType.toString().toLowerCase() + "Prefix";
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
       conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
       conn.connect(defUser, defPass);

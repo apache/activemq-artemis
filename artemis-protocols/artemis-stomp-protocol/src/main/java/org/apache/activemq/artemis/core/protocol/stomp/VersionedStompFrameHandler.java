@@ -236,25 +236,25 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompFrame onSubscribe(StompFrame request) {
+   public StompFrame onSubscribe(StompFrame frame) {
       StompFrame response = null;
-      String destination = getDestination(request);
-
-      String selector = request.getHeader(Stomp.Headers.Subscribe.SELECTOR);
-      String ack = request.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
-      String id = request.getHeader(Stomp.Headers.Subscribe.ID);
-      String durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
-      if (durableSubscriptionName == null) {
-         durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
-      }
-      RoutingType routingType = getRoutingType(request.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), request.getHeader(Headers.Subscribe.DESTINATION));
-      boolean noLocal = false;
-
-      if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
-         noLocal = Boolean.parseBoolean(request.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
-      }
-
       try {
+         String destination = getDestination(frame);
+
+         String selector = frame.getHeader(Stomp.Headers.Subscribe.SELECTOR);
+         String ack = frame.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
+         String id = frame.getHeader(Stomp.Headers.Subscribe.ID);
+         String durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
+         if (durableSubscriptionName == null) {
+            durableSubscriptionName = frame.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
+         }
+         RoutingType routingType = getRoutingType(frame.getHeader(Headers.Subscribe.SUBSCRIPTION_TYPE), frame.getHeader(Headers.Subscribe.DESTINATION));
+         boolean noLocal = false;
+
+         if (frame.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
+            noLocal = Boolean.parseBoolean(frame.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
+         }
+
          connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal, routingType);
       } catch (ActiveMQStompException e) {
          response = e.getFrame();
@@ -264,14 +264,7 @@ public abstract class VersionedStompFrameHandler {
    }
 
    public String getDestination(StompFrame request) {
-      String destination = request.getHeader(Headers.Subscribe.DESTINATION);
-      if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
-         destination = destination.substring(connection.getMulticastPrefix().length());
-      } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
-         destination = destination.substring(connection.getAnycastPrefix().length());
-      }
-
-      return destination;
+      return request.getHeader(Headers.Subscribe.DESTINATION);
    }
 
    public StompFrame postprocess(StompFrame request) {
@@ -344,17 +337,13 @@ public abstract class VersionedStompFrameHandler {
       connection.destroy();
    }
 
-   private RoutingType getRoutingType(String typeHeader, String destination) {
+   private RoutingType getRoutingType(String typeHeader, String destination) throws ActiveMQStompException {
       // null is valid to return here so we know when the user didn't provide any routing info
-      RoutingType routingType = null;
+      RoutingType routingType;
       if (typeHeader != null) {
          routingType = RoutingType.valueOf(typeHeader);
-      } else if (destination != null && !connection.getAnycastPrefix().equals(connection.getMulticastPrefix())) {
-         if (connection.getMulticastPrefix().length() > 0 && destination.startsWith(connection.getMulticastPrefix())) {
-            routingType = RoutingType.MULTICAST;
-         } else if (connection.getAnycastPrefix().length() > 0 && destination.startsWith(connection.getAnycastPrefix())) {
-            routingType = RoutingType.ANYCAST;
-         }
+      } else {
+         routingType = connection.getSession().getCoreSession().getAddressAndRoutingType(SimpleString.toSimpleString(destination), null).getB();
       }
       return routingType;
    }
