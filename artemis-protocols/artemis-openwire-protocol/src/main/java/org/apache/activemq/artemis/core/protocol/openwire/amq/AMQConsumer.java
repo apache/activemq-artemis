@@ -97,7 +97,7 @@ public class AMQConsumer {
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
       } else {
-         SimpleString queueName = new SimpleString(openwireDestination.getPhysicalName());
+         SimpleString queueName = new SimpleString(OpenWireUtil.convertWildcard(openwireDestination.getPhysicalName()));
          try {
             session.getCoreServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
          } catch (ActiveMQQueueExistsException e) {
