@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -24,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,9 +37,11 @@ import org.junit.Test;
 public class RoutingTest extends ActiveMQTestBase {
 
    public final SimpleString addressA = new SimpleString("addressA");
+   public final SimpleString addressB = new SimpleString("addressB");
    public final SimpleString queueA = new SimpleString("queueA");
    public final SimpleString queueB = new SimpleString("queueB");
    public final SimpleString queueC = new SimpleString("queueC");
+   public final SimpleString queueD = new SimpleString("queueD");
 
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -215,5 +222,62 @@ public class RoutingTest extends ActiveMQTestBase {
       Assert.assertNull(c1.receiveImmediate());
       sendSession.close();
       session.close();
+   }
+
+   @Test
+   public void testAnycastMessageRoutingExclusivity() throws Exception {
+      ClientSession sendSession = cf.createSession(false, true, true);
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.ANYCAST);
+      routingTypes.add(RoutingType.MULTICAST);
+      sendSession.createAddress(addressA, routingTypes, false);
+      sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
+      sendSession.createQueue(addressA, RoutingType.ANYCAST, queueB);
+      sendSession.createQueue(addressA, RoutingType.MULTICAST, queueC);
+      ClientProducer p = sendSession.createProducer(addressA);
+      ClientMessage message = sendSession.createMessage(false);
+      message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+      p.send(message);
+      sendSession.close();
+      assertEquals(1, server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount());
+      assertEquals(0, server.locateQueue(queueC).getMessageCount());
+   }
+
+   @Test
+   public void testMulticastMessageRoutingExclusivity() throws Exception {
+      ClientSession sendSession = cf.createSession(false, true, true);
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.ANYCAST);
+      routingTypes.add(RoutingType.MULTICAST);
+      sendSession.createAddress(addressA, routingTypes, false);
+      sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
+      sendSession.createQueue(addressA, RoutingType.MULTICAST, queueB);
+      sendSession.createQueue(addressA, RoutingType.MULTICAST, queueC);
+      ClientProducer p = sendSession.createProducer(addressA);
+      ClientMessage message = sendSession.createMessage(false);
+      message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+      p.send(message);
+      sendSession.close();
+      assertEquals(0, server.locateQueue(queueA).getMessageCount());
+      assertEquals(2, server.locateQueue(queueB).getMessageCount() + server.locateQueue(queueC).getMessageCount());
+   }
+
+   @Test
+   public void testAmbiguousMessageRouting() throws Exception {
+      ClientSession sendSession = cf.createSession(false, true, true);
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.ANYCAST);
+      routingTypes.add(RoutingType.MULTICAST);
+      sendSession.createAddress(addressA, routingTypes, false);
+      sendSession.createQueue(addressA, RoutingType.ANYCAST, queueA);
+      sendSession.createQueue(addressA, RoutingType.ANYCAST, queueB);
+      sendSession.createQueue(addressA, RoutingType.MULTICAST, queueC);
+      sendSession.createQueue(addressA, RoutingType.MULTICAST, queueD);
+      ClientProducer p = sendSession.createProducer(addressA);
+      ClientMessage message = sendSession.createMessage(false);
+      p.send(message);
+      sendSession.close();
+      assertEquals(1, server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount());
+      assertEquals(2, server.locateQueue(queueC).getMessageCount() + server.locateQueue(queueD).getMessageCount());
    }
 }

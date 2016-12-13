@@ -2512,29 +2512,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
-      boolean addressAlreadyExists = true;
-
       if (autoCreateAddress) {
          if (info == null || !info.getRoutingTypes().contains(routingType)) {
             createOrUpdateAddressInfo(defaultAddressInfo.setAutoCreated(true));
-            addressAlreadyExists = false;
          }
       } else if (info == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+      } else if (!info.getRoutingTypes().contains(routingType)) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, info.getName().toString(), info.getRoutingTypes());
       }
 
       final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(routingType).maxConsumers(maxConsumers).deleteOnNoConsumers(deleteOnNoConsumers).build();
 
       final Queue queue = queueFactory.createQueueWith(queueConfig);
-
-      AddressInfo addressInfo = postOffice.getAddressInfo(queue.getAddress());
-      if (addressInfo == null) {
-         createAddressInfo(new AddressInfo(queue.getAddress()));
-      } else {
-         if (!addressInfo.getRoutingTypes().contains(routingType)) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, addressInfo.getName().toString(), addressInfo.getRoutingTypes());
-         }
-      }
 
       if (transientQueue) {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
@@ -2546,9 +2536,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (queue.isDurable()) {
          storageManager.addQueueBinding(txID, localQueueBinding);
-         if (!addressAlreadyExists) {
-            storageManager.addAddressBinding(txID, getAddressInfo(queue.getAddress()));
-         }
       }
 
       try {
