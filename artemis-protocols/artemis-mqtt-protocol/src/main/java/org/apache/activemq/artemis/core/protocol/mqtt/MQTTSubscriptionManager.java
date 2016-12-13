@@ -17,17 +17,21 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
@@ -89,18 +93,63 @@ public class MQTTSubscriptionManager {
     * Creates a Queue if it doesn't already exist, based on a topic and address.  Returning the queue name.
     */
    private Queue createQueueForSubscription(String address, int qos) throws Exception {
-
+      // Check to see if a subscription queue already exists.
       SimpleString queue = getQueueNameForTopic(address);
-
       Queue q = session.getServer().locateQueue(queue);
+
+      // The queue does not exist so we need to create it.
       if (q == null) {
-         q = session.getServerSession().createQueue(new SimpleString(address), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
-      } else {
-         if (q.isDeleteOnNoConsumers()) {
-            throw ActiveMQMessageBundle.BUNDLE.invalidQueueConfiguration(q.getAddress(), q.getName(), "deleteOnNoConsumers", false, true);
+         SimpleString sAddress = SimpleString.toSimpleString(address);
+
+         // Check we can auto create queues.
+         BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(sAddress);
+         if (!bindingQueryResult.isAutoCreateQueues()) {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(sAddress);
          }
+
+         // Check that the address exists, if not we try to auto create it.
+         AddressInfo addressInfo = session.getServerSession().getAddress(sAddress);
+         if (addressInfo == null) {
+            if (!bindingQueryResult.isAutoCreateAddresses()) {
+               throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
+            }
+            addressInfo = session.getServerSession().createAddress(SimpleString.toSimpleString(address), RoutingType.MULTICAST, false);
+         }
+         return findOrCreateQueue(bindingQueryResult, addressInfo, queue, qos);
       }
       return q;
+   }
+
+   private Queue findOrCreateQueue(BindingQueryResult bindingQueryResult, AddressInfo addressInfo, SimpleString queue, int qos) throws Exception {
+
+      if (addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
+         return session.getServerSession().createQueue(addressInfo.getName(), queue, RoutingType.MULTICAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
+      }
+
+      if (addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
+         if (!bindingQueryResult.getQueueNames().isEmpty()) {
+            SimpleString name = null;
+            for (SimpleString qName : bindingQueryResult.getQueueNames()) {
+               if (name == null) {
+                  name = qName;
+               } else if (qName.equals(addressInfo.getName())) {
+                  name = qName;
+               }
+            }
+            return session.getServer().locateQueue(name);
+         } else {
+            try {
+               return session.getServerSession().createQueue(addressInfo.getName(), addressInfo.getName(), RoutingType.ANYCAST, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0, false);
+            } catch (ActiveMQQueueExistsException e) {
+               return session.getServer().locateQueue(addressInfo.getName());
+            }
+         }
+      }
+
+      Set<RoutingType> routingTypeSet = new HashSet();
+      routingTypeSet.add(RoutingType.MULTICAST);
+      routingTypeSet.add(RoutingType.ANYCAST);
+      throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(addressInfo.getRoutingType(), addressInfo.getName().toString(), routingTypeSet);
    }
 
    /**
@@ -122,10 +171,6 @@ public class MQTTSubscriptionManager {
       String topic = subscription.topicName();
 
       String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic);
-      AddressInfo addressInfo = session.getServer().getAddressInfo(new SimpleString(coreAddress));
-      if (addressInfo != null && !addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
-         throw ActiveMQMessageBundle.BUNDLE.unexpectedRoutingTypeForAddress(new SimpleString(coreAddress), RoutingType.MULTICAST, addressInfo.getRoutingTypes());
-      }
 
       session.getSessionState().addSubscription(subscription);
 
