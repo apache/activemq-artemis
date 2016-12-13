@@ -1510,7 +1510,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public AddressInfo getAddress(SimpleString address) {
-      return server.getPostOffice().getAddressInfo(address);
+      return server.getPostOffice().getAddressInfo(removePrefix(address));
    }
 
    @Override
