@@ -178,6 +178,9 @@ public abstract class VersionedStompFrameHandler {
          long timestamp = System.currentTimeMillis();
 
          ServerMessageImpl message = connection.createServerMessage();
+         if (routingType != null) {
+            message.putByteProperty(Message.HDR_ROUTING_TYPE, routingType.getType());
+         }
          message.setTimestamp(timestamp);
          message.setAddress(SimpleString.toSimpleString(destination));
          StompUtils.copyStandardHeadersFromFrameToMessage(frame, message);
