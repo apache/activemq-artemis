@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
@@ -47,6 +48,10 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
       topic = false;
       deliveryMode = DeliveryMode.NON_PERSISTENT;
       super.setUp();
+      ActiveMQDestination dest1 = (ActiveMQDestination) session.createQueue("FOO.BAR.HUMBUG2");
+      ActiveMQDestination dest2 = (ActiveMQDestination) session.createQueue("TEST");
+      ArtemisBrokerHelper.makeSureDestinationExists(dest1);
+      ArtemisBrokerHelper.makeSureDestinationExists(dest2);
    }
 
    /**

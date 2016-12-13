@@ -43,6 +43,7 @@ import junit.framework.Test;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -909,7 +910,7 @@ public class JMSConsumerTest extends JmsTestSupport {
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
       MBeanServer beanServer = wrapper.getMbeanServer();
       SimpleString address = new SimpleString(destName);
-      ObjectName objName = ObjectNameBuilder.DEFAULT.getQueueObjectName(address, address);
+      ObjectName objName = ObjectNameBuilder.DEFAULT.getQueueObjectName(address, address, RoutingType.ANYCAST);
       return MBeanServerInvocationHandler.newProxyInstance(beanServer, objName, QueueControl.class, false);
    }
 }
