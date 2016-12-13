@@ -1726,14 +1726,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   private SimpleString removePrefix(SimpleString address) {
+   @Override
+   public SimpleString removePrefix(SimpleString address) {
       if (prefixEnabled) {
          return PrefixUtil.getAddress(address, prefixes);
       }
       return address;
    }
 
-   private Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address,
+   @Override
+   public Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address,
                                                                     RoutingType defaultRoutingType) {
       if (prefixEnabled) {
          return PrefixUtil.getAddressAndRoutingType(address, defaultRoutingType, prefixes);
@@ -1741,7 +1743,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return new Pair<>(address, defaultRoutingType);
    }
 
-   private Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+   @Override
+   public Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
                                                                           Set<RoutingType> defaultRoutingTypes) {
       if (prefixEnabled) {
          return PrefixUtil.getAddressAndRoutingTypes(address, defaultRoutingTypes, prefixes);
