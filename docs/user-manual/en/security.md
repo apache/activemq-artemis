@@ -32,7 +32,7 @@ based on their address. An exact match on the address can be used or a
 wildcard match can be used using the wildcard characters '`#`' and
 '`*`'.
 
-Seven different permissions can be given to the set of queues which
+Eight different permissions can be given to the set of queues which
 match the address. Those permissions are:
 
 -   `createDurableQueue`. This permission allows the user to create a
