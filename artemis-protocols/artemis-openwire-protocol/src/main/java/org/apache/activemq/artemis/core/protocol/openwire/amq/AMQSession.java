@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
@@ -150,7 +151,7 @@ public class AMQSession implements SessionCallback {
 
       for (ActiveMQDestination openWireDest : dests) {
          if (openWireDest.isQueue()) {
-            SimpleString queueName = new SimpleString(openWireDest.getPhysicalName());
+            SimpleString queueName = new SimpleString(OpenWireUtil.convertWildcard(openWireDest.getPhysicalName()));
 
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary())) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);

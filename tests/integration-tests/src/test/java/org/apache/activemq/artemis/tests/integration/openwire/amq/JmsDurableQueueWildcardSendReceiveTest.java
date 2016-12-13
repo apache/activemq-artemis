@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+
 import javax.jms.DeliveryMode;
 
 /**
@@ -39,4 +42,13 @@ public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveT
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";
    }
+
+   @Override
+   protected void extraServerConfig(Configuration serverConfig) {
+      AddressSettings settings = serverConfig.getAddressesSettings().get("#");
+      if (settings != null) {
+         settings.setAutoCreateQueues(true);
+      }
+   }
+
 }
