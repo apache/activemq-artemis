@@ -27,9 +27,11 @@ import java.lang.reflect.Field;
 import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,6 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
@@ -1642,50 +1643,107 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
-   public void testClientDisconnectedWhenTryingToSubscribeToAnAnycastAddress() throws Exception {
-      Exception peerDisconnectedException = null;
-      try {
-         String clientId = "test.mqtt";
-         SimpleString coreAddress = new SimpleString("foo.bar");
-         Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
+   public void testAnycastPrefixWorksWithMQTT() throws Exception {
+      String clientId = "testMqtt";
 
-         AddressInfo addressInfo = new AddressInfo(coreAddress);
-         addressInfo.addRoutingType(RoutingType.ANYCAST);
-         getServer().createOrUpdateAddressInfo(addressInfo);
+      String anycastAddress = "anycast:foo/bar";
+      String sendAddress = "foo/bar";
+      Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
 
-         MQTT mqtt = createMQTTConnection();
-         mqtt.setClientId(clientId);
-         mqtt.setKeepAlive((short) 2);
-         final BlockingConnection connection = mqtt.blockingConnection();
-         connection.connect();
-         connection.subscribe(mqttSubscription);
-      } catch (EOFException e) {
-         peerDisconnectedException = e;
-      }
-      assertNotNull(peerDisconnectedException);
-      assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId(clientId);
+      BlockingConnection connection1 = mqtt.blockingConnection();
+      connection1.connect();
+      connection1.subscribe(mqttSubscription);
+
+      MQTT mqtt2 = createMQTTConnection();
+      mqtt2.setClientId(clientId + "2");
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(mqttSubscription);
+
+      String message1 = "TestMessage1";
+      String message2 = "TestMessage2";
+
+      connection1.publish(sendAddress, message1.getBytes(), QoS.AT_LEAST_ONCE, false);
+      connection2.publish(sendAddress, message2.getBytes(), QoS.AT_LEAST_ONCE, false);
+
+      assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+
+      assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
    }
 
    @Test(timeout = 60 * 1000)
-   public void testClientDisconnectedWhenTryingToSubscribeToAnExistingQueueWithDeleteOnNoConsumers() throws Exception {
-      Exception peerDisconnectedException = null;
-      try {
-         String clientId = "testMqtt";
-         SimpleString coreAddress = new SimpleString("foo.bar");
-         getServer().createQueue(coreAddress, RoutingType.MULTICAST, new SimpleString(clientId + "." + coreAddress), null, false, true, Queue.MAX_CONSUMERS_UNLIMITED, true, true);
+   public void testAnycastAddressWorksWithMQTT() throws Exception {
+      String anycastAddress = "foo/bar";
 
-         Topic[] mqttSubscription = new Topic[]{new Topic("foo/bar", QoS.AT_LEAST_ONCE)};
+      getServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), RoutingType.ANYCAST));
+      String clientId = "testMqtt";
 
-         MQTT mqtt = createMQTTConnection();
-         mqtt.setClientId(clientId);
-         mqtt.setKeepAlive((short) 2);
-         final BlockingConnection connection = mqtt.blockingConnection();
-         connection.connect();
-         connection.subscribe(mqttSubscription);
-      } catch (EOFException e) {
-         peerDisconnectedException = e;
-      }
-      assertNotNull(peerDisconnectedException);
-      assertTrue(peerDisconnectedException.getMessage().contains("Peer disconnected"));
+      Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
+
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId(clientId);
+      BlockingConnection connection1 = mqtt.blockingConnection();
+      connection1.connect();
+      connection1.subscribe(mqttSubscription);
+
+      MQTT mqtt2 = createMQTTConnection();
+      mqtt2.setClientId(clientId + "2");
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(mqttSubscription);
+
+      String message1 = "TestMessage1";
+      String message2 = "TestMessage2";
+
+      connection1.publish(anycastAddress, message1.getBytes(), QoS.AT_LEAST_ONCE, false);
+      connection2.publish(anycastAddress, message2.getBytes(), QoS.AT_LEAST_ONCE, false);
+
+      assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+
+      assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+      assertNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testAmbiguousRoutingWithMQTT() throws Exception {
+      String anycastAddress = "foo/bar";
+
+      Set<RoutingType> routingTypeSet = new HashSet<>();
+      routingTypeSet.add(RoutingType.ANYCAST);
+      routingTypeSet.add(RoutingType.MULTICAST);
+
+      getServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
+      String clientId = "testMqtt";
+
+      Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
+
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId(clientId);
+      BlockingConnection connection1 = mqtt.blockingConnection();
+      connection1.connect();
+      connection1.subscribe(mqttSubscription);
+
+      MQTT mqtt2 = createMQTTConnection();
+      mqtt2.setClientId(clientId + "2");
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(mqttSubscription);
+
+      String message1 = "TestMessage1";
+      String message2 = "TestMessage2";
+
+      connection1.publish(anycastAddress, message1.getBytes(), QoS.AT_LEAST_ONCE, false);
+      connection2.publish(anycastAddress, message2.getBytes(), QoS.AT_LEAST_ONCE, false);
+
+      assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+      assertNotNull(connection1.receive(1000, TimeUnit.MILLISECONDS));
+
+      assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
+      assertNotNull(connection2.receive(1000, TimeUnit.MILLISECONDS));
    }
 }

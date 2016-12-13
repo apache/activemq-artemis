@@ -167,8 +167,8 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "" + port);
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "MQTT");
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-      server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
+
+      server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
       LOG.info("Added connector {} to broker", getProtocolScheme());
    }
