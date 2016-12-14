@@ -54,6 +54,7 @@ import java.util.Set;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageEOFException;
 import javax.jms.Queue;
 import javax.jms.TemporaryQueue;
@@ -130,7 +131,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       }
 
       long messageFormat = 0;
-      Header header = new Header();
+      Header header = null;
       Properties properties = null;
       Map<Symbol, Object> daMap = null;
       Map<Symbol, Object> maMap = null;
@@ -139,12 +140,19 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
 
       Section body = convertBody(message);
 
-      header.setDurable(message.getInnerMessage().isDurable());
-
+      if (message.getInnerMessage().isDurable()) {
+         if (header == null) {
+            header = new Header();
+         }
+         header.setDurable(true);
+      }
       byte priority = (byte) message.getJMSPriority();
-
-      header.setPriority(UnsignedByte.valueOf(priority));
-
+      if (priority != Message.DEFAULT_PRIORITY) {
+         if (header == null) {
+            header = new Header();
+         }
+         header.setPriority(UnsignedByte.valueOf(priority));
+      }
       String type = message.getJMSType();
       if (type != null) {
          if (properties == null) {
@@ -152,7 +160,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          properties.setSubject(type);
       }
-
       String messageId = message.getJMSMessageID();
       if (messageId != null) {
          if (properties == null) {
@@ -204,6 +211,9 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             ttl = 1;
          }
 
+         if (header == null) {
+            header = new Header();
+         }
          header.setTtl(new UnsignedInteger((int) ttl));
 
          if (properties == null) {
@@ -227,6 +237,9 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                // whereas JMSXDeliveryCount includes the first/current delivery attempt.
                int amqpDeliveryCount = message.getDeliveryCount() - 1;
                if (amqpDeliveryCount > 0) {
+                  if (header == null) {
+                     header = new Header();
+                  }
                   header.setDeliveryCount(new UnsignedInteger(amqpDeliveryCount));
                }
                continue;
@@ -264,9 +277,15 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                // skip..internal use only
                continue;
             } else if (key.equals(JMS_AMQP_FIRST_ACQUIRER)) {
+               if (header == null) {
+                  header = new Header();
+               }
                header.setFirstAcquirer(message.getBooleanProperty(key));
                continue;
             } else if (key.equals(JMS_AMQP_HEADER)) {
+               if (header == null) {
+                  header = new Header();
+               }
                continue;
             } else if (key.startsWith(JMS_AMQP_PROPERTIES)) {
                if (properties == null) {
@@ -346,8 +365,9 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       EncoderImpl encoder = tlsCodec.get().encoder;
       encoder.setByteBuffer(buffer);
 
-      encoder.writeObject(header);
-
+      if (header != null) {
+         encoder.writeObject(header);
+      }
       if (daMap != null) {
          encoder.writeObject(new DeliveryAnnotations(daMap));
       }
