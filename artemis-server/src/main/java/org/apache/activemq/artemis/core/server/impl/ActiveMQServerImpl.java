@@ -601,7 +601,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    public void resetNodeManager() throws Exception {
-      nodeManager.stop();
+      if (nodeManager != null) {
+         nodeManager.stop();
+      }
       nodeManager = createNodeManager(configuration.getJournalLocation(), true);
    }
 

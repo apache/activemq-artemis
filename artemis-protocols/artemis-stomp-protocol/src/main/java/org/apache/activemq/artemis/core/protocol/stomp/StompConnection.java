@@ -90,10 +90,6 @@ public final class StompConnection implements RemotingConnection {
 
    private final int minLargeMessageSize;
 
-   private final String anycastPrefix;
-
-   private final String multicastPrefix;
-
    private StompVersions version;
 
    private VersionedStompFrameHandler frameHandler;
@@ -168,8 +164,6 @@ public final class StompConnection implements RemotingConnection {
 
       this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration());
-      this.anycastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_ANYCAST_PREFIX, TransportConstants.DEFAULT_STOMP_ANYCAST_PREFIX, acceptorUsed.getConfiguration());
-      this.multicastPrefix = ConfigurationHelper.getStringProperty(TransportConstants.STOMP_MULTICAST_PREFIX, TransportConstants.DEFAULT_STOMP_MULTICAST_PREFIX, acceptorUsed.getConfiguration());
    }
 
    @Override
@@ -255,14 +249,14 @@ public final class StompConnection implements RemotingConnection {
 
    // TODO this should take a type - send or receive so it knows whether to check the address or the queue
    public void checkDestination(String destination) throws ActiveMQStompException {
-      if (!manager.destinationExists(destination)) {
+      if (!manager.destinationExists(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)).toString())) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
    public boolean autoCreateDestinationIfPossible(String queue, RoutingType routingType) throws ActiveMQStompException {
       boolean result = false;
-      ServerSession session = getSession().getSession();
+      ServerSession session = getSession().getCoreSession();
 
       try {
          if (manager.getServer().getAddressInfo(SimpleString.toSimpleString(queue)) == null) {
@@ -291,9 +285,9 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      Set<RoutingType> actualDeliveryModesOfAddres = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingTypes();
-      if (routingType != null && !actualDeliveryModesOfAddres.contains(routingType)) {
-         throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddres.toString());
+      Set<RoutingType> actualDeliveryModesOfAddress = manager.getServer().getAddressInfo(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
+      if (routingType != null && !actualDeliveryModesOfAddress.contains(routingType)) {
+         throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddress.toString());
       }
    }
 
@@ -755,14 +749,6 @@ public final class StompConnection implements RemotingConnection {
 
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
-   }
-
-   public String getAnycastPrefix() {
-      return anycastPrefix;
-   }
-
-   public String getMulticastPrefix() {
-      return multicastPrefix;
    }
 
    public StompProtocolManager getManager() {

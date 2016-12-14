@@ -21,6 +21,7 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -250,4 +251,36 @@ public interface ServerSession extends SecurityAuth {
    SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
 
    AddressInfo getAddress(SimpleString address);
+
+   /**
+    * Strip the prefix (if it exists) from the address based on the prefixes provided to the ServerSession constructor.
+    *
+    * @param address the address to inspect
+    * @return the canonical (i.e. non-prefixed) address name
+    */
+   SimpleString removePrefix(SimpleString address);
+
+   /**
+    * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
+    *
+    * @param address the address to inspect
+    * @param defaultRoutingType the {@code org.apache.activemq.artemis.core.server.RoutingType} to return if no prefix
+    *                           match is found.
+    * @return a {@code org.apache.activemq.artemis.api.core.Pair} representing the canonical (i.e. non-prefixed) address
+    *         name and the {@code org.apache.activemq.artemis.core.server.RoutingType} corresponding to the that prefix.
+    */
+   Pair<SimpleString, RoutingType> getAddressAndRoutingType(SimpleString address, RoutingType defaultRoutingType);
+
+   /**
+    * Get the canonical (i.e. non-prefixed) address and the corresponding routing-type.
+    *
+    * @param address the address to inspect
+    * @param defaultRoutingTypes a the {@code java.util.Set} of {@code org.apache.activemq.artemis.core.server.RoutingType}
+    *                            objects to return if no prefix match is found.
+    * @return a {@code org.apache.activemq.artemis.api.core.Pair} representing the canonical (i.e. non-prefixed) address
+    *         name and the {@code java.util.Set} of {@code org.apache.activemq.artemis.core.server.RoutingType} objects
+    *         corresponding to the that prefix.
+    */
+   Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
+                                                                  Set<RoutingType> defaultRoutingTypes);
 }

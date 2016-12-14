@@ -261,9 +261,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
             StompSession session = sessions.remove(connection.getID());
             if (session != null) {
                try {
-                  session.getSession().stop();
-                  session.getSession().rollback(true);
-                  session.getSession().close(false);
+                  session.getCoreSession().stop();
+                  session.getCoreSession().rollback(true);
+                  session.getCoreSession().close(false);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                }
@@ -274,7 +274,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
             while (iterator.hasNext()) {
                Map.Entry<String, StompSession> entry = iterator.next();
                if (entry.getValue().getConnection() == connection) {
-                  ServerSession serverSession = entry.getValue().getSession();
+                  ServerSession serverSession = entry.getValue().getCoreSession();
                   try {
                      serverSession.rollback(true);
                      serverSession.close(false);
@@ -355,7 +355,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
          throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
-      session.getSession().commit();
+      session.getCoreSession().commit();
    }
 
    public void abortTransaction(StompConnection connection, String txID) throws Exception {
@@ -364,7 +364,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
          throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
-      session.getSession().rollback(false);
+      session.getCoreSession().rollback(false);
    }
    // Inner classes -------------------------------------------------
 
