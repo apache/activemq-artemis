@@ -33,6 +33,9 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ProtonServerReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
    private static final Logger log = Logger.getLogger(ProtonServerReceiverContext.class);
@@ -104,6 +107,13 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                throw e;
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
+         }
+         Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
+         if (remoteDesiredCapabilities != null) {
+            List<Symbol> list = Arrays.asList(remoteDesiredCapabilities);
+            if (list.contains(AmqpSupport.DELAYED_DELIVERY)) {
+               receiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.DELAYED_DELIVERY});
             }
          }
       }

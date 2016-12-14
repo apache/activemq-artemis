@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
+import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -41,6 +43,7 @@ import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.engine.Receiver;
+import org.apache.qpid.proton.engine.Sender;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -830,6 +833,33 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver1.close();
       receiver2.close();
 
+      connection.close();
+   }
+
+   @Test
+   public void testDeliveryDelayOfferedWhenRequested() throws Exception {
+      AmqpClient client = createAmqpClient();
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Sender sender) {
+
+            Symbol[] offered = sender.getRemoteOfferedCapabilities();
+            if (!contains(offered, AmqpSupport.DELAYED_DELIVERY)) {
+               markAsInvalid("Broker did not indicate it support delayed message delivery");
+            }
+         }
+      });
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender("queue://" + getTestName(), new Symbol[] {AmqpSupport.DELAYED_DELIVERY});
+      assertNotNull(sender);
+
+      connection.getStateInspector().assertValid();
+
+      sender.close();
       connection.close();
    }
 
