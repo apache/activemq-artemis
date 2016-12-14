@@ -32,6 +32,8 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMe
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER_DURABLE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_NATIVE;
@@ -286,6 +288,18 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                if (header == null) {
                   header = new Header();
                }
+               continue;
+            } else if (key.equals(JMS_AMQP_HEADER_DURABLE)) {
+               if (header == null) {
+                  header = new Header();
+               }
+               header.setDurable(message.getInnerMessage().isDurable());
+               continue;
+            } else if (key.equals(JMS_AMQP_HEADER_PRIORITY)) {
+               if (header == null) {
+                  header = new Header();
+               }
+               header.setPriority(UnsignedByte.valueOf(priority));
                continue;
             } else if (key.startsWith(JMS_AMQP_PROPERTIES)) {
                if (properties == null) {
