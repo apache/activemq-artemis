@@ -69,12 +69,16 @@ public final class AMQPMessageSupport {
    public static final String CONTENT_TYPE = "ContentType";
    public static final String CONTENT_ENCODING = "ContentEncoding";
    public static final String REPLYTO_GROUP_ID = "ReplyToGroupID";
+   public static final String DURABLE = "DURABLE";
+   public static final String PRIORITY = "PRIORITY";
 
    public static final String DELIVERY_ANNOTATION_PREFIX = "DA_";
    public static final String MESSAGE_ANNOTATION_PREFIX = "MA_";
    public static final String FOOTER_PREFIX = "FT_";
 
    public static final String JMS_AMQP_HEADER = JMS_AMQP_PREFIX + HEADER;
+   public static final String JMS_AMQP_HEADER_DURABLE = JMS_AMQP_PREFIX + HEADER + DURABLE;
+   public static final String JMS_AMQP_HEADER_PRIORITY = JMS_AMQP_PREFIX + HEADER + PRIORITY;
    public static final String JMS_AMQP_PROPERTIES = JMS_AMQP_PREFIX + PROPERTIES;
    public static final String JMS_AMQP_ORIGINAL_ENCODING = JMS_AMQP_PREFIX + ORIGINAL_ENCODING;
    public static final String JMS_AMQP_MESSAGE_FORMAT = JMS_AMQP_PREFIX + MESSAGE_FORMAT;
