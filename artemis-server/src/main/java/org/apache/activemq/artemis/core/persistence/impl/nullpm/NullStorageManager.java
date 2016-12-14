@@ -540,12 +540,23 @@ public class NullStorageManager implements StorageManager {
       // no-op
    }
 
+
    @Override
-   public boolean addToPage(PagingStore s,
+   public boolean addToPage(PagingStore store,
                             ServerMessage msg,
                             Transaction tx,
                             RouteContextList listCtx) throws Exception {
-      return false;
+      /**
+       * Exposing the read-lock here is an encapsulation violation done in order to keep the code
+       * simpler. The alternative would be to add a second method, say 'verifyPaging', to
+       * PagingStore.
+       * <p>
+       * Adding this second method would also be more surprise prone as it would require a certain
+       * calling order.
+       * <p>
+       * The reasoning is that exposing the lock is more explicit and therefore `less bad`.
+       */
+      return store.page(msg, tx, listCtx, null);
    }
 
    @Override
