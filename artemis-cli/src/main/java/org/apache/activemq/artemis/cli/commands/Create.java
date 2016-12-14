@@ -714,6 +714,12 @@ public class Create extends InputAbstract {
          filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
       }
 
+      if (disablePersistence) {
+         filters.put("${full-policy}", "BLOCK");
+      } else {
+         filters.put("${full-policy}", "PAGE");
+      }
+
       performAutoTune(filters, aio, dataFolder);
 
       write(ETC_BROKER_XML, filters, false);
