@@ -30,6 +30,7 @@ import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
@@ -95,7 +96,7 @@ public class JmsProducerTest extends JMSTestBase {
 
    @Test
    public void multipleSendsUsingSetters() throws Exception {
-      server.createQueue(SimpleString.toSimpleString("q1"), SimpleString.toSimpleString("q1"), null, true, false);
+      server.createQueue(SimpleString.toSimpleString("q1"), RoutingType.ANYCAST, SimpleString.toSimpleString("q1"), null, true, false);
 
       Queue q1 = context.createQueue("q1");
 
