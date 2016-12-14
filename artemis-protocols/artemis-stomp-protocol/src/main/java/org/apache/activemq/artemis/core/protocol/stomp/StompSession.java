@@ -90,7 +90,7 @@ public class StompSession implements SessionCallback {
       this.session = session;
    }
 
-   public ServerSession getSession() {
+   public ServerSession getCoreSession() {
       return session;
    }
 
@@ -287,7 +287,7 @@ public class StompSession implements SessionCallback {
          receiveCredits = -1;
       }
 
-      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(SimpleString.toSimpleString(destination)).getRoutingTypes();
+      Set<RoutingType> routingTypes = manager.getServer().getAddressInfo(getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
       if (routingTypes.size() == 1 && routingTypes.contains(RoutingType.MULTICAST)) {
          // subscribes to a topic
          pubSub = true;

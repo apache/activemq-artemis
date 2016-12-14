@@ -646,7 +646,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createQueue(final String address, final String name, final String routingType) throws Exception {
-      createQueue(address, name, routingType, true);
+      createQueue(address, name, true, routingType);
    }
 
    @Override
