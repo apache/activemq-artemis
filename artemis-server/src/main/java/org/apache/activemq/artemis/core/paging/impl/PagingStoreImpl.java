@@ -797,7 +797,9 @@ public class PagingStoreImpl implements PagingStore {
          lock.readLock().unlock();
       }
 
-      managerLock.lock();
+      if (managerLock != null) {
+         managerLock.lock();
+      }
       try {
          lock.writeLock().lock();
 
@@ -852,7 +854,9 @@ public class PagingStoreImpl implements PagingStore {
             lock.writeLock().unlock();
          }
       } finally {
-         managerLock.unlock();
+         if (managerLock != null) {
+            managerLock.unlock();
+         }
       }
    }
 

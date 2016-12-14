@@ -3329,7 +3329,16 @@ public class PagingTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDropMessages() throws Exception {
+   public void testDropMessagesPersistent() throws Exception {
+      testDropMessages(true);
+   }
+
+   @Test
+   public void testDropMessagesNonPersistent() throws Exception {
+      testDropMessages(false);
+   }
+
+   public void testDropMessages(final boolean persistent) throws Exception {
       clearDataRecreateServerDirs();
 
       HashMap<String, AddressSettings> settings = new HashMap<>();
@@ -3339,7 +3348,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       settings.put(PagingTest.ADDRESS.toString(), set);
 
-      server = createServer(true, createDefaultInVMConfig(), 1024, 10 * 1024, settings);
+      server = createServer(persistent, createDefaultInVMConfig(), 1024, 10 * 1024, settings);
 
       server.start();
 
