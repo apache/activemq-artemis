@@ -93,7 +93,7 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>PAGE</address-full-policy>
+            <address-full-policy>${full-policy}</address-full-policy>
          </address-setting>
       </address-settings>
 
