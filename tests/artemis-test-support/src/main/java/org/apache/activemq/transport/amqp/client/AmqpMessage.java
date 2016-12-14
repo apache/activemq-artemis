@@ -402,6 +402,25 @@ public class AmqpMessage {
    }
 
    /**
+    * Sets the priority header on the outgoing message.
+    *
+    * @param priority the priority value to set.
+    */
+   public void setPriority(short priority) {
+      checkReadOnly();
+      lazyCreateHeader();
+      getWrappedMessage().setPriority(priority);
+   }
+
+   /**
+    * Sets the priority header on the outgoing message.
+    */
+   public short getPriority() {
+      return getWrappedMessage().getPriority();
+   }
+
+
+   /**
     * Sets a given application property on an outbound message.
     *
     * @param key   the name to assign the new property.
