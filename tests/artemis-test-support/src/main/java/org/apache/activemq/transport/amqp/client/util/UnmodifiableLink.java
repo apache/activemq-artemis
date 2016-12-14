@@ -273,4 +273,34 @@ public class UnmodifiableLink implements Link {
    public Map<Symbol, Object> getRemoteProperties() {
       return link.getRemoteProperties();
    }
+
+   @Override
+   public Symbol[] getDesiredCapabilities() {
+      return link.getDesiredCapabilities();
+   }
+
+   @Override
+   public Symbol[] getOfferedCapabilities() {
+      return link.getOfferedCapabilities();
+   }
+
+   @Override
+   public Symbol[] getRemoteDesiredCapabilities() {
+      return link.getRemoteDesiredCapabilities();
+   }
+
+   @Override
+   public Symbol[] getRemoteOfferedCapabilities() {
+      return link.getRemoteOfferedCapabilities();
+   }
+
+   @Override
+   public void setDesiredCapabilities(Symbol[] capabilities) {
+      throw new UnsupportedOperationException("Cannot alter the Link state");
+   }
+
+   @Override
+   public void setOfferedCapabilities(Symbol[] capabilities) {
+      throw new UnsupportedOperationException("Cannot alter the Link state");
+   }
 }
