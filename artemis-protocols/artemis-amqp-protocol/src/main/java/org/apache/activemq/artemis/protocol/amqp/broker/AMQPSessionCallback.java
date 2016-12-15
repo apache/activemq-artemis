@@ -239,7 +239,7 @@ public class AMQPSessionCallback implements SessionCallback {
       BindingQueryResult bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
       if (!bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
          try {
-            serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
+            serverSession.createQueue(new SimpleString(address), new SimpleString(address), RoutingType.ANYCAST, null, false, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
