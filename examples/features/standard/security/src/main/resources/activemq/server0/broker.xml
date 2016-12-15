@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,19 +16,9 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   <jms xmlns="urn:activemq:jms">
-      <topic name="genericTopic"/>
-
-      <topic name="news.europe.europeTopic"/>
-
-      <topic name="news.us.usTopic"/>
-   </jms>
+   
 
    <core xmlns="urn:activemq:core">
 
@@ -50,32 +40,43 @@ under the License.
       <security-settings>
          <!-- any user can have full control of generic topics -->
          <security-setting match="#">
-            <permission type="createDurableQueue" roles="user"/>
-            <permission type="deleteDurableQueue" roles="user"/>
-            <permission type="createNonDurableQueue" roles="user"/>
-            <permission type="deleteNonDurableQueue" roles="user"/>
-            <permission type="send" roles="user"/>
-            <permission type="consume" roles="user"/>
+            <permission roles="user" type="createDurableQueue"/>
+            <permission roles="user" type="deleteDurableQueue"/>
+            <permission roles="user" type="createNonDurableQueue"/>
+            <permission roles="user" type="deleteNonDurableQueue"/>
+            <permission roles="user" type="send"/>
+            <permission roles="user" type="consume"/>
          </security-setting>
 
          <security-setting match="news.europe.#">
-            <permission type="createDurableQueue" roles="user"/>
-            <permission type="deleteDurableQueue" roles="user"/>
-            <permission type="createNonDurableQueue" roles="user"/>
-            <permission type="deleteNonDurableQueue" roles="user"/>
-            <permission type="send" roles="europe-user"/>
-            <permission type="consume" roles="news-user"/>
+            <permission roles="user" type="createDurableQueue"/>
+            <permission roles="user" type="deleteDurableQueue"/>
+            <permission roles="user" type="createNonDurableQueue"/>
+            <permission roles="user" type="deleteNonDurableQueue"/>
+            <permission roles="europe-user" type="send"/>
+            <permission roles="news-user" type="consume"/>
          </security-setting>
 
          <security-setting match="news.us.#">
-            <permission type="createDurableQueue" roles="user"/>
-            <permission type="deleteDurableQueue" roles="user"/>
-            <permission type="createNonDurableQueue" roles="user"/>
-            <permission type="deleteNonDurableQueue" roles="user"/>
-            <permission type="send" roles="us-user"/>
-            <permission type="consume" roles="news-user"/>
+            <permission roles="user" type="createDurableQueue"/>
+            <permission roles="user" type="deleteDurableQueue"/>
+            <permission roles="user" type="createNonDurableQueue"/>
+            <permission roles="user" type="deleteNonDurableQueue"/>
+            <permission roles="us-user" type="send"/>
+            <permission roles="news-user" type="consume"/>
          </security-setting>
       </security-settings>
 
+   <addresses>
+         <address name="genericTopic">
+            <multicast/>
+         </address>
+         <address name="news.europe.europeTopic">
+            <multicast/>
+         </address>
+         <address name="news.us.usTopic">
+            <multicast/>
+         </address>
+      </addresses>
    </core>
 </configuration>
