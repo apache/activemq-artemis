@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
+import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
@@ -71,7 +72,7 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
-      execute(fileHome, fileInstance, args);
+      execute(true, fileHome, fileInstance, args);
    }
 
    public static Object internalExecute(String... args) throws Exception {
@@ -79,10 +80,13 @@ public class Artemis {
    }
 
    public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception {
-      return execute(artemisHome, artemisInstance, args.toArray(new String[args.size()]));
+      return execute(false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(File artemisHome, File artemisInstance, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, String... args) throws Exception {
+      if (inputEnabled) {
+         InputAbstract.enableInput();
+      }
       try {
          return internalExecute(artemisHome, artemisInstance, args);
       } catch (ConfigurationException configException) {
