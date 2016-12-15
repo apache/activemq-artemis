@@ -1767,7 +1767,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       queue.deleteQueue(removeConsumers);
 
-      if (autoDeleteAddress && postOffice != null) {
+      if (autoDeleteAddress && postOffice != null && getAddressInfo(address).isAutoCreated()) {
          try {
             removeAddressInfo(address, session);
          } catch (ActiveMQDeleteAddressException e) {
