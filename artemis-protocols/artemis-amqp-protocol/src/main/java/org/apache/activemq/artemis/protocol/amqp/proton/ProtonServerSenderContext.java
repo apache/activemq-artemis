@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -247,13 +248,18 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
          if (clientDefined)  {
             multicast = hasCapabilities(TOPIC, source);
-            AddressInfo addressInfo = sessionSPI.getAddress(addressToUse);
-            Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+            AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), defaultRoutingType, true);
+            if (!addressQueryResult.isExists()) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+            }
+
+            Set<RoutingType> routingTypes = addressQueryResult.getRoutingTypes();
+
             //if the client defines 1 routing type and the broker another then throw an exception
             if (multicast && !routingTypes.contains(RoutingType.MULTICAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address " + addressInfo.getName() + " is not configured for topic support");
+               throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for topic support");
             } else if (!multicast && !routingTypes.contains(RoutingType.ANYCAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address " + addressInfo.getName() + " is not configured for queue support");
+               throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for queue support");
             }
          } else {
             //if not we look up the address
