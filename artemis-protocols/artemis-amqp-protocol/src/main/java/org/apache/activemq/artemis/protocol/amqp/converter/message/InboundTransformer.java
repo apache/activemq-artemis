@@ -22,6 +22,8 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMe
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FIRST_ACQUIRER;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_FOOTER_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER_DURABLE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_HEADER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
 
@@ -76,12 +78,14 @@ public abstract class InboundTransformer {
          jms.setBooleanProperty(JMS_AMQP_HEADER, true);
 
          if (header.getDurable() != null) {
+            jms.setBooleanProperty(JMS_AMQP_HEADER_DURABLE, true);
             jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
          } else {
             jms.setJMSDeliveryMode(Message.DEFAULT_DELIVERY_MODE);
          }
 
          if (header.getPriority() != null) {
+            jms.setBooleanProperty(JMS_AMQP_HEADER_PRIORITY, true);
             jms.setJMSPriority(header.getPriority().intValue());
          } else {
             jms.setJMSPriority(Message.DEFAULT_PRIORITY);
