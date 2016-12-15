@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -42,14 +43,17 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 public class FakePostOffice implements PostOffice {
 
    @Override
-   public void addRoutingType(SimpleString addressName,
-                              RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
-
+   public QueueBinding updateQueue(SimpleString name,
+                                   RoutingType routingType,
+                                   Integer maxConsumers,
+                                   Boolean deleteOnNoConsumers) throws Exception {
+      return null;
    }
 
    @Override
-   public void removeRoutingType(SimpleString addressName, RoutingType routingType) throws Exception {
-
+   public AddressInfo updateAddressInfo(SimpleString addressName,
+                                        Collection<RoutingType> routingTypes) throws Exception {
+      return null;
    }
 
    @Override
@@ -90,8 +94,8 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      return false;
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      return null;
    }
 
 

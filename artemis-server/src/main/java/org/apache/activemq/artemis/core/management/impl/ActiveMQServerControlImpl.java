@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -562,8 +563,58 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   private enum AddressInfoTextFormatter {
+      Long {
+         @Override
+         public StringBuilder format(AddressInfo addressInfo, StringBuilder output) {
+            output.append("Address [name=").append(addressInfo.getName());
+            output.append(", routingTypes={");
+            final Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+            if (!routingTypes.isEmpty()) {
+               for (RoutingType routingType : routingTypes) {
+                  output.append(routingType).append(',');
+               }
+               // delete hanging comma
+               output.deleteCharAt(output.length() - 1);
+            }
+            output.append('}');
+            output.append(", autoCreated=").append(addressInfo.isAutoCreated());
+            output.append(']');
+            return output;
+         }
+      };
+
+      public abstract StringBuilder format(AddressInfo addressInfo, StringBuilder output);
+   }
+
+   public enum QueueTextFormatter {
+      Long {
+         @Override
+         StringBuilder format(Queue queue, StringBuilder output) {
+            output.append("Queue [name=").append(queue.getName());
+            output.append(", address=").append(queue.getAddress());
+            output.append(", routingType=").append(queue.getRoutingType());
+            final Filter filter = queue.getFilter();
+            if (filter != null) {
+               output.append(", filter=").append(filter.getFilterString());
+            }
+            output.append(", durable=").append(queue.isDurable());
+            final int maxConsumers = queue.getMaxConsumers();
+            if (maxConsumers != Queue.MAX_CONSUMERS_UNLIMITED) {
+               output.append(", maxConsumers=").append(queue.getMaxConsumers());
+            }
+            output.append(", deleteOnNoConsumers=").append(queue.isDeleteOnNoConsumers());
+            output.append(", autoCreateAddress=").append(queue.isAutoCreated());
+            output.append(']');
+            return output;
+         }
+      };
+
+      abstract StringBuilder format(Queue queue, StringBuilder output);
+   }
+
    @Override
-   public void createAddress(String name, String routingTypes) throws Exception {
+   public String createAddress(String name, String routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
@@ -572,33 +623,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          for (String routingType : toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
-         server.createAddressInfo(new AddressInfo(new SimpleString(name), set));
+         final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
+         if (server.createAddressInfo(addressInfo)) {
+            return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
+         } else {
+            return "";
+         }
       } finally {
          blockOnIO();
       }
    }
 
    @Override
-   public void addRoutingType(String name, String routingTypeName) throws Exception {
+   public String updateAddress(String name, String routingTypes) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         final RoutingType routingType = RoutingType.valueOf(routingTypeName);
-         server.addRoutingType(name, routingType);
-      } finally {
-         blockOnIO();
-      }
-   }
-
-   @Override
-   public void removeRoutingType(String name, String routingTypeName) throws Exception {
-      checkStarted();
-
-      clearIO();
-      try {
-         final RoutingType routingType = RoutingType.valueOf(routingTypeName);
-         server.removeRoutingType(name, routingType);
+         final Set<RoutingType> routingTypeSet;
+         if (routingTypes == null) {
+            routingTypeSet = null;
+         } else {
+            routingTypeSet = new HashSet<>();
+            final String[] routingTypeNames = routingTypes.split(",");
+            for (String routingTypeName : routingTypeNames) {
+               routingTypeSet.add(RoutingType.valueOf(routingTypeName));
+            }
+         }
+         final AddressInfo updatedAddressInfo = server.updateAddressInfo(name, routingTypeSet);
+         if (updatedAddressInfo == null) {
+            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(name));
+         }
+         return AddressInfoTextFormatter.Long.format(updatedAddressInfo, new StringBuilder()).toString();
       } finally {
          blockOnIO();
       }
@@ -672,14 +728,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void createQueue(String address,
-                           String routingType,
-                           String name,
-                           String filterStr,
-                           boolean durable,
-                           int maxConsumers,
-                           boolean deleteOnNoConsumers,
-                           boolean autoCreateAddress) throws Exception {
+   public String createQueue(String address,
+                             String routingType,
+                             String name,
+                             String filterStr,
+                             boolean durable,
+                             int maxConsumers,
+                             boolean deleteOnNoConsumers,
+                             boolean autoCreateAddress) throws Exception {
       checkStarted();
 
       clearIO();
@@ -690,12 +746,32 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } finally {
          blockOnIO();
       }
    }
 
+   @Override
+   public String updateQueue(String name,
+                             String routingType,
+                             Integer maxConsumers,
+                             Boolean deleteOnNoConsumers) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, deleteOnNoConsumers);
+         if (queue == null) {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
+         }
+         return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
+      } finally {
+         blockOnIO();
+      }
+   }
 
    @Override
    public String[] getQueueNames() {
@@ -804,7 +880,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (addressInfo == null) {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(address));
          } else {
-            return addressInfo.toString();
+            return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
          }
       } finally {
          blockOnIO();

@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -37,6 +37,16 @@ import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 
 public class FakeQueue implements Queue {
+
+   @Override
+   public void setDeleteOnNoConsumers(boolean value) {
+
+   }
+
+   @Override
+   public void setMaxConsumer(int maxConsumers) {
+
+   }
 
    @Override
    public boolean isInternalQueue() {

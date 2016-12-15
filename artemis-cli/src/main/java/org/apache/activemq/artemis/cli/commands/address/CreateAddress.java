@@ -50,7 +50,8 @@ public class CreateAddress extends AbstractAction {
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Address " + getName() + " created successfully.");
+            final String result = ManagementHelper.getResult(reply, String.class) + " created successfully.";
+            context.out.println(result);
          }
 
          @Override

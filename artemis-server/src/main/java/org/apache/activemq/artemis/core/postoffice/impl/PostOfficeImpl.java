@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +33,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -440,53 +440,68 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
       synchronized (addressLock) {
-         boolean result = addressManager.addOrUpdateAddressInfo(addressInfo);
+         final AddressInfo updatedAddressInfo = addressManager.addOrUpdateAddressInfo(addressInfo);
          // only register address if it is newly added
-         if (result) {
+         final boolean isNew = updatedAddressInfo == addressInfo;
+         if (isNew) {
             try {
                managementService.registerAddress(addressInfo);
             } catch (Exception e) {
                e.printStackTrace();
             }
          }
-         return result;
+         return updatedAddressInfo;
       }
    }
 
    @Override
-   public void addRoutingType(SimpleString addressName, RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
+   public QueueBinding updateQueue(SimpleString name,
+                                   RoutingType routingType,
+                                   Integer maxConsumers,
+                                   Boolean deleteOnNoConsumers) throws Exception {
       synchronized (addressLock) {
-         final AddressInfo updateAddressInfo = addressManager.updateAddressInfoIfPresent(addressName, (name, addressInfo) -> {
-            addressInfo.getRoutingTypes().add(routingType);
-            return addressInfo;
-         });
-         if (updateAddressInfo == null) {
-            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
+         if (queueBinding == null) {
+            return null;
          }
-      }
-   }
-
-   @Override
-   public void removeRoutingType(SimpleString addressName, RoutingType routingType) throws Exception {
-      synchronized (addressLock) {
-         if (RoutingType.MULTICAST.equals(routingType)) {
-            final Bindings bindings = addressManager.getBindingsForRoutingAddress(addressName);
-            if (bindings != null) {
-               final boolean existsQueueBindings = bindings.getBindings().stream().anyMatch(QueueBinding.class::isInstance);
-               if (existsQueueBindings) {
-                  throw ActiveMQMessageBundle.BUNDLE.invalidMulticastRoutingTypeDelete();
-               }
+         final Queue queue = queueBinding.getQueue();
+         //TODO put the whole update logic on Queue
+         //validate update
+         if (maxConsumers != null) {
+            final int consumerCount = queue.getConsumerCount();
+            if (consumerCount > maxConsumers) {
+               throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumersUpdate(name.toString(), maxConsumers, consumerCount);
             }
          }
-         final AddressInfo updateAddressInfo = addressManager.updateAddressInfoIfPresent(addressName, (name, addressInfo) -> {
-            addressInfo.getRoutingTypes().remove(routingType);
-            return addressInfo;
-         });
-         if (updateAddressInfo == null) {
-            throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         if (routingType != null) {
+            final SimpleString address = queue.getAddress();
+            final AddressInfo addressInfo = addressManager.getAddressInfo(address);
+            final Set<RoutingType> addressRoutingTypes = addressInfo.getRoutingTypes();
+            if (!addressRoutingTypes.contains(routingType)) {
+               throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeUpdate(name.toString(), routingType, address.toString(), addressRoutingTypes);
+            }
          }
+         //atomic update
+         if (maxConsumers != null) {
+            queue.setMaxConsumer(maxConsumers);
+         }
+         if (routingType != null) {
+            queue.setRoutingType(routingType);
+         }
+         if (deleteOnNoConsumers != null) {
+            queue.setDeleteOnNoConsumers(deleteOnNoConsumers);
+         }
+         return queueBinding;
+      }
+   }
+
+   @Override
+   public AddressInfo updateAddressInfo(SimpleString addressName,
+                                        Collection<RoutingType> routingTypes) throws Exception {
+      synchronized (addressLock) {
+         return addressManager.updateAddressInfo(addressName, routingTypes);
       }
    }
 
