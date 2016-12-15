@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,16 +16,9 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   <jms xmlns="urn:activemq:jms">
-      <!--the queue used by the example-->
-      <topic name="chat"/>
-   </jms>
+   
 
    <core xmlns="urn:activemq:core">
       <persistence-enabled>false</persistence-enabled>
@@ -34,5 +27,10 @@ under the License.
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
+   <addresses>
+         <address name="chat">
+            <multicast/>
+         </address>
+      </addresses>
    </core>
 </configuration>

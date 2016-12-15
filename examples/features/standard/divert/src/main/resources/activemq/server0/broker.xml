@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,27 +16,9 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   <jms xmlns="urn:activemq:jms">
-      <!-- Destinations used by the example -->
-
-      <!-- The order queue -->
-      <queue name="orders"/>
-
-      <!-- The queue that prices are forwarded to before being bridged to the New York server -->
-      <queue name="priceForwarding"/>
-
-      <!-- The topic for price updates -->
-      <topic name="priceUpdates"/>
-
-      <!-- The spy topic for snooping on orders -->
-      <topic name="spyTopic"/>
-   </jms>
+   
 
    <core xmlns="urn:activemq:core">
 
@@ -65,11 +47,7 @@ under the License.
 
       <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
       before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
-      <queues>
-         <queue name="priceForwarding">
-            <address>priceForwarding</address>
-         </queue>
-      </queues>
+      
 
       <diverts>
          <divert name="order-divert">
@@ -108,14 +86,35 @@ under the License.
       <security-settings>
          <!--security for example -->
          <security-setting match="#">
-            <permission type="createDurableQueue" roles="guest"/>
-            <permission type="deleteDurableQueue" roles="guest"/>
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission roles="guest" type="createDurableQueue"/>
+            <permission roles="guest" type="deleteDurableQueue"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
          </security-setting>
       </security-settings>
 
+   <addresses>
+         <address name="priceForwarding">
+            <multicast>
+               <queue name="priceForwarding"/>
+            </multicast>
+            <anycast>
+               <queue name="jms.queue.priceForwarding"/>
+            </anycast>
+         </address>
+         <address name="orders">
+            <anycast>
+               <queue name="jms.queue.orders"/>
+            </anycast>
+         </address>
+         <address name="spyTopic">
+            <multicast/>
+         </address>
+         <address name="priceUpdates">
+            <multicast/>
+         </address>
+      </addresses>
    </core>
 </configuration>

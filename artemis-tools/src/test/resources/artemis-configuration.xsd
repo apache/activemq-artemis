@@ -34,6 +34,16 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="internal-naming-prefix" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Artemis uses internal queues and addresses for implmenting certain behaviours.  These queues and addresses
+                  will be prefixed by default with "$.activemq.internal" to avoid naming clashes with user namespacing.
+                  This can be overriden by setting this value to a valid Artemis address.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="resolve-protocols" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>
@@ -42,6 +52,14 @@
                   on the
                   classpath. If false then only the core protocol will be available, unless in Embedded mode where users
                   can inject their own Protocol Managers.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="journal-datasync" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  that means the server will use fdatasync to confirm writes on the disk.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1550,6 +1568,22 @@
          </xsd:element>
 
          <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
+
+         <xsd:element name="routing-type" default="STRIP" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how should the routing-type on the diverted messages be set?
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="ANYCAST"/>
+                  <xsd:enumeration value="MULTICAST"/>
+                  <xsd:enumeration value="STRIP"/>
+                  <xsd:enumeration value="PASS"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
       </xsd:all>
 
       <xsd:attribute name="name" type="xsd:ID" use="required">
@@ -2381,7 +2415,7 @@
             <xsd:element name="auto-create-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
+                     DEPRECATED: whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
                      queue
                   </xsd:documentation>
                </xsd:annotation>
@@ -2390,7 +2424,7 @@
             <xsd:element name="auto-delete-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
+                     DEPRECATED: whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2398,7 +2432,7 @@
             <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
+                     DEPRECATED: whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
                      a topic
                   </xsd:documentation>
                </xsd:annotation>
@@ -2407,7 +2441,42 @@
             <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to delete auto-created JMS topics when the last subscription is closed
+                     DEPRECATED: whether or not to delete auto-created JMS topics when the last subscription is closed
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create a queue when a client sends a message to or attempts to consume
+                     a message from a queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created queues when the queue has 0 consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create addresses when a client sends a message to or attempts to
+                     consume a message from a queue mapped to an address that doesn't exist
+                     a queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created addresses when it no longer has any queues
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2516,12 +2585,6 @@
 
 
    <!-- 2.0 Addressing configuration -->
-   <xsd:simpleType name="routingType">
-      <xsd:restriction base="xsd:string">
-         <xsd:enumeration value="multicast" />
-         <xsd:enumeration value="anycast" />
-      </xsd:restriction>
-   </xsd:simpleType>
 
    <xsd:complexType name="queueType">
       <xsd:all>
@@ -2535,7 +2598,19 @@
 
    <xsd:complexType name="addressType">
       <xsd:all>
-         <xsd:element name="queues" maxOccurs="1" minOccurs="0">
+         <xsd:element name="anycast" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a list of pre configured queues to create
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="queue" type="queueType" maxOccurs="unbounded" minOccurs="0" />
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
+         <xsd:element name="multicast" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   a list of pre configured queues to create
@@ -2552,31 +2627,6 @@
          <xsd:annotation>
             <xsd:documentation>
                The address name to matches incoming message addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="type" type="routingType" use="required">
-         <xsd:annotation>
-            <xsd:documentation>
-               The address name to matches incoming message addresses
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="default-max-consumers" type="xsd:int" use="optional" default="-1">
-         <xsd:annotation>
-            <xsd:documentation>
-               The default value of max-consumers applied to all queues that are
-               auto-created under this address.  Also applies to any queues that do not
-               specify a value for max-consumers.
-            </xsd:documentation>
-         </xsd:annotation>
-      </xsd:attribute>
-      <xsd:attribute name="default-delete-on-no-consumers" type="xsd:boolean" use="optional" default="false">
-         <xsd:annotation>
-            <xsd:documentation>
-               The default value of delete-on-no-consumers applied to all queues that are
-               auto-created under this address.  Also applies to any queues that do not
-               specify a value for delete-on-no-consumers.
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>

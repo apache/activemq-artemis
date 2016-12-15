@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,13 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-   <jms xmlns="urn:activemq:jms">
-      <queue name="soakQueue"/>
-   </jms>
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+   
    <core xmlns="urn:activemq:core">
       <connectors>
          <connector name="netty-connector">tcp://localhost:61616?tcpNoDelay=false;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</connector>
@@ -39,11 +34,19 @@ under the License.
 
       <server-dump-interval>30000</server-dump-interval>
 
-      <queues>
-         <queue name="soakQueue">
-            <address>soakAddress</address>
-         </queue>
-      </queues>
+      
+   <addresses>
+         <address name="soakQueue">
+            <anycast>
+               <queue name="jms.queue.soakQueue"/>
+            </anycast>
+         </address>
+         <address name="soakAddress">
+            <multicast>
+               <queue name="soakQueue"/>
+            </multicast>
+         </address>
+      </addresses>
    </core>
 
 </configuration>
