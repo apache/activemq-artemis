@@ -123,10 +123,10 @@ public class Artemis {
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
-      Method method = clazz.getMethod("execute", File.class, File.class, args.getClass());
+      Method method = clazz.getMethod("execute", Boolean.TYPE, File.class, File.class, args.getClass());
 
       try {
-         return method.invoke(null, fileHome, fileInstance, args);
+         return method.invoke(null, true, fileHome, fileInstance, args);
       } catch (InvocationTargetException e) {
          throw e.getTargetException();
       } finally {

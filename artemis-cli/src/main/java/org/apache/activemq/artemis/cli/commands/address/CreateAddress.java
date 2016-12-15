@@ -18,21 +18,12 @@
 package org.apache.activemq.artemis.cli.commands.address;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "create", description = "create an address")
-public class CreateAddress extends AbstractAction {
-
-   @Option(name = "--name", description = "The name of this address")
-   String name;
-
-   @Option(name = "--routingTypes", description = "The routing types supported by this address, options are 'anycast' or 'multicast', enter comma separated list, defaults to 'multicast' only")
-   String routingTypes = ActiveMQDefaultConfiguration.getDefaultRoutingType().name();
+public class CreateAddress extends AddressAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -45,7 +36,7 @@ public class CreateAddress extends AbstractAction {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), routingTypes);
+            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), getRoutingTypes(true));
          }
 
          @Override
@@ -60,22 +51,6 @@ public class CreateAddress extends AbstractAction {
             context.err.println("Failed to create address " + getName() + ". Reason: " + errMsg);
          }
       });
-   }
-
-   public void setName(String name) {
-      this.name = name;
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public String getRoutingTypes() {
-      return routingTypes;
-   }
-
-   public void setRoutingTypes(String routingTypes) {
-      this.routingTypes = routingTypes;
    }
 
 }
