@@ -66,8 +66,6 @@ public class XMLConfigurationMigration {
 
    private static final String xPathDurable = "durable";
 
-   private static final String jmsQueuePrefix = "jms.queue.";
-
    private final Map<String, Address> coreAddresses = new HashMap<>();
 
    private final Document document;
@@ -194,7 +192,7 @@ public class XMLConfigurationMigration {
          }
 
          Queue queue = new Queue();
-         queue.setName(jmsQueuePrefix + name);
+         queue.setName(name);
          queue.setDurable(getString(jmsQueueElement, xPathDurable));
          queue.setFilter(getString(jmsQueueElement, xPathSelector));
          queue.setRoutingType("anycast");
