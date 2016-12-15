@@ -427,6 +427,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       try {
+         closed = true;
          sessionSPI.closeSender(brokerConsumer);
          // if this is a link close rather than a connection close or detach, we need to delete
          // any durable resources for say pub subs
@@ -466,6 +467,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
    @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
+      if (closed) {
+         return;
+      }
       Object message = delivery.getContext();
 
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
@@ -544,7 +548,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
     */
    public int deliverMessage(Object message, int deliveryCount) throws Exception {
       if (closed) {
-         System.err.println("Message can't be delivered as it's closed");
          return 0;
       }
 
