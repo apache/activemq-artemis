@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,15 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
-
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-   <jms xmlns="urn:activemq:jms">
-      <!--the queue used by the example-->
-      <queue name="exampleQueue"/>
-   </jms>
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+   
    <core xmlns="urn:activemq:core">
       <bindings-directory>target/server0/data/messaging/bindings</bindings-directory>
 
@@ -49,16 +42,12 @@ under the License.
       <security-settings>
          <!--security for example queue-->
          <security-setting match="queue.vertxQueue">
-            <permission type="consume" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
          </security-setting>
       </security-settings>
 
-      <queues>
-         <queue name="queue.vertxQueue">
-            <address>queue.vertxQueue</address>
-         </queue>
-      </queues>
+      
 
       <connector-services>
          <connector-service name="my-incoming-vertx">
@@ -76,6 +65,18 @@ under the License.
             <param key="vertx-address" value="outgoing.vertx.address"/>
          </connector-service>
       </connector-services>
+   <addresses>
+         <address name="queue.vertxQueue">
+            <multicast>
+               <queue name="queue.vertxQueue"/>
+            </multicast>
+         </address>
+         <address name="exampleQueue">
+            <anycast>
+               <queue name="jms.queue.exampleQueue"/>
+            </anycast>
+         </address>
+      </addresses>
    </core>
 
 </configuration>

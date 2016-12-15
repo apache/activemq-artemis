@@ -93,7 +93,7 @@ public class JMSBridgeExample {
          targetConnection.start();
 
          // Step 10. Receive a message from the *target* queue
-         TextMessage messageReceived = (TextMessage) targetConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) targetConsumer.receive(500000);
          System.out.format("%nReceived from %s: %s%n", ((Queue) messageReceived.getJMSDestination()).getQueueName(), messageReceived.getText());
 
          // Step 11. Display the received message's ID and this "bridged" message ID
