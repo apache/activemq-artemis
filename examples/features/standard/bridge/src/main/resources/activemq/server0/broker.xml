@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -16,15 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
-
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-   <jms xmlns="urn:activemq:jms">
-      <!--the queue used by the example-->
-      <queue name="sausage-factory"/>
-   </jms>
+--><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+   
 
    <core xmlns="urn:activemq:core">
 
@@ -49,11 +42,7 @@ under the License.
 
       <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
       before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
-      <queues>
-         <queue name="sausage-factory">
-            <address>sausage-factory</address>
-         </queue>
-      </queues>
+      
 
       <!-- We set-up a bridge that forwards from a queue on this node to an address on another node.
       We specify a filter with the bridge, and a transformer too. The filter and transformer are optional -->
@@ -75,14 +64,21 @@ under the License.
       <security-settings>
          <!--security for example queue-->
          <security-setting match="#">
-            <permission type="createDurableQueue" roles="guest"/>
-            <permission type="deleteDurableQueue" roles="guest"/>
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission roles="guest" type="createDurableQueue"/>
+            <permission roles="guest" type="deleteDurableQueue"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
          </security-setting>
       </security-settings>
+   <addresses>
+         <address name="sausage-factory">
+            <anycast>
+               <queue name="sausage-factory"/>
+            </anycast>
+         </address>
+      </addresses>
    </core>
 
 </configuration>
