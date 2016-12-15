@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -51,7 +52,7 @@ public class DivertImpl implements Divert {
 
    private final StorageManager storageManager;
 
-   private final RoutingType routingType;
+   private final DivertConfigurationRoutingType routingType;
 
    public DivertImpl(final SimpleString forwardAddress,
                      final SimpleString uniqueName,
@@ -61,7 +62,7 @@ public class DivertImpl implements Divert {
                      final Transformer transformer,
                      final PostOffice postOffice,
                      final StorageManager storageManager,
-                     final RoutingType routingType) {
+                     final DivertConfigurationRoutingType routingType) {
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;
