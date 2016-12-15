@@ -65,11 +65,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
@@ -240,15 +240,15 @@ public class QueueImpl implements Queue {
 
    private SlowConsumerReaperRunnable slowConsumerReaperRunnable;
 
-   private int maxConsumers;
+   private volatile int maxConsumers;
 
-   private boolean deleteOnNoConsumers;
+   private volatile boolean deleteOnNoConsumers;
 
    private final AddressInfo addressInfo;
 
    private final AtomicInteger noConsumers = new AtomicInteger(0);
 
-   private RoutingType routingType;
+   private volatile RoutingType routingType;
 
    /**
     * This is to avoid multi-thread races on calculating direct delivery,
@@ -483,8 +483,18 @@ public class QueueImpl implements Queue {
    }
 
    @Override
+   public synchronized void setDeleteOnNoConsumers(boolean value) {
+      this.deleteOnNoConsumers = value;
+   }
+
+   @Override
    public int getMaxConsumers() {
       return maxConsumers;
+   }
+
+   @Override
+   public synchronized void setMaxConsumer(int maxConsumers) {
+      this.maxConsumers = maxConsumers;
    }
 
    @Override

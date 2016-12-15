@@ -435,16 +435,12 @@ public interface ActiveMQServerControl {
    // Operations ----------------------------------------------------
 
    @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
-   void createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+   String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
                       @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
-   @Operation(desc = "add the provided routing type to an address", impact = MBeanOperationInfo.ACTION)
-   void addRoutingType(@Parameter(name = "name", desc = "The name of the address") String name,
-                       @Parameter(name = "routingType", desc = "The routing types to be added to this address, options are 'anycast' or 'multicast'") String routingType) throws Exception;
-
-   @Operation(desc = "remove the provided routing type to an address", impact = MBeanOperationInfo.ACTION)
-   void removeRoutingType(@Parameter(name = "name", desc = "The name of the address") String name,
-                          @Parameter(name = "routingType", desc = "The routing types to be added to this address, options are 'anycast' or 'multicast'") String routingType) throws Exception;
+   @Operation(desc = "update an address", impact = MBeanOperationInfo.ACTION)
+   String updateAddress(@Parameter(name = "name", desc = "The name of the address") String name,
+                      @Parameter(name = "routingTypes", desc = "Comma separated list of Routing Types (anycast/multicast)") String routingTypes) throws Exception;
 
    @Operation(desc = "delete an address", impact = MBeanOperationInfo.ACTION)
    void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception;
@@ -571,9 +567,10 @@ public interface ActiveMQServerControl {
     * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
     * @param deleteOnNoConsumers delete this queue when the last consumer disconnects
     * @param autoCreateAddress   create an address with default values should a matching address not be found
+    * @return a textual summary of the queue
     * @throws Exception
     */
-   void createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
+   String createQueue(@Parameter(name = "address", desc = "Address of the queue") String address,
                     @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                     @Parameter(name = "name", desc = "Name of the queue") String name,
                     @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
@@ -581,6 +578,22 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
                     @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
                     @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
+
+   /**
+    * Update a queue.
+    *
+    * @param name                name of the queue
+    * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
+    * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
+    * @param deleteOnNoConsumers delete this queue when the last consumer disconnects
+    * @return a textual summary of the queue
+    * @throws Exception
+    */
+   String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                      @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                      @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                      @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean deleteOnNoConsumers) throws Exception;
+
 
 
    /**

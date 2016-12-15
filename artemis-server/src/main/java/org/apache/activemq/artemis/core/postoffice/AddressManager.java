@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.postoffice;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.RoutingType;
@@ -64,14 +64,14 @@ public interface AddressManager {
     */
    boolean addAddressInfo(AddressInfo addressInfo);
 
-   AddressInfo updateAddressInfoIfPresent(SimpleString addressName,
-                                          BiFunction<? super SimpleString, ? super AddressInfo, ? extends AddressInfo> remappingFunction);
+   AddressInfo updateAddressInfo(SimpleString addressName,
+                                 Collection<RoutingType> routingTypes) throws Exception;
 
    /**
     * @param addressInfo
-    * @return true if the address was added, false if it was updated
+    * @return the same provided {@code addressInfo} if the address was added, another if it was updated
     */
-   boolean addOrUpdateAddressInfo(AddressInfo addressInfo);
+   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
 
    AddressInfo removeAddressInfo(SimpleString address);
 

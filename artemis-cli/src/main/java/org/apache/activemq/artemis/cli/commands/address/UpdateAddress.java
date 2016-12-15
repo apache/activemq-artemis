@@ -24,32 +24,33 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "removeRoutingType", description = "remove the provided routing types from an address")
-public class RemoveRoutingType extends AbstractAction {
+@Command(name = "update", description = "update an address")
+public class UpdateAddress extends AbstractAction {
 
-   @Option(name = "--name", description = "The name of the address", required = true)
+   @Option(name = "--name", description = "The name of this address", required = true)
    String name;
 
-   @Option(name = "--routingType", description = "The routing types to be removed from this address, options are 'anycast' or 'multicast'", required = true)
-   String routingType;
+   @Option(name = "--routingTypes", description = "The routing types supported by this address, options are 'anycast' or 'multicast', enter comma separated list")
+   String routingTypes = null;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      removeRoutingType(context);
+      updateAddress(context);
       return null;
    }
 
-   private void removeRoutingType(final ActionContext context) throws Exception {
+   private void updateAddress(final ActionContext context) throws Exception {
       performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "removeRoutingType", name, routingType);
+            ManagementHelper.putOperationInvocation(message, "broker", "updateAddress", name, routingTypes);
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Address " + name + " updated successfully.");
+            final String result = ManagementHelper.getResult(reply, String.class) + " updated successfully.";
+            context.out.println(result);
          }
 
          @Override
@@ -68,11 +69,11 @@ public class RemoveRoutingType extends AbstractAction {
       this.name = name;
    }
 
-   public String getRoutingType() {
-      return routingType;
+   public String getRoutingTypes() {
+      return routingTypes;
    }
 
-   public void setRoutingType(String routingType) {
-      this.routingType = routingType;
+   public void setRoutingTypes(String routingTypes) {
+      this.routingTypes = routingTypes;
    }
 }

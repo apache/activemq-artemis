@@ -60,13 +60,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       return new ActiveMQServerControl() {
 
          @Override
-         public void addRoutingType(String name, String routingType) throws Exception {
-            proxy.invokeOperation("addRoutingType", name, routingType);
-         }
-
-         @Override
-         public void removeRoutingType(String name, String routingType) throws Exception {
-            proxy.invokeOperation("removeRoutingType", name, routingType);
+         public String updateAddress(String name, String routingTypes) throws Exception {
+            return (String) proxy.invokeOperation("updateAddress", name, routingTypes);
          }
 
          @Override
@@ -112,17 +107,24 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createQueue(String address,
-                                 String routingType,
-                                 String name,
-                                 String filterStr,
-                                 boolean durable,
-                                 int maxConsumers,
-                                 boolean deleteOnNoConsumers,
-                                 boolean autoCreateAddress) throws Exception {
-            proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         public String createQueue(String address,
+                                   String routingType,
+                                   String name,
+                                   String filterStr,
+                                   boolean durable,
+                                   int maxConsumers,
+                                   boolean deleteOnNoConsumers,
+                                   boolean autoCreateAddress) throws Exception {
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
          }
 
+         @Override
+         public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
+                                   @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
+                                   @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
+                                   @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean deleteOnNoConsumers) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, deleteOnNoConsumers);
+         }
 
          @Override
          public void deleteAddress(@Parameter(name = "name", desc = "The name of the address") String name) throws Exception {
@@ -591,8 +593,8 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createAddress(String name, String routingTypes) throws Exception {
-            proxy.invokeOperation("createAddress", name, routingTypes);
+         public String createAddress(String name, String routingTypes) throws Exception {
+            return (String) proxy.invokeOperation("createAddress", name, routingTypes);
          }
 
          @Override

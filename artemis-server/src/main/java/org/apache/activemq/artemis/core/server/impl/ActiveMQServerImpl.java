@@ -27,6 +27,7 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -2403,15 +2403,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void addRoutingType(String address, RoutingType routingType) throws ActiveMQAddressDoesNotExistException {
+   public AddressInfo updateAddressInfo(String address, Collection<RoutingType> routingTypes) throws Exception {
       final SimpleString addressName = new SimpleString(address);
-      postOffice.addRoutingType(addressName,routingType);
-   }
-
-   @Override
-   public void removeRoutingType(String address, RoutingType routingType) throws Exception {
-      final SimpleString addressName = new SimpleString(address);
-      postOffice.removeRoutingType(addressName,routingType);
+      //after the postOffice call, updatedAddressInfo could change further (concurrently)!
+      final AddressInfo updatedAddressInfo = postOffice.updateAddressInfo(addressName, routingTypes);
+      if (updatedAddressInfo != null) {
+         //it change the address info without any lock!
+         final long txID = storageManager.generateID();
+         try {
+            storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
+            storageManager.addAddressBinding(txID, updatedAddressInfo);
+         } finally {
+            storageManager.commitBindings(txID);
+         }
+      }
+      return updatedAddressInfo;
    }
 
    @Override
@@ -2430,21 +2436,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public boolean createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
-      boolean result = postOffice.addOrUpdateAddressInfo(addressInfo);
+   public AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
+      final AddressInfo updatedAddressInfo = postOffice.addOrUpdateAddressInfo(addressInfo);
+      final boolean isNew = updatedAddressInfo == addressInfo;
 
-      long txID = storageManager.generateID();
-      if (result) {
+      final long txID = storageManager.generateID();
+      if (isNew) {
          storageManager.addAddressBinding(txID, addressInfo);
          storageManager.commitBindings(txID);
       } else {
-         AddressInfo updatedAddressInfo = getAddressInfo(addressInfo.getName());
          storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
          storageManager.addAddressBinding(txID, updatedAddressInfo);
          storageManager.commitBindings(txID);
       }
 
-      return result;
+      return updatedAddressInfo;
    }
 
    @Override
@@ -2510,12 +2516,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressName);
       }
 
-      AddressInfo defaultAddressInfo = new AddressInfo(addressName);
-      defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
       if (autoCreateAddress) {
          if (info == null || !info.getRoutingTypes().contains(routingType)) {
+            final AddressInfo defaultAddressInfo = new AddressInfo(addressName);
+            defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
             createOrUpdateAddressInfo(defaultAddressInfo.setAutoCreated(true));
          }
       } else if (info == null) {
@@ -2569,6 +2575,31 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       callPostQueueCreationCallbacks(queue.getName());
 
       return queue;
+   }
+
+   @Override
+   public Queue updateQueue(String name,
+                            RoutingType routingType,
+                            Integer maxConsumers,
+                            Boolean deleteOnNoConsumers) throws Exception {
+      final QueueBinding queueBinding = this.postOffice.updateQueue(new SimpleString(name), routingType, maxConsumers, deleteOnNoConsumers);
+      if (queueBinding != null) {
+         final Queue queue = queueBinding.getQueue();
+         if (queue.isDurable()) {
+            final long txID = storageManager.generateID();
+            try {
+               storageManager.deleteQueueBinding(txID, queueBinding.getID());
+               storageManager.addQueueBinding(txID, queueBinding);
+               storageManager.commitBindings(txID);
+            } catch (Throwable throwable) {
+               storageManager.rollbackBindings(txID);
+               throw throwable;
+            }
+         }
+         return queue;
+      } else {
+         return null;
+      }
    }
 
    private void deployDiverts() throws Exception {

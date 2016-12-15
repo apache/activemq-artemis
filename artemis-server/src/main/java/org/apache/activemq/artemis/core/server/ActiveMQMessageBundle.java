@@ -414,6 +414,17 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119208, value = "Invalid routing type {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidRoutingType(String val);
 
-   @Message(id = 119209, value = "Can't remove MULTICAST routing type, queues exists. Please delete queues before removing this routing type.")
-   IllegalStateException invalidMulticastRoutingTypeDelete();
+   @Message(id = 119209, value = "Can''t remove routing type {0}, queues exists for address: {1}. Please delete queues before removing this routing type.", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException invalidRoutingTypeDelete(RoutingType routingType, String address);
+
+   @Message(id = 119210, value = "Can''t update queue {0} with maxConsumers: {1}. Current consumers are {2}.", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException invalidMaxConsumersUpdate(String queueName, int maxConsumers, int consumers);
+
+   @Message(id = 119211, value = "Can''t update queue {0} with routing type: {1}, Supported routing types for address: {2} are {3}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException invalidRoutingTypeUpdate(String queueName,
+                                                  RoutingType routingType,
+                                                  String address,
+                                                  Set<RoutingType> supportedRoutingTypes);
+
+
 }
