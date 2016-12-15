@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
-import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
-import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
-import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
-
+import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +26,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -48,7 +47,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.JMSException;
+import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
+import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
+import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
+import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
@@ -175,6 +177,65 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testAnycastMessageRoutingExclusivity() throws Exception {
+      final String addressA = "addressA";
+      final String queueA = "queueA";
+      final String queueB = "queueB";
+      final String queueC = "queueC";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
+
+      sendMessages("anycast://" + addressA, 1);
+
+      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+   }
+
+   @Test
+   public void testMulticastMessageRoutingExclusivity() throws Exception {
+      final String addressA = "addressA";
+      final String queueA = "queueA";
+      final String queueB = "queueB";
+      final String queueC = "queueC";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueB, RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
+
+      sendMessages("multicast://" + addressA, 1);
+
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
+      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+   }
+
+   @Test
+   public void testAmbiguousMessageRouting() throws Exception {
+      final String addressA = "addressA";
+      final String queueA = "queueA";
+      final String queueB = "queueB";
+      final String queueC = "queueC";
+      final String queueD = "queueD";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueD, RoutingType.MULTICAST.toString());
+
+      sendMessages(addressA, 1);
+
+      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueD)).getMessageCount());
    }
 
    @Test(timeout = 60000)

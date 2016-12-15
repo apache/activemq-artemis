@@ -251,9 +251,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
             //if the client defines 1 routing type and the broker another then throw an exception
             if (multicast && !routingTypes.contains(RoutingType.MULTICAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address is not configured for topic support");
+               throw new ActiveMQAMQPIllegalStateException("Address " + addressInfo.getName() + " is not configured for topic support");
             } else if (!multicast && !routingTypes.contains(RoutingType.ANYCAST)) {
-               throw new ActiveMQAMQPIllegalStateException("Address is not configured for queue support");
+               throw new ActiveMQAMQPIllegalStateException("Address " + addressInfo.getName() + " is not configured for queue support");
             }
          } else {
             //if not we look up the address

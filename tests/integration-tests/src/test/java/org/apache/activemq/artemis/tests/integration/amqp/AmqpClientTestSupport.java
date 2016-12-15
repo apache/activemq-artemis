@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.net.URI;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -105,6 +107,13 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
       serverConfig.addAddressConfiguration(address);
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
+      Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
+      for (TransportConfiguration tc : acceptors) {
+         if (tc.getName().equals("netty")) {
+            tc.getExtraParams().put("anycastPrefix", "anycast://");
+            tc.getExtraParams().put("multicastPrefix", "multicast://");
+         }
+      }
       serverManager.start();
       server.start();
       return server;

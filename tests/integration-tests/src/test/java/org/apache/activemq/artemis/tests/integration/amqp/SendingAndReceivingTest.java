@@ -24,11 +24,10 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Random;
+import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.RoutingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
@@ -45,7 +44,13 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
-      server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString("exampleQueue"), RoutingType.ANYCAST));
+      Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
+      for (TransportConfiguration tc : acceptors) {
+         if (tc.getName().equals("netty")) {
+            tc.getExtraParams().put("anycastPrefix", "anycast://");
+            tc.getExtraParams().put("multicastPrefix", "multicast://");
+         }
+      }
       server.start();
    }
 
@@ -68,7 +73,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
       try {
          connection = connectionFactory.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Queue queue = session.createQueue("exampleQueue");
+         Queue queue = session.createQueue("anycast://exampleQueue");
          MessageProducer sender = session.createProducer(queue);
 
          String body = createMessage(10240);
