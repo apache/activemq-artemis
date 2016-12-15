@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.text.MessageFormat;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -25,7 +28,9 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -222,6 +227,107 @@ public class QueueCommandTest extends JMSTestBase {
 
       checkExecutionPassed(command);
       assertNull(server.getAddressInfo(queueName));
+   }
+
+   @Test
+   public void testUpdateCoreQueue() throws Exception {
+      final String queueName = "updateQueue";
+      final SimpleString queueNameString = new SimpleString(queueName);
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final int oldMaxConsumers = -1;
+      final RoutingType oldRoutingType = RoutingType.MULTICAST;
+      final boolean oldDeleteOnNoConsumers = false;
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
+      server.createAddressInfo(addressInfo);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+
+      final int newMaxConsumers = 1;
+      final RoutingType newRoutingType = RoutingType.ANYCAST;
+      final boolean newDeleteOnNoConsumers = true;
+      final UpdateQueue updateQueue = new UpdateQueue();
+      updateQueue.setName(queueName);
+      updateQueue.setDeleteOnNoConsumers(newDeleteOnNoConsumers);
+      updateQueue.setRoutingType(newRoutingType.name());
+      updateQueue.setMaxConsumers(newMaxConsumers);
+      updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+
+      checkExecutionPassed(updateQueue);
+
+      final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
+      assertEquals("maxConsumers", newMaxConsumers, queueQueryResult.getMaxConsumers());
+      assertEquals("routingType", newRoutingType, queueQueryResult.getRoutingType());
+      assertTrue("deleteOnNoConsumers", newDeleteOnNoConsumers == queueQueryResult.isDeleteOnNoConsumers());
+   }
+
+   @Test
+   public void testUpdateCoreQueueCannotChangeRoutingType() throws Exception {
+      final String queueName = "updateQueue";
+      final SimpleString queueNameString = new SimpleString(queueName);
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final int oldMaxConsumers = 10;
+      final RoutingType oldRoutingType = RoutingType.MULTICAST;
+      final boolean oldDeleteOnNoConsumers = false;
+      final Set<RoutingType> supportedRoutingTypes = EnumSet.of(oldRoutingType);
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
+      server.createAddressInfo(addressInfo);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+
+      final RoutingType newRoutingType = RoutingType.ANYCAST;
+      final UpdateQueue updateQueue = new UpdateQueue();
+      updateQueue.setName(queueName);
+      updateQueue.setRoutingType(newRoutingType.name());
+      updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+
+      final String expectedErrorMessage = MessageFormat.format("Can''t update queue {0} with routing type: {1}, Supported routing types for address: {2} are {3}", queueName, newRoutingType, addressName, supportedRoutingTypes);
+      checkExecutionFailure(updateQueue, expectedErrorMessage);
+
+      final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
+      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
+      assertEquals("routingType", oldRoutingType, queueQueryResult.getRoutingType());
+      assertTrue("deleteOnNoConsumers", oldDeleteOnNoConsumers == queueQueryResult.isDeleteOnNoConsumers());
+   }
+
+   @Test
+   public void testUpdateCoreQueueCannotLowerMaxConsumers() throws Exception {
+      final String queueName = "updateQueue";
+      final SimpleString queueNameString = new SimpleString(queueName);
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final int oldMaxConsumers = 2;
+      final RoutingType oldRoutingType = RoutingType.MULTICAST;
+      final boolean oldDeleteOnNoConsumers = false;
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, oldRoutingType);
+      server.createAddressInfo(addressInfo);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+
+      server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
+      server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
+
+      final int newMaxConsumers = 1;
+      final UpdateQueue updateQueue = new UpdateQueue();
+      updateQueue.setName(queueName);
+      updateQueue.setMaxConsumers(newMaxConsumers);
+      updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+
+      final String expectedErrorMessage = MessageFormat.format("Can''t update queue {0} with maxConsumers: {1}. Current consumers are {2}.", queueName, newMaxConsumers, 2);
+      checkExecutionFailure(updateQueue, expectedErrorMessage);
+
+      final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
+      assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
+   }
+
+   @Test
+   public void testUpdateCoreQueueDoesNotExist() throws Exception {
+      SimpleString queueName = new SimpleString("updateQueue");
+
+      UpdateQueue updateQueue = new UpdateQueue();
+      updateQueue.setName(queueName.toString());
+      updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionFailure(updateQueue, "AMQ119017: Queue " + queueName + " does not exist");
+
+      assertFalse(server.queueQuery(queueName).isExists());
    }
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {

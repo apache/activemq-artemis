@@ -17,13 +17,13 @@
 package org.apache.activemq.artemis.core.server;
 
 import javax.management.MBeanServer;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -422,6 +422,11 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean deleteOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
+   Queue updateQueue(String name,
+                     RoutingType routingType,
+                     Integer maxConsumers,
+                     Boolean deleteOnNoConsumers) throws Exception;
+
    /*
             * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
             * replace any factories with the same protocol
@@ -455,28 +460,11 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void removeClientConnection(String clientId);
 
-   /**
-    * Add the {@code routingType} from the specified {@code address}.
-    *
-    * @param address     the address name
-    * @param routingType the routing type to be added
-    * @throws ActiveMQAddressDoesNotExistException
-    */
-   void addRoutingType(String address, RoutingType routingType) throws ActiveMQAddressDoesNotExistException;
-
-   /**
-    * Remove the {@code routingType} from the specified {@code address}.
-    *
-    * @param address     the address name
-    * @param routingType the routing type to be removed
-    * @throws ActiveMQAddressDoesNotExistException
-    * @throws IllegalStateException                when a binding already exists and is requested to remove {@link org.apache.activemq.artemis.core.server.RoutingType#MULTICAST}.
-    */
-   void removeRoutingType(String address, RoutingType routingType) throws Exception;
+   AddressInfo updateAddressInfo(String name, Collection<RoutingType> routingTypes) throws Exception;
 
    boolean createAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   boolean createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
+   AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
    void removeAddressInfo(SimpleString address, SecurityAuth session) throws Exception;
 

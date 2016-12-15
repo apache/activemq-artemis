@@ -41,10 +41,10 @@ import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.server.Consumer;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -836,6 +836,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    }
 
    public class FakeQueueForScheduleUnitTest implements Queue {
+
+      @Override
+      public void setDeleteOnNoConsumers(boolean value) {
+
+      }
+
+      @Override
+      public void setMaxConsumer(int maxConsumers) {
+
+      }
 
       @Override
       public void unproposed(SimpleString groupID) {
