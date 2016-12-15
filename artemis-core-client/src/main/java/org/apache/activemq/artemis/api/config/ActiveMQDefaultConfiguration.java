@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.config;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.RoutingType;
 
 /**
@@ -361,7 +362,7 @@ public final class ActiveMQDefaultConfiguration {
    private static boolean DEFAULT_DIVERT_EXCLUSIVE = false;
 
    // how the divert should handle the message's routing type
-   private static String DEFAULT_DIVERT_ROUTING_TYPE = RoutingType.STRIP.toString();
+   private static String DEFAULT_DIVERT_ROUTING_TYPE = DivertConfigurationRoutingType.STRIP.toString();
 
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;

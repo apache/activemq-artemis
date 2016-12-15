@@ -1561,9 +1561,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean temporary,
                             final boolean autoCreated) throws Exception {
       AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(address, routingType, queueName, filterString, user, durable, temporary,
+      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, autoCreated,
                          as.getDefaultMaxConsumers(),
-                         as.isDefaultDeleteOnNoConsumers(), autoCreated);
+                         as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
    }
 
    @Override
@@ -1725,7 +1725,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final SecurityAuth session,
                             final boolean checkConsumerCount,
                             final boolean removeConsumers) throws Exception {
-      destroyQueue(queueName, session, checkConsumerCount, removeConsumers, true);
+      if (postOffice == null) {
+         return;
+      }
+
+      Binding binding = postOffice.getBinding(queueName);
+
+      if (binding == null) {
+         throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
+      }
+
+      String address = binding.getAddress().toString();
+
+      destroyQueue(queueName, session, checkConsumerCount, removeConsumers, addressSettingsRepository.getMatch(address).isAutoDeleteAddresses());
    }
 
    @Override

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -180,10 +181,10 @@ public final class Validators {
       @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
-         if (val == null || !val.equals(RoutingType.ANYCAST.toString()) &&
-            !val.equals(RoutingType.MULTICAST.toString()) &&
-            !val.equals(RoutingType.PASS.toString()) &&
-            !val.equals(RoutingType.STRIP.toString())) {
+         if (val == null || !val.equals(DivertConfigurationRoutingType.ANYCAST.toString()) &&
+            !val.equals(DivertConfigurationRoutingType.MULTICAST.toString()) &&
+            !val.equals(DivertConfigurationRoutingType.PASS.toString()) &&
+            !val.equals(DivertConfigurationRoutingType.STRIP.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidRoutingType(val);
          }
       }
