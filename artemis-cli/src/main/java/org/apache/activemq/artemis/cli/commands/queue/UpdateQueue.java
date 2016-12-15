@@ -18,26 +18,12 @@
 package org.apache.activemq.artemis.cli.commands.queue;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "update", description = "update a core queue")
-public class UpdateQueue extends AbstractAction {
-
-   @Option(name = "--name", description = "name", required = true)
-   String name;
-
-   @Option(name = "--deleteOnNoConsumers", description = "whether to delete when it's last consumers disconnects)")
-   Boolean deleteOnNoConsumers = null;
-
-   @Option(name = "--maxConsumers", description = "Maximum number of consumers allowed at any one time")
-   Integer maxConsumers = null;
-
-   @Option(name = "--routingType", description = "The routing type supported by this queue, options are 'anycast' or 'multicast'")
-   String routingType = null;
+public class UpdateQueue extends QueueAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -50,7 +36,7 @@ public class UpdateQueue extends AbstractAction {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", name, routingType, maxConsumers, deleteOnNoConsumers);
+            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", getName(), getRoutingType(), getMaxConsumers(), isDeleteOnNoConsumers());
          }
 
          @Override
@@ -62,41 +48,9 @@ public class UpdateQueue extends AbstractAction {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to update " + name + ". Reason: " + errMsg);
+            context.err.println("Failed to update " + getName() + ". Reason: " + errMsg);
          }
       });
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public void setName(String name) {
-      this.name = name;
-   }
-
-   public Boolean getDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
-   }
-
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
-   }
-
-   public Integer getMaxConsumers() {
-      return maxConsumers;
-   }
-
-   public void setMaxConsumers(int maxConsumers) {
-      this.maxConsumers = maxConsumers;
-   }
-
-   public String getRoutingType() {
-      return routingType;
-   }
-
-   public void setRoutingType(String routingType) {
-      this.routingType = routingType;
    }
 }
 

@@ -18,17 +18,12 @@
 package org.apache.activemq.artemis.cli.commands.address;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "delete", description = "delete an address")
-public class DeleteAddress extends AbstractAction {
-
-   @Option(name = "--name", description = "The name of this address")
-   String name;
+public class DeleteAddress extends AddressAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -55,13 +50,5 @@ public class DeleteAddress extends AbstractAction {
             context.err.println("Failed to delete address " + getName() + ". Reason: " + errMsg);
          }
       });
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public void setName(String name) {
-      this.name = name;
    }
 }

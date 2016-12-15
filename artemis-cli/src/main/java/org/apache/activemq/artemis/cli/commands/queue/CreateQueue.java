@@ -18,38 +18,12 @@
 package org.apache.activemq.artemis.cli.commands.queue;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 @Command(name = "create", description = "create a queue or topic")
-public class CreateQueue extends AbstractAction {
-
-   @Option(name = "--name", description = "queue name")
-   String name;
-
-   @Option(name = "--filter", description = "queue's filter string (default null)")
-   String filter = null;
-
-   @Option(name = "--address", description = "address of the queue (default queue's name)")
-   String address;
-
-   @Option(name = "--durable", description = "whether the queue is durable or not (default false)")
-   boolean durable = false;
-
-   @Option(name = "--deleteOnNoConsumers", description = "whether to delete this queue when it's last consumers disconnects)")
-   boolean deleteOnNoConsumers = false;
-
-   @Option(name = "--maxConsumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
-   int maxConsumers = -1;
-
-   @Option(name = "--autoCreateAddress", description = "Auto create the address (if it doesn't exist) with default values")
-   boolean autoCreateAddress = false;
-
-   @Option(name = "--routingType", description = "The routing type supported by this queue, options are 'anycast' or 'multicast'", required = true)
-   String routingType;
+public class CreateQueue extends QueueAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -58,19 +32,12 @@ public class CreateQueue extends AbstractAction {
       return null;
    }
 
-   public String getAddress() {
-      if (address == null || "".equals(address.trim())) {
-         address = getName();
-      }
-      return address.trim();
-   }
-
    private void createQueue(final ActionContext context) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             String address = getAddress();
-            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, routingType, getName(), filter, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, getRoutingType(), getName(), getFilter(), isDurable(), getMaxConsumers(), treatNoConsumers(true), isAutoCreateAddress());
          }
 
          @Override
@@ -85,45 +52,5 @@ public class CreateQueue extends AbstractAction {
             context.err.println("Failed to create queue " + getName() + ". Reason: " + errMsg);
          }
       });
-   }
-
-   public void setFilter(String filter) {
-      this.filter = filter;
-   }
-
-   public void setAutoCreateAddress(boolean autoCreateAddress) {
-      this.autoCreateAddress = autoCreateAddress;
-   }
-
-   public void setMaxConsumers(int maxConsumers) {
-      this.maxConsumers = maxConsumers;
-   }
-
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
-   }
-
-   public void setAddress(String address) {
-      this.address = address;
-   }
-
-   public void setName(String name) {
-      this.name = name;
-   }
-
-   public String getName() {
-      if (name == null) {
-         name = input("--name", "Please provide the destination name:", "");
-      }
-
-      return name;
-   }
-
-   public void setRoutingType(String routingType) {
-      this.routingType = routingType;
-   }
-
-   public String getRoutingType() {
-      return routingType;
    }
 }
