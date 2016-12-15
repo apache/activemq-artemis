@@ -31,7 +31,10 @@ public class UpdateQueue extends AbstractAction {
    String name;
 
    @Option(name = "--deleteOnNoConsumers", description = "whether to delete when it's last consumers disconnects)")
-   Boolean deleteOnNoConsumers = null;
+   boolean deleteOnNoConsumers = false;
+
+   @Option(name = "--no-deleteOnNoConsumers", description = "whether to not delete when it's last consumers disconnects)")
+   boolean noDeleteOnNoConsumers = false;
 
    @Option(name = "--maxConsumers", description = "Maximum number of consumers allowed at any one time")
    Integer maxConsumers = null;
@@ -50,7 +53,8 @@ public class UpdateQueue extends AbstractAction {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", name, routingType, maxConsumers, deleteOnNoConsumers);
+            final Boolean deleteOnNoConsumersValue = getDeleteOnNoConsumers();
+            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", name, routingType, maxConsumers, deleteOnNoConsumersValue);
          }
 
          @Override
@@ -76,11 +80,26 @@ public class UpdateQueue extends AbstractAction {
    }
 
    public Boolean getDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+      if (deleteOnNoConsumers && noDeleteOnNoConsumers) {
+         throw new IllegalStateException("please do not set both --no-deleteOnNoConsumers and --deleteOnNoConsumers");
+      }
+      if (!deleteOnNoConsumers && !noDeleteOnNoConsumers) {
+         return null;
+      }
+      if (deleteOnNoConsumers) {
+         return true;
+      }
+      return false;
    }
 
    public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      if (deleteOnNoConsumers) {
+         this.deleteOnNoConsumers = true;
+         this.noDeleteOnNoConsumers = false;
+      } else {
+         this.deleteOnNoConsumers = false;
+         this.noDeleteOnNoConsumers = true;
+      }
    }
 
    public Integer getMaxConsumers() {
