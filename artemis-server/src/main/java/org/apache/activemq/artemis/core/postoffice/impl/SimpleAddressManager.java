@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.BiFunction;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Address;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -220,26 +222,48 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public AddressInfo updateAddressInfoIfPresent(SimpleString addressName,
-                                        BiFunction<? super SimpleString, ? super AddressInfo, ? extends AddressInfo> remappingFunction) {
-      return addressInfoMap.computeIfPresent(addressName, remappingFunction);
+   public AddressInfo updateAddressInfo(SimpleString addressName,
+                                        Collection<RoutingType> routingTypes) throws Exception {
+      if (routingTypes == null) {
+         return this.addressInfoMap.get(addressName);
+      } else {
+         return this.addressInfoMap.computeIfPresent(addressName, (name, oldAddressInfo) -> {
+            validateRoutingTypes(name, routingTypes);
+            final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
+            oldAddressInfo.setRoutingTypes(updatedRoutingTypes);
+            return oldAddressInfo;
+         });
+      }
    }
 
-   @Override
-   public boolean addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      boolean isNew = addAddressInfo(addressInfo);
-
-      // address already exists so update it
-      if (!isNew) {
-         AddressInfo toUpdate = getAddressInfo(addressInfo.getName());
-         synchronized (toUpdate) {
-            for (RoutingType routingType : addressInfo.getRoutingTypes()) {
-               toUpdate.addRoutingType(routingType);
+   private void validateRoutingTypes(SimpleString addressName, Collection<RoutingType> routingTypes) {
+      final Bindings bindings = this.mappings.get(addressName);
+      if (bindings != null) {
+         for (Binding binding : bindings.getBindings()) {
+            if (binding instanceof QueueBinding) {
+               final QueueBinding queueBinding = (QueueBinding) binding;
+               final RoutingType routingType = queueBinding.getQueue().getRoutingType();
+               if (!routingTypes.contains(routingType)) {
+                  throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeDelete(routingType, addressName.toString());
+               }
             }
          }
       }
+   }
 
-      return isNew;
+   @Override
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
+      return this.addressInfoMap.compute(addressInfo.getName(), (name, oldAddressInfo) -> {
+         if (oldAddressInfo != null) {
+            final Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+            validateRoutingTypes(name, routingTypes);
+            final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
+            oldAddressInfo.setRoutingTypes(updatedRoutingTypes);
+            return oldAddressInfo;
+         } else {
+            return addressInfo;
+         }
+      });
    }
 
    @Override

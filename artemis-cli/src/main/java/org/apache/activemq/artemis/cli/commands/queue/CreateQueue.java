@@ -75,7 +75,8 @@ public class CreateQueue extends AbstractAction {
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Core queue " + getName() + " created successfully.");
+            final String result = ManagementHelper.getResult(reply, String.class) + " created successfully.";
+            context.out.println(result);
          }
 
          @Override
