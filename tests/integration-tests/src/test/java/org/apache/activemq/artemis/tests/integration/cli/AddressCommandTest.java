@@ -54,7 +54,8 @@ public class AddressCommandTest extends JMSTestBase {
       String address = "address";
       CreateAddress command = new CreateAddress();
       command.setName(address);
-      command.setRoutingTypes(RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      command.setAnycast(true);
+      command.setMulticast(true);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
       AddressInfo addressInfo = server.getAddressInfo(new SimpleString(address));
@@ -167,7 +168,8 @@ public class AddressCommandTest extends JMSTestBase {
 
       final UpdateAddress updateAddress = new UpdateAddress();
       updateAddress.setName(addressName);
-      updateAddress.setRoutingTypes(RoutingType.MULTICAST.toString() + ',' + RoutingType.ANYCAST.toString());
+      updateAddress.setAnycast(true);
+      updateAddress.setMulticast(true);
       updateAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(updateAddress);
 
@@ -195,7 +197,8 @@ public class AddressCommandTest extends JMSTestBase {
 
       final UpdateAddress updateAddress = new UpdateAddress();
       updateAddress.setName(addressName);
-      updateAddress.setRoutingTypes(RoutingType.ANYCAST.toString());
+      updateAddress.setAnycast(true);
+      updateAddress.setMulticast(false);
       updateAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       final String expectedErrorMessage = MessageFormat.format("Can''t remove routing type {0}, queues exists for address: {1}. Please delete queues before removing this routing type.", RoutingType.MULTICAST, addressName);
