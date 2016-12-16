@@ -42,8 +42,8 @@ public abstract class AddressAbstract extends AbstractAction {
       this.name = name;
    }
 
-   public String getName() {
-      if (name == null) {
+   public String getName(boolean requireInput) {
+      if (name == null && requireInput) {
          name = input("--name", "Provide the name of the address", null);
       }
       return name;

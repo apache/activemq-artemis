@@ -1064,5 +1064,8 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Get a list of bindings associated with an address", impact = MBeanOperationInfo.INFO)
    String listBindingsForAddress(String address) throws Exception;
+
+   @Operation(desc = "List Addresses on the broker", impact = MBeanOperationInfo.INFO)
+   String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception;
 }
 
