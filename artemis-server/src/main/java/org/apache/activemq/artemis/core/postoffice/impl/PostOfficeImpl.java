@@ -589,11 +589,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new ActiveMQNonExistentQueueException();
       }
 
-      // TODO: see whether we still want to do this or not
       if (deleteData && addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null) {
          pagingManager.deletePageStore(binding.getAddress());
-
-         managementService.unregisterAddress(binding.getAddress());
 
          deleteDuplicateCache(binding.getAddress());
       }

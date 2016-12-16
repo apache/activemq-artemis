@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -814,11 +815,16 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
             // We can't remove the remote binding. As this would be the bridge associated with the topic on this case
             if (binding.getType() != BindingType.REMOTE_QUEUE) {
-               server.destroyQueue(SimpleString.toSimpleString(queueName), null, !removeConsumers, removeConsumers);
+               server.destroyQueue(SimpleString.toSimpleString(queueName), null, !removeConsumers, removeConsumers, true);
             }
          }
 
          if (addressControl.getQueueNames().length == 0) {
+            try {
+               server.removeAddressInfo(SimpleString.toSimpleString(name), null);
+            } catch (ActiveMQAddressDoesNotExistException e) {
+               // ignore
+            }
             removeFromBindings(topics, topicBindings, name);
 
             topics.remove(name);
