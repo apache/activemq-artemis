@@ -31,25 +31,28 @@ public class QueueAbstract extends AbstractAction {
    @Option(name = "--address", description = "address of the queue (default queue's name)")
    private String address;
 
-   @Option(name = "--durable", description = "whether the queue is durable or not (default false)")
-   private boolean durable = false;
+   @Option(name = "--durable", description = "whether the queue is durable or not (default input)")
+   private Boolean durable;
 
-   @Option(name = "--delete-on-no-consumers", description = "whether to delete this queue when it's last consumers disconnects)")
-   private boolean deleteOnNoConsumers = false;
+   @Option(name = "--no-durable", description = "whether the queue is durable or not (default input)")
+   private Boolean noDurable;
 
-   @Option(name = "--keep-on-no-consumers", description = "whether to queue this queue when it's last consumers disconnects)")
-   private boolean keepOnNoConsumers = false;
+   @Option(name = "--delete-on-no-consumers", description = "whether to delete this queue when it's last consumers disconnects (default input)")
+   private Boolean deleteOnNoConsumers;
+
+   @Option(name = "--keep-on-no-consumers", description = "whether to queue this queue when it's last consumers disconnects (default input)")
+   private Boolean keepOnNoConsumers;
 
    @Option(name = "--max-consumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
    private Integer maxConsumers;
 
-   @Option(name = "--auto-create-address", description = "Auto create the address (if it doesn't exist) with default values")
-   private Boolean autoCreateAddress = false;
+   @Option(name = "--auto-create-address", description = "Auto create the address (if it doesn't exist) with default values (default input)")
+   private Boolean autoCreateAddress;
 
-   @Option(name = "--anycast", description = "It will determine this queue as anycast")
+   @Option(name = "--anycast", description = "It will determine this queue as anycast (default input)")
    private Boolean anycast;
 
-   @Option(name = "--multicast", description = "It will determine this queue as multicast")
+   @Option(name = "--multicast", description = "It will determine this queue as multicast (default input)")
    private Boolean multicast;
 
    public void setFilter(String filter) {
@@ -60,24 +63,38 @@ public class QueueAbstract extends AbstractAction {
       return filter;
    }
 
-   public String getAddress() {
+   public String getAddress(boolean requireInput) {
+      // just to force asking the queue name first
+      String queueName = getName();
+
+      if (requireInput && (address == null || "".equals(address.trim()))) {
+         address = input("--address", "Enter the address name. <Enter for " + queueName + ">", null, true);
+      }
+
       if (address == null || "".equals(address.trim())) {
-         address = getName();
+         // if still null, it will use the queueName
+         address = queueName;
       }
       return address;
    }
 
    public boolean isDurable() {
+      if (durable == null) {
+         if (noDurable != null) {
+            durable = !noDurable.booleanValue();
+         }
+      }
+
+      if (durable == null) {
+         durable = inputBoolean("--durable", "Is this a durable queue", false);
+      }
+
       return durable;
    }
 
    public QueueAbstract setDurable(boolean durable) {
       this.durable = durable;
       return this;
-   }
-
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
    }
 
    public boolean isKeepOnNoConsumers() {
@@ -148,22 +165,32 @@ public class QueueAbstract extends AbstractAction {
       return this;
    }
 
-   public Boolean treatNoConsumers(boolean mandatory) {
+   public Boolean isDeleteOnNoConsumers() {
+      return isDeleteOnNoConsumers(false);
+   }
+
+   public Boolean isDeleteOnNoConsumers(boolean useInput) {
 
       Boolean value = null;
 
-      if (deleteOnNoConsumers) {
-         value = Boolean.TRUE;
-      } else if (keepOnNoConsumers) {
-         value = Boolean.FALSE;
+      if (deleteOnNoConsumers != null) {
+         value = deleteOnNoConsumers.booleanValue();
+      } else if (keepOnNoConsumers != null) {
+         value = !keepOnNoConsumers.booleanValue();
       }
 
 
-      if (value == null && mandatory) {
-         value = Boolean.FALSE;
-         deleteOnNoConsumers = false;
-         keepOnNoConsumers = true;
+      if (value == null && useInput) {
+         value = inputBoolean("--delete-on-no-consumers", "Delete on non consumers", false);
       }
+
+      if (value == null) {
+         // return null if still null
+         return null;
+      }
+
+      deleteOnNoConsumers = value.booleanValue();
+      keepOnNoConsumers = !value.booleanValue();
 
       return value;
    }

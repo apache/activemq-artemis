@@ -70,6 +70,10 @@ public class InputAbstract extends ActionAbstract {
    }
 
    protected String input(String propertyName, String prompt, String silentDefault) {
+      return input(propertyName, prompt, silentDefault, false);
+   }
+
+   protected String input(String propertyName, String prompt, String silentDefault, boolean acceptNull) {
       if (isSilentInput()) {
          return silentDefault;
       }
@@ -81,7 +85,7 @@ public class InputAbstract extends ActionAbstract {
          context.out.println(propertyName + ": is a mandatory property!");
          context.out.println(prompt);
          inputStr = scanner.nextLine();
-         if (inputStr.trim().equals("")) {
+         if (!acceptNull && inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
          } else {
             valid = true;
