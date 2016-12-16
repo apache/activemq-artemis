@@ -78,6 +78,8 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SECURITY_RECORD;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADDRESS_BINDING_RECORD;
+
 
 /**
  * Outputs a String description of the Journals contents.
@@ -571,6 +573,9 @@ public final class DescribeJournal {
 
          case SECURITY_RECORD:
             return AbstractJournalStorageManager.newSecurityRecord(id, buffer);
+
+         case ADDRESS_BINDING_RECORD:
+            return AbstractJournalStorageManager.newAddressBindingEncoding(id, buffer);
 
          default:
             return null;
