@@ -2525,6 +2525,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
          if (info == null) {
             final AddressInfo addressInfo = new AddressInfo(addressName, rt);
+            addressInfo.setAutoCreated(true);
             createAddressInfo(addressInfo);
          } else if (!info.getRoutingTypes().contains(routingType)) {
             Set<RoutingType> routingTypes = new HashSet<>();
