@@ -36,7 +36,7 @@ public class CreateAddress extends AddressAbstract {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(), getRoutingTypes(true));
+            ManagementHelper.putOperationInvocation(message, "broker", "createAddress", getName(true), getRoutingTypes(true));
          }
 
          @Override
@@ -48,7 +48,7 @@ public class CreateAddress extends AddressAbstract {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create address " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to create address " + getName(true) + ". Reason: " + errMsg);
          }
       });
    }

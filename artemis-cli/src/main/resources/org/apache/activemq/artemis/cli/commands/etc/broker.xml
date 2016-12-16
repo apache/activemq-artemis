@@ -85,6 +85,20 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
       </security-settings>
 
       <address-settings>
+         <!-- if you define auto-create on certain queues, management has to be auto-create -->
+         <address-setting match="activemq.management#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>${full-policy}</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+         </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
             <dead-letter-address>DLQ</dead-letter-address>
@@ -94,6 +108,10 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>${full-policy}</address-full-policy>
+            <auto-create-queues>${auto-create}</auto-create-queues>
+            <auto-create-addresses>${auto-create}</auto-create-addresses>
+            <auto-create-jms-queues>${auto-create}</auto-create-jms-queues>
+            <auto-create-jms-topics>${auto-create}</auto-create-jms-topics>
          </address-setting>
       </address-settings>
 

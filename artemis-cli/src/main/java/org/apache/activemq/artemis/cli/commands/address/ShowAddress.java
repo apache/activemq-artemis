@@ -41,10 +41,13 @@ public class ShowAddress extends AddressAbstract {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            if (bindings) {
-               ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName());
+
+            if (getName(false) == null) {
+               ManagementHelper.putOperationInvocation(message, "broker", "listAddresses", "\n");
+            } else if (bindings) {
+               ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName(false));
             } else {
-               ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName());
+               ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName(false));
             }
          }
 
@@ -57,7 +60,7 @@ public class ShowAddress extends AddressAbstract {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to show address " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to show address " + getName(false) + ". Reason: " + errMsg);
          }
       });
    }
