@@ -91,22 +91,24 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public long tick(boolean firstTick) {
-      if (!firstTick) {
-         try {
-            if (connection.getLocalState() != EndpointState.CLOSED) {
-               long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-               if (transport.isClosed()) {
-                  throw new IllegalStateException("Channel was inactive for to long");
+      synchronized (lock) {
+         if (!firstTick) {
+            try {
+               if (connection.getLocalState() != EndpointState.CLOSED) {
+                  long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+                  if (transport.isClosed()) {
+                     throw new IllegalStateException("Channel was inactive for to long");
+                  }
+                  return rescheduleAt;
                }
-               return rescheduleAt;
+            } catch (Exception e) {
+               transport.close();
+               connection.setCondition(new ErrorCondition());
             }
-         } catch (Exception e) {
-            transport.close();
-            connection.setCondition(new ErrorCondition());
+            return 0;
          }
-         return 0;
+         return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
       }
-      return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
    }
 
    public int capacity() {
