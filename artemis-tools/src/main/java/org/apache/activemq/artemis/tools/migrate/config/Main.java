@@ -65,6 +65,7 @@ public class Main {
                         File r = new File(f.getAbsolutePath());
                         f.renameTo(new File(f.getAbsolutePath() + ".bk"));
                         file.renameTo(r);
+                        System.out.println(f + " converted, old file renamed as " + f.getAbsolutePath() + ".bk");
                      }
                   }
                } catch (Exception e) {
