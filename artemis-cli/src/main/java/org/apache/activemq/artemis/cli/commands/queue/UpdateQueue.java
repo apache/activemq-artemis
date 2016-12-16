@@ -36,7 +36,7 @@ public class UpdateQueue extends QueueAbstract {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", getName(), getRoutingType(), getMaxConsumers(), isDeleteOnNoConsumers());
+            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", getName(), getRoutingType(), getMaxConsumers(null), isDeleteOnNoConsumers());
          }
 
          @Override

@@ -41,7 +41,7 @@ public class QueueAbstract extends AbstractAction {
    private boolean keepOnNoConsumers = false;
 
    @Option(name = "--max-consumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
-   private int maxConsumers = -1;
+   private Integer maxConsumers;
 
    @Option(name = "--auto-create-ddress", description = "Auto create the address (if it doesn't exist) with default values")
    private Boolean autoCreateAddress = false;
@@ -89,7 +89,10 @@ public class QueueAbstract extends AbstractAction {
       return this;
    }
 
-   public int getMaxConsumers() {
+   public Integer getMaxConsumers(Integer defaultValue) {
+      if (maxConsumers == null) {
+         return defaultValue;
+      }
       return maxConsumers;
    }
 
