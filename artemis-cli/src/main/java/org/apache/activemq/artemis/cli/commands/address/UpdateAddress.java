@@ -18,20 +18,13 @@
 package org.apache.activemq.artemis.cli.commands.address;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "update", description = "update an address")
-public class UpdateAddress extends AbstractAction {
-
-   @Option(name = "--name", description = "The name of this address", required = true)
-   String name;
-
-   @Option(name = "--routingTypes", description = "The routing types supported by this address, options are 'anycast' or 'multicast', enter comma separated list")
-   String routingTypes = null;
+public class UpdateAddress extends AddressAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -44,7 +37,7 @@ public class UpdateAddress extends AbstractAction {
       performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateAddress", name, routingTypes);
+            ManagementHelper.putOperationInvocation(message, "broker", "updateAddress", getName(), getRoutingTypes(false));
          }
 
          @Override
@@ -56,24 +49,8 @@ public class UpdateAddress extends AbstractAction {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to update address " + name + ". Reason: " + errMsg);
+            context.err.println("Failed to update address " + getName() + ". Reason: " + errMsg);
          }
       });
-   }
-
-   public String getName() {
-      return name;
-   }
-
-   public void setName(String name) {
-      this.name = name;
-   }
-
-   public String getRoutingTypes() {
-      return routingTypes;
-   }
-
-   public void setRoutingTypes(String routingTypes) {
-      this.routingTypes = routingTypes;
    }
 }
