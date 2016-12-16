@@ -14,8 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.tests.integration.journal;
 
-public enum JournalType {
-   NIO, ASYNCIO, MAPPED;
+import java.io.File;
+
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
+
+public class MappedJournalImplTest extends JournalImplTestUnit {
+
+   @Override
+   protected SequentialFileFactory getFileFactory() throws Exception {
+      File file = new File(getTestDir());
+
+      deleteDirectory(file);
+
+      file.mkdir();
+
+      return new MappedSequentialFileFactory(getTestDirfile());
+   }
+
+   @Override
+   protected int getAlignment() {
+      return fileFactory.getAlignment();
+   }
+
 }

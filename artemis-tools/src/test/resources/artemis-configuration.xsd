@@ -576,6 +576,7 @@
                <xsd:restriction base="xsd:string">
                   <xsd:enumeration value="ASYNCIO"/>
                   <xsd:enumeration value="NIO"/>
+                  <xsd:enumeration value="MAPPED"/>
                </xsd:restriction>
             </xsd:simpleType>
          </xsd:element>
