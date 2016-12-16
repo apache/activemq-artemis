@@ -37,7 +37,7 @@ public class CreateQueue extends QueueAbstract {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             String address = getAddress();
-            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, getRoutingType(), getName(), getFilter(), isDurable(), getMaxConsumers(), treatNoConsumers(true), isAutoCreateAddress());
+            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", address, getRoutingType(), getName(), getFilter(), isDurable(), getMaxConsumers(-1), treatNoConsumers(true), isAutoCreateAddress());
          }
 
          @Override
