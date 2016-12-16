@@ -2531,10 +2531,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       AddressInfo info = postOffice.getAddressInfo(addressName);
 
       if (autoCreateAddress) {
-         if (info == null || !info.getRoutingTypes().contains(routingType)) {
-            final AddressInfo defaultAddressInfo = new AddressInfo(addressName);
-            defaultAddressInfo.addRoutingType(routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
-            createOrUpdateAddressInfo(defaultAddressInfo.setAutoCreated(true));
+         RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
+         if (info == null) {
+            final AddressInfo addressInfo = new AddressInfo(addressName, rt);
+            createAddressInfo(addressInfo);
+         }
+         else if (!info.getRoutingTypes().contains(routingType)) {
+            Set<RoutingType> routingTypes = new HashSet<>();
+            routingTypes.addAll(info.getRoutingTypes());
+            routingTypes.add(routingType);
+            updateAddressInfo(info.getName().toString(), routingTypes);
          }
       } else if (info == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
