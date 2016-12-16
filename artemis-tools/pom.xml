@@ -23,7 +23,7 @@
    </parent>
 
    <name>ActiveMQ Artemis Tools</name>
-   <groupId>org.apache.activemq.tools</groupId>
+   <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-tools</artifactId>
    <packaging>jar</packaging>
 
