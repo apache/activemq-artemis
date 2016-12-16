@@ -469,7 +469,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          final Queue queue = queueBinding.getQueue();
          //TODO put the whole update logic on Queue
          //validate update
-         if (maxConsumers != null) {
+         if (maxConsumers != null && maxConsumers.intValue() != Queue.MAX_CONSUMERS_UNLIMITED) {
             final int consumerCount = queue.getConsumerCount();
             if (consumerCount > maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.invalidMaxConsumersUpdate(name.toString(), maxConsumers, consumerCount);
