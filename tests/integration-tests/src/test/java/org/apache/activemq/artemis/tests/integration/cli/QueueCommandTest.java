@@ -59,7 +59,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setMulticast(true);
       command.setAnycast(false);
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(command, "AMQ119203: Address Does Not Exist:");
+      checkExecutionFailure(command, "AMQ119203");
       assertFalse(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -137,7 +137,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.execute(new ActionContext());
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(command, "AMQ119019: Queue already exists " + queueName);
+      checkExecutionFailure(command, "AMQ119019");
    }
 
    @Test
@@ -167,7 +167,7 @@ public class QueueCommandTest extends JMSTestBase {
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(delete, "AMQ119017: Queue " + queueName + " does not exist");
+      checkExecutionFailure(delete, "AMQ119017");
 
       assertFalse(server.queueQuery(queueName).isExists());
    }
@@ -189,7 +189,7 @@ public class QueueCommandTest extends JMSTestBase {
       DeleteQueue delete = new DeleteQueue();
       delete.setName(queueName.toString());
       delete.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      checkExecutionFailure(delete, "AMQ119025: Cannot delete queue " + queueName + " on binding deleteQueue");
+      checkExecutionFailure(delete, "AMQ119025");
    }
 
    @Test
@@ -257,8 +257,8 @@ public class QueueCommandTest extends JMSTestBase {
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
       updateQueue.setDeleteOnNoConsumers(newDeleteOnNoConsumers);
-      updateQueue.setMulticast(newRoutingType.equals(RoutingType.MULTICAST));
-      updateQueue.setAnycast(newRoutingType.equals(RoutingType.ANYCAST));
+      updateQueue.setAnycast(true);
+      updateQueue.setMulticast(false);
       updateQueue.setMaxConsumers(newMaxConsumers);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
@@ -287,12 +287,12 @@ public class QueueCommandTest extends JMSTestBase {
       final RoutingType newRoutingType = RoutingType.ANYCAST;
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
-      updateQueue.setMulticast(newRoutingType.equals(RoutingType.MULTICAST));
-      updateQueue.setAnycast(newRoutingType.equals(RoutingType.ANYCAST));
+      updateQueue.setAnycast(true);
+      updateQueue.setMulticast(false);
+      updateQueue.setMaxConsumers(-1);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
-      final String expectedErrorMessage = MessageFormat.format("Can''t update queue {0} with routing type: {1}, Supported routing types for address: {2} are {3}", queueName, newRoutingType, addressName, supportedRoutingTypes);
-      checkExecutionFailure(updateQueue, expectedErrorMessage);
+      checkExecutionFailure(updateQueue, "AMQ119211");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
@@ -322,8 +322,7 @@ public class QueueCommandTest extends JMSTestBase {
       updateQueue.setMaxConsumers(newMaxConsumers);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
-      final String expectedErrorMessage = MessageFormat.format("Can''t update queue {0} with maxConsumers: {1}. Current consumers are {2}.", queueName, newMaxConsumers, 2);
-      checkExecutionFailure(updateQueue, expectedErrorMessage);
+      checkExecutionFailure(updateQueue, "AMQ119210");
 
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
