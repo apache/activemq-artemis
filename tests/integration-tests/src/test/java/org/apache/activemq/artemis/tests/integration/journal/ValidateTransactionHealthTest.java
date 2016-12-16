@@ -22,8 +22,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.ArtemisConstants;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -101,6 +104,27 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
    public void testNIO2NonTransactional() throws Exception {
       internalTest("nio2", getTestDir(), 10000, 0, true, true, 1);
    }
+
+   @Test
+   public void testMMap() throws Exception {
+      internalTest("mmap", getTestDir(), 10000, 100, true, true, 1);
+   }
+
+   @Test
+   public void testMMAPHugeTransaction() throws Exception {
+      internalTest("mmap", getTestDir(), 10000, 10000, true, true, 1);
+   }
+
+   @Test
+   public void testMMAPOMultiThread() throws Exception {
+      internalTest("mmap", getTestDir(), 1000, 100, true, true, 10);
+   }
+
+   @Test
+   public void testMMAPNonTransactional() throws Exception {
+      internalTest("mmap", getTestDir(), 10000, 0, true, true, 1);
+   }
+
 
    // Package protected ---------------------------------------------
 
@@ -234,7 +258,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
 
       if (args.length != 5) {
          System.err.println("Use: java -cp <classpath> " + ValidateTransactionHealthTest.class.getCanonicalName() +
-                               " aio|nio <journalDirectory> <NumberOfElements> <TransactionSize> <NumberOfThreads>");
+                               " aio|nio|mmap <journalDirectory> <NumberOfElements> <TransactionSize> <NumberOfThreads>");
          System.exit(-1);
       }
       System.out.println("Running");
@@ -320,15 +344,22 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
    }
 
    public static JournalImpl createJournal(final String journalType, final String journalDir) {
-      JournalImpl journal = new JournalImpl(10485760, 2, 2, 0, 0, ValidateTransactionHealthTest.getFactory(journalType, journalDir), "journaltst", "tst", 500);
+      JournalImpl journal = new JournalImpl(10485760, 2, 2, 0, 0, ValidateTransactionHealthTest.getFactory(journalType, journalDir, 10485760), "journaltst", "tst", 500);
       return journal;
    }
 
-   public static SequentialFileFactory getFactory(final String factoryType, final String directory) {
+   public static SequentialFileFactory getFactory(final String factoryType, final String directory, int fileSize) {
       if (factoryType.equals("aio")) {
          return new AIOSequentialFileFactory(new File(directory), ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, 10, false);
       } else if (factoryType.equals("nio2")) {
          return new NIOSequentialFileFactory(new File(directory), true, 1);
+      } else if (factoryType.equals("mmap")) {
+         return new MappedSequentialFileFactory(new File(directory), new IOCriticalErrorListener() {
+            @Override
+            public void onIOException(Throwable code, String message, SequentialFile file) {
+               code.printStackTrace();
+            }
+         }, true).chunkBytes(fileSize).overlapBytes(0);
       } else {
          return new NIOSequentialFileFactory(new File(directory), false, 1);
       }

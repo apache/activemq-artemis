@@ -216,6 +216,9 @@ public class Create extends InputAbstract {
    @Option(name = "--nio", description = "sets the journal as nio.")
    boolean nio;
 
+   @Option(name = "--mapped", description = "Sets the journal as mapped.")
+   boolean mapped;
+
    // this is used by the setupJournalType method
    private JournalType journalType;
 
@@ -797,7 +800,7 @@ public class Create extends InputAbstract {
    }
 
    private void setupJournalType() {
-      int countJournalTypes = countBoolean(aio, nio);
+      int countJournalTypes = countBoolean(aio, nio, mapped);
       if (countJournalTypes > 1) {
          throw new RuntimeException("You can only select one journal type (--nio | --aio | --mapped).");
       }
@@ -814,6 +817,8 @@ public class Create extends InputAbstract {
          journalType = JournalType.ASYNCIO;
       } else if (nio) {
          journalType = JournalType.NIO;
+      } else if (mapped) {
+         journalType = JournalType.MAPPED;
       }
    }
 
