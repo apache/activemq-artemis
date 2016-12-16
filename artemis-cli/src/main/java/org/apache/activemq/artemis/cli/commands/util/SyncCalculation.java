@@ -24,9 +24,11 @@ import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -185,6 +187,16 @@ public class SyncCalculation {
             factory = new AIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
             factory.start();
             ((AIOSequentialFileFactory) factory).disableBufferReuse();
+            return factory;
+         case MAPPED:
+            factory = new MappedSequentialFileFactory(datafolder, new IOCriticalErrorListener() {
+               @Override
+               public void onIOException(Throwable code, String message, SequentialFile file) {
+
+               }
+            }, true).chunkBytes(fileSize).overlapBytes(0).setDatasync(datasync);
+
+            factory.start();
             return factory;
          default:
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(journalType);
