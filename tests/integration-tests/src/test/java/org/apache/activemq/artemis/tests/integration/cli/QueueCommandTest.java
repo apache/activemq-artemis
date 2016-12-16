@@ -257,7 +257,8 @@ public class QueueCommandTest extends JMSTestBase {
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
       updateQueue.setDeleteOnNoConsumers(newDeleteOnNoConsumers);
-      updateQueue.setRoutingType(newRoutingType.name());
+      updateQueue.setMulticast(newRoutingType.equals(RoutingType.MULTICAST));
+      updateQueue.setAnycast(newRoutingType.equals(RoutingType.ANYCAST));
       updateQueue.setMaxConsumers(newMaxConsumers);
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
@@ -286,7 +287,8 @@ public class QueueCommandTest extends JMSTestBase {
       final RoutingType newRoutingType = RoutingType.ANYCAST;
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
-      updateQueue.setRoutingType(newRoutingType.name());
+      updateQueue.setMulticast(newRoutingType.equals(RoutingType.MULTICAST));
+      updateQueue.setAnycast(newRoutingType.equals(RoutingType.ANYCAST));
       updateQueue.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
 
       final String expectedErrorMessage = MessageFormat.format("Can''t update queue {0} with routing type: {1}, Supported routing types for address: {2} are {3}", queueName, newRoutingType, addressName, supportedRoutingTypes);
