@@ -65,6 +65,7 @@
             <include>org.apache.activemq:artemis-ra</include>
             <include>org.apache.activemq:artemis-selector</include>
             <include>org.apache.activemq:artemis-server</include>
+            <include>org.apache.activemq:artemis-tools</include>
             <include>org.apache.activemq:artemis-service-extensions</include>
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
