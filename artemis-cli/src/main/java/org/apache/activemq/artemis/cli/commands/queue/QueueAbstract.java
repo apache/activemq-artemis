@@ -43,7 +43,7 @@ public class QueueAbstract extends AbstractAction {
    @Option(name = "--max-consumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
    private Integer maxConsumers;
 
-   @Option(name = "--auto-create-ddress", description = "Auto create the address (if it doesn't exist) with default values")
+   @Option(name = "--auto-create-address", description = "Auto create the address (if it doesn't exist) with default values")
    private Boolean autoCreateAddress = false;
 
    @Option(name = "--anycast", description = "It will determine this queue as anycast")
