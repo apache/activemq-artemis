@@ -185,6 +185,12 @@ public class Create extends InputAbstract {
    @Option(name = "--no-autotune", description = "Disable auto tuning on the journal.")
    boolean noAutoTune;
 
+   @Option(name = "--no-autocreate", description = "Disable Auto create addresses.")
+   Boolean noAutoCreate;
+
+   @Option(name = "--autocreate", description = "Auto create addresses. (default: true)")
+   Boolean autoCreate;
+
    @Option(name = "--user", description = "The username (Default: input)")
    String user;
 
@@ -261,6 +267,38 @@ public class Create extends InputAbstract {
 
    public void setMessageLoadBalancing(MessageLoadBalancingType messageLoadBalancing) {
       this.messageLoadBalancing = messageLoadBalancing;
+   }
+
+   public Boolean getAutoCreate() {
+      return autoCreate;
+   }
+
+   public Create setAutoCreate(Boolean autoCreate) {
+      this.autoCreate = autoCreate;
+      return this;
+   }
+
+   public Boolean getNoAutoCreate() {
+      return noAutoCreate;
+   }
+
+   public Create setNoAutoCreate(Boolean noAutoCreate) {
+      this.noAutoCreate = noAutoCreate;
+      return this;
+   }
+
+   public boolean isAutoCreate() {
+      if (autoCreate == null) {
+         if (noAutoCreate != null) {
+            autoCreate = !noAutoCreate.booleanValue();
+         }
+      }
+
+      if (autoCreate == null) {
+         autoCreate = true;
+      }
+
+      return autoCreate;
    }
 
    public String getJavaOptions() {
@@ -719,6 +757,9 @@ public class Create extends InputAbstract {
       } else {
          filters.put("${full-policy}", "PAGE");
       }
+
+
+      filters.put("${auto-create}", isAutoCreate() ? "true" : "false");
 
       performAutoTune(filters, aio, dataFolder);
 

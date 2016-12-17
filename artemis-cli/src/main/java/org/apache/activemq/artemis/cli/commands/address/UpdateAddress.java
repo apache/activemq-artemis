@@ -37,7 +37,7 @@ public class UpdateAddress extends AddressAbstract {
       performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateAddress", getName(), getRoutingTypes(false));
+            ManagementHelper.putOperationInvocation(message, "broker", "updateAddress", getName(true), getRoutingTypes(false));
          }
 
          @Override
@@ -49,7 +49,7 @@ public class UpdateAddress extends AddressAbstract {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to update address " + getName() + ". Reason: " + errMsg);
+            context.err.println("Failed to update address " + getName(true) + ". Reason: " + errMsg);
          }
       });
    }
