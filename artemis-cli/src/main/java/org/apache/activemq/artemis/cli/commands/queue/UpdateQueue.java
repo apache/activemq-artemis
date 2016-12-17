@@ -28,11 +28,11 @@ public class UpdateQueue extends QueueAbstract {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      createQueue(context);
+      updateQueue(context);
       return null;
    }
 
-   private void createQueue(final ActionContext context) throws Exception {
+   private void updateQueue(final ActionContext context) throws Exception {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {

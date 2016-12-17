@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -896,6 +897,37 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          final Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(address));
          return bindings.getBindings().stream().map(Binding::toManagementString).collect(Collectors.joining(","));
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
+   public String listAddresses(String separator) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
+         TreeSet<SimpleString> sortAddress = new TreeSet<>(new Comparator<SimpleString>() {
+            @Override
+            public int compare(SimpleString o1, SimpleString o2) {
+               return o1.toString().compareToIgnoreCase(o2.toString());
+            }
+         });
+
+         sortAddress.addAll(addresses);
+
+         StringBuilder result = new StringBuilder();
+         for (SimpleString string : sortAddress) {
+            if (result.length() > 0) {
+               result.append(separator);
+            }
+            result.append(string);
+         }
+
+         return result.toString();
       } finally {
          blockOnIO();
       }

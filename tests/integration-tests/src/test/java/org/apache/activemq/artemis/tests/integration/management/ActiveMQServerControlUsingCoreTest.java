@@ -868,6 +868,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception {
             return (String) proxy.invokeOperation("listSessionsAsJSON", connectionID);
          }
+
+         @Override
+         public String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception {
+            return (String) proxy.invokeOperation("listAddresses", separator);
+         }
       };
    }
 
