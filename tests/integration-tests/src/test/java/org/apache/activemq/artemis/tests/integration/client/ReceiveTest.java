@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -137,7 +138,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientSession session = cf.createSession(false, true, true);
-      session.createQueue(addressA, queueA, false);
+      session.createQueue(addressA, RoutingType.ANYCAST, queueA, false);
       ClientConsumer cc = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueA);
       session.start();
