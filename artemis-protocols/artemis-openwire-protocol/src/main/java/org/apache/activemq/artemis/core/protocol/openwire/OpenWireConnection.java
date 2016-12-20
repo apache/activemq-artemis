@@ -183,6 +183,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
 
+   private AtomicBoolean disableTtl = new AtomicBoolean(false);
+
    // TODO-NOW: check on why there are two connections created for every createConnection on the client.
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
@@ -776,6 +778,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.connectionEntry = connectionEntry;
    }
 
+   @Override
+   public boolean checkDataReceived() {
+      if (disableTtl.get()) {
+         return true;
+      }
+      return super.checkDataReceived();
+   }
+
    public void setUpTtl(final long inactivityDuration,
                         final long inactivityDurationInitialDelay,
                         final boolean useKeepAlive) {
@@ -816,6 +826,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             logger.warn("Failed to fire advisory on " + topic, e);
          }
       }
+   }
+
+   public void disableTtl() {
+      disableTtl.set(true);
+   }
+
+   public void enableTtl() {
+      disableTtl.set(false);
    }
 
    class SlowConsumerDetection implements SlowConsumerDetectionListener {
