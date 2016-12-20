@@ -40,9 +40,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -53,12 +51,12 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.ProducerAck;
 import org.apache.activemq.command.ProducerInfo;
+import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQSession implements SessionCallback {
-
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
@@ -303,108 +301,103 @@ public class AMQSession implements SessionCallback {
          originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString(), messageSend.getMessageId().toString());
       }
 
-      Runnable runnable;
+      boolean shouldBlockProducer = producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired();
 
-      if (sendProducerAck) {
-         runnable = new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
-                  connection.dispatchSync(ack);
-               } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                  connection.sendException(e);
-               }
+      final AtomicInteger count = new AtomicInteger(actualDestinations.length);
 
-            }
-         };
-      } else {
-         final Connection transportConnection = connection.getTransportConnection();
+      final Exception[] anyException = new Exception[] {null};
 
-         if (transportConnection == null) {
-            // I don't think this could happen, but just in case, avoiding races
-            runnable = null;
-         } else {
-            runnable = new Runnable() {
-               @Override
-               public void run() {
-                  transportConnection.setAutoRead(true);
-               }
-            };
-         }
+      if (shouldBlockProducer) {
+         connection.getContext().setDontSendReponse(true);
       }
 
-      internalSend(actualDestinations, originalCoreMsg, runnable);
-   }
-
-   private void internalSend(ActiveMQDestination[] actualDestinations,
-                             ServerMessage originalCoreMsg,
-                             final Runnable onComplete) throws Exception {
-
-      Runnable runToUse;
-
-      if (actualDestinations.length <= 1 || onComplete == null) {
-         // if onComplete is null, this will be null ;)
-         runToUse = onComplete;
-      } else {
-         final AtomicInteger count = new AtomicInteger(actualDestinations.length);
-         runToUse = new Runnable() {
-            @Override
-            public void run() {
-               if (count.decrementAndGet() == 0) {
-                  onComplete.run();
-               }
-            }
-         };
-      }
-
-      SimpleString[] addresses = new SimpleString[actualDestinations.length];
-      PagingStore[] pagingStores = new PagingStore[actualDestinations.length];
-
-      // We fillup addresses, pagingStores and we will throw failure if that's the case
       for (int i = 0; i < actualDestinations.length; i++) {
          ActiveMQDestination dest = actualDestinations[i];
-         addresses[i] = new SimpleString(dest.getPhysicalName());
-         pagingStores[i] = server.getPagingManager().getPageStore(addresses[i]);
-         if (pagingStores[i].getAddressFullMessagePolicy() == AddressFullMessagePolicy.FAIL && pagingStores[i].isFull()) {
-            throw new ResourceAllocationException("Queue is full");
-         }
-      }
-
-      for (int i = 0; i < actualDestinations.length; i++) {
-
+         SimpleString address = new SimpleString(dest.getPhysicalName());
          ServerMessage coreMsg = originalCoreMsg.copy();
-
-         coreMsg.setAddress(addresses[i]);
-
-         PagingStore store = pagingStores[i];
-
-         if (store.isFull()) {
-            connection.getTransportConnection().setAutoRead(false);
-         }
+         coreMsg.setAddress(address);
 
          if (actualDestinations[i].isQueue()) {
             checkAutoCreateQueue(new SimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
-         }
-
-         if (actualDestinations[i].isQueue()) {
             coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
          } else {
             coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
          }
-         RoutingStatus result = getCoreSession().send(coreMsg, false, actualDestinations[i].isTemporary());
+         PagingStore store = server.getPagingManager().getPageStore(address);
 
-         if (result == RoutingStatus.NO_BINDINGS && actualDestinations[i].isQueue()) {
-            throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + actualDestinations[i]);
-         }
 
-         if (runToUse != null) {
-            // if the timeout is >0, it will wait this much milliseconds
-            // before running the the runToUse
-            // this will eventually unblock blocked destinations
-            // playing flow control
-            store.checkMemory(runToUse);
+         this.connection.disableTtl();
+         if (shouldBlockProducer) {
+            if (!store.checkMemory(() -> {
+               try {
+                  RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
+
+                  if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
+                     throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
+                  }
+               } catch (Exception e) {
+                  if (anyException[0] == null) {
+                     anyException[0] = e;
+                  }
+               }
+               connection.enableTtl();
+               if (count.decrementAndGet() == 0) {
+                  if (anyException[0] != null) {
+                     this.connection.getContext().setDontSendReponse(false);
+                     ActiveMQServerLogger.LOGGER.warn(anyException[0].getMessage(), anyException[0]);
+                     connection.sendException(anyException[0]);
+                  } else {
+                     if (sendProducerAck) {
+                        try {
+                           ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                           connection.dispatchAsync(ack);
+                        } catch (Exception e) {
+                           this.connection.getContext().setDontSendReponse(false);
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           connection.sendException(e);
+                        }
+                     } else {
+                        connection.getContext().setDontSendReponse(false);
+                        try {
+                           Response response = new Response();
+                           response.setCorrelationId(messageSend.getCommandId());
+                           connection.dispatchAsync(response);
+                        } catch (Exception e) {
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           connection.sendException(e);
+                        }
+                     }
+                  }
+               }
+            })) {
+               this.connection.getContext().setDontSendReponse(false);
+               connection.enableTtl();
+               throw new ResourceAllocationException("Queue is full " + address);
+            }
+         } else {
+            //non-persistent messages goes here, by default we stop reading from
+            //transport
+            connection.getTransportConnection().setAutoRead(false);
+            if (!store.checkMemory(() -> {
+               connection.getTransportConnection().setAutoRead(true);
+               connection.enableTtl();
+            })) {
+               connection.getTransportConnection().setAutoRead(true);
+               connection.enableTtl();
+               throw new ResourceAllocationException("Queue is full " + address);
+            }
+
+            RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
+            if (result == RoutingStatus.NO_BINDINGS && dest.isQueue()) {
+               throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
+            }
+
+            if (count.decrementAndGet() == 0) {
+               if (sendProducerAck) {
+                  ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
+                  connection.dispatchAsync(ack);
+               }
+            }
          }
       }
    }
