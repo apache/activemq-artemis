@@ -81,7 +81,7 @@ public abstract class InboundTransformer {
             jms.setBooleanProperty(JMS_AMQP_HEADER_DURABLE, true);
             jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
          } else {
-            jms.setJMSDeliveryMode(Message.DEFAULT_DELIVERY_MODE);
+            jms.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
          }
 
          if (header.getPriority() != null) {
