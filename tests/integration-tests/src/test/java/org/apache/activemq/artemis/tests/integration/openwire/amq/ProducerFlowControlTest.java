@@ -282,7 +282,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
 
    protected void waitForBlockedOrResourceLimit(final AtomicBoolean done) throws InterruptedException {
       while (true) {
-         Thread.sleep(2000);
+         Thread.sleep(100);
          System.out.println("check done: " + done.get() + " ex: " + gotResourceException.get());
          // the producer is blocked once the done flag stays true or there is a
          // resource exception
