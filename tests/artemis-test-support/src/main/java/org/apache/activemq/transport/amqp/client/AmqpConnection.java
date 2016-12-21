@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import static org.apache.activemq.transport.amqp.AmqpSupport.CONNECTION_OPEN_FAILED;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -30,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.transport.InactivityIOException;
 import org.apache.activemq.transport.amqp.client.sasl.SaslAuthenticator;
 import org.apache.activemq.transport.amqp.client.transport.NettyTransportListener;
@@ -54,7 +53,9 @@ import org.apache.qpid.proton.engine.impl.TransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.CONNECTION_OPEN_FAILED;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.util.ReferenceCountUtil;
 
 public class AmqpConnection extends AmqpAbstractResource<Connection> implements NettyTransportListener {
 
@@ -169,13 +170,22 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
             }
          });
 
-         if (connectTimeout <= 0) {
-            future.sync();
-         } else {
-            future.sync(connectTimeout, TimeUnit.MILLISECONDS);
-            if (getEndpoint().getRemoteState() != EndpointState.ACTIVE) {
-               throw new IOException("Failed to connect after configured timeout.");
+         try {
+            if (connectTimeout <= 0) {
+               future.sync();
+            } else {
+               future.sync(connectTimeout, TimeUnit.MILLISECONDS);
+               if (getEndpoint().getRemoteState() != EndpointState.ACTIVE) {
+                  throw new IOException("Failed to connect after configured timeout.");
+               }
             }
+         } catch (Throwable e) {
+            try {
+               close();
+            } catch (Throwable ignore) {
+            }
+
+            throw e;
          }
       }
    }
