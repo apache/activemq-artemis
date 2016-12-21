@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,11 +57,11 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
       super.setUp();
       server = createServer(true, true);
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       server.start();
       coreQueue = new SimpleString(queueName);
-      this.server.createQueue(coreQueue, RoutingType.MULTICAST, coreQueue, null, false, false);
+      this.server.createQueue(coreQueue, RoutingType.MULTICAST, coreQueue, null, false, false, -1, false, true);
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 
@@ -93,6 +94,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
+         Assert.assertNotNull(receive);
          list = (ArrayList) receive.getObject();
          assertEquals(list.get(0), "aString");
          connection.close();
