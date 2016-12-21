@@ -65,8 +65,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    public void setUp() throws Exception {
       super.setUp();
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
-      factory = new ActiveMQConnectionFactory(getConnectionUrl());
-      xaFactory = new ActiveMQXAConnectionFactory(getConnectionUrl());
+      createFactories();
       SimpleString coreQueue = new SimpleString(queueName);
       this.server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false, -1, false, true);
       testQueues.put(queueName, coreQueue);
@@ -82,6 +81,11 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       if (!enableSecurity) {
          connection = (ActiveMQConnection) factory.createConnection();
       }
+   }
+
+   protected void createFactories() {
+      factory = new ActiveMQConnectionFactory(getConnectionUrl());
+      xaFactory = new ActiveMQXAConnectionFactory(getConnectionUrl());
    }
 
    protected String getConnectionUrl() {
