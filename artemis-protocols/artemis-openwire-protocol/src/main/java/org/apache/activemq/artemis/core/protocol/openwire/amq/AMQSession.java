@@ -55,8 +55,11 @@ import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.wireformat.WireFormat;
+import org.jboss.logging.Logger;
 
 public class AMQSession implements SessionCallback {
+   private final Logger logger = Logger.getLogger(AMQSession.class);
+
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
@@ -305,7 +308,6 @@ public class AMQSession implements SessionCallback {
 
       final AtomicInteger count = new AtomicInteger(actualDestinations.length);
 
-      final Exception[] anyException = new Exception[] {null};
 
       if (shouldBlockProducer) {
          connection.getContext().setDontSendReponse(true);
@@ -329,6 +331,8 @@ public class AMQSession implements SessionCallback {
          this.connection.disableTtl();
          if (shouldBlockProducer) {
             if (!store.checkMemory(() -> {
+               Exception exceptionToSend = null;
+
                try {
                   RoutingStatus result = getCoreSession().send(coreMsg, false, dest.isTemporary());
 
@@ -336,16 +340,15 @@ public class AMQSession implements SessionCallback {
                      throw new InvalidDestinationException("Cannot publish to a non-existent Destination: " + dest);
                   }
                } catch (Exception e) {
-                  if (anyException[0] == null) {
-                     anyException[0] = e;
-                  }
+
+                  logger.warn(e.getMessage(), e);
+                  exceptionToSend = e;
                }
                connection.enableTtl();
                if (count.decrementAndGet() == 0) {
-                  if (anyException[0] != null) {
+                  if (exceptionToSend != null) {
                      this.connection.getContext().setDontSendReponse(false);
-                     ActiveMQServerLogger.LOGGER.warn(anyException[0].getMessage(), anyException[0]);
-                     connection.sendException(anyException[0]);
+                     connection.sendException(exceptionToSend);
                   } else {
                      if (sendProducerAck) {
                         try {
