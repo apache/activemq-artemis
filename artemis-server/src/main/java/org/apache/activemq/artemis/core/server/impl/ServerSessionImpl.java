@@ -1330,6 +1330,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       SimpleString address = removePrefix(message.getAddress());
 
+      // In case the prefix was removed, we also need to update the message
+      if (address != message.getAddress()) {
+         message.setAddress(address);
+      }
+
       if (defaultAddress == null && address != null) {
          defaultAddress = address;
       }
@@ -1349,12 +1354,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
       }
 
-      if (address == null) {
+      if (message.getAddress() == null) {
          // This could happen with some tests that are ignoring messages
          throw ActiveMQMessageBundle.BUNDLE.noAddress();
       }
 
-      if (address.equals(managementAddress)) {
+      if (message.getAddress().equals(managementAddress)) {
          // It's a management message
 
          handleManagementMessage(tx, message, direct);
@@ -1733,7 +1738,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public SimpleString removePrefix(SimpleString address) {
-      if (prefixEnabled) {
+      if (prefixEnabled && address != null) {
          return PrefixUtil.getAddress(address, prefixes);
       }
       return address;
