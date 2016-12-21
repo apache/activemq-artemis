@@ -28,7 +28,9 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageProducer;
+import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Before;
@@ -50,11 +52,19 @@ public class CompressedInteropTest extends BasicOpenWireTest {
    @Before
    @Override
    public void setUp() throws Exception {
-      factory.setUseCompression(true);
       super.setUp();
       connection.start();
       assertTrue(connection.isUseCompression());
    }
+
+
+   @Override
+   protected void createFactories() {
+      super.createFactories();
+      factory.setUseCompression(true);
+      xaFactory.setUseCompression(true);
+   }
+
 
    @Test
    public void testCoreReceiveOpenWireCompressedMessages() throws Exception {
