@@ -18,11 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionBindingQueryMessage extends PacketImpl {
-
-   private SimpleString address;
+public class SessionBindingQueryMessage extends QueueAbstractPacket {
 
    public SessionBindingQueryMessage(final SimpleString address) {
       super(SESS_BINDINGQUERY);
@@ -32,10 +29,6 @@ public class SessionBindingQueryMessage extends PacketImpl {
 
    public SessionBindingQueryMessage() {
       super(SESS_BINDINGQUERY);
-   }
-
-   public SimpleString getAddress() {
-      return address;
    }
 
    @Override
