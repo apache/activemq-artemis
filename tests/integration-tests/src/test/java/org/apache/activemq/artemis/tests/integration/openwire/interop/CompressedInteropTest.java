@@ -28,9 +28,7 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Before;
