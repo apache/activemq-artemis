@@ -95,6 +95,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
+      System.clearProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime");
       System.out.println("tear down! " + connection);
       try {
          if (connection != null) {
