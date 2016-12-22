@@ -27,23 +27,22 @@ public class ServerSASLPlain implements ServerSASL {
 
    @Override
    public SASLResult processSASL(byte[] data) {
-
       String username = null;
       String password = null;
       String bytes = new String(data);
       String[] credentials = bytes.split(Character.toString((char) 0));
-      int offSet = 0;
-      if (credentials.length > 0) {
-         if (credentials[0].length() == 0) {
-            offSet = 1;
-         }
 
-         if (credentials.length >= offSet) {
-            username = credentials[offSet];
-         }
-         if (credentials.length >= (offSet + 1)) {
-            password = credentials[offSet + 1];
-         }
+      switch (credentials.length) {
+         case 2:
+            username = credentials[0];
+            password = credentials[1];
+            break;
+         case 3:
+            username = credentials[1];
+            password = credentials[2];
+            break;
+         default:
+            break;
       }
 
       boolean success = authenticate(username, password);

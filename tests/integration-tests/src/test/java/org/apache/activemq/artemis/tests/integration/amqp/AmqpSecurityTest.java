@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
@@ -32,12 +38,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Delivery;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class AmqpSecurityTest extends AmqpClientTestSupport {
 
@@ -59,6 +59,55 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       serverManager.start();
       server.start();
       return server;
+   }
+
+   @Test(timeout = 60000)
+   public void testSaslAuthWithInvalidCredentials() throws Exception {
+      AmqpConnection connection = null;
+      AmqpClient client = createAmqpClient("foo", "foo");
+
+      try {
+         connection = client.connect();
+         fail("Should authenticate even with authzid set");
+      } catch (Exception ex) {
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSaslAuthWithAuthzid() throws Exception {
+      AmqpConnection connection = null;
+      AmqpClient client = createAmqpClient("foo", "bar");
+      client.setAuthzid("foo");
+
+      try {
+         connection = client.connect();
+      } catch (Exception ex) {
+         fail("Should authenticate even with authzid set");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSaslAuthWithoutAuthzid() throws Exception {
+      AmqpConnection connection = null;
+      AmqpClient client = createAmqpClient("foo", "bar");
+
+      try {
+         connection = client.connect();
+      } catch (Exception ex) {
+         fail("Should authenticate even with authzid set");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
    }
 
    @Test(timeout = 60000)
