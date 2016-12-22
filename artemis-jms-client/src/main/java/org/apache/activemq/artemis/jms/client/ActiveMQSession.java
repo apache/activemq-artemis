@@ -367,19 +367,26 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         ActiveMQQueue queue = lookupQueue(queueName, false);
-
-         if (queue == null) {
-            queue = lookupQueue(queueName, true);
-         }
-
-         if (queue == null) {
-            throw new JMSException("There is no queue with name " + queueName);
-         } else {
-            return queue;
-         }
+         return internalCreateQueue(queueName, false);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+   }
+
+   protected Queue internalCreateQueue(String queueName, final boolean retry) throws ActiveMQException, JMSException {
+      ActiveMQQueue queue = lookupQueue(queueName, false);
+
+      if (queue == null) {
+         queue = lookupQueue(queueName, true);
+      }
+
+      if (queue == null) {
+         if (!retry) {
+            return internalCreateQueue("jms.queue." + queueName, true);
+         }
+         throw new JMSException("There is no queue with name " + queueName);
+      } else {
+         return queue;
       }
    }
 
@@ -391,19 +398,26 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         ActiveMQTopic topic = lookupTopic(topicName, false);
-
-         if (topic == null) {
-            topic = lookupTopic(topicName, true);
-         }
-
-         if (topic == null) {
-            throw new JMSException("There is no topic with name " + topicName);
-         } else {
-            return topic;
-         }
+         return internalCreateTopic(topicName, false);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+   }
+
+   protected Topic internalCreateTopic(String topicName, boolean retry) throws ActiveMQException, JMSException {
+      ActiveMQTopic topic = lookupTopic(topicName, false);
+
+      if (topic == null) {
+         topic = lookupTopic(topicName, true);
+      }
+
+      if (topic == null) {
+         if (!retry) {
+            return internalCreateTopic("jms.topic." + topicName, true);
+         }
+         throw new JMSException("There is no topic with name " + topicName);
+      } else {
+         return topic;
       }
    }
 

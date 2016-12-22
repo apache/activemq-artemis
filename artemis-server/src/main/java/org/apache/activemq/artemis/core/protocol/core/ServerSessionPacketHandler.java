@@ -150,7 +150,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       this.remotingConnection = channel.getConnection();
 
-      //TODO think of a better way of doing this
       Connection conn = remotingConnection.getTransportConnection();
 
       if (conn instanceof NettyConnection) {
@@ -215,11 +214,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_CREATECONSUMER: {
                   SessionCreateConsumerMessage request = (SessionCreateConsumerMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createConsumer(request.getID(), request.getQueueName(), request.getFilterString(), request.isBrowseOnly());
+                  session.createConsumer(request.getID(), request.getQueueName(remotingConnection.getClientVersion()), request.getFilterString(), request.isBrowseOnly());
                   if (requiresResponse) {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover
-                     QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
+                     QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName(remotingConnection.getClientVersion()));
+
                      if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
                         response = new SessionQueueQueryResponseMessage_V3(queueQueryResult);
                      } else if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
@@ -287,7 +287,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_QUEUEQUERY: {
                   requiresResponse = true;
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
-                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
+                  QueueQueryResult result = session.executeQueueQuery(request.getQueueName(remotingConnection.getClientVersion()));
                   if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
                      response = new SessionQueueQueryResponseMessage_V3(result);
                   } else if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
@@ -300,7 +300,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_BINDINGQUERY: {
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
-                  BindingQueryResult result = session.executeBindingQuery(request.getAddress());
+                  BindingQueryResult result = session.executeBindingQuery(request.getAddress(remotingConnection.getClientVersion()));
                   if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
                      response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultDeleteOnNoConsumers(), result.getDefaultMaxConsumers());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {

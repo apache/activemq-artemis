@@ -17,12 +17,18 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
+
+   public static final int ADDRESSING_CHANGE_VERSION = 129;
+
+   public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
+   public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
 
    // The minimal size for all the packets, Common data for all the packets (look at
    // PacketImpl.encode)
@@ -267,6 +273,20 @@ public class PacketImpl implements Packet {
 
    // Public --------------------------------------------------------
 
+   public SimpleString convertName(SimpleString name) {
+      if (name == null) {
+         return null;
+      }
+
+      if (name.startsWith(OLD_QUEUE_PREFIX)) {
+         return name.subSeq(OLD_QUEUE_PREFIX.length(), name.length());
+      } else if (name.startsWith(OLD_TOPIC_PREFIX)) {
+         return name.subSeq(OLD_TOPIC_PREFIX.length(), name.length());
+      } else {
+         return name;
+      }
+   }
+
    @Override
    public byte getType() {
       return type;
@@ -376,4 +396,6 @@ public class PacketImpl implements Packet {
    protected int nullableStringEncodeSize(final String str) {
       return DataConstants.SIZE_BOOLEAN + (str != null ? stringEncodeSize(str) : 0);
    }
+
+
 }
