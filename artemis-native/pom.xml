@@ -63,24 +63,6 @@
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
                <execution>
-                  <id>copy-resources-32</id>
-                  <phase>validate</phase>
-                  <goals>
-                     <goal>copy-resources</goal>
-                  </goals>
-                  <configuration>
-                     <outputDirectory>${basedir}/target/output/lib/linux-i686/</outputDirectory>
-                     <resources>
-                        <resource>
-                           <directory>bin/</directory>
-                           <includes>
-                              <include>libartemis-native-32.so</include>
-                           </includes>
-                        </resource>
-                     </resources>
-                  </configuration>
-               </execution>
-               <execution>
                   <id>copy-resources-64</id>
                   <phase>validate</phase>
                   <goals>
