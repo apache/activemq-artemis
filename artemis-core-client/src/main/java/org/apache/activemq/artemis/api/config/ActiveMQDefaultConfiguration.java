@@ -159,6 +159,8 @@ public final class ActiveMQDefaultConfiguration {
    // true means that the server supports wild card routing
    private static boolean DEFAULT_WILDCARD_ROUTING_ENABLED = true;
 
+   private static String DEFAULT_ADDRESS_PATH_SEPARATOR = ".";
+
    private static SimpleString DEFAULT_MANAGEMENT_ADDRESS = new SimpleString("activemq.management");
 
    // the name of the address that consumers bind to receive management notifications
@@ -541,6 +543,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultWildcardRoutingEnabled() {
       return DEFAULT_WILDCARD_ROUTING_ENABLED;
+   }
+
+   public static String getDefaultAddressPathSeparator() {
+      return DEFAULT_ADDRESS_PATH_SEPARATOR;
    }
 
    /**
