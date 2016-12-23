@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -553,7 +554,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setRunSyncSpeedTest(getBoolean(e, "run-sync-speed-test", config.isRunSyncSpeedTest()));
 
-      config.setWildcardRoutingEnabled(getBoolean(e, "wild-card-routing-enabled", config.isWildcardRoutingEnabled()));
+      if (e.hasAttribute("wild-card-routing-enabled")) {
+         config.setWildcardRoutingEnabled(getBoolean(e, "wild-card-routing-enabled", config.isWildcardRoutingEnabled()));
+      }
 
       config.setMessageCounterEnabled(getBoolean(e, "message-counter-enabled", config.isMessageCounterEnabled()));
 
@@ -602,6 +605,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       config.setConnectorServiceConfigurations(configs);
+
+      NodeList wildCardConfiguration = e.getElementsByTagName("wildcard-addresses");
+
+      if (wildCardConfiguration.getLength() > 0) {
+         parseWildcardConfiguration((Element) wildCardConfiguration.item(0), config);
+      }
    }
 
    /**
@@ -1610,6 +1619,21 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName).setRoutingType(routingType);
 
       mainConfig.getDivertConfigurations().add(config);
+   }
+
+   /**
+    * @param node
+    * @return
+    */
+   protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {
+      WildcardConfiguration conf = new WildcardConfiguration();
+
+      conf.setDelimiter(getString(e, "delimiter", Character.toString(conf.getDelimiter()), Validators.NO_CHECK).charAt(0));
+      conf.setAnyWords(getString(e, "any-words", Character.toString(conf.getAnyWords()), Validators.NO_CHECK).charAt(0));
+      conf.setSingleWord(getString(e, "single-word", Character.toString(conf.getSingleWord()), Validators.NO_CHECK).charAt(0));
+      conf.setEnabled(getBoolean(e, "enabled", conf.isEnabled()));
+
+      mainConfig.setWildCardConfiguration(conf);
    }
 
    private ConnectorServiceConfiguration parseConnectorService(final Element e) {

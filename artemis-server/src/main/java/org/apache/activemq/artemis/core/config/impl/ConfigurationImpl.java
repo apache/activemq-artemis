@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
@@ -196,7 +197,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected boolean runSyncSpeedTest = ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest();
 
-   private boolean wildcardRoutingEnabled = ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled();
+   private WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
 
    private boolean messageCounterEnabled = ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled();
 
@@ -896,13 +897,27 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   @Deprecated
    public boolean isWildcardRoutingEnabled() {
-      return wildcardRoutingEnabled;
+      return wildcardConfiguration.isEnabled();
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled) {
-      wildcardRoutingEnabled = enabled;
+      logger.info("Usage of wildcardRoutingEnabled configuration property is deprecated, please use wildCardConfiguration.enabled instead");
+      wildcardConfiguration.setEnabled(enabled);
+      return this;
+   }
+
+   @Override
+   public WildcardConfiguration getWildcardConfiguration() {
+      return wildcardConfiguration;
+   }
+
+   @Override
+   public Configuration setWildCardConfiguration(WildcardConfiguration wildcardConfiguration) {
+      this.wildcardConfiguration = wildcardConfiguration;
       return this;
    }
 
@@ -1574,7 +1589,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + threadPoolMaxSize;
       result = prime * result + (int) (transactionTimeout ^ (transactionTimeout >>> 32));
       result = prime * result + (int) (transactionTimeoutScanPeriod ^ (transactionTimeoutScanPeriod >>> 32));
-      result = prime * result + (wildcardRoutingEnabled ? 1231 : 1237);
+      result = prime * result + ((wildcardConfiguration == null) ? 0 : wildcardConfiguration.hashCode());
       result = prime * result + (resolveProtocols ? 1231 : 1237);
       result = prime * result + (int) (journalLockAcquisitionTimeout ^ (journalLockAcquisitionTimeout >>> 32));
       result = prime * result + (int) (connectionTtlCheckInterval ^ (connectionTtlCheckInterval >>> 32));
@@ -1800,7 +1815,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (transactionTimeoutScanPeriod != other.transactionTimeoutScanPeriod)
          return false;
-      if (wildcardRoutingEnabled != other.wildcardRoutingEnabled)
+      if (wildcardConfiguration == null) {
+         if (other.wildcardConfiguration != null)
+            return false;
+      } else if (!wildcardConfiguration.equals(other.wildcardConfiguration))
          return false;
       if (resolveProtocols != other.resolveProtocols)
          return false;

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -50,6 +51,10 @@ public class WildcardAddressManager extends SimpleAddressManager {
    private final Map<SimpleString, Address> addresses = new ConcurrentHashMap<>();
 
    private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
+
+   public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration) {
+      super(bindingsFactory, wildcardConfiguration);
+   }
 
    public WildcardAddressManager(final BindingsFactory bindingsFactory) {
       super(bindingsFactory);
@@ -136,7 +141,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    }
 
    private Address getAddress(final SimpleString address) {
-      Address add = new AddressImpl(address);
+      Address add = new AddressImpl(address, wildcardConfiguration);
       Address actualAddress;
       if (add.containsWildCard()) {
          actualAddress = wildCardAddresses.get(address);
@@ -147,7 +152,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    }
 
    private synchronized Address addAndUpdateAddressMap(final SimpleString address) {
-      Address add = new AddressImpl(address);
+      Address add = new AddressImpl(address, wildcardConfiguration);
       Address actualAddress;
       if (add.containsWildCard()) {
          actualAddress = wildCardAddresses.get(address);

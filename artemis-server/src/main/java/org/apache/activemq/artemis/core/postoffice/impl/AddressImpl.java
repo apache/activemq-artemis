@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
 
 /**
@@ -35,10 +36,17 @@ public class AddressImpl implements Address {
 
    private final List<Address> linkedAddresses = new ArrayList<>();
 
+   private final WildcardConfiguration wildcardConfiguration;
+
    public AddressImpl(final SimpleString address) {
+      this(address, new WildcardConfiguration());
+   }
+
+   public AddressImpl(final SimpleString address, WildcardConfiguration wildcardConfiguration) {
       this.address = address;
-      addressParts = address.split(WildcardAddressManager.DELIM);
-      containsWildCard = address.contains(WildcardAddressManager.SINGLE_WORD) || address.contains(WildcardAddressManager.ANY_WORDS);
+      this.wildcardConfiguration = wildcardConfiguration;
+      addressParts = address.split(wildcardConfiguration.getDelimiter());
+      containsWildCard = address.contains(wildcardConfiguration.getSingleWord()) || address.contains(wildcardConfiguration.getAnyWords());
    }
 
    @Override
