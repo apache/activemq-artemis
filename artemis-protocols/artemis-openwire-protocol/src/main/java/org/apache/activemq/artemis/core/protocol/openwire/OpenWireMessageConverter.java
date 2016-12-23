@@ -490,10 +490,11 @@ public class OpenWireMessageConverter implements MessageConverter {
                   ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(text.length() + 4);
                   OutputStream out = bytesOut;
                   if (isCompressed) {
-                     out = new DeflaterOutputStream(out);
+                     out = new DeflaterOutputStream(out, true);
                   }
                   try (DataOutputStream dataOut = new DataOutputStream(out)) {
                      MarshallingSupport.writeUTF8(dataOut, text.toString());
+                     dataOut.flush();
                      bytes = bytesOut.toByteArray();
                   }
                }
@@ -506,10 +507,11 @@ public class OpenWireMessageConverter implements MessageConverter {
                   ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
                   OutputStream os = out;
                   if (isCompressed) {
-                     os = new DeflaterOutputStream(os);
+                     os = new DeflaterOutputStream(os, true);
                   }
                   try (DataOutputStream dataOut = new DataOutputStream(os)) {
                      MarshallingSupport.marshalPrimitiveMap(map, dataOut);
+                     dataOut.flush();
                   }
                   bytes = out.toByteArray();
                }
@@ -520,8 +522,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                buffer.readBytes(bytes);
                if (isCompressed) {
                   ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                  try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut)) {
+                  try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
                      out.write(bytes);
+                     out.flush();
                   }
                   bytes = bytesOut.toByteArray();
                }
@@ -529,7 +532,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
                OutputStream out = bytesOut;
                if (isCompressed) {
-                  out = new DeflaterOutputStream(bytesOut);
+                  out = new DeflaterOutputStream(bytesOut, true);
                }
                try (DataOutputStream dataOut = new DataOutputStream(out)) {
 
@@ -583,6 +586,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                            stop = true;
                            break;
                      }
+                     dataOut.flush();
                   }
                }
                bytes = bytesOut.toByteArray();
@@ -602,6 +606,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                         int count = deflater.deflate(bytesBuf);
                         compressed.write(bytesBuf, 0, count);
                      }
+                     compressed.flush();
                      ByteSequence byteSeq = compressed.toByteSequence();
                      ByteSequenceData.writeIntBig(byteSeq, length);
                      bytes = Arrays.copyOfRange(byteSeq.data, 0, byteSeq.length);
@@ -615,8 +620,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                buffer.readBytes(bytes);
                if (isCompressed) {
                   try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                       DeflaterOutputStream out = new DeflaterOutputStream(bytesOut)) {
+                       DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
                      out.write(bytes);
+                     out.flush();
                      bytes = bytesOut.toByteArray();
                   }
                }
