@@ -12,9 +12,11 @@ messages which are sent to a *hierarchy* of addresses.
 >
 > In JMS terminology this allows "topic hierarchies" to be created.
 
-To enable this functionality set the property
-`wild-card-routing-enabled` in the `broker.xml` file to
-`true`. This is `true` by default.
+This functionality is enabled by default. To turn it off add the following to the `broker.xml` configuration.
 
-For more information on the wild card syntax take a look at [wildcard syntax](wildcard-syntax.md) chapter,
+      <wildcard-addresses>
+        <enabled>false</enabled>
+      </wildcard-addresses>
+
+For more information on the wild card syntax and how to configure it, take a look at [wildcard syntax](wildcard-syntax.md) chapter,
 also see the topic hierarchy example in the [examples](examples.md).
