@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.cli.commands.user;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
@@ -39,7 +38,7 @@ public abstract class UserAction extends InputAbstract {
    @Option(name = "--entry", description = "The appConfigurationEntry (default: activemq)")
    String entry = "activemq";
 
-   protected void checkInputUser() {
+   void checkInputUser() {
       if (username == null) {
          username = input("--user", "Please provider the userName:", null);
       }
@@ -49,7 +48,7 @@ public abstract class UserAction extends InputAbstract {
       this.role = role;
    }
 
-   public void checkInputRole() {
+   void checkInputRole() {
       if (role == null) {
          role = input("--role", "type a comma separated list of roles", null);
       }

@@ -119,7 +119,7 @@ public class Artemis {
     * This method is used to validate exception returns.
     * Useful on test cases
     */
-   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
+   private static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
 
@@ -160,19 +160,4 @@ public class Artemis {
 
       return builder;
    }
-
-   public static void printBanner() throws Exception {
-      copy(Artemis.class.getResourceAsStream("banner.txt"), System.out);
-   }
-
-   private static long copy(InputStream in, OutputStream out) throws Exception {
-      byte[] buffer = new byte[1024];
-      int len = in.read(buffer);
-      while (len != -1) {
-         out.write(buffer, 0, len);
-         len = in.read(buffer);
-      }
-      return len;
-   }
-
 }

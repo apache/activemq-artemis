@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.cli.test;
+package org.apache.activemq.cli.factory.broker.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.dto.ServerDTO;
-import org.apache.activemq.artemis.integration.FileBroker;
+import org.apache.activemq.artemis.cli.factory.broker.file.FileBroker;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;

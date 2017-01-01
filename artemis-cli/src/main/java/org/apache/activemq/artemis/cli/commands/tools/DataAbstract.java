@@ -39,7 +39,7 @@ public abstract class DataAbstract extends Configurable {
    @Option(name = "--large-messages", description = "The folder used for large-messages (default from broker.xml)")
    public String largeMessges;
 
-   public String getLargeMessages() throws Exception {
+   String getLargeMessages() throws Exception {
       if (largeMessges == null) {
          largeMessges = getFileConfiguration().getLargeMessagesLocation().getAbsolutePath();
       }

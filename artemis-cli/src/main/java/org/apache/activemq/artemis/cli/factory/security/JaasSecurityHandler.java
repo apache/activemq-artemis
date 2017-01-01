@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory.security;
 
-import org.apache.activemq.artemis.dto.ServerDTO;
-import org.apache.activemq.artemis.integration.Broker;
-import org.apache.activemq.artemis.integration.FileBroker;
+import org.apache.activemq.artemis.dto.JaasSecurityDTO;
+import org.apache.activemq.artemis.dto.SecurityDTO;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
-public class FileBrokerHandler implements BrokerHandler {
+public class JaasSecurityHandler implements SecurityHandler {
 
    @Override
-   public Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) {
-      return new FileBroker(brokerDTO, security);
+   public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception {
+      JaasSecurityDTO jaasSecurity = (JaasSecurityDTO) security;
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(jaasSecurity.domain, jaasSecurity.certificateDomain);
+      return securityManager;
    }
 }

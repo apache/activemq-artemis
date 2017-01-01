@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +76,7 @@ public class PrintData extends OptionalLocking {
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception {
       // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
-      Artemis.printBanner();
+      printBanner();
 
       File serverLockFile = new File(messagesDirectory, "server.lock");
 
@@ -221,7 +223,7 @@ public class PrintData extends OptionalLocking {
    /**
     * Calculate the acks on the page system
     */
-   protected static PageCursorsInfo calculateCursorsInfo(List<RecordInfo> records) throws Exception {
+   private static PageCursorsInfo calculateCursorsInfo(List<RecordInfo> records) throws Exception {
 
       PageCursorsInfo cursorInfo = new PageCursorsInfo();
 
@@ -272,6 +274,20 @@ public class PrintData extends OptionalLocking {
       return cursorInfo;
    }
 
+   public static void printBanner() throws Exception {
+      copy(PrintData.class.getResourceAsStream("banner.txt"), System.out);
+   }
+
+   private static long copy(InputStream in, OutputStream out) throws Exception {
+      byte[] buffer = new byte[1024];
+      int len = in.read(buffer);
+      while (len != -1) {
+         out.write(buffer, 0, len);
+         len = in.read(buffer);
+      }
+      return len;
+   }
+
    private static class PageCursorsInfo {
 
       private final Map<Long, Set<PagePosition>> cursorRecords = new HashMap<>();
@@ -286,14 +302,14 @@ public class PrintData extends OptionalLocking {
       /**
        * @return the pgTXs
        */
-      public Set<Long> getPgTXs() {
+      Set<Long> getPgTXs() {
          return pgTXs;
       }
 
       /**
        * @return the cursorRecords
        */
-      public Map<Long, Set<PagePosition>> getCursorRecords() {
+      Map<Long, Set<PagePosition>> getCursorRecords() {
          return cursorRecords;
       }
 
@@ -304,7 +320,7 @@ public class PrintData extends OptionalLocking {
          return completePages;
       }
 
-      public Set<Long> getCompletePages(Long queueID) {
+      Set<Long> getCompletePages(Long queueID) {
          Set<Long> completePagesSet = completePages.get(queueID);
 
          if (completePagesSet == null) {

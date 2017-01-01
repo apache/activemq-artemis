@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.integration.bootstrap;
+package org.apache.activemq.artemis.cli.factory.broker;
 
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 /**
- * Logger Code 10
- *
- * each message id must be 6 digits long starting with 10, the 3rd digit should be 9
- *
- * so 109000 to 109999
+ * A Broker os a set of ActiveMQComponents that create a Server, for instance core and jms.
  */
-@MessageBundle(projectCode = "AMQ")
-public interface ActiveMQBootstrapBundle {
+public interface Broker extends ActiveMQComponent {
 
-   ActiveMQBootstrapBundle BUNDLE = Messages.getBundle(ActiveMQBootstrapBundle.class);
-
+   ActiveMQServer getServer();
 }

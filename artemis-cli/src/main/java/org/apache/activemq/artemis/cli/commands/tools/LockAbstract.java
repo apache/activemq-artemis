@@ -33,7 +33,7 @@ public abstract class LockAbstract extends DataAbstract implements Action {
    private static RandomAccessFile serverLockFile = null;
    private static FileLock serverLockLock = null;
 
-   protected File getLockPlace() throws Exception {
+   private File getLockPlace() throws Exception {
       String brokerInstance = getBrokerInstance();
       if (brokerInstance != null) {
          return new File(new File(brokerInstance), "lock");

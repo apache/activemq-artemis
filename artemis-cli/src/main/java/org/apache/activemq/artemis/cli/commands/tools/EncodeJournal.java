@@ -64,11 +64,11 @@ public class EncodeJournal extends LockAbstract {
       return null;
    }
 
-   public static void exportJournal(final String directory,
-                                    final String journalPrefix,
-                                    final String journalSuffix,
-                                    final int minFiles,
-                                    final int fileSize) throws Exception {
+   private static void exportJournal(final String directory,
+                                     final String journalPrefix,
+                                     final String journalSuffix,
+                                     final int minFiles,
+                                     final int fileSize) throws Exception {
 
       exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, System.out);
    }
@@ -111,9 +111,9 @@ public class EncodeJournal extends LockAbstract {
     * @param file
     * @throws Exception
     */
-   public static void exportJournalFile(final PrintStream out,
-                                        final SequentialFileFactory fileFactory,
-                                        final JournalFile file) throws Exception {
+   private static void exportJournalFile(final PrintStream out,
+                                         final SequentialFileFactory fileFactory,
+                                         final JournalFile file) throws Exception {
       JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
 
          @Override
