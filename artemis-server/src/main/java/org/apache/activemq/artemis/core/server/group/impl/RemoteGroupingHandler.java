@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.core.server.group.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -34,9 +35,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jctools.maps.NonBlockingHashSet;
 
 /**
  * A remote Grouping handler.
@@ -48,7 +49,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
 
    private final SimpleString name;
 
-   private final Map<SimpleString, Response> responses = new ConcurrentHashMap<>();
+   private final Map<SimpleString, Response> responses = new NonBlockingHashMap<>();
 
    private final Lock lock = new ReentrantLock();
 
@@ -58,9 +59,9 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
 
    private final long groupTimeout;
 
-   private final ConcurrentMap<SimpleString, List<SimpleString>> groupMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, List<SimpleString>> groupMap = new NonBlockingHashMap<>();
 
-   private final ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<>();
+   private final Set<Notification> pendingNotifications = new NonBlockingHashSet<>();
 
    private boolean started = false;
 

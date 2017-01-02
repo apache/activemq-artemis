@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.util;
 
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
+import org.jctools.maps.NonBlockingHashSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -73,7 +74,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
 
    @Test
    public void testCalculationOnMultiThread() throws Throwable {
-      final ConcurrentHashSet<Long> hashSet = new ConcurrentHashSet<>();
+      final Set<Long> hashSet = new NonBlockingHashSet<>();
 
       final TimeAndCounterIDGenerator seq = new TimeAndCounterIDGenerator();
 

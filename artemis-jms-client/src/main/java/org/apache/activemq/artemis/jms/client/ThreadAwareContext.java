@@ -17,9 +17,8 @@
 package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.IllegalStateException;
-import java.util.Set;
-
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * Restricts what can be called on context passed in wrapped CompletionListener.
@@ -36,10 +35,20 @@ public class ThreadAwareContext {
    private Thread completionListenerThread;
 
    /**
-    * Use a set because JMSContext can create more than one JMSConsumer
+    * Use a set (a kind of) because JMSContext can create more than one JMSConsumer
     * to receive asynchronously from different destinations.
+    *
     */
-   private final Set<Long> messageListenerThreads = new ConcurrentHashSet<>();
+   private final ThreadLocal<Map<Thread,Thread>> messageListenerThreads = new ThreadLocal<>();
+
+   private Map<Thread, Thread> acquire() {
+      Map<Thread, Thread> value = messageListenerThreads.get();
+      if (value == null) {
+         value = new IdentityHashMap<>();
+         messageListenerThreads.set(value);
+      }
+      return value;
+   }
 
    /**
     * Sets current thread to the context
@@ -51,10 +60,11 @@ public class ThreadAwareContext {
     *                             or from MessageListener.
     */
    public void setCurrentThread(boolean isCompletionListener) {
+      final Thread currentThread = Thread.currentThread();
       if (isCompletionListener) {
-         completionListenerThread = Thread.currentThread();
+         completionListenerThread = currentThread;
       } else {
-         messageListenerThreads.add(Thread.currentThread().getId());
+         acquire().put(currentThread, currentThread);
       }
    }
 
@@ -68,7 +78,10 @@ public class ThreadAwareContext {
       if (isCompletionListener) {
          completionListenerThread = null;
       } else {
-         messageListenerThreads.remove(Thread.currentThread().getId());
+         final Map<Thread, Thread> localMessageListenerThreads = messageListenerThreads.get();
+         if (localMessageListenerThreads != null) {
+            localMessageListenerThreads.remove(Thread.currentThread());
+         }
       }
    }
 
@@ -118,8 +131,11 @@ public class ThreadAwareContext {
     * @see javax.jms.JMSContext#stop()
     */
    public void assertNotMessageListenerThreadRuntime() {
-      if (messageListenerThreads.contains(Thread.currentThread().getId())) {
-         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListenerRuntime();
+      final Map<Thread, Thread> localMessageListenerThreads = messageListenerThreads.get();
+      if (localMessageListenerThreads != null) {
+         if (localMessageListenerThreads.containsKey(Thread.currentThread())) {
+            throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListenerRuntime();
+         }
       }
    }
 
@@ -135,8 +151,11 @@ public class ThreadAwareContext {
     * @see javax.jms.MessageConsumer#close()
     */
    public void assertNotMessageListenerThread() throws IllegalStateException {
-      if (messageListenerThreads.contains(Thread.currentThread().getId())) {
-         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListener();
+      final Map<Thread, Thread> localMessageListenerThreads = messageListenerThreads.get();
+      if (localMessageListenerThreads != null) {
+         if (localMessageListenerThreads.containsKey(Thread.currentThread())) {
+            throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListener();
+         }
       }
    }
 

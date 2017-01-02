@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider {
 
@@ -48,7 +48,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    private static final short COMPACT_SPLIT_LINE = 2;
 
    // Snapshot of transactions that were pending when the compactor started
-   private final Map<Long, PendingTransaction> pendingTransactions = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<PendingTransaction> pendingTransactions = new NonBlockingHashMapLong<>();
 
    private final Map<Long, JournalRecord> newRecords = new HashMap<>();
 
@@ -127,6 +127,14 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
                            final JournalImpl journal,
                            final JournalFilesRepository filesRepository,
                            final Set<Long> recordsSnapshot,
+                           final long firstFileID) {
+      super(fileFactory, journal, filesRepository, recordsSnapshot, firstFileID);
+   }
+
+   public JournalCompactor(final SequentialFileFactory fileFactory,
+                           final JournalImpl journal,
+                           final JournalFilesRepository filesRepository,
+                           final long[] recordsSnapshot,
                            final long firstFileID) {
       super(fileFactory, journal, filesRepository, recordsSnapshot, firstFileID);
    }

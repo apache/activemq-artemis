@@ -103,6 +103,7 @@
       <arquillian-weld-embedded.version>2.0.0.Beta3</arquillian-weld-embedded.version>
       <owb.version>1.7.0</owb.version>
       <arquillian.version>1.1.11.Final</arquillian.version>
+      <jctools-core.version>2.0</jctools-core.version>
 
       <owasp.version>1.4.3</owasp.version>
 
@@ -654,6 +655,12 @@
             <artifactId>cdi-api</artifactId>
             <version>${cdi-api.version}</version>
             <scope>provided</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>${jctools-core.version}</version>
+            <!-- License: Apache 2.0 -->
          </dependency>
       </dependencies>
    </dependencyManagement>

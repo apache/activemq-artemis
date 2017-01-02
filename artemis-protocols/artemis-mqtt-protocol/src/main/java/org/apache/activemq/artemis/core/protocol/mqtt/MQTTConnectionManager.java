@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
@@ -38,7 +38,7 @@ public class MQTTConnectionManager {
    private MQTTSession session;
 
    //TODO Read in a list of existing client IDs from stored Sessions.
-   public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<>();
+   public static Set<String> CONNECTED_CLIENTS = new NonBlockingHashSet<>();
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 

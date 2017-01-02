@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -85,7 +85,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.jboss.logging.Logger;
 
@@ -130,7 +130,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    private boolean notificationsEnabled;
 
-   private final Set<NotificationListener> listeners = new ConcurrentHashSet<>();
+   private final Set<NotificationListener> listeners = new NonBlockingHashSet<>();
 
    private final ObjectNameBuilder objectNameBuilder;
 
@@ -145,7 +145,7 @@ public class ManagementServiceImpl implements ManagementService {
       managementAddress = configuration.getManagementAddress();
       managementNotificationAddress = configuration.getManagementNotificationAddress();
 
-      registry = new ConcurrentHashMap<>();
+      registry = new NonBlockingHashMap<>();
       broadcaster = new NotificationBroadcasterSupport();
       notificationsEnabled = true;
       objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain(), configuration.getName(), configuration.isJMXUseBrokerName());

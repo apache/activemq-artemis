@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.invm;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public final class InVMRegistry {
 
    public static final InVMRegistry instance = new InVMRegistry();
 
-   private final ConcurrentMap<Integer, InVMAcceptor> acceptors = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<InVMAcceptor> acceptors = new NonBlockingHashMapLong<>();
 
    public void registerAcceptor(final int id, final InVMAcceptor acceptor) {
       if (acceptors.putIfAbsent(id, acceptor) != null) {

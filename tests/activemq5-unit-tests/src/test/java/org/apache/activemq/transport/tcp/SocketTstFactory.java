@@ -22,7 +22,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class SocketTstFactory extends SocketFactory {
 
    private static final Logger LOG = LoggerFactory.getLogger(SocketTstFactory.class);
 
-   private static final ConcurrentMap<InetAddress, Integer> closeIter = new ConcurrentHashMap<>();
+   private static final ConcurrentMap<InetAddress, Integer> closeIter = new NonBlockingHashMap<>();
 
    private class SocketTst {
 

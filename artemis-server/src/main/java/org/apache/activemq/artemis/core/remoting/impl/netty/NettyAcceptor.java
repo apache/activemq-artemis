@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -154,7 +154,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final int nioRemotingThreads;
 
-   private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Object, NettyServerConnection> connections = new NonBlockingHashMap<>();
 
    private final Map<String, Object> configuration;
 

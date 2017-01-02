@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -90,7 +90,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private final Map<String, Acceptor> acceptors = new HashMap<>();
 
-   private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
+   private final Map<Object, ConnectionEntry> connections = new NonBlockingHashMap<>();
 
    private final ReusableLatch connectionCountLatch = new ReusableLatch(0);
 
@@ -108,7 +108,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private final ClusterManager clusterManager;
 
-   private final Map<String, ProtocolManagerFactory> protocolMap = new ConcurrentHashMap<>();
+   private final Map<String, ProtocolManagerFactory> protocolMap = new NonBlockingHashMap<>();
 
    private ActiveMQPrincipal defaultInvmSecurityPrincipal;
 
@@ -233,7 +233,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       try {
          AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
-         Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap<>();
+         Map<String, ProtocolManagerFactory> selectedProtocolFactories = new NonBlockingHashMap<>();
 
          @SuppressWarnings("deprecation")
          String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
@@ -255,7 +255,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
             selectedProtocolFactories = protocolMap;
          }
 
-         Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
+         Map<String, ProtocolManager> selectedProtocols = new NonBlockingHashMap<>();
          for (Entry<String, ProtocolManagerFactory> entry : selectedProtocolFactories.entrySet()) {
             selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
          }

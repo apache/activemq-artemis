@@ -18,9 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -41,6 +39,7 @@ import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
 
@@ -48,7 +47,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private final PacketDecoder packetDecoder;
 
-   private final Map<Long, Channel> channels = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<Channel> channels = new NonBlockingHashMapLong<>();
 
    private final long blockingCallTimeout;
 

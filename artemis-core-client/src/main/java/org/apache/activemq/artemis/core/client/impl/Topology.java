@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -73,7 +73,7 @@ public final class Topology {
 
    public Topology(final Object owner, final Executor executor) {
       this.topologyListeners = new HashSet<>();
-      this.topology = new ConcurrentHashMap<>();
+      this.topology = new NonBlockingHashMap<>();
       if (executor == null) {
          throw new IllegalArgumentException("Executor is required");
       }
@@ -450,7 +450,7 @@ public final class Topology {
 
    private synchronized Map<String, Long> getMapDelete() {
       if (mapDelete == null) {
-         mapDelete = new ConcurrentHashMap<>();
+         mapDelete = new NonBlockingHashMap<>();
       }
       return mapDelete;
    }

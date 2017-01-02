@@ -31,7 +31,9 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
+
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,7 +66,7 @@ import org.junit.Test;
  */
 public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase {
 
-   final ConcurrentHashMap<Integer, AtomicInteger> mapCounter = new ConcurrentHashMap<>();
+   final ConcurrentMap<Integer, AtomicInteger> mapCounter = new NonBlockingHashMap<>();
 
    volatile ActiveMQResourceAdapter resourceAdapter;
 

@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
@@ -49,7 +49,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
    @Override
    public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
       // lets create a factory
-      Map<String, Object> data = new ConcurrentHashMap<>();
+      Map<String, Object> data = new NonBlockingHashMap<>();
       for (Map.Entry<?, ?> entry : environment.entrySet()) {
          String key = entry.getKey().toString();
          if (key.startsWith(connectionFactoryPrefix)) {

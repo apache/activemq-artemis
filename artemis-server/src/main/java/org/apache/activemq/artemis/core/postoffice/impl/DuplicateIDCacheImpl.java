@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.postoffice.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -43,7 +43,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
    private static final Logger logger = Logger.getLogger(DuplicateIDCacheImpl.class);
 
    // ByteHolder, position
-   private final Map<ByteArrayHolder, Integer> cache = new ConcurrentHashMap<>();
+   private final Map<ByteArrayHolder, Integer> cache = new NonBlockingHashMap<>();
 
    private final SimpleString address;
 

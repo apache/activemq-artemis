@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -101,7 +101,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private String brokerName;
 
-   private final Map<String, TopologyMember> topologyMap = new ConcurrentHashMap<>();
+   private final Map<String, TopologyMember> topologyMap = new NonBlockingHashMap<>();
 
    private final LinkedList<TopologyMember> members = new LinkedList<>();
 

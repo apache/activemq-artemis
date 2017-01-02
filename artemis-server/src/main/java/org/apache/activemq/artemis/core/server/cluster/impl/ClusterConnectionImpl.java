@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -130,9 +130,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     * however we need the guard to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
-   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
+   private final Map<String, MessageFlowRecord> records = new NonBlockingHashMap<>();
 
-   private final Map<String, MessageFlowRecord> disconnectedRecords = new ConcurrentHashMap<>();
+   private final Map<String, MessageFlowRecord> disconnectedRecords = new NonBlockingHashMap<>();
 
    private final ScheduledExecutorService scheduledExecutor;
 

@@ -29,7 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public class PushConsumerResource {
 
-   protected Map<String, PushConsumer> consumers = new ConcurrentHashMap<>();
+   protected Map<String, PushConsumer> consumers = new NonBlockingHashMap<>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected final String startup = Long.toString(System.currentTimeMillis());

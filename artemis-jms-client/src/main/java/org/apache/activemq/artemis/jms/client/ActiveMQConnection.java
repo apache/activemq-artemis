@@ -53,9 +53,9 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jctools.maps.NonBlockingHashSet;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Connection.
@@ -84,11 +84,11 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final int connectionType;
 
-   private final Set<ActiveMQSession> sessions = new ConcurrentHashSet<>();
+   private final Set<ActiveMQSession> sessions = new NonBlockingHashSet<>();
 
-   private final Set<SimpleString> tempQueues = new ConcurrentHashSet<>();
+   private final Set<SimpleString> tempQueues = new NonBlockingHashSet<>();
 
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
+   private final Set<SimpleString> knownDestinations = new NonBlockingHashSet<>();
 
    private volatile boolean hasNoLocal;
 

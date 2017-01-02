@@ -25,7 +25,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -81,6 +80,8 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
@@ -115,8 +116,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private PagingManager pageManager;
 
-   private final ConcurrentMap<SimpleString, ConcurrentMap<Integer, Page>> pageIndex = new ConcurrentHashMap<>();
-   private final ConcurrentMap<Long, ReplicatedLargeMessage> largeMessages = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, NonBlockingHashMapLong<Page>> pageIndex = new NonBlockingHashMap<>();
+   private final NonBlockingHashMapLong<ReplicatedLargeMessage> largeMessages = new NonBlockingHashMapLong<>();
 
    // Used on tests, to simulate failures on delete pages
    private boolean deletePages = true;
@@ -292,16 +293,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
       }
 
-      for (ConcurrentMap<Integer, Page> map : pageIndex.values()) {
-         for (Page page : map.values()) {
-            try {
-               page.sync();
-               page.close(false);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingPageOnReplication(e);
-            }
+      pageIndex.forEach((k, map) -> map.forEach((id, page) -> {
+         try {
+            page.sync();
+            page.close(false);
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorClosingPageOnReplication(e);
          }
-      }
+      }));
       pageManager.stop();
 
       pageIndex.clear();
@@ -625,7 +624,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @param packet
     */
    private void handlePageEvent(final ReplicationPageEventMessage packet) throws Exception {
-      ConcurrentMap<Integer, Page> pages = getPageMap(packet.getStoreName());
+      NonBlockingHashMapLong<Page> pages = getPageMap(packet.getStoreName());
 
       Page page = pages.remove(packet.getPageNumber());
 
@@ -656,12 +655,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       page.write(pgdMessage);
    }
 
-   private ConcurrentMap<Integer, Page> getPageMap(final SimpleString storeName) {
-      ConcurrentMap<Integer, Page> resultIndex = pageIndex.get(storeName);
+   private NonBlockingHashMapLong<Page> getPageMap(final SimpleString storeName) {
+      NonBlockingHashMapLong<Page> resultIndex = pageIndex.get(storeName);
 
       if (resultIndex == null) {
-         resultIndex = new ConcurrentHashMap<>();
-         ConcurrentMap<Integer, Page> mapResult = pageIndex.putIfAbsent(storeName, resultIndex);
+         resultIndex = new NonBlockingHashMapLong<>();
+         NonBlockingHashMapLong<Page> mapResult = pageIndex.putIfAbsent(storeName, resultIndex);
          if (mapResult != null) {
             resultIndex = mapResult;
          }
@@ -671,7 +670,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    private Page getPage(final SimpleString storeName, final int pageId) throws Exception {
-      ConcurrentMap<Integer, Page> map = getPageMap(storeName);
+      NonBlockingHashMapLong<Page> map = getPageMap(storeName);
 
       Page page = map.get(pageId);
 
@@ -689,7 +688,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private synchronized Page newPage(final int pageId,
                                      final SimpleString storeName,
-                                     final ConcurrentMap<Integer, Page> map) throws Exception {
+                                     final NonBlockingHashMapLong<Page> map) throws Exception {
       Page page = map.get(pageId);
 
       if (page == null) {

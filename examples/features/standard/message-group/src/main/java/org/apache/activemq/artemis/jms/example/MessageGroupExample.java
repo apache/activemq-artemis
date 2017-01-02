@@ -26,7 +26,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 public class MessageGroupExample {
 
    public static void main(final String[] args) throws Exception {
-      final Map<String, String> messageReceiverMap = new ConcurrentHashMap<>();
+      final Map<String, String> messageReceiverMap = new NonBlockingHashMap<>();
       Connection connection = null;
       try {
 

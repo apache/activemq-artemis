@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public class LastValueQueue extends QueueImpl {
 
-   private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
+   private final Map<SimpleString, HolderReference> map = new NonBlockingHashMap<>();
 
    public LastValueQueue(final long persistenceID,
                          final SimpleString address,

@@ -29,7 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.rest.util.TimeoutTask;
 
 public class ConsumersResource implements TimeoutTask.Callback {
 
-   protected ConcurrentMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<>();
+   protected ConcurrentMap<String, QueueConsumer> queueConsumers = new NonBlockingHashMap<>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected final String startup = Long.toString(System.currentTimeMillis());

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -51,12 +51,12 @@ import org.fusesource.mqtt.client.Topic;
 import org.fusesource.mqtt.client.Tracer;
 import org.fusesource.mqtt.codec.MQTTFrame;
 import org.fusesource.mqtt.codec.PUBLISH;
+import org.jctools.maps.NonBlockingHashSet;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.impl.ConcurrentHashSet;
 
 /**
  * QT
@@ -73,11 +73,11 @@ public class MQTTTest extends MQTTTestSupport {
    public void setUp() throws Exception {
       Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
       sessions.setAccessible(true);
-      sessions.set(null, new ConcurrentHashMap<>());
+      sessions.set(null, new NonBlockingHashMap<>());
 
       Field connectedClients = MQTTConnectionManager.class.getDeclaredField("CONNECTED_CLIENTS");
       connectedClients.setAccessible(true);
-      connectedClients.set(null, new ConcurrentHashSet<>());
+      connectedClients.set(null, new NonBlockingHashSet<>());
       super.setUp();
 
    }
@@ -825,7 +825,7 @@ public class MQTTTest extends MQTTTestSupport {
       final MQTT mqtt = createMQTTConnection("nonclean-packetid", false);
       mqtt.setKeepAlive((short) 15);
 
-      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<>();
+      final Map<Short, PUBLISH> publishMap = new NonBlockingHashMap<>();
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
@@ -899,7 +899,7 @@ public class MQTTTest extends MQTTTestSupport {
    // If there is a good reason for this we should follow ActiveMQ.
    public void testPacketIdGeneratorCleanSession() throws Exception {
       final String[] cleanClientIds = new String[]{"", "clean-packetid", null};
-      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<>();
+      final Map<Short, PUBLISH> publishMap = new NonBlockingHashMap<>();
       MQTT[] mqtts = new MQTT[cleanClientIds.length];
       for (int i = 0; i < cleanClientIds.length; i++) {
          mqtts[i] = createMQTTConnection("", true);

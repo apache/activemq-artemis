@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -71,7 +71,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * a cache
     */
-   private final Map<String, T> cache = new ConcurrentHashMap<>();
+   private final Map<String, T> cache = new NonBlockingHashMap<>();
 
    /**
     * Need a lock instead of using multiple {@link ConcurrentHashMap}s.

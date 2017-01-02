@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +45,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
 
 import io.netty.buffer.ByteBuf;
+import org.jctools.maps.NonBlockingHashMap;
 
 public class AMQPConnectionContext extends ProtonInitializable {
 
@@ -61,7 +61,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
    private final Map<Symbol, Object> connectionProperties = new HashMap<>();
    private final ScheduledExecutorService scheduledPool;
 
-   private final Map<Session, AMQPSessionContext> sessions = new ConcurrentHashMap<>();
+   private final Map<Session, AMQPSessionContext> sessions = new NonBlockingHashMap<>();
 
    protected LocalListener listener = new LocalListener();
 

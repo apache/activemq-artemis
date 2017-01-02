@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.postoffice.impl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -48,9 +48,9 @@ public class WildcardAddressManager extends SimpleAddressManager {
     * These are all the addresses, we use this so we can link back from the actual address to its linked wilcard addresses
     * or vice versa
     */
-   private final Map<SimpleString, Address> addresses = new ConcurrentHashMap<>();
+   private final Map<SimpleString, Address> addresses = new NonBlockingHashMap<>();
 
-   private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
+   private final Map<SimpleString, Address> wildCardAddresses = new NonBlockingHashMap<>();
 
    public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration) {
       super(bindingsFactory, wildcardConfiguration);

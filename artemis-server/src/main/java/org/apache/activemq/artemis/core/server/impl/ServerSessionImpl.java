@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -92,6 +91,7 @@ import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
@@ -127,7 +127,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final RemotingConnection remotingConnection;
 
-   protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
+   protected final NonBlockingHashMapLong<ServerConsumer> consumers = new NonBlockingHashMapLong<>();
 
    protected Transaction tx;
 

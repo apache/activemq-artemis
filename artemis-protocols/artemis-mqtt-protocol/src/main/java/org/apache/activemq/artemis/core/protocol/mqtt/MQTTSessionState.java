@@ -22,13 +22,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public class MQTTSessionState {
 
@@ -36,12 +37,12 @@ public class MQTTSessionState {
 
    private ServerMessage willMessage;
 
-   private final ConcurrentMap<String, MqttTopicSubscription> subscriptions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, MqttTopicSubscription> subscriptions = new NonBlockingHashMap<>();
 
    // Used to store Packet ID of Publish QoS1 and QoS2 message.  See spec: 4.3.3 QoS 2: Exactly once delivery.  Method B.
-   private Map<Integer, MQTTMessageInfo> messageRefStore;
+   private NonBlockingHashMapLong<MQTTMessageInfo> messageRefStore;
 
-   private ConcurrentMap<String, Map<Long, Integer>> addressMessageMap;
+   private ConcurrentMap<String, NonBlockingHashMapLong<Integer>> addressMessageMap;
 
    private Set<Integer> pubRec;
 
@@ -50,7 +51,7 @@ public class MQTTSessionState {
    private boolean attached = false;
 
    // Objects track the Outbound message references
-   private Map<Integer, Pair<String, Long>> outboundMessageReferenceStore;
+   private NonBlockingHashMapLong<Pair<String, Long>> outboundMessageReferenceStore;
 
    private ConcurrentMap<String, ConcurrentMap<Long, Integer>> reverseOutboundReferenceStore;
 
@@ -67,11 +68,11 @@ public class MQTTSessionState {
       pubRec = new HashSet<>();
       pub = new HashSet<>();
 
-      outboundMessageReferenceStore = new ConcurrentHashMap<>();
-      reverseOutboundReferenceStore = new ConcurrentHashMap<>();
+      outboundMessageReferenceStore = new NonBlockingHashMapLong<>();
+      reverseOutboundReferenceStore = new NonBlockingHashMap<>();
 
-      messageRefStore = new ConcurrentHashMap<>();
-      addressMessageMap = new ConcurrentHashMap<>();
+      messageRefStore = new NonBlockingHashMapLong<>();
+      addressMessageMap = new NonBlockingHashMap<>();
    }
 
    OutboundStore getOutboundStore() {
@@ -112,7 +113,7 @@ public class MQTTSessionState {
 
    boolean addSubscription(MqttTopicSubscription subscription) {
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName()), new ConcurrentHashMap<Long, Integer>());
+         addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName()), new NonBlockingHashMapLong<>());
 
          MqttTopicSubscription existingSubscription = subscriptions.get(subscription.topicName());
          if (existingSubscription != null) {

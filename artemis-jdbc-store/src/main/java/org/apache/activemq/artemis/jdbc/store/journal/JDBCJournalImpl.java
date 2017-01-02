@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +45,7 @@ import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
@@ -79,7 +79,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private final ScheduledExecutorService scheduledExecutorService;
 
    // Track Tx Records
-   private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
+   private NonBlockingHashMapLong<TransactionHolder> transactions = new NonBlockingHashMapLong<>();
 
    // Sequence ID for journal records
    private final AtomicLong seq = new AtomicLong(0);
@@ -627,7 +627,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
          jli.setMaxID(((JDBCJournalLoaderCallback) reloadManager).getMaxId());
          jli.setNumberOfRecords(noRecords);
-         transactions = jrc.getTransactions();
+         transactions.clear();
+         transactions.putAll(jrc.getTransactions());
       }
       return jli;
    }

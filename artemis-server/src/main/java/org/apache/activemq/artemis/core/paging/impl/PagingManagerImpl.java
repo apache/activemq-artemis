@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -35,8 +34,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashMapLong;
+import org.jctools.maps.NonBlockingHashSet;
 
 public final class PagingManagerImpl implements PagingManager {
 
@@ -52,9 +53,9 @@ public final class PagingManagerImpl implements PagingManager {
     */
    private final ReentrantReadWriteLock syncLock = new ReentrantReadWriteLock();
 
-   private final Set<PagingStore> blockedStored = new ConcurrentHashSet<>();
+   private final Set<PagingStore> blockedStored = new NonBlockingHashSet<>();
 
-   private final ConcurrentMap<SimpleString, PagingStore> stores = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, PagingStore> stores = new NonBlockingHashMap<>();
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
@@ -68,7 +69,7 @@ public final class PagingManagerImpl implements PagingManager {
 
    private volatile boolean diskFull = false;
 
-   private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<PageTransactionInfo> transactions = new NonBlockingHashMapLong<>();
 
    // Static
    // --------------------------------------------------------------------------------------------------------------------------

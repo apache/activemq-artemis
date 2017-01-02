@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.logs;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import org.jboss.logmanager.ExtHandler;
 import org.jboss.logmanager.ExtLogRecord;
+import org.jctools.maps.NonBlockingHashMap;
 
 /**
  * This class contains a tool where programs could intercept for LogMessage given an interval of time between {@link #startCapture()}
@@ -31,7 +31,7 @@ import org.jboss.logmanager.ExtLogRecord;
  */
 public class AssertionLoggerHandler extends ExtHandler {
 
-   private static final Map<String, ExtLogRecord> messages = new ConcurrentHashMap<>();
+   private static final Map<String, ExtLogRecord> messages = new NonBlockingHashMap<>();
    private static boolean capture = false;
 
    /**

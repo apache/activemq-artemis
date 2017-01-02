@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -183,9 +183,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    protected final Configuration config;
 
    // Persisted core configuration
-   protected final Map<SimpleString, PersistedRoles> mapPersistedRoles = new ConcurrentHashMap<>();
+   protected final Map<SimpleString, PersistedRoles> mapPersistedRoles = new NonBlockingHashMap<>();
 
-   protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
+   protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new NonBlockingHashMap<>();
 
    protected final Set<Long> largeMessagesToDelete = new HashSet<>();
 

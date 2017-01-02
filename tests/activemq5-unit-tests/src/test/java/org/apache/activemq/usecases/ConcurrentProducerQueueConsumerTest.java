@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -349,7 +349,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
       long batchReceiptAccumulator = 0;
       long maxReceiptTime = 0;
 
-      final Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<>(new HashMap<Integer, MessageIdList>());
+      final Map<Integer, MessageIdList> messageLists = new NonBlockingHashMap<>(new HashMap<Integer, MessageIdList>());
 
       @Override
       public void onMessage(Message message) {

@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -42,6 +40,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRecordTX;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'
@@ -53,7 +52,7 @@ public final class FileWrapperJournal extends JournalBase {
 
    private final ReentrantLock lockAppend = new ReentrantLock();
 
-   private final ConcurrentMap<Long, AtomicInteger> transactions = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<AtomicInteger> transactions = new NonBlockingHashMapLong<>();
    private final JournalImpl journal;
    protected volatile JournalFile currentFile;
 

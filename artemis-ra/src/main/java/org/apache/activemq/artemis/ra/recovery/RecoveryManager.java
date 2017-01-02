@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistryImpl;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 
 public final class RecoveryManager {
 
@@ -33,7 +33,7 @@ public final class RecoveryManager {
 
    private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;" + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
 
-   private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<>();
+   private final Set<XARecoveryConfig> resources = new NonBlockingHashSet<>();
 
    public void start(final boolean useAutoRecovery) {
       if (useAutoRecovery) {

@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -371,7 +371,7 @@ public class ConsumerTest extends ActiveMQTestBase {
    @Test
    public void testReceiveAndResend() throws Exception {
 
-      final Set<Object> sessions = new ConcurrentHashSet<>();
+      final Set<Object> sessions = new NonBlockingHashSet<>();
       final AtomicInteger errors = new AtomicInteger(0);
 
       final SimpleString QUEUE_RESPONSE = SimpleString.toSimpleString("QUEUE_RESPONSE");

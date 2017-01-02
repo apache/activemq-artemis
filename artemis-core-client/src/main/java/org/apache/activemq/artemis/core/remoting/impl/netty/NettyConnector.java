@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -209,7 +209,7 @@ public class NettyConnector extends AbstractConnector {
 
    private long batchDelay;
 
-   private ConcurrentMap<Object, Connection> connections = new ConcurrentHashMap<>();
+   private ConcurrentMap<Object, Connection> connections = new NonBlockingHashMap<>();
 
    private String servletPath;
 

@@ -21,18 +21,19 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 import org.apache.commons.beanutils.IntrospectionContext;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashSet;
 
 public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBeanIntrospector {
 
    static Logger logger = Logger.getLogger(FluentPropertyBeanIntrospectorWithIgnores.class);
 
-   private static ConcurrentHashSet<Pair<String, String>> ignores = new ConcurrentHashSet<>();
+   private static Set<Pair<String, String>> ignores = new NonBlockingHashSet<>();
 
    public static void addIgnore(String className, String propertyName) {
       logger.trace("Adding ignore on " + className + "/" + propertyName);

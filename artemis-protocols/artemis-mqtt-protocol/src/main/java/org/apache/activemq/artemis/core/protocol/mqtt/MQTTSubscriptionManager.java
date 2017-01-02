@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
@@ -34,12 +33,14 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public class MQTTSubscriptionManager {
 
    private MQTTSession session;
 
-   private ConcurrentMap<Long, Integer> consumerQoSLevels;
+   private NonBlockingHashMapLong<Integer> consumerQoSLevels;
 
    private ConcurrentMap<String, ServerConsumer> consumers;
 
@@ -49,8 +50,8 @@ public class MQTTSubscriptionManager {
    public MQTTSubscriptionManager(MQTTSession session) {
       this.session = session;
 
-      consumers = new ConcurrentHashMap<>();
-      consumerQoSLevels = new ConcurrentHashMap<>();
+      consumers = new NonBlockingHashMap<>();
+      consumerQoSLevels = new NonBlockingHashMapLong<>();
 
       // Create filter string to ignore management messages
       StringBuilder builder = new StringBuilder();
@@ -161,7 +162,7 @@ public class MQTTSubscriptionManager {
       consumer.setStarted(true);
 
       consumers.put(topic, consumer);
-      consumerQoSLevels.put(cid, qos);
+      consumerQoSLevels.put(cid, Integer.valueOf(qos));
    }
 
    private void addSubscription(MqttTopicSubscription subscription) throws Exception {
@@ -179,7 +180,7 @@ public class MQTTSubscriptionManager {
       if (s == null) {
          createConsumerForSubscriptionQueue(q, topic, qos);
       } else {
-         consumerQoSLevels.put(consumers.get(topic).getID(), qos);
+         consumerQoSLevels.put(consumers.get(topic).getID(), Integer.valueOf(qos));
       }
       session.getRetainMessageManager().addRetainedMessagesToQueue(q, topic);
    }

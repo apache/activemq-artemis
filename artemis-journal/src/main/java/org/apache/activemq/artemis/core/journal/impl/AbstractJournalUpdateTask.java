@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 /**
  * Super class for Journal maintenances such as clean up and Compactor
@@ -55,7 +55,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    private ActiveMQBuffer writingChannel;
 
-   private final Set<Long> recordsSnapshot = new ConcurrentHashSet<>();
+   private final NonBlockingHashMapLong<Boolean> recordsSnapshot;
 
    protected final List<JournalFile> newDataFiles = new ArrayList<>();
 
@@ -73,7 +73,26 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       this.filesRepository = filesRepository;
       this.fileFactory = fileFactory;
       this.nextOrderingID = nextOrderingID;
-      this.recordsSnapshot.addAll(recordsSnapshot);
+      this.recordsSnapshot = new NonBlockingHashMapLong<>(recordsSnapshot.size());
+      for (Long recordSnapshot : recordsSnapshot) {
+         this.recordsSnapshot.put(recordSnapshot, Boolean.TRUE);
+      }
+   }
+
+   protected AbstractJournalUpdateTask(final SequentialFileFactory fileFactory,
+                                       final JournalImpl journal,
+                                       final JournalFilesRepository filesRepository,
+                                       final long[] recordsSnapshot,
+                                       final long nextOrderingID) {
+      super();
+      this.journal = journal;
+      this.filesRepository = filesRepository;
+      this.fileFactory = fileFactory;
+      this.nextOrderingID = nextOrderingID;
+      this.recordsSnapshot = new NonBlockingHashMapLong<>(recordsSnapshot.length);
+      for (long recordSnapshot : recordsSnapshot) {
+         this.recordsSnapshot.put(recordSnapshot, Boolean.TRUE);
+      }
    }
 
    // Public --------------------------------------------------------
@@ -168,7 +187,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    }
 
    public boolean lookupRecord(final long id) {
-      return recordsSnapshot.contains(id);
+      return recordsSnapshot.containsKey(id);
    }
 
    // Package protected ---------------------------------------------
@@ -198,7 +217,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    }
 
    protected void addToRecordsSnaptshot(final long id) {
-      recordsSnapshot.add(id);
+      recordsSnapshot.put(id, Boolean.TRUE);
    }
 
    /**

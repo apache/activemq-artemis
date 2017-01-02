@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
 public class FakeSequentialFileFactory implements SequentialFileFactory {
 
-   private final Map<String, FakeSequentialFile> fileMap = new ConcurrentHashMap<>();
+   private final Map<String, FakeSequentialFile> fileMap = new NonBlockingHashMap<>();
 
    private final int alignment;
 
