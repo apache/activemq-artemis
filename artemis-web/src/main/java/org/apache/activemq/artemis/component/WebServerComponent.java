@@ -37,6 +37,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -111,7 +112,12 @@ public class WebServerComponent implements ExternalComponent {
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
-      handlers.addHandler(resourceHandler);
+      ContextHandler context = new ContextHandler();
+      context.setContextPath("/");
+      context.setResourceBase(warDir.toString());
+      context.setHandler(resourceHandler);
+
+      handlers.addHandler(context);
       handlers.addHandler(defaultHandler);
       server.setHandler(handlers);
    }
