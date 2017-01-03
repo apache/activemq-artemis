@@ -57,6 +57,18 @@ grant {
         permission java.util.PropertyPermission "sun.nio.ch.bugLevel", "read";
         permission java.util.PropertyPermission "io.netty.leakDetection.level", "read";
         permission java.util.PropertyPermission "io.netty.leakDetection.maxRecords", "read";
+
+        permission java.util.PropertyPermission "java.util.secureRandomSeed", "read";
+        permission java.util.PropertyPermission "io.netty.initialSeedUniquifier", "read";
+        permission java.util.PropertyPermission "io.netty.maxDirectMemory", "read";
+        permission java.util.PropertyPermission "io.netty.eventexecutor.maxPendingTasks", "read";
+        permission java.util.PropertyPermission "io.netty.defaultPromise.maxListenerStackDepth", "read";
+        permission java.util.PropertyPermission "io.netty.eventLoop.maxPendingTasks", "read";
+        permission java.util.PropertyPermission "io.netty.processId", "read";
+        permission java.util.PropertyPermission "io.netty.machineId", "read";
+        permission java.util.PropertyPermission "java.net.preferIPv4Stack", "read";
+        permission java.util.PropertyPermission "java.net.preferIPv6Addresses", "read";
+
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "accessDeclaredMembers";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
