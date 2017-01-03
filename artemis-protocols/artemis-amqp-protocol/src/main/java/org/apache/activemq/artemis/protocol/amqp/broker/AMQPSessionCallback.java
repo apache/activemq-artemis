@@ -433,9 +433,11 @@ public class AMQPSessionCallback implements SessionCallback {
          store.checkMemory(new Runnable() {
             @Override
             public void run() {
-               if (receiver.getRemoteCredit() < threshold) {
-                  receiver.flow(credits);
-                  connection.flush();
+               synchronized (connection.getLock()) {
+                  if (receiver.getRemoteCredit() < threshold) {
+                     receiver.flow(credits);
+                     connection.flush();
+                  }
                }
             }
          });
