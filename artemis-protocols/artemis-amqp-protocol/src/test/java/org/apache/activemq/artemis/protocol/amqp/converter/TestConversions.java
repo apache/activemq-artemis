@@ -765,5 +765,10 @@ public class TestConversions extends Assert {
       public ByteBuffer toByteBuffer(int index, int length) {
          return null;
       }
+
+      @Override
+      public void release() {
+         //no-op
+      }
    }
 }
