@@ -819,6 +819,10 @@ public interface Configuration {
     */
    Configuration setWildcardRoutingEnabled(boolean enabled);
 
+   WildcardConfiguration getWildcardConfiguration();
+
+   Configuration setWildCardConfiguration(WildcardConfiguration wildcardConfiguration);
+
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed from the resource
     * manager after it was created. <br>

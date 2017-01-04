@@ -25,3 +25,17 @@ The wildcard 'news.\*' would match 'news.europe', but not
 
 The wildcard 'news.\*.sport' would match 'news.europe.sport' and also
 'news.usa.sport', but not 'news.europe.politics'.
+
+## Configuring Wildcard syntax
+
+It's possible to further configure the syntax of the wildcard addresses using the broker configuration. 
+For that, the `<wildcard-addresses>` configuration tag is used.
+
+      <wildcard-addresses>
+        <enabled>true</enabled>
+        <delimiter>.</delimiter>
+        <any-words>#</any-words>
+        <single-word>*</single-word>
+      </wildcard-addresses>
+
+The example above shows the default configuration.

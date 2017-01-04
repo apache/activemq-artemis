@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -58,7 +59,14 @@ public class SimpleAddressManager implements AddressManager {
 
    private final BindingsFactory bindingsFactory;
 
+   protected final WildcardConfiguration wildcardConfiguration;
+
    public SimpleAddressManager(final BindingsFactory bindingsFactory) {
+      this(bindingsFactory, new WildcardConfiguration());
+   }
+
+   public SimpleAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration) {
+      this.wildcardConfiguration = wildcardConfiguration;
       this.bindingsFactory = bindingsFactory;
    }
 
@@ -105,12 +113,12 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Bindings getMatchingBindings(final SimpleString address) throws Exception {
-      Address add = new AddressImpl(address);
+      Address add = new AddressImpl(address, wildcardConfiguration);
 
       Bindings bindings = bindingsFactory.createBindings(address);
 
       for (Binding binding : nameMap.values()) {
-         Address addCheck = new AddressImpl(binding.getAddress());
+         Address addCheck = new AddressImpl(binding.getAddress(), wildcardConfiguration);
 
          if (addCheck.matches(add)) {
             bindings.addBinding(binding);

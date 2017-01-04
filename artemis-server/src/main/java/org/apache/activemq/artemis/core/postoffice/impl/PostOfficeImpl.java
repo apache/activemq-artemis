@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.NotificationType;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
@@ -143,7 +144,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                          final ManagementService managementService,
                          final long reaperPeriod,
                          final int reaperPriority,
-                         final boolean enableWildCardRouting,
+                         final WildcardConfiguration wildcardConfiguration,
                          final int idCacheSize,
                          final boolean persistIDCache,
                          final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
@@ -159,10 +160,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       this.reaperPriority = reaperPriority;
 
-      if (enableWildCardRouting) {
-         addressManager = new WildcardAddressManager(this);
+      if (wildcardConfiguration.isEnabled()) {
+         addressManager = new WildcardAddressManager(this, wildcardConfiguration);
       } else {
-         addressManager = new SimpleAddressManager(this);
+         addressManager = new SimpleAddressManager(this, wildcardConfiguration);
       }
 
       this.idCacheSize = idCacheSize;
