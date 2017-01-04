@@ -179,6 +179,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    }
 
    @Override
+   public ActiveMQBuffer createTransportBuffer(final int size, boolean pooled) {
+      return transportConnection.createTransportBuffer(size, pooled);
+   }
+
+   @Override
    public Connection getTransportConnection() {
       return transportConnection;
    }

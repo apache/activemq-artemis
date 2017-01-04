@@ -525,6 +525,11 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    @Override
+   public void release() {
+      //no-op
+   }
+
+   @Override
    public int readerIndex() {
       return (int) readerIndex;
    }
