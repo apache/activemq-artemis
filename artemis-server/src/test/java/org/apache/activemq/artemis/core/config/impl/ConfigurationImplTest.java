@@ -246,10 +246,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          conf.setLargeMessagesDirectory(s);
          Assert.assertEquals(s, conf.getLargeMessagesDirectory());
 
-         b = RandomUtil.randomBoolean();
-         conf.setWildcardRoutingEnabled(b);
-         Assert.assertEquals(b, conf.isWildcardRoutingEnabled());
-
          l = RandomUtil.randomLong();
          conf.setTransactionTimeout(l);
          Assert.assertEquals(l, conf.getTransactionTimeout());

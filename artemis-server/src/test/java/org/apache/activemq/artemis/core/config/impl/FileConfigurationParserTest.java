@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -84,6 +85,21 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
       Assert.assertEquals("my-discovery-group", config.getClusterConfigurations().get(0).getDiscoveryGroupName());
       Assert.assertEquals(333, config.getClusterConfigurations().get(0).getRetryInterval());
+   }
+
+   @Test
+   public void testWildcardConfiguration() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + "<wildcard-addresses>\n<enabled>true</enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+      WildcardConfiguration wildCard = config.getWildcardConfiguration();
+      assertEquals('/', wildCard.getDelimiter());
+      assertTrue(wildCard.isEnabled());
+      assertEquals('>', wildCard.getAnyWords());
+      assertEquals('*', wildCard.getSingleWord());
    }
 
    @Test
