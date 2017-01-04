@@ -203,6 +203,11 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
    @Override
+   public void release() {
+      //no-op
+   }
+
+   @Override
    public int readerIndex() {
       return 0;
    }
