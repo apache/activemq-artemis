@@ -105,18 +105,18 @@ if [ -z "$LOG_MANAGER" ] ; then
   LOG_MANAGER="$ARTEMIS_HOME/lib/${logmanager}"
 fi
 
-exec "$JAVACMD" ${java-opts} \
-    $JAVA_ARGS \
-    -Xbootclasspath/a:"$LOG_MANAGER" \
-    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
-    $ARTEMIS_CLUSTER_PROPS \
-    -classpath "$CLASSPATH" \
-    -Dartemis.home="$ARTEMIS_HOME" \
-    -Dartemis.instance="$ARTEMIS_INSTANCE" \
-    -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-$(uname -m)" \
-    -Djava.io.tmpdir="$ARTEMIS_INSTANCE/tmp" \
-    -Ddata.dir="$ARTEMIS_DATA_DIR" \
-    -Djava.util.logging.manager="$ARTEMIS_LOG_MANAGER" \
-    -Dlogging.configuration="$ARTEMIS_LOGGING_CONF" \
-    $DEBUG_ARGS \
-    org.apache.activemq.artemis.boot.Artemis "$@"
+exec $JAVACMD ${java-opts} \
+     $JAVA_ARGS \
+     "-Xbootclasspath/a:$LOG_MANAGER" \
+     "-Djava.security.auth.login.config=$ARTEMIS_INSTANCE/etc/login.config" \
+     $ARTEMIS_CLUSTER_PROPS \
+     -classpath "$CLASSPATH" \
+     "-Dartemis.home=$ARTEMIS_HOME" \
+     "-Dartemis.instance=$ARTEMIS_INSTANCE" \
+     "-Djava.library.path=$ARTEMIS_HOME/bin/lib/linux-$(uname -m)" \
+     "-Djava.io.tmpdir=$ARTEMIS_INSTANCE/tmp" \
+     "-Ddata.dir=$ARTEMIS_DATA_DIR" \
+     "-Djava.util.logging.manager=$ARTEMIS_LOG_MANAGER" \
+     "-Dlogging.configuration=$ARTEMIS_LOGGING_CONF" \
+     $DEBUG_ARGS \
+     org.apache.activemq.artemis.boot.Artemis "$@"

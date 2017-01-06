@@ -16,14 +16,14 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
-set ARTEMIS_HOME="${artemis.home}"
-set ARTEMIS_INSTANCE="${artemis.instance}"
+set ARTEMIS_HOME=${artemis.home}
+set ARTEMIS_INSTANCE=${artemis.instance}
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager} -Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config ${java-opts} -Dartemis.instance=%ARTEMIS_INSTANCE%
+set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:"%ARTEMIS_HOME%\lib\${logmanager}" -Djava.security.auth.login.config="%ARTEMIS_INSTANCE%\etc\login.config" ${java-opts} -Dartemis.instance="%ARTEMIS_INSTANCE%"
 
 rem There might be options that you only want to enable on specifc commands, like setting a JMX port
 rem See https://issues.apache.org/jira/browse/ARTEMIS-318
