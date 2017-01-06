@@ -209,7 +209,6 @@ public class LDAPLoginModule implements LoginModule {
          NamingEnumeration<SearchResult> results = context.search(getLDAPPropertyValue(USER_BASE), filter, constraints);
 
          if (results == null || !results.hasMore()) {
-            ActiveMQServerLogger.LOGGER.warn("User " + username + " not found in LDAP.");
             throw new FailedLoginException("User " + username + " not found in LDAP.");
          }
 

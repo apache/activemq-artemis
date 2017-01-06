@@ -75,7 +75,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       } catch (IOException ioe) {
          throw new LoginException(ioe.getMessage());
       } catch (UnsupportedCallbackException uce) {
-         throw new LoginException(uce.getMessage() + " Unable to obtain client certificates.");
+         throw new LoginException("Unable to obtain client certificates: " + uce.getMessage());
       }
       certificates = ((CertificateCallback) callbacks[0]).getCertificates();
 
