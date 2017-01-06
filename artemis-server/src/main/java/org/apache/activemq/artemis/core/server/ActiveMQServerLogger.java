@@ -1283,6 +1283,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void negativeGlobalAddressSize(long size);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222216, value = "Security problem while creating session: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void securityProblemWhileCreatingSession(String message);
+
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

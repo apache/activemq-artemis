@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -174,6 +175,9 @@ public class ActiveMQPacketHandler implements ChannelHandler {
          protocolManager.addSessionHandler(request.getName(), handler);
 
          response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
+      } catch (ActiveMQSecurityException e) {
+         ActiveMQServerLogger.LOGGER.securityProblemWhileCreatingSession(e.getMessage());
+         response = new ActiveMQExceptionMessage(e);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
             incompatibleVersion = true;
