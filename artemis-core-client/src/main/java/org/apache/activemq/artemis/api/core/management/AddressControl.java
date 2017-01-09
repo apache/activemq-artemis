@@ -39,6 +39,12 @@ public interface AddressControl {
    @Attribute(desc = "Get the delivery modes enabled on this address")
    Set<RoutingType> getDeliveryModes();
 
+   /*
+   * Whether multicast routing is enabled for this address
+   * */
+   @Attribute(desc = "Get the delivery modes enabled on this address as JSON")
+   String getDeliveryModesAsJSON() throws Exception;
+
    /**
     * Returns the roles (name and permissions) associated with this address.
     */
