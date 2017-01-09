@@ -102,6 +102,22 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public String getDeliveryModesAsJSON() throws Exception {
+      clearIO();
+      try {
+         JsonArrayBuilder json = JsonLoader.createArrayBuilder();
+         Set<RoutingType> routingTypes = getDeliveryModes();
+
+         for (RoutingType routingType : routingTypes) {
+            json.add(routingType.toString());
+         }
+         return json.build().toString();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String[] getQueueNames() throws Exception {
       clearIO();
       try {
