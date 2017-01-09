@@ -289,7 +289,7 @@ public class ProtonHandler extends ProtonInitializable {
             serverSasl.recv(dataSASL, 0, dataSASL.length);
 
             if (log.isTraceEnabled()) {
-               log.trace("Working on sasl::" + ByteUtil.bytesToHex(dataSASL, 2));
+               log.trace("Working on sasl::" + (dataSASL != null && dataSASL.length > 0 ? ByteUtil.bytesToHex(dataSASL, 2) : "Anonymous"));
             }
 
             saslResult = mechanism.processSASL(dataSASL);
