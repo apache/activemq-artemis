@@ -868,6 +868,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          ref.acknowledge(tx);
 
+         acks++;
+
          if (startedTransaction) {
             tx.commit();
          }
