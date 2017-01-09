@@ -86,28 +86,24 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
          tmpPassword = new char[0];
       }
       if (user == null) {
-         throw new FailedLoginException("user name is null");
+         throw new FailedLoginException("User is null");
       }
       String password = users.getProperty(user);
 
       if (password == null) {
-         throw new FailedLoginException("User does exist");
+         throw new FailedLoginException("User does not exist: " + user);
       }
 
-      //password is hashed
       try {
          hashProcessor = PasswordMaskingUtil.getHashProcessor(password);
-
-         if (!hashProcessor.compare(tmpPassword, password)) {
-            throw new FailedLoginException("Password does not match");
-         }
-         loginSucceeded = true;
       } catch (Exception e) {
-         if (debug) {
-            logger.debug("Exception getting a hash processor", e);
-         }
          throw new FailedLoginException("Failed to get hash processor");
       }
+
+      if (!hashProcessor.compare(tmpPassword, password)) {
+         throw new FailedLoginException("Password does not match for user: " + user);
+      }
+      loginSucceeded = true;
 
       if (debug) {
          logger.debug("login " + user);
