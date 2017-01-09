@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSess
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
@@ -413,6 +414,10 @@ public abstract class PacketDecoder implements Serializable {
          }
          case PacketImpl.CHECK_FOR_FAILOVER_REPLY: {
             packet = new CheckFailoverReplyMessage();
+            break;
+         }
+         case PacketImpl.DISCONNECT_CONSUMER_KILL: {
+            packet = new DisconnectConsumerWithKillMessage();
             break;
          }
          default: {
