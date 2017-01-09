@@ -915,7 +915,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return browse(null);
    }
    @Override
-   public CompositeData[] browse(String filterStr) throws Exception {
+   public CompositeData[] browse(String filter) throws Exception {
       checkStarted();
 
       clearIO();
@@ -923,12 +923,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          int pageSize = addressSettingsRepository.getMatch(queue.getName().toString()).getManagementBrowsePageSize();
          int currentPageSize = 0;
          ArrayList<CompositeData> c = new ArrayList<>();
-         Filter filter = FilterImpl.createFilter(filterStr);
+         Filter thefilter = FilterImpl.createFilter(filter);
          queue.flushExecutor();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             while (iterator.hasNext() && currentPageSize++ < pageSize) {
                MessageReference ref = iterator.next();
-               if (filter == null || filter.match(ref.getMessage())) {
+               if (thefilter == null || thefilter.match(ref.getMessage())) {
                   c.add(OpenTypeSupport.convert(ref));
 
                }
