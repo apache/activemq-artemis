@@ -29,7 +29,7 @@ public class Main {
          File input = new File(args[0]);
          if (input.isDirectory()) {
             System.out.println("Scanning directory: " + input.getAbsolutePath());
-            recursiveTransform(input);
+            scanAndTransform(input);
          } else {
             if (args.length != 2) {
                System.err.println("Invalid args");
@@ -37,6 +37,7 @@ public class Main {
             } else {
                try {
                   XMLConfigurationMigration migration = new XMLConfigurationMigration(input, new File(args[1]));
+                  migration.transform();
                } catch (Exception e) {
                   // Unable to process file, move on.
                }
@@ -51,30 +52,28 @@ public class Main {
       }
    }
 
-   public static void scanAndTransform(File pFile) throws Exception {
+   public static void scanAndTransform(File f) throws Exception {
       try {
-         for (File f : pFile.listFiles()) {
-            if (f.isDirectory()) {
-               scanAndTransform(f);
-            } else {
-               try {
-                  if (f.getName().endsWith("xml")) {
-                     File file = new File(f.getAbsolutePath() + ".new");
-                     XMLConfigurationMigration migration = new XMLConfigurationMigration(f, file);
-                     if (migration.transform()) {
-                        File r = new File(f.getAbsolutePath());
-                        f.renameTo(new File(f.getAbsolutePath() + ".bk"));
-                        file.renameTo(r);
-                        System.out.println(f + " converted, old file renamed as " + f.getAbsolutePath() + ".bk");
-                     }
+         if (f.isDirectory()) {
+            recursiveTransform(f);
+         } else {
+            try {
+               if (f.getName().endsWith("xml")) {
+                  File file = new File(f.getAbsolutePath() + ".new");
+                  XMLConfigurationMigration migration = new XMLConfigurationMigration(f, file);
+                  if (migration.transform()) {
+                     File r = new File(f.getAbsolutePath());
+                     f.renameTo(new File(f.getAbsolutePath() + ".bk"));
+                     file.renameTo(r);
+                     System.out.println(f + " converted, old file renamed as " + f.getAbsolutePath() + ".bk");
                   }
-               } catch (Exception e) {
-                  //Unable to process file, continue
                }
+            } catch (Exception e) {
+               //Unable to process file, continue
             }
          }
       } catch (NullPointerException e) {
-         System.out.println(pFile.getAbsoluteFile());
+         System.out.println(f.getAbsoluteFile());
       }
    }
 
