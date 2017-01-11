@@ -47,6 +47,12 @@ public class ReplicaPolicy extends BackupPolicy {
       this.networkHealthCheck = networkHealthCheck;
    }
 
+   public ReplicaPolicy(final NetworkHealthCheck networkHealthCheck,
+                        ReplicatedPolicy replicatedPolicy) {
+      this.networkHealthCheck = networkHealthCheck;
+      this.replicatedPolicy = replicatedPolicy;
+   }
+
    public ReplicaPolicy(String clusterName,
                         int maxSavedReplicatedJournalsSize,
                         String groupName,
