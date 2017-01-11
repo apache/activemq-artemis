@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessag
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -59,6 +60,7 @@ import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
@@ -356,6 +358,16 @@ public class AMQPSessionCallback implements SessionCallback {
       //use the address on the receiver if not null, if null let's hope it was set correctly on the message
       if (address != null) {
          message.setAddress(new SimpleString(address));
+      } else {
+         // Anonymous relay must set a To value
+         if (message.getAddress() == null) {
+            rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
+            return;
+         }
+
+         if (!bindingQuery(message.getAddress().toString())) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+         }
       }
 
       recoverContext();
@@ -370,18 +382,19 @@ public class AMQPSessionCallback implements SessionCallback {
                transaction.markAsRollbackOnly(e);
             }
          } else {
-            rejectMessage(delivery);
+            rejectMessage(delivery, AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
          }
       } else {
          serverSend(transaction, message, delivery, receiver);
       }
    }
 
-   private void rejectMessage(Delivery delivery) {
-      String address = delivery.getLink().getTarget().getAddress();
-      ErrorCondition ec = new ErrorCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
+   private void rejectMessage(Delivery delivery, Symbol errorCondition, String errorMessage) {
+      ErrorCondition condition = new ErrorCondition();
+      condition.setCondition(errorCondition);
+      condition.setDescription(errorMessage);
       Rejected rejected = new Rejected();
-      rejected.setError(ec);
+      rejected.setError(condition);
       delivery.disposition(rejected);
       delivery.settle();
       connection.flush();
@@ -429,6 +442,11 @@ public class AMQPSessionCallback implements SessionCallback {
                                    final int threshold,
                                    final Receiver receiver) {
       try {
+         if (address == null) {
+            receiver.flow(credits);
+            connection.flush();
+            return;
+         }
          final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
          store.checkMemory(new Runnable() {
             @Override

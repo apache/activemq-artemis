@@ -84,7 +84,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
       if (target != null) {
          if (target.getDynamic()) {
-            //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
+            // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
             address = sessionSPI.tempQueueName();
 
@@ -96,23 +96,24 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             expiryPolicy = target.getExpiryPolicy() != null ? target.getExpiryPolicy() : TerminusExpiryPolicy.LINK_DETACH;
             target.setAddress(address);
          } else {
-            //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
-            //be a queue bound to it so we nee to check this.
+            // the target will have an address unless the remote is requesting an anonymous
+            // relay in which case the address in the incoming message's to field will be
+            // matched on receive of the message.
             address = target.getAddress();
-            if (address == null) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
-            }
 
-            try {
-               if (!sessionSPI.bindingQuery(address)) {
-                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+            if (address != null && !address.isEmpty()) {
+               try {
+                  if (!sessionSPI.bindingQuery(address)) {
+                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+                  }
+               } catch (ActiveMQAMQPNotFoundException e) {
+                  throw e;
+               } catch (Exception e) {
+                  throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
-            } catch (ActiveMQAMQPNotFoundException e) {
-               throw e;
-            } catch (Exception e) {
-               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
+
          Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
          if (remoteDesiredCapabilities != null) {
             List<Symbol> list = Arrays.asList(remoteDesiredCapabilities);
