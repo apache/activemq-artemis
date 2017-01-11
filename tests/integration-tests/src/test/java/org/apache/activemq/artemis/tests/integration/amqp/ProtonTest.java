@@ -64,6 +64,7 @@ import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
@@ -83,6 +84,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverCont
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -109,10 +111,6 @@ public class ProtonTest extends ProtonTestBase {
    private static final String amqpConnectionUri = "amqp://localhost:5672";
 
    private static final String tcpAmqpConnectionUri = "tcp://localhost:5672";
-
-   private static final String userName = "guest";
-
-   private static final String password = "guest";
 
    private static final String brokerName = "my-broker";
 
@@ -153,6 +151,17 @@ public class ProtonTest extends ProtonTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
+
+      Configuration serverConfig = server.getConfiguration();
+      Map<String, AddressSettings> settings = serverConfig.getAddressesSettings();
+      assertNotNull(settings);
+      AddressSettings addressSetting = settings.get("#");
+      if (addressSetting == null) {
+         addressSetting = new AddressSettings();
+         settings.put("#", addressSetting);
+      }
+      addressSetting.setAutoCreateQueues(false);
+
       server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString(coreAddress), RoutingType.ANYCAST));
       server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString(coreAddress + "1"), RoutingType.ANYCAST));
       server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString(coreAddress + "2"), RoutingType.ANYCAST));
@@ -463,7 +472,8 @@ public class ProtonTest extends ProtonTestBase {
       session.commit();
       session.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
-      Assert.assertEquals(q.getMessageCount(), 10);
+      //because tx commit is executed async on broker, we use a timed wait.
+      assertTrue(TimeUtils.waitOnBoolean(true, 10000, ()-> q.getMessageCount() == 10));
    }
 
    @Test
@@ -538,7 +548,9 @@ public class ProtonTest extends ProtonTestBase {
       }
       session.rollback();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
-      Assert.assertEquals(q.getMessageCount(), 10);
+      //because tx rollback is executed async on broker, we use a timed wait.
+      assertTrue(TimeUtils.waitOnBoolean(true, 10000, ()-> q.getMessageCount() == 10));
+
    }
 
    @Test
@@ -1646,6 +1658,126 @@ public class ProtonTest extends ProtonTestBase {
       Assert.assertNotNull(m);
       assertEquals(message.getJMSMessageID(), m.getJMSMessageID());
       connection.close();
+   }
+
+   @Test
+   public void testProducerWithoutUsingDefaultDestination() throws Exception {
+
+      try {
+         javax.jms.Queue queue = createQueue(coreAddress);
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer p = session.createProducer(null);
+
+         for (int i = 1; i <= 10; i++) {
+            String targetName = coreAddress + i;
+            javax.jms.Queue target = createQueue(targetName);
+            TextMessage message = session.createTextMessage("message for " + targetName);
+            p.send(target, message);
+         }
+         connection.start();
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+         Message m = messageConsumer.receive(200);
+         Assert.assertNull(m);
+
+         for (int i = 1; i <= 10; i++) {
+            String targetName = coreAddress + i;
+            javax.jms.Queue target = createQueue(targetName);
+            MessageConsumer consumer = session.createConsumer(target);
+            TextMessage tm = (TextMessage) consumer.receive(2000);
+            assertNotNull(tm);
+            assertEquals("message for " + targetName, tm.getText());
+            consumer.close();
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendMessageOnAnonymousRelayLinkUsingMessageTo() throws Exception {
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection connection = client.connect();
+
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createAnonymousSender();
+         AmqpMessage message = new AmqpMessage();
+
+         message.setAddress(address);
+         message.setMessageId("msg" + 1);
+         message.setText("Test-Message");
+
+         sender.send(message);
+         sender.close();
+
+         AmqpReceiver receiver = session.createReceiver(address);
+         receiver.flow(1);
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull("Should have read message", received);
+         assertEquals("msg1", received.getMessageId());
+         received.accept();
+
+         receiver.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendMessageFailsOnAnonymousRelayLinkWhenNoToValueSet() throws Exception {
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createAnonymousSender();
+         AmqpMessage message = new AmqpMessage();
+
+         message.setMessageId("msg" + 1);
+         message.setText("Test-Message");
+
+         try {
+            sender.send(message);
+            fail("Should not be able to send, message should be rejected");
+         } catch (Exception ex) {
+            ex.printStackTrace();
+         } finally {
+            sender.close();
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendMessageFailsOnAnonymousRelayWhenToFieldHasNonExistingAddress() throws Exception {
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createAnonymousSender();
+         AmqpMessage message = new AmqpMessage();
+
+         message.setAddress(address + "-not-in-service");
+         message.setMessageId("msg" + 1);
+         message.setText("Test-Message");
+
+         try {
+            sender.send(message);
+            fail("Should not be able to send, message should be rejected");
+         } catch (Exception ex) {
+            ex.printStackTrace();
+         } finally {
+            sender.close();
+         }
+      } finally {
+         connection.close();
+      }
    }
 
    private javax.jms.Queue createQueue(String address) throws Exception {
