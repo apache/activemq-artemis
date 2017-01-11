@@ -22,7 +22,10 @@ import org.apache.qpid.proton.engine.Connection;
 
 public class ExtCapability {
 
-   public static final Symbol[] capabilities = new Symbol[]{AmqpSupport.SOLE_CONNECTION_CAPABILITY, AmqpSupport.DELAYED_DELIVERY, AmqpSupport.SHARED_SUBS};
+   public static final Symbol[] capabilities = new Symbol[]{AmqpSupport.SOLE_CONNECTION_CAPABILITY,
+                                                            AmqpSupport.DELAYED_DELIVERY,
+                                                            AmqpSupport.SHARED_SUBS,
+                                                            AmqpSupport.ANONYMOUS_RELAY};
 
    public static Symbol[] getCapabilities() {
       return capabilities;
