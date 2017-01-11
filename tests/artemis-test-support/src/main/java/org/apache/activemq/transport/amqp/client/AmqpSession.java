@@ -91,6 +91,16 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    }
 
    /**
+    * Create an anonymous sender instance using the anonymous relay support of the broker.
+    *
+    * @return a newly created sender that is ready for use.
+    * @throws Exception if an error occurs while creating the sender.
+    */
+   public AmqpSender createAnonymousSender() throws Exception {
+      return createSender(null, false);
+   }
+
+   /**
     * Create a sender instance using the given address
     *
     * @param address the address to which the sender will produce its messages.

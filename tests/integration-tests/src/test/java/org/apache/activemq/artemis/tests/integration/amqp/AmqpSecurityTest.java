@@ -26,6 +26,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
@@ -41,12 +43,17 @@ import org.junit.Test;
 
 public class AmqpSecurityTest extends AmqpClientTestSupport {
 
+   private String user1 = "user1";
+   private String password1 = "password1";
+
    @Override
    protected ActiveMQServer createServer() throws Exception {
       ActiveMQServer server = createServer(true, true);
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("foo", "bar");
       securityManager.getConfiguration().addRole("foo", "none");
+      securityManager.getConfiguration().addUser(user1, password1);
+      securityManager.getConfiguration().addRole(user1, "none");
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       HashSet<Role> value = new HashSet<>();
       value.add(new Role("none", false, true, true, true, true, true, true, true));
@@ -144,4 +151,35 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       connection.getStateInspector().assertValid();
       connection.close();
    }
+
+   @Test(timeout = 60000)
+   public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
+      server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTestName()), RoutingType.ANYCAST));
+      server.createQueue(new SimpleString(getTestName()), RoutingType.ANYCAST, new SimpleString(getTestName()), null, true, false);
+
+      AmqpClient client = createAmqpClient(user1, password1);
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createAnonymousSender();
+         AmqpMessage message = new AmqpMessage();
+
+         message.setAddress(getTestName());
+         message.setMessageId("msg" + 1);
+         message.setText("Test-Message");
+
+         try {
+            sender.send(message);
+            fail("Should not be able to send, message should be rejected");
+         } catch (Exception ex) {
+            ex.printStackTrace();
+         } finally {
+            sender.close();
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
 }
