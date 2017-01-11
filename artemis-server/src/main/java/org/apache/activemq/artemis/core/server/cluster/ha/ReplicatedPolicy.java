@@ -48,7 +48,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    private final NetworkHealthCheck networkHealthCheck;
 
    public ReplicatedPolicy(NetworkHealthCheck networkHealthCheck) {
-      replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this, networkHealthCheck);
+      replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
       this.networkHealthCheck = networkHealthCheck;
    }
 
@@ -122,7 +122,13 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public ReplicaPolicy getReplicaPolicy() {
       if (replicaPolicy == null) {
-         replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this, networkHealthCheck);
+         replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+         if (clusterName != null && clusterName.length() > 0) {
+            replicaPolicy.setClusterName(clusterName);
+         }
+         if (groupName != null && groupName.length() > 0) {
+            replicaPolicy.setGroupName(groupName);
+         }
       }
       return replicaPolicy;
    }
