@@ -14,15 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.integration;
-
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ServiceComponent;
+package org.apache.activemq.artemis.core.server;
 
 /**
- * A Broker os a set of ActiveMQComponents that create a Server, for instance core and jms.
+ * A Component that needs to know the stop reason.
  */
-public interface Broker extends ServiceComponent {
+public interface ServiceComponent extends ActiveMQComponent {
 
-   ActiveMQServer getServer();
+   void stop(boolean isShutdown) throws Exception;
 }
