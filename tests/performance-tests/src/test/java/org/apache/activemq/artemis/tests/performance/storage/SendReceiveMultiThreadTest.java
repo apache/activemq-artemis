@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.DefaultConnectionProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -78,9 +79,9 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       server.start();
 
-      Queue queue = server.createQueue(SimpleString.toSimpleString("performanceQueue"), SimpleString.toSimpleString("performanceQueue"), null, true, false);
+      Queue queue = server.createQueue(SimpleString.toSimpleString("performanceQueue"), RoutingType.ANYCAST, SimpleString.toSimpleString("performanceQueue"), null, true, false);
 
-      Queue queue2 = server.createQueue(SimpleString.toSimpleString("stationaryQueue"), SimpleString.toSimpleString("stationaryQueue"), null, true, false);
+      Queue queue2 = server.createQueue(SimpleString.toSimpleString("stationaryQueue"), RoutingType.ANYCAST, SimpleString.toSimpleString("stationaryQueue"), null, true, false);
 
       MyThread[] threads = new MyThread[NUMBER_OF_THREADS];
 

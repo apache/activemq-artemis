@@ -41,7 +41,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedVolatileAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -69,7 +69,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedVolatileAddressBrokerDefined() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(address, RoutingType.MULTICAST, SimpleString.toSimpleString("myClientId.mySub:shared-volatile"), null, true, false, -1, false, false);
       AmqpClient client = createAmqpClient();
 
@@ -98,7 +98,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedVolatileAddressNoReceiverClose() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -124,7 +124,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedVolatileAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect(false));
@@ -152,7 +152,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -180,7 +180,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedDurableAddressReconnect() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -218,7 +218,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedDurableAddressReconnectwithNull() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));
@@ -256,7 +256,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnSharedDurableAddressGlobal() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect(false));
@@ -284,7 +284,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
    public void test2ConsumersOnNonSharedDurableAddress() throws Exception {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.getRoutingTypes().add(RoutingType.MULTICAST);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       AmqpClient client = createAmqpClient();
 
       AmqpConnection connection = addConnection(client.connect("myClientId"));

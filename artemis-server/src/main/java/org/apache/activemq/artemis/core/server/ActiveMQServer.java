@@ -267,15 +267,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
 
-   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary,
-                     boolean autoCreated,
-                     Integer maxConsumers,
-                     Boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
-
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers.
     * The queue will be deleted as soon as all the consumers are removed.
@@ -290,56 +281,31 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @throws NullPointerException                                                           if {@code address} is {@code null}
     */
    void createSharedQueue(final SimpleString address, final RoutingType routingType, final SimpleString name, final SimpleString filterString,
-                          final SimpleString user,
-                          boolean durable) throws Exception;
+                          final SimpleString user, boolean durable) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     boolean durable,
-                     boolean temporary) throws Exception;
+                     boolean durable, boolean temporary) throws Exception;
+
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     boolean durable, boolean temporary, int maxConsumers, boolean deleteOnNoConsumers,
+                     boolean autoCreateAddress) throws Exception;
+
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers,
+                     Boolean deleteOnNoConsumers, boolean autoCreateAddress) throws Exception;
+
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
+                     SimpleString user, boolean durable, boolean temporary, boolean ignoreIfExists, boolean transientQueue,
+                     boolean autoCreated, int maxConsumers, boolean deleteOnNoConsumers, boolean autoCreateAddress) throws Exception;
 
    @Deprecated
    Queue createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable, boolean temporary) throws Exception;
-
-   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
-                     boolean durable,
-                     boolean temporary,
-                     int maxConsumers,
-                     boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
-
-   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary) throws Exception;
-
-   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary,
-                     int maxConsumers,
-                     boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
-
-   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary,
-                     boolean autoCreated) throws Exception;
 
    @Deprecated
    Queue deployQueue(String address, String queue, String filter, boolean durable, boolean temporary) throws Exception;
 
    @Deprecated
    Queue deployQueue(SimpleString address, SimpleString queue, SimpleString filter, boolean durable, boolean temporary) throws Exception;
-
-   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString resourceName, SimpleString filterString,
-                     boolean durable,
-                     boolean temporary) throws Exception;
-
-   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
-                     boolean durable,
-                     boolean temporary,
-                     boolean autoCreated) throws Exception;
 
    Queue locateQueue(SimpleString queueName);
 
@@ -348,14 +314,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
    QueueQueryResult queueQuery(SimpleString name) throws Exception;
 
    AddressQueryResult addressQuery(SimpleString name) throws Exception;
-
-   Queue deployQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filterString,
-                     boolean durable,
-                     boolean temporary,
-                     boolean autoCreated,
-                     int maxConsumers,
-                     boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
@@ -406,22 +364,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void stop(boolean failoverOnServerShutdown) throws Exception;
 
-   AddressInfo getAddressInfo(SimpleString address);
-
-   Queue createQueue(SimpleString addressName,
-                     SimpleString queueName,
-                     RoutingType routingType,
-                     SimpleString filterString,
-                     SimpleString user,
-                     boolean durable,
-                     boolean temporary,
-                     boolean ignoreIfExists,
-                     boolean transientQueue,
-                     boolean autoCreated,
-                     int maxConsumers,
-                     boolean deleteOnNoConsumers,
-                     boolean autoCreateAddress) throws Exception;
-
    Queue updateQueue(String name,
                      RoutingType routingType,
                      Integer maxConsumers,
@@ -460,13 +402,45 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void removeClientConnection(String clientId);
 
-   AddressInfo updateAddressInfo(String name, Collection<RoutingType> routingTypes) throws Exception;
+   AddressInfo getAddressInfo(SimpleString address);
 
-   boolean createAddressInfo(AddressInfo addressInfo) throws Exception;
+   /**
+    * Updates an {@code AddressInfo} on the broker with the specified routing types.
+    *
+    * @param address the name of the {@code AddressInfo} to update
+    * @param routingTypes the routing types to update the {@code AddressInfo} with
+    * @return {@code true} if the {@code AddressInfo} was updated, {@code false} otherwise
+    * @throws Exception
+    */
+   boolean updateAddressInfo(SimpleString address, Collection<RoutingType> routingTypes) throws Exception;
 
-   AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
+   /**
+    * Add the {@code AddressInfo} to the broker
+    *
+    * @param addressInfo the {@code AddressInfo} to add
+    * @return {@code true} if the {@code AddressInfo} was added, {@code false} otherwise
+    * @throws Exception
+    */
+   boolean addAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   void removeAddressInfo(SimpleString address, SecurityAuth session) throws Exception;
+   /**
+    * A convenience method to combine the functionality of {@code addAddressInfo} and {@code updateAddressInfo}. It will
+    * add the {@code AddressInfo} object to the broker if it doesn't exist or update it if it does.
+    *
+    * @param addressInfo the {@code AddressInfo} to add or the info used to update the existing {@code AddressInfo}
+    * @return the resulting {@code AddressInfo}
+    * @throws Exception
+    */
+   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
+
+   /**
+    * Remove an {@code AddressInfo} from the broker.
+    *
+    * @param address the {@code AddressInfo} to remove
+    * @param auth authorization information; {@code null} is valid
+    * @throws Exception
+    */
+   void removeAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
 
    String getInternalNamingPrefix();
 }

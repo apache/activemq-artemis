@@ -71,7 +71,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);

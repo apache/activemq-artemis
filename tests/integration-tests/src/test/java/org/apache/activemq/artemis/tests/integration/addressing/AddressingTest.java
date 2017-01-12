@@ -73,9 +73,9 @@ public class AddressingTest extends ActiveMQTestBase {
          AddressInfo addressInfo = new AddressInfo(new SimpleString(consumeAddress));
          addressInfo.addRoutingType(RoutingType.MULTICAST);
 
-         server.createOrUpdateAddressInfo(addressInfo);
-         Queue q1 = server.createQueue(new SimpleString(consumeAddress), new SimpleString(consumeAddress + ".1"), null, true, false);
-         Queue q2 = server.createQueue(new SimpleString(consumeAddress), new SimpleString(consumeAddress + ".2"), null, true, false);
+         server.addOrUpdateAddressInfo(addressInfo);
+         Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".1"), null, true, false);
+         Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".2"), null, true, false);
 
          ClientSession session = sessionFactory.createSession();
          session.start();
@@ -111,7 +111,7 @@ public class AddressingTest extends ActiveMQTestBase {
          AddressInfo addressInfo = new AddressInfo(new SimpleString(consumeAddress));
          addressInfo.addRoutingType(RoutingType.ANYCAST);
 
-         server.createOrUpdateAddressInfo(addressInfo);
+         server.addOrUpdateAddressInfo(addressInfo);
          Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.ANYCAST, new SimpleString(consumeAddress + ".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
          Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.ANYCAST, new SimpleString(consumeAddress + ".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
 
@@ -145,7 +145,7 @@ public class AddressingTest extends ActiveMQTestBase {
       AddressInfo addressInfo = new AddressInfo(address);
       addressInfo.addRoutingType(RoutingType.ANYCAST);
 
-      server.createOrUpdateAddressInfo(addressInfo);
+      server.addOrUpdateAddressInfo(addressInfo);
       Queue q1 = server.createQueue(address, RoutingType.ANYCAST, address.concat(".1"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
       Queue q2 = server.createQueue(address, RoutingType.ANYCAST, address.concat(".2"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
       Queue q3 = server.createQueue(address, RoutingType.ANYCAST, address.concat(".3"), null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
@@ -199,8 +199,8 @@ public class AddressingTest extends ActiveMQTestBase {
       for (String consumeAddress : testAddresses) {
 
          // For each address, create 2 Queues with the same address, assert both queues receive message
-         Queue q1 = server.createQueue(new SimpleString(consumeAddress), new SimpleString(consumeAddress + ".1"), null, true, false);
-         Queue q2 = server.createQueue(new SimpleString(consumeAddress), new SimpleString(consumeAddress + ".2"), null, true, false);
+         Queue q1 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".1"), null, true, false);
+         Queue q2 = server.createQueue(new SimpleString(consumeAddress), RoutingType.MULTICAST, new SimpleString(consumeAddress + ".2"), null, true, false);
 
          ClientSession session = sessionFactory.createSession();
          session.start();

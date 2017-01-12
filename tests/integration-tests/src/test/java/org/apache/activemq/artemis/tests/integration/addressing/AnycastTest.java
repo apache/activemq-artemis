@@ -60,7 +60,7 @@ public class AnycastTest extends ActiveMQTestBase {
 
       addressInfo = new AddressInfo(baseAddress);
       addressInfo.addRoutingType(RoutingType.ANYCAST);
-      server.createOrUpdateAddressInfo(addressInfo);
+      server.addOrUpdateAddressInfo(addressInfo);
    }
 
    @Test

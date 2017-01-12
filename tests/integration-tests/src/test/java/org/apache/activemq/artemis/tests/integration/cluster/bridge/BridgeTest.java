@@ -1896,7 +1896,7 @@ public class BridgeTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(new ActiveMQServerImpl(config, null, null, null, serviceRegistry));
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
-      server.deployQueue(ADDRESS, QUEUE, null, false, false);
+      server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE, null, false, false);
       List<String> connectors = new ArrayList<>();
       connectors.add("in-vm");
       server.deployBridge(new BridgeConfiguration().setName(BRIDGE).setQueueName(QUEUE.toString()).setForwardingAddress(ADDRESS.toString()).setStaticConnectors(connectors));

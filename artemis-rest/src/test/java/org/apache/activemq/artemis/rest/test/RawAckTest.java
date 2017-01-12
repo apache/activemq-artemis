@@ -67,7 +67,7 @@ public class RawAckTest {
       consumerSessionFactory = serverLocator.createSessionFactory();
 
       SimpleString addr = SimpleString.toSimpleString("testQueue");
-      activeMQServer.createAddressInfo(new AddressInfo(addr, RoutingType.MULTICAST));
+      activeMQServer.addAddressInfo(new AddressInfo(addr, RoutingType.MULTICAST));
       activeMQServer.createQueue(addr, RoutingType.MULTICAST, addr, null, false, false);
       session = sessionFactory.createSession(true, true);
       producer = session.createProducer(addr);

@@ -591,7 +591,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                     final boolean autoCreated) throws Exception {
       Pair<SimpleString, Set<RoutingType>> art = getAddressAndRoutingTypes(address, routingTypes);
       securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
-      server.createOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
+      server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getA());
    }
 
@@ -601,7 +601,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                     final boolean autoCreated) throws Exception {
       Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(address, routingType);
       securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
-      server.createOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
+      server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getA());
    }
 
