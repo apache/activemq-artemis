@@ -80,7 +80,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
             started = true;
          }
       } catch (Exception e) {
-         ActiveMQJournalLogger.LOGGER.error("Could not start file factory, unable to connect to database");
+         ActiveMQJournalLogger.LOGGER.error("Could not start file factory, unable to connect to database", e);
          started = false;
       }
    }
