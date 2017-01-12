@@ -124,6 +124,9 @@ public class WebServerComponent implements ExternalComponent {
 
    @Override
    public void start() throws Exception {
+      if (isStarted()) {
+         return;
+      }
       server.start();
       ActiveMQWebLogger.LOGGER.webserverStarted(webServerConfig.bind);
       if (jolokiaUrl != null) {
@@ -131,8 +134,7 @@ public class WebServerComponent implements ExternalComponent {
       }
    }
 
-   @Override
-   public void stop() throws Exception {
+   public void internalStop() throws Exception {
       server.stop();
       if (webContexts != null) {
          File tmpdir = null;
@@ -169,5 +171,17 @@ public class WebServerComponent implements ExternalComponent {
       webapp.setWar(warDirectory.resolve(warFile).toString());
       handlers.addHandler(webapp);
       return webapp;
+   }
+
+   @Override
+   public void stop() throws Exception {
+      stop(false);
+   }
+
+   @Override
+   public void stop(boolean isShutdown) throws Exception {
+      if (isShutdown) {
+         internalStop();
+      }
    }
 }
