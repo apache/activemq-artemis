@@ -33,6 +33,7 @@ import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -67,7 +68,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false).setAutoCreateAddresses(false).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       coreQueue = new SimpleString(queueName);
-      server.createQueue(coreQueue, coreQueue, null, false, false);
+      server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 

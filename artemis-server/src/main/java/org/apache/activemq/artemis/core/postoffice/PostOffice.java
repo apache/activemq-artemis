@@ -51,12 +51,6 @@ public interface PostOffice extends ActiveMQComponent {
     */
    boolean addAddressInfo(AddressInfo addressInfo);
 
-   /**
-    * @param addressInfo
-    * @return the same provided {@code addressInfo} if the address was added, another if it was updated
-    */
-   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
-
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
    AddressInfo getAddressInfo(SimpleString address);

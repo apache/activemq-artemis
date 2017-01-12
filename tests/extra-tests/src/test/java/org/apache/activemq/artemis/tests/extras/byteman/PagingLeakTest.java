@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -131,7 +132,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
          final int maxConsumed;
 
          Consumer(int sleepTime, String suffix, int maxConsumed) throws Exception {
-            server.createQueue(address, address.concat(suffix), null, true, false);
+            server.createQueue(address, RoutingType.MULTICAST, address.concat(suffix), null, true, false);
 
             this.sleepTime = sleepTime;
             locator = createInVMLocator(0);

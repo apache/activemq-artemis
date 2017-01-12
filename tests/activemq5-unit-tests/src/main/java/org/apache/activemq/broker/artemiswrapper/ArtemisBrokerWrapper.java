@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -251,7 +252,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          if (coreQ == null) {
             coreQ = new SimpleString(qname);
             try {
-               this.server.createQueue(coreQ, coreQ, null, false, false);
+               this.server.createQueue(coreQ, RoutingType.MULTICAST, coreQ, null, false, false);
                testQueues.put(qname, coreQ);
             } catch (ActiveMQQueueExistsException e) {
                //ignore

@@ -57,10 +57,10 @@ public class ProtonPubSubTest extends ProtonTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server.createAddressInfo(new AddressInfo(ssPubAddress, RoutingType.MULTICAST));
-      server.createAddressInfo(new AddressInfo(ssprefixedPubAddress, RoutingType.MULTICAST));
-      server.createQueue(ssPubAddress, ssPubAddress, new SimpleString("foo=bar"), false, true);
-      server.createQueue(ssprefixedPubAddress, ssprefixedPubAddress, new SimpleString("foo=bar"), false, true);
+      server.addAddressInfo(new AddressInfo(ssPubAddress, RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(ssprefixedPubAddress, RoutingType.MULTICAST));
+      server.createQueue(ssPubAddress, RoutingType.MULTICAST, ssPubAddress, new SimpleString("foo=bar"), false, true);
+      server.createQueue(ssprefixedPubAddress, RoutingType.MULTICAST, ssprefixedPubAddress, new SimpleString("foo=bar"), false, true);
       factory = new JmsConnectionFactory("amqp://localhost:5672");
       factory.setClientID("myClientID");
       connection = factory.createConnection();

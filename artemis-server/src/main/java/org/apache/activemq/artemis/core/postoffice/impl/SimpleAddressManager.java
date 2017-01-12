@@ -231,7 +231,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) throws Exception {
+                                        Collection<RoutingType> routingTypes) {
       if (routingTypes == null) {
          return this.addressInfoMap.get(addressName);
       } else {
@@ -257,21 +257,6 @@ public class SimpleAddressManager implements AddressManager {
             }
          }
       }
-   }
-
-   @Override
-   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      return this.addressInfoMap.compute(addressInfo.getName(), (name, oldAddressInfo) -> {
-         if (oldAddressInfo != null) {
-            final Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
-            validateRoutingTypes(name, routingTypes);
-            final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
-            oldAddressInfo.setRoutingTypes(updatedRoutingTypes);
-            return oldAddressInfo;
-         } else {
-            return addressInfo;
-         }
-      });
    }
 
    @Override

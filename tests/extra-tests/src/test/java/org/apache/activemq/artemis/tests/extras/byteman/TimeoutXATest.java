@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -55,7 +56,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
       server.getConfiguration().setTransactionTimeoutScanPeriod(1100);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.start();
-      server.createQueue(SimpleString.toSimpleString("Queue1"), SimpleString.toSimpleString("Queue1"), null, true, false);
+      server.createQueue(SimpleString.toSimpleString("Queue1"), RoutingType.ANYCAST, SimpleString.toSimpleString("Queue1"), null, true, false);
 
       removingTXEntered0 = new CountDownLatch(1);
       removingTXAwait0 = new CountDownLatch(1);
