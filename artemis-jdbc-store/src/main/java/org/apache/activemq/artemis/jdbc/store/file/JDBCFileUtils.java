@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.jdbc.store.file;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
@@ -42,6 +43,17 @@ class JDBCFileUtils {
          dbDriver.setDataSource(dataSource);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(dataSource, provider);
+      }
+      return dbDriver;
+   }
+
+   static JDBCSequentialFileFactoryDriver getDBFileDriver(Connection connection, SQLProvider provider) throws SQLException {
+      JDBCSequentialFileFactoryDriver dbDriver;
+      if (provider instanceof PostgresSQLProvider) {
+         dbDriver = new PostgresSequentialSequentialFileDriver();
+         dbDriver.setConnection(connection);
+      } else {
+         dbDriver = new JDBCSequentialFileFactoryDriver(connection, provider);
       }
       return dbDriver;
    }

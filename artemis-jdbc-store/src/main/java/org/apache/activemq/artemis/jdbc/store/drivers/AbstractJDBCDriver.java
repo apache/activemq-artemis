@@ -36,6 +36,7 @@ import org.jboss.logging.Logger;
 /**
  * Class to hold common database functionality such as drivers and connections
  */
+@SuppressWarnings("SynchronizeOnNonFinalField")
 public abstract class AbstractJDBCDriver {
 
    private static final Logger logger = Logger.getLogger(AbstractJDBCDriver.class);
@@ -66,17 +67,26 @@ public abstract class AbstractJDBCDriver {
 
    public void start() throws SQLException {
       connect();
-      createSchema();
-      prepareStatements();
+      synchronized (connection) {
+         createSchema();
+         prepareStatements();
+      }
+   }
+
+   public AbstractJDBCDriver(Connection connection, SQLProvider sqlProvider) {
+      this.connection = connection;
+      this.sqlProvider = sqlProvider;
    }
 
    public void stop() throws SQLException {
-      if (sqlProvider.closeConnectionOnShutdown()) {
-         try {
-            connection.close();
-         } catch (SQLException e) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-            throw e;
+      synchronized (connection) {
+         if (sqlProvider.closeConnectionOnShutdown()) {
+            try {
+               connection.close();
+            } catch (SQLException e) {
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+               throw e;
+            }
          }
       }
    }
@@ -90,30 +100,32 @@ public abstract class AbstractJDBCDriver {
    }
 
    private void connect() throws SQLException {
-      if (dataSource != null) {
-         try {
-            connection = dataSource.getConnection();
-         } catch (SQLException e) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-            throw e;
-         }
-      } else {
-         try {
-            if (jdbcDriverClass == null || jdbcDriverClass.isEmpty()) {
-               throw new IllegalStateException("jdbcDriverClass is null or empty!");
+      if (connection == null) {
+         if (dataSource != null) {
+            try {
+               connection = dataSource.getConnection();
+            } catch (SQLException e) {
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+               throw e;
             }
-            if (jdbcConnectionUrl == null || jdbcConnectionUrl.isEmpty()) {
-               throw new IllegalStateException("jdbcConnectionUrl is null or empty!");
+         } else {
+            try {
+               if (jdbcDriverClass == null || jdbcDriverClass.isEmpty()) {
+                  throw new IllegalStateException("jdbcDriverClass is null or empty!");
+               }
+               if (jdbcConnectionUrl == null || jdbcConnectionUrl.isEmpty()) {
+                  throw new IllegalStateException("jdbcConnectionUrl is null or empty!");
+               }
+               final Driver dbDriver = getDriver(jdbcDriverClass);
+               connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
+               if (connection == null) {
+                  throw new IllegalStateException("the driver: " + jdbcDriverClass + " isn't able to connect to the requested url: " + jdbcConnectionUrl);
+               }
+            } catch (SQLException e) {
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+               ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
+               throw e;
             }
-            final Driver dbDriver = getDriver(jdbcDriverClass);
-            connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
-            if (connection == null) {
-               throw new IllegalStateException("the driver: " + jdbcDriverClass + " isn't able to connect to the requested url: " + jdbcConnectionUrl);
-            }
-         } catch (SQLException e) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-            ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
-            throw e;
          }
       }
    }
@@ -206,8 +218,10 @@ public abstract class AbstractJDBCDriver {
       return connection;
    }
 
-   public void setConnection(Connection connection) {
-      this.connection = connection;
+   public final void setConnection(Connection connection) {
+      if (connection == null) {
+         this.connection = connection;
+      }
    }
 
    public void setSqlProvider(SQLProvider sqlProvider) {
@@ -225,4 +239,5 @@ public abstract class AbstractJDBCDriver {
    public void setDataSource(DataSource dataSource) {
       this.dataSource = dataSource;
    }
+
 }

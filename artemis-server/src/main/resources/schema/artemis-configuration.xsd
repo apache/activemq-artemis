@@ -1719,6 +1719,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="page-store-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to large message files
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
    </xsd:complexType>
 

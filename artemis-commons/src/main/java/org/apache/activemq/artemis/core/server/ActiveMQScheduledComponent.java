@@ -81,7 +81,6 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       if (scheduledExecutorService == null) {
          scheduledExecutorService = new ScheduledThreadPoolExecutor(1, getThreadFactory());
          startedOwnScheduler = true;
-
       }
 
       if (onDemand) {
