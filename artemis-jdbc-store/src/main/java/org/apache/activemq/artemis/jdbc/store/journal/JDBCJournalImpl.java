@@ -107,7 +107,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public void start() throws Exception {
+   public void start() throws SQLException {
       super.start();
       syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, SYNC_DELAY, TimeUnit.MILLISECONDS, this);
       started = true;
