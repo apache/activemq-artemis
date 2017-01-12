@@ -246,7 +246,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
          if (clientDefined)  {
             multicast = hasCapabilities(TOPIC, source);
-            AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), defaultRoutingType, true);
+            AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
             if (!addressQueryResult.isExists()) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
             }
