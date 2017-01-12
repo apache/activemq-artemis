@@ -95,7 +95,49 @@ public class WebServerComponentTest extends Assert {
       // Wait for the server to close the connection.
       ch.close();
       Assert.assertTrue(webServerComponent.isStarted());
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testComponentStopBehavior() throws Exception {
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "http://localhost:8161";
+      webServerDTO.path = "webapps";
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.start();
+      // Make the connection attempt.
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      Channel ch = bootstrap.connect("localhost", 8161).sync().channel();
+
+      URI uri = new URI(URL);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaders.Names.HOST, "localhost");
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertEquals(clientHandler.body, "12345");
+      // Wait for the server to close the connection.
+      ch.close();
+      Assert.assertTrue(webServerComponent.isStarted());
+
+      //usual stop won't actually stop it
       webServerComponent.stop();
+      assertTrue(webServerComponent.isStarted());
+
+      webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
@@ -145,7 +187,7 @@ public class WebServerComponentTest extends Assert {
       // Wait for the server to close the connection.
       ch.close();
       Assert.assertTrue(webServerComponent.isStarted());
-      webServerComponent.stop();
+      webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
@@ -198,7 +240,7 @@ public class WebServerComponentTest extends Assert {
       // Wait for the server to close the connection.
       ch.close();
       Assert.assertTrue(webServerComponent.isStarted());
-      webServerComponent.stop();
+      webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
    }
 

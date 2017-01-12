@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.components;
 
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 
-public interface ExternalComponent extends ActiveMQComponent {
+public interface ExternalComponent extends ServiceComponent {
 
    void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception;
 }
