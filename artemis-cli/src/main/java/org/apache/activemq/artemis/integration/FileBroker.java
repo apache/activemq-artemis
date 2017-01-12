@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
@@ -113,13 +114,22 @@ public class FileBroker implements Broker {
 
    @Override
    public void stop() throws Exception {
+      stop(false);
+   }
+
+   @Override
+   public void stop(boolean isShutdown) throws Exception {
       if (!started) {
          return;
       }
       ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
       components.values().toArray(mqComponents);
       for (int i = mqComponents.length - 1; i >= 0; i--) {
-         mqComponents[i].stop();
+         if (mqComponents[i] instanceof ServiceComponent) {
+            ((ServiceComponent)mqComponents[i]).stop(isShutdown);
+         } else {
+            mqComponents[i].stop();
+         }
       }
       started = false;
    }
@@ -151,4 +161,5 @@ public class FileBroker implements Broker {
    public ActiveMQServer getServer() {
       return (ActiveMQServer) components.get("core");
    }
+
 }
