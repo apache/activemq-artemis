@@ -88,7 +88,12 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean exists() {
-      return isCreated;
+      if (isCreated) return true;
+      try {
+         return fileFactory.listFiles(extension).contains(filename);
+      } catch (Exception e) {
+         return false;
+      }
    }
 
    @Override

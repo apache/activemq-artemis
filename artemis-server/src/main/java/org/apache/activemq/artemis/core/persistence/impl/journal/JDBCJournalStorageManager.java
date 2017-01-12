@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
+import java.sql.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,8 @@ import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
+
+   private Connection connection;
 
    public JDBCJournalStorageManager(Configuration config,
                                     ExecutorFactory executorFactory,

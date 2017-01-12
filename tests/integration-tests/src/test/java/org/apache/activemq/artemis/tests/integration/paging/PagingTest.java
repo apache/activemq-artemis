@@ -24,6 +24,8 @@ import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -51,6 +53,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
@@ -86,7 +89,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class PagingTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(PagingTest.class);
@@ -104,8 +110,19 @@ public class PagingTest extends ActiveMQTestBase {
 
    protected static final int PAGE_SIZE = 10 * 1024;
 
+   protected final StoreConfiguration.StoreType storeType;
+
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
+   public PagingTest(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    @Before
    public void checkLoggerStart() throws Exception {
@@ -122,8 +139,6 @@ public class PagingTest extends ActiveMQTestBase {
          AssertionLoggerHandler.stopCapture();
       }
    }
-
-
 
    @Override
    @Before
@@ -1446,6 +1461,8 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testMissingTXEverythingAcked() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
@@ -5633,7 +5650,11 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Override
    protected Configuration createDefaultInVMConfig() throws Exception {
-      return super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      Configuration configuration = super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         setDBStoreType(configuration);
+      }
+      return configuration;
    }
 
    private static final class DummyOperationContext implements OperationContext {

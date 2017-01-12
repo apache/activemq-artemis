@@ -432,6 +432,9 @@ public final class ActiveMQDefaultConfiguration {
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_LARGE_MESSAGES_TABLE_NAME = "LARGE_MESSAGES";
 
+   // Default large messages table name, used with Database storage type
+   private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
+
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
@@ -1188,6 +1191,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultLargeMessagesTableName() {
       return DEFAULT_LARGE_MESSAGES_TABLE_NAME;
+   }
+
+   public static String getDefaultPageStoreTableName() {
+      return DEFAULT_PAGE_STORE_TABLE_NAME;
    }
 
    public static long getDefaultConnectionTtlCheckInterval() {
