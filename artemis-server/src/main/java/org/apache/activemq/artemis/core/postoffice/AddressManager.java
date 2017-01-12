@@ -64,14 +64,7 @@ public interface AddressManager {
     */
    boolean addAddressInfo(AddressInfo addressInfo);
 
-   AddressInfo updateAddressInfo(SimpleString addressName,
-                                 Collection<RoutingType> routingTypes) throws Exception;
-
-   /**
-    * @param addressInfo
-    * @return the same provided {@code addressInfo} if the address was added, another if it was updated
-    */
-   AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo);
+   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes);
 
    AddressInfo removeAddressInfo(SimpleString address);
 

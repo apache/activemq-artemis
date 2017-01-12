@@ -109,7 +109,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    @Test
    public void testHangOnDelivery() throws Exception {
-      queue = server.createQueue(QUEUE, QUEUE, null, true, false);
+      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
       try {
 
          ClientSessionFactory factory = locator.createSessionFactory();
@@ -288,7 +288,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       ((ActiveMQServerImpl) server).replaceQueueFactory(queueFactory);
 
-      queue = server.createQueue(QUEUE, QUEUE, null, true, false);
+      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
 
       blocked.acquire();
 
@@ -316,7 +316,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       Assert.assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
 
       try {
-         server.createQueue(QUEUE, QUEUE, null, true, false);
+         server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
       } catch (Exception expected) {
       }
 
@@ -344,7 +344,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
     */
    @Test
    public void testForceDuplicationOnBindings() throws Exception {
-      queue = server.createQueue(QUEUE, QUEUE, null, true, false);
+      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
@@ -375,7 +375,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
    // An exception during delivery shouldn't make the message disappear
    @Test
    public void testExceptionWhileDelivering() throws Exception {
-      queue = server.createQueue(QUEUE, QUEUE, null, true, false);
+      queue = server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);
 
       HangInterceptor hangInt = new HangInterceptor();
       try {
@@ -429,7 +429,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < 5; i++) {
             if (server.locateQueue(SimpleString.toSimpleString("tt")) == null) {
-               server.createQueue(SimpleString.toSimpleString("tt"), SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
+               server.createQueue(SimpleString.toSimpleString("tt"), RoutingType.ANYCAST, SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
             }
 
             server.stop();

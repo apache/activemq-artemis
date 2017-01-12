@@ -714,7 +714,7 @@ public class MessageProducerTest extends JMSTestCase {
       supportedRoutingTypes.add(RoutingType.ANYCAST);
       supportedRoutingTypes.add(RoutingType.MULTICAST);
 
-      servers.get(0).getActiveMQServer().createAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
+      servers.get(0).getActiveMQServer().addAddressInfo(new AddressInfo(addr, supportedRoutingTypes));
       servers.get(0).getActiveMQServer().createQueue(addr, RoutingType.ANYCAST, addr, null, false, false);
 
       Connection pconn = createConnection();

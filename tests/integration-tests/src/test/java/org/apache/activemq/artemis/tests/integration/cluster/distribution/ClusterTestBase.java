@@ -547,7 +547,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     boolean defaultDeleteOnNoConsumers) throws Exception {
       AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
       addressInfo.addRoutingType(routingType);
-      servers[node].createOrUpdateAddressInfo(addressInfo);
+      servers[node].addOrUpdateAddressInfo(addressInfo);
    }
 
    protected void deleteQueue(final int node, final String queueName) throws Exception {

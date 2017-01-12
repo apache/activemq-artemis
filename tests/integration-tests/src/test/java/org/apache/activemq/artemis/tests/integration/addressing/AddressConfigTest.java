@@ -44,7 +44,7 @@ public class AddressConfigTest extends ActiveMQTestBase {
 
    @Test
    public void persistAddressConfigTest() throws Exception {
-      server.createQueue(SimpleString.toSimpleString("myAddress"), SimpleString.toSimpleString("myQueue"), null, true, false);
+      server.createQueue(SimpleString.toSimpleString("myAddress"), RoutingType.MULTICAST, SimpleString.toSimpleString("myQueue"), null, true, false);
       server.stop();
       server.start();
       AddressInfo addressInfo = server.getAddressInfo(SimpleString.toSimpleString("myAddress"));

@@ -124,6 +124,7 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
+         <type>test-jar</type>
       </dependency>
 
    </dependencies>

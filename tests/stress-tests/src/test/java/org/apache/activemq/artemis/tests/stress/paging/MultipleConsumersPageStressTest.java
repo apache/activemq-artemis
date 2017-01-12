@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
@@ -101,7 +102,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
       server = createServer(true, createDefaultInVMConfig(), 10024, 200024, settings);
       server.start();
 
-      pagedServerQueue = (QueueImpl) server.createQueue(ADDRESS, ADDRESS, null, true, false);
+      pagedServerQueue = (QueueImpl) server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
    }
 

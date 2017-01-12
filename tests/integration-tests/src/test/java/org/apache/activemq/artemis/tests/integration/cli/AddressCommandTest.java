@@ -106,7 +106,7 @@ public class AddressCommandTest extends JMSTestBase {
       final String addressName = "address";
       final SimpleString addressSimpleString = new SimpleString(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(addressSimpleString, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
 
       final DeleteAddress deleteAddress = new DeleteAddress();
@@ -143,7 +143,7 @@ public class AddressCommandTest extends JMSTestBase {
 
       // Create bindings
       SimpleString address = new SimpleString("address");
-      server.createAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
+      server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
       server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
       server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue2"), null, true, false);
       server.createQueue(address, RoutingType.MULTICAST, new SimpleString("queue3"), null, true, false);
@@ -164,7 +164,7 @@ public class AddressCommandTest extends JMSTestBase {
    public void testUpdateAddressRoutingTypes() throws Exception {
       final String addressName = "address";
       final SimpleString address = new SimpleString(addressName);
-      server.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
 
       final UpdateAddress updateAddress = new UpdateAddress();
       updateAddress.setName(addressName);
@@ -192,7 +192,7 @@ public class AddressCommandTest extends JMSTestBase {
       final String addressName = "address";
       final SimpleString addressSimpleString = new SimpleString(addressName);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(addressSimpleString, RoutingType.MULTICAST, new SimpleString("queue1"), null, true, false);
 
       final UpdateAddress updateAddress = new UpdateAddress();

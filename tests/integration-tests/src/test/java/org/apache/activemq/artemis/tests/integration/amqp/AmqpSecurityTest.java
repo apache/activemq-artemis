@@ -154,7 +154,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
-      server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTestName()), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTestName()), RoutingType.ANYCAST));
       server.createQueue(new SimpleString(getTestName()), RoutingType.ANYCAST, new SimpleString(getTestName()), null, true, false);
 
       AmqpClient client = createAmqpClient(user1, password1);
