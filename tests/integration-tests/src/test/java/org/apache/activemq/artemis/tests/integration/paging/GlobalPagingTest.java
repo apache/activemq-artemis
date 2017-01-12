@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -36,8 +37,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class GlobalPagingTest extends PagingTest {
+
+   public GlobalPagingTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    @Override
    @Before
@@ -69,6 +77,8 @@ public class GlobalPagingTest extends PagingTest {
 
    @Test
    public void testPagingOverFullDisk() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);

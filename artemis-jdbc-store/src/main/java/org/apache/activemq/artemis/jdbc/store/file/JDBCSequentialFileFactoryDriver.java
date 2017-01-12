@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.jdbc.store.file;
 import javax.sql.DataSource;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import java.util.List;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
+@SuppressWarnings("SynchronizeOnNonFinalField")
 public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    protected PreparedStatement deleteFile;
@@ -55,6 +57,10 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       super(dataSource, provider);
    }
 
+   JDBCSequentialFileFactoryDriver(Connection connection, SQLProvider sqlProvider) {
+      super(connection, sqlProvider);
+   }
+
    @Override
    protected void createSchema() throws SQLException {
       createTable(sqlProvider.getCreateFileTableSQL());
@@ -72,22 +78,24 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       this.selectFileNamesByExtension = connection.prepareStatement(sqlProvider.getSelectFileNamesByExtensionSQL());
    }
 
-   public synchronized List<String> listFiles(String extension) throws Exception {
-      List<String> fileNames = new ArrayList<>();
-      try {
-         connection.setAutoCommit(false);
-         selectFileNamesByExtension.setString(1, extension);
-         try (ResultSet rs = selectFileNamesByExtension.executeQuery()) {
-            while (rs.next()) {
-               fileNames.add(rs.getString(1));
+   public List<String> listFiles(String extension) throws Exception {
+      synchronized (connection) {
+         List<String> fileNames = new ArrayList<>();
+         try {
+            connection.setAutoCommit(false);
+            selectFileNamesByExtension.setString(1, extension);
+            try (ResultSet rs = selectFileNamesByExtension.executeQuery()) {
+               while (rs.next()) {
+                  fileNames.add(rs.getString(1));
+               }
             }
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
          }
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
+         return fileNames;
       }
-      return fileNames;
    }
 
    /**
@@ -113,16 +121,23 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public synchronized int fileExists(JDBCSequentialFile file) throws SQLException {
-      connection.setAutoCommit(false);
-      selectFileByFileName.setString(1, file.getFileName());
-      try (ResultSet rs = selectFileByFileName.executeQuery()) {
-         int id = rs.next() ? rs.getInt(1) : -1;
-         connection.commit();
-         return id;
-      } catch (Exception e) {
-         connection.rollback();
-         throw e;
+   public int fileExists(JDBCSequentialFile file) throws SQLException {
+      try {
+         synchronized (connection) {
+            connection.setAutoCommit(false);
+            selectFileByFileName.setString(1, file.getFileName());
+            try (ResultSet rs = selectFileByFileName.executeQuery()) {
+               int id = rs.next() ? rs.getInt(1) : -1;
+               connection.commit();
+               return id;
+            } catch (Exception e) {
+               connection.rollback();
+               throw e;
+            }
+         }
+      } catch (NullPointerException npe) {
+         npe.printStackTrace();
+         throw npe;
       }
    }
 
@@ -132,18 +147,20 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param file
     * @throws SQLException
     */
-   public synchronized void loadFile(JDBCSequentialFile file) throws SQLException {
-      connection.setAutoCommit(false);
-      readLargeObject.setInt(1, file.getId());
+   public void loadFile(JDBCSequentialFile file) throws SQLException {
+      synchronized (connection) {
+         connection.setAutoCommit(false);
+         readLargeObject.setInt(1, file.getId());
 
-      try (ResultSet rs = readLargeObject.executeQuery()) {
-         if (rs.next()) {
-            file.setWritePosition((int) rs.getBlob(1).length());
+         try (ResultSet rs = readLargeObject.executeQuery()) {
+            if (rs.next()) {
+               file.setWritePosition((int) rs.getBlob(1).length());
+            }
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
          }
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
       }
    }
 
@@ -153,21 +170,23 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param file
     * @throws SQLException
     */
-   public synchronized void createFile(JDBCSequentialFile file) throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         createFile.setString(1, file.getFileName());
-         createFile.setString(2, file.getExtension());
-         createFile.setBytes(3, new byte[0]);
-         createFile.executeUpdate();
-         try (ResultSet keys = createFile.getGeneratedKeys()) {
-            keys.next();
-            file.setId(keys.getInt(1));
+   public void createFile(JDBCSequentialFile file) throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            createFile.setString(1, file.getFileName());
+            createFile.setString(2, file.getExtension());
+            createFile.setBytes(3, new byte[0]);
+            createFile.executeUpdate();
+            try (ResultSet keys = createFile.getGeneratedKeys()) {
+               keys.next();
+               file.setId(keys.getInt(1));
+            }
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
          }
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
       }
    }
 
@@ -178,16 +197,18 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param newFileName
     * @throws SQLException
     */
-   public synchronized void renameFile(JDBCSequentialFile file, String newFileName) throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         renameFile.setString(1, newFileName);
-         renameFile.setInt(2, file.getId());
-         renameFile.executeUpdate();
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
+   public void renameFile(JDBCSequentialFile file, String newFileName) throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            renameFile.setString(1, newFileName);
+            renameFile.setInt(2, file.getId());
+            renameFile.executeUpdate();
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+         }
       }
    }
 
@@ -197,15 +218,17 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param file
     * @throws SQLException
     */
-   public synchronized void deleteFile(JDBCSequentialFile file) throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         deleteFile.setInt(1, file.getId());
-         deleteFile.executeUpdate();
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
+   public void deleteFile(JDBCSequentialFile file) throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            deleteFile.setInt(1, file.getId());
+            deleteFile.executeUpdate();
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+         }
       }
    }
 
@@ -217,17 +240,19 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public synchronized int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         appendToLargeObject.setBytes(1, data);
-         appendToLargeObject.setInt(2, file.getId());
-         appendToLargeObject.executeUpdate();
-         connection.commit();
-         return data.length;
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
+   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            appendToLargeObject.setBytes(1, data);
+            appendToLargeObject.setInt(2, file.getId());
+            appendToLargeObject.executeUpdate();
+            connection.commit();
+            return data.length;
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+         }
       }
    }
 
@@ -239,22 +264,24 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public synchronized int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
-      connection.setAutoCommit(false);
-      readLargeObject.setInt(1, file.getId());
-      int readLength = 0;
-      try (ResultSet rs = readLargeObject.executeQuery()) {
-         if (rs.next()) {
-            Blob blob = rs.getBlob(1);
-            readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
-            byte[] data = blob.getBytes(file.position() + 1, readLength);
-            bytes.put(data);
+   public int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
+      synchronized (connection) {
+         connection.setAutoCommit(false);
+         readLargeObject.setInt(1, file.getId());
+         int readLength = 0;
+         try (ResultSet rs = readLargeObject.executeQuery()) {
+            if (rs.next()) {
+               Blob blob = rs.getBlob(1);
+               readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
+               byte[] data = blob.getBytes(file.position() + 1, readLength);
+               bytes.put(data);
+            }
+            connection.commit();
+            return readLength;
+         } catch (Throwable e) {
+            connection.rollback();
+            throw e;
          }
-         connection.commit();
-         return readLength;
-      } catch (Throwable e) {
-         connection.rollback();
-         throw e;
       }
    }
 
@@ -265,16 +292,18 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @param fileTo
     * @throws SQLException
     */
-   public synchronized void copyFileData(JDBCSequentialFile fileFrom, JDBCSequentialFile fileTo) throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         copyFileRecord.setInt(1, fileFrom.getId());
-         copyFileRecord.setInt(2, fileTo.getId());
-         copyFileRecord.executeUpdate();
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
+   public void copyFileData(JDBCSequentialFile fileFrom, JDBCSequentialFile fileTo) throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            copyFileRecord.setInt(1, fileFrom.getId());
+            copyFileRecord.setInt(2, fileTo.getId());
+            copyFileRecord.executeUpdate();
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+         }
       }
    }
 
@@ -282,16 +311,18 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * Drop all tables and data
     */
    @Override
-   public synchronized void destroy() throws SQLException {
-      try {
-         connection.setAutoCommit(false);
-         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlProvider.getDropFileTableSQL());
+   public void destroy() throws SQLException {
+      synchronized (connection) {
+         try {
+            connection.setAutoCommit(false);
+            try (Statement statement = connection.createStatement()) {
+               statement.executeUpdate(sqlProvider.getDropFileTableSQL());
+            }
+            connection.commit();
+         } catch (SQLException e) {
+            connection.rollback();
+            throw e;
          }
-         connection.commit();
-      } catch (SQLException e) {
-         connection.rollback();
-         throw e;
       }
    }
 
