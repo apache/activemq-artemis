@@ -301,6 +301,24 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       connection.close();
    }
 
+   @Test(timeout = 60000)
+   public void testAddressDoesntExist() throws Exception {
+      AmqpClient client = createAmqpClient();
+
+      AmqpConnection connection = addConnection(client.connect("myClientId"));
+      AmqpSession session = connection.createSession();
+      Source source = createNonSharedSource(TerminusDurability.CONFIGURATION);
+      Source source1 = createSharedSource(TerminusDurability.CONFIGURATION);
+      AmqpReceiver receiver = session.createMulticastReceiver(source, "myReceiverID", "mySub");
+      try {
+         session.createMulticastReceiver(source1, "myReceiverID", "mySub|2");
+         fail("Exception expected");
+      } catch (Exception e) {
+         //expected
+      }
+      connection.close();
+   }
+
    private Source createNonSharedSource(TerminusDurability terminusDurability) {
       Source source = new Source();
       source.setAddress(address.toString());
