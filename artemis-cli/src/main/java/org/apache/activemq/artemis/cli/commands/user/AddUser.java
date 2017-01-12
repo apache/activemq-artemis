@@ -20,7 +20,6 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import org.apache.commons.lang3.StringUtils;
 
 /**

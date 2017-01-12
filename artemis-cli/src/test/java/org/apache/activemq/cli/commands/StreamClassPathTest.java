@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.cli.test;
+package org.apache.activemq.cli.commands;
 
 import java.io.InputStream;
 

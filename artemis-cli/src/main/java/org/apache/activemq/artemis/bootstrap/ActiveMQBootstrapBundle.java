@@ -14,12 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.bootstrap;
 
-import org.apache.activemq.artemis.dto.SecurityDTO;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.jboss.logging.Messages;
+import org.jboss.logging.annotations.MessageBundle;
 
-public interface SecurityHandler {
+/**
+ * Logger Code 10
+ *
+ * each message id must be 6 digits long starting with 10, the 3rd digit should be 9
+ *
+ * so 109000 to 109999
+ */
+@MessageBundle(projectCode = "AMQ")
+public interface ActiveMQBootstrapBundle {
 
-   ActiveMQSecurityManager createSecurityManager(SecurityDTO securityDTO) throws Exception;
+   ActiveMQBootstrapBundle BUNDLE = Messages.getBundle(ActiveMQBootstrapBundle.class);
+
 }

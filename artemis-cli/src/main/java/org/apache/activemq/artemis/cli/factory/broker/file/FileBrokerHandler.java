@@ -14,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.integration;
+package org.apache.activemq.artemis.cli.factory.broker.file;
 
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.dto.ServerDTO;
+import org.apache.activemq.artemis.cli.factory.broker.BrokerHandler;
+import org.apache.activemq.artemis.cli.factory.broker.Broker;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
-/**
- * A Broker os a set of ActiveMQComponents that create a Server, for instance core and jms.
- */
-public interface Broker extends ActiveMQComponent {
+public class FileBrokerHandler implements BrokerHandler {
 
-   ActiveMQServer getServer();
+   @Override
+   public Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) {
+      return new FileBroker(brokerDTO, security);
+   }
 }

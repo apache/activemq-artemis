@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory.broker;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,7 +22,6 @@ import java.net.URI;
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ServerDTO;
-import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.FactoryFinder;
 
@@ -30,25 +29,6 @@ public class BrokerFactory {
 
    public static BrokerDTO createBrokerConfiguration(URI configURI) throws Exception {
       return createBrokerConfiguration(configURI, null, null, null);
-   }
-
-   public static BrokerDTO createBrokerConfiguration(URI configURI,
-                                                     String artemisHome,
-                                                     String artemisInstance,
-                                                     URI artemisURIInstance) throws Exception {
-      if (configURI.getScheme() == null) {
-         throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
-      }
-
-      BrokerFactoryHandler factory = null;
-      try {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
-         factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
-      } catch (IOException ioe) {
-         throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
-      }
-
-      return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception {
@@ -70,7 +50,8 @@ public class BrokerFactory {
          try {
             FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/server/");
             handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
-         } catch (IOException ioe) {
+         }
+         catch (IOException ioe) {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }
 
@@ -79,4 +60,23 @@ public class BrokerFactory {
       return null;
    }
 
+   private static BrokerDTO createBrokerConfiguration(URI configURI,
+                                                      String artemisHome,
+                                                      String artemisInstance,
+                                                      URI artemisURIInstance) throws Exception {
+      if (configURI.getScheme() == null) {
+         throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
+      }
+
+      BrokerFactoryHandler factory = null;
+      try {
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
+         factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
+      }
+      catch (IOException ioe) {
+         throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
+      }
+
+      return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
+   }
 }

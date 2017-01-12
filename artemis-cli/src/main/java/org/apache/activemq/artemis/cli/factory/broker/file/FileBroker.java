@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.integration;
+package org.apache.activemq.artemis.cli.factory.broker.file;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -29,7 +29,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.dto.ServerDTO;
-import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
+import org.apache.activemq.artemis.cli.factory.broker.Broker;
+import org.apache.activemq.artemis.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
@@ -137,7 +138,7 @@ public class FileBroker implements Broker {
    * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
    * will need impproving if we get more.
    * */
-   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
+   private ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
       ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {

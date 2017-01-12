@@ -29,8 +29,8 @@ import io.airlift.airline.model.GlobalMetadata;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
-import org.apache.activemq.artemis.factory.BrokerFactory;
-import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
+import org.apache.activemq.artemis.cli.factory.broker.BrokerFactory;
+import org.apache.activemq.artemis.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 
 /**
@@ -59,7 +59,7 @@ public abstract class Configurable extends ActionAbstract {
       helpGroup(group, command);
    }
 
-   protected void helpGroup(String groupName, String commandName) {
+   private void helpGroup(String groupName, String commandName) {
       for (CommandGroupMetadata group : global.getCommandGroups()) {
          if (group.getName().equals(groupName)) {
             for (CommandMetadata command : group.getCommands()) {

@@ -44,12 +44,12 @@ public final class CompactJournal extends LockAbstract {
       return null;
    }
 
-   void compactJournal(final File directory,
-                       final String journalPrefix,
-                       final String journalSuffix,
-                       final int minFiles,
-                       final int fileSize,
-                       final IOCriticalErrorListener listener) throws Exception {
+   private void compactJournal(final File directory,
+                               final String journalPrefix,
+                               final String journalSuffix,
+                               final int minFiles,
+                               final int fileSize,
+                               final IOCriticalErrorListener listener) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);

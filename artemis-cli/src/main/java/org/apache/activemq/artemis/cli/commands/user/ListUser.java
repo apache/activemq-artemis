@@ -20,7 +20,6 @@ import java.util.List;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 
 /**
  * list existing users, example:

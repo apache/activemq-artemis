@@ -22,16 +22,16 @@ import java.util.TimerTask;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
-import org.apache.activemq.artemis.factory.BrokerFactory;
-import org.apache.activemq.artemis.factory.SecurityManagerFactory;
-import org.apache.activemq.artemis.integration.Broker;
-import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
+import org.apache.activemq.artemis.cli.factory.broker.BrokerFactory;
+import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
+import org.apache.activemq.artemis.cli.factory.broker.Broker;
+import org.apache.activemq.artemis.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
@@ -63,7 +63,7 @@ public class Run extends LockAbstract {
 
       FileConfiguration fileConfiguration = getFileConfiguration();
 
-      Artemis.printBanner();
+      PrintData.printBanner();
 
       createDirectories(getFileConfiguration());
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.util;
+package org.apache.activemq.artemis.cli.commands.user;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.StringUtil;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class FileBasedSecStoreConfig {
+class FileBasedSecStoreConfig {
 
    private static final String LICENSE_HEADER =
            "## ---------------------------------------------------------------------------\n" +
@@ -51,7 +51,7 @@ public class FileBasedSecStoreConfig {
    private PropertiesConfiguration userConfig;
    private PropertiesConfiguration roleConfig;
 
-   public FileBasedSecStoreConfig(File userFile, File roleFile) throws Exception {
+   FileBasedSecStoreConfig(File userFile, File roleFile) throws Exception {
       Configurations configs = new Configurations();
       userBuilder = configs.propertiesBuilder(userFile);
       roleBuilder = configs.propertiesBuilder(roleFile);
@@ -78,7 +78,7 @@ public class FileBasedSecStoreConfig {
       }
    }
 
-   public void addNewUser(String username, String hash, String... roles) throws Exception {
+   void addNewUser(String username, String hash, String... roles) throws Exception {
       if (userConfig.getString(username) != null) {
          throw new IllegalArgumentException("User already exist: " + username);
       }
@@ -86,12 +86,12 @@ public class FileBasedSecStoreConfig {
       addRoles(username, roles);
    }
 
-   public void save() throws Exception {
+   void save() throws Exception {
       userBuilder.save();
       roleBuilder.save();
    }
 
-   public void removeUser(String username) throws Exception {
+   void removeUser(String username) throws Exception {
       if (userConfig.getProperty(username) == null) {
          throw new IllegalArgumentException("user " + username + " doesn't exist.");
       }
@@ -99,7 +99,7 @@ public class FileBasedSecStoreConfig {
       removeRoles(username);
    }
 
-   public List<String> listUser(String username) {
+   List<String> listUser(String username) {
       List<String> result = new ArrayList<>();
       result.add("--- \"user\"(roles) ---\n");
 
@@ -146,7 +146,7 @@ public class FileBasedSecStoreConfig {
       return builder.toString();
    }
 
-   public void updateUser(String username, String password, String[] roles) {
+   void updateUser(String username, String password, String[] roles) {
       String oldPassword = (String) userConfig.getProperty(username);
       if (oldPassword == null) {
          throw new IllegalArgumentException("user " + username + " doesn't exist.");

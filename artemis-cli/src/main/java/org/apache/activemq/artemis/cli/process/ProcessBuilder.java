@@ -94,7 +94,7 @@ public class ProcessBuilder {
       return process;
    }
 
-   public static String[] rebuildArgs(String[] args, String... prefixArgs) {
+   private static String[] rebuildArgs(String[] args, String... prefixArgs) {
       String[] resultArgs = new String[args.length + prefixArgs.length];
 
       int i = 0;

@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory.broker;
 
 import org.apache.activemq.artemis.dto.ServerDTO;
-import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public interface BrokerHandler {

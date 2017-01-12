@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory.broker.xml;
 
 import java.io.File;
 import java.net.URI;
 
 import org.apache.activemq.artemis.cli.ConfigurationException;
+import org.apache.activemq.artemis.cli.factory.broker.BrokerFactoryHandler;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.XmlUtil;
 

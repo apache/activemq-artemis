@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.cli.test;
+package org.apache.activemq.cli;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
@@ -23,11 +23,11 @@ import java.io.PrintStream;
 
 public class TestActionContext extends ActionContext {
 
-   public ByteArrayOutputStream stdout;
-   public ByteArrayOutputStream stderr;
+   private ByteArrayOutputStream stdout;
+   private ByteArrayOutputStream stderr;
    private int bufferSize;
 
-   public TestActionContext(int bufferSize) {
+   private TestActionContext(int bufferSize) {
       this.bufferSize = bufferSize;
       this.stdout = new ByteArrayOutputStream(bufferSize);
       this.stderr = new ByteArrayOutputStream(bufferSize);
@@ -36,11 +36,11 @@ public class TestActionContext extends ActionContext {
       this.err = new PrintStream(stderr);
    }
 
-   public TestActionContext() {
+   TestActionContext() {
       this(4096);
    }
 
-   public String getStdout() {
+   String getStdout() {
       return stdout.toString();
    }
 

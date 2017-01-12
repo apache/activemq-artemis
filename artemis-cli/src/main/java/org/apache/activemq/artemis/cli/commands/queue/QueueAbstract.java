@@ -106,14 +106,14 @@ public class QueueAbstract extends AbstractAction {
       return this;
    }
 
-   public Integer getMaxConsumers(Integer defaultValue) {
+   Integer getMaxConsumers(Integer defaultValue) {
       if (maxConsumers == null) {
          return defaultValue;
       }
       return maxConsumers;
    }
 
-   public boolean isAutoCreateAddress() {
+   boolean isAutoCreateAddress() {
       if (autoCreateAddress == null) {
          autoCreateAddress = inputBoolean("--auto-create-address", "should auto create the address if it doesn't exist", false);
       }
@@ -219,7 +219,7 @@ public class QueueAbstract extends AbstractAction {
       return name;
    }
 
-   public String getRoutingType() {
+   String getRoutingType() {
       if (isAnycast() && isMulticast()) {
          throw new IllegalArgumentException("--multicast and --anycast are exclusive options for a Queue");
       }

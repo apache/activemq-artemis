@@ -79,12 +79,12 @@ public class DecodeJournal extends LockAbstract {
 
    }
 
-   public static void importJournal(final String directory,
-                                    final String journalPrefix,
-                                    final String journalSuffix,
-                                    final int minFiles,
-                                    final int fileSize,
-                                    final InputStream stream) throws Exception {
+   private static void importJournal(final String directory,
+                                     final String journalPrefix,
+                                     final String journalSuffix,
+                                     final int minFiles,
+                                     final int fileSize,
+                                     final InputStream stream) throws Exception {
       Reader reader = new InputStreamReader(stream);
       importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
    }
@@ -216,7 +216,7 @@ public class DecodeJournal extends LockAbstract {
       journal.stop();
    }
 
-   protected static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters) {
+   private static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters) {
 
       AtomicInteger counter = txCounters.get(txID);
       if (counter == null) {
@@ -227,7 +227,7 @@ public class DecodeJournal extends LockAbstract {
       return counter;
    }
 
-   protected static RecordInfo parseRecord(final Properties properties) throws Exception {
+   private static RecordInfo parseRecord(final Properties properties) throws Exception {
       long id = parseLong("id", properties);
       byte userRecordType = parseByte("userRecordType", properties);
       boolean isUpdate = parseBoolean("isUpdate", properties);
@@ -284,7 +284,7 @@ public class DecodeJournal extends LockAbstract {
       return value;
    }
 
-   protected static Properties parseLine(final String[] splitLine) {
+   private static Properties parseLine(final String[] splitLine) {
       Properties properties = new Properties();
 
       for (String el : splitLine) {

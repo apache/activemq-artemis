@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 
 /**
  * Remove a user, example:
