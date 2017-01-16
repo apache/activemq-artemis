@@ -626,10 +626,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             set.add(RoutingType.valueOf(routingType));
          }
          final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
-         if (server.createAddressInfo(addressInfo)) {
+         if (server.addAddressInfo(addressInfo)) {
             return AddressInfoTextFormatter.Long.format(addressInfo, new StringBuilder()).toString();
          } else {
-            return "";
+            throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
          }
       } finally {
          blockOnIO();
@@ -652,11 +652,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                routingTypeSet.add(RoutingType.valueOf(routingTypeName));
             }
          }
-         final AddressInfo updatedAddressInfo = server.updateAddressInfo(name, routingTypeSet);
-         if (updatedAddressInfo == null) {
+         if (!server.updateAddressInfo(SimpleString.toSimpleString(name), routingTypeSet)) {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(SimpleString.toSimpleString(name));
          }
-         return AddressInfoTextFormatter.Long.format(updatedAddressInfo, new StringBuilder()).toString();
+         return AddressInfoTextFormatter.Long.format(server.getAddressInfo(SimpleString.toSimpleString(name)), new StringBuilder()).toString();
       } finally {
          blockOnIO();
       }
@@ -691,7 +690,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
       try {
-         server.deployQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), new SimpleString(name), filter, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType(), new SimpleString(name), filter, durable, false);
       } finally {
          blockOnIO();
       }

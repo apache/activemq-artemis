@@ -60,7 +60,7 @@ public class MulticastTest extends ActiveMQTestBase {
 
       addressInfo = new AddressInfo(baseAddress);
       addressInfo.addRoutingType(RoutingType.MULTICAST);
-      server.createOrUpdateAddressInfo(addressInfo);
+      server.addOrUpdateAddressInfo(addressInfo);
    }
 
    @Test

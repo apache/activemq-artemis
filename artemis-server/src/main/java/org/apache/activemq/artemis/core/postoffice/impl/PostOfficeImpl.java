@@ -441,23 +441,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
-   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) {
-      synchronized (addressLock) {
-         final AddressInfo updatedAddressInfo = addressManager.addOrUpdateAddressInfo(addressInfo);
-         // only register address if it is newly added
-         final boolean isNew = updatedAddressInfo == addressInfo;
-         if (isNew) {
-            try {
-               managementService.registerAddress(addressInfo);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-         }
-         return updatedAddressInfo;
-      }
-   }
-
-   @Override
    public QueueBinding updateQueue(SimpleString name,
                                    RoutingType routingType,
                                    Integer maxConsumers,

@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class QueuePeristPauseTest extends ActiveMQTestBase {
       server.start();
 
       Queue queue = server.createQueue(SimpleString.toSimpleString("q1"),
+                                       RoutingType.ANYCAST,
                                        SimpleString.toSimpleString("q1"),
                                        null, true, false);
 

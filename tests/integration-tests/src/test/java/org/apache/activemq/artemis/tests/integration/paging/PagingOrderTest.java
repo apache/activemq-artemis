@@ -95,7 +95,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -185,7 +185,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       Queue q2 = server.createQueue(ADDRESS, RoutingType.ANYCAST, new SimpleString("inactive"), null, true, false);
@@ -315,7 +315,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       Queue q1 = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       Queue q2 = server.createQueue(ADDRESS, RoutingType.ANYCAST, new SimpleString("inactive"), null, true, false);
@@ -409,7 +409,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -494,7 +494,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       ClientSession session = sf.createSession(false, false, false);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       QueueImpl queue = (QueueImpl) server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);

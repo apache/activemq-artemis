@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -239,7 +240,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, false, false);
+      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientConsumer consumer;
@@ -281,7 +282,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
-      server.createQueue(SimpleString.toSimpleString(queue), SimpleString.toSimpleString(queue), null, false, false);
+      server.createQueue(SimpleString.toSimpleString(queue), RoutingType.ANYCAST, SimpleString.toSimpleString(queue), null, false, false);
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
       ClientProducer producer = session.createProducer(SimpleString.toSimpleString(queue));

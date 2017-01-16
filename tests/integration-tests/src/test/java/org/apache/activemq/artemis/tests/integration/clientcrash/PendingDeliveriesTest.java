@@ -41,7 +41,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
    @Before
    public void createQueue() throws Exception {
-      server.createAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST));
       server.createQueue(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue1"), null, true, false);
    }
 

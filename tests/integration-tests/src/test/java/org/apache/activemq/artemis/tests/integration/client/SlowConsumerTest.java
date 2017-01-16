@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -107,7 +108,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       server.getAddressSettingsRepository().addMatch(QUEUE.toString(), addressSettings);
 
-      server.createQueue(QUEUE, QUEUE, null, true, false).getPageSubscription().getPagingStore().startPaging();
+      server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false).getPageSubscription().getPagingStore().startPaging();
 
       locator = createFactory(isNetty);
    }

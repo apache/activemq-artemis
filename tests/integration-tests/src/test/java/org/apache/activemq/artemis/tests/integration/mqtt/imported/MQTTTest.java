@@ -1679,7 +1679,7 @@ public class MQTTTest extends MQTTTestSupport {
    public void testAnycastAddressWorksWithMQTT() throws Exception {
       String anycastAddress = "foo/bar";
 
-      getServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), RoutingType.ANYCAST));
+      getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), RoutingType.ANYCAST));
       String clientId = "testMqtt";
 
       Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};
@@ -1717,7 +1717,7 @@ public class MQTTTest extends MQTTTestSupport {
       routingTypeSet.add(RoutingType.ANYCAST);
       routingTypeSet.add(RoutingType.MULTICAST);
 
-      getServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
+      getServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("foo.bar"), routingTypeSet));
       String clientId = "testMqtt";
 
       Topic[] mqttSubscription = new Topic[]{new Topic(anycastAddress, QoS.AT_LEAST_ONCE)};

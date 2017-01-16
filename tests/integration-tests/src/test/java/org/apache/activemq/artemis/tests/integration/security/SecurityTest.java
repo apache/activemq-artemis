@@ -229,7 +229,7 @@ public class SecurityTest extends ActiveMQTestBase {
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
       server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
 
@@ -318,7 +318,7 @@ public class SecurityTest extends ActiveMQTestBase {
       bRoles.add(new Role(QUEUE_B.toString(), false, true, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
       server.start();
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_A, null, true, false);
       server.createQueue(ADDRESS, RoutingType.ANYCAST, QUEUE_B, null, true, false);
 
@@ -393,7 +393,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory cf = createSessionFactory(locator);
 
-      server.createAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(ADDRESS, RoutingType.ANYCAST, DURABLE_QUEUE, null, true, false);
       server.createQueue(ADDRESS, RoutingType.ANYCAST, NON_DURABLE_QUEUE, null, false, false);
 

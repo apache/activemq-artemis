@@ -30,8 +30,6 @@ public class AddressInfo {
 
    private boolean autoCreated = false;
 
-   private boolean deletable = false;
-
    private Set<RoutingType> routingTypes;
 
    public AddressInfo(SimpleString name) {

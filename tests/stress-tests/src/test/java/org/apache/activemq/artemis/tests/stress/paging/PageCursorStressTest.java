@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
@@ -797,7 +798,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       queueList.clear();
 
       try {
-         queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
+         queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
          queue.pause();
       } catch (Exception ignored) {
       }

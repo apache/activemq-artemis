@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
@@ -216,7 +217,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       SimpleString jmsAddress = new SimpleString("Test");
 
-      server.createQueue(jmsAddress, jmsAddress, null, true, false);
+      server.createQueue(jmsAddress, RoutingType.ANYCAST, jmsAddress, null, true, false);
 
       final AtomicInteger unexpectedErrors = new AtomicInteger(0);
       final AtomicInteger expectedErrors = new AtomicInteger(0);
