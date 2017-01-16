@@ -3132,7 +3132,20 @@ public class QueueImpl implements Queue {
          if (logger.isDebugEnabled()) {
             logger.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
-         for (Consumer consumer : getConsumers()) {
+
+         Set<Consumer> consumersSet = getConsumers();
+
+         if (consumersSet.size() == 0) {
+            logger.debug("There are no consumers, no need to check slow consumer's rate");
+            return;
+         } else if (queueRate  < (threshold * consumersSet.size())) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+            }
+            return;
+         }
+
+         for (Consumer consumer : consumersSet) {
             if (consumer instanceof ServerConsumerImpl) {
                ServerConsumerImpl serverConsumer = (ServerConsumerImpl) consumer;
                float consumerRate = serverConsumer.getRate();
@@ -3159,9 +3172,6 @@ public class QueueImpl implements Queue {
                         connection.killMessage(server.getNodeID());
                         remotingService.removeConnection(connection.getID());
                         connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
-                        //break once a consumer gets killed. This can prevent all
-                        //consumers to this queue get killed all at once.
-                        break;
                      } else if (policy.equals(SlowConsumerPolicy.NOTIFY)) {
                         TypedProperties props = new TypedProperties();
 
