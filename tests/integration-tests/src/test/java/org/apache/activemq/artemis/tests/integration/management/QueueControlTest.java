@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManage
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.utils.Base64;
@@ -1766,8 +1767,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @Test
    public void testMoveMessagesBack() throws Exception {
-      server.createQueue(new SimpleString("q1"), new SimpleString("q1"), null, true, false);
-      server.createQueue(new SimpleString("q2"), new SimpleString("q2"), null, true, false);
+      server.createQueue(new SimpleString("q1"), RoutingType.MULTICAST, new SimpleString("q1"), null, true, false);
+      server.createQueue(new SimpleString("q2"), RoutingType.MULTICAST, new SimpleString("q2"), null, true, false);
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -1830,8 +1831,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @Test
    public void testMoveMessagesBack2() throws Exception {
-      server.createQueue(new SimpleString("q1"), new SimpleString("q1"), null, true, false);
-      server.createQueue(new SimpleString("q2"), new SimpleString("q2"), null, true, false);
+      server.createQueue(new SimpleString("q1"), RoutingType.MULTICAST, new SimpleString("q1"), null, true, false);
+      server.createQueue(new SimpleString("q2"), RoutingType.MULTICAST, new SimpleString("q2"), null, true, false);
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -2071,7 +2072,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       SimpleString testQueueName = new SimpleString("newQueue");
       String testQueueName2 = "newQueue2";
-      this.server.createQueue(testQueueName, testQueueName, null, false, false);
+      this.server.createQueue(testQueueName, RoutingType.ANYCAST, testQueueName, null, false, false);
 
       Notification notif = listener.getNotification();
 

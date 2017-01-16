@@ -1213,7 +1213,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession());
-      server.createAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
       addClientConsumer(session.createConsumer(queueName));
       Thread.sleep(100); // We check the timestamp for the creation time. We need to make sure it's different
@@ -1337,7 +1337,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @Test
    public void testListSessionsAsJSON() throws Exception {
       SimpleString queueName = new SimpleString(UUID.randomUUID().toString());
-      server.createAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(queueName, RoutingType.ANYCAST));
       server.createQueue(queueName, RoutingType.ANYCAST, queueName, null, false, false);
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1403,9 +1403,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       this.conf.clearConnectorConfigurations().addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
 
       server2.start();
-      server.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server.createQueue(address, RoutingType.ANYCAST, address, null, true, false, -1, false, false);
-      server2.createAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server2.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server2.createQueue(address, RoutingType.ANYCAST, address, null, true, false, -1, false, false);
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);

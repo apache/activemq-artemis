@@ -358,7 +358,7 @@ public class PagingTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
-      server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
       Queue queue = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, true, false);
 
       queue.getPageSubscription().getPagingStore().startPaging();
@@ -3611,7 +3611,7 @@ public class PagingTest extends ActiveMQTestBase {
       server.start();
 
       try {
-         server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
+         server.addAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
          server.createQueue(PagingTest.ADDRESS, RoutingType.ANYCAST, PagingTest.ADDRESS, null, true, false);
 
          final CountDownLatch pageUp = new CountDownLatch(0);
@@ -3651,8 +3651,7 @@ public class PagingTest extends ActiveMQTestBase {
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
       server.start();
-     // server.createAddressInfo(new AddressInfo(PagingTest.ADDRESS, RoutingType.ANYCAST));
-      server.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true, false);
+      server.createQueue(PagingTest.ADDRESS, RoutingType.ANYCAST, PagingTest.ADDRESS, null, true, false);
 
       final CountDownLatch pageUp = new CountDownLatch(0);
       final CountDownLatch pageDone = new CountDownLatch(1);

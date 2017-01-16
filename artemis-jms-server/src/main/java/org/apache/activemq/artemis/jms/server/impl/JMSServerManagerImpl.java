@@ -1068,8 +1068,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       if (queues.get(queueName) != null) {
          return false;
       } else {
-         ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queueName);
-
          // Convert from JMS selector to core filter
          String coreFilterString = null;
 
@@ -1077,11 +1075,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
-         server.createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQQueue.getName())).addRoutingType(RoutingType.ANYCAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(queueName)).addRoutingType(RoutingType.ANYCAST));
 
-         server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), RoutingType.ANYCAST, SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false, autoCreated);
+         AddressSettings as = server.getAddressSettingsRepository().getMatch(queueName);
+         server.createQueue(SimpleString.toSimpleString(queueName), RoutingType.ANYCAST, SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(coreFilterString), null, durable, false, true, false, false, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
 
-         queues.put(queueName, activeMQQueue);
+         queues.put(queueName, ActiveMQDestination.createQueue(queueName));
 
          this.recoverregistryBindings(queueName, PersistedType.Queue);
 
@@ -1108,12 +1107,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          return false;
       } else {
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topicName);
-         // We create a dummy subscription on the topic, that never receives messages - this is so we can perform JMS
-         // checks when routing messages to a topic that
-         // does not exist - otherwise we would not be able to distinguish from a non existent topic and one with no
-         // subscriptions - core has no notion of a topic
-//          server.deployQueue(SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(activeMQTopic.getAddress()), SimpleString.toSimpleString(JMSServerManagerImpl.REJECT_FILTER), true, false, autoCreated);
-         server.createOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
+         server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString(activeMQTopic.getAddress()), RoutingType.MULTICAST));
 
          topics.put(topicName, activeMQTopic);
 

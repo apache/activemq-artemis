@@ -1503,68 +1503,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean durable,
                             final boolean temporary) throws Exception {
       AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(address, routingType, queueName, filterString, null, durable, temporary, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
-   }
-
-   @Override
-   public Queue createQueue(final SimpleString address,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final boolean durable,
-                            final boolean temporary) throws Exception {
-      return createQueue(address, getAddressSettingsRepository().getMatch(address.toString()).getDefaultQueueRoutingType(), queueName, filterString, durable, temporary);
+      return createQueue(address, routingType, queueName, filterString, durable, temporary, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
    }
 
    @Override
    public Queue createQueue(final SimpleString address,
                             final RoutingType routingType,
                             final SimpleString queueName,
-                            final SimpleString filterString,
+                            final SimpleString filter,
                             final boolean durable,
                             final boolean temporary,
                             final int maxConsumers,
                             final boolean deleteOnNoConsumers,
                             final boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, routingType, filterString, null, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
-   }
-
-   @Override
-   public Queue createQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final SimpleString user,
-                            final boolean durable,
-                            final boolean temporary) throws Exception {
-      AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
-   }
-
-   @Override
-   public Queue createQueue(SimpleString address,
-                            RoutingType routingType,
-                            SimpleString queueName,
-                            SimpleString filter,
-                            SimpleString user,
-                            boolean durable,
-                            boolean temporary,
-                            int maxConsumers,
-                            boolean deleteOnNoConsumers,
-                            boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, routingType, filter, user, durable, temporary, false, false, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
-   }
-
-   @Override
-   public Queue createQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final SimpleString user,
-                            final boolean durable,
-                            final boolean temporary,
-                            final boolean autoCreated) throws Exception {
-      AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
-      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, autoCreated, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
+      return createQueue(address, routingType, queueName, filter, null, durable, temporary, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -1579,7 +1531,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             Integer maxConsumers,
                             Boolean deleteOnNoConsumers,
                             boolean autoCreateAddress) throws Exception {
-      return createQueue(address, queueName, routingType, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      return createQueue(address, routingType, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+   }
+
+   @Deprecated
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary) throws Exception {
+      return createQueue(address, getAddressSettingsRepository().getMatch(address.toString()).getDefaultQueueRoutingType(), queueName, filterString, durable, temporary);
    }
 
    @Override
@@ -1602,7 +1564,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      final Queue queue = createQueue(address, name, routingType, filterString, user, durable, !durable, true, !durable, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
+      final Queue queue = createQueue(address, routingType, name, filterString, user, durable, !durable, true, !durable, false, Queue.MAX_CONSUMERS_UNLIMITED, false, true);
 
       if (!queue.getAddress().equals(address)) {
          throw ActiveMQMessageBundle.BUNDLE.queueSubscriptionBelongsToDifferentAddress(name);
@@ -1635,15 +1597,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return (Queue) binding.getBindable();
    }
 
+   @Deprecated
    @Override
    public Queue deployQueue(final SimpleString address,
                             final SimpleString resourceName,
                             final SimpleString filterString,
                             final boolean durable,
                             final boolean temporary) throws Exception {
-      return deployQueue(address, getAddressSettingsRepository().getMatch(address.toString()).getDefaultQueueRoutingType(), resourceName, filterString, durable, temporary);
+      return createQueue(address, getAddressSettingsRepository().getMatch(address.toString()).getDefaultQueueRoutingType(), resourceName, filterString, durable, temporary);
    }
 
+   @Deprecated
    @Override
    public Queue deployQueue(final String address,
                             final String resourceName,
@@ -1651,45 +1615,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final boolean durable,
                             final boolean temporary) throws Exception {
       return deployQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(resourceName), SimpleString.toSimpleString(filterString), durable, temporary);
-   }
-
-   @Override
-   public Queue deployQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString resourceName,
-                            final SimpleString filterString,
-                            final boolean durable,
-                            final boolean temporary) throws Exception {
-      return deployQueue(address, routingType, resourceName, filterString, durable, temporary, false);
-   }
-
-   @Override
-   public Queue deployQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final boolean durable,
-                            final boolean temporary,
-                            final boolean autoCreated) throws Exception {
-      AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
-      return deployQueue(address, routingType, queueName, filterString, durable, temporary, autoCreated, as.getDefaultMaxConsumers(), as.isDefaultDeleteOnNoConsumers(), as.isAutoCreateAddresses());
-   }
-
-   @Override
-   public Queue deployQueue(final SimpleString address,
-                            final RoutingType routingType,
-                            final SimpleString queueName,
-                            final SimpleString filterString,
-                            final boolean durable,
-                            final boolean temporary,
-                            final boolean autoCreated,
-                            final int maxConsumers,
-                            final boolean deleteOnNoConsumers,
-                            final boolean autoCreateAddress) throws Exception {
-
-      ActiveMQServerLogger.LOGGER.deployQueue(queueName);
-
-      return createQueue(address, queueName, routingType, filterString, null, durable, temporary, true, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
    }
 
    @Override
@@ -2296,14 +2221,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void deployAddressesFromConfiguration() throws Exception {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
          AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()), config.getRoutingTypes());
-         createOrUpdateAddressInfo(info);
+         addOrUpdateAddressInfo(info);
          deployQueuesFromListCoreQueueConfiguration(config.getQueueConfigurations());
       }
    }
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         deployQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers(), true);
+         ActiveMQServerLogger.LOGGER.deployQueue(SimpleString.toSimpleString(config.getName()));
+
+         createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), null, config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getDeleteOnNoConsumers(), true);
       }
    }
 
@@ -2407,25 +2334,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public AddressInfo updateAddressInfo(String address, Collection<RoutingType> routingTypes) throws Exception {
-      final SimpleString addressName = new SimpleString(address);
-      //after the postOffice call, updatedAddressInfo could change further (concurrently)!
-      final AddressInfo updatedAddressInfo = postOffice.updateAddressInfo(addressName, routingTypes);
-      if (updatedAddressInfo != null) {
-         //it change the address info without any lock!
-         final long txID = storageManager.generateID();
-         try {
-            storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
-            storageManager.addAddressBinding(txID, updatedAddressInfo);
-         } finally {
-            storageManager.commitBindings(txID);
-         }
+   public boolean updateAddressInfo(SimpleString address, Collection<RoutingType> routingTypes) throws Exception {
+      if (getAddressInfo(address) == null) {
+         return false;
       }
-      return updatedAddressInfo;
+
+      //after the postOffice call, updatedAddressInfo could change further (concurrently)!
+      final AddressInfo updatedAddressInfo = postOffice.updateAddressInfo(address, routingTypes);
+      //it change the address info without any lock!
+      final long txID = storageManager.generateID();
+      try {
+         storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
+         storageManager.addAddressBinding(txID, updatedAddressInfo);
+      } finally {
+         storageManager.commitBindings(txID);
+      }
+
+      return true;
    }
 
    @Override
-   public boolean createAddressInfo(AddressInfo addressInfo) throws Exception {
+   public boolean addAddressInfo(AddressInfo addressInfo) throws Exception {
       boolean result = postOffice.addAddressInfo(addressInfo);
 
       if (result) {
@@ -2433,34 +2362,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          storageManager.addAddressBinding(txID, addressInfo);
          storageManager.commitBindings(txID);
       } else {
-         throw ActiveMQMessageBundle.BUNDLE.addressAlreadyExists(addressInfo.getName());
+         result = false;
       }
 
       return result;
    }
 
    @Override
-   public AddressInfo createOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
-      final AddressInfo updatedAddressInfo = postOffice.addOrUpdateAddressInfo(addressInfo);
-      final boolean isNew = updatedAddressInfo == addressInfo;
-
-      final long txID = storageManager.generateID();
-      if (isNew) {
-         storageManager.addAddressBinding(txID, addressInfo);
-         storageManager.commitBindings(txID);
-      } else {
-         storageManager.deleteAddressBinding(txID, updatedAddressInfo.getId());
-         storageManager.addAddressBinding(txID, updatedAddressInfo);
-         storageManager.commitBindings(txID);
+   public AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception {
+      if (!addAddressInfo(addressInfo)) {
+         updateAddressInfo(addressInfo.getName(), addressInfo.getRoutingTypes());
       }
 
-      return updatedAddressInfo;
+      return getAddressInfo(addressInfo.getName());
    }
 
    @Override
-   public void removeAddressInfo(final SimpleString address, final SecurityAuth session) throws Exception {
-      if (session != null) {
-         securityStore.check(address, CheckType.DELETE_ADDRESS, session);
+   public void removeAddressInfo(final SimpleString address, final SecurityAuth auth) throws Exception {
+      if (auth != null) {
+         securityStore.check(address, CheckType.DELETE_ADDRESS, auth);
       }
 
       AddressInfo addressInfo = getAddressInfo(address);
@@ -2484,9 +2404,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public Queue createQueue(final SimpleString addressName,
-                            final SimpleString queueName,
+   public Queue createQueue(final SimpleString address,
                             final RoutingType routingType,
+                            final SimpleString queueName,
                             final SimpleString filterString,
                             final SimpleString user,
                             final boolean durable,
@@ -2513,28 +2433,28 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       final long queueID = storageManager.generateID();
 
       final QueueConfig.Builder queueConfigBuilder;
-      if (addressName == null) {
+      if (address == null) {
          queueConfigBuilder = QueueConfig.builderWith(queueID, queueName);
       } else {
-         queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, addressName);
+         queueConfigBuilder = QueueConfig.builderWith(queueID, queueName, address);
       }
 
-      AddressInfo info = postOffice.getAddressInfo(addressName);
+      AddressInfo info = postOffice.getAddressInfo(address);
 
       if (autoCreateAddress) {
          RoutingType rt = (routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType);
          if (info == null) {
-            final AddressInfo addressInfo = new AddressInfo(addressName, rt);
+            final AddressInfo addressInfo = new AddressInfo(address, rt);
             addressInfo.setAutoCreated(true);
-            createAddressInfo(addressInfo);
+            addAddressInfo(addressInfo);
          } else if (!info.getRoutingTypes().contains(routingType)) {
             Set<RoutingType> routingTypes = new HashSet<>();
             routingTypes.addAll(info.getRoutingTypes());
             routingTypes.add(routingType);
-            updateAddressInfo(info.getName().toString(), routingTypes);
+            updateAddressInfo(info.getName(), routingTypes);
          }
       } else if (info == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
       } else if (!info.getRoutingTypes().contains(routingType)) {
          throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(routingType, info.getName().toString(), info.getRoutingTypes());
       }

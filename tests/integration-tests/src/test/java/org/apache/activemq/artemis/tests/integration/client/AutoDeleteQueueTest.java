@@ -49,7 +49,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testAutoDeleteAutoCreatedQueue() throws Exception {
       // auto-delete-queues defaults to true
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, true);
+      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
       assertNotNull(server.locateQueue(queueA));
       cf.createSession().createConsumer(queueA).close();
       assertNull(server.locateQueue(queueA));
@@ -58,7 +58,7 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
    @Test
    public void testNegativeAutoDeleteAutoCreatedQueue() throws Exception {
       server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteQueues(false));
-      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, true);
+      server.createQueue(addressA, RoutingType.ANYCAST, queueA, null, null, true, false, false, false, true, 1, false, true);
       assertNotNull(server.locateQueue(queueA));
       cf.createSession().createConsumer(queueA).close();
       assertNotNull(server.locateQueue(queueA));

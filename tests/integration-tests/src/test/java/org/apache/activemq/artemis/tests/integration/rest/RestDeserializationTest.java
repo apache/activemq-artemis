@@ -86,7 +86,7 @@ public class RestDeserializationTest extends RestTestBase {
    @Test
    public void testWithoutBlackWhiteListTopic() throws Exception {
 
-      jmsServer.getActiveMQServer().createAddressInfo(new AddressInfo(SimpleString.toSimpleString("ordersTopic"), RoutingType.MULTICAST));
+      jmsServer.getActiveMQServer().addAddressInfo(new AddressInfo(SimpleString.toSimpleString("ordersTopic"), RoutingType.MULTICAST));
 
       deployAndconfigureRESTService("rest-test.war");
 

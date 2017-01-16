@@ -92,7 +92,7 @@ public class QueueCommandTest extends JMSTestBase {
       command.setAnycast(false);
       command.setAddress(address);
 
-      server.createOrUpdateAddressInfo(new AddressInfo(new SimpleString(address), RoutingType.MULTICAST));
+      server.addOrUpdateAddressInfo(new AddressInfo(new SimpleString(address), RoutingType.MULTICAST));
 
       command.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(command);
@@ -247,7 +247,7 @@ public class QueueCommandTest extends JMSTestBase {
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldDeleteOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
 
       final int newMaxConsumers = 1;
@@ -280,7 +280,7 @@ public class QueueCommandTest extends JMSTestBase {
       final boolean oldDeleteOnNoConsumers = false;
       final Set<RoutingType> supportedRoutingTypes = EnumSet.of(oldRoutingType);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
 
       final RoutingType newRoutingType = RoutingType.ANYCAST;
@@ -309,7 +309,7 @@ public class QueueCommandTest extends JMSTestBase {
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
       final boolean oldDeleteOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, oldRoutingType);
-      server.createAddressInfo(addressInfo);
+      server.addAddressInfo(addressInfo);
       server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
 
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
