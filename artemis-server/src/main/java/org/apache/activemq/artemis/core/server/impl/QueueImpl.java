@@ -3159,6 +3159,9 @@ public class QueueImpl implements Queue {
                         connection.killMessage(server.getNodeID());
                         remotingService.removeConnection(connection.getID());
                         connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
+                        //break once a consumer gets killed. This can prevent all
+                        //consumers to this queue get killed all at once.
+                        break;
                      } else if (policy.equals(SlowConsumerPolicy.NOTIFY)) {
                         TypedProperties props = new TypedProperties();
 
