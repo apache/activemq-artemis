@@ -22,9 +22,12 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
@@ -61,7 +64,7 @@ public abstract class AbstractJDBCDriver {
       this.sqlProvider = provider;
    }
 
-   public void start() throws Exception {
+   public void start() throws SQLException {
       connect();
       createSchema();
       prepareStatements();
@@ -69,7 +72,12 @@ public abstract class AbstractJDBCDriver {
 
    public void stop() throws SQLException {
       if (sqlProvider.closeConnectionOnShutdown()) {
-         connection.close();
+         try {
+            connection.close();
+         } catch (SQLException e) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+            throw e;
+         }
       }
    }
 
@@ -77,58 +85,100 @@ public abstract class AbstractJDBCDriver {
 
    protected abstract void createSchema() throws SQLException;
 
-   protected void createTable(String... schemaSqls) throws SQLException {
+   protected final void createTable(String... schemaSqls) throws SQLException {
       createTableIfNotExists(connection, sqlProvider.getTableName(), schemaSqls);
    }
 
-   protected void connect() throws Exception {
+   private void connect() throws SQLException {
       if (dataSource != null) {
-         connection = dataSource.getConnection();
+         try {
+            connection = dataSource.getConnection();
+         } catch (SQLException e) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+            throw e;
+         }
       } else {
          try {
-            Driver dbDriver = getDriver(jdbcDriverClass);
+            if (jdbcDriverClass == null || jdbcDriverClass.isEmpty()) {
+               throw new IllegalStateException("jdbcDriverClass is null or empty!");
+            }
+            if (jdbcConnectionUrl == null || jdbcConnectionUrl.isEmpty()) {
+               throw new IllegalStateException("jdbcConnectionUrl is null or empty!");
+            }
+            final Driver dbDriver = getDriver(jdbcDriverClass);
             connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
+            if (connection == null) {
+               throw new IllegalStateException("the driver: " + jdbcDriverClass + " isn't able to connect to the requested url: " + jdbcConnectionUrl);
+            }
          } catch (SQLException e) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
             ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
-            throw new RuntimeException("Error connecting to database", e);
+            throw e;
          }
       }
    }
 
    public void destroy() throws Exception {
+      final String dropTableSql = "DROP TABLE " + sqlProvider.getTableName();
       try {
          connection.setAutoCommit(false);
          try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
+            statement.executeUpdate(dropTableSql);
          }
          connection.commit();
       } catch (SQLException e) {
-         connection.rollback();
+         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, dropTableSql));
+         try {
+            connection.rollback();
+         } catch (SQLException rollbackEx) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, dropTableSql));
+            throw rollbackEx;
+         }
          throw e;
       }
    }
 
-   private static void createTableIfNotExists(Connection connection, String tableName, String... sqls) throws SQLException {
+   private static void createTableIfNotExists(Connection connection,
+                                              String tableName,
+                                              String... sqls) throws SQLException {
       logger.tracef("Validating if table %s didn't exist before creating", tableName);
       try {
          connection.setAutoCommit(false);
          try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
             if (rs != null && !rs.next()) {
-               logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
+               if (logger.isTraceEnabled()) {
+                  logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
+               }
+               final SQLWarning sqlWarning = rs.getWarnings();
+               if (sqlWarning != null) {
+                  logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), sqlWarning));
+               }
                try (Statement statement = connection.createStatement()) {
                   for (String sql : sqls) {
                      statement.executeUpdate(sql);
+                     final SQLWarning statementSqlWarning = statement.getWarnings();
+                     if (statementSqlWarning != null) {
+                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), statementSqlWarning, sql));
+                     }
                   }
                }
             }
          }
          connection.commit();
       } catch (SQLException e) {
-         connection.rollback();
+         final String sqlStatements = Stream.of(sqls).collect(Collectors.joining("\n"));
+         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements));
+         try {
+            connection.rollback();
+         } catch (SQLException rollbackEx) {
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, sqlStatements));
+            throw rollbackEx;
+         }
+         throw e;
       }
    }
 
-   private Driver getDriver(String className) throws Exception {
+   private Driver getDriver(String className) {
       try {
          Driver driver = (Driver) Class.forName(className).newInstance();
 

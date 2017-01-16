@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jdbc.store.drivers;
 
+import java.sql.SQLException;
+
 import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.mysql.MySQLSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
@@ -63,4 +65,59 @@ public class JDBCUtils {
       return factory.create(tableName);
    }
 
+   /**
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br/>
+    * The information appended are:
+    * <ul>
+    * <li>SQL STATEMENTS</li>
+    * <li>SQL EXCEPTIONS details ({@link SQLException#getSQLState},
+    * {@link SQLException#getErrorCode} and {@link SQLException#getMessage}) of the linked list ({@link SQLException#getNextException}) of exceptions</li>
+    * </ul>
+    *
+    * @param errorMessage  the target where append the exceptions details
+    * @param exception     the SQL exception (or warning)
+    * @param sqlStatements the SQL statements related to the {@code exception}
+    * @return {@code errorMessage}
+    */
+   public static StringBuilder appendSQLExceptionDetails(StringBuilder errorMessage,
+                                                         SQLException exception,
+                                                         CharSequence sqlStatements) {
+      errorMessage.append("\nSQL STATEMENTS: \n").append(sqlStatements);
+      return appendSQLExceptionDetails(errorMessage, exception);
+   }
+
+   /**
+    * Append to {@code errorMessage} a detailed description of the provided {@link SQLException}.<br/>
+    * The information appended are:
+    * <ul>
+    * <li>SQL EXCEPTIONS details ({@link SQLException#getSQLState},
+    * {@link SQLException#getErrorCode} and {@link SQLException#getMessage}) of the linked list ({@link SQLException#getNextException}) of exceptions</li>
+    * </ul>
+    *
+    * @param errorMessage the target where append the exceptions details
+    * @param exception    the SQL exception (or warning)
+    * @return {@code errorMessage}
+    */
+   public static StringBuilder appendSQLExceptionDetails(StringBuilder errorMessage, SQLException exception) {
+      errorMessage.append("\nSQL EXCEPTIONS: ");
+      SQLException nextEx = exception;
+      int level = 0;
+      do {
+         errorMessage.append('\n');
+         for (int i = 0; i < level; i++) {
+            errorMessage.append(' ');
+         }
+         formatSqlException(errorMessage, nextEx);
+         nextEx = exception.getNextException();
+         level++;
+      } while (nextEx != null);
+      return errorMessage;
+   }
+
+   private static StringBuilder formatSqlException(StringBuilder errorMessage, SQLException exception) {
+      final String sqlState = exception.getSQLState();
+      final int errorCode = exception.getErrorCode();
+      final String message = exception.getMessage();
+      return errorMessage.append("SQLState: ").append(sqlState).append(" ErrorCode: ").append(errorCode).append(" Message: ").append(message);
+   }
 }
