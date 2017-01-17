@@ -134,7 +134,7 @@ public interface ServerSession extends SecurityAuth {
                      boolean temporary,
                      boolean durable,
                      int maxConsumers,
-                     boolean deleteOnNoConsumers,
+                     boolean purgeOnNoConsumers,
                      boolean autoCreated) throws Exception;
 
    Queue createQueue(SimpleString address,

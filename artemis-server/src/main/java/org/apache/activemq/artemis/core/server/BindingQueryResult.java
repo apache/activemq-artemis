@@ -30,7 +30,7 @@ public class BindingQueryResult {
 
    private boolean autoCreateAddresses;
 
-   private boolean defaultDeleteOnNoConsumers;
+   private boolean defaultPurgeOnNoConsumers;
 
    private int defaultMaxConsumers;
 
@@ -38,7 +38,7 @@ public class BindingQueryResult {
                              final List<SimpleString> queueNames,
                              final boolean autoCreateQueues,
                              final boolean autoCreateAddresses,
-                             final boolean defaultDeleteOnNoConsumers,
+                             final boolean defaultPurgeOnNoConsumers,
                              final int defaultMaxConsumers) {
       this.exists = exists;
 
@@ -48,7 +48,7 @@ public class BindingQueryResult {
 
       this.autoCreateAddresses = autoCreateAddresses;
 
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
 
       this.defaultMaxConsumers = defaultMaxConsumers;
    }
@@ -69,8 +69,8 @@ public class BindingQueryResult {
       return queueNames;
    }
 
-   public boolean isDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
+   public boolean isDefaultPurgeOnNoConsumers() {
+      return defaultPurgeOnNoConsumers;
    }
 
    public int getDefaultMaxConsumers() {

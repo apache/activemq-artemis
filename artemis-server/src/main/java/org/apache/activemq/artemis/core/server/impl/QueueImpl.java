@@ -242,7 +242,7 @@ public class QueueImpl implements Queue {
 
    private volatile int maxConsumers;
 
-   private volatile boolean deleteOnNoConsumers;
+   private volatile boolean purgeOnNoConsumers;
 
    private final AddressInfo addressInfo;
 
@@ -360,7 +360,7 @@ public class QueueImpl implements Queue {
                     final boolean autoCreated,
                     final RoutingType routingType,
                     final Integer maxConsumers,
-                    final Boolean deleteOnNoConsumers,
+                    final Boolean purgeOnNoConsumers,
                     final ScheduledExecutorService scheduledExecutor,
                     final PostOffice postOffice,
                     final StorageManager storageManager,
@@ -389,7 +389,7 @@ public class QueueImpl implements Queue {
 
       this.maxConsumers = maxConsumers == null ? ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers() : maxConsumers;
 
-      this.deleteOnNoConsumers = deleteOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers() : deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers == null ? ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers() : purgeOnNoConsumers;
 
       this.postOffice = postOffice;
 
@@ -478,13 +478,13 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
    @Override
-   public synchronized void setDeleteOnNoConsumers(boolean value) {
-      this.deleteOnNoConsumers = value;
+   public synchronized void setPurgeOnNoConsumers(boolean value) {
+      this.purgeOnNoConsumers = value;
    }
 
    @Override
@@ -851,7 +851,7 @@ public class QueueImpl implements Queue {
             refCountForConsumers.decrement();
          }
 
-         if (noConsumers.decrementAndGet() == 0 && deleteOnNoConsumers) {
+         if (noConsumers.decrementAndGet() == 0 && purgeOnNoConsumers) {
             try {
                deleteQueue();
             } catch (Exception e) {

@@ -52,9 +52,9 @@ public interface Queue extends Bindable {
 
    boolean isAutoCreated();
 
-   boolean isDeleteOnNoConsumers();
+   boolean isPurgeOnNoConsumers();
 
-   void setDeleteOnNoConsumers(boolean value);
+   void setPurgeOnNoConsumers(boolean value);
 
    int getMaxConsumers();
 

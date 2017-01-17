@@ -150,7 +150,7 @@ public interface QueueControl {
     *
     */
    @Attribute(desc = "delete this queue when the last consumer disconnects")
-   boolean isDeleteOnNoConsumers();
+   boolean isPurgeOnNoConsumers();
 
    // Operations ----------------------------------------------------
 

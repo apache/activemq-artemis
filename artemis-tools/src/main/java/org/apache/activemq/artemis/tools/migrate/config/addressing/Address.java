@@ -29,7 +29,7 @@ public class Address {
 
    private String defaultMaxConsumers = "-1";
 
-   private String defaultDeleteOnNoConsumers = "false";
+   private String defaultPurgeOnNoConsumers = "false";
 
    private List<Queue> queues = new ArrayList<>();
 

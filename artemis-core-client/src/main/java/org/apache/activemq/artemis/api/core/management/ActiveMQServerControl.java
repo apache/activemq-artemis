@@ -565,7 +565,7 @@ public interface ActiveMQServerControl {
     * @param filterStr           filter of the queue
     * @param durable             is the queue durable?
     * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
-    * @param deleteOnNoConsumers delete this queue when the last consumer disconnects
+    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @param autoCreateAddress   create an address with default values should a matching address not be found
     * @return a textual summary of the queue
     * @throws Exception
@@ -576,7 +576,7 @@ public interface ActiveMQServerControl {
                     @Parameter(name = "filter", desc = "Filter of the queue") String filterStr,
                     @Parameter(name = "durable", desc = "Is the queue durable?") boolean durable,
                     @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") int maxConsumers,
-                    @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean deleteOnNoConsumers,
+                    @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") boolean purgeOnNoConsumers,
                     @Parameter(name = "autoCreateAddress", desc = "Create an address with default values should a matching address not be found") boolean autoCreateAddress) throws Exception;
 
    /**
@@ -585,14 +585,14 @@ public interface ActiveMQServerControl {
     * @param name                name of the queue
     * @param routingType         the routing type used for this address, {@code MULTICAST} or {@code ANYCAST}
     * @param maxConsumers        the maximum number of consumers allowed on this queue at any one time
-    * @param deleteOnNoConsumers delete this queue when the last consumer disconnects
+    * @param purgeOnNoConsumers delete this queue when the last consumer disconnects
     * @return a textual summary of the queue
     * @throws Exception
     */
    String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                       @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                       @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
-                      @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean deleteOnNoConsumers) throws Exception;
+                      @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers) throws Exception;
 
 
 

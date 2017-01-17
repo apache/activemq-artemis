@@ -412,7 +412,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                         // TODO is it right to use the address for the queue name here?
                         clientSession.createTemporaryQueue(address, RoutingType.ANYCAST, address);
                      } else {
-                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultDeleteOnNoConsumers());
+                        clientSession.createQueue(address, RoutingType.ANYCAST, address, null, true, true, query.getDefaultMaxConsumers(), query.isDefaultPurgeOnNoConsumers());
                      }
                   } else if (!destination.isQueue() && query.isAutoCreateAddresses()) {
                      clientSession.createAddress(address, RoutingType.MULTICAST, true);

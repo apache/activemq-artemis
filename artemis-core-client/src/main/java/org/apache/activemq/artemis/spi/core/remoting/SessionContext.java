@@ -203,7 +203,7 @@ public abstract class SessionContext {
                                     boolean durable,
                                     boolean temp,
                                     int maxConsumers,
-                                    boolean deleteOnNoConsumers,
+                                    boolean purgeOnNoConsumers,
                                     boolean autoCreated) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;

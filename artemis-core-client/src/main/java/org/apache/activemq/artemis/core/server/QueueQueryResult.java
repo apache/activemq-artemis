@@ -40,7 +40,7 @@ public class QueueQueryResult {
 
    private boolean autoCreated;
 
-   private boolean deleteOnNoConsumers;
+   private boolean purgeOnNoConsumers;
 
    private RoutingType routingType;
 
@@ -56,7 +56,7 @@ public class QueueQueryResult {
                            final boolean autoCreateQueues,
                            final boolean exists,
                            final boolean autoCreated,
-                           final boolean deleteOnNoConsumers,
+                           final boolean purgeOnNoConsumers,
                            final RoutingType routingType,
                            final int maxConsumers) {
       this.durable = durable;
@@ -79,7 +79,7 @@ public class QueueQueryResult {
 
       this.autoCreated = autoCreated;
 
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
 
       this.routingType = routingType;
 
@@ -126,8 +126,8 @@ public class QueueQueryResult {
       return autoCreated;
    }
 
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
    public RoutingType getRoutingType() {

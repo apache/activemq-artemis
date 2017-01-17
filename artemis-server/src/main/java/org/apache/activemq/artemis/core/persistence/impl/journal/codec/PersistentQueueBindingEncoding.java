@@ -44,7 +44,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    public int maxConsumers;
 
-   public boolean deleteOnNoConsumers;
+   public boolean purgeOnNoConsumers;
 
    public byte routingType;
 
@@ -66,8 +66,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          autoCreated +
          ", maxConsumers=" +
          maxConsumers +
-         ", deleteOnNoConsumers=" +
-         deleteOnNoConsumers +
+         ", purgeOnNoConsumers=" +
+         purgeOnNoConsumers +
          ", routingType=" +
          routingType +
          "]";
@@ -79,7 +79,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final SimpleString user,
                                          final boolean autoCreated,
                                          final int maxConsumers,
-                                         final boolean deleteOnNoConsumers,
+                                         final boolean purgeOnNoConsumers,
                                          final byte routingType) {
       this.name = name;
       this.address = address;
@@ -87,7 +87,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.user = user;
       this.autoCreated = autoCreated;
       this.maxConsumers = maxConsumers;
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.routingType = routingType;
    }
 
@@ -154,13 +154,13 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
-   public boolean isDeleteOnNoConsumers() {
+   public boolean isPurgeOnNoConsumers() {
       return false;
    }
 
    @Override
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+   public void setPurgeOnNoConsumers(boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
    @Override
@@ -196,11 +196,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
       if (buffer.readableBytes() > 0) {
          maxConsumers = buffer.readInt();
-         deleteOnNoConsumers = buffer.readBoolean();
+         purgeOnNoConsumers = buffer.readBoolean();
          routingType = buffer.readByte();
       } else {
          maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-         deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+         purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType().getType();
       }
    }
@@ -213,7 +213,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeNullableSimpleString(createMetadata());
       buffer.writeBoolean(autoCreated);
       buffer.writeInt(maxConsumers);
-      buffer.writeBoolean(deleteOnNoConsumers);
+      buffer.writeBoolean(purgeOnNoConsumers);
       buffer.writeByte(routingType);
    }
 

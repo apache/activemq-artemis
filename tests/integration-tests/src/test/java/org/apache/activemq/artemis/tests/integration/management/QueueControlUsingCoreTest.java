@@ -87,8 +87,8 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
-         public boolean isDeleteOnNoConsumers() {
-            return (Boolean) proxy.retrieveAttributeValue("deleteOnNoConsumers");
+         public boolean isPurgeOnNoConsumers() {
+            return (Boolean) proxy.retrieveAttributeValue("purgeOnNoConsumers");
          }
 
          @Override

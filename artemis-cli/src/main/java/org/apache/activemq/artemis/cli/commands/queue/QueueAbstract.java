@@ -37,11 +37,11 @@ public class QueueAbstract extends AbstractAction {
    @Option(name = "--no-durable", description = "whether the queue is durable or not (default input)")
    private Boolean noDurable;
 
-   @Option(name = "--delete-on-no-consumers", description = "whether to delete this queue when it's last consumers disconnects (default input)")
-   private Boolean deleteOnNoConsumers;
+   @Option(name = "--purge-on-no-consumers", description = "whether to delete the contents of this queue when its last consumer disconnects (default input)")
+   private Boolean purgeOnNoConsumers;
 
-   @Option(name = "--keep-on-no-consumers", description = "whether to queue this queue when it's last consumers disconnects (default input)")
-   private Boolean keepOnNoConsumers;
+   @Option(name = "--preserve-on-no-consumers", description = "whether to preserve the contents of this queue when its last consumer disconnects (default input)")
+   private Boolean preserveOnNoConsumers;
 
    @Option(name = "--max-consumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
    private Integer maxConsumers;
@@ -97,12 +97,12 @@ public class QueueAbstract extends AbstractAction {
       return this;
    }
 
-   public boolean isKeepOnNoConsumers() {
-      return keepOnNoConsumers;
+   public boolean getPreserveOnNoConsumers() {
+      return preserveOnNoConsumers;
    }
 
-   public QueueAbstract setKeepOnNoConsumers(boolean keepOnNoConsumers) {
-      this.keepOnNoConsumers = keepOnNoConsumers;
+   public QueueAbstract setPreserveOnNoConsumers(boolean preserveOnNoConsumers) {
+      this.preserveOnNoConsumers = preserveOnNoConsumers;
       return this;
    }
 
@@ -165,23 +165,23 @@ public class QueueAbstract extends AbstractAction {
       return this;
    }
 
-   public Boolean isDeleteOnNoConsumers() {
-      return isDeleteOnNoConsumers(false);
+   public Boolean isPurgeOnNoConsumers() {
+      return isPurgeOnNoConsumers(false);
    }
 
-   public Boolean isDeleteOnNoConsumers(boolean useInput) {
+   public Boolean isPurgeOnNoConsumers(boolean useInput) {
 
       Boolean value = null;
 
-      if (deleteOnNoConsumers != null) {
-         value = deleteOnNoConsumers.booleanValue();
-      } else if (keepOnNoConsumers != null) {
-         value = !keepOnNoConsumers.booleanValue();
+      if (purgeOnNoConsumers != null) {
+         value = purgeOnNoConsumers.booleanValue();
+      } else if (preserveOnNoConsumers != null) {
+         value = !preserveOnNoConsumers.booleanValue();
       }
 
 
       if (value == null && useInput) {
-         value = inputBoolean("--delete-on-no-consumers", "Delete on non consumers", false);
+         value = inputBoolean("--purge-on-no-consumers", "Purge the contents of the queue once there are no consumers", false);
       }
 
       if (value == null) {
@@ -189,8 +189,8 @@ public class QueueAbstract extends AbstractAction {
          return null;
       }
 
-      deleteOnNoConsumers = value.booleanValue();
-      keepOnNoConsumers = !value.booleanValue();
+      purgeOnNoConsumers = value.booleanValue();
+      preserveOnNoConsumers = !value.booleanValue();
 
       return value;
    }
@@ -199,8 +199,8 @@ public class QueueAbstract extends AbstractAction {
       this.maxConsumers = maxConsumers;
    }
 
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+   public void setPurgeOnNoConsumers(boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
    public void setAddress(String address) {

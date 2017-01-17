@@ -605,7 +605,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             if (maxConsumers != Queue.MAX_CONSUMERS_UNLIMITED) {
                output.append(", maxConsumers=").append(queue.getMaxConsumers());
             }
-            output.append(", deleteOnNoConsumers=").append(queue.isDeleteOnNoConsumers());
+            output.append(", purgeOnNoConsumers=").append(queue.isPurgeOnNoConsumers());
             output.append(", autoCreateAddress=").append(queue.isAutoCreated());
             output.append(']');
             return output;
@@ -725,7 +725,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    @Override
    public void createQueue(final String address, final String name, final String filterStr, final boolean durable, final String routingType) throws Exception {
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
-      createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultDeleteOnNoConsumers(), addressSettings.isAutoCreateAddresses());
+      createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isAutoCreateAddresses());
    }
 
    @Override
@@ -735,7 +735,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              String filterStr,
                              boolean durable,
                              int maxConsumers,
-                             boolean deleteOnNoConsumers,
+                             boolean purgeOnNoConsumers,
                              boolean autoCreateAddress) throws Exception {
       checkStarted();
 
@@ -747,7 +747,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+         final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } finally {
          blockOnIO();
@@ -758,13 +758,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public String updateQueue(String name,
                              String routingType,
                              Integer maxConsumers,
-                             Boolean deleteOnNoConsumers) throws Exception {
+                             Boolean purgeOnNoConsumers) throws Exception {
       checkStarted();
 
       clearIO();
 
       try {
-         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, deleteOnNoConsumers);
+         final Queue queue = server.updateQueue(name, routingType != null ? RoutingType.valueOf(routingType) : null, maxConsumers, purgeOnNoConsumers);
          if (queue == null) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(new SimpleString(name));
          }

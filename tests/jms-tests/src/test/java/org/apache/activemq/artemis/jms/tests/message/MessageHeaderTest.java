@@ -1013,7 +1013,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                               boolean durable,
                               boolean autoCreated,
                               int maxConsumers,
-                              boolean deleteOnNoConsumers) throws ActiveMQException {
+                              boolean purgeOnNoConsumers) throws ActiveMQException {
 
       }
 
@@ -1043,7 +1043,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                               boolean durable,
                               boolean autoCreated,
                               int maxConsumers,
-                              boolean deleteOnNoConsumers) throws ActiveMQException {
+                              boolean purgeOnNoConsumers) throws ActiveMQException {
 
       }
 

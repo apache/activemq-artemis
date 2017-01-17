@@ -287,16 +287,16 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable, boolean temporary) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                     boolean durable, boolean temporary, int maxConsumers, boolean deleteOnNoConsumers,
+                     boolean durable, boolean temporary, int maxConsumers, boolean purgeOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user, boolean durable, boolean temporary, boolean autoCreated, Integer maxConsumers,
-                     Boolean deleteOnNoConsumers, boolean autoCreateAddress) throws Exception;
+                     Boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      SimpleString user, boolean durable, boolean temporary, boolean ignoreIfExists, boolean transientQueue,
-                     boolean autoCreated, int maxConsumers, boolean deleteOnNoConsumers, boolean autoCreateAddress) throws Exception;
+                     boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers, boolean autoCreateAddress) throws Exception;
 
    @Deprecated
    Queue createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable, boolean temporary) throws Exception;
@@ -367,7 +367,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
    Queue updateQueue(String name,
                      RoutingType routingType,
                      Integer maxConsumers,
-                     Boolean deleteOnNoConsumers) throws Exception;
+                     Boolean purgeOnNoConsumers) throws Exception;
 
    /*
             * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will

@@ -305,7 +305,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsQueues());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoCreateJmsTopics());
       assertEquals(true, conf.getAddressesSettings().get("a1").isAutoDeleteJmsTopics());
-      assertEquals(false, conf.getAddressesSettings().get("a1").isDefaultDeleteOnNoConsumers());
+      assertEquals(false, conf.getAddressesSettings().get("a1").isDefaultPurgeOnNoConsumers());
       assertEquals(5, conf.getAddressesSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a1").getDefaultAddressRoutingType());
@@ -324,7 +324,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsQueues());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsTopics());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsTopics());
-      assertEquals(true, conf.getAddressesSettings().get("a2").isDefaultDeleteOnNoConsumers());
+      assertEquals(true, conf.getAddressesSettings().get("a2").isDefaultPurgeOnNoConsumers());
       assertEquals(15, conf.getAddressesSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressesSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressesSettings().get("a2").getDefaultAddressRoutingType());
@@ -398,7 +398,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("q1", queueConfiguration.getName());
       assertFalse(queueConfiguration.isDurable());
       assertEquals("color='blue'", queueConfiguration.getFilterString());
-      assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.getPurgeOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queueConfiguration.getMaxConsumers());
 
@@ -409,7 +409,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='green'", queueConfiguration.getFilterString());
       assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers());
-      assertFalse(queueConfiguration.getDeleteOnNoConsumers());
+      assertFalse(queueConfiguration.getPurgeOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress());
 
       // Addr 2
@@ -427,7 +427,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(queueConfiguration.isDurable());
       assertEquals("color='red'", queueConfiguration.getFilterString());
       assertEquals(10, queueConfiguration.getMaxConsumers());
-      assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), queueConfiguration.getDeleteOnNoConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.getPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress());
 
       // Addr 2 Queue 2
@@ -437,7 +437,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(queueConfiguration.isDurable());
       assertNull(queueConfiguration.getFilterString());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), queueConfiguration.getMaxConsumers());
-      assertTrue(queueConfiguration.getDeleteOnNoConsumers());
+      assertTrue(queueConfiguration.getPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress());
 
       // Addr 3

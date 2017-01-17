@@ -252,7 +252,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case CREATE_QUEUE_V2: {
                   CreateQueueMessage_V2 request = (CreateQueueMessage_V2) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isDeleteOnNoConsumers(),
+                  session.createQueue(request.getAddress(), request.getQueueName(), request.getRoutingType(), request.getFilterString(), request.isTemporary(), request.isDurable(), request.getMaxConsumers(), request.isPurgeOnNoConsumers(),
                                       request.isAutoCreated());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
@@ -302,7 +302,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress(remotingConnection.getClientVersion()));
                   if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
-                     response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultDeleteOnNoConsumers(), result.getDefaultMaxConsumers());
+                     response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
                      response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {

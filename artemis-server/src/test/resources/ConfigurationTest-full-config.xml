@@ -272,7 +272,7 @@
             <auto-delete-queues>true</auto-delete-queues>
             <auto-create-addresses>true</auto-create-addresses>
             <auto-delete-addresses>true</auto-delete-addresses>
-            <default-delete-on-no-consumers>false</default-delete-on-no-consumers>
+            <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
             <default-max-consumers>5</default-max-consumers>
             <default-queue-routing-type>ANYCAST</default-queue-routing-type>
             <default-address-routing-type>MULTICAST</default-address-routing-type>
@@ -296,7 +296,7 @@
             <auto-delete-queues>false</auto-delete-queues>
             <auto-create-addresses>false</auto-create-addresses>
             <auto-delete-addresses>false</auto-delete-addresses>
-            <default-delete-on-no-consumers>true</default-delete-on-no-consumers>
+            <default-purge-on-no-consumers>true</default-purge-on-no-consumers>
             <default-max-consumers>15</default-max-consumers>
             <default-queue-routing-type>MULTICAST</default-queue-routing-type>
             <default-address-routing-type>ANYCAST</default-address-routing-type>
@@ -321,7 +321,7 @@
                   <durable>false</durable>
                   <filter string="color='blue'"/>
                </queue>
-               <queue name="q2" max-consumers="-1" delete-on-no-consumers="false">
+               <queue name="q2" max-consumers="-1" purge-on-no-consumers="false">
                   <durable>true</durable>
                   <filter string="color='green'"/>
                </queue>
@@ -332,7 +332,7 @@
                <queue name="q3" max-consumers="10" >
                   <filter string="color='red'"/>
                </queue>
-               <queue name="q4" delete-on-no-consumers="true">
+               <queue name="q4" purge-on-no-consumers="true">
                   <durable>true</durable>
                </queue>
             </multicast>
