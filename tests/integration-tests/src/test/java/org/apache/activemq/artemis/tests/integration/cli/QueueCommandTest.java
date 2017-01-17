@@ -76,7 +76,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isDeleteOnNoConsumers());
+      assertEquals(false, queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -100,7 +100,7 @@ public class QueueCommandTest extends JMSTestBase {
 
       Queue queue = server.locateQueue(new SimpleString(queueName));
       assertEquals(-1, queue.getMaxConsumers());
-      assertEquals(false, queue.isDeleteOnNoConsumers());
+      assertEquals(false, queue.isPurgeOnNoConsumers());
       assertTrue(server.queueQuery(new SimpleString(queueName)).isExists());
    }
 
@@ -245,17 +245,17 @@ public class QueueCommandTest extends JMSTestBase {
       final SimpleString addressSimpleString = new SimpleString(addressName);
       final int oldMaxConsumers = -1;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
-      final boolean oldDeleteOnNoConsumers = false;
+      final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
 
       final int newMaxConsumers = 1;
       final RoutingType newRoutingType = RoutingType.ANYCAST;
-      final boolean newDeleteOnNoConsumers = true;
+      final boolean newPurgeOnNoConsumers = true;
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
-      updateQueue.setDeleteOnNoConsumers(newDeleteOnNoConsumers);
+      updateQueue.setPurgeOnNoConsumers(newPurgeOnNoConsumers);
       updateQueue.setAnycast(true);
       updateQueue.setMulticast(false);
       updateQueue.setMaxConsumers(newMaxConsumers);
@@ -266,7 +266,7 @@ public class QueueCommandTest extends JMSTestBase {
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", newMaxConsumers, queueQueryResult.getMaxConsumers());
       assertEquals("routingType", newRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("deleteOnNoConsumers", newDeleteOnNoConsumers == queueQueryResult.isDeleteOnNoConsumers());
+      assertTrue("purgeOnNoConsumers", newPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
    }
 
    @Test
@@ -277,11 +277,11 @@ public class QueueCommandTest extends JMSTestBase {
       final SimpleString addressSimpleString = new SimpleString(addressName);
       final int oldMaxConsumers = 10;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
-      final boolean oldDeleteOnNoConsumers = false;
+      final boolean oldPurgeOnNoConsumers = false;
       final Set<RoutingType> supportedRoutingTypes = EnumSet.of(oldRoutingType);
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
 
       final RoutingType newRoutingType = RoutingType.ANYCAST;
       final UpdateQueue updateQueue = new UpdateQueue();
@@ -296,7 +296,7 @@ public class QueueCommandTest extends JMSTestBase {
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals("maxConsumers", oldMaxConsumers, queueQueryResult.getMaxConsumers());
       assertEquals("routingType", oldRoutingType, queueQueryResult.getRoutingType());
-      assertTrue("deleteOnNoConsumers", oldDeleteOnNoConsumers == queueQueryResult.isDeleteOnNoConsumers());
+      assertTrue("purgeOnNoConsumers", oldPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers());
    }
 
    @Test
@@ -307,10 +307,10 @@ public class QueueCommandTest extends JMSTestBase {
       final SimpleString addressSimpleString = new SimpleString(addressName);
       final int oldMaxConsumers = 2;
       final RoutingType oldRoutingType = RoutingType.MULTICAST;
-      final boolean oldDeleteOnNoConsumers = false;
+      final boolean oldPurgeOnNoConsumers = false;
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, oldRoutingType);
       server.addAddressInfo(addressInfo);
-      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldDeleteOnNoConsumers, false);
+      server.createQueue(addressSimpleString, oldRoutingType, queueNameString, null, true, false, oldMaxConsumers, oldPurgeOnNoConsumers, false);
 
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());
       server.locateQueue(queueNameString).addConsumer(new DummyServerConsumer());

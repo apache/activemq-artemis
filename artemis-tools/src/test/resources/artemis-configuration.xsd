@@ -2593,7 +2593,7 @@
       </xsd:all>
       <xsd:attribute name="name" type="xsd:ID" use="required"/>
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
-      <xsd:attribute name="delete-on-no-consumers" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
    </xsd:complexType>
 
    <xsd:complexType name="addressType">

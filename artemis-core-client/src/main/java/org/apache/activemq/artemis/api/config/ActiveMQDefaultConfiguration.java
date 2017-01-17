@@ -446,7 +446,7 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
 
-   public static final boolean DEFAULT_DELETE_QUEUE_ON_NO_CONSUMERS = false;
+   public static final boolean DEFAULT_PURGE_ON_NO_CONSUMERS = false;
 
    public static final RoutingType DEFAULT_ROUTING_TYPE = RoutingType.MULTICAST;
 
@@ -1217,8 +1217,8 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_MAX_QUEUE_CONSUMERS;
    }
 
-   public static boolean getDefaultDeleteQueueOnNoConsumers() {
-      return DEFAULT_DELETE_QUEUE_ON_NO_CONSUMERS;
+   public static boolean getDefaultPurgeOnNoConsumers() {
+      return DEFAULT_PURGE_ON_NO_CONSUMERS;
    }
 
    public static String getInternalNamingPrefix() {

@@ -36,7 +36,7 @@ public final class QueueConfig {
    private final boolean autoCreated;
    private final RoutingType routingType;
    private final int maxConsumers;
-   private final boolean deleteOnNoConsumers;
+   private final boolean purgeOnNoConsumers;
 
    public static final class Builder {
 
@@ -51,7 +51,7 @@ public final class QueueConfig {
       private boolean autoCreated;
       private RoutingType routingType;
       private int maxConsumers;
-      private boolean deleteOnNoConsumers;
+      private boolean purgeOnNoConsumers;
 
       private Builder(final long id, final SimpleString name) {
          this(id, name, name);
@@ -69,7 +69,7 @@ public final class QueueConfig {
          this.autoCreated = true;
          this.routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
          this.maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-         this.deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+         this.purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
          validateState();
       }
 
@@ -121,8 +121,8 @@ public final class QueueConfig {
          return this;
       }
 
-      public Builder deleteOnNoConsumers(final boolean deleteOnNoConsumers) {
-         this.deleteOnNoConsumers = deleteOnNoConsumers;
+      public Builder purgeOnNoConsumers(final boolean purgeOnNoConsumers) {
+         this.purgeOnNoConsumers = purgeOnNoConsumers;
          return this;
       }
 
@@ -152,7 +152,7 @@ public final class QueueConfig {
          } else {
             pageSubscription = null;
          }
-         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, deleteOnNoConsumers);
+         return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers);
       }
 
    }
@@ -196,7 +196,7 @@ public final class QueueConfig {
                        final boolean autoCreated,
                        final RoutingType routingType,
                        final int maxConsumers,
-                       final boolean deleteOnNoConsumers) {
+                       final boolean purgeOnNoConsumers) {
       this.id = id;
       this.address = address;
       this.name = name;
@@ -207,7 +207,7 @@ public final class QueueConfig {
       this.temporary = temporary;
       this.autoCreated = autoCreated;
       this.routingType = routingType;
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.maxConsumers = maxConsumers;
    }
 
@@ -247,8 +247,8 @@ public final class QueueConfig {
       return autoCreated;
    }
 
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
    public int maxConsumers() {
@@ -288,7 +288,7 @@ public final class QueueConfig {
          return false;
       if (maxConsumers != that.maxConsumers)
          return false;
-      if (deleteOnNoConsumers != that.deleteOnNoConsumers)
+      if (purgeOnNoConsumers != that.purgeOnNoConsumers)
          return false;
       return user != null ? user.equals(that.user) : that.user == null;
 
@@ -307,7 +307,7 @@ public final class QueueConfig {
       result = 31 * result + (autoCreated ? 1 : 0);
       result = 31 * result + routingType.getType();
       result = 31 * result + maxConsumers;
-      result = 31 * result + (deleteOnNoConsumers ? 1 : 0);
+      result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
       return result;
    }
 
@@ -325,6 +325,6 @@ public final class QueueConfig {
          + ", autoCreated=" + autoCreated
          + ", routingType=" + routingType
          + ", maxConsumers=" + maxConsumers
-         + ", deleteOnNoConsumers=" + deleteOnNoConsumers + '}';
+         + ", purgeOnNoConsumers=" + purgeOnNoConsumers + '}';
    }
 }

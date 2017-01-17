@@ -27,14 +27,14 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    protected boolean autoCreated;
 
-   protected boolean deleteOnNoConsumers;
+   protected boolean purgeOnNoConsumers;
 
    protected RoutingType routingType;
 
    protected int maxConsumers;
 
    public SessionQueueQueryResponseMessage_V3(final QueueQueryResult result) {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isDeleteOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers());
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateQueues(), result.isAutoCreated(), result.isPurgeOnNoConsumers(), result.getRoutingType(), result.getMaxConsumers());
    }
 
    public SessionQueueQueryResponseMessage_V3() {
@@ -51,7 +51,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
                                                final boolean exists,
                                                final boolean autoCreateQueues,
                                                final boolean autoCreated,
-                                               final boolean deleteOnNoConsumers,
+                                               final boolean purgeOnNoConsumers,
                                                final RoutingType routingType,
                                                final int maxConsumers) {
       super(SESS_QUEUEQUERY_RESP_V3);
@@ -76,7 +76,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
       this.autoCreated = autoCreated;
 
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
 
       this.routingType = routingType;
 
@@ -91,12 +91,12 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       this.autoCreated = autoCreated;
    }
 
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+   public void setPurgeOnNoConsumers(boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
    public RoutingType getRoutingType() {
@@ -119,7 +119,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(autoCreated);
-      buffer.writeBoolean(deleteOnNoConsumers);
+      buffer.writeBoolean(purgeOnNoConsumers);
       buffer.writeByte(routingType.getType());
       buffer.writeInt(maxConsumers);
    }
@@ -128,7 +128,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       autoCreated = buffer.readBoolean();
-      deleteOnNoConsumers = buffer.readBoolean();
+      purgeOnNoConsumers = buffer.readBoolean();
       routingType = RoutingType.getType(buffer.readByte());
       maxConsumers = buffer.readInt();
    }
@@ -138,7 +138,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (autoCreated ? 1231 : 1237);
-      result = prime * result + (deleteOnNoConsumers ? 1231 : 1237);
+      result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + routingType.hashCode();
       result = prime * result + maxConsumers;
       return result;
@@ -155,7 +155,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
    public String getParentString() {
       StringBuffer buff = new StringBuffer(super.getParentString());
       buff.append(", autoCreated=" + autoCreated);
-      buff.append(", deleteOnNoConsumers=" + deleteOnNoConsumers);
+      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append(", routingType=" + routingType);
       buff.append(", maxConsumers=" + maxConsumers);
       return buff.toString();
@@ -163,7 +163,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public ClientSession.QueueQuery toQueueQuery() {
-      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isDeleteOnNoConsumers(), getRoutingType());
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreateQueues(), getMaxConsumers(), isAutoCreated(), isPurgeOnNoConsumers(), getRoutingType());
    }
 
    @Override
@@ -177,7 +177,7 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
       SessionQueueQueryResponseMessage_V3 other = (SessionQueueQueryResponseMessage_V3) obj;
       if (autoCreated != other.autoCreated)
          return false;
-      if (deleteOnNoConsumers != other.deleteOnNoConsumers)
+      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
          return false;
       if (routingType == null) {
          if (other.routingType != null)

@@ -368,7 +368,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           durable,
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           autoCreated);
    }
 
@@ -385,20 +385,20 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString filterString,
-                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean deleteOnNoConsumers) throws ActiveMQException {
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers) throws ActiveMQException {
       internalCreateQueue(address,
                           queueName, routingType,
                           filterString,
                           durable,
                           false,
                           maxConsumers,
-                          deleteOnNoConsumers,
+                          purgeOnNoConsumers,
                           autoCreated);
    }
 
    @Override
    public void createQueue(final String address, final RoutingType routingType, final String queueName, final String filterString,
-                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean deleteOnNoConsumers) throws ActiveMQException {
+                           final boolean durable, final boolean autoCreated, final int maxConsumers, final boolean purgeOnNoConsumers) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address),
                   routingType,
                   SimpleString.toSimpleString(queueName),
@@ -406,7 +406,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                   durable,
                   autoCreated,
                   maxConsumers,
-                  deleteOnNoConsumers);
+                  purgeOnNoConsumers);
    }
 
    @Override
@@ -432,7 +432,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           true,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
    }
 
@@ -458,7 +458,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           durable,
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
    }
 
@@ -533,7 +533,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           true,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
    }
 
@@ -554,7 +554,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           false,
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
    }
 
@@ -578,7 +578,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           durable,
                           false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
-                          ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(),
+                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
    }
 
@@ -1823,7 +1823,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     final boolean durable,
                                     final boolean temp,
                                     final int maxConsumers,
-                                    final boolean deleteOnNoConsumers,
+                                    final boolean purgeOnNoConsumers,
                                     final boolean autoCreated) throws ActiveMQException {
       checkClosed();
 
@@ -1840,7 +1840,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     durable,
                                     temp,
                                     maxConsumers,
-                                    deleteOnNoConsumers,
+                                    purgeOnNoConsumers,
                                     autoCreated);
       } finally {
          endCall();
