@@ -70,7 +70,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final long syncTimeout;
 
-   private final StorageManager storageManager;
+   protected final StorageManager storageManager;
 
    private final IOCriticalErrorListener critialErrorListener;
 
@@ -187,6 +187,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    }
 
    private SequentialFileFactory newFileFactory(final String directoryName) {
+
       return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener, 1);
    }
 }

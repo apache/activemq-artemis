@@ -455,12 +455,13 @@ public abstract class ActiveMQTestBase extends Assert {
       return configuration;
    }
 
-   private void setDBStoreType(Configuration configuration) {
+   protected void setDBStoreType(Configuration configuration) {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
       dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
       dbStorageConfiguration.setBindingsTableName("BINDINGS");
       dbStorageConfiguration.setMessageTableName("MESSAGE");
       dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
+      dbStorageConfiguration.setPageStoreTableName("PAGE_STORE");
       dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
 
       configuration.setStoreConfiguration(dbStorageConfiguration);
