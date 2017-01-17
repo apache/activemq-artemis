@@ -202,7 +202,6 @@ public class CreateSessionMessage extends PacketImpl {
       buff.append(", defaultAddress=" + defaultAddress);
       buff.append(", minLargeMessageSize=" + minLargeMessageSize);
       buff.append(", name=" + name);
-      buff.append(", password=" + password);
       buff.append(", preAcknowledge=" + preAcknowledge);
       buff.append(", sessionChannelID=" + sessionChannelID);
       buff.append(", username=" + username);
