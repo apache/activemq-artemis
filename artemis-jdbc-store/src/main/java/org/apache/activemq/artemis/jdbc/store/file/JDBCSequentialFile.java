@@ -92,6 +92,7 @@ public class JDBCSequentialFile implements SequentialFile {
       try {
          return fileFactory.listFiles(extension).contains(filename);
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          return false;
       }
    }
