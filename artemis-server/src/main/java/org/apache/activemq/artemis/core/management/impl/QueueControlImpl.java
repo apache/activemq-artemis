@@ -344,12 +344,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
-   public boolean isDeleteOnNoConsumers() {
+   public boolean isPurgeOnNoConsumers() {
       checkStarted();
 
       clearIO();
       try {
-         return queue.isDeleteOnNoConsumers();
+         return queue.isPurgeOnNoConsumers();
       } finally {
          blockOnIO();
       }

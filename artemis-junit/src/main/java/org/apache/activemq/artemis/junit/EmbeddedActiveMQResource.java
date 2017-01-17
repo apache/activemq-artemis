@@ -361,7 +361,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       boolean temporary = false;
       Queue queue = null;
       try {
-         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultMaxConsumers(), server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).isDefaultDeleteOnNoConsumers(), true);
+         queue = server.getActiveMQServer().createQueue(address, RoutingType.MULTICAST, name, filter, isUseDurableQueue(), temporary, server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultMaxConsumers(), server.getActiveMQServer().getAddressSettingsRepository().getMatch(address.toString()).isDefaultPurgeOnNoConsumers(), true);
       } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s", address.toString(), name.toString()), ex);
       }

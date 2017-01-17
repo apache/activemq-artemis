@@ -259,7 +259,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
       boolean durable = RandomUtil.randomBoolean();
-      boolean deleteOnNoConsumers = RandomUtil.randomBoolean();
+      boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
       boolean autoCreateAddress = true;
       int maxConsumers = RandomUtil.randomInt();
 
@@ -267,7 +267,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       serverControl.createAddress(address.toString(), "ANYCAST");
-      serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
@@ -275,7 +275,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(name.toString(), queueControl.getName());
       Assert.assertNull(queueControl.getFilter());
       Assert.assertEquals(durable, queueControl.isDurable());
-      Assert.assertEquals(deleteOnNoConsumers, queueControl.isDeleteOnNoConsumers());
+      Assert.assertEquals(purgeOnNoConsumers, queueControl.isPurgeOnNoConsumers());
       Assert.assertEquals(maxConsumers, queueControl.getMaxConsumers());
       Assert.assertEquals(false, queueControl.isTemporary());
 

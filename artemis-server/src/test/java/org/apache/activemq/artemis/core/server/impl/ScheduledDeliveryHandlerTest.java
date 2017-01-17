@@ -838,7 +838,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    public class FakeQueueForScheduleUnitTest implements Queue {
 
       @Override
-      public void setDeleteOnNoConsumers(boolean value) {
+      public void setPurgeOnNoConsumers(boolean value) {
 
       }
 
@@ -922,7 +922,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean isDeleteOnNoConsumers() {
+      public boolean isPurgeOnNoConsumers() {
          return false;
       }
 

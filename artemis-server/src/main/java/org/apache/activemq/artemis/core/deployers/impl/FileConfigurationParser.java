@@ -185,7 +185,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_ADDRESSES = "auto-delete-addresses";
 
-   private static final String DEFAULT_DELETE_ON_NO_CONSUMERS = "default-delete-on-no-consumers";
+   private static final String DEFAULT_PURGE_ON_NO_CONSUMERS = "default-purge-on-no-consumers";
 
    private static final String DEFAULT_MAX_CONSUMERS = "default-max-consumers";
 
@@ -889,8 +889,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoDeleteAddresses(XMLUtil.parseBoolean(child));
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
-         } else if (DEFAULT_DELETE_ON_NO_CONSUMERS.equalsIgnoreCase(name)) {
-            addressSettings.setDefaultDeleteOnNoConsumers(XMLUtil.parseBoolean(child));
+         } else if (DEFAULT_PURGE_ON_NO_CONSUMERS.equalsIgnoreCase(name)) {
+            addressSettings.setDefaultPurgeOnNoConsumers(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_MAX_CONSUMERS.equalsIgnoreCase(name)) {
             addressSettings.setDefaultMaxConsumers(XMLUtil.parseInt(child));
          } else if (DEFAULT_QUEUE_ROUTING_TYPE.equalsIgnoreCase(name)) {
@@ -937,7 +937,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String filterString = null;
       boolean durable = true;
       int maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-      boolean deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+      boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
 
       NamedNodeMap attributes = node.getAttributes();
       for (int i = 0; i < attributes.getLength(); i++) {
@@ -945,8 +945,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (item.getNodeName().equals("max-consumers")) {
             maxConsumers = Integer.parseInt(item.getNodeValue());
             Validators.MAX_QUEUE_CONSUMERS.validate(name, maxConsumers);
-         } else if (item.getNodeName().equals("delete-on-no-consumers")) {
-            deleteOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
+         } else if (item.getNodeName().equals("purge-on-no-consumers")) {
+            purgeOnNoConsumers = Boolean.parseBoolean(item.getNodeValue());
          }
       }
 
@@ -963,7 +963,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setDeleteOnNoConsumers(deleteOnNoConsumers);
+      return new CoreQueueConfiguration().setAddress(address).setName(name).setFilterString(filterString).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers);
    }
 
    protected CoreAddressConfiguration parseAddressConfiguration(final Node node) {

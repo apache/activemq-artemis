@@ -48,7 +48,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_QUEUES, addressSettings.isAutoDeleteQueues());
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES, addressSettings.isAutoCreateAddresses());
       Assert.assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES, addressSettings.isAutoDeleteAddresses());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), addressSettings.isDefaultDeleteOnNoConsumers());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), addressSettings.isDefaultPurgeOnNoConsumers());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), addressSettings.getDefaultMaxConsumers());
    }
 

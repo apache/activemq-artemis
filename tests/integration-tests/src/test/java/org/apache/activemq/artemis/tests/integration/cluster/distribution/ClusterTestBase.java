@@ -544,7 +544,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                     final String address,
                                     final RoutingType routingType,
                                     final int defaulMaxConsumers,
-                                    boolean defaultDeleteOnNoConsumers) throws Exception {
+                                    boolean defaultPurgeOnNoConsumers) throws Exception {
       AddressInfo addressInfo = new AddressInfo(new SimpleString(address));
       addressInfo.addRoutingType(routingType);
       servers[node].addOrUpdateAddressInfo(addressInfo);

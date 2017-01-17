@@ -444,7 +444,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public QueueBinding updateQueue(SimpleString name,
                                    RoutingType routingType,
                                    Integer maxConsumers,
-                                   Boolean deleteOnNoConsumers) throws Exception {
+                                   Boolean purgeOnNoConsumers) throws Exception {
       synchronized (addressLock) {
          final QueueBinding queueBinding = (QueueBinding) addressManager.getBinding(name);
          if (queueBinding == null) {
@@ -474,8 +474,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (routingType != null) {
             queue.setRoutingType(routingType);
          }
-         if (deleteOnNoConsumers != null) {
-            queue.setDeleteOnNoConsumers(deleteOnNoConsumers);
+         if (purgeOnNoConsumers != null) {
+            queue.setPurgeOnNoConsumers(purgeOnNoConsumers);
          }
          return queueBinding;
       }

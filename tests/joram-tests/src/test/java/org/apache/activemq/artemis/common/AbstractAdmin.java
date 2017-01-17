@@ -120,7 +120,7 @@ public class AbstractAdmin implements Admin {
    public void createQueue(final String name) {
       Boolean result;
       try {
-         invokeSyncOperation(ResourceNames.BROKER, "createQueue", name, RoutingType.ANYCAST.toString(), name, null, true, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers(), true);
+         invokeSyncOperation(ResourceNames.BROKER, "createQueue", name, RoutingType.ANYCAST.toString(), name, null, true, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), true);
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }

@@ -59,13 +59,13 @@ public class LastValueQueue extends QueueImpl {
                          final boolean autoCreated,
                          final RoutingType routingType,
                          final Integer maxConsumers,
-                         final Boolean deleteOnNoConsumers,
+                         final Boolean purgeOnNoConsumers,
                          final ScheduledExecutorService scheduledExecutor,
                          final PostOffice postOffice,
                          final StorageManager storageManager,
                          final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                          final Executor executor) {
-      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, deleteOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
+      super(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, routingType, maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
       new Exception("LastValueQeue " + this).toString();
    }
 

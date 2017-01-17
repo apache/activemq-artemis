@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.utils.ReferenceCounter;
 public class FakeQueue implements Queue {
 
    @Override
-   public void setDeleteOnNoConsumers(boolean value) {
+   public void setPurgeOnNoConsumers(boolean value) {
 
    }
 
@@ -455,7 +455,7 @@ public class FakeQueue implements Queue {
    }
 
    @Override
-   public boolean isDeleteOnNoConsumers() {
+   public boolean isPurgeOnNoConsumers() {
       return false;
    }
 

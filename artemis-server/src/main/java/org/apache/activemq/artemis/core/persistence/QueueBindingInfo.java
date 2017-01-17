@@ -50,9 +50,9 @@ public interface QueueBindingInfo {
 
    void setMaxConsumers(int maxConsumers);
 
-   boolean isDeleteOnNoConsumers();
+   boolean isPurgeOnNoConsumers();
 
-   void setDeleteOnNoConsumers(boolean deleteOnNoConsumers);
+   void setPurgeOnNoConsumers(boolean purgeOnNoConsumers);
 
    byte getRoutingType();
 

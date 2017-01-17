@@ -44,7 +44,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final RoutingType routingType;
 
-   private final boolean deleteOnNoConsumers;
+   private final boolean purgeOnNoConsumers;
 
    private final int maxConsumers;
 
@@ -82,7 +82,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
                          final boolean autoCreateQueues,
                          final int maxConsumers,
                          final boolean autoCreated,
-                         final boolean deleteOnNoConsumers,
+                         final boolean purgeOnNoConsumers,
                          final RoutingType routingType) {
       this.durable = durable;
       this.temporary = temporary;
@@ -95,7 +95,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.autoCreateQueues = autoCreateQueues;
       this.maxConsumers = maxConsumers;
       this.autoCreated = autoCreated;
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
       this.routingType = routingType;
    }
 
@@ -155,8 +155,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
    }
 
    @Override
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
    @Override

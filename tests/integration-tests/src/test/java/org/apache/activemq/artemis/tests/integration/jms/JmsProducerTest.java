@@ -141,7 +141,7 @@ public class JmsProducerTest extends JMSTestBase {
    public void defaultAutoCreatedQueueConfigTest() throws Exception {
       final String queueName = "q1";
 
-      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultDeleteOnNoConsumers(true));
+      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultPurgeOnNoConsumers(true));
 
       Queue q1 = context.createQueue(queueName);
 
@@ -150,14 +150,14 @@ public class JmsProducerTest extends JMSTestBase {
       org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isDeleteOnNoConsumers());
+      assertEquals(true, queue.isPurgeOnNoConsumers());
    }
 
    @Test
    public void defaultAutoCreatedQueueConfigTest2() throws Exception {
       final String queueName = "q1";
 
-      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultDeleteOnNoConsumers(true));
+      server.getAddressSettingsRepository().addMatch(queueName, new AddressSettings().setDefaultMaxConsumers(5).setDefaultPurgeOnNoConsumers(true));
 
       Connection connection = cf.createConnection();
 
@@ -168,7 +168,7 @@ public class JmsProducerTest extends JMSTestBase {
       org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isDeleteOnNoConsumers());
+      assertEquals(true, queue.isPurgeOnNoConsumers());
 
       connection.close();
    }
