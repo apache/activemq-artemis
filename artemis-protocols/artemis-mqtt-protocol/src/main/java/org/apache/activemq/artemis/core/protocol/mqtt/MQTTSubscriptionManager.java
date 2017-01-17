@@ -68,7 +68,7 @@ public class MQTTSubscriptionManager {
 
    synchronized void start() throws Exception {
       for (MqttTopicSubscription subscription : session.getSessionState().getSubscriptions()) {
-         String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName());
+         String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName(), session.getWildcardConfiguration());
          Queue q = createQueueForSubscription(coreAddress, subscription.qualityOfService().value());
          createConsumerForSubscriptionQueue(q, subscription.topicName(), subscription.qualityOfService().value());
       }
@@ -164,9 +164,9 @@ public class MQTTSubscriptionManager {
       int qos = subscription.qualityOfService().value();
       String topic = subscription.topicName();
 
-      String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic);
+      String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic, session.getWildcardConfiguration());
 
-      session.getSessionState().addSubscription(subscription);
+      session.getSessionState().addSubscription(subscription, session.getWildcardConfiguration());
 
       Queue q = createQueueForSubscription(coreAddress, qos);
 
@@ -186,7 +186,8 @@ public class MQTTSubscriptionManager {
 
    // FIXME: Do we need this synchronzied?
    private synchronized void removeSubscription(String address) throws Exception {
-      String internalAddress = MQTTUtil.convertMQTTAddressFilterToCore(address);
+      String internalAddress = MQTTUtil.convertMQTTAddressFilterToCore(address, session.getWildcardConfiguration());
+
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
       session.getSessionState().removeSubscription(address);
 

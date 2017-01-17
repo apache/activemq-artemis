@@ -93,15 +93,15 @@ public class AddressImpl implements Address {
       for (; matchPos < add.getAddressParts().length; ) {
          if (pos >= addressParts.length) {
             // test for # as last address part
-            return pos + 1 == add.getAddressParts().length && add.getAddressParts()[pos].equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING);
+            return pos + 1 == add.getAddressParts().length && add.getAddressParts()[pos].equals(new SimpleString(wildcardConfiguration.getAnyWords()));
          }
          SimpleString curr = addressParts[pos];
          SimpleString next = addressParts.length > pos + 1 ? addressParts[pos + 1] : null;
          SimpleString currMatch = add.getAddressParts()[matchPos];
-         if (currMatch.equals(WildcardAddressManager.SINGLE_WORD_SIMPLESTRING)) {
+         if (currMatch.equals(new SimpleString(wildcardConfiguration.getSingleWord()))) {
             pos++;
             matchPos++;
-         } else if (currMatch.equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING)) {
+         } else if (currMatch.equals(new SimpleString(wildcardConfiguration.getAnyWords()))) {
             if (matchPos == addressParts.length - 1) {
                pos++;
                matchPos++;

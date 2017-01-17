@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.openwire.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -28,6 +29,16 @@ import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.util.ByteSequence;
 
 public class OpenWireUtil {
+
+   public static class OpenWireWildcardConfiguration extends WildcardConfiguration {
+      public OpenWireWildcardConfiguration() {
+         setDelimiter('.');
+         setSingleWord('*');
+         setAnyWords('>');
+      }
+   }
+
+   public static final WildcardConfiguration OPENWIRE_WILDCARD = new OpenWireWildcardConfiguration();
 
    public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes) {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bytes.length);
@@ -50,16 +61,6 @@ public class OpenWireUtil {
       } else {
          return new ActiveMQTopic(strippedAddress);
       }
-   }
-
-   /*
-    *This util converts amq wildcards to compatible core wildcards
-    *The conversion is like this:
-    *AMQ * wildcard --> Core * wildcard (no conversion)
-    *AMQ > wildcard --> Core # wildcard
-    */
-   public static String convertWildcard(String physicalName) {
-      return physicalName.replaceAll("(\\.>)+", ".#");
    }
 
    public static XidImpl toXID(TransactionId xaXid) {
