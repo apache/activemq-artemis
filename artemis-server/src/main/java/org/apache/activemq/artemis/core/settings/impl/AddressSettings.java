@@ -158,7 +158,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer defaultMaxConsumers = null;
 
-   private Boolean defaultDeleteOnNoConsumers = null;
+   private Boolean defaultPurgeOnNoConsumers = null;
 
    private RoutingType defaultQueueRoutingType = null;
 
@@ -200,7 +200,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.queuePrefetch = other.queuePrefetch;
       this.maxSizeBytesRejectThreshold = other.maxSizeBytesRejectThreshold;
       this.defaultMaxConsumers = other.defaultMaxConsumers;
-      this.defaultDeleteOnNoConsumers = other.defaultDeleteOnNoConsumers;
+      this.defaultPurgeOnNoConsumers = other.defaultPurgeOnNoConsumers;
       this.defaultQueueRoutingType = other.defaultQueueRoutingType;
       this.defaultAddressRoutingType = other.defaultAddressRoutingType;
    }
@@ -297,12 +297,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers != null ? defaultDeleteOnNoConsumers : ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+   public boolean isDefaultPurgeOnNoConsumers() {
+      return defaultPurgeOnNoConsumers != null ? defaultPurgeOnNoConsumers : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
    }
 
-   public AddressSettings setDefaultDeleteOnNoConsumers(Boolean defaultDeleteOnNoConsumers) {
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+   public AddressSettings setDefaultPurgeOnNoConsumers(Boolean defaultPurgeOnNoConsumers) {
+      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
       return this;
    }
 
@@ -612,8 +612,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (defaultMaxConsumers == null) {
          defaultMaxConsumers = merged.defaultMaxConsumers;
       }
-      if (defaultDeleteOnNoConsumers == null) {
-         defaultDeleteOnNoConsumers = merged.defaultDeleteOnNoConsumers;
+      if (defaultPurgeOnNoConsumers == null) {
+         defaultPurgeOnNoConsumers = merged.defaultPurgeOnNoConsumers;
       }
       if (defaultQueueRoutingType == null) {
          defaultQueueRoutingType = merged.defaultQueueRoutingType;
@@ -697,7 +697,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       defaultMaxConsumers = BufferHelper.readNullableInteger(buffer);
 
-      defaultDeleteOnNoConsumers = BufferHelper.readNullableBoolean(buffer);
+      defaultPurgeOnNoConsumers = BufferHelper.readNullableBoolean(buffer);
 
       defaultQueueRoutingType = RoutingType.getType(buffer.readByte());
 
@@ -737,7 +737,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableInteger(managementBrowsePageSize) +
          BufferHelper.sizeOfNullableLong(maxSizeBytesRejectThreshold) +
          BufferHelper.sizeOfNullableInteger(defaultMaxConsumers) +
-         BufferHelper.sizeOfNullableBoolean(defaultDeleteOnNoConsumers) +
+         BufferHelper.sizeOfNullableBoolean(defaultPurgeOnNoConsumers) +
          DataConstants.SIZE_BYTE +
          DataConstants.SIZE_BYTE;
    }
@@ -804,7 +804,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableInteger(buffer, defaultMaxConsumers);
 
-      BufferHelper.writeNullableBoolean(buffer, defaultDeleteOnNoConsumers);
+      BufferHelper.writeNullableBoolean(buffer, defaultPurgeOnNoConsumers);
 
       buffer.writeByte(defaultQueueRoutingType == null ? -1 : defaultQueueRoutingType.getType());
 
@@ -849,7 +849,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
       result = prime * result + ((maxSizeBytesRejectThreshold == null) ? 0 : maxSizeBytesRejectThreshold.hashCode());
       result = prime * result + ((defaultMaxConsumers == null) ? 0 : defaultMaxConsumers.hashCode());
-      result = prime * result + ((defaultDeleteOnNoConsumers == null) ? 0 : defaultDeleteOnNoConsumers.hashCode());
+      result = prime * result + ((defaultPurgeOnNoConsumers == null) ? 0 : defaultPurgeOnNoConsumers.hashCode());
       result = prime * result + ((defaultQueueRoutingType == null) ? 0 : defaultQueueRoutingType.hashCode());
       result = prime * result + ((defaultAddressRoutingType == null) ? 0 : defaultAddressRoutingType.hashCode());
       return result;
@@ -1025,10 +1025,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!defaultMaxConsumers.equals(other.defaultMaxConsumers))
          return false;
 
-      if (defaultDeleteOnNoConsumers == null) {
-         if (other.defaultDeleteOnNoConsumers != null)
+      if (defaultPurgeOnNoConsumers == null) {
+         if (other.defaultPurgeOnNoConsumers != null)
             return false;
-      } else if (!defaultDeleteOnNoConsumers.equals(other.defaultDeleteOnNoConsumers))
+      } else if (!defaultPurgeOnNoConsumers.equals(other.defaultPurgeOnNoConsumers))
          return false;
 
       if (defaultQueueRoutingType == null) {
@@ -1109,8 +1109,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          managementBrowsePageSize +
          ", defaultMaxConsumers=" +
          defaultMaxConsumers +
-         ", defaultDeleteOnNoConsumers=" +
-         defaultDeleteOnNoConsumers +
+         ", defaultPurgeOnNoConsumers=" +
+         defaultPurgeOnNoConsumers +
          ", defaultQueueRoutingType=" +
          defaultQueueRoutingType +
          ", defaultAddressRoutingType=" +

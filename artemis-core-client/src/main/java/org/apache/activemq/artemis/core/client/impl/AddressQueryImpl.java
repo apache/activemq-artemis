@@ -32,7 +32,7 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final boolean autoCreateAddresses;
 
-   private final boolean defaultDeleteOnNoConsumers;
+   private final boolean defaultPurgeOnNoConsumers;
 
    private final int defaultMaxConsumers;
 
@@ -40,13 +40,13 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
                            final List<SimpleString> queueNames,
                            final boolean autoCreateQueues,
                            final boolean autoCreateAddresses,
-                           final boolean defaultDeleteOnNoConsumers,
+                           final boolean defaultPurgeOnNoConsumers,
                            final int defaultMaxConsumers) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateQueues = autoCreateQueues;
       this.autoCreateAddresses = autoCreateAddresses;
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
       this.defaultMaxConsumers = defaultMaxConsumers;
    }
 
@@ -71,8 +71,8 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    }
 
    @Override
-   public boolean isDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
+   public boolean isDefaultPurgeOnNoConsumers() {
+      return defaultPurgeOnNoConsumers;
    }
 
    @Override

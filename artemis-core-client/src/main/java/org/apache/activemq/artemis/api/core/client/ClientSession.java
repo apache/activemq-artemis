@@ -71,7 +71,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
        */
       boolean isAutoCreateAddresses();
 
-      boolean isDefaultDeleteOnNoConsumers();
+      boolean isDefaultPurgeOnNoConsumers();
 
       int getDefaultMaxConsumers();
    }
@@ -135,7 +135,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
 
       int getMaxConsumers();
 
-      boolean isDeleteOnNoConsumers();
+      boolean isPurgeOnNoConsumers();
 
       boolean isAutoCreated();
    }
@@ -524,11 +524,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable      whether the queue is durable or not
     * @param autoCreated  whether to mark this queue as autoCreated or not
     * @param maxConsumers how many concurrent consumers will be allowed on this queue
-    * @param deleteOnNoConsumers whether to delete the queue when the last consumer disconnects
+    * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
     * @throws ActiveMQException
     */
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
-                    boolean durable, boolean autoCreated, int maxConsumers, boolean deleteOnNoConsumers) throws ActiveMQException;
+                    boolean durable, boolean autoCreated, int maxConsumers, boolean purgeOnNoConsumers) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em>queue.
@@ -553,11 +553,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable     whether the queue is durable or not
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @param maxConsumers how many concurrent consumers will be allowed on this queue
-    * @param deleteOnNoConsumers whether to delete the queue when the last consumer disconnects
+    * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
     * @throws ActiveMQException
     */
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated,
-                           int maxConsumers, boolean deleteOnNoConsumers) throws ActiveMQException;
+                           int maxConsumers, boolean purgeOnNoConsumers) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue.

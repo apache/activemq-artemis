@@ -748,7 +748,7 @@ public class JmsConsumerTest extends JMSTestBase {
       server.getAddressSettingsRepository()
             .addMatch(queueName, new AddressSettings()
                .setDefaultMaxConsumers(5)
-               .setDefaultDeleteOnNoConsumers(true));
+               .setDefaultPurgeOnNoConsumers(true));
 
       Connection connection = cf.createConnection();
 
@@ -759,7 +759,7 @@ public class JmsConsumerTest extends JMSTestBase {
       org.apache.activemq.artemis.core.server.Queue  queue = server.locateQueue(SimpleString.toSimpleString(queueName));
 
       assertEquals(5, queue.getMaxConsumers());
-      assertEquals(true, queue.isDeleteOnNoConsumers());
+      assertEquals(true, queue.isPurgeOnNoConsumers());
 
       connection.close();
    }

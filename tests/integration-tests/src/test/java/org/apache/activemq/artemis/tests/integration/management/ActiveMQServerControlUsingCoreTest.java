@@ -113,17 +113,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                    String filterStr,
                                    boolean durable,
                                    int maxConsumers,
-                                   boolean deleteOnNoConsumers,
+                                   boolean purgeOnNoConsumers,
                                    boolean autoCreateAddress) throws Exception {
-            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+            return (String) proxy.invokeOperation("createQueue", address, routingType, name, filterStr, durable, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
          }
 
          @Override
          public String updateQueue(@Parameter(name = "name", desc = "Name of the queue") String name,
                                    @Parameter(name = "routingType", desc = "The routing type used for this address, MULTICAST or ANYCAST") String routingType,
                                    @Parameter(name = "maxConsumers", desc = "The maximum number of consumers allowed on this queue at any one time") Integer maxConsumers,
-                                   @Parameter(name = "deleteOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean deleteOnNoConsumers) throws Exception {
-            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, deleteOnNoConsumers);
+                                   @Parameter(name = "purgeOnNoConsumers", desc = "Delete this queue when the last consumer disconnects") Boolean purgeOnNoConsumers) throws Exception {
+            return (String) proxy.invokeOperation("updateQueue", name, routingType, maxConsumers, purgeOnNoConsumers);
          }
 
          @Override

@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryResponseMessage_V3 {
 
-   private boolean defaultDeleteOnNoConsumers;
+   private boolean defaultPurgeOnNoConsumers;
 
    private int defaultMaxConsumers;
 
@@ -31,7 +31,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
                                                 final List<SimpleString> queueNames,
                                                 final boolean autoCreateQueues,
                                                 final boolean autoCreateAddresses,
-                                                final boolean defaultDeleteOnNoConsumers,
+                                                final boolean defaultPurgeOnNoConsumers,
                                                 final int defaultMaxConsumers) {
       super(SESS_BINDINGQUERY_RESP_V4);
 
@@ -43,7 +43,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
       this.autoCreateAddresses = autoCreateAddresses;
 
-      this.defaultDeleteOnNoConsumers = defaultDeleteOnNoConsumers;
+      this.defaultPurgeOnNoConsumers = defaultPurgeOnNoConsumers;
 
       this.defaultMaxConsumers = defaultMaxConsumers;
    }
@@ -52,8 +52,8 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       super(SESS_BINDINGQUERY_RESP_V4);
    }
 
-   public boolean isDefaultDeleteOnNoConsumers() {
-      return defaultDeleteOnNoConsumers;
+   public boolean isDefaultPurgeOnNoConsumers() {
+      return defaultPurgeOnNoConsumers;
    }
 
    public int getDefaultMaxConsumers() {
@@ -63,14 +63,14 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      buffer.writeBoolean(defaultDeleteOnNoConsumers);
+      buffer.writeBoolean(defaultPurgeOnNoConsumers);
       buffer.writeInt(defaultMaxConsumers);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      defaultDeleteOnNoConsumers = buffer.readBoolean();
+      defaultPurgeOnNoConsumers = buffer.readBoolean();
       defaultMaxConsumers = buffer.readInt();
    }
 
@@ -78,7 +78,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (defaultDeleteOnNoConsumers ? 1231 : 1237);
+      result = prime * result + (defaultPurgeOnNoConsumers ? 1231 : 1237);
       result = prime * result + defaultMaxConsumers;
       return result;
    }
@@ -93,7 +93,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
    @Override
    public String getParentString() {
       StringBuffer buff = new StringBuffer(super.getParentString());
-      buff.append(", defaultDeleteOnNoConsumers=" + defaultDeleteOnNoConsumers);
+      buff.append(", defaultPurgeOnNoConsumers=" + defaultPurgeOnNoConsumers);
       buff.append(", defaultMaxConsumers=" + defaultMaxConsumers);
       return buff.toString();
    }
@@ -107,7 +107,7 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
       if (!(obj instanceof SessionBindingQueryResponseMessage_V4))
          return false;
       SessionBindingQueryResponseMessage_V4 other = (SessionBindingQueryResponseMessage_V4) obj;
-      if (defaultDeleteOnNoConsumers != other.defaultDeleteOnNoConsumers)
+      if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
          return false;
       if (defaultMaxConsumers != other.defaultMaxConsumers)
          return false;

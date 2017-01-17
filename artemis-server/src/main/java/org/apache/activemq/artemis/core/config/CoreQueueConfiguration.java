@@ -35,7 +35,7 @@ public class CoreQueueConfiguration implements Serializable {
 
    private Integer maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
 
-   private Boolean deleteOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultDeleteQueueOnNoConsumers();
+   private Boolean purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
 
    private RoutingType routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType();
 
@@ -99,15 +99,15 @@ public class CoreQueueConfiguration implements Serializable {
    }
 
    /**
-    * @param deleteOnNoConsumers delete this queue when consumer count reaches 0, default is false
+    * @param purgeOnNoConsumers delete this queue when consumer count reaches 0, default is false
     */
-   public CoreQueueConfiguration setDeleteOnNoConsumers(Boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+   public CoreQueueConfiguration setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
       return this;
    }
 
-   public boolean getDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean getPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
    public int getMaxConsumers() {
@@ -132,7 +132,7 @@ public class CoreQueueConfiguration implements Serializable {
       result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
-      result = prime * result + ((deleteOnNoConsumers == null) ? 0 : deleteOnNoConsumers.hashCode());
+      result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
       return result;
    }
 
@@ -167,10 +167,10 @@ public class CoreQueueConfiguration implements Serializable {
             return false;
       } else if (!maxConsumers.equals(other.maxConsumers))
          return false;
-      if (deleteOnNoConsumers == null) {
-         if (other.deleteOnNoConsumers != null)
+      if (purgeOnNoConsumers == null) {
+         if (other.purgeOnNoConsumers != null)
             return false;
-      } else if (!deleteOnNoConsumers.equals(other.deleteOnNoConsumers)) {
+      } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers)) {
          return false;
       }
       return true;

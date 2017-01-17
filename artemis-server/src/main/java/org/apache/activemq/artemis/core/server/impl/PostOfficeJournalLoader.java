@@ -149,7 +149,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             .durable(true)
             .temporary(false)
             .autoCreated(queueBindingInfo.isAutoCreated())
-            .deleteOnNoConsumers(queueBindingInfo.isDeleteOnNoConsumers())
+            .purgeOnNoConsumers(queueBindingInfo.isPurgeOnNoConsumers())
             .maxConsumers(queueBindingInfo.getMaxConsumers())
             .routingType(RoutingType.getType(queueBindingInfo.getRoutingType()));
          final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());

@@ -2553,10 +2553,11 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="default-delete-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:element name="default-purge-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1"
+                         minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     Purge and pause this queue when the last consumer disconnects
+                     purge the contents of the queue once there are no consumers
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2704,7 +2705,7 @@
       </xsd:all>
       <xsd:attribute name="name" type="xsd:ID" use="required"/>
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
-      <xsd:attribute name="delete-on-no-consumers" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
    </xsd:complexType>
 
    <xsd:complexType name="addressType">

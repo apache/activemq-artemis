@@ -223,13 +223,13 @@ public class AddressingTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDeleteQueueOnNoConsumersTrue() throws Exception {
+   public void testPurgeOnNoConsumersTrue() throws Exception {
 
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean deleteOnNoConsumers = true;
-      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, deleteOnNoConsumers, true);
+      boolean purgeOnNoConsumers = true;
+      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, purgeOnNoConsumers, true);
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -241,12 +241,12 @@ public class AddressingTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDeleteQueueOnNoConsumersFalse() throws Exception {
+   public void testPurgeOnNoConsumersFalse() throws Exception {
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address,RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, deleteOnNoConsumers, true);
+      boolean purgeOnNoConsumers = false;
+      Queue q1 = server.createQueue(address,RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, purgeOnNoConsumers, true);
 
       ClientSession session = sessionFactory.createSession();
       session.start();
@@ -262,8 +262,8 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, 0, deleteOnNoConsumers, true);
+      boolean purgeOnNoConsumers = false;
+      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, 0, purgeOnNoConsumers, true);
 
       Exception expectedException = null;
       String expectedMessage = "Maximum Consumer Limit Reached on Queue";
@@ -288,8 +288,8 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean deleteOnNoConsumers = false;
-      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, deleteOnNoConsumers, true);
+      boolean purgeOnNoConsumers = false;
+      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, purgeOnNoConsumers, true);
 
       ClientSession session = sessionFactory.createSession();
       session.start();

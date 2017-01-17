@@ -28,7 +28,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
 
    private int maxConsumers;
 
-   private boolean deleteOnNoConsumers;
+   private boolean purgeOnNoConsumers;
 
    public CreateQueueMessage_V2(final SimpleString address,
                                 final SimpleString queueName,
@@ -37,7 +37,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
                                 final boolean durable,
                                 final boolean temporary,
                                 final int maxConsumers,
-                                final boolean deleteOnNoConsumers,
+                                final boolean purgeOnNoConsumers,
                                 final boolean autoCreated,
                                 final boolean requiresResponse) {
       this();
@@ -51,7 +51,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.requiresResponse = requiresResponse;
       this.routingType = routingType;
       this.maxConsumers = maxConsumers;
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
    public CreateQueueMessage_V2() {
@@ -66,7 +66,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buff.append(", autoCreated=" + autoCreated);
       buff.append(", routingType=" + routingType);
       buff.append(", maxConsumers=" + maxConsumers);
-      buff.append(", deleteOnNoConsumers=" + deleteOnNoConsumers);
+      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
       buff.append("]");
       return buff.toString();
    }
@@ -87,12 +87,12 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       this.maxConsumers = maxConsumers;
    }
 
-   public boolean isDeleteOnNoConsumers() {
-      return deleteOnNoConsumers;
+   public boolean isPurgeOnNoConsumers() {
+      return purgeOnNoConsumers;
    }
 
-   public void setDeleteOnNoConsumers(boolean deleteOnNoConsumers) {
-      this.deleteOnNoConsumers = deleteOnNoConsumers;
+   public void setPurgeOnNoConsumers(boolean purgeOnNoConsumers) {
+      this.purgeOnNoConsumers = purgeOnNoConsumers;
    }
 
    public boolean isAutoCreated() {
@@ -109,7 +109,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       buffer.writeBoolean(autoCreated);
       buffer.writeByte(routingType == null ? -1 : routingType.getType());
       buffer.writeInt(maxConsumers);
-      buffer.writeBoolean(deleteOnNoConsumers);
+      buffer.writeBoolean(purgeOnNoConsumers);
    }
 
    @Override
@@ -118,7 +118,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       autoCreated = buffer.readBoolean();
       routingType = RoutingType.getType(buffer.readByte());
       maxConsumers = buffer.readInt();
-      deleteOnNoConsumers = buffer.readBoolean();
+      purgeOnNoConsumers = buffer.readBoolean();
    }
 
    @Override
@@ -128,7 +128,7 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
       result = prime * result + (autoCreated ? 1231 : 1237);
       result = prime * result + (routingType.getType());
       result = prime * result + (maxConsumers);
-      result = prime * result + (deleteOnNoConsumers ? 1231 : 1237);
+      result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
       return result;
    }
 
@@ -145,9 +145,9 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          return false;
       if (maxConsumers != other.maxConsumers)
          return false;
-      if (deleteOnNoConsumers != other.deleteOnNoConsumers)
+      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
          return false;
-      if (deleteOnNoConsumers != other.deleteOnNoConsumers)
+      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
          return false;
       if (routingType == null) {
          if (other.routingType != null)
