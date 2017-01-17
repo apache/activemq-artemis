@@ -56,10 +56,9 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
@@ -1461,8 +1460,6 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testMissingTXEverythingAcked() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
-
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
@@ -1516,31 +1513,35 @@ public class PagingTest extends ActiveMQTestBase {
          }
          session.commit();
          session.close();
+
+
+         ArrayList<RecordInfo> records = new ArrayList<>();
+
+         List<PreparedTransactionInfo> list = new ArrayList<>();
+
+         server.getStorageManager().getMessageJournal().stop();
+
+         Journal jrn = server.getStorageManager().getMessageJournal();
+         jrn.start();
+         jrn.load(records, list, null);
+
+         // Delete everything from the journal
+         for (RecordInfo info : records) {
+            if (!info.isUpdate && info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE &&
+               info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_INC &&
+               info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COMPLETE) {
+               jrn.appendDeleteRecord(info.id, false);
+            }
+         }
+
+         jrn.stop();
+
       } finally {
          try {
             server.stop();
          } catch (Throwable ignored) {
          }
       }
-
-      ArrayList<RecordInfo> records = new ArrayList<>();
-
-      List<PreparedTransactionInfo> list = new ArrayList<>();
-
-      JournalImpl jrn = new JournalImpl(config.getJournalFileSize(), 2, 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
-      jrn.start();
-      jrn.load(records, list, null);
-
-      // Delete everything from the journal
-      for (RecordInfo info : records) {
-         if (!info.isUpdate && info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE &&
-            info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_INC &&
-            info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COMPLETE) {
-            jrn.appendDeleteRecord(info.id, false);
-         }
-      }
-
-      jrn.stop();
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
