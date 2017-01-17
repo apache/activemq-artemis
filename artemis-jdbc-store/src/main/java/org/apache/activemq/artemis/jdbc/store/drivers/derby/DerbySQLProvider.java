@@ -29,7 +29,7 @@ public class DerbySQLProvider extends GenericSQLProvider {
    private final String appendToFileSQL;
 
    private DerbySQLProvider(String tableName) {
-      super(tableName);
+      super(tableName.toUpperCase());
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
