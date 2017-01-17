@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.jdbc.store.file;
 import javax.sql.DataSource;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +59,17 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
                                     Executor executor) throws Exception {
       this.executor = executor;
       dbDriver = JDBCFileUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
+   }
+
+   public JDBCSequentialFileFactory(final Connection connection,
+                                    final SQLProvider sqlProvider,
+                                    final Executor executor) throws Exception {
+      this.executor = executor;
+      this.dbDriver = JDBCFileUtils.getDBFileDriver(connection, sqlProvider);
+   }
+
+   public JDBCSequentialFileFactoryDriver getDbDriver() {
+      return dbDriver;
    }
 
    @Override

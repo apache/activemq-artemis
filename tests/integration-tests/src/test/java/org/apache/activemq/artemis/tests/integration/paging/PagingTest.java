@@ -24,6 +24,8 @@ import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -51,12 +53,12 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
@@ -86,7 +88,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class PagingTest extends ActiveMQTestBase {
 
    private static final Logger logger = Logger.getLogger(PagingTest.class);
@@ -104,8 +109,19 @@ public class PagingTest extends ActiveMQTestBase {
 
    protected static final int PAGE_SIZE = 10 * 1024;
 
+   protected final StoreConfiguration.StoreType storeType;
+
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
+   public PagingTest(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    @Before
    public void checkLoggerStart() throws Exception {
@@ -122,8 +138,6 @@ public class PagingTest extends ActiveMQTestBase {
          AssertionLoggerHandler.stopCapture();
       }
    }
-
-
 
    @Override
    @Before
@@ -1499,31 +1513,35 @@ public class PagingTest extends ActiveMQTestBase {
          }
          session.commit();
          session.close();
+
+
+         ArrayList<RecordInfo> records = new ArrayList<>();
+
+         List<PreparedTransactionInfo> list = new ArrayList<>();
+
+         server.getStorageManager().getMessageJournal().stop();
+
+         Journal jrn = server.getStorageManager().getMessageJournal();
+         jrn.start();
+         jrn.load(records, list, null);
+
+         // Delete everything from the journal
+         for (RecordInfo info : records) {
+            if (!info.isUpdate && info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE &&
+               info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_INC &&
+               info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COMPLETE) {
+               jrn.appendDeleteRecord(info.id, false);
+            }
+         }
+
+         jrn.stop();
+
       } finally {
          try {
             server.stop();
          } catch (Throwable ignored) {
          }
       }
-
-      ArrayList<RecordInfo> records = new ArrayList<>();
-
-      List<PreparedTransactionInfo> list = new ArrayList<>();
-
-      JournalImpl jrn = new JournalImpl(config.getJournalFileSize(), 2, 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
-      jrn.start();
-      jrn.load(records, list, null);
-
-      // Delete everything from the journal
-      for (RecordInfo info : records) {
-         if (!info.isUpdate && info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE &&
-            info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COUNTER_INC &&
-            info.getUserRecordType() != JournalRecordIds.PAGE_CURSOR_COMPLETE) {
-            jrn.appendDeleteRecord(info.id, false);
-         }
-      }
-
-      jrn.stop();
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
@@ -5633,7 +5651,11 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Override
    protected Configuration createDefaultInVMConfig() throws Exception {
-      return super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      Configuration configuration = super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         setDBStoreType(configuration);
+      }
+      return configuration;
    }
 
    private static final class DummyOperationContext implements OperationContext {
