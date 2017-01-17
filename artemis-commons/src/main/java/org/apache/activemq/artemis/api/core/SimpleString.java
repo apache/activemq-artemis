@@ -98,6 +98,18 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       this.data = data;
    }
 
+   public SimpleString(final char c) {
+      data = new byte[2];
+
+      byte low = (byte) (c & 0xFF); // low byte
+
+      data[0] = low;
+
+      byte high = (byte) (c >> 8 & 0xFF); // high byte
+
+      data[1] = high;
+   }
+
    // CharSequence implementation
    // ---------------------------------------------------------------------------
 

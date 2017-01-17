@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -81,7 +80,7 @@ public class AMQConsumer {
 
       SimpleString selector = info.getSelector() == null ? null : new SimpleString(info.getSelector());
 
-      String physicalName = OpenWireUtil.convertWildcard(openwireDestination.getPhysicalName());
+      String physicalName = session.convertWildcard(openwireDestination.getPhysicalName());
 
       SimpleString address;
 
@@ -97,7 +96,7 @@ public class AMQConsumer {
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
       } else {
-         SimpleString queueName = new SimpleString(OpenWireUtil.convertWildcard(openwireDestination.getPhysicalName()));
+         SimpleString queueName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
          try {
             session.getCoreServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
          } catch (ActiveMQQueueExistsException e) {

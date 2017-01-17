@@ -213,7 +213,7 @@ public class MQTTPublishManager {
    }
 
    private void sendServerMessage(int messageId, ServerMessageImpl message, int deliveryCount, int qos) {
-      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString());
+      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString(), session.getWildcardConfiguration());
 
       ByteBuf payload;
       switch (message.getType()) {
