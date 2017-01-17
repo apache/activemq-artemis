@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class MQTTSessionState {
@@ -98,9 +99,9 @@ public class MQTTSessionState {
       return subscriptions.values();
    }
 
-   boolean addSubscription(MqttTopicSubscription subscription) {
+   boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration) {
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName()), new ConcurrentHashMap<Long, Integer>());
+         addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<Long, Integer>());
 
          MqttTopicSubscription existingSubscription = subscriptions.get(subscription.topicName());
          if (existingSubscription != null) {

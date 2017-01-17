@@ -78,7 +78,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
       this.connectionEntry = entry;
       this.connection = connection;
-      this.session = new MQTTSession(this, connection, protocolManager);
+      this.session = new MQTTSession(this, connection, protocolManager, server.getConfiguration().getWildcardConfiguration());
    }
 
    void stop(boolean error) {
