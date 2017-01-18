@@ -31,7 +31,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    protected ByteBuf buffer; // NO_UCD (use final)
    private final boolean releasable;
-
+   private final boolean isPooled;
    public static ByteBuf unwrap(ByteBuf buffer) {
       ByteBuf parent;
       while ((parent = buffer.unwrap()) != null && parent != buffer) { // this last part is just in case the semantic
@@ -45,14 +45,18 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public ChannelBufferWrapper(final ByteBuf buffer) {
       this(buffer, false);
    }
-
    public ChannelBufferWrapper(final ByteBuf buffer, boolean releasable) {
+      this(buffer, releasable, false);
+   }
+   public ChannelBufferWrapper(final ByteBuf buffer, boolean releasable, boolean pooled) {
       if (!releasable) {
          this.buffer = Unpooled.unreleasableBuffer(buffer);
       } else {
          this.buffer = buffer;
       }
       this.releasable = releasable;
+      this.isPooled = pooled;
+
    }
 
    @Override
@@ -398,7 +402,19 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public ActiveMQBuffer readSlice(final int length) {
-      return new ChannelBufferWrapper(buffer.readSlice(length), releasable);
+      if ( isPooled ) {
+         ByteBuf fromBuffer = buffer.readSlice(length);
+         ByteBuf newNettyBuffer = Unpooled.buffer(fromBuffer.capacity());
+         int read = fromBuffer.readerIndex();
+         int writ = fromBuffer.writerIndex();
+         fromBuffer.readerIndex(0);
+         fromBuffer.readBytes(newNettyBuffer,0,writ);
+         newNettyBuffer.setIndex(read,writ);
+         ActiveMQBuffer returnBuffer = new ChannelBufferWrapper(newNettyBuffer,releasable,false);
+         returnBuffer.setIndex(read,writ);
+         return returnBuffer;
+      }
+      return new ChannelBufferWrapper(buffer.readSlice(length), releasable, isPooled);
    }
 
    @Override
@@ -520,6 +536,13 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    @Override
    public ByteBuffer toByteBuffer(final int index, final int length) {
       return buffer.nioBuffer(index, length);
+   }
+
+   @Override
+   public void release() {
+      if ( this.isPooled ) {
+         buffer.release();
+      }
    }
 
    @Override
