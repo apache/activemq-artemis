@@ -56,7 +56,7 @@ public class SessionReceiveMessage extends MessagePacket {
    public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = message.getEncodedBuffer();
 
-      ActiveMQBuffer bufferWrite = connection.createTransportBuffer(buffer.writerIndex());
+      ActiveMQBuffer bufferWrite = connection.createTransportBuffer(buffer.writerIndex(), true);
       bufferWrite.writeBytes(buffer, 0, bufferWrite.capacity());
       bufferWrite.setIndex(buffer.readerIndex(), buffer.writerIndex());
 

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -76,9 +77,9 @@ public abstract class MessageImpl implements MessageInternal {
 
    protected byte priority;
 
-   protected ActiveMQBuffer buffer;
+   protected volatile ActiveMQBuffer buffer;
 
-   protected ResetLimitWrappedActiveMQBuffer bodyBuffer;
+   protected volatile ResetLimitWrappedActiveMQBuffer bodyBuffer;
 
    protected volatile boolean bufferValid;
 
@@ -434,12 +435,16 @@ public abstract class MessageImpl implements MessageInternal {
 
    @Override
    public void decodeFromBuffer(final ActiveMQBuffer buffer) {
-      this.buffer = buffer;
+
+      this.buffer = copyMessageBuffer(buffer);
 
       decode();
 
+      //synchronize indexes
+      buffer.setIndex(this.buffer.readerIndex(),this.buffer.writerIndex());
+
       // Setting up the BodyBuffer based on endOfBodyPosition set from decode
-      ResetLimitWrappedActiveMQBuffer tmpbodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, null);
+      ResetLimitWrappedActiveMQBuffer tmpbodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, this.buffer, null);
       tmpbodyBuffer.readerIndex(BODY_OFFSET);
       tmpbodyBuffer.writerIndex(endOfBodyPosition);
       // only set this after the writer and reader is set,
@@ -447,6 +452,30 @@ public abstract class MessageImpl implements MessageInternal {
       tmpbodyBuffer.setMessage(this);
       this.bodyBuffer = tmpbodyBuffer;
 
+   }
+
+   private ActiveMQBuffer copyMessageBuffer(ActiveMQBuffer buffer) {
+      ActiveMQBuffer copiedBuffer;
+
+      ByteBuf newNettyBuffer = Unpooled.buffer( buffer.byteBuf().capacity() );
+
+      int read = buffer.byteBuf().readerIndex();
+      int writ = buffer.byteBuf().writerIndex();
+
+      int readArt = buffer.readerIndex();
+      int writArt = buffer.writerIndex();
+      buffer.byteBuf().readerIndex( 0 );
+
+      buffer.byteBuf().readBytes( newNettyBuffer, 0, buffer.byteBuf().writerIndex() );
+      buffer.byteBuf().setIndex( read, writ );
+      newNettyBuffer.setIndex( read, writ );
+
+      copiedBuffer = new ChannelBufferWrapper( newNettyBuffer );
+
+      buffer.setIndex( readArt, writArt );
+      copiedBuffer.setIndex( readArt, writArt );
+
+      return copiedBuffer;
    }
 
    @Override
