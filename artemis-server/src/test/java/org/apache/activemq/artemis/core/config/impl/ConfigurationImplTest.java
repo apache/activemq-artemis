@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -549,6 +551,60 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       properties.put(configuration.getSystemPropertyPrefix() + "globalMaxSize", "4321");
 
       configuration.parseSystemProperties(properties);
+
+      Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
+      Assert.assertEquals(4321, configuration.getGlobalMaxSize());
+   }
+
+   /**
+    * To test ARTEMIS-926
+    * @throws Throwable
+    */
+   @Test
+   public void testSetSystemPropertyCME() throws Throwable {
+      Properties properties = new Properties();
+
+      for (int i = 0; i < 5000; i++) {
+         properties.put("key" + i, "value " + i);
+      }
+
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final AtomicBoolean running = new AtomicBoolean(true);
+      final CountDownLatch latch = new CountDownLatch(1);
+
+
+      Thread thread = new Thread() {
+         @Override
+         public void run() {
+            latch.countDown();
+            int i = 1;
+            while (running.get()) {
+               properties.remove("key" + i);
+               properties.put("key" + i, "new value " + i);
+               i++;
+               if (i > 200) {
+                  i = 1;
+               }
+            }
+         }
+      };
+
+      thread.start();
+      try {
+
+         latch.await();
+         properties.put(configuration.getSystemPropertyPrefix() + "fileDeployerScanPeriod", "1234");
+         properties.put(configuration.getSystemPropertyPrefix() + "globalMaxSize", "4321");
+
+         configuration.parseSystemProperties(properties);
+
+
+      } finally {
+         running.set(false);
+         thread.join();
+      }
 
       Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
       Assert.assertEquals(4321, configuration.getGlobalMaxSize());
