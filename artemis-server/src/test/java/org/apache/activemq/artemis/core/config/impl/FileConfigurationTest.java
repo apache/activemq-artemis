@@ -215,7 +215,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          if (bc.getName().equals("bridge1")) {
             Assert.assertEquals("bridge1", bc.getName());
             Assert.assertEquals("queue1", bc.getQueueName());
-            Assert.assertEquals("minLargeMessageSize", 4, bc.getMinLargeMessageSize());
+            Assert.assertEquals("minLargeMessageSize", 4194304, bc.getMinLargeMessageSize());
             assertEquals("check-period", 31, bc.getClientFailureCheckPeriod());
             assertEquals("connection time-to-live", 370, bc.getConnectionTTL());
             Assert.assertEquals("bridge-forwarding-address1", bc.getForwardingAddress());
@@ -229,6 +229,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
             Assert.assertEquals(444, bc.getProducerWindowSize());
+            Assert.assertEquals(1073741824, bc.getConfirmationWindowSize());
          } else {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
@@ -237,7 +238,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(null, bc.getTransformerClassName());
             Assert.assertEquals(null, bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
-            Assert.assertEquals(555, bc.getProducerWindowSize());
+            Assert.assertEquals(568320, bc.getProducerWindowSize());
          }
       }
 
@@ -294,7 +295,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("a1.1", conf.getAddressesSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals("a1.2", conf.getAddressesSettings().get("a1").getExpiryAddress().toString());
       assertEquals(1, conf.getAddressesSettings().get("a1").getRedeliveryDelay());
-      assertEquals(81781728121878L, conf.getAddressesSettings().get("a1").getMaxSizeBytes());
+      assertEquals(856686592L, conf.getAddressesSettings().get("a1").getMaxSizeBytes());
       assertEquals(81738173872337L, conf.getAddressesSettings().get("a1").getPageSizeBytes());
       assertEquals(10, conf.getAddressesSettings().get("a1").getPageCacheMaxSize());
       assertEquals(4, conf.getAddressesSettings().get("a1").getMessageCounterHistoryDayLimit());
