@@ -256,23 +256,6 @@ public final class XMLUtil {
       }
       return s;
    }
-
-   /* public static String replaceSystemProps(String xml)
-    {
-       Properties properties = System.getProperties();
-       Enumeration e = properties.propertyNames();
-       while (e.hasMoreElements())
-       {
-          String key = (String)e.nextElement();
-          String s = "${" + key + "}";
-          if (xml.contains(s))
-          {
-             xml = xml.replace(s, properties.getProperty(key));
-          }
-
-       }
-       return xml;
-    }*/
    public static String replaceSystemProps(String xml) {
       while (xml.contains("${")) {
          int start = xml.indexOf("${");
