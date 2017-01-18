@@ -17,11 +17,14 @@
 package org.apache.activemq.artemis.utils;
 
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 import org.jboss.logging.Logger;
 
 public class ByteUtil {
@@ -29,6 +32,12 @@ public class ByteUtil {
    public static final String NON_ASCII_STRING = "@@@@@";
 
    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+   private static final String prefix = "^\\s*(\\d+)\\s*";
+   private static final String suffix = "(b)?\\s*$";
+   private static final Pattern ONE = Pattern.compile(prefix + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern KILO = Pattern.compile(prefix + "k" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern MEGA = Pattern.compile(prefix + "m" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern GIGA = Pattern.compile(prefix + "g" + suffix, Pattern.CASE_INSENSITIVE);
 
    public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
       if (logger.isTraceEnabled()) {
@@ -163,4 +172,31 @@ public class ByteUtil {
       return ret;
    }
 
+   public static long convertTextBytes(final String text) {
+      try {
+         Matcher m = ONE.matcher(text);
+         if (m.matches()) {
+            return Long.valueOf(Long.parseLong(m.group(1)));
+         }
+
+         m = KILO.matcher(text);
+         if (m.matches()) {
+            return Long.valueOf(Long.parseLong(m.group(1)) * 1024);
+         }
+
+         m = MEGA.matcher(text);
+         if (m.matches()) {
+            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024);
+         }
+
+         m = GIGA.matcher(text);
+         if (m.matches()) {
+            return Long.valueOf(Long.parseLong(m.group(1)) * 1024 * 1024 * 1024);
+         }
+
+         return Long.parseLong(text);
+      } catch (NumberFormatException e) {
+         throw ActiveMQUtilBundle.BUNDLE.failedToParseLong(text);
+      }
+   }
 }
