@@ -140,7 +140,7 @@
             <forwarding-address>bridge-forwarding-address1</forwarding-address>
             <filter string="sku > 1"/>
             <transformer-class-name>org.foo.BridgeTransformer</transformer-class-name>
-            <min-large-message-size>4</min-large-message-size>
+            <min-large-message-size>4M</min-large-message-size>
             <check-period>31</check-period>
             <connection-ttl>370</connection-ttl>
             <retry-interval>3</retry-interval>
@@ -149,6 +149,7 @@
             <reconnect-attempts>2</reconnect-attempts>
             <failover-on-server-shutdown>false</failover-on-server-shutdown>
             <use-duplicate-detection>true</use-duplicate-detection>
+            <confirmation-window-size>1G</confirmation-window-size>
             <producer-window-size>444</producer-window-size>
             <static-connectors>
                <connector-ref>connector1</connector-ref>
@@ -157,7 +158,7 @@
          <bridge name="bridge2">
             <queue-name>queue2</queue-name>
             <forwarding-address>bridge-forwarding-address2</forwarding-address>
-            <producer-window-size>555</producer-window-size>
+            <producer-window-size>555k</producer-window-size>
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
@@ -257,7 +258,7 @@
             <dead-letter-address>a1.1</dead-letter-address>
             <expiry-address>a1.2</expiry-address>
             <redelivery-delay>1</redelivery-delay>
-            <max-size-bytes>81781728121878</max-size-bytes>
+            <max-size-bytes>817M</max-size-bytes>
             <page-size-bytes>81738173872337</page-size-bytes>
             <page-max-cache-size>10</page-max-cache-size>
             <message-counter-history-day-limit>4</message-counter-history-day-limit>
