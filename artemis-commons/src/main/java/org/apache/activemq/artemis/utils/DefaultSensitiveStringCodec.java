@@ -88,8 +88,10 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
       Map<String, String> params = new HashMap<>();
       Properties properties = System.getProperties();
-      for (final String name: properties.stringPropertyNames()) {
-         params.put(name, properties.getProperty(name));
+      synchronized (properties) {
+         for (final String name : properties.stringPropertyNames()) {
+            params.put(name, properties.getProperty(name));
+         }
       }
       codec.init(params);
       Object encode = codec.encode(args[0]);
