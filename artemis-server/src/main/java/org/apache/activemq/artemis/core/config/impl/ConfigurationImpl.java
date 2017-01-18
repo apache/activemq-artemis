@@ -308,22 +308,23 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration parseSystemProperties(Properties properties) throws Exception {
+      synchronized (properties) {
+         Map<String, Object> beanProperties = new HashMap<>();
 
-      Map<String, Object> beanProperties = new HashMap<>();
-
-      for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-         if (entry.getKey().toString().startsWith(systemPropertyPrefix)) {
-            String key = entry.getKey().toString().substring(systemPropertyPrefix.length());
-            logger.debug("Setting up config, " + key + "=" + entry.getValue());
-            beanProperties.put(key, entry.getValue());
+         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            if (entry.getKey().toString().startsWith(systemPropertyPrefix)) {
+               String key = entry.getKey().toString().substring(systemPropertyPrefix.length());
+               logger.debug("Setting up config, " + key + "=" + entry.getValue());
+               beanProperties.put(key, entry.getValue());
+            }
          }
-      }
 
-      if (!beanProperties.isEmpty()) {
-         BeanSupport.setData(this, beanProperties);
-      }
+         if (!beanProperties.isEmpty()) {
+            BeanSupport.setData(this, beanProperties);
+         }
 
-      return this;
+         return this;
+      }
    }
 
    @Override
