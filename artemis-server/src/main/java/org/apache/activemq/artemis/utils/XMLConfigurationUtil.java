@@ -79,6 +79,21 @@ public class XMLConfigurationUtil {
       }
    }
 
+   public static final Long getTextBytesAsLongBytes(final Element e,
+                                    final String name,
+                                    final long def,
+                                    final Validators.Validator validator) {
+      NodeList nl = e.getElementsByTagName(name);
+      if (nl.getLength() > 0) {
+         long val = ByteUtil.convertTextBytes(nl.item(0).getTextContent().trim());
+         validator.validate(name, val);
+         return val;
+      } else {
+         validator.validate(name, def);
+         return def;
+      }
+   }
+
    public static final Integer getInteger(final Element e,
                                           final String name,
                                           final int def,
@@ -92,6 +107,13 @@ public class XMLConfigurationUtil {
          validator.validate(name, def);
          return def;
       }
+   }
+
+   public static final Integer getTextBytesAsIntBytes(final Element e,
+                                          final String name,
+                                          final int def,
+                                          final Validators.Validator validator) {
+      return getTextBytesAsLongBytes(e, name, def, validator).intValue();
    }
 
    public static final Boolean getBoolean(final Element e, final String name, final boolean def) {

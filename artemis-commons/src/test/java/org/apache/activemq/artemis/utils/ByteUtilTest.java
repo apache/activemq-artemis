@@ -19,6 +19,10 @@ package org.apache.activemq.artemis.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class ByteUtilTest {
 
    @Test
@@ -32,8 +36,8 @@ public class ByteUtilTest {
 
    @Test
    public void testNonASCII() {
-      Assert.assertEquals("aA", ByteUtil.toSimpleString(new byte[]{97, 0, 65, 0}));
-      Assert.assertEquals(ByteUtil.NON_ASCII_STRING, ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
+      assertEquals("aA", ByteUtil.toSimpleString(new byte[]{97, 0, 65, 0}));
+      assertEquals(ByteUtil.NON_ASCII_STRING, ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
 
       System.out.println(ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
    }
@@ -50,4 +54,35 @@ public class ByteUtilTest {
       }
    }
 
+   @Test
+   public void testTextBytesToLongBytes() {
+      long[] factor = new long[] {1, 5, 10};
+      String[] type = new String[]{"", "b", "k", "m", "g"};
+      long[] size = new long[]{1, 1, 1024, 1024 * 1024, 1024 * 1024 * 1024};
+
+      for (int i = 0; i < 3; i++) {
+         for (int j = 0; j < type.length; j++) {
+            assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + type[j]));
+            assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + " " + type[j]));
+            assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + type[j].toUpperCase()));
+            assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + " " + type[j].toUpperCase()));
+            if (j >= 2) {
+               assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + type[j] + "b"));
+               assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + " " + type[j] + "b"));
+               assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + type[j].toUpperCase() + "B"));
+               assertEquals(factor[i] * size[j], ByteUtil.convertTextBytes(factor[i] + " " + type[j].toUpperCase() + "B"));
+            }
+         }
+      }
+   }
+
+   @Test
+   public void testTextBytesToLongBytesNegative() {
+      try {
+         ByteUtil.convertTextBytes("x");
+         fail();
+      } catch (Exception e) {
+         assertTrue(e instanceof IllegalArgumentException);
+      }
+   }
 }
