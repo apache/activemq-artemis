@@ -851,13 +851,7 @@ public class QueueImpl implements Queue {
             refCountForConsumers.decrement();
          }
 
-         if (noConsumers.decrementAndGet() == 0 && purgeOnNoConsumers) {
-            try {
-               deleteQueue();
-            } catch (Exception e) {
-               logger.error("Error deleting queue on no consumers.  " + this.toString(), e);
-            }
-         }
+         noConsumers.decrementAndGet();
       }
    }
 
