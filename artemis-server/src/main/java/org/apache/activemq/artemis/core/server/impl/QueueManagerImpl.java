@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.core.server.impl;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
+import org.apache.activemq.artemis.core.server.QueueManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
-public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
+public class QueueManagerImpl implements QueueManager {
 
    private final SimpleString queueName;
 
@@ -39,7 +39,7 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
          long consumerCount = queue.getConsumerCount();
          long messageCount = queue.getMessageCount();
 
-         if (((queue.isAutoCreated() && settings.isAutoDeleteQueues()) || queue.isPurgeOnNoConsumers()) && queue.getMessageCount() == 0) {
+         if (queue.isAutoCreated() && settings.isAutoDeleteQueues() && queue.getMessageCount() == 0) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("deleting " + (queue.isAutoCreated() ? "auto-created " : "") + "queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteQueues = " + settings.isAutoDeleteQueues());
             }
@@ -49,13 +49,22 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
             }
+         } else if (queue.isPurgeOnNoConsumers()) {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQServerLogger.LOGGER.debug("purging queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount);
+            }
+            try {
+               queue.deleteAllReferences();
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.failedToPurgeQueue(e, queueName);
+            }
          }
       }
    };
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public AutoCreatedQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
+   public QueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
       this.server = server;
       this.queueName = queueName;
    }

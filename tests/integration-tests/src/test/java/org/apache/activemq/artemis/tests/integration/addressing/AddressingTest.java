@@ -224,37 +224,30 @@ public class AddressingTest extends ActiveMQTestBase {
 
    @Test
    public void testPurgeOnNoConsumersTrue() throws Exception {
-
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean purgeOnNoConsumers = true;
-      Queue q1 = server.createQueue(address, RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, purgeOnNoConsumers, true);
-
+      server.createQueue(address, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, 1, true, true);
+      assertNotNull(server.locateQueue(queueName));
       ClientSession session = sessionFactory.createSession();
-      session.start();
-
-      ClientConsumer consumer1 = session.createConsumer(q1.getName());
-      consumer1.close();
-
-      assertFalse(server.queueQuery(queueName).isExists());
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(true));
+      session.createConsumer(queueName).close();
+      assertNotNull(server.locateQueue(queueName));
+      assertEquals(0, server.locateQueue(queueName).getMessageCount());
    }
 
    @Test
    public void testPurgeOnNoConsumersFalse() throws Exception {
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
-      // For each address, create 2 Queues with the same address, assert both queues receive message
-      boolean purgeOnNoConsumers = false;
-      Queue q1 = server.createQueue(address,RoutingType.MULTICAST, queueName, null, true, false, Queue.MAX_CONSUMERS_UNLIMITED, purgeOnNoConsumers, true);
-
+      server.createQueue(address, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, 1, false, true);
+      assertNotNull(server.locateQueue(queueName));
       ClientSession session = sessionFactory.createSession();
-      session.start();
-
-      ClientConsumer consumer1 = session.createConsumer(q1.getName());
-      consumer1.close();
-
-      assertTrue(server.queueQuery(queueName).isExists());
+      ClientProducer producer = session.createProducer(address);
+      producer.send(session.createMessage(true));
+      session.createConsumer(queueName).close();
+      assertNotNull(server.locateQueue(queueName));
+      assertEquals(1, server.locateQueue(queueName).getMessageCount());
    }
 
    @Test
