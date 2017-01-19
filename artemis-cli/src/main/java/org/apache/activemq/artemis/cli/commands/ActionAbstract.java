@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.util.OptionsUtil;
 
 public abstract class ActionAbstract implements Action {
 
@@ -109,6 +110,11 @@ public abstract class ActionAbstract implements Action {
       this.context = context;
 
       return null;
+   }
+
+   @Override
+   public void checkOptions(String[] options) throws InvalidOptionsError {
+      OptionsUtil.checkCommandOptions(this.getClass(), options);
    }
 
 }
