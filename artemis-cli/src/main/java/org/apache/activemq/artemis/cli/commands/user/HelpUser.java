@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.cli.commands.user;
 import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
+import org.apache.activemq.artemis.util.OptionsUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,6 +45,11 @@ public class HelpUser extends Help implements Action {
    @Override
    public String getBrokerHome() {
       return null;
+   }
+
+   @Override
+   public void checkOptions(String[] options) throws InvalidOptionsError {
+      OptionsUtil.checkCommandOptions(this.getClass(), options);
    }
 
    @Override
