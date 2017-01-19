@@ -71,12 +71,12 @@ under the License.
          </address-setting>
 
          <address-setting match="exampleQueue">
-            <max-size-bytes>10485760</max-size-bytes>
-            <page-size-bytes>1048576</page-size-bytes>
+            <max-size-bytes>10Mb</max-size-bytes>
+            <page-size-bytes>1Mb</page-size-bytes>
          </address-setting>
          <address-setting match="#">
-            <max-size-bytes>10485760</max-size-bytes>
-            <page-size-bytes>1048576</page-size-bytes>
+            <max-size-bytes>10Mb</max-size-bytes>
+            <page-size-bytes>1Mb</page-size-bytes>
          </address-setting>
       </address-settings>
 
