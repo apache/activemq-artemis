@@ -212,7 +212,7 @@ public interface ActiveMQClientMessageBundle {
    IllegalArgumentException mustBeInteger(Node elem, String value);
 
    @Message(id = 119055, value = "Element {0} requires a valid Long value, but ''{1}'' cannot be parsed as a Long", format = Message.Format.MESSAGE_FORMAT)
-   IllegalArgumentException mustBeLong(Node elem, String value);
+   IllegalArgumentException mustBeLong(Node element, String value);
 
    @Message(id = 119056, value = "Failed to get decoder")
    IllegalArgumentException failedToGetDecoder(@Cause Exception e);

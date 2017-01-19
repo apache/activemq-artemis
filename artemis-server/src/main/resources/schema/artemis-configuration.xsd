@@ -597,10 +597,11 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="journal-buffer-size" type="xsd:long" default="501760" maxOccurs="1" minOccurs="0">
+         <xsd:element name="journal-buffer-size" type="xsd:string" default="501760" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The size of the internal buffer on the journal in KiB.
+                  The size (in bytes) of the internal buffer on the journal. Supports byte notation like "K", "Mb",
+                  "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -631,10 +632,10 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="journal-file-size" default="10485760" type="xsd:int" maxOccurs="1" minOccurs="0">
+         <xsd:element name="journal-file-size" default="10485760" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the size (in bytes) of each journal file
+                  The size (in bytes) of each journal file. Supports byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -704,11 +705,11 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="global-max-size" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+         <xsd:element name="global-max-size" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Global Max Size before all addresses will enter into their Full Policy configured upon messages being
-                  produced.
+                  Size (in bytes) before all addresses will enter into their Full Policy configured upon messages being
+                  produced. Supports byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1168,11 +1169,11 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="min-large-message-size" type="xsd:int" default="102400" maxOccurs="1" minOccurs="0">
+         <xsd:element name="min-large-message-size" type="xsd:string" default="102400" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Any message larger than this size is considered a large message (to be sent in
-                  chunks)
+                  Any message larger than this size (in bytes) is considered a large message (to be sent in
+                  chunks). Supports byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1251,18 +1252,19 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="confirmation-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
+         <xsd:element name="confirmation-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="1048576">
             <xsd:annotation>
                <xsd:documentation>
-                  Once the bridge has received this many bytes, it sends a confirmation
+                  Once the bridge has received this many bytes, it sends a confirmation. Supports byte notation like
+                  "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
+         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="-1">
             <xsd:annotation>
                <xsd:documentation>
-                  Producer flow control
+                  Producer flow control. Supports byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1388,10 +1390,11 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="min-large-message-size" type="xsd:int" maxOccurs="1" minOccurs="0">
+         <xsd:element name="min-large-message-size" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Messages larger than this are considered large-messages
+                  Messages larger than this are considered large-messages. Supports byte notation like
+                  "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1485,18 +1488,19 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="confirmation-window-size" type="xsd:int" default="1048576" maxOccurs="1" minOccurs="0">
+         <xsd:element name="confirmation-window-size" type="xsd:string" default="1048576" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The size (in bytes) of the window used for confirming data from the server connected to.
+                  The size (in bytes) of the window used for confirming data from the server connected to. Supports
+                  byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
+         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="-1">
             <xsd:annotation>
                <xsd:documentation>
-                  Producer flow control
+                  Producer flow control. Supports byte notation like "K", "Mb", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2365,11 +2369,11 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="max-size-bytes" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:element name="max-size-bytes" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
-                     FAIL policies.
+                     FAIL policies. Supports byte notation like "K", "Mb", "GB", etc.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2385,10 +2389,11 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="page-size-bytes" type="xsd:long" default="10485760" maxOccurs="1" minOccurs="0">
+            <xsd:element name="page-size-bytes" type="xsd:string" default="10485760" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     the page size (in bytes) to use for an address
+                     The page size (in bytes) to use for an address. Supports byte notation like "K", "Mb",
+                     "GB", etc.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
