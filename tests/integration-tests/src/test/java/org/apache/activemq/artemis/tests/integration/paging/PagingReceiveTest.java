@@ -39,6 +39,8 @@ public class PagingReceiveTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
+   private int numMsgs = 500;
+
    protected boolean isNetty() {
       return false;
    }
@@ -46,10 +48,19 @@ public class PagingReceiveTest extends ActiveMQTestBase {
    @Test
    public void testReceive() throws Exception {
       ClientMessage message = receiveMessage();
-      System.out.println("message received:" + message);
-
       assertNotNull("Message not found.", message);
    }
+
+   @Test
+   public void testReceiveThenCheckCounter() throws Exception {
+
+      Queue queue = server.locateQueue(ADDRESS);
+      assertEquals(numMsgs, queue.getMessagesAdded());
+      receiveAllMessages();
+      queue.getPageSubscription().cleanupEntries(true);
+      assertEquals(numMsgs, queue.getMessagesAdded());
+   }
+
 
    @Override
    @Before
@@ -82,7 +93,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
 
       server.stop();
 
-      internalCreateServer();
+      server = internalCreateServer();
 
    }
 
@@ -95,6 +106,22 @@ public class PagingReceiveTest extends ActiveMQTestBase {
 
       locator = createFactory(isNetty());
       return server;
+   }
+
+   private void receiveAllMessages() throws Exception {
+      final ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      session.start();
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      for (int i = 0; i < numMsgs; i++) {
+         ClientMessage message = consumer.receive(2000);
+         assertNotNull(message);
+         message.acknowledge();
+      }
+
+      session.commit();
+      session.close();
    }
 
    private ClientMessage receiveMessage() throws Exception {
