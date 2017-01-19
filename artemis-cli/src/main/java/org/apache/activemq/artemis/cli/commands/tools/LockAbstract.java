@@ -23,10 +23,9 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
 import org.apache.activemq.artemis.cli.CLIException;
-import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-public abstract class LockAbstract extends DataAbstract implements Action {
+public abstract class LockAbstract extends DataAbstract {
 
    // There should be one lock per VM
    // These will be locked as long as the VM is running
