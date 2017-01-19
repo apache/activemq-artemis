@@ -1017,5 +1017,4 @@ public class Create extends InputAbstract {
          c = is.read(buffer);
       }
    }
-
 }

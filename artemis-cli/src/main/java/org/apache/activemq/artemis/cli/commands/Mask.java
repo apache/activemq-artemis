@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.util.OptionsUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 
@@ -98,4 +99,10 @@ public class Mask implements Action {
    public DefaultSensitiveStringCodec getCodec() {
       return codec;
    }
+
+   @Override
+   public void checkOptions(String[] options) throws InvalidOptionsError {
+      OptionsUtil.checkCommandOptions(this.getClass(), options);
+   }
+
 }
