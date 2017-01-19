@@ -58,7 +58,7 @@ ${ping-config.settings}${journal-buffer.settings}${connector-config.settings}
 
       <!-- the system will enter into page mode once you hit this limit.
            This is an estimate in bytes of how much the messages are using in memory -->
-      <global-max-size>104857600</global-max-size>
+      <global-max-size>100Mb</global-max-size>
 
       <acceptors>
          <!-- Acceptor for every supported protocol -->
