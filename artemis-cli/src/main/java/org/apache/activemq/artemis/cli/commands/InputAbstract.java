@@ -126,5 +126,4 @@ public class InputAbstract extends ActionAbstract {
 
       return null;
    }
-
 }

@@ -24,6 +24,8 @@ import java.util.List;
 import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
+import org.apache.activemq.artemis.util.OptionsUtil;
 
 public class HelpData extends Help implements Action {
 
@@ -54,6 +56,11 @@ public class HelpData extends Help implements Action {
       commands.add("data");
       help(global, commands);
       return null;
+   }
+
+   @Override
+   public void checkOptions(String[] options) throws InvalidOptionsError {
+      OptionsUtil.checkCommandOptions(this.getClass(), options);
    }
 
 }

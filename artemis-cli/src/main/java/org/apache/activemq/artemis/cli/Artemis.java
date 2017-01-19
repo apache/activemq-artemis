@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
+import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
@@ -84,12 +85,13 @@ public class Artemis {
       return execute(false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, ActionContext context, String... args) throws Exception {
+
       if (inputEnabled) {
          InputAbstract.enableInput();
       }
       try {
-         return internalExecute(artemisHome, artemisInstance, args);
+         return internalExecute(artemisHome, artemisInstance, args, context);
       } catch (ConfigurationException configException) {
          System.err.println(configException.getMessage());
          System.out.println();
@@ -104,15 +106,19 @@ public class Artemis {
          // this is a programming error that must be visualized and corrected
          e.printStackTrace();
          return e;
-      } catch (RuntimeException re) {
+      } catch (RuntimeException | InvalidOptionsError re) {
          System.err.println(re.getMessage());
          System.out.println();
 
          Cli<Action> parser = builder(null).build();
 
-         parser.parse("help").execute(ActionContext.system());
+         parser.parse("help").execute(context);
          return re;
       }
+   }
+
+   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, String... args) throws Exception {
+      return execute(inputEnabled, artemisHome, artemisInstance, ActionContext.system(), args);
    }
 
    /**
@@ -120,6 +126,11 @@ public class Artemis {
     * Useful on test cases
     */
    public static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
+      return internalExecute(artemisHome, artemisInstance, args, ActionContext.system());
+   }
+
+   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args, ActionContext context) throws Exception {
+
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
 
@@ -132,7 +143,8 @@ public class Artemis {
          System.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
       }
 
-      return action.execute(ActionContext.system());
+      action.checkOptions(args);
+      return action.execute(context);
    }
 
    private static Cli.CliBuilder<Action> builder(File artemisInstance) {

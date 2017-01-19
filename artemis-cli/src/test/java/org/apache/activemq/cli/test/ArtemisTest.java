@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -40,7 +39,6 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.Run;
-import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
 import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
@@ -52,21 +50,16 @@ import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.HashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -79,27 +72,13 @@ import static org.junit.Assert.fail;
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
-public class ArtemisTest {
-
-   @Rule
-   public TemporaryFolder temporaryFolder;
-
-   @Rule
-   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
-
-   private String original = System.getProperty("java.security.auth.login.config");
-
-   public ArtemisTest() {
-      File parent = new File("./target/tmp");
-      parent.mkdirs();
-      temporaryFolder = new TemporaryFolder(parent);
-   }
+public class ArtemisTest extends CliTestBase {
 
    @Before
+   @Override
    public void setup() throws Exception {
       setupAuth();
-      Run.setEmbedded(true);
-      PropertiesLoader.resetUsersAndGroupsCache();
+      super.setup();
    }
 
    public void setupAuth() throws Exception {
@@ -108,21 +87,6 @@ public class ArtemisTest {
 
    public void setupAuth(File folder) throws Exception {
       System.setProperty("java.security.auth.login.config", folder.getAbsolutePath() + "/etc/login.config");
-   }
-
-   @After
-   public void cleanup() {
-      ActiveMQClient.clearThreadPools();
-      System.clearProperty("artemis.instance");
-      Run.setEmbedded(false);
-
-      if (original == null) {
-         System.clearProperty("java.security.auth.login.config");
-      } else {
-         System.setProperty("java.security.auth.login.config", original);
-      }
-
-      LockAbstract.unlock();
    }
 
    @Test
@@ -157,6 +121,13 @@ public class ArtemisTest {
       System.out.println("nanoTime avg = " + nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
+   }
+
+   @Test
+   public void testSimpleCreate() throws Exception {
+      //instance1: default using http
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync");
    }
 
    @Test
