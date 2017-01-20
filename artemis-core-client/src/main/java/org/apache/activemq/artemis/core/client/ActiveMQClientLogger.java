@@ -433,4 +433,8 @@ public interface ActiveMQClientLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void reconnectCreatingNewSession(long id);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214029, value = "Unexpected response from HTTP server: %s")
+   void unexpectedResponseFromHttpServer(Object response);
+
 }
