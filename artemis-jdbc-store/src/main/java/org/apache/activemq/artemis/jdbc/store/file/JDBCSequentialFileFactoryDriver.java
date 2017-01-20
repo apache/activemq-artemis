@@ -69,7 +69,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
    @Override
    protected void prepareStatements() throws SQLException {
       this.deleteFile = connection.prepareStatement(sqlProvider.getDeleteFileSQL());
-      this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), Statement.RETURN_GENERATED_KEYS);
+      this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), new String[] {"ID"});
       this.selectFileByFileName = connection.prepareStatement(sqlProvider.getSelectFileByFileName());
       this.copyFileRecord = connection.prepareStatement(sqlProvider.getCopyFileRecordByIdSQL());
       this.renameFile = connection.prepareStatement(sqlProvider.getUpdateFileNameByIdSQL());
