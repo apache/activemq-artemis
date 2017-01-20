@@ -61,8 +61,8 @@ import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
@@ -312,7 +312,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       serverControl.destroyQueue(name.toString(), true);
       Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return consumer.isClosed();
          }
       }, 1000, 100);
