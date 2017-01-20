@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
@@ -789,7 +789,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return publishList.size() == 2;
          }
       }, 5000);
@@ -802,7 +802,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return publishList.size() == 4;
          }
       }, 5000);
@@ -964,7 +964,7 @@ public class MQTTTest extends MQTTTestSupport {
       connection.connect();
       Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection.isConnected();
          }
       });
@@ -983,7 +983,7 @@ public class MQTTTest extends MQTTTestSupport {
       newConnection.connect();
       Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return newConnection.isConnected();
          }
       });
@@ -1125,7 +1125,7 @@ public class MQTTTest extends MQTTTestSupport {
       assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection.isConnected();
          }
       }));
@@ -1148,7 +1148,7 @@ public class MQTTTest extends MQTTTestSupport {
       assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection.isConnected();
          }
       }));
@@ -1216,14 +1216,14 @@ public class MQTTTest extends MQTTTestSupport {
 
       assertTrue("Duplicate client disconnected", Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection1.isConnected();
          }
       }));
 
       assertTrue("Old client still connected", Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return !connection.isConnected();
          }
       }));
@@ -1413,7 +1413,7 @@ public class MQTTTest extends MQTTTestSupport {
       assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection.isConnected();
          }
       }));
@@ -1611,7 +1611,7 @@ public class MQTTTest extends MQTTTestSupport {
       assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception {
+         public boolean isSatisfied() throws Exception {
             return connection.isConnected();
          }
       }));

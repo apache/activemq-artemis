@@ -82,7 +82,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFac
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
@@ -829,7 +829,7 @@ public class ProtonTest extends ProtonTestBase {
 
          Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
+            public boolean isSatisfied() throws Exception {
                return amqpConnection.isClosed();
             }
          });
@@ -853,7 +853,7 @@ public class ProtonTest extends ProtonTestBase {
 
          Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
+            public boolean isSatisfied() throws Exception {
                return amqpConnection.isClosed();
             }
          });
@@ -1003,7 +1003,7 @@ public class ProtonTest extends ProtonTestBase {
       try {
          Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
+            public boolean isSatisfied() throws Exception {
                return remote.isActive();
             }
          });
@@ -1024,7 +1024,7 @@ public class ProtonTest extends ProtonTestBase {
       try {
          Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
+            public boolean isSatisfied() throws Exception {
                return remote.getConnectionCount() > 0;
             }
          });
@@ -1033,7 +1033,7 @@ public class ProtonTest extends ProtonTestBase {
          lifeCycleListener.stop();
          Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
+            public boolean isSatisfied() throws Exception {
                return remote.getConnectionCount() == 0;
             }
          });
