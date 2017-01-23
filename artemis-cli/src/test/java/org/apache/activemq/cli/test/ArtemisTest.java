@@ -117,7 +117,7 @@ public class ArtemisTest extends CliTestBase {
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true);
       System.out.println();
       System.out.println("TotalAvg = " + totalAvg);
-      long nanoTime = SyncCalculation.toNanos(totalAvg, writes);
+      long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);
       System.out.println("nanoTime avg = " + nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
