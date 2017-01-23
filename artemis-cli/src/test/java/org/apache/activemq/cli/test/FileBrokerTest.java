@@ -65,6 +65,46 @@ public class FileBrokerTest {
    }
 
    @Test
+   public void startTwoBrokersWithSameDataDir() throws Exception {
+      ServerDTO serverDTO1 = new ServerDTO();
+      ServerDTO serverDTO2 = new ServerDTO();
+      serverDTO1.configuration = "FileBrokerTest-broker1.xml";
+      serverDTO2.configuration = "FileBrokerTest-broker2.xml";
+      FileBroker broker1 = new FileBroker(serverDTO1, new ActiveMQJAASSecurityManager());
+      FileBroker broker2 = new FileBroker(serverDTO2, new ActiveMQJAASSecurityManager());
+      try {
+         broker1.start();
+         Assert.assertTrue(broker1.isStarted());
+
+         Thread thread = new Thread(() -> {
+            try {
+               broker2.start();
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+         });
+         thread.start();
+
+         Assert.assertFalse(broker2.isStarted());
+         //only if broker1 is stopped can broker2 be fully started
+         broker1.stop();
+         broker1 = null;
+
+         thread.join(5000);
+         Assert.assertTrue(broker2.isStarted());
+         broker2.stop();
+
+      } finally {
+         if (broker1 != null) {
+            broker1.stop();
+         }
+         if (broker2 != null) {
+            broker2.stop();
+         }
+      }
+   }
+
+   @Test
    public void testConfigFileReload() throws Exception {
       ServerDTO serverDTO = new ServerDTO();
       serverDTO.configuration = "broker-reload.xml";

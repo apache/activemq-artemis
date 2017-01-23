@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
@@ -61,6 +62,12 @@ public class LiveOnlyActivation extends Activation {
       try {
          activeMQServer.initialisePart1(false);
 
+         activeMQServer.registerActivateCallback(activeMQServer.getNodeManager().startLiveNode());
+
+         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING) {
+            return;
+         }
+
          activeMQServer.initialisePart2(false);
 
          activeMQServer.completeActivation();
@@ -81,6 +88,16 @@ public class LiveOnlyActivation extends Activation {
       if (scaleDownServerLocator != null) {
          scaleDownServerLocator.close();
          scaleDownServerLocator = null;
+      }
+
+      NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
+
+      if (nodeManagerInUse != null) {
+         if (permanently) {
+            nodeManagerInUse.crashLiveServer();
+         } else {
+            nodeManagerInUse.pauseLiveServer();
+         }
       }
    }
 
