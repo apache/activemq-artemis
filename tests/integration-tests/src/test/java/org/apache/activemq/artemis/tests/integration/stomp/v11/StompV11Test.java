@@ -31,13 +31,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
+import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
+import org.apache.activemq.artemis.tests.integration.stomp.util.AbstractStompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -2112,6 +2116,49 @@ public class StompV11Test extends StompTestBase {
 
       conn.disconnect();
    }
+
+
+   @Test
+   public void testHeartBeat3() throws Exception {
+
+      connection.close();
+      ClientStompFrame frame = conn.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "500,500");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      ClientStompFrame reply = conn.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("500,500", reply.getHeader("heart-beat"));
+
+
+      System.out.println("========== start pinger!");
+
+      conn.startPinger(100);
+
+
+      Assert.assertEquals(1, server.getActiveMQServer().getRemotingService().getConnections().size());
+      StompConnection stompConnection = (StompConnection)server.getActiveMQServer().getRemotingService().getConnections().iterator().next();
+      StompFrameHandlerV11 stompFrameHandler = (StompFrameHandlerV11)stompConnection.getStompVersionHandler();
+
+      Thread.sleep(1000);
+
+      //now check the frame size
+      int size = conn.getServerPingNumber();
+
+      conn.stopPinger();
+      ((AbstractStompClientConnection)conn).killReaderThread();
+      Wait.waitFor(() -> {
+         return server.getActiveMQServer().getRemotingService().getConnections().size() == 0;
+      });
+
+      Assert.assertFalse(stompFrameHandler.getHeartBeater().isStarted());
+   }
+
 
    protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {
       conn.connect(defUser, defPass);
