@@ -62,7 +62,8 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<>();
 
    protected boolean connected = false;
-   private int serverPingCounter;
+   protected int serverPingCounter;
+   protected ReaderThread readerThread;
 
    public AbstractStompClientConnection(String version, String host, int port) throws IOException {
       this.version = version;
@@ -85,7 +86,13 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       readBuffer = ByteBuffer.allocateDirect(10240);
       receiveList = new ArrayList<>(10240);
 
-      new ReaderThread().start();
+      readerThread = new ReaderThread();
+      readerThread.start();
+      //new ReaderThread().start();
+   }
+
+   public void killReaderThread() {
+      readerThread.stop();
    }
 
    @Override

@@ -58,7 +58,7 @@ public abstract class StompV11TestBase extends ActiveMQTestBase {
 
    private ConnectionFactory connectionFactory;
 
-   private Connection connection;
+   protected Connection connection;
 
    protected Session session;
 
