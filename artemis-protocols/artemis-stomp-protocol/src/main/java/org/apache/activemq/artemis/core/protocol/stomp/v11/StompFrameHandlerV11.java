@@ -57,6 +57,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       decoder.init();
    }
 
+   public ActiveMQScheduledComponent getHeartBeater() {
+      return heartBeater;
+   }
+
    @Override
    public StompFrame onConnect(StompFrame frame) {
       StompFrame response = null;
@@ -131,15 +135,22 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       //client receive ping
       long minAcceptInterval = Long.valueOf(params[1]);
 
-      heartBeater = new HeartBeater(scheduledExecutorService, executorFactory.getExecutor(), minPingInterval, minAcceptInterval);
+      if (heartBeater == null) {
+         heartBeater = new HeartBeater(scheduledExecutorService, executorFactory.getExecutor(), minPingInterval, minAcceptInterval);
+      }
    }
 
    @Override
    public StompFrame onDisconnect(StompFrame frame) {
+      disconnect();
+      return null;
+   }
+
+   @Override
+   protected void disconnect() {
       if (this.heartBeater != null) {
          heartBeater.shutdown();
       }
-      return null;
    }
 
    @Override
