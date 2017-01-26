@@ -110,6 +110,10 @@ public final class StompConnection implements RemotingConnection {
       return false;
    }
 
+   public VersionedStompFrameHandler getStompVersionHandler() {
+      return frameHandler;
+   }
+
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       StompFrame frame = null;
       try {
@@ -343,6 +347,11 @@ public final class StompConnection implements RemotingConnection {
       }
 
       ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+
+      if (frameHandler != null) {
+         frameHandler.disconnect();
+      }
+
       // Then call the listeners
       callFailureListeners(me);
 
