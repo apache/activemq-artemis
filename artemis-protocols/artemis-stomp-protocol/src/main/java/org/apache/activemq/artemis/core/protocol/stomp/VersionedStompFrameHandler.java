@@ -43,6 +43,9 @@ public abstract class VersionedStompFrameHandler {
    protected final ScheduledExecutorService scheduledExecutorService;
    protected final ExecutorFactory executorFactory;
 
+   protected void disconnect() {
+   }
+
    public static VersionedStompFrameHandler getHandler(StompConnection connection,
                                                        StompVersions version,
                                                        ScheduledExecutorService scheduledExecutorService,
