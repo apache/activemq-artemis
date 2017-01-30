@@ -78,7 +78,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    private ClientStompFrame sendFrameInternal(ClientStompFrame frame, boolean wicked) throws IOException, InterruptedException {
       ClientStompFrame response = null;
-      IntegrationTestLogger.LOGGER.info("Sending " + (wicked ? "*wicked* " : "") + "frame:\n" + frame);
+      IntegrationTestLogger.LOGGER.trace("Sending " + (wicked ? "*wicked* " : "") + "frame:\n" + frame);
       ByteBuffer buffer;
       if (wicked) {
          buffer = frame.toByteBufferWithExtra("\n");
@@ -103,7 +103,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          }
       }
 
-      IntegrationTestLogger.LOGGER.info("Received:\n" + response);
+      IntegrationTestLogger.LOGGER.trace("Received:\n" + response);
 
       return response;
    }

@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -105,7 +106,13 @@ public class StompTestWithInterceptors extends StompTestBase {
          Thread.sleep(10);
       }
 
+      Wait.waitFor(() -> {
+         return  MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size() == 4;
+      });
       Assert.assertEquals(4, MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size());
+      Wait.waitFor(() -> {
+         return  MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size() == 3;
+      });
       Assert.assertEquals(3, MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size());
 
       for (int i = 0; i < MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size(); i++) {

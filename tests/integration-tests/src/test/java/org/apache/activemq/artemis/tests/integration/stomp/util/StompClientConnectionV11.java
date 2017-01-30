@@ -81,7 +81,7 @@ public class StompClientConnectionV11 extends StompClientConnectionV10 {
          this.passcode = passcode;
          this.connected = true;
       } else {
-         System.out.println("Connection failed with frame " + response);
+         System.err.println("Connection failed with frame " + response);
          connected = false;
       }
    }
