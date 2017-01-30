@@ -49,6 +49,10 @@ public class SyncCalculation {
                                boolean fsync,
                                boolean aio) throws Exception {
       SequentialFileFactory factory = newFactory(datafolder, fsync, aio);
+
+      if (verbose) {
+         System.out.println("Using " + factory.getClass().getName() + " to calculate sync times");
+      }
       SequentialFile file = factory.createSequentialFile("test.tmp");
 
       try {
@@ -106,9 +110,9 @@ public class SyncCalculation {
 
             if (verbose) {
                double writesPerMillisecond = (double) blocks / (double) result[ntry];
-               System.out.println("Time = " + result[ntry]);
+               System.out.println("Time = " + result[ntry] + " milliseconds");
                System.out.println("Writes / millisecond = " + dcformat.format(writesPerMillisecond));
-               System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks));
+               System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks, verbose));
                System.out.println("**************************************************");
             }
          }
@@ -139,13 +143,21 @@ public class SyncCalculation {
       }
    }
 
-   public static long toNanos(long time, long blocks) {
+   public static long toNanos(long time, long blocks, boolean verbose) {
 
       double blocksPerMillisecond = (double) blocks / (double) (time);
+
+      if (verbose) {
+         System.out.println("Blocks per millisecond::" + blocksPerMillisecond);
+      }
 
       long nanoSeconds = TimeUnit.NANOSECONDS.convert(1, TimeUnit.MILLISECONDS);
 
       long timeWait = (long) (nanoSeconds / blocksPerMillisecond);
+
+      if (verbose) {
+         System.out.println("your system could make a sync every " + timeWait + " nanoseconds, and this will be your timeout");
+      }
 
       return timeWait;
    }
