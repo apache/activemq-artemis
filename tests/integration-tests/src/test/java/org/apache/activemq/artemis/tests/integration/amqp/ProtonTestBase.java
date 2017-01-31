@@ -58,6 +58,9 @@ public class ProtonTestBase extends ActiveMQTestBase {
 
       amqpServer.getConfiguration().setAcceptorConfigurations(Collections.singleton(transportConfiguration));
       amqpServer.getConfiguration().setName(brokerName);
+      amqpServer.getConfiguration().setJournalDirectory(amqpServer.getConfiguration().getJournalDirectory() + port);
+      amqpServer.getConfiguration().setBindingsDirectory(amqpServer.getConfiguration().getBindingsDirectory() + port);
+      amqpServer.getConfiguration().setPagingDirectory(amqpServer.getConfiguration().getPagingDirectory() + port);
 
       // Default Page
       AddressSettings addressSettings = new AddressSettings();
