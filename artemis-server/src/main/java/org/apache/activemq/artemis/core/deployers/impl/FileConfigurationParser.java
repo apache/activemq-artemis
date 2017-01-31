@@ -499,6 +499,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (s.equals(JournalType.NIO.toString())) {
          config.setJournalType(JournalType.NIO);
+      } else if (s.equals(JournalType.MAPPED.toString())) {
+         config.setJournalType(JournalType.MAPPED);
       } else if (s.equals(JournalType.ASYNCIO.toString())) {
          // https://jira.jboss.org/jira/browse/HORNETQ-295
          // We do the check here to see if AIO is supported so we can use the correct defaults and/or use
