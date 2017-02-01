@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -33,6 +36,18 @@ import org.junit.Test;
 public class AmqpDeliveryAnnotationsTest extends AmqpClientTestSupport {
 
    private final String DELIVERY_ANNOTATION_NAME = "TEST-DELIVERY-ANNOTATION";
+
+   @Override
+   protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
+      Configuration configuration = super.createDefaultConfig(serverID, netty);
+      Set<TransportConfiguration> acceptorConfigurations = configuration.getAcceptorConfigurations();
+      for (TransportConfiguration acceptorConfiguration : acceptorConfigurations) {
+         if (acceptorConfiguration.getName().equals("netty")) {
+            acceptorConfiguration.getExtraParams().put("transformer", "jms");
+         }
+      }
+      return configuration;
+   }
 
    @Test(timeout = 60000)
    public void testDeliveryAnnotationsStrippedFromIncoming() throws Exception {

@@ -54,7 +54,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    private final ActiveMQServer server;
 
-   private MessageConverter protonConverter;
+   private ProtonMessageConverter protonConverter;
 
    private final ProtonProtocolManagerFactory factory;
 
@@ -192,5 +192,9 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    @Override
    public Map<SimpleString, RoutingType> getPrefixes() {
       return prefixes;
+   }
+
+   public void setTransformer(String transformer) {
+      protonConverter.setTransformer(transformer);
    }
 }

@@ -25,6 +25,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMe
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_VALUE_NULL;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_VALUE_STRING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_NATIVE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE;
@@ -80,6 +81,7 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
          Message amqpMessage = encodedMessage.decode();
          transformedMessage = createServerMessage(amqpMessage);
          populateMessage(transformedMessage, amqpMessage);
+         transformedMessage.setBooleanProperty(JMS_AMQP_NATIVE, false);
       } catch (Exception ex) {
          InboundTransformer transformer = this.getFallbackTransformer();
 

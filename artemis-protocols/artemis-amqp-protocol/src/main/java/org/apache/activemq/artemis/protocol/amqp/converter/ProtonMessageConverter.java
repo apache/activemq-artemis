@@ -27,11 +27,13 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPNativeInboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPNativeOutboundTransformer;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPRawInboundTransformer;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.AutoOutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.InboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingInboundTransformer;
-import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingOutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.OutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
@@ -44,12 +46,14 @@ import io.netty.buffer.Unpooled;
 public class ProtonMessageConverter implements MessageConverter {
 
    public ProtonMessageConverter(IDGenerator idGenerator) {
-      inboundTransformer = new JMSMappingInboundTransformer(idGenerator);
-      outboundTransformer = new JMSMappingOutboundTransformer(idGenerator);
+      inboundTransformer = new AMQPNativeInboundTransformer(idGenerator);
+      outboundTransformer = new AutoOutboundTransformer(idGenerator);
+      this.idGenerator = idGenerator;
    }
 
-   private final InboundTransformer inboundTransformer;
-   private final OutboundTransformer outboundTransformer;
+   private InboundTransformer inboundTransformer;
+   private OutboundTransformer outboundTransformer;
+   private final IDGenerator idGenerator;
 
    @Override
    public ServerMessage inbound(Object messageSource) throws Exception {
@@ -96,6 +100,18 @@ public class ProtonMessageConverter implements MessageConverter {
          }
       } else {
          return outboundTransformer.transform(jmsMessage, buffer);
+      }
+   }
+
+   public void setTransformer(String transformer) {
+      if (InboundTransformer.TRANSFORMER_JMS.equals(transformer)) {
+         inboundTransformer = new JMSMappingInboundTransformer(idGenerator);
+      } else if (InboundTransformer.TRANSFORMER_NATIVE.equals(transformer)) {
+         inboundTransformer = new AMQPNativeInboundTransformer(idGenerator);
+      } else if (InboundTransformer.TRANSFORMER_RAW.equals(transformer)) {
+         inboundTransformer = new AMQPRawInboundTransformer(idGenerator);
+      } else {
+         inboundTransformer = new AMQPNativeInboundTransformer(idGenerator);
       }
    }
 }
