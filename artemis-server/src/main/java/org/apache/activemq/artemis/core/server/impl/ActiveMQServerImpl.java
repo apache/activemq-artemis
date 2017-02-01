@@ -2472,8 +2472,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (transientQueue) {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queue.getName()));
-      } else if (queue.isAutoCreated()) {
-         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this, queue.getName()));
+      } else {
+         queue.setConsumersRefCount(new QueueManagerImpl(this, queue.getName()));
       }
 
       final QueueBinding localQueueBinding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
