@@ -45,7 +45,7 @@ public class NIOImportExportTest extends JournalImplTestBase {
 
    @Test
    public void testExportImport() throws Exception {
-      setup(10, 10 * 1024, true);
+      setup(10, 10 * 4096, true);
 
       createJournal();
 
@@ -99,7 +99,7 @@ public class NIOImportExportTest extends JournalImplTestBase {
 
    @Test
    public void testExportImport3() throws Exception {
-      setup(10, 10 * 1024, true);
+      setup(10, 10 * 4096, true);
 
       createJournal();
 
@@ -162,7 +162,7 @@ public class NIOImportExportTest extends JournalImplTestBase {
 
    @Test
    public void testExportImport2() throws Exception {
-      setup(10, 10 * 1024, true);
+      setup(10, 10 * 4096, true);
 
       createJournal();
 

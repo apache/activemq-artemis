@@ -37,7 +37,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
    private final Map<String, FakeSequentialFile> fileMap = new ConcurrentHashMap<>();
 
-   private final int alignment;
+   private volatile int alignment;
 
    private final boolean supportsCallback;
 
@@ -196,6 +196,12 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    @Override
    public int getAlignment() {
       return alignment;
+   }
+
+   @Override
+   public FakeSequentialFileFactory setAlignment(int alignment) {
+      this.alignment = alignment;
+      return this;
    }
 
    // Package protected ---------------------------------------------
@@ -460,11 +466,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
                holdCallbackListener.callbackAdded(bytes);
             }
          }
-      }
-
-      @Override
-      public int getAlignment() throws Exception {
-         return alignment;
       }
 
       @Override

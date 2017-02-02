@@ -54,6 +54,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    protected boolean dataSync = true;
 
+   protected volatile int alignment = -1;
+
    private final IOCriticalErrorListener critialErrorListener;
 
    /**
@@ -81,6 +83,20 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.bufferTimeout = bufferTimeout;
       this.critialErrorListener = criticalErrorListener;
       this.maxIO = maxIO;
+   }
+
+   @Override
+   public int getAlignment() {
+      if (alignment < 0) {
+         alignment = 1;
+      }
+      return alignment;
+   }
+
+   @Override
+   public AbstractSequentialFileFactory setAlignment(int alignment) {
+      this.alignment = alignment;
+      return this;
    }
 
 
