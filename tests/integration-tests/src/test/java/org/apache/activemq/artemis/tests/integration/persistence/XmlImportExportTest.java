@@ -27,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -47,6 +49,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
@@ -96,7 +99,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -147,6 +150,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -167,14 +172,17 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
          assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
          assertEquals(i, msg.getObjectProperty("myObjectProperty"));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullObjectProperty")));
          assertEquals(null, msg.getObjectProperty("myNullObjectProperty"));
          assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
          assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullStringProperty")));
          assertEquals(null, msg.getStringProperty("myNullStringProperty"));
          assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
          assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
          assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
-         assertEquals(null, msg.getSimpleStringProperty(new SimpleString("myNullSimpleStringProperty")));
+         assertEquals(true, msg.getPropertyNames().contains(SimpleString.toSimpleString("myNullSimpleStringProperty")));
+         assertEquals(null, msg.getSimpleStringProperty("myNullSimpleStringProperty"));
       }
    }
 
@@ -202,7 +210,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -239,6 +247,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -268,7 +278,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.TEXT_TYPE, true);
@@ -293,6 +303,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -311,7 +323,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
@@ -336,6 +348,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -352,7 +366,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -381,6 +395,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -396,8 +412,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testBindingAttributes() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue("addressName1", "queueName1", true);
-      session.createQueue("addressName1", "queueName2", "bob", true);
+      session.createQueue("addressName1", RoutingType.MULTICAST, "queueName1", true);
+      session.createQueue("addressName1", RoutingType.MULTICAST, "queueName2", "bob", true);
 
       session.close();
       locator.close();
@@ -417,6 +433,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString("queueName1"));
@@ -452,7 +470,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       fileMessage.releaseResources();
 
-      session.createQueue("A", "A", true);
+      session.createQueue("A", RoutingType.MULTICAST, "A", true);
 
       ClientProducer prod = session.createProducer("A");
 
@@ -480,6 +498,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       session.close();
       session = factory.createSession(false, false);
@@ -507,6 +527,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "test");
       Connection c = cf.createConnection();
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      server.createQueue(SimpleString.toSimpleString("A"), RoutingType.ANYCAST, SimpleString.toSimpleString("A"), null, true, false);
       MessageProducer p = s.createProducer(ActiveMQJMSClient.createQueue("A"));
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
       StringBuilder stringBuilder = new StringBuilder();
@@ -533,9 +554,11 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
-      xmlDataImporter.process(inputStream, session);
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session);
       session.close();
 
       c = cf.createConnection();
@@ -553,8 +576,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testPartialQueue() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue("myAddress", "myQueue1", true);
-      session.createQueue("myAddress", "myQueue2", true);
+      session.createQueue("myAddress", RoutingType.MULTICAST, "myQueue1", true);
+      session.createQueue("myAddress", RoutingType.MULTICAST, "myQueue2", true);
 
       ClientProducer producer = session.createProducer("myAddress");
 
@@ -586,6 +609,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
       consumer = session.createConsumer("myQueue1");
       session.start();
@@ -618,8 +643,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, MY_QUEUE, true);
-      session.createQueue(MY_ADDRESS, MY_QUEUE2, true);
+      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
+      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE2, true);
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -650,6 +675,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
@@ -686,7 +713,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, MY_QUEUE, true);
+      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -715,6 +742,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
@@ -747,7 +776,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(MY_ADDRESS, MY_QUEUE, true);
+      session.createQueue(MY_ADDRESS, RoutingType.MULTICAST, MY_QUEUE, true);
 
       ClientProducer producer = session.createProducer(MY_ADDRESS);
 
@@ -793,6 +822,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
@@ -824,7 +855,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    public void testTransactional() throws Exception {
       ClientSession session = basicSetUp();
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -850,6 +881,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -867,7 +900,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -894,6 +927,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -916,7 +951,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
 
-      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+      session.createQueue(QUEUE_NAME, RoutingType.MULTICAST, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
@@ -948,6 +983,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
       xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
@@ -962,5 +999,45 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       session.close();
       locator.close();
       server.stop();
+   }
+
+   @Test
+   public void testRoutingTypes() throws Exception {
+      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      ClientSession session = basicSetUp();
+
+      Set<RoutingType> routingTypes = new HashSet<>();
+      routingTypes.add(RoutingType.ANYCAST);
+      routingTypes.add(RoutingType.MULTICAST);
+
+      session.createAddress(myAddress, routingTypes, false);
+
+      session.createQueue(myAddress.toString(), RoutingType.MULTICAST, "myQueue1", true);
+      session.createQueue(myAddress.toString(), RoutingType.MULTICAST, "myQueue2", true);
+
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      System.out.print(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = locator.createSessionFactory();
+      session = factory.createSession(false, false, true);
+      ClientSession managementSession = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
+
+      assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.ANYCAST));
+      assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.MULTICAST));
    }
 }
