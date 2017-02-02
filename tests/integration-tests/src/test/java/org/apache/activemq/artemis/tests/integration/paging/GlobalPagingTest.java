@@ -43,8 +43,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class GlobalPagingTest extends PagingTest {
 
-   public GlobalPagingTest(StoreConfiguration.StoreType storeType) {
-      super(storeType);
+   public GlobalPagingTest(StoreConfiguration.StoreType storeType, boolean mapped) {
+      super(storeType, mapped);
    }
 
    @Override

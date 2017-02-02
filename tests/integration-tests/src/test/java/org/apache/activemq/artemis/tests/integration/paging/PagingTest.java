@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -109,17 +110,20 @@ public class PagingTest extends ActiveMQTestBase {
 
    protected static final int PAGE_SIZE = 10 * 1024;
 
+   protected final boolean mapped;
+
    protected final StoreConfiguration.StoreType storeType;
 
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
-   public PagingTest(StoreConfiguration.StoreType storeType) {
+   public PagingTest(StoreConfiguration.StoreType storeType, boolean mapped) {
       this.storeType = storeType;
+      this.mapped = mapped;
    }
 
-   @Parameterized.Parameters(name = "storeType={0}")
+   @Parameterized.Parameters(name = "storeType={0}, mapped={1}")
    public static Collection<Object[]> data() {
-      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE, false}, {StoreConfiguration.StoreType.FILE, true}, {StoreConfiguration.StoreType.DATABASE, false}};
       return Arrays.asList(params);
    }
 
@@ -5654,6 +5658,8 @@ public class PagingTest extends ActiveMQTestBase {
       Configuration configuration = super.createDefaultInVMConfig().setJournalSyncNonTransactional(false);
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          setDBStoreType(configuration);
+      } else if (mapped) {
+         configuration.setJournalType(JournalType.MAPPED);
       }
       return configuration;
    }
