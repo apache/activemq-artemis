@@ -114,11 +114,6 @@ final class MappedSequentialFile implements SequentialFile {
    }
 
    @Override
-   public int getAlignment() {
-      return 0;
-   }
-
-   @Override
    public int calculateBlockStart(int position) {
       return position;
    }

@@ -79,6 +79,8 @@ public interface SequentialFileFactory {
 
    int getAlignment();
 
+   SequentialFileFactory setAlignment(int alignment);
+
    int calculateBlockSize(int bytes);
 
    File getDirectory();

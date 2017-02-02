@@ -16,6 +16,32 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+
 public enum JournalType {
-   NIO, ASYNCIO;
+   NIO, ASYNCIO, MAPPED;
+
+   public static final String validValues;
+
+   static {
+      StringBuffer stringBuffer = new StringBuffer();
+      for (JournalType type : JournalType.values()) {
+
+         if (stringBuffer.length() != 0) {
+            stringBuffer.append(",");
+         }
+
+         stringBuffer.append(type.name());
+      }
+
+      validValues = stringBuffer.toString();
+   }
+
+   public static JournalType getType(String type) {
+      switch (type) {
+         case "NIO": return NIO;
+         case "ASYNCIO" : return ASYNCIO;
+         default: throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
+      }
+   }
+
 }

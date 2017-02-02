@@ -20,13 +20,35 @@ package org.apache.activemq.artemis.cli.commands.tools;
 import java.text.DecimalFormat;
 
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
 
-@Command(name = "sync", description = "Calculates the journal-buffer-timeout you should use with the current data folder")
-public class SyncRecalc extends LockAbstract {
+@Command(name = "perf-journal", description = "Calculates the journal-buffer-timeout you should use with the current data folder")
+public class PerfJournal extends LockAbstract {
+
+
+   @Option(name = "--block-size", description = "The block size for each write (default 4096)")
+   public int size = 4 * 1024;
+
+
+   @Option(name = "--writes", description = "The number of writes to be performed (default 250)")
+   public int writes = 250;
+
+   @Option(name = "--tries", description = "The number of tries for the test (default 5)")
+   public int tries = 5;
+
+   @Option(name = "--no-sync", description = "Disable sync")
+   public boolean nosyncs = false;
+
+   @Option(name = "--sync", description = "Enable syncs")
+   public boolean syncs = false;
+
+   @Option(name = "--journal-type", description = "Journal Type to be used (default from broker.xml)")
+   public String journalType = null;
+
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -34,11 +56,26 @@ public class SyncRecalc extends LockAbstract {
 
       FileConfiguration fileConfiguration = getFileConfiguration();
 
-      int writes = 250;
+      if (nosyncs) {
+         fileConfiguration.setJournalDatasync(false);
+      } else if (syncs) {
+         fileConfiguration.setJournalDatasync(true);
+      }
+
+
+      if (journalType != null) {
+         fileConfiguration.setJournalType(JournalType.getType(journalType));
+      }
+
       System.out.println("");
       System.out.println("Auto tuning journal ...");
 
-      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), 4096, writes, 5, verbose, fileConfiguration.isJournalDatasync(), fileConfiguration.getJournalType() == JournalType.ASYNCIO);
+      System.out.println("Performing " + tries + " tests writing " + writes + " blocks of " + size + " on each test, sync=" + fileConfiguration.isJournalDatasync() + " with journalType = " + fileConfiguration.getJournalType());
+
+      fileConfiguration.getJournalLocation().mkdirs();
+
+      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), size, writes, tries, verbose, fileConfiguration.isJournalDatasync(), fileConfiguration.getJournalType());
+
       long nanosecondsWait = SyncCalculation.toNanos(time, writes, verbose);
       double writesPerMillisecond = (double) writes / (double) time;
 

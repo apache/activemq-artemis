@@ -479,7 +479,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          performNonTransactionalDelete = false;
       }
 
-      setup(2, 60 * 1024, false);
+      setup(2, 60 * 4096, false);
 
       ArrayList<Long> liveIDs = new ArrayList<>();
 

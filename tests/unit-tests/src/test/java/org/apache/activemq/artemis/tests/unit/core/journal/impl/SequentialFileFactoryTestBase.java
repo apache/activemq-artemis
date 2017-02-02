@@ -132,11 +132,11 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       try {
 
-         checkFill(sf, 2048);
+         checkFill(factory, sf, 2048);
 
-         checkFill(sf, 512);
+         checkFill(factory, sf, 512);
 
-         checkFill(sf, 512 * 4);
+         checkFill(factory, sf, 512 * 4);
       } finally {
          sf.close();
       }
@@ -226,19 +226,19 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       sf.write(bb1, true);
       long bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes1.length, sf.getAlignment()), bytesWritten);
+      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
       initialPos = sf.position();
       sf.write(bb2, true);
       bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes2.length, sf.getAlignment()), bytesWritten);
+      Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
 
       initialPos = sf.position();
       sf.write(bb3, true);
       bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes3.length, sf.getAlignment()), bytesWritten);
+      Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
 
       sf.position(0);
 
@@ -247,20 +247,20 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       ByteBuffer rb3 = factory.newBuffer(bytes3.length);
 
       int bytesRead = sf.read(rb1);
-      Assert.assertEquals(calculateRecordSize(bytes1.length, sf.getAlignment()), bytesRead);
+      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesRead);
 
       for (int i = 0; i < bytes1.length; i++) {
          Assert.assertEquals(bytes1[i], rb1.get(i));
       }
 
       bytesRead = sf.read(rb2);
-      Assert.assertEquals(calculateRecordSize(bytes2.length, sf.getAlignment()), bytesRead);
+      Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesRead);
       for (int i = 0; i < bytes2.length; i++) {
          Assert.assertEquals(bytes2[i], rb2.get(i));
       }
 
       bytesRead = sf.read(rb3);
-      Assert.assertEquals(calculateRecordSize(bytes3.length, sf.getAlignment()), bytesRead);
+      Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesRead);
       for (int i = 0; i < bytes3.length; i++) {
          Assert.assertEquals(bytes3[i], rb3.get(i));
       }
@@ -291,19 +291,19 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          sf.write(wrapBuffer(bytes1), true);
          long bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes1.length, sf.getAlignment()), bytesWritten);
+         Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
          initialPos = sf.position();
          sf.write(wrapBuffer(bytes2), true);
          bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes2.length, sf.getAlignment()), bytesWritten);
+         Assert.assertEquals(calculateRecordSize(bytes2.length, factory.getAlignment()), bytesWritten);
 
          initialPos = sf.position();
          sf.write(wrapBuffer(bytes3), true);
          bytesWritten = sf.position() - initialPos;
 
-         Assert.assertEquals(calculateRecordSize(bytes3.length, sf.getAlignment()), bytesWritten);
+         Assert.assertEquals(calculateRecordSize(bytes3.length, factory.getAlignment()), bytesWritten);
 
          byte[] rbytes1 = new byte[bytes1.length];
 
@@ -315,7 +315,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          ByteBuffer rb2 = factory.newBuffer(rbytes2.length);
          ByteBuffer rb3 = factory.newBuffer(rbytes3.length);
 
-         sf.position(calculateRecordSize(bytes1.length, sf.getAlignment()) + calculateRecordSize(bytes2.length, sf.getAlignment()));
+         sf.position(calculateRecordSize(bytes1.length, factory.getAlignment()) + calculateRecordSize(bytes2.length, factory.getAlignment()));
 
          int bytesRead = sf.read(rb3);
          Assert.assertEquals(rb3.limit(), bytesRead);
@@ -361,7 +361,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       sf.write(wrapBuffer(bytes1), true);
       long bytesWritten = sf.position() - initialPos;
 
-      Assert.assertEquals(calculateRecordSize(bytes1.length, sf.getAlignment()), bytesWritten);
+      Assert.assertEquals(calculateRecordSize(bytes1.length, factory.getAlignment()), bytesWritten);
 
       sf.close();
 
@@ -386,7 +386,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       return ActiveMQBuffers.wrappedBuffer(bytes);
    }
 
-   protected void checkFill(final SequentialFile file, final int size) throws Exception {
+   protected void checkFill(final SequentialFileFactory factory, final SequentialFile file, final int size) throws Exception {
       file.fill(size);
 
       file.close();
@@ -399,7 +399,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       int bytesRead = file.read(bb);
 
-      Assert.assertEquals(calculateRecordSize(size, file.getAlignment()), bytesRead);
+      Assert.assertEquals(calculateRecordSize(size, factory.getAlignment()), bytesRead);
 
       for (int i = 0; i < size; i++) {
          // log.debug(" i is " + i);
