@@ -79,16 +79,8 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    }
 
    @Override
-   public int getAlignment() {
-      // TODO: get the alignment from the file system, but we have to cache this, we can't call it every time
-      /* checkOpened();
-      return aioFile.getBlockSize(); */
-      return 512;
-   }
-
-   @Override
    public int calculateBlockStart(final int position) {
-      int alignment = getAlignment();
+      int alignment = factory.getAlignment();
 
       int pos = (position / alignment + (position % alignment != 0 ? 1 : 0)) * alignment;
 

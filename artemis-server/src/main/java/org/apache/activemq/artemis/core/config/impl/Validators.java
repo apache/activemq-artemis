@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.util.EnumSet;
+
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -123,7 +125,7 @@ public final class Validators {
       @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
-         if (val == null || !val.equals(JournalType.NIO.toString()) && !val.equals(JournalType.ASYNCIO.toString())) {
+         if (val == null || !EnumSet.allOf(JournalType.class).contains(JournalType.valueOf(val))) {
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType(val);
          }
       }

@@ -43,8 +43,6 @@ public interface SequentialFile {
 
    boolean fits(int size);
 
-   int getAlignment() throws Exception;
-
    int calculateBlockStart(int position) throws Exception;
 
    String getFileName();

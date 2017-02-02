@@ -119,11 +119,6 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
-   public int getAlignment() throws Exception {
-      return 0;
-   }
-
-   @Override
    public int calculateBlockStart(int position) throws Exception {
       return 0;
    }

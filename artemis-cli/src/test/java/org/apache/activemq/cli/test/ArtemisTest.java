@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -150,13 +151,33 @@ public class ArtemisTest {
    public void testSync() throws Exception {
       int writes = 20;
       int tries = 10;
-      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true);
+      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, JournalType.NIO);
       System.out.println();
       System.out.println("TotalAvg = " + totalAvg);
       long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);
       System.out.println("nanoTime avg = " + nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
+   }
+
+   @Test
+   public void testSimpleCreate() throws Exception {
+      //instance1: default using http
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync");
+   }
+
+
+   @Test
+   public void testSimpleCreateMapped() throws Throwable {
+      try {
+         //instance1: default using http
+         File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+         Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--mapped");
+      } catch (Throwable e) {
+         e.printStackTrace();
+         throw e;
+      }
    }
 
    @Test
@@ -526,6 +547,20 @@ public class ArtemisTest {
    @Test
    public void testSpaces() throws Exception {
       testSimpleRun("with space");
+   }
+
+
+   @Test
+   public void testPerfJournal() throws Exception {
+      File instanceFolder = temporaryFolder.newFolder("server1");
+      setupAuth(instanceFolder);
+
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--no-autotune", "--require-login");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5000", "--tries", "50", "--verbose");
+
    }
 
 

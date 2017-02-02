@@ -40,6 +40,7 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
@@ -203,11 +204,14 @@ public class Create extends InputAbstract {
    @Option(name = "--topics", description = "comma separated list of jms topics ")
    String topics;
 
-   @Option(name = "--aio", description = "Force aio journal on the configuration regardless of the library being available or not.")
-   boolean forceLibaio;
+   @Option(name = "--aio", description = "sets the journal as asyncio.")
+   boolean aio;
 
-   @Option(name = "--nio", description = "Force nio journal on the configuration regardless of the library being available or not.")
-   boolean forceNIO;
+   @Option(name = "--nio", description = "sets the journal as nio.")
+   boolean nio;
+
+   // this is used by the setupJournalType method
+   private JournalType journalType;
 
    @Option(name = "--disable-persistence", description = "Disable message persistence to the journal")
    boolean disablePersistence;
@@ -520,14 +524,12 @@ public class Create extends InputAbstract {
          throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
       }
    }
-
    public Object run(ActionContext context) throws Exception {
-      if (forceLibaio && forceNIO) {
-         throw new RuntimeException("You can't specify --nio and --aio in the same execution.");
-      }
 
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
       IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
+
+      setupJournalType();
 
       // requireLogin should set alloAnonymous=false, to avoid user's questions
       if (requireLogin != null && requireLogin.booleanValue()) {
@@ -565,15 +567,7 @@ public class Create extends InputAbstract {
          filters.put("${shared-store.settings}", "");
       }
 
-      boolean aio;
-
-      if (IS_WINDOWS || !supportsLibaio()) {
-         aio = false;
-         filters.put("${journal.settings}", "NIO");
-      } else {
-         aio = true;
-         filters.put("${journal.settings}", "ASYNCIO");
-      }
+      filters.put("${journal.settings}", journalType.name());
 
       if (sslKey != null) {
          filters.put("${web.protocol}", "https");
@@ -761,6 +755,38 @@ public class Create extends InputAbstract {
       return null;
    }
 
+   private void setupJournalType() {
+      int countJournalTypes = countBoolean(aio, nio);
+      if (countJournalTypes > 1) {
+         throw new RuntimeException("You can only select one journal type (--nio | --aio | --mapped).");
+      }
+
+      if (countJournalTypes == 0) {
+         if (supportsLibaio()) {
+            aio = true;
+         } else {
+            nio = true;
+         }
+      }
+
+      if (aio) {
+         journalType = JournalType.ASYNCIO;
+      } else if (nio) {
+         journalType = JournalType.NIO;
+      }
+   }
+
+
+   private static int countBoolean(boolean...b) {
+      int count = 0;
+
+      for (boolean itemB : b) {
+         if (itemB) count++;
+      }
+
+      return count;
+   }
+
    private String getLogManager() throws IOException {
       String logManager = "";
       File dir = new File(path(getHome().toString(), false) + "/lib");
@@ -805,7 +831,7 @@ public class Create extends InputAbstract {
             System.out.println("");
             System.out.println("Auto tuning journal ...");
 
-            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, aio);
+            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, journalType);
             long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
             double writesPerMillisecond = (double) writes / (double) time;
 
@@ -829,11 +855,7 @@ public class Create extends InputAbstract {
    }
 
    public boolean supportsLibaio() {
-      if (forceLibaio) {
-         // forcing libaio
-         return true;
-      } else if (forceNIO) {
-         // forcing NIO
+      if (IS_WINDOWS) {
          return false;
       } else if (LibaioContext.isLoaded()) {
          try (LibaioContext context = new LibaioContext(1, true, true)) {
