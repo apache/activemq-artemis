@@ -180,7 +180,7 @@ public class SyncCalculation {
       switch (journalType) {
 
          case NIO:
-            factory = new NIOSequentialFileFactory(datafolder, 1);
+            factory = new NIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
             factory.start();
             return factory;
          case ASYNCIO:
