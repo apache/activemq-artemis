@@ -74,8 +74,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    private final Executor completeExecutor;
 
-   private final Object journalLock = new Object();
-
    private final ScheduledExecutorService scheduledExecutorService;
 
    // Track Tx Records
@@ -135,11 +133,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    @Override
    public synchronized void stop() throws SQLException {
       if (started) {
-         synchronized (journalLock) {
-            sync();
-            started = false;
-            super.stop();
-         }
+         sync();
+         started = false;
+         super.stop();
       }
    }
 
@@ -305,7 +301,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          record.setIoCompletion(callback);
       }
 
-      synchronized (journalLock) {
+      synchronized (this) {
          if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
             addTxRecord(record);
          }
