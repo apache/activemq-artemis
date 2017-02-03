@@ -24,10 +24,14 @@ import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
@@ -47,8 +51,8 @@ public class SyncCalculation {
                                int tries,
                                boolean verbose,
                                boolean fsync,
-                               boolean aio) throws Exception {
-      SequentialFileFactory factory = newFactory(datafolder, fsync, aio);
+                               JournalType journalType) throws Exception {
+      SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks);
 
       if (verbose) {
          System.out.println("Using " + factory.getClass().getName() + " to calculate sync times");
@@ -60,6 +64,8 @@ public class SyncCalculation {
          file.open();
 
          file.fill(blockSize * blocks);
+
+         file.close();
 
          long[] result = new long[tries];
 
@@ -94,6 +100,7 @@ public class SyncCalculation {
                System.out.println("**************************************************");
                System.out.println(ntry + " of " + tries + " calculation");
             }
+            file.open();
             file.position(0);
             long start = System.currentTimeMillis();
             for (int i = 0; i < blocks; i++) {
@@ -115,6 +122,7 @@ public class SyncCalculation {
                System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks, verbose));
                System.out.println("**************************************************");
             }
+            file.close();
          }
 
          factory.releaseDirectBuffer(bufferBlock);
@@ -162,17 +170,36 @@ public class SyncCalculation {
       return timeWait;
    }
 
-   private static SequentialFileFactory newFactory(File datafolder, boolean datasync, boolean aio) {
-      if (aio && LibaioContext.isLoaded()) {
-         SequentialFileFactory factory = new AIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
-         factory.start();
-         ((AIOSequentialFileFactory) factory).disableBufferReuse();
+   private static SequentialFileFactory newFactory(File datafolder, boolean datasync, JournalType journalType, int fileSize) {
+      SequentialFileFactory factory;
 
-         return factory;
-      } else {
-         SequentialFileFactory factory = new NIOSequentialFileFactory(datafolder, 1);
-         factory.start();
-         return factory;
+      if (journalType == JournalType.ASYNCIO && !LibaioContext.isLoaded()) {
+         journalType = JournalType.NIO;
+      }
+
+      switch (journalType) {
+
+         case NIO:
+            factory = new NIOSequentialFileFactory(datafolder, 1);
+            factory.start();
+            return factory;
+         case ASYNCIO:
+            factory = new AIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
+            factory.start();
+            ((AIOSequentialFileFactory) factory).disableBufferReuse();
+            return factory;
+         case MAPPED:
+            factory = new MappedSequentialFileFactory(datafolder, new IOCriticalErrorListener() {
+               @Override
+               public void onIOException(Throwable code, String message, SequentialFile file) {
+
+               }
+            }, true).chunkBytes(fileSize).overlapBytes(0).setDatasync(datasync);
+
+            factory.start();
+            return factory;
+         default:
+            throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(journalType);
       }
    }
 }

@@ -39,6 +39,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
+      //stop journal first to let it manage its files
+      stopComponent(journal);
+
       List<String> files = fileFactory.listFiles(fileExtension);
 
       for (String file : files) {

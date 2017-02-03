@@ -21,6 +21,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
@@ -113,7 +115,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    @Override
    protected void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
 
-      if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO) {
+      if (!EnumSet.allOf(JournalType.class).contains(config.getJournalType())) {
          throw ActiveMQMessageBundle.BUNDLE.invalidJournal();
       }
 
@@ -125,21 +127,28 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       bindingsJournal = localBindings;
       originalBindingsJournal = localBindings;
 
-      if (config.getJournalType() == JournalType.ASYNCIO) {
-         ActiveMQServerLogger.LOGGER.journalUseAIO();
+      switch (config.getJournalType()) {
 
-         journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
-      } else if (config.getJournalType() == JournalType.NIO) {
-         ActiveMQServerLogger.LOGGER.journalUseNIO();
-         journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
-      } else {
-         throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
+         case NIO:
+            ActiveMQServerLogger.LOGGER.journalUseNIO();
+            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            break;
+         case ASYNCIO:
+            ActiveMQServerLogger.LOGGER.journalUseAIO();
+            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            break;
+         case MAPPED:
+            ActiveMQServerLogger.LOGGER.journalUseMAPPED();
+            //the mapped version do not need buffering by default
+            journalFF = new MappedSequentialFileFactory(config.getJournalLocation(), criticalErrorListener, true).chunkBytes(config.getJournalFileSize()).overlapBytes(0);
+            break;
+         default:
+            throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
       }
 
       journalFF.setDatasync(config.isJournalDatasync());
 
-
-      Journal localMessage = new JournalImpl(ioExecutors, config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", config.getJournalType() == JournalType.ASYNCIO ? config.getJournalMaxIO_AIO() : config.getJournalMaxIO_NIO(), 0);
+      Journal localMessage = new JournalImpl(ioExecutors, config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0);
 
       messageJournal = localMessage;
       originalMessageJournal = localMessage;
