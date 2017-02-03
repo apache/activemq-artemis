@@ -130,7 +130,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       opened = true;
 
       try {
-         aioFile = aioFactory.libaioContext.openFile(getFile(), true);
+         aioFile = aioFactory.libaioContext.openFile(getFile(), factory.isDatasync());
       } catch (IOException e) {
          factory.onIOError(e, e.getMessage(), this);
          throw new ActiveMQNativeIOError(e.getMessage(), e);
