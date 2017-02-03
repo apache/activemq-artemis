@@ -14,35 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.tests.integration.journal;
 
+import java.io.File;
 
-public enum JournalType {
-   NIO, ASYNCIO, MAPPED;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-   public static final String validValues;
+public class MappedJournalCompactTest extends NIOJournalCompactTest {
 
-   static {
-      StringBuffer stringBuffer = new StringBuffer();
-      for (JournalType type : JournalType.values()) {
+   @Override
+   protected SequentialFileFactory getFileFactory() throws Exception {
+      File file = new File(getTestDir());
 
-         if (stringBuffer.length() != 0) {
-            stringBuffer.append(",");
-         }
+      ActiveMQTestBase.deleteDirectory(file);
 
-         stringBuffer.append(type.name());
-      }
+      file.mkdir();
 
-      validValues = stringBuffer.toString();
+      return new MappedSequentialFileFactory(getTestDirfile());
    }
-
-   public static JournalType getType(String type) {
-      switch (type) {
-         case "NIO": return NIO;
-         case "ASYNCIO" : return ASYNCIO;
-         case "MAPPED" : return MAPPED;
-         default: throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
-      }
-   }
-
 }

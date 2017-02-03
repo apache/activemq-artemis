@@ -1558,8 +1558,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224072, value = "Message Counter Sample Period too short: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidMessageCounterPeriod(long value);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224073, value = "Using MAPPED Journal", format = Message.Format.MESSAGE_FORMAT)
+   void journalUseMAPPED();
+
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224073, value = "Failed to purge queue {0} on no consumers", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 224074, value = "Failed to purge queue {0} on no consumers", format = Message.Format.MESSAGE_FORMAT)
    void failedToPurgeQueue(@Cause Exception e, SimpleString bindingName);
 
 }
