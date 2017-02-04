@@ -35,7 +35,8 @@ Or simply use the start-broker.sh script on this directory
 
 - Compile the code
 
-You need to restore the package, build and run so .NET may download your packages from NuGET:
+You need call restore to download AMQP Library and build it.
+Restore is part of NuGET which is sort of the Maven Repo for Java devs.
 
 ```sh
 dotnet restore
