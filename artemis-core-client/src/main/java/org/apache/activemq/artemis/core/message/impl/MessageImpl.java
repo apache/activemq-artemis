@@ -162,8 +162,10 @@ public abstract class MessageImpl implements MessageInternal {
             buffer.setIndex(other.buffer.readerIndex(), buffer.capacity());
 
             bodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, this);
+
             bodyBuffer.readerIndex(BODY_OFFSET);
             bodyBuffer.writerIndex(other.getBodyBuffer().writerIndex());
+            endOfBodyPosition = other.endOfBodyPosition;
          }
       }
    }
