@@ -1,3 +1,4 @@
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -1612,5 +1613,34 @@ public class MQTTTest extends MQTTTestSupport {
       }));
 
       connection.disconnect();
+   }
+
+   @Test
+   public void testRetainedMessagesAreCorrectlyFormedAfterRestart() throws Exception {
+      String clientId = "testMqtt";
+      String address = "testAddress";
+      String payload = "This is a test message";
+
+      // Send MQTT Retain Message
+      Topic[] mqttTopic = new Topic[]{new Topic(address, QoS.AT_LEAST_ONCE)};
+
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId(clientId);
+      BlockingConnection connection1 = mqtt.blockingConnection();
+      connection1.connect();
+      connection1.publish(address, payload.getBytes(), QoS.AT_LEAST_ONCE, true);
+
+      getServer().stop(false);
+      getServer().start();
+      waitForServerToStart(getServer());
+
+      MQTT mqtt2 = createMQTTConnection();
+      mqtt2.setClientId(clientId + "2");
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(mqttTopic);
+
+      Message message = connection2.receive();
+      assertEquals(payload, new String(message.getPayload()));
    }
 }
