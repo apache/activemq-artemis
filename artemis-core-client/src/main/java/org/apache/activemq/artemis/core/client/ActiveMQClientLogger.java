@@ -404,8 +404,8 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void invalidProtocol(String validProtocols);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 214023, value = "HTTP Handshake failed, the received accept value %s does not match the expected response %s")
-   void httpHandshakeFailed(String response, String expectedResponse);
+   @Message(id = 214023, value = "HTTP Handshake failed, received %s")
+   void httpHandshakeFailed(Object msg);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214024, value = "HTTP upgrade not supported by remote acceptor")
