@@ -45,6 +45,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private final StorageManager storageManager;
    private final ScheduledExecutorService scheduledPool;
+   private final int quorumSize;
 
    private CountDownLatch latch;
 
@@ -66,9 +67,11 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    public SharedNothingBackupQuorum(StorageManager storageManager,
                                     NodeManager nodeManager,
                                     ScheduledExecutorService scheduledPool,
-                                    NetworkHealthCheck networkHealthCheck) {
+                                    NetworkHealthCheck networkHealthCheck,
+                                    int quorumSize) {
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
+      this.quorumSize = quorumSize;
       this.latch = new CountDownLatch(1);
       this.nodeManager = nodeManager;
       this.networkHealthCheck = networkHealthCheck;
@@ -257,8 +260,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * @return the voting decision
     */
    private boolean isLiveDown() {
-      // we use 1 less than the max cluste size as we arent bothered about the replicated live node
-      int size = quorumManager.getMaxClusterSize();
+      int size = quorumSize == -1 ? quorumManager.getMaxClusterSize() : quorumSize;
 
       QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, storageManager);
 

@@ -41,6 +41,16 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
    /*
+   * whether or not this live broker should vote to remain live
+   * */
+   private boolean voteOnReplicationFailure;
+
+   /*
+   * what quorum size to use for voting
+   * */
+   private int quorumSize;
+
+   /*
    * this are only used as the policy when the server is started as a live after a failover
    * */
    private ReplicaPolicy replicaPolicy;
@@ -56,15 +66,16 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            String groupName,
                            String clusterName,
                            long initialReplicationSyncTimeout,
-                           NetworkHealthCheck networkHealthCheck) {
+                           NetworkHealthCheck networkHealthCheck,
+                           boolean voteOnReplicationFailure,
+                           int quorumSize) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.networkHealthCheck = networkHealthCheck;
-      /*
-      * we create this with sensible defaults in case we start after a failover
-      * */
+      this.voteOnReplicationFailure = voteOnReplicationFailure;
+      this.quorumSize = quorumSize;
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -73,7 +84,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            String groupName,
                            String clusterName,
                            ReplicaPolicy replicaPolicy,
-                           NetworkHealthCheck networkHealthCheck) {
+                           NetworkHealthCheck networkHealthCheck,
+                           boolean voteOnReplicationFailure,
+                           int quorumSize) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -81,6 +94,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.replicaPolicy = replicaPolicy;
       this.networkHealthCheck = networkHealthCheck;
+      this.voteOnReplicationFailure = voteOnReplicationFailure;
+      this.quorumSize = quorumSize;
    }
 
    public boolean isCheckForLiveServer() {
@@ -123,6 +138,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    public ReplicaPolicy getReplicaPolicy() {
       if (replicaPolicy == null) {
          replicaPolicy = new ReplicaPolicy(networkHealthCheck, this);
+         replicaPolicy.setQuorumSize(quorumSize);
+         replicaPolicy.setVoteOnReplicationFailure(voteOnReplicationFailure);
          if (clusterName != null && clusterName.length() > 0) {
             replicaPolicy.setClusterName(clusterName);
          }
@@ -182,11 +199,23 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.allowAutoFailBack = allowAutoFailBack;
    }
 
+   public boolean isVoteOnReplicationFailure() {
+      return voteOnReplicationFailure;
+   }
+
    @Override
    public LiveActivation createActivation(ActiveMQServerImpl server,
                                           boolean wasLive,
                                           Map<String, Object> activationParams,
                                           ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) {
       return new SharedNothingLiveActivation(server, this);
+   }
+
+   public int getQuorumSize() {
+      return quorumSize;
+   }
+
+   public void setQuorumSize(int quorumSize) {
+      this.quorumSize = quorumSize;
    }
 }
