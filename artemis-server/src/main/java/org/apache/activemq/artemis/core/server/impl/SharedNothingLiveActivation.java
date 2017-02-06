@@ -52,6 +52,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.jboss.logging.Logger;
 
@@ -215,7 +217,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
       @Override
       public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-         connectionClosed();
+         handleClose(true);
       }
 
       @Override
@@ -225,6 +227,10 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
       @Override
       public void connectionClosed() {
+         handleClose(false);
+      }
+
+      private void handleClose(boolean failed) {
          ExecutorService executorService = activeMQServer.getThreadPool();
          if (executorService != null) {
             executorService.execute(new Runnable() {
@@ -234,6 +240,45 @@ public class SharedNothingLiveActivation extends LiveActivation {
                      if (replicationManager != null) {
                         activeMQServer.getStorageManager().stopReplication();
                         replicationManager = null;
+
+                        if (failed && replicatedPolicy.isVoteOnReplicationFailure()) {
+                           QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
+                           int size = replicatedPolicy.getQuorumSize() == -1 ? quorumManager.getMaxClusterSize() : replicatedPolicy.getQuorumSize();
+
+                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getStorageManager());
+
+                           quorumManager.vote(quorumVote);
+
+                           try {
+                              quorumVote.await(5, TimeUnit.SECONDS);
+                           } catch (InterruptedException interruption) {
+                              // No-op. The best the quorum can do now is to return the latest number it has
+                           }
+
+                           quorumManager.voteComplete(quorumVote);
+
+                           if (!quorumVote.getDecision()) {
+                              try {
+                                 Thread startThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                       try {
+                                          if (logger.isTraceEnabled()) {
+                                             logger.trace("Calling activeMQServer.stop() to stop the server");
+                                          }
+                                          activeMQServer.stop();
+                                       } catch (Exception e) {
+                                          ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
+                                       }
+                                    }
+                                 });
+                                 startThread.start();
+                                 startThread.join();
+                              } catch (Exception e) {
+                                 e.printStackTrace();
+                              }
+                           }
+                        }
                      }
                   }
                }

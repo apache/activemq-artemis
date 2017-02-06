@@ -1983,6 +1983,20 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Whether or not this live broker should vote to remain as live if replication is lost.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="quorum-size" type="xsd:integer" default="-1" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The quorum size used for voting after replication loss, -1 means use the current cluster size
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
    </xsd:complexType>
    <xsd:complexType name="replicaPolicyType">
@@ -2052,6 +2066,22 @@
                   If we have to start as a replicated server this is the amount of time to wait for the replica to
                   acknowledge it has received all the necessary data from the replicating server at the final step
                   of the initial replication synchronization process.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  If we have to start as a replicated server decide whether or not this live broker should vote to remain
+                  as live if replication is lost.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="quorum-size" type="xsd:integer" default="-1" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  If we have to start as a replicated server or we are a backup and lose connection to live, the quorum size
+                  used for voting after replication loss, -1 means use the current cluster size
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

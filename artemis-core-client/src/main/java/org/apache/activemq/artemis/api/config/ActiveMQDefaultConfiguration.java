@@ -467,6 +467,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final String DEFAULT_INTERNAL_NAMING_PREFIX = "$.artemis.internal.";
 
+   public static boolean DEFAULT_VOTE_ON_REPLICATION_FAILURE = false;
+
+   public static int DEFAULT_QUORUM_SIZE = -1;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1260,4 +1264,11 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_NETWORK_CHECK_NIC;
    }
 
+   public static boolean getDefaultVoteOnReplicationFailure() {
+      return DEFAULT_VOTE_ON_REPLICATION_FAILURE;
+   }
+
+   public static int getDefaultQuorumSize() {
+      return DEFAULT_QUORUM_SIZE;
+   }
 }
