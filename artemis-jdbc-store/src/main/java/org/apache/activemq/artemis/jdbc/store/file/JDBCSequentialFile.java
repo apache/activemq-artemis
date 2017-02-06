@@ -47,7 +47,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private boolean isCreated = false;
 
-   private int id = -1;
+   private long id = -1;
 
    private long readPosition = 0;
 
@@ -328,11 +328,11 @@ public class JDBCSequentialFile implements SequentialFile {
       }
    }
 
-   public int getId() {
+   public long getId() {
       return id;
    }
 
-   public void setId(int id) {
+   public void setId(long id) {
       this.id = id;
    }
 

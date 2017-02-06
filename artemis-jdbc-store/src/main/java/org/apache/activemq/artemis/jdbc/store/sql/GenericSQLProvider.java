@@ -61,7 +61,7 @@ public class GenericSQLProvider implements SQLProvider {
       this.tableName = tableName;
 
       createFileTableSQL = "CREATE TABLE " + tableName +
-         "(ID INT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
+         "(ID BIGINT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
 
       insertFileSQL = "INSERT INTO " + tableName + " (FILENAME, EXTENSION, DATA) VALUES (?,?,?)";
 

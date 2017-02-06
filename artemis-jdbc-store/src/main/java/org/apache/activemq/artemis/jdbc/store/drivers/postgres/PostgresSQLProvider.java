@@ -31,7 +31,7 @@ public class PostgresSQLProvider extends GenericSQLProvider {
    private PostgresSQLProvider(String tName) {
       super(tName.toLowerCase());
       createFileTableSQL = "CREATE TABLE " + tableName +
-         "(ID SERIAL, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA OID, PRIMARY KEY(ID))";
+         "(ID BIGSERIAL, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA OID, PRIMARY KEY(ID))";
 
       createJournalTableSQL = new String[] {
          "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BYTEA,txDataSize INTEGER,txData BYTEA,txCheckNoRecords INTEGER,seq BIGINT)",

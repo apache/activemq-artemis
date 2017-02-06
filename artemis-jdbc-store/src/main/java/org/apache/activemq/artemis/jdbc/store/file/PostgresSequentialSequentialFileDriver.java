@@ -19,18 +19,31 @@ package org.apache.activemq.artemis.jdbc.store.file;
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
-public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver {
+public final class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver {
 
    private static final String POSTGRES_OID_KEY = "POSTGRES_OID_KEY";
 
    public PostgresSequentialSequentialFileDriver() throws SQLException {
       super();
+   }
+
+   @Override
+   protected void prepareStatements() throws SQLException {
+      this.deleteFile = connection.prepareStatement(sqlProvider.getDeleteFileSQL());
+      this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), Statement.RETURN_GENERATED_KEYS);
+      this.selectFileByFileName = connection.prepareStatement(sqlProvider.getSelectFileByFileName());
+      this.copyFileRecord = connection.prepareStatement(sqlProvider.getCopyFileRecordByIdSQL());
+      this.renameFile = connection.prepareStatement(sqlProvider.getUpdateFileNameByIdSQL());
+      this.readLargeObject = connection.prepareStatement(sqlProvider.getReadLargeObjectSQL());
+      this.appendToLargeObject = connection.prepareStatement(sqlProvider.getAppendToLargeObjectSQL());
+      this.selectFileNamesByExtension = connection.prepareStatement(sqlProvider.getSelectFileNamesByExtensionSQL());
    }
 
    @Override
@@ -49,7 +62,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
 
             try (ResultSet keys = createFile.getGeneratedKeys()) {
                keys.next();
-               file.setId(keys.getInt(1));
+               file.setId(keys.getLong(1));
             }
             connection.commit();
          } catch (SQLException e) {
@@ -63,7 +76,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
    public void loadFile(JDBCSequentialFile file) throws SQLException {
       synchronized (connection) {
          connection.setAutoCommit(false);
-         readLargeObject.setInt(1, file.getId());
+         readLargeObject.setLong(1, file.getId());
 
          try (ResultSet rs = readLargeObject.executeQuery()) {
             if (rs.next()) {
@@ -133,7 +146,7 @@ public class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFa
       if (oid == null) {
          synchronized (connection) {
             connection.setAutoCommit(false);
-            readLargeObject.setInt(1, file.getId());
+            readLargeObject.setLong(1, file.getId());
             try (ResultSet rs = readLargeObject.executeQuery()) {
                if (rs.next()) {
                   file.addMetaData(POSTGRES_OID_KEY, rs.getLong(1));
