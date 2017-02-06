@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.jboss.logging.Logger;
 
@@ -361,7 +361,7 @@ public final class Page implements Comparable<Page> {
 
    private synchronized Set<PageSubscriptionCounter> getOrCreatePendingCounters() {
       if (pendingCounters == null) {
-         pendingCounters = new ConcurrentHashSet<>();
+         pendingCounters = new NonBlockingHashSet<>();
       }
 
       return pendingCounters;

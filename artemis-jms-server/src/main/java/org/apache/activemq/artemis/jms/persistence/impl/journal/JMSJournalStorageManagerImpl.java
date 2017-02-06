@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -64,11 +64,11 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    private volatile boolean started;
 
-   private final Map<String, PersistedConnectionFactory> mapFactories = new ConcurrentHashMap<>();
+   private final Map<String, PersistedConnectionFactory> mapFactories = new NonBlockingHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new ConcurrentHashMap<>();
+   private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new NonBlockingHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new ConcurrentHashMap<>();
+   private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new NonBlockingHashMap<>();
 
    private final Configuration config;
 

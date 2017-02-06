@@ -27,7 +27,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,7 +45,7 @@ import org.w3c.dom.Document;
 @Path(Constants.PATH_FOR_QUEUES)
 public class QueueDestinationsResource {
 
-   private final Map<String, QueueResource> queues = new ConcurrentHashMap<>();
+   private final Map<String, QueueResource> queues = new NonBlockingHashMap<>();
    private final QueueServiceManager manager;
 
    public QueueDestinationsResource(QueueServiceManager manager) {

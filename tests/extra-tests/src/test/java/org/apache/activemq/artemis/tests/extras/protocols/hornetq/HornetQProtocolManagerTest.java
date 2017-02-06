@@ -23,7 +23,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -85,8 +85,8 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
       connectionFactory2.createConnection().close();
 
       RecoveryManager manager = new RecoveryManager();
-      manager.register(connectionFactory, null, null, new ConcurrentHashMap<String, String>());
-      manager.register(connectionFactory2, null, null, new ConcurrentHashMap<String, String>());
+      manager.register(connectionFactory, null, null, new NonBlockingHashMap<String, String>());
+      manager.register(connectionFactory2, null, null, new NonBlockingHashMap<String, String>());
 
       for (XARecoveryConfig resource : manager.getResources()) {
          try (ServerLocator locator = resource.createServerLocator();

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -62,7 +62,7 @@ public class JDBCSequentialFile implements SequentialFile {
    private final JDBCSequentialFileFactoryDriver dbDriver;
 
    // Allows DB Drivers to cache meta data.
-   private final Map<Object, Object> metaData = new ConcurrentHashMap<>();
+   private final Map<Object, Object> metaData = new NonBlockingHashMap<>();
 
    JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
                       final String filename,

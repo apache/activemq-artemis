@@ -55,7 +55,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.jboss.logging.Logger;
 
@@ -882,7 +882,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       private WeakReference<PageCache> cache;
 
-      private final Set<PagePosition> removedReferences = new ConcurrentHashSet<>();
+      private final Set<PagePosition> removedReferences = new NonBlockingHashSet<>();
 
       // The page was live at the time of the creation
       private final boolean wasLive;

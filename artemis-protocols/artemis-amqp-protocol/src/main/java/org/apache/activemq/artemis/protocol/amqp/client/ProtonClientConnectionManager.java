@@ -27,16 +27,16 @@ import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleList
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMap;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages the lifecycle of a proton client connection.
  */
 public class ProtonClientConnectionManager implements BaseConnectionLifeCycleListener<ProtonProtocolManager>, BufferHandler {
-   private final Map<Object, ActiveMQProtonRemotingConnection> connectionMap = new ConcurrentHashMap<>();
+   private final Map<Object, ActiveMQProtonRemotingConnection> connectionMap = new NonBlockingHashMap<>();
    private static final Logger log = Logger.getLogger(ProtonClientConnectionManager.class);
    private final AMQPClientConnectionFactory connectionFactory;
    private final Optional<EventHandler> eventHandler;

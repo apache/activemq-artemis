@@ -31,8 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -73,12 +71,13 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackR
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
+import org.jctools.maps.NonBlockingHashSet;
 
 /**
  * <p>A circular log implementation.</p>
@@ -167,12 +166,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private final JournalFilesRepository filesRepository;
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<JournalRecord> records = new NonBlockingHashMapLong<>();
 
-   private final Set<Long> pendingRecords = new ConcurrentHashSet<>();
+   private final NonBlockingHashMapLong<Boolean> pendingRecords = new NonBlockingHashMapLong<>();
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalTransaction> transactions = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<JournalTransaction> transactions = new NonBlockingHashMapLong<>();
 
    // This will be set only while the JournalCompactor is being executed
    private volatile JournalCompactor compactor;
@@ -185,7 +184,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private Executor appendExecutor = null;
 
-   private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
+   private Set<CountDownLatch> latches = new NonBlockingHashSet<>();
 
    private final ExecutorFactory providedIOThreadPool;
    protected ExecutorFactory ioExecutorFactory;
@@ -718,7 +717,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
       lineUpContext(callback);
-      pendingRecords.add(id);
+      pendingRecords.put(id,Boolean.TRUE);
 
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
@@ -911,30 +910,38 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    private void checkKnownRecordID(final long id) throws Exception {
-      if (records.containsKey(id) || pendingRecords.contains(id) || (compactor != null && compactor.lookupRecord(id))) {
-         return;
+      boolean isKnown = records.containsKey(id) || pendingRecords.containsKey(id);
+      if (!isKnown) {
+         //load volatile compactor only one time
+         final JournalCompactor compactor = JournalImpl.this.compactor;
+         isKnown = (compactor != null && compactor.lookupRecord(id));
       }
+      if (!isKnown) {
 
-      final SimpleFuture<Boolean> known = new SimpleFuture<>();
+         final SimpleFuture<Boolean> known = new SimpleFuture<>();
 
-      // retry on the append thread. maybe the appender thread is not keeping up.
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            try {
-
-               known.set(records.containsKey(id)
-                  || pendingRecords.contains(id)
-                  || (compactor != null && compactor.lookupRecord(id)));
-            } finally {
-               journalLock.readLock().unlock();
+         // retry on the append thread. maybe the appender thread is not keeping up.
+         appendExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+               journalLock.readLock().lock();
+               try {
+                  boolean isKnown = records.containsKey(id) || pendingRecords.containsKey(id);
+                  if (!isKnown) {
+                     //load volatile compactor only one time
+                     final JournalCompactor compactor = JournalImpl.this.compactor;
+                     isKnown = (compactor != null && compactor.lookupRecord(id));
+                  }
+                  known.set(isKnown);
+               } finally {
+                  journalLock.readLock().unlock();
+               }
             }
-         }
-      });
+         });
 
-      if (!known.get()) {
-         throw new IllegalStateException("Cannot find add info " + id + " on compactor or current records");
+         if (!known.get()) {
+            throw new IllegalStateException("Cannot find add info " + id + " on compactor or current records");
+         }
       }
    }
 
@@ -1424,7 +1431,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   return;
                }
 
-               compactor = new JournalCompactor(fileFactory, this, filesRepository, records.keySet(), dataFilesToProcess.get(0).getFileID());
+               compactor = new JournalCompactor(fileFactory, this, filesRepository, records.keySetLong(), dataFilesToProcess.get(0).getFileID());
 
                for (Map.Entry<Long, JournalTransaction> entry : transactions.entrySet()) {
                   compactor.addPendingTransaction(entry.getKey(), entry.getValue().getPositiveArray());
@@ -1529,13 +1536,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          } finally {
             // An Exception was probably thrown, and the compactor was not cleared
+            final JournalCompactor compactor = this.compactor;
             if (compactor != null) {
                try {
                   compactor.flush();
                } catch (Throwable ignored) {
                }
 
-               compactor = null;
+               this.compactor = null;
             }
             setAutoReclaim(previousReclaimValue);
          }

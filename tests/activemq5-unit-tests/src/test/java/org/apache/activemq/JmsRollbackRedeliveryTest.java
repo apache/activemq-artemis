@@ -26,7 +26,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.broker.BrokerService;
@@ -112,7 +112,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
+         Map<String, Boolean> rolledback = new NonBlockingHashMap<>();
          while (received.get() < nbMessages) {
             Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue(destinationName);
@@ -148,7 +148,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
+         Map<String, Boolean> rolledback = new NonBlockingHashMap<>();
          Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(destinationName);
          MessageConsumer consumer = session.createConsumer(destination);
@@ -182,7 +182,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
+         Map<String, Boolean> rolledback = new NonBlockingHashMap<>();
          Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(destinationName);
          while (received.get() < nbMessages) {

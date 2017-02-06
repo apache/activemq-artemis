@@ -21,7 +21,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,17 +45,17 @@ public class SimpleAddressManager implements AddressManager {
 
    private static final Logger logger = Logger.getLogger(SimpleAddressManager.class);
 
-   private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new NonBlockingHashMap<>();
 
    /**
     * HashMap<Address, Binding>
     */
-   private final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, Bindings> mappings = new NonBlockingHashMap<>();
 
    /**
     * HashMap<QueueName, Binding>
     */
-   private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, Binding> nameMap = new NonBlockingHashMap<>();
 
    private final BindingsFactory bindingsFactory;
 

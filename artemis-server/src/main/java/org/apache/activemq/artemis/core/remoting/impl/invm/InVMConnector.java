@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.remoting.impl.invm;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -87,7 +87,7 @@ public class InVMConnector extends AbstractConnector {
 
    private final InVMAcceptor acceptor;
 
-   private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, Connection> connections = new NonBlockingHashMap<>();
 
    private volatile boolean started;
 

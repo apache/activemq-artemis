@@ -21,12 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Set;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 
 public class ProcessBuilder {
 
-   static ConcurrentHashSet<Process> processes = new ConcurrentHashSet<>();
+   static Set<Process> processes = new NonBlockingHashSet<>();
 
    static {
       Runtime.getRuntime().addShutdownHook(new Thread() {

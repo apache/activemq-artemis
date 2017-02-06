@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -121,7 +121,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final int reaperPriority;
 
-   private final ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = new NonBlockingHashMap<>();
 
    private final int idCacheSize;
 

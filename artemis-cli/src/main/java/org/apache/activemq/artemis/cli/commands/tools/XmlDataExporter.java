@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,6 +90,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.jctools.maps.NonBlockingHashMap;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends OptionalLocking {
@@ -115,11 +115,11 @@ public final class XmlDataExporter extends OptionalLocking {
 
    private final HashMap<Long, PersistentQueueBindingEncoding> queueBindings = new HashMap<>();
 
-   private final Map<String, PersistedConnectionFactory> jmsConnectionFactories = new ConcurrentHashMap<>();
+   private final Map<String, PersistedConnectionFactory> jmsConnectionFactories = new NonBlockingHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedDestination> jmsDestinations = new ConcurrentHashMap<>();
+   private final Map<Pair<PersistedType, String>, PersistedDestination> jmsDestinations = new NonBlockingHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedBindings> jmsJNDI = new ConcurrentHashMap<>();
+   private final Map<Pair<PersistedType, String>, PersistedBindings> jmsJNDI = new NonBlockingHashMap<>();
 
    long messagesPrinted = 0L;
 

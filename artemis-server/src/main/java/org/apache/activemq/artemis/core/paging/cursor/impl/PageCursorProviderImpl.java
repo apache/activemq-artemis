@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,6 +40,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 /**
  * A PageProviderIMpl
@@ -72,7 +71,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    private final SoftValueHashMap<Long, PageCache> softCache;
 
-   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<PageSubscription> activeCursors = new NonBlockingHashMapLong<>();
 
    // Static --------------------------------------------------------
 

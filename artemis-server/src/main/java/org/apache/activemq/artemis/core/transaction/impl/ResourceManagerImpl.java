@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class ResourceManagerImpl implements ResourceManager {
 
-   private final ConcurrentMap<Xid, Transaction> transactions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Xid, Transaction> transactions = new NonBlockingHashMap<>();
 
    private final List<HeuristicCompletionHolder> heuristicCompletions = new ArrayList<>();
 

@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -161,7 +161,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CertificateUtil;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -278,7 +278,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private FileStoreMonitor fileStoreMonitor;
 
-   private final Map<String, ServerSession> sessions = new ConcurrentHashMap<>();
+   private final Map<String, ServerSession> sessions = new NonBlockingHashMap<>();
 
    private final Semaphore activationLock = new Semaphore(1);
    /**
@@ -287,13 +287,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    private final ReusableLatch activationLatch = new ReusableLatch(0);
 
-   private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
+   private final Set<ActivateCallback> activateCallbacks = new NonBlockingHashSet<>();
 
-   private final Set<ActivationFailureListener> activationFailureListeners = new ConcurrentHashSet<>();
+   private final Set<ActivationFailureListener> activationFailureListeners = new NonBlockingHashSet<>();
 
-   private final Set<PostQueueCreationCallback> postQueueCreationCallbacks = new ConcurrentHashSet<>();
+   private final Set<PostQueueCreationCallback> postQueueCreationCallbacks = new NonBlockingHashSet<>();
 
-   private final Set<PostQueueDeletionCallback> postQueueDeletionCallbacks = new ConcurrentHashSet<>();
+   private final Set<PostQueueDeletionCallback> postQueueDeletionCallbacks = new NonBlockingHashSet<>();
 
    private volatile GroupingHandler groupingHandler;
 
@@ -325,7 +325,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
 
-   private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
+   private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new NonBlockingHashMap();
 
    private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
       @Override

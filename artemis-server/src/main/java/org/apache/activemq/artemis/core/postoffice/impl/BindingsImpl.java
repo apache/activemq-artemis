@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -44,6 +43,8 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 public final class BindingsImpl implements Bindings {
 
@@ -52,11 +53,11 @@ public final class BindingsImpl implements Bindings {
    // This is public as we use on test assertions
    public static final int MAX_GROUP_RETRY = 10;
 
-   private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new NonBlockingHashMap<>();
 
-   private final Map<SimpleString, Integer> routingNamePositions = new ConcurrentHashMap<>();
+   private final Map<SimpleString, Integer> routingNamePositions = new NonBlockingHashMap<>();
 
-   private final Map<Long, Binding> bindingsMap = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<Binding> bindingsMap = new NonBlockingHashMapLong<>();
 
    private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<>();
 

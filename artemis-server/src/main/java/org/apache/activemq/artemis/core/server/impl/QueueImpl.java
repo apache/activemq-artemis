@@ -85,7 +85,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.PriorityLinkedList;
@@ -202,7 +202,7 @@ public class QueueImpl implements Queue {
 
    private Redistributor redistributor;
 
-   private final Set<ScheduledFuture<?>> futures = new ConcurrentHashSet<>();
+   private final Set<ScheduledFuture<?>> futures = new NonBlockingHashSet<>();
 
    private ScheduledFuture<?> redistributorFuture;
 

@@ -20,7 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class FactoryFinder {
@@ -52,7 +52,7 @@ public class FactoryFinder {
     */
    protected static class StandaloneObjectFactory implements ObjectFactory {
 
-      final ConcurrentMap<String, Class> classMap = new ConcurrentHashMap<>();
+      final ConcurrentMap<String, Class> classMap = new NonBlockingHashMap<>();
 
       @Override
       public Object create(final String path) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {

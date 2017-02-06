@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +46,7 @@ public class JournalFileImpl implements JournalFile {
 
    private final int version;
 
-   private final ConcurrentMap<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
+   private final ConcurrentMap<JournalFile, AtomicInteger> negCounts = new NonBlockingHashMap<>();
 
    private static final Logger logger = Logger.getLogger(JournalFileImpl.class);
 

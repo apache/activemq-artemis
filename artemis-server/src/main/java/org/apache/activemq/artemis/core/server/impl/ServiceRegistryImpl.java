@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -63,10 +63,10 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    public ServiceRegistryImpl() {
       this.incomingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
       this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
-      this.connectorServices = new ConcurrentHashMap<>();
-      this.divertTransformers = new ConcurrentHashMap<>();
-      this.bridgeTransformers = new ConcurrentHashMap<>();
-      this.acceptorFactories = new ConcurrentHashMap<>();
+      this.connectorServices = new NonBlockingHashMap<>();
+      this.divertTransformers = new NonBlockingHashMap<>();
+      this.bridgeTransformers = new NonBlockingHashMap<>();
+      this.acceptorFactories = new NonBlockingHashMap<>();
    }
 
    @Override

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -50,9 +50,9 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    private static final Logger logger = Logger.getLogger(LocalGroupingHandler.class);
 
-   private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, GroupBinding> map = new NonBlockingHashMap<>();
 
-   private final ConcurrentMap<SimpleString, List<GroupBinding>> groupMap = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, List<GroupBinding>> groupMap = new NonBlockingHashMap<>();
 
    private final SimpleString name;
 

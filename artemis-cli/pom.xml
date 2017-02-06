@@ -83,6 +83,10 @@
          <version>${commons.lang.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.jctools</groupId>
+         <artifactId>jctools-core</artifactId>
+      </dependency>
+      <dependency>
         <groupId>com.sun.winsw</groupId>
         <artifactId>winsw</artifactId>
         <version>${winsw.version}</version>

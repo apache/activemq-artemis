@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,7 +75,7 @@ import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -147,12 +147,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final AtomicBoolean stopping = new AtomicBoolean(false);
 
-   private final Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
+   private final Map<String, SessionId> sessionIdMap = new NonBlockingHashMap<>();
 
-   private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new ConcurrentHashMap<>();
-   private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new ConcurrentHashMap<>();
+   private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new NonBlockingHashMap<>();
+   private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new NonBlockingHashMap<>();
 
-   private final Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
+   private final Map<SessionId, AMQSession> sessions = new NonBlockingHashMap<>();
 
    private ConnectionState state;
 
@@ -162,7 +162,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * But always without any association with Sessions.
     * This collection will hold nonXA transactions. Hopefully while they are in transit only.
     */
-   private final Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
+   private final Map<TransactionId, Transaction> txMap = new NonBlockingHashMap<>();
 
    private volatile AMQSession advisorySession;
 
@@ -181,7 +181,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private boolean useKeepAlive;
    private long maxInactivityDuration;
 
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
+   private final Set<SimpleString> knownDestinations = new NonBlockingHashSet<>();
 
    private AtomicBoolean disableTtl = new AtomicBoolean(false);
 

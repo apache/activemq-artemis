@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.core.registry;
 
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 public class MapBindingRegistry implements BindingRegistry {
 
-   protected ConcurrentMap<String, Object> registry = new ConcurrentHashMap<>();
+   protected ConcurrentMap<String, Object> registry = new NonBlockingHashMap<>();
 
    @Override
    public Object lookup(String name) {

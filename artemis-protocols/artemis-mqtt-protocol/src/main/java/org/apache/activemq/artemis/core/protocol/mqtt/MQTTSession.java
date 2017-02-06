@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class MQTTSession {
 
-   static Map<String, MQTTSessionState> SESSIONS = new ConcurrentHashMap<>();
+   static Map<String, MQTTSessionState> SESSIONS = new NonBlockingHashMap<>();
 
    private final String id = UUID.randomUUID().toString();
 

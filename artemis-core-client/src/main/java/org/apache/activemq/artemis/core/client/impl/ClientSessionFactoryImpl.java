@@ -62,12 +62,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashSet;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
@@ -93,7 +93,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final long connectionTTL;
 
-   private final Set<ClientSessionInternal> sessions = new ConcurrentHashSet<>();
+   private final Set<ClientSessionInternal> sessions = new NonBlockingHashSet<>();
 
    private final Object createSessionLock = new Object();
 
@@ -121,9 +121,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private int reconnectAttempts;
 
-   private final Set<SessionFailureListener> listeners = new ConcurrentHashSet<>();
+   private final Set<SessionFailureListener> listeners = new NonBlockingHashSet<>();
 
-   private final Set<FailoverEventListener> failoverListeners = new ConcurrentHashSet<>();
+   private final Set<FailoverEventListener> failoverListeners = new NonBlockingHashSet<>();
 
    private Connector connector;
 

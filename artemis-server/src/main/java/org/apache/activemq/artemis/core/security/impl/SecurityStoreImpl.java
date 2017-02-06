@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.cert.X509Certificate;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -36,7 +35,8 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashMap;
+import org.jctools.maps.NonBlockingHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.jboss.logging.Logger;
 
@@ -51,7 +51,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private final ActiveMQSecurityManager securityManager;
 
-   private final ConcurrentMap<String, ConcurrentHashSet<SimpleString>> cache = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, Set<SimpleString>> cache = new NonBlockingHashMap<>();
 
    private final long invalidationInterval;
 
@@ -201,8 +201,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
          }
          // if we get here we're granted, add to the cache
-         ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<>();
-         ConcurrentHashSet<SimpleString> act = cache.putIfAbsent(user + "." + checkType.name(), set);
+         Set<SimpleString> set = new NonBlockingHashSet<>();
+         Set<SimpleString> act = cache.putIfAbsent(user + "." + checkType.name(), set);
          if (act != null) {
             set = act;
          }
@@ -237,7 +237,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
          lastCheck = now;
       } else {
-         ConcurrentHashSet<SimpleString> act = cache.get(user + "." + checkType.name());
+         Set<SimpleString> act = cache.get(user + "." + checkType.name());
          if (act != null) {
             granted = act.contains(dest);
          }

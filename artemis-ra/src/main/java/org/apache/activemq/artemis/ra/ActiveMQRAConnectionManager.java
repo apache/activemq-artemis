@@ -22,7 +22,9 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import java.util.Set;
+
+import org.jctools.maps.NonBlockingHashSet;
 
 /**
  * The connection manager used in non-managed environments.
@@ -47,7 +49,7 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
       }
    }
 
-   ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
+   Set<ManagedConnection> connections = new NonBlockingHashSet<>();
 
    /**
     * Allocates a connection

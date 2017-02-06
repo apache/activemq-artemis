@@ -20,8 +20,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -62,6 +60,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.jctools.maps.NonBlockingHashMapLong;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -374,7 +373,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       final CountDownLatch latchStart = new CountDownLatch(numberOfThreads);
 
-      final ConcurrentHashMap<Long, ServerMessage> buffers = new ConcurrentHashMap<>();
+      final NonBlockingHashMapLong<ServerMessage> buffers = new NonBlockingHashMapLong<>();
 
       final ArrayList<Page> readPages = new ArrayList<>();
 
@@ -477,7 +476,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          throw consumer.e;
       }
 
-      final ConcurrentMap<Long, ServerMessage> buffers2 = new ConcurrentHashMap<>();
+      final NonBlockingHashMapLong<ServerMessage> buffers2 = new NonBlockingHashMapLong<>();
 
       for (Page page : readPages) {
          page.open();

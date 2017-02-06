@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -60,7 +60,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private final Object waitLock = new Object();
 
-   private final Map<String, DiscoveryEntry> connectors = new ConcurrentHashMap<>();
+   private final Map<String, DiscoveryEntry> connectors = new NonBlockingHashMap<>();
 
    private final long timeout;
 

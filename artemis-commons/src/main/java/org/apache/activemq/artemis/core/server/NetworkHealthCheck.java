@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.jctools.maps.NonBlockingHashSet;
 import org.jboss.logging.Logger;
 
 /**
@@ -44,9 +44,9 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    private static final Logger logger = Logger.getLogger(NetworkHealthCheck.class);
 
-   private final Set<ActiveMQComponent> componentList = new ConcurrentHashSet<>();
-   private final Set<InetAddress> addresses = new ConcurrentHashSet<>();
-   private final Set<URL> urls = new ConcurrentHashSet<>();
+   private final Set<ActiveMQComponent> componentList = new NonBlockingHashSet<>();
+   private final Set<InetAddress> addresses = new NonBlockingHashSet<>();
+   private final Set<URL> urls = new NonBlockingHashSet<>();
    private NetworkInterface networkInterface;
 
    public static final String IPV6_DEFAULT_COMMAND = "ping6 -c 1 %2$s";

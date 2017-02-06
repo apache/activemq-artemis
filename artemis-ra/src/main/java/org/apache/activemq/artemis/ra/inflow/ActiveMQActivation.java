@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -117,7 +117,7 @@ public class ActiveMQActivation {
 
    private final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
 
-   private final Map<String, Long> removedNodes = new ConcurrentHashMap<>();
+   private final Map<String, Long> removedNodes = new NonBlockingHashMap<>();
 
    private boolean lastReceived = false;
 

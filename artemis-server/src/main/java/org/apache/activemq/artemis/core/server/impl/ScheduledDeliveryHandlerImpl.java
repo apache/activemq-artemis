@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +33,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 /**
  * Handles scheduling deliveries to a queue at the correct time.
@@ -44,7 +44,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    private final ScheduledExecutorService scheduledExecutor;
 
-   private final Map<Long, Runnable> runnables = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<Runnable> runnables = new NonBlockingHashMapLong<>();
 
    // This contains RefSchedules which are delegates to the real references
    // just adding some information to keep it in order accordingly to the initial operations

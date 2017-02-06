@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -53,12 +52,13 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.jboss.logging.Logger;
+import org.jctools.maps.NonBlockingHashMap;
 
 public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    private static final Logger logger = Logger.getLogger(AMQPConnectionCallback.class);
 
-   private ConcurrentMap<XidImpl, Transaction> transactions = new ConcurrentHashMap<>();
+   private ConcurrentMap<XidImpl, Transaction> transactions = new NonBlockingHashMap<>();
 
    private final ProtonProtocolManager manager;
 

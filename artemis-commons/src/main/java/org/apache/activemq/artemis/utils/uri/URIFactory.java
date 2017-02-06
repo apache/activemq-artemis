@@ -20,13 +20,13 @@ package org.apache.activemq.artemis.utils.uri;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 
 public class URIFactory<T, P> {
 
    private URI defaultURI;
 
-   private final Map<String, URISchema<T, P>> schemas = new ConcurrentHashMap<>();
+   private final Map<String, URISchema<T, P>> schemas = new NonBlockingHashMap<>();
 
    public URI getDefaultURI() {
       return defaultURI;

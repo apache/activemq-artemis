@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.zip.Inflater;
 
@@ -35,9 +34,9 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -50,6 +49,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jctools.maps.NonBlockingHashMapLong;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -65,10 +65,10 @@ public class StompSession implements SessionCallback {
 
    private final BlockingDeque<PendingTask> afterDeliveryTasks = new LinkedBlockingDeque<>();
 
-   private final Map<Long, StompSubscription> subscriptions = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<StompSubscription> subscriptions = new NonBlockingHashMapLong<>();
 
    // key = message ID, value = consumer ID
-   private final Map<Long, Pair<Long, Integer>> messagesToAck = new ConcurrentHashMap<>();
+   private final NonBlockingHashMapLong<Pair<Long, Integer>> messagesToAck = new NonBlockingHashMapLong<>();
 
    private volatile boolean noLocal = false;
 

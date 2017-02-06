@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Pair;
@@ -102,7 +102,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
    private static class TopologyListener implements ClusterTopologyListener {
 
       final String prefix;
-      final Map<String, Pair<TransportConfiguration, TransportConfiguration>> nodes = new ConcurrentHashMap<>();
+      final Map<String, Pair<TransportConfiguration, TransportConfiguration>> nodes = new NonBlockingHashMap<>();
 
       private TopologyListener(String string) {
          prefix = string;

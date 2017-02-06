@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.jctools.maps.NonBlockingHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -152,7 +152,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       return entry;
    }
 
-   private final Map<String, ServerSessionPacketHandler> sessionHandlers = new ConcurrentHashMap<>();
+   private final Map<String, ServerSessionPacketHandler> sessionHandlers = new NonBlockingHashMap<>();
 
    ServerSessionPacketHandler getSessionHandler(final String sessionName) {
       return sessionHandlers.get(sessionName);
