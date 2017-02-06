@@ -104,6 +104,7 @@ import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
@@ -622,7 +623,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Set<RoutingType> set = new HashSet<>();
-         for (String routingType : toList(routingTypes)) {
+         for (String routingType : ListUtil.toList(routingTypes)) {
             set.add(RoutingType.valueOf(routingType));
          }
          final AddressInfo addressInfo = new AddressInfo(new SimpleString(name), set);
@@ -2095,7 +2096,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
          } else {
-            config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
+            config.setStaticConnectors(ListUtil.toList(staticConnectorsOrDiscoveryGroup));
          }
 
          server.deployBridge(config);
@@ -2132,7 +2133,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
          } else {
-            config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
+            config.setStaticConnectors(ListUtil.toList(staticConnectorsOrDiscoveryGroup));
          }
 
          server.deployBridge(config);
@@ -2438,18 +2439,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          return session.getTargetAddresses();
       }
       return new String[0];
-   }
-
-   private static List<String> toList(final String commaSeparatedString) {
-      List<String> list = new ArrayList<>();
-      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
-         return list;
-      }
-      String[] values = commaSeparatedString.split(",");
-      for (String value : values) {
-         list.add(value.trim());
-      }
-      return list;
    }
 
    @Override
