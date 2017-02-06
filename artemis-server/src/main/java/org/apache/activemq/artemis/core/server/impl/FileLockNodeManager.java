@@ -234,6 +234,9 @@ public class FileLockNodeManager extends NodeManager {
       ByteBuffer bb = ByteBuffer.allocateDirect(1);
       bb.put(status);
       bb.position(0);
+      if (!channel.isOpen()) {
+         setUpServerLockFile();
+      }
       channel.write(bb, 0);
       channel.force(true);
    }

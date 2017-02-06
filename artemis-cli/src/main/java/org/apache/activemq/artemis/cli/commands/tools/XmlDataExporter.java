@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,14 +41,10 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -74,19 +69,16 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordId
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentAddressBindingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
-import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -115,11 +107,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
    private final HashMap<Long, PersistentQueueBindingEncoding> queueBindings = new HashMap<>();
 
-   private final Map<String, PersistedConnectionFactory> jmsConnectionFactories = new ConcurrentHashMap<>();
-
-   private final Map<Pair<PersistedType, String>, PersistedDestination> jmsDestinations = new ConcurrentHashMap<>();
-
-   private final Map<Pair<PersistedType, String>, PersistedBindings> jmsJNDI = new ConcurrentHashMap<>();
+   private final HashMap<Long, PersistentAddressBindingEncoding> addressBindings = new HashMap<>();
 
    long messagesPrinted = 0L;
 
@@ -161,7 +149,6 @@ public final class XmlDataExporter extends OptionalLocking {
    private void writeXMLData() throws Exception {
       long start = System.currentTimeMillis();
       getBindings();
-      getJmsBindings();
       processMessageJournal();
       printDataAsXML();
       ActiveMQServerLogger.LOGGER.debug("\n\nProcessing took: " + (System.currentTimeMillis() - start) + "ms");
@@ -298,58 +285,6 @@ public final class XmlDataExporter extends OptionalLocking {
       }
    }
 
-   private void getJmsBindings() throws Exception {
-      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
-
-      Journal jmsJournal = new JournalImpl(1024 * 1024, 2, 2, config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
-
-      jmsJournal.start();
-
-      List<RecordInfo> data = new ArrayList<>();
-
-      ArrayList<PreparedTransactionInfo> list = new ArrayList<>();
-
-      ActiveMQServerLogger.LOGGER.debug("Reading jms bindings journal from " + config.getBindingsDirectory());
-
-      jmsJournal.load(data, list, null);
-
-      for (RecordInfo record : data) {
-         long id = record.id;
-
-         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
-
-         byte rec = record.getUserRecordType();
-
-         if (rec == JMSJournalStorageManagerImpl.CF_RECORD) {
-            PersistedConnectionFactory cf = new PersistedConnectionFactory();
-            cf.decode(buffer);
-            cf.setId(id);
-            ActiveMQServerLogger.LOGGER.info("Found JMS connection factory: " + cf.getName());
-            jmsConnectionFactories.put(cf.getName(), cf);
-         } else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD) {
-            PersistedDestination destination = new PersistedDestination();
-            destination.decode(buffer);
-            destination.setId(id);
-            ActiveMQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
-            jmsDestinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
-         } else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD) {
-            PersistedBindings jndi = new PersistedBindings();
-            jndi.decode(buffer);
-            jndi.setId(id);
-            Pair<PersistedType, String> key = new Pair<>(jndi.getType(), jndi.getName());
-            StringBuilder builder = new StringBuilder();
-            for (String binding : jndi.getBindings()) {
-               builder.append(binding).append(" ");
-            }
-            ActiveMQServerLogger.LOGGER.info("Found JMS JNDI binding data for " + jndi.getType() + " " + jndi.getName() + ": " + builder.toString());
-            jmsJNDI.put(key, jndi);
-         } else {
-            throw new IllegalStateException("Invalid record type " + rec);
-         }
-
-      }
-   }
-
    /**
     * Open the bindings journal and extract all bindings data.
     *
@@ -370,6 +305,9 @@ public final class XmlDataExporter extends OptionalLocking {
          if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
             PersistentQueueBindingEncoding bindingEncoding = (PersistentQueueBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
             queueBindings.put(bindingEncoding.getId(), bindingEncoding);
+         } else if (info.getUserRecordType() == JournalRecordIds.ADDRESS_BINDING_RECORD) {
+            PersistentAddressBindingEncoding bindingEncoding = (PersistentAddressBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
+            addressBindings.put(bindingEncoding.getId(), bindingEncoding);
          }
       }
 
@@ -381,8 +319,6 @@ public final class XmlDataExporter extends OptionalLocking {
          xmlWriter.writeStartDocument(XmlDataConstants.XML_VERSION);
          xmlWriter.writeStartElement(XmlDataConstants.DOCUMENT_PARENT);
          printBindingsAsXML();
-         printJmsConnectionFactoriesAsXML();
-         printJmsDestinationsAsXML();
          printAllMessagesAsXML();
          xmlWriter.writeEndElement(); // end DOCUMENT_PARENT
          xmlWriter.writeEndDocument();
@@ -395,254 +331,33 @@ public final class XmlDataExporter extends OptionalLocking {
 
    private void printBindingsAsXML() throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.BINDINGS_PARENT);
+      for (Map.Entry<Long, PersistentAddressBindingEncoding> addressBindingEncodingEntry : addressBindings.entrySet()) {
+         PersistentAddressBindingEncoding bindingEncoding = addressBindings.get(addressBindingEncodingEntry.getKey());
+         xmlWriter.writeEmptyElement(XmlDataConstants.ADDRESS_BINDINGS_CHILD);
+         StringBuilder routingTypes = new StringBuilder();
+         for (RoutingType routingType : bindingEncoding.getRoutingTypes()) {
+            routingTypes.append(routingType.toString()).append(", ");
+         }
+         xmlWriter.writeAttribute(XmlDataConstants.ADDRESS_BINDING_ROUTING_TYPE, routingTypes.toString().substring(0, routingTypes.length() - 2));
+         xmlWriter.writeAttribute(XmlDataConstants.ADDRESS_BINDING_NAME, bindingEncoding.getName().toString());
+         xmlWriter.writeAttribute(XmlDataConstants.ADDRESS_BINDING_ID, Long.toString(bindingEncoding.getId()));
+         bindingsPrinted++;
+      }
       for (Map.Entry<Long, PersistentQueueBindingEncoding> queueBindingEncodingEntry : queueBindings.entrySet()) {
          PersistentQueueBindingEncoding bindingEncoding = queueBindings.get(queueBindingEncodingEntry.getKey());
-         xmlWriter.writeEmptyElement(XmlDataConstants.BINDINGS_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.BINDING_ADDRESS, bindingEncoding.getAddress().toString());
+         xmlWriter.writeEmptyElement(XmlDataConstants.QUEUE_BINDINGS_CHILD);
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ADDRESS, bindingEncoding.getAddress().toString());
          String filter = "";
          if (bindingEncoding.getFilterString() != null) {
             filter = bindingEncoding.getFilterString().toString();
          }
-         xmlWriter.writeAttribute(XmlDataConstants.BINDING_FILTER_STRING, filter);
-         xmlWriter.writeAttribute(XmlDataConstants.BINDING_QUEUE_NAME, bindingEncoding.getQueueName().toString());
-         xmlWriter.writeAttribute(XmlDataConstants.BINDING_ID, Long.toString(bindingEncoding.getId()));
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_FILTER_STRING, filter);
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_NAME, bindingEncoding.getQueueName().toString());
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ID, Long.toString(bindingEncoding.getId()));
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ROUTING_TYPE, RoutingType.getType(bindingEncoding.getRoutingType()).toString());
          bindingsPrinted++;
       }
       xmlWriter.writeEndElement(); // end BINDINGS_PARENT
-   }
-
-   private void printJmsConnectionFactoriesAsXML() throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORIES);
-      for (String jmsConnectionFactoryKey : jmsConnectionFactories.keySet()) {
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY);
-         PersistedConnectionFactory jmsConnectionFactory = jmsConnectionFactories.get(jmsConnectionFactoryKey);
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_NAME);
-         xmlWriter.writeCharacters(jmsConnectionFactory.getName());
-         xmlWriter.writeEndElement();
-         String clientID = jmsConnectionFactory.getConfig().getClientID();
-         if (clientID != null) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID);
-            xmlWriter.writeCharacters(clientID);
-            xmlWriter.writeEndElement();
-         }
-
-         long callFailoverTimeout = jmsConnectionFactory.getConfig().getCallFailoverTimeout();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_FAILOVER_TIMEOUT);
-         xmlWriter.writeCharacters(Long.toString(callFailoverTimeout));
-         xmlWriter.writeEndElement();
-
-         long callTimeout = jmsConnectionFactory.getConfig().getCallTimeout();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT);
-         xmlWriter.writeCharacters(Long.toString(callTimeout));
-         xmlWriter.writeEndElement();
-
-         long clientFailureCheckPeriod = jmsConnectionFactory.getConfig().getClientFailureCheckPeriod();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD);
-         xmlWriter.writeCharacters(Long.toString(clientFailureCheckPeriod));
-         xmlWriter.writeEndElement();
-
-         int confirmationWindowSize = jmsConnectionFactory.getConfig().getConfirmationWindowSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE);
-         xmlWriter.writeCharacters(Integer.toString(confirmationWindowSize));
-         xmlWriter.writeEndElement();
-
-         long connectionTTL = jmsConnectionFactory.getConfig().getConnectionTTL();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL);
-         xmlWriter.writeCharacters(Long.toString(connectionTTL));
-         xmlWriter.writeEndElement();
-
-         long consumerMaxRate = jmsConnectionFactory.getConfig().getConsumerMaxRate();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE);
-         xmlWriter.writeCharacters(Long.toString(consumerMaxRate));
-         xmlWriter.writeEndElement();
-
-         long consumerWindowSize = jmsConnectionFactory.getConfig().getConsumerWindowSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE);
-         xmlWriter.writeCharacters(Long.toString(consumerWindowSize));
-         xmlWriter.writeEndElement();
-
-         String discoveryGroupName = jmsConnectionFactory.getConfig().getDiscoveryGroupName();
-         if (discoveryGroupName != null) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME);
-            xmlWriter.writeCharacters(discoveryGroupName);
-            xmlWriter.writeEndElement();
-         }
-
-         int dupsOKBatchSize = jmsConnectionFactory.getConfig().getDupsOKBatchSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE);
-         xmlWriter.writeCharacters(Integer.toString(dupsOKBatchSize));
-         xmlWriter.writeEndElement();
-
-         JMSFactoryType factoryType = jmsConnectionFactory.getConfig().getFactoryType();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE);
-         xmlWriter.writeCharacters(Integer.toString(factoryType.intValue()));
-         xmlWriter.writeEndElement();
-
-         String groupID = jmsConnectionFactory.getConfig().getGroupID();
-         if (groupID != null) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID);
-            xmlWriter.writeCharacters(groupID);
-            xmlWriter.writeEndElement();
-         }
-
-         String loadBalancingPolicyClassName = jmsConnectionFactory.getConfig().getLoadBalancingPolicyClassName();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME);
-         xmlWriter.writeCharacters(loadBalancingPolicyClassName);
-         xmlWriter.writeEndElement();
-
-         long maxRetryInterval = jmsConnectionFactory.getConfig().getMaxRetryInterval();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL);
-         xmlWriter.writeCharacters(Long.toString(maxRetryInterval));
-         xmlWriter.writeEndElement();
-
-         long minLargeMessageSize = jmsConnectionFactory.getConfig().getMinLargeMessageSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE);
-         xmlWriter.writeCharacters(Long.toString(minLargeMessageSize));
-         xmlWriter.writeEndElement();
-
-         long producerMaxRate = jmsConnectionFactory.getConfig().getProducerMaxRate();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE);
-         xmlWriter.writeCharacters(Long.toString(producerMaxRate));
-         xmlWriter.writeEndElement();
-
-         long producerWindowSize = jmsConnectionFactory.getConfig().getProducerWindowSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE);
-         xmlWriter.writeCharacters(Long.toString(producerWindowSize));
-         xmlWriter.writeEndElement();
-
-         long reconnectAttempts = jmsConnectionFactory.getConfig().getReconnectAttempts();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS);
-         xmlWriter.writeCharacters(Long.toString(reconnectAttempts));
-         xmlWriter.writeEndElement();
-
-         long retryInterval = jmsConnectionFactory.getConfig().getRetryInterval();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL);
-         xmlWriter.writeCharacters(Long.toString(retryInterval));
-         xmlWriter.writeEndElement();
-
-         double retryIntervalMultiplier = jmsConnectionFactory.getConfig().getRetryIntervalMultiplier();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER);
-         xmlWriter.writeCharacters(Double.toString(retryIntervalMultiplier));
-         xmlWriter.writeEndElement();
-
-         long scheduledThreadPoolMaxSize = jmsConnectionFactory.getConfig().getScheduledThreadPoolMaxSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE);
-         xmlWriter.writeCharacters(Long.toString(scheduledThreadPoolMaxSize));
-         xmlWriter.writeEndElement();
-
-         long threadPoolMaxSize = jmsConnectionFactory.getConfig().getThreadPoolMaxSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE);
-         xmlWriter.writeCharacters(Long.toString(threadPoolMaxSize));
-         xmlWriter.writeEndElement();
-
-         long transactionBatchSize = jmsConnectionFactory.getConfig().getTransactionBatchSize();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE);
-         xmlWriter.writeCharacters(Long.toString(transactionBatchSize));
-         xmlWriter.writeEndElement();
-
-         boolean autoGroup = jmsConnectionFactory.getConfig().isAutoGroup();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP);
-         xmlWriter.writeCharacters(Boolean.toString(autoGroup));
-         xmlWriter.writeEndElement();
-
-         boolean blockOnAcknowledge = jmsConnectionFactory.getConfig().isBlockOnAcknowledge();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE);
-         xmlWriter.writeCharacters(Boolean.toString(blockOnAcknowledge));
-         xmlWriter.writeEndElement();
-
-         boolean blockOnDurableSend = jmsConnectionFactory.getConfig().isBlockOnDurableSend();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND);
-         xmlWriter.writeCharacters(Boolean.toString(blockOnDurableSend));
-         xmlWriter.writeEndElement();
-
-         boolean blockOnNonDurableSend = jmsConnectionFactory.getConfig().isBlockOnNonDurableSend();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND);
-         xmlWriter.writeCharacters(Boolean.toString(blockOnNonDurableSend));
-         xmlWriter.writeEndElement();
-
-         boolean cacheLargeMessagesClient = jmsConnectionFactory.getConfig().isCacheLargeMessagesClient();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT);
-         xmlWriter.writeCharacters(Boolean.toString(cacheLargeMessagesClient));
-         xmlWriter.writeEndElement();
-
-         boolean compressLargeMessages = jmsConnectionFactory.getConfig().isCompressLargeMessages();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES);
-         xmlWriter.writeCharacters(Boolean.toString(compressLargeMessages));
-         xmlWriter.writeEndElement();
-
-         boolean failoverOnInitialConnection = jmsConnectionFactory.getConfig().isFailoverOnInitialConnection();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION);
-         xmlWriter.writeCharacters(Boolean.toString(failoverOnInitialConnection));
-         xmlWriter.writeEndElement();
-
-         boolean ha = jmsConnectionFactory.getConfig().isHA();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_HA);
-         xmlWriter.writeCharacters(Boolean.toString(ha));
-         xmlWriter.writeEndElement();
-
-         boolean preAcknowledge = jmsConnectionFactory.getConfig().isPreAcknowledge();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE);
-         xmlWriter.writeCharacters(Boolean.toString(preAcknowledge));
-         xmlWriter.writeEndElement();
-
-         boolean useGlobalPools = jmsConnectionFactory.getConfig().isUseGlobalPools();
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS);
-         xmlWriter.writeCharacters(Boolean.toString(useGlobalPools));
-         xmlWriter.writeEndElement();
-
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTORS);
-         for (String connector : jmsConnectionFactory.getConfig().getConnectorNames()) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR);
-            xmlWriter.writeCharacters(connector);
-            xmlWriter.writeEndElement();
-         }
-         xmlWriter.writeEndElement();
-
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
-         PersistedBindings jndi = jmsJNDI.get(new Pair<>(PersistedType.ConnectionFactory, jmsConnectionFactory.getName()));
-         for (String jndiEntry : jndi.getBindings()) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
-            xmlWriter.writeCharacters(jndiEntry);
-            xmlWriter.writeEndElement();
-         }
-         xmlWriter.writeEndElement(); // end jndi-entries
-         xmlWriter.writeEndElement(); // end JMS_CONNECTION_FACTORY
-      }
-      xmlWriter.writeEndElement();
-   }
-
-   private void printJmsDestinationsAsXML() throws XMLStreamException {
-      xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATIONS);
-      for (Pair<PersistedType, String> jmsDestinationsKey : jmsDestinations.keySet()) {
-         PersistedDestination jmsDestination = jmsDestinations.get(jmsDestinationsKey);
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION);
-
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION_NAME);
-         xmlWriter.writeCharacters(jmsDestination.getName());
-         xmlWriter.writeEndElement();
-
-         String selector = jmsDestination.getSelector();
-         if (selector != null && selector.length() != 0) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION_SELECTOR);
-            xmlWriter.writeCharacters(selector);
-            xmlWriter.writeEndElement();
-         }
-
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION_TYPE);
-         xmlWriter.writeCharacters(jmsDestination.getType().toString());
-         xmlWriter.writeEndElement();
-
-         xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
-         PersistedBindings jndi = jmsJNDI.get(new Pair<>(jmsDestination.getType(), jmsDestination.getName()));
-         for (String jndiEntry : jndi.getBindings()) {
-            xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
-            xmlWriter.writeCharacters(jndiEntry);
-            xmlWriter.writeEndElement();
-         }
-         xmlWriter.writeEndElement(); // end jndi-entries
-         xmlWriter.writeEndElement(); // end JMS_CONNECTION_FACTORY
-      }
-      xmlWriter.writeEndElement();
    }
 
    private void printAllMessagesAsXML() throws XMLStreamException {
@@ -822,7 +537,10 @@ public final class XmlDataExporter extends OptionalLocking {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value == null ? XmlDataConstants.NULL : value.toString());
          }
 
-         if (value instanceof Boolean) {
+         // if the value is null then we can't really know what it is so just set the type to the most generic thing
+         if (value == null) {
+            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTES);
+         } else if (value instanceof Boolean) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BOOLEAN);
          } else if (value instanceof Byte) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTE);

@@ -29,13 +29,19 @@ public final class XmlDataConstants {
    static final String XML_VERSION = "1.0";
    static final String DOCUMENT_PARENT = "activemq-journal";
    static final String BINDINGS_PARENT = "bindings";
-   static final String BINDINGS_CHILD = "binding";
-   static final String BINDING_ADDRESS = "address";
-   static final String BINDING_FILTER_STRING = "filter-string";
-   static final String BINDING_QUEUE_NAME = "queue-name";
-   static final String BINDING_ID = "id";
-   static final String JMS_CONNECTION_FACTORY = "jms-connection-factory";
-   static final String JMS_CONNECTION_FACTORIES = "jms-connection-factories";
+
+   static final String QUEUE_BINDINGS_CHILD = "queue-binding";
+   static final String QUEUE_BINDING_ADDRESS = "address";
+   static final String QUEUE_BINDING_FILTER_STRING = "filter-string";
+   static final String QUEUE_BINDING_NAME = "name";
+   static final String QUEUE_BINDING_ID = "id";
+   static final String QUEUE_BINDING_ROUTING_TYPE = "routing-type";
+
+   static final String ADDRESS_BINDINGS_CHILD = "address-binding";
+   static final String ADDRESS_BINDING_NAME = "name";
+   static final String ADDRESS_BINDING_ID = "id";
+   static final String ADDRESS_BINDING_ROUTING_TYPE = "routing-types";
+
    static final String MESSAGES_PARENT = "messages";
    static final String MESSAGES_CHILD = "message";
    static final String MESSAGE_ID = "id";

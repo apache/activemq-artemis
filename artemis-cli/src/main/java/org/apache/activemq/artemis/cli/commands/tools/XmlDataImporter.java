@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stax.StAXSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,10 +32,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import io.airlift.airline.Command;
@@ -53,7 +63,10 @@ import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.RoutingType;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
 
@@ -75,7 +88,7 @@ public final class XmlDataImporter extends ActionAbstract {
    // this session is really only needed if the "session" variable does not auto-commit sends
    ClientSession managementSession;
 
-   boolean localSession;
+   boolean localSession = false;
 
    final Map<String, String> addressMap = new HashMap<>();
 
@@ -164,19 +177,20 @@ public final class XmlDataImporter extends ActionAbstract {
       } else {
          this.managementSession = session;
       }
-      localSession = false;
 
       processXml();
 
    }
 
    public void process(InputStream inputStream, String host, int port, boolean transactional) throws Exception {
-      reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
       HashMap<String, Object> connectionParams = new HashMap<>();
       connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
       connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
       ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
       ClientSessionFactory sf = serverLocator.createSessionFactory();
+
+      ClientSession session;
+      ClientSession managementSession;
 
       if (user != null || password != null) {
          session = sf.createSession(user, password, false, !transactional, true, false, 0);
@@ -187,7 +201,30 @@ public final class XmlDataImporter extends ActionAbstract {
       }
       localSession = true;
 
-      processXml();
+      process(inputStream, session, managementSession);
+   }
+
+   public void validate(String file) throws Exception {
+      validate(new FileInputStream(file));
+   }
+
+   public void validate(InputStream inputStream) throws Exception {
+      XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+      SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      Schema schema = factory.newSchema(XmlDataImporter.findResource("schema/artemis-import-export.xsd"));
+
+      Validator validator = schema.newValidator();
+      validator.validate(new StAXSource(reader));
+      reader.close();
+   }
+
+   private static URL findResource(final String resourceName) {
+      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+         @Override
+         public URL run() {
+            return ClassloadingUtil.findResource(resourceName);
+         }
+      });
    }
 
    private void processXml() throws Exception {
@@ -197,14 +234,12 @@ public final class XmlDataImporter extends ActionAbstract {
                logger.debug("EVENT:[" + reader.getLocation().getLineNumber() + "][" + reader.getLocation().getColumnNumber() + "] ");
             }
             if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-               if (XmlDataConstants.BINDINGS_CHILD.equals(reader.getLocalName())) {
+               if (XmlDataConstants.QUEUE_BINDINGS_CHILD.equals(reader.getLocalName())) {
                   bindQueue();
+               } else if (XmlDataConstants.ADDRESS_BINDINGS_CHILD.equals(reader.getLocalName())) {
+                  bindAddress();
                } else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
                   processMessage();
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
-                  createJmsConnectionFactories();
-               } else if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
-                  createJmsDestinations();
                }
             }
             reader.next();
@@ -396,6 +431,10 @@ public final class XmlDataImporter extends ActionAbstract {
          }
       }
 
+      if (value.equals(XmlDataConstants.NULL)) {
+         value = null;
+      }
+
       switch (propertyType) {
          case XmlDataConstants.PROPERTY_TYPE_SHORT:
             message.putShortProperty(key, Short.parseShort(value));
@@ -407,7 +446,7 @@ public final class XmlDataImporter extends ActionAbstract {
             message.putByteProperty(key, Byte.parseByte(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_BYTES:
-            message.putBytesProperty(key, decode(value));
+            message.putBytesProperty(key, value == null ? null : decode(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_DOUBLE:
             message.putDoubleProperty(key, Double.parseDouble(value));
@@ -422,16 +461,10 @@ public final class XmlDataImporter extends ActionAbstract {
             message.putLongProperty(key, Long.parseLong(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING:
-            if (!value.equals(XmlDataConstants.NULL)) {
-               realSimpleStringValue = new SimpleString(value);
-            }
-            message.putStringProperty(new SimpleString(key), realSimpleStringValue);
+            message.putStringProperty(new SimpleString(key), value == null ? null : SimpleString.toSimpleString(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_STRING:
-            if (!value.equals(XmlDataConstants.NULL)) {
-               realStringValue = value;
-            }
-            message.putStringProperty(key, realStringValue);
+            message.putStringProperty(key, value);
             break;
       }
    }
@@ -509,18 +542,22 @@ public final class XmlDataImporter extends ActionAbstract {
       String queueName = "";
       String address = "";
       String filter = "";
+      String routingType = "";
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
          switch (attributeName) {
-            case XmlDataConstants.BINDING_ADDRESS:
+            case XmlDataConstants.QUEUE_BINDING_ADDRESS:
                address = reader.getAttributeValue(i);
                break;
-            case XmlDataConstants.BINDING_QUEUE_NAME:
+            case XmlDataConstants.QUEUE_BINDING_NAME:
                queueName = reader.getAttributeValue(i);
                break;
-            case XmlDataConstants.BINDING_FILTER_STRING:
+            case XmlDataConstants.QUEUE_BINDING_FILTER_STRING:
                filter = reader.getAttributeValue(i);
+               break;
+            case XmlDataConstants.QUEUE_BINDING_ROUTING_TYPE:
+               routingType = reader.getAttributeValue(i);
                break;
          }
       }
@@ -528,7 +565,7 @@ public final class XmlDataImporter extends ActionAbstract {
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
 
       if (!queueQuery.isExists()) {
-         session.createQueue(address, queueName, filter, true);
+         session.createQueue(address, RoutingType.valueOf(routingType), queueName, filter, true);
          if (logger.isDebugEnabled()) {
             logger.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
          }
@@ -541,350 +578,36 @@ public final class XmlDataImporter extends ActionAbstract {
       addressMap.put(queueName, address);
    }
 
-   private void createJmsConnectionFactories() throws Exception {
-      boolean endLoop = false;
+   private void bindAddress() throws Exception {
+      String addressName = "";
+      String routingTypes = "";
 
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName())) {
-                  createJmsConnectionFactory();
-               }
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
+         String attributeName = reader.getAttributeLocalName(i);
+         switch (attributeName) {
+            case XmlDataConstants.ADDRESS_BINDING_NAME:
+               addressName = reader.getAttributeValue(i);
                break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
+            case XmlDataConstants.ADDRESS_BINDING_ROUTING_TYPE:
+               routingTypes = reader.getAttributeValue(i);
                break;
          }
-         if (endLoop) {
-            break;
-         }
-         reader.next();
-      }
-   }
-
-   private void createJmsDestinations() throws Exception {
-      boolean endLoop = false;
-
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName())) {
-                  createJmsDestination();
-               }
-               break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
-               break;
-         }
-         if (endLoop) {
-            break;
-         }
-         reader.next();
-      }
-   }
-
-   private void createJmsConnectionFactory() throws Exception {
-      String name = "";
-      String callFailoverTimeout = "";
-      String callTimeout = "";
-      String clientFailureCheckPeriod = "";
-      String clientId = "";
-      String confirmationWindowSize = "";
-      String connectionTtl = "";
-      String connectors = "";
-      String consumerMaxRate = "";
-      String consumerWindowSize = "";
-      String discoveryGroupName = "";
-      String dupsOkBatchSize = "";
-      String groupId = "";
-      String loadBalancingPolicyClassName = "";
-      String maxRetryInterval = "";
-      String minLargeMessageSize = "";
-      String producerMaxRate = "";
-      String producerWindowSize = "";
-      String reconnectAttempts = "";
-      String retryInterval = "";
-      String retryIntervalMultiplier = "";
-      String scheduledThreadMaxPoolSize = "";
-      String threadMaxPoolSize = "";
-      String transactionBatchSize = "";
-      String type = "";
-      String entries = "";
-      String autoGroup = "";
-      String blockOnAcknowledge = "";
-      String blockOnDurableSend = "";
-      String blockOnNonDurableSend = "";
-      String cacheLargeMessagesClient = "";
-      String compressLargeMessages = "";
-      String failoverOnInitialConnection = "";
-      String ha = "";
-      String preacknowledge = "";
-      String useGlobalPools = "";
-
-      boolean endLoop = false;
-
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_FAILOVER_TIMEOUT.equals(reader.getLocalName())) {
-                  callFailoverTimeout = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory callFailoverTimeout: " + callFailoverTimeout);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName())) {
-                  callTimeout = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory callTimeout: " + callTimeout);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName())) {
-                  clientFailureCheckPeriod = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory clientFailureCheckPeriod: " + clientFailureCheckPeriod);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName())) {
-                  clientId = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory clientId: " + clientId);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName())) {
-                  confirmationWindowSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory confirmationWindowSize: " + confirmationWindowSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName())) {
-                  connectionTtl = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory connectionTtl: " + connectionTtl);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
-                  connectors = getConnectors();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory getLocalName: " + connectors);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName())) {
-                  consumerMaxRate = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory consumerMaxRate: " + consumerMaxRate);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName())) {
-                  consumerWindowSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory consumerWindowSize: " + consumerWindowSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName())) {
-                  discoveryGroupName = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory discoveryGroupName: " + discoveryGroupName);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName())) {
-                  dupsOkBatchSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory dupsOkBatchSize: " + dupsOkBatchSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName())) {
-                  groupId = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory groupId: " + groupId);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName())) {
-                  loadBalancingPolicyClassName = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory loadBalancingPolicyClassName: " + loadBalancingPolicyClassName);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName())) {
-                  maxRetryInterval = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory maxRetryInterval: " + maxRetryInterval);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName())) {
-                  minLargeMessageSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory minLargeMessageSize: " + minLargeMessageSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName())) {
-                  name = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory name: " + name);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName())) {
-                  producerMaxRate = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory producerMaxRate: " + producerMaxRate);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName())) {
-                  producerWindowSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory producerWindowSize: " + producerWindowSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName())) {
-                  reconnectAttempts = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory reconnectAttempts: " + reconnectAttempts);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName())) {
-                  retryInterval = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory retryInterval: " + retryInterval);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName())) {
-                  retryIntervalMultiplier = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory retryIntervalMultiplier: " + retryIntervalMultiplier);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
-                  scheduledThreadMaxPoolSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory scheduledThreadMaxPoolSize: " + scheduledThreadMaxPoolSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
-                  threadMaxPoolSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory threadMaxPoolSize: " + threadMaxPoolSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName())) {
-                  transactionBatchSize = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory transactionBatchSize: " + transactionBatchSize);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName())) {
-                  type = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory type: " + type);
-                  }
-               } else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
-                  entries = getEntries();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory entries: " + entries);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName())) {
-                  autoGroup = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory autoGroup: " + autoGroup);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName())) {
-                  blockOnAcknowledge = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory blockOnAcknowledge: " + blockOnAcknowledge);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName())) {
-                  blockOnDurableSend = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory blockOnDurableSend: " + blockOnDurableSend);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName())) {
-                  blockOnNonDurableSend = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory blockOnNonDurableSend: " + blockOnNonDurableSend);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName())) {
-                  cacheLargeMessagesClient = reader.getElementText();
-                  ActiveMQServerLogger.LOGGER.info("JMS connection factory " + name + " cacheLargeMessagesClient: " + cacheLargeMessagesClient);
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName())) {
-                  compressLargeMessages = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory compressLargeMessages: " + compressLargeMessages);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName())) {
-                  failoverOnInitialConnection = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory failoverOnInitialConnection: " + failoverOnInitialConnection);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName())) {
-                  ha = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory ha: " + ha);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName())) {
-                  preacknowledge = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory preacknowledge: " + preacknowledge);
-                  }
-               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName())) {
-                  useGlobalPools = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS connection factory useGlobalPools: " + useGlobalPools);
-                  }
-               }
-               break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
-               break;
-         }
-         if (endLoop) {
-            break;
-         }
-         reader.next();
       }
 
-      ActiveMQServerLogger.LOGGER.error("Ignoring Connection Factory " + name);
-   }
+      ClientSession.AddressQuery addressQuery = session.addressQuery(new SimpleString(addressName));
 
-   private void createJmsDestination() throws Exception {
-      String name = "";
-      String selector = "";
-      String entries = "";
-      String type = "";
-      boolean endLoop = false;
-
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION_NAME.equals(reader.getLocalName())) {
-                  name = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS destination name: " + name);
-                  }
-               } else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName())) {
-                  selector = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS destination selector: " + selector);
-                  }
-               } else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName())) {
-                  type = reader.getElementText();
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS destination type: " + type);
-                  }
-               } else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
-                  entries = getEntries();
-               }
-               break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
-               break;
+      if (!addressQuery.isExists()) {
+         Set<RoutingType> set = new HashSet<>();
+         for (String routingType : ListUtil.toList(routingTypes)) {
+            set.add(RoutingType.valueOf(routingType));
          }
-         if (endLoop) {
-            break;
+         session.createAddress(SimpleString.toSimpleString(addressName), set, false);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Binding address(name=" + addressName + ", routingTypes=" + routingTypes + ")");
          }
-         reader.next();
-      }
-
-      try (ClientRequestor requestor = new ClientRequestor(managementSession, "activemq.management")) {
-         ClientMessage managementMessage = managementSession.createMessage(false);
-         if ("Queue".equals(type)) {
-            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.BROKER, "createQueue", name, entries, selector);
-         } else if ("Topic".equals(type)) {
-            ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.BROKER, "createAddress", name, entries);
-         }
-         managementSession.start();
-         ClientMessage reply = requestor.request(managementMessage);
-         if (ManagementHelper.hasOperationSucceeded(reply)) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Created " + type.toLowerCase() + " " + name);
-            }
-         } else {
-            ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
+      } else {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Binding " + addressName + " already exists so won't re-bind.");
          }
       }
    }
