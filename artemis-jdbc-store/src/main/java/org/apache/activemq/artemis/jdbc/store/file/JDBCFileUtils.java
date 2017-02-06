@@ -29,7 +29,12 @@ class JDBCFileUtils {
    static JDBCSequentialFileFactoryDriver getDBFileDriver(String driverClass,
                                                           String jdbcConnectionUrl,
                                                           SQLProvider provider) throws SQLException {
-      JDBCSequentialFileFactoryDriver dbDriver = new JDBCSequentialFileFactoryDriver();
+      final JDBCSequentialFileFactoryDriver dbDriver;
+      if (provider instanceof PostgresSQLProvider) {
+         dbDriver = new PostgresSequentialSequentialFileDriver();
+      } else {
+         dbDriver = new JDBCSequentialFileFactoryDriver();
+      }
       dbDriver.setSqlProvider(provider);
       dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
       dbDriver.setJdbcDriverClass(driverClass);
