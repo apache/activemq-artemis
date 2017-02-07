@@ -82,11 +82,6 @@
         <artifactId>artemis-rest</artifactId>
         <version>${project.version}</version>
      </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-aerogear-integration</artifactId>
-        <version>${project.version}</version>
-     </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-web</artifactId>
