@@ -830,7 +830,7 @@ public class ProtonTest extends ProtonTestBase {
          Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisfied() throws Exception {
-               return amqpConnection.isClosed();
+               return receiver.isClosed();
             }
          });
          assertTrue(receiver.isClosed());

@@ -34,6 +34,13 @@ public class QueueManagerImpl implements QueueManager {
       @Override
       public void run() {
          Queue queue = server.locateQueue(queueName);
+         //the queue may already have been deleted and this is a result of that
+         if (queue == null) {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQServerLogger.LOGGER.debug("pno queue to delete \"" + queueName + ".\"");
+            }
+            return;
+         }
          SimpleString address = queue.getAddress();
          AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
          long consumerCount = queue.getConsumerCount();
