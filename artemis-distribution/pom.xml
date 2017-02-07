@@ -78,11 +78,6 @@
         <version>${project.version}</version>
      </dependency>
      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-vertx-integration</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
         <groupId>org.apache.activemq.rest</groupId>
         <artifactId>artemis-rest</artifactId>
         <version>${project.version}</version>

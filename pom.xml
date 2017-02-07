@@ -54,7 +54,6 @@
       <module>artemis-server-osgi</module>
       <module>integration/activemq-spring-integration</module>
       <module>integration/activemq-aerogear-integration</module>
-      <module>integration/activemq-vertx-integration</module>
       <module>artemis-distribution</module>
       <module>artemis-tools</module>
       <module>tests</module>
@@ -736,7 +735,6 @@
             <module>artemis-jdbc-store</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
          </modules>
          <properties>
@@ -772,7 +770,6 @@
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
             <module>examples</module>
             <module>tests</module>
             <module>artemis-distribution</module>
@@ -831,7 +828,6 @@
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
          </modules>
          <properties>
@@ -874,7 +870,6 @@
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
          </modules>
          <properties>
@@ -909,7 +904,6 @@
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
             <module>examples</module>
          </modules>
