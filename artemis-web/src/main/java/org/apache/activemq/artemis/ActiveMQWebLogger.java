@@ -41,9 +41,6 @@ import java.io.File;
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQWebLogger extends BasicLogger {
 
-   /**
-    * The aerogear logger.
-    */
    ActiveMQWebLogger LOGGER = Logger.getMessageLogger(ActiveMQWebLogger.class, ActiveMQWebLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)

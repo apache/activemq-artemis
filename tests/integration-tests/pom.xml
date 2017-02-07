@@ -177,11 +177,6 @@
       <!-- END MQTT Deps -->
 
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-aerogear-integration</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
       </dependency>

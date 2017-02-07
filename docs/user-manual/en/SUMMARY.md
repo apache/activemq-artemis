@@ -51,7 +51,6 @@
 * [Embedding Apache ActiveMQ Artemis](embedding-activemq.md)
 * [Apache Karaf](karaf.md)
 * [Spring Integration](spring-integration.md)
-* [AeroGear Integration](aerogear-integration.md)
 * [CDI Integration](cdi-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
 * [Protocols and Interoperability](protocols-interoperability.md)
