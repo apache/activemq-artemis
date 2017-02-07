@@ -1,8 +1,61 @@
-# Network Isolation
+# Network Isolation (Split Brain)
 
-In case the server is isolated, say for a network failure, the server will be isolated for its peers on a network of brokers. If you are playing with replication the backup may think the backup failed and you may endup with two live nodes, what is called the split brain.
+It is possible that if a replicated live or backup server becomes isolated in a network that failover will occur and you will end up
+with 2 live servers serving messages in a cluster, this we call split brain. There are different configurations you can choose
+from that will help mitigate this problem
 
-# Pinging the network
+## Quorum Voting
+
+Quorum voting is used by both the live and the backup to decide what to do if a replication connection is disconnected. 
+Basically the server will request each live server in the cluster to vote as to whether it thinks the server it is replicating 
+to or from is still alive. This being the case the minimum number of live/backup pairs needed is 3. If less than 3 pairs 
+are used then the only option is to use a Network Pinger which is explained later in this chapter or choose how you want each server to 
+react which the following details:
+ 
+### Backup Voting
+
+By default if a replica loses its replication connection to the live broker it makes a decision as to whether to start or not
+with a quorum vote. This of course requires that there be at least 3 pairs of live/backup nodes in the cluster. For a 3 node 
+cluster it will start if it gets 2 votes back saying that its live server is no longer available, for 4 nodes this would be 
+3 votes and so on.
+
+It's also possible to statically set the quorum size that should be used fotr the case where the cluster size is known up front,
+this is done on the Replica Policy like so:
+
+```xml
+<ha-policy>
+  <replication>
+    <slave>
+       <quorum-size>2</quorum-size>
+    </slave>
+  </replication>
+</ha-policy>
+```
+
+In this example the quorum size is set to 2 so if you were using a single pair and the backup lost connectivity it would 
+never start.
+
+### Live Voting
+
+By default, if the live server loses its replication connection then it will just carry on and wait for a backup to reconnect 
+and start replicating again. In the event of a possible split brain scenario this may mean that the live stays live even though
+the backup has been activated. It is possible to configure the live server to vote for a quorum if this happens, in this way
+if the live server doesn't not receive a majority vote then it will shutdown. This is done by setting the _vote-on-replication-failure_ 
+to true.
+
+```xml
+<ha-policy>
+  <replication>
+    <master>
+       <vote-on-replication-failure>true</vote-on-replication-failure>
+       <quorum-size>2</quorum-size>
+    </master>
+  </replication>
+</ha-policy>
+```
+As in the backup policy it is also possible to statically configure the quorum size.
+
+## Pinging the network
 
 You may configure one more addresses on the broker.xml that are part of your network topology, that will be pinged through the life cycle of the server.
 

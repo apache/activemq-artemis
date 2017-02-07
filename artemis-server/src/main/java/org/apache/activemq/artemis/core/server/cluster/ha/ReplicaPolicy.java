@@ -39,6 +39,16 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
+   /*
+   * what quorum size to use for voting
+   * */
+   private int quorumSize;
+
+   /*
+   * whether or not this live broker should vote to remain live
+   * */
+   private boolean voteOnReplicationFailure;
+
    private ReplicatedPolicy replicatedPolicy;
 
    private final NetworkHealthCheck networkHealthCheck;
@@ -60,15 +70,19 @@ public class ReplicaPolicy extends BackupPolicy {
                         boolean allowFailback,
                         long initialReplicationSyncTimeout,
                         ScaleDownPolicy scaleDownPolicy,
-                        NetworkHealthCheck networkHealthCheck) {
+                        NetworkHealthCheck networkHealthCheck,
+                        boolean voteOnReplicationFailure,
+                        int quorumSize) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
       this.restartBackup = restartBackup;
       this.allowFailback = allowFailback;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
+      this.quorumSize = quorumSize;
       this.scaleDownPolicy = scaleDownPolicy;
       this.networkHealthCheck = networkHealthCheck;
+      this.voteOnReplicationFailure = voteOnReplicationFailure;
    }
 
    public ReplicaPolicy(String clusterName,
@@ -101,7 +115,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this, networkHealthCheck, voteOnReplicationFailure, quorumSize);
       }
       return replicatedPolicy;
    }
@@ -179,5 +193,21 @@ public class ReplicaPolicy extends BackupPolicy {
       SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, shutdownOnCriticalIO, this, networkHealthCheck);
       backupActivation.init();
       return backupActivation;
+   }
+
+   public void setQuorumSize(int quorumSize) {
+      this.quorumSize = quorumSize;
+   }
+
+   public int getQuorumSize() {
+      return quorumSize;
+   }
+
+   public void setVoteOnReplicationFailure(boolean voteOnReplicationFailure) {
+      this.voteOnReplicationFailure = voteOnReplicationFailure;
+   }
+
+   public boolean isVoteOnReplicationFailure() {
+      return voteOnReplicationFailure;
    }
 }
