@@ -121,7 +121,7 @@ public final class SharedNothingBackupActivation extends Activation {
          synchronized (this) {
             if (closed)
                return;
-            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck);
+            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize());
             activeMQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
          }
 
