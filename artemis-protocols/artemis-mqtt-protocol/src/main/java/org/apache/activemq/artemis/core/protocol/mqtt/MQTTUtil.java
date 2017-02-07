@@ -43,7 +43,7 @@ public class MQTTUtil {
 
    public static final boolean SESSION_AUTO_COMMIT_SENDS = true;
 
-   public static final boolean SESSION_AUTO_COMMIT_ACKS = false;
+   public static final boolean SESSION_AUTO_COMMIT_ACKS = true;
 
    public static final boolean SESSION_PREACKNOWLEDGE = false;
 
