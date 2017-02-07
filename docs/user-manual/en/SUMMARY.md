@@ -52,7 +52,6 @@
 * [Apache Karaf](karaf.md)
 * [Spring Integration](spring-integration.md)
 * [AeroGear Integration](aerogear-integration.md)
-* [VertX Integration](vertx-integration.md)
 * [CDI Integration](cdi-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
 * [Protocols and Interoperability](protocols-interoperability.md)
