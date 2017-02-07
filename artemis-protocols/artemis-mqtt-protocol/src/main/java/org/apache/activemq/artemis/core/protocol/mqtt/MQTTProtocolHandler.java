@@ -145,6 +145,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
                disconnect();
          }
       } catch (Exception e) {
+         e.printStackTrace();
          log.debug("Error processing Control Packet, Disconnecting Client", e);
          disconnect();
       }
