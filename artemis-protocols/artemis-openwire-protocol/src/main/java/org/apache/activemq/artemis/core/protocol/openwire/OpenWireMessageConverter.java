@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.TypedProperties;
@@ -772,7 +773,12 @@ public class OpenWireMessageConverter implements MessageConverter {
                if (prop instanceof SimpleString) {
                   amqMsg.setObjectProperty(s.toString(), prop.toString());
                } else {
-                  amqMsg.setObjectProperty(s.toString(), prop);
+                  if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
+                     Long l = (Long) prop;
+                     amqMsg.setObjectProperty(s.toString(), l.intValue());
+                  } else {
+                     amqMsg.setObjectProperty(s.toString(), prop);
+                  }
                }
             } catch (JMSException e) {
                throw new IOException("exception setting property " + s + " : " + prop, e);
