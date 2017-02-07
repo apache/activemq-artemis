@@ -2226,6 +2226,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void deployAddressesFromConfiguration() throws Exception {
+      deployAddressesFromConfiguration(configuration);
+   }
+
+   private void deployAddressesFromConfiguration(Configuration configuration) throws Exception {
       for (CoreAddressConfiguration config : configuration.getAddressConfigurations()) {
          AddressInfo info = new AddressInfo(SimpleString.toSimpleString(config.getName()), config.getRoutingTypes());
          addOrUpdateAddressInfo(info);
@@ -2719,6 +2723,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                deployDivert(divertConfig);
             }
          }
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
+         deployAddressesFromConfiguration(config);
       }
    }
 }
