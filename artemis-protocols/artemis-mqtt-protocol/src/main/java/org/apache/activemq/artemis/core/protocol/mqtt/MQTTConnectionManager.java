@@ -67,12 +67,12 @@ public class MQTTConnectionManager {
          return;
       }
 
-      session.setSessionState(getSessionState(clientId, cleanSession));
-
+      session.setSessionState(getSessionState(clientId));
       ServerSessionImpl serverSession = createServerSession(username, password);
       serverSession.start();
 
       session.setServerSession(serverSession);
+      session.setIsClean(cleanSession);
 
       if (will) {
          ServerMessage w = MQTTUtil.createServerMessageFromString(session, willMessage, willTopic, willQosLevel, willRetain);
@@ -96,8 +96,20 @@ public class MQTTConnectionManager {
       String id = UUIDGenerator.getInstance().generateStringUUID();
       ActiveMQServer server = session.getServer();
 
-      ServerSession serverSession = server.createSession(id, username, password, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, session.getConnection(), MQTTUtil.SESSION_AUTO_COMMIT_SENDS, MQTTUtil.SESSION_AUTO_COMMIT_ACKS, MQTTUtil.SESSION_PREACKNOWLEDGE, MQTTUtil.SESSION_XA, null,
-                                                         session.getSessionCallback(), MQTTUtil.SESSION_AUTO_CREATE_QUEUE, server.newOperationContext(), session.getProtocolManager().getPrefixes());
+      ServerSession serverSession = server.createSession(id,
+                                                         username,
+                                                         password,
+                                                         ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                         session.getConnection(),
+                                                         MQTTUtil.SESSION_AUTO_COMMIT_SENDS,
+                                                         MQTTUtil.SESSION_AUTO_COMMIT_ACKS,
+                                                         MQTTUtil.SESSION_PREACKNOWLEDGE,
+                                                         MQTTUtil.SESSION_XA,
+                                                         null,
+                                                         session.getSessionCallback(),
+                                                         MQTTUtil.SESSION_AUTO_CREATE_QUEUE,
+                                                         server.newOperationContext(),
+                                                         session.getProtocolManager().getPrefixes());
       return (ServerSessionImpl) serverSession;
    }
 
@@ -131,29 +143,25 @@ public class MQTTConnectionManager {
       session.getSessionState().deleteWillMessage();
    }
 
-   private MQTTSessionState getSessionState(String clientId, boolean cleanSession) throws InterruptedException {
+   private MQTTSessionState getSessionState(String clientId) throws InterruptedException {
       synchronized (MQTTSession.SESSIONS) {
          /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
           * start a new one  This Session lasts as long as the Network Connection. State data associated with this Session
           * MUST NOT be reused in any subsequent Session */
-         if (cleanSession) {
-            MQTTSession.SESSIONS.remove(clientId);
-            return new MQTTSessionState(clientId);
-         } else {
-            /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
-            a new one. */
-            MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
-            if (state != null) {
-               // TODO Add a count down latch for handling wait during attached session state.
-               while (state.getAttached()) {
-                  Thread.sleep(1000);
-               }
-               return state;
-            } else {
-               state = new MQTTSessionState(clientId);
-               MQTTSession.SESSIONS.put(clientId, state);
-               return state;
+
+         /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
+         a new one. */
+         MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
+         if (state != null) {
+            // TODO Add a count down latch for handling wait during attached session state.
+            while (state.getAttached()) {
+               Thread.sleep(1000);
             }
+            return state;
+         } else {
+            state = new MQTTSessionState(clientId);
+            MQTTSession.SESSIONS.put(clientId, state);
+            return state;
          }
       }
    }
