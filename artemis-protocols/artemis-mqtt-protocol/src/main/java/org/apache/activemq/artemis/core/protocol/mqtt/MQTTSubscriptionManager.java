@@ -74,18 +74,12 @@ public class MQTTSubscriptionManager {
       }
    }
 
-   synchronized void stop(boolean clean) throws Exception {
+   synchronized void stop() throws Exception {
       for (ServerConsumer consumer : consumers.values()) {
          consumer.setStarted(false);
          consumer.disconnect();
          consumer.getQueue().removeConsumer(consumer);
          consumer.close(false);
-      }
-
-      if (clean) {
-         for (ServerConsumer consumer : consumers.values()) {
-            session.getServer().destroyQueue(consumer.getQueue().getName());
-         }
       }
    }
 
@@ -192,15 +186,20 @@ public class MQTTSubscriptionManager {
 
    // FIXME: Do we need this synchronzied?
    private synchronized void removeSubscription(String address) throws Exception {
-      ServerConsumer consumer = consumers.get(address);
       String internalAddress = MQTTUtil.convertMQTTAddressFilterToCore(address);
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
-
-      Queue queue = session.getServer().locateQueue(internalQueueName);
-      queue.deleteQueue(true);
       session.getSessionState().removeSubscription(address);
+
+      ServerConsumer consumer = consumers.get(address);
       consumers.remove(address);
-      consumerQoSLevels.remove(consumer.getID());
+      if (consumer != null) {
+         consumer.removeItself();
+         consumerQoSLevels.remove(consumer.getID());
+      }
+
+      if (session.getServerSession().executeQueueQuery(internalQueueName).isExists()) {
+         session.getServerSession().deleteQueue(internalQueueName);
+      }
    }
 
    private SimpleString getQueueNameForTopic(String topic) {
@@ -228,4 +227,9 @@ public class MQTTSubscriptionManager {
       return consumerQoSLevels;
    }
 
+   void clean() throws Exception {
+      for (MqttTopicSubscription mqttTopicSubscription : session.getSessionState().getSubscriptions()) {
+         removeSubscription(mqttTopicSubscription.topicName());
+      }
+   }
 }

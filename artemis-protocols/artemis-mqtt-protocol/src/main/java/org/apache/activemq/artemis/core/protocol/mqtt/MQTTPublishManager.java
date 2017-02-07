@@ -67,13 +67,19 @@ public class MQTTPublishManager {
       createManagementConsumer();
    }
 
-   synchronized void stop(boolean clean) throws Exception {
+   synchronized void stop() throws Exception {
       if (managementConsumer != null) {
          managementConsumer.removeItself();
          managementConsumer.setStarted(false);
          managementConsumer.close(false);
-         if (clean)
-            session.getServer().destroyQueue(managementAddress);
+      }
+   }
+
+   void clean() throws Exception {
+      createManagementAddress();
+      Queue queue = session.getServer().locateQueue(managementAddress);
+      if (queue != null) {
+         queue.deleteQueue();
       }
    }
 
@@ -84,7 +90,7 @@ public class MQTTPublishManager {
    }
 
    private void createManagementAddress() {
-      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX + state.getClientId());
+      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
    }
 
    private void createManagementQueue() throws Exception {
