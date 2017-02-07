@@ -113,8 +113,8 @@ public class ArtemisTest extends CliTestBase {
 
    @Test
    public void testSync() throws Exception {
-      int writes = 20;
-      int tries = 10;
+      int writes = 2;
+      int tries = 5;
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, JournalType.NIO);
       System.out.println();
       System.out.println("TotalAvg = " + totalAvg);
@@ -128,7 +128,7 @@ public class ArtemisTest extends CliTestBase {
    public void testSimpleCreate() throws Exception {
       //instance1: default using http
       File instance1 = new File(temporaryFolder.getRoot(), "instance1");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune");
    }
 
 
@@ -137,7 +137,7 @@ public class ArtemisTest extends CliTestBase {
       try {
          //instance1: default using http
          File instance1 = new File(temporaryFolder.getRoot(), "instance1");
-         Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--mapped");
+         Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--mapped", "--no-autotune");
       } catch (Throwable e) {
          e.printStackTrace();
          throw e;
@@ -150,7 +150,7 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       //instance1: default using http
       File instance1 = new File(temporaryFolder.getRoot(), "instance1");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune");
       File bootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
       assertTrue(bootstrapFile.exists());
       Document config = parseXml(bootstrapFile);
@@ -169,7 +169,7 @@ public class ArtemisTest extends CliTestBase {
 
       //instance2: https
       File instance2 = new File(temporaryFolder.getRoot(), "instance2");
-      Artemis.main("create", instance2.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--no-fsync");
+      Artemis.main("create", instance2.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--no-fsync", "--no-autotune");
       bootstrapFile = new File(new File(instance2, "etc"), "bootstrap.xml");
       assertTrue(bootstrapFile.exists());
       config = parseXml(bootstrapFile);
@@ -190,7 +190,7 @@ public class ArtemisTest extends CliTestBase {
 
       //instance3: https with clientAuth
       File instance3 = new File(temporaryFolder.getRoot(), "instance3");
-      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2", "--no-fsync");
+      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1", "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2", "--no-fsync", "--no-autotune");
       bootstrapFile = new File(new File(instance3, "etc"), "bootstrap.xml");
       assertTrue(bootstrapFile.exists());
 
@@ -223,7 +223,7 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
 
       File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
@@ -368,7 +368,7 @@ public class ArtemisTest extends CliTestBase {
       Run.setEmbedded(true);
       File instance1 = new File(temporaryFolder.getRoot(), "instance_user");
       System.setProperty("java.security.auth.login.config", instance1.getAbsolutePath() + "/etc/login.config");
-      Artemis.main("create", instance1.getAbsolutePath(), "--silent");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-autotune");
       System.setProperty("artemis.instance", instance1.getAbsolutePath());
 
       File userFile = new File(instance1.getAbsolutePath() + "/etc/artemis-users.properties");
@@ -523,7 +523,7 @@ public class ArtemisTest extends CliTestBase {
       Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
-      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5000", "--tries", "50", "--verbose");
+      Artemis.main("perf-journal", "--journal-type", "NIO", "--writes", "5", "--tries", "1", "--verbose");
 
    }
 
@@ -543,9 +543,6 @@ public class ArtemisTest extends CliTestBase {
 
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.internalExecute("run");
-
-//      Artemis.main("queue", "create", "--name", "q1", "--address", "q1", "--user", "admin", "--password", "admin", "--autoCreateAddress");
-//      Artemis.main("queue", "create", "--name", "t2", "--address", "t2", "--user", "admin", "--password", "admin", "--autoCreateAddress");
 
       try {
          try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
@@ -620,7 +617,7 @@ public class ArtemisTest extends CliTestBase {
 
       // This is usually set when run from the command line via artemis.profile
       Run.setEmbedded(true);
-      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", topics, "--no-autotune", "--require-login", "--ping", "127.0.0.1");
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", topics, "--no-autotune", "--require-login", "--ping", "127.0.0.1", "--no-autotune");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
       FileConfiguration fc = new FileConfiguration();
