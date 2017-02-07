@@ -6,8 +6,8 @@ Once the configuration file is changed (broker.xml) the following modules will b
 
 - Address Settings
 - Security Settings
-- JMS Queues
-- JMS Topics
+- Diverts
+- Addresses & queues
 
 
-Notice: Queues and Topics won't be removed upon reload, given the risk of losing messages. You may execute explicit CLI or Management operations to remove destinations.
+Notice: Address & queues won't be removed upon reload, given the risk of losing messages. You may execute explicit CLI or Management operations to remove destinations.
