@@ -1401,6 +1401,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRemoveConsumer(ConsumerId id, long lastDeliveredSequenceId) throws Exception {
+         if (destroyed) {
+            return null;
+         }
          SessionId sessionId = id.getParentId();
          SessionState ss = state.getSessionState(sessionId);
          if (ss == null) {
