@@ -56,8 +56,8 @@ public interface ActiveMQXARecoveryLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void serverCachingCommand(Object runnable);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121005, value = "Invalid \"host\" value \"0.0.0.0\" detected for \"{0}\" connector. Switching to \"{1}\". If this new address is incorrect please manually configure the connector to use the proper one.",
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 122005, value = "Invalid \"host\" value \"0.0.0.0\" detected for \"{0}\" connector. Switching to \"{1}\". If this new address is incorrect please manually configure the connector to use the proper one.",
       format = Message.Format.MESSAGE_FORMAT)
    void invalidHostForConnector(String name, String newHost);
 
