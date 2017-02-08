@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -955,6 +956,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       producer2.send(message);
 
       session.commit();
+
+      // flush executors on queues so we can get precise number of messages
+      Queue queue1 = server.locateQueue(SimpleString.toSimpleString(random1));
+      queue1.flushExecutor();
+      Queue queue2 = server.locateQueue(SimpleString.toSimpleString(random1));
+      queue2.flushExecutor();
 
       assertEquals(2, serverControl.getTotalMessageCount());
 
