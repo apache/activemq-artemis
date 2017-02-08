@@ -82,7 +82,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
    public ObjectName getActiveMQServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + getObjectType() + "=Broker");
+      return ObjectName.getInstance(domain + ":" + getBrokerProperties());
    }
 
    /**
@@ -91,7 +91,7 @@ public final class ObjectNameBuilder {
     * @see AddressControl
     */
    public ObjectName getAddressObjectName(final SimpleString address) throws Exception {
-      return createObjectName("Address", address.toString());
+      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString())));
    }
 
    /**
@@ -100,16 +100,7 @@ public final class ObjectNameBuilder {
     * @see QueueControl
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name, RoutingType routingType) throws Exception {
-      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s, routingType=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", routingType.toString(), ObjectName.quote(name.toString())));
-   }
-
-   /**
-    * Returns the ObjectName used by QueueControl.
-    *
-    * @see QueueControl
-    */
-   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s, routingType=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Queue", ActiveMQDefaultConfiguration.getDefaultRoutingType(), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=queues,routingType=%s,queue=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(name.toString())));
    }
 
 
@@ -119,7 +110,7 @@ public final class ObjectNameBuilder {
     * @see DivertControl
     */
    public ObjectName getDivertObjectName(final String name, String address) throws Exception {
-      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "parentType=%s,parentName=%s," + getObjectType() + "=%s,name=%s", domain, "Address", ObjectName.quote(address.toString()), "Divert", ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
    }
 
    /**
@@ -128,7 +119,7 @@ public final class ObjectNameBuilder {
     * @see AcceptorControl
     */
    public ObjectName getAcceptorObjectName(final String name) throws Exception {
-      return createObjectName("Acceptor", name);
+      return createObjectName("acceptor", name);
    }
 
    /**
@@ -137,7 +128,7 @@ public final class ObjectNameBuilder {
     * @see BroadcastGroupControl
     */
    public ObjectName getBroadcastGroupObjectName(final String name) throws Exception {
-      return createObjectName("BroadcastGroup", name);
+      return createObjectName("broadcast-group", name);
    }
 
    /**
@@ -146,7 +137,7 @@ public final class ObjectNameBuilder {
     * @see BridgeControl
     */
    public ObjectName getBridgeObjectName(final String name) throws Exception {
-      return createObjectName("Bridge", name);
+      return createObjectName("bridge", name);
    }
 
    /**
@@ -155,62 +146,18 @@ public final class ObjectNameBuilder {
     * @see ClusterConnectionControl
     */
    public ObjectName getClusterConnectionObjectName(final String name) throws Exception {
-      return createObjectName("ClusterConnection", name);
-   }
-
-   /**
-    * Returns the ObjectName used by DiscoveryGroupControl.
-    */
-   public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception {
-      return createObjectName("DiscoveryGroup", name);
-   }
-
-   /**
-    * Returns the ObjectName used by JMSServerControl.
-    */
-   public ObjectName getJMSServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + "module=JMS," + getObjectType() + "=Server");
-   }
-
-   /**
-    * Returns the ObjectName used by JMSQueueControl.
-    */
-   public ObjectName getJMSQueueObjectName(final String name) throws Exception {
-      return getQueueObjectName(SimpleString.toSimpleString(name), SimpleString.toSimpleString(name), RoutingType.ANYCAST);
-   }
-
-   /**
-    * Returns the ObjectName used by TopicControl.
-    */
-   public ObjectName getJMSTopicObjectName(final String name) throws Exception {
-      return createObjectName("Topic", name);
-   }
-
-   /**
-    * Returns the ObjectName used by ConnectionFactoryControl.
-    */
-   public ObjectName getConnectionFactoryObjectName(final String name) throws Exception {
-      return createObjectName("ConnectionFactory", name);
+      return createObjectName("cluster-connection", name);
    }
 
    private ObjectName createObjectName(final String type, final String name) throws Exception {
-      String format = String.format("%s:" + getBrokerProperties() + getObjectType() + "=%s,name=%s", domain, type, ObjectName.quote(name));
-      return ObjectName.getInstance(format);
+      return ObjectName.getInstance(String.format("%s:broker=%s,component=%ss,name=%s", domain, ObjectName.quote(brokerName), type, ObjectName.quote(name)));
    }
 
    private String getBrokerProperties() {
       if (jmxUseBrokerName && brokerName != null) {
-         return String.format("type=Broker,brokerName=%s,", ObjectName.quote(brokerName));
+         return String.format("broker=%s", ObjectName.quote(brokerName));
       } else {
          return "";
-      }
-   }
-
-   private String getObjectType() {
-      if (jmxUseBrokerName && brokerName != null) {
-         return "serviceType";
-      } else {
-         return "type";
       }
    }
 }
