@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1453,6 +1454,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       setupLiveServer(node, fileStorage, false, netty, isLive);
    }
 
+   protected boolean isResolveProtocols() {
+      return false;
+   }
+
    protected void setupLiveServer(final int node,
                                   final boolean fileStorage,
                                   final boolean sharedStorage,
@@ -1472,7 +1477,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             haPolicyConfiguration = new ReplicatedPolicyConfiguration();
       }
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(false);
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(isResolveProtocols());
 
       ActiveMQServer server;
 
@@ -1888,5 +1893,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected boolean isFileStorage() {
       return true;
+   }
+
+   protected String getServerUri(int node) throws URISyntaxException {
+      ActiveMQServer server = servers[node];
+      if (server == null) {
+         throw new IllegalStateException("No server at node " + server);
+      }
+      int port = TransportConstants.DEFAULT_PORT + node;
+      return "tcp://localhost:" + port;
    }
 }
