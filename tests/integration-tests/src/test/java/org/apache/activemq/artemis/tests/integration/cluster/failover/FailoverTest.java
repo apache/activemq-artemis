@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
@@ -337,6 +338,23 @@ public class FailoverTest extends FailoverTestBase {
 
       session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
 
+      final CountDownLatch connectionFailed = new CountDownLatch(1);
+
+      session.addFailureListener(new SessionFailureListener() {
+         @Override
+         public void beforeReconnect(ActiveMQException exception) {
+         }
+
+         @Override
+         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+         }
+
+         @Override
+         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
+            connectionFailed.countDown();
+         }
+      });
+
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
       Xid xid = new XidImpl("uhuhuhu".getBytes(), 126512, "auhsduashd".getBytes());
@@ -358,6 +376,7 @@ public class FailoverTest extends FailoverTestBase {
          session.commit(xid, false);
       } catch (XAException e) {
          //there is still an edge condition that we must deal with
+         Assert.assertTrue(connectionFailed.await(10, TimeUnit.SECONDS));
          session.commit(xid, false);
       }
 

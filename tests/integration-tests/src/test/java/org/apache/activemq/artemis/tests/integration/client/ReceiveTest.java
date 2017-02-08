@@ -133,7 +133,7 @@ public class ReceiveTest extends ActiveMQTestBase {
    public void testReceiveImmediate() throws Exception {
 
       // forces perfect round robin
-      locator.setConsumerWindowSize(1);
+      locator.setConsumerMaxRate(1);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);

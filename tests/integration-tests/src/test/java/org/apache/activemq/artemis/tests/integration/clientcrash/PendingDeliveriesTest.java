@@ -55,6 +55,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
    private static final String AMQP_URI = "amqp://localhost:61616?amqp.saslLayer=false";
    private static final String CORE_URI_NO_RECONNECT = "tcp://localhost:61616?confirmationWindowSize=-1";
    private static final String CORE_URI_WITH_RECONNECT = "tcp://localhost:61616?confirmationWindowSize=" + (1024 * 1024);
+   private static final int NUMBER_OF_MESSAGES = 100;
 
    public static void main(String[] arg) {
       if (arg.length != 3) {
@@ -80,7 +81,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
          MessageConsumer consumer = session.createConsumer(destination);
          MessageProducer producer = session.createProducer(destination);
 
-         for (int i = 0; i < 100; i++) {
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             producer.send(session.createTextMessage("hello"));
          }
 
@@ -128,8 +129,10 @@ public class PendingDeliveriesTest extends ClientTestBase {
          Destination destination = session.createQueue(destinationName);
          MessageConsumer consumer = session.createConsumer(destination);
 
-         for (int i = 0; i < 100; i++) {
-            Assert.assertNotNull(consumer.receive(1000));
+         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            // give more time to receive first message but do not wait so long for last as all message were most likely sent
+            Assert.assertNotNull("consumer.receive(...) returned null for " + i + "th message. Number of expected messages" +
+                    " to be received is " + NUMBER_OF_MESSAGES, i == NUMBER_OF_MESSAGES - 1 ? consumer.receive(500) : consumer.receive(5000));
          }
       } finally {
          connection.stop();
@@ -155,14 +158,14 @@ public class PendingDeliveriesTest extends ClientTestBase {
          MessageConsumer consumer = session.createConsumer(destination);
 
          int i = 0;
-         for (; i < 100; i++) {
-            Message msg = consumer.receive(100);
+         for (; i < NUMBER_OF_MESSAGES; i++) {
+            Message msg = consumer.receive(1000);
             if (msg == null) {
                break;
             }
          }
 
-         Assert.assertTrue(i < 100);
+         Assert.assertTrue(i < NUMBER_OF_MESSAGES);
       } finally {
          connection.stop();
          connection.close();
