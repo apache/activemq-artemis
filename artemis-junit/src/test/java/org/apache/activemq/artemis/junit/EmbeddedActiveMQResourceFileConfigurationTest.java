@@ -32,6 +32,12 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
+   static {
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
+      ThreadLeakCheckRule.addKownThread("SeedGenerator Thread");
+   }
+
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource("embedded-artemis-server.xml");
 
    @Rule

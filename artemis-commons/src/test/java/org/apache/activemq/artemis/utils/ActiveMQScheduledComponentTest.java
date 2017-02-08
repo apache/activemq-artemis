@@ -101,7 +101,7 @@ public class ActiveMQScheduledComponentTest {
 
       local.stop();
 
-      Assert.assertTrue("just because one took a lot of time, it doesn't mean we can accumulate many, we got " + count + " executions", count.get() < 5 && count.get() > 0);
+      Assert.assertTrue("just because one took a lot of time, it doesn't mean we can accumulate many, we got " + count + " executions", count.get() <= 5 && count.get() > 0);
    }
 
    @Test

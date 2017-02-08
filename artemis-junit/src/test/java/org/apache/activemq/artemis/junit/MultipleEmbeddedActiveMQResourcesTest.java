@@ -38,6 +38,11 @@ public class MultipleEmbeddedActiveMQResourcesTest {
    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
+   static {
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
+   }
+
    public EmbeddedActiveMQResource serverOne = new EmbeddedActiveMQResource(0);
 
    public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
