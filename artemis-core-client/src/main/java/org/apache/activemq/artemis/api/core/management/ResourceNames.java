@@ -39,8 +39,6 @@ public final class ResourceNames {
 
    public static final String BROADCAST_GROUP = "broadcastgroup.";
 
-   public static final String DISCOVERY_GROUP = "discovery.";
-
    private ResourceNames() {
    }
 
