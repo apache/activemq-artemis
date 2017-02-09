@@ -43,7 +43,7 @@ public class MQTTRetainMessageManager {
     * the retained queue and the previous retain message consumed to remove it from the queue.
     */
    void handleRetainedMessage(ServerMessage message, String address, boolean reset) throws Exception {
-      SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address));
+      SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration()));
 
       Queue queue = session.getServer().locateQueue(retainAddress);
       if (queue == null) {
@@ -70,7 +70,7 @@ public class MQTTRetainMessageManager {
       // Queue to add the retained messages to
 
       // The address filter that matches all retained message queues.
-      String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(address);
+      String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration());
       BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
 
       // Iterate over all matching retain queues and add the head message to the original queue.

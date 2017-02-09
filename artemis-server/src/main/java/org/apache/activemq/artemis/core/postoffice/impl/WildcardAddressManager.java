@@ -34,16 +34,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public class WildcardAddressManager extends SimpleAddressManager {
 
-   static final char SINGLE_WORD = '*';
-
-   static final char ANY_WORDS = '#';
-
-   static final char DELIM = '.';
-
-   static final SimpleString SINGLE_WORD_SIMPLESTRING = new SimpleString("*");
-
-   static final SimpleString ANY_WORDS_SIMPLESTRING = new SimpleString("#");
-
    /**
     * These are all the addresses, we use this so we can link back from the actual address to its linked wilcard addresses
     * or vice versa
@@ -175,7 +165,6 @@ public class WildcardAddressManager extends SimpleAddressManager {
             if (actualAddress.matches(destAdd)) {
                destAdd.addLinkedAddress(actualAddress);
                actualAddress.addLinkedAddress(destAdd);
-
             }
          }
       }
