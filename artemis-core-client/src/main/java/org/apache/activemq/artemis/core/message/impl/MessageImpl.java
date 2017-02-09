@@ -1020,18 +1020,6 @@ public abstract class MessageImpl implements MessageInternal {
       buffer.setIndex(BODY_OFFSET, BODY_OFFSET);
    }
 
-   private void forceCopy() {
-      // Must copy buffer before sending it
-
-      buffer = buffer.copy(0, buffer.capacity());
-
-      buffer.setIndex(0, getEndOfBodyPosition());
-
-      if (bodyBuffer != null) {
-         bodyBuffer.setBuffer(buffer);
-      }
-   }
-
    // Inner classes -------------------------------------------------
 
    private final class DecodingContext implements BodyEncoder {
