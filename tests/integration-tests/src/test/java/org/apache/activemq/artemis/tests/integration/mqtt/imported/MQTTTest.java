@@ -273,6 +273,7 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals(NUM_MESSAGES, MQTTOutoingInterceptor.getMessageCount());
    }
 
+   @Ignore
    @Test(timeout = 600 * 1000)
    public void testSendMoreThanUniqueId() throws Exception {
       int messages = (Short.MAX_VALUE * 2) + 1;

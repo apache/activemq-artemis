@@ -55,6 +55,8 @@ public class MQTTSession {
 
    private MQTTProtocolManager protocolManager;
 
+   private boolean isClean;
+
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
                       MQTTProtocolManager protocolManager) throws Exception {
@@ -83,9 +85,8 @@ public class MQTTSession {
    synchronized void stop() throws Exception {
       if (!stopped) {
          protocolHandler.stop(false);
-         // TODO this should pass in clean session.
-         subscriptionManager.stop(false);
-         mqttPublishManager.stop(false);
+         subscriptionManager.stop();
+         mqttPublishManager.stop();
 
          if (serverSession != null) {
             serverSession.stop();
@@ -95,12 +96,27 @@ public class MQTTSession {
          if (state != null) {
             state.setAttached(false);
          }
+
+         if (isClean()) {
+            clean();
+         }
       }
       stopped = true;
    }
 
    boolean getStopped() {
       return stopped;
+   }
+
+   boolean isClean() {
+      return isClean;
+   }
+
+   void setIsClean(boolean isClean) throws Exception {
+      this.isClean = isClean;
+      if (isClean) {
+         clean();
+      }
    }
 
    MQTTPublishManager getMqttPublishManager() {
@@ -158,5 +174,11 @@ public class MQTTSession {
 
    MQTTProtocolManager getProtocolManager() {
       return protocolManager;
+   }
+
+   void clean() throws Exception {
+      subscriptionManager.clean();
+      mqttPublishManager.clean();
+      state.clear();
    }
 }
