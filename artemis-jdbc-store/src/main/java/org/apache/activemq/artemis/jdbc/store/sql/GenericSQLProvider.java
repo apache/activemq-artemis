@@ -69,7 +69,7 @@ public class GenericSQLProvider implements SQLProvider {
 
       selectIdByFileNameSQL = "SELECT ID, FILENAME, EXTENSION, DATA FROM " + tableName + " WHERE fileName=?";
 
-      appendToFileSQL = "UPDATE " + tableName + " SET DATA = CONCAT(DATA, ?) WHERE ID=?";
+      appendToFileSQL = "SELECT DATA FROM " + tableName + " WHERE ID=? FOR UPDATE";
 
       readLargeObjectSQL = "SELECT DATA FROM " + tableName + " WHERE ID=?";
 
