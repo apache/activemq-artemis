@@ -26,16 +26,12 @@ public class DerbySQLProvider extends GenericSQLProvider {
 
    private final String createFileTableSQL;
 
-   private final String appendToFileSQL;
-
    private DerbySQLProvider(String tableName) {
       super(tableName.toUpperCase());
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
          "FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
-
-      appendToFileSQL = "UPDATE " + tableName + " SET DATA = DATA || ? WHERE ID=?";
    }
 
    @Override
@@ -46,11 +42,6 @@ public class DerbySQLProvider extends GenericSQLProvider {
    @Override
    public String getCreateFileTableSQL() {
       return createFileTableSQL;
-   }
-
-   @Override
-   public String getAppendToLargeObjectSQL() {
-      return appendToFileSQL;
    }
 
    @Override
