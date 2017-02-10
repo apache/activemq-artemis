@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.utils.UTF8Util;
 
 public class ChannelBufferWrapper implements ActiveMQBuffer {
 
-   protected ByteBuf buffer; // NO_UCD (use final)
+   protected final ByteBuf buffer;
    private final boolean releasable;
    private final boolean isPooled;
    public static ByteBuf unwrap(ByteBuf buffer) {
