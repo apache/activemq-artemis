@@ -71,13 +71,6 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
       }
    }
 
-   public void setBuffer(final ActiveMQBuffer buffer) {
-      if (this.buffer != null) {
-         this.buffer.release();
-      }
-      this.buffer = buffer.byteBuf();
-   }
-
    @Override
    public void clear() {
       changed();
