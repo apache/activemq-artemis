@@ -35,19 +35,19 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    protected PreparedStatement deleteFile;
 
-   PreparedStatement createFile;
+   protected PreparedStatement createFile;
 
-   private PreparedStatement selectFileByFileName;
+   protected PreparedStatement selectFileByFileName;
 
-   private PreparedStatement copyFileRecord;
+   protected PreparedStatement copyFileRecord;
 
-   private PreparedStatement renameFile;
+   protected PreparedStatement renameFile;
 
-   PreparedStatement readLargeObject;
+   protected PreparedStatement readLargeObject;
 
-   private PreparedStatement appendToLargeObject;
+   protected PreparedStatement appendToLargeObject;
 
-   private PreparedStatement selectFileNamesByExtension;
+   protected PreparedStatement selectFileNamesByExtension;
 
    JDBCSequentialFileFactoryDriver() {
       super();
@@ -105,7 +105,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
-      int fileId = fileExists(file);
+      final long fileId = fileExists(file);
       if (fileId < 0) {
          createFile(file);
       } else {
@@ -121,13 +121,13 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
     * @return
     * @throws SQLException
     */
-   public int fileExists(JDBCSequentialFile file) throws SQLException {
+   public long fileExists(JDBCSequentialFile file) throws SQLException {
       try {
          synchronized (connection) {
             connection.setAutoCommit(false);
             selectFileByFileName.setString(1, file.getFileName());
             try (ResultSet rs = selectFileByFileName.executeQuery()) {
-               int id = rs.next() ? rs.getInt(1) : -1;
+               final long id = rs.next() ? rs.getLong(1) : -1;
                connection.commit();
                return id;
             } catch (Exception e) {
@@ -150,7 +150,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
    public void loadFile(JDBCSequentialFile file) throws SQLException {
       synchronized (connection) {
          connection.setAutoCommit(false);
-         readLargeObject.setInt(1, file.getId());
+         readLargeObject.setLong(1, file.getId());
 
          try (ResultSet rs = readLargeObject.executeQuery()) {
             if (rs.next()) {
@@ -180,7 +180,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             createFile.executeUpdate();
             try (ResultSet keys = createFile.getGeneratedKeys()) {
                keys.next();
-               file.setId(keys.getInt(1));
+               file.setId(keys.getLong(1));
             }
             connection.commit();
          } catch (SQLException e) {
@@ -202,7 +202,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          try {
             connection.setAutoCommit(false);
             renameFile.setString(1, newFileName);
-            renameFile.setInt(2, file.getId());
+            renameFile.setLong(2, file.getId());
             renameFile.executeUpdate();
             connection.commit();
          } catch (SQLException e) {
@@ -222,7 +222,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       synchronized (connection) {
          try {
             connection.setAutoCommit(false);
-            deleteFile.setInt(1, file.getId());
+            deleteFile.setLong(1, file.getId());
             deleteFile.executeUpdate();
             connection.commit();
          } catch (SQLException e) {
@@ -245,7 +245,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          try {
             connection.setAutoCommit(false);
             appendToLargeObject.setBytes(1, data);
-            appendToLargeObject.setInt(2, file.getId());
+            appendToLargeObject.setLong(2, file.getId());
             appendToLargeObject.executeUpdate();
             connection.commit();
             return data.length;
@@ -267,11 +267,11 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
    public int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
       synchronized (connection) {
          connection.setAutoCommit(false);
-         readLargeObject.setInt(1, file.getId());
+         readLargeObject.setLong(1, file.getId());
          int readLength = 0;
          try (ResultSet rs = readLargeObject.executeQuery()) {
             if (rs.next()) {
-               Blob blob = rs.getBlob(1);
+               final Blob blob = rs.getBlob(1);
                readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
                byte[] data = blob.getBytes(file.position() + 1, readLength);
                bytes.put(data);
@@ -296,8 +296,8 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       synchronized (connection) {
          try {
             connection.setAutoCommit(false);
-            copyFileRecord.setInt(1, fileFrom.getId());
-            copyFileRecord.setInt(2, fileTo.getId());
+            copyFileRecord.setLong(1, fileFrom.getId());
+            copyFileRecord.setLong(2, fileTo.getId());
             copyFileRecord.executeUpdate();
             connection.commit();
          } catch (SQLException e) {

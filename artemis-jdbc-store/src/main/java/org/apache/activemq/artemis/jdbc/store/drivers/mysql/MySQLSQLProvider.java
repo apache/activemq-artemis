@@ -33,7 +33,7 @@ public class MySQLSQLProvider extends GenericSQLProvider {
       super(tName.toLowerCase());
 
       createFileTableSQL = "CREATE TABLE " + tableName +
-         "(ID INTEGER NOT NULL AUTO_INCREMENT," +
+         "(ID BIGINT NOT NULL AUTO_INCREMENT," +
          "FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA LONGBLOB, PRIMARY KEY(ID)) ENGINE=InnoDB;";
 
       createJournalTableSQL = new String[] {
