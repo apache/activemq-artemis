@@ -627,4 +627,8 @@ public class AmqpMessage {
          message.setProperties(new Properties());
       }
    }
+
+   public void settle() {
+      delivery.settle();
+   }
 }

@@ -75,6 +75,32 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testAcceptWithoutSettling() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+
+      sendMessages(getTestName(), 10);
+
+      for (int i = 0; i < 10; i++) {
+         receiver.flow(1);
+         AmqpMessage receive = receiver.receive();
+         receive.accept(false);
+         receive.settle();
+      }
+
+      receiver.close();
+      connection.close();
+
+      Queue queue = getProxyToQueue(getTestName());
+      assertNotNull(queue);
+      assertEquals(0, queue.getMessageCount());
+   }
+
+
+   @Test(timeout = 60000)
    public void testCreateQueueReceiverWithJMSSelector() throws Exception {
       AmqpClient client = createAmqpClient();
 
