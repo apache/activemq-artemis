@@ -49,7 +49,7 @@ For a full list of data tools commands available use:
 ```
 NAME
         artemis data - data tools group
-        (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)
+        (print|imp|exp|encode|decode|compact) (example ./artemis data print)
 
 SYNOPSIS
         artemis data
