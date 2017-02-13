@@ -17,9 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.UUID;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -75,7 +78,10 @@ public class MQTTConnectionManager {
       session.setIsClean(cleanSession);
 
       if (will) {
-         ServerMessage w = MQTTUtil.createServerMessageFromString(session, willMessage, willTopic, willQosLevel, willRetain);
+         byte[] payload = willMessage.getBytes(Charset.forName("UTF-8"));
+         ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(payload.length);
+         buf.writeBytes(payload);
+         ServerMessage w = MQTTUtil.createServerMessageFromByteBuf(session, willTopic, willRetain, willQosLevel, buf);
          session.getSessionState().setWillMessage(w);
       }
 
