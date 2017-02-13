@@ -100,7 +100,7 @@ public final class ObjectNameBuilder {
     * @see QueueControl
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name, RoutingType routingType) throws Exception {
-      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=queues,routingType=%s,queue=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s:broker=%s,component=addresses,address=%s,subcomponent=queues,routing-type=%s,queue=%s", domain, ObjectName.quote(brokerName), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(name.toString())));
    }
 
 
