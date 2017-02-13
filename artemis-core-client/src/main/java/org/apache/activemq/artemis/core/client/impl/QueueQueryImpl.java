@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class QueueQueryImpl implements ClientSession.QueueQuery {
 

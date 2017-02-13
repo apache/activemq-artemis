@@ -20,7 +20,7 @@ import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.api.core.RoutingType;
 
 /**
  * Helper class to build ObjectNames for ActiveMQ Artemis resources.
