@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.MQTTException;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
@@ -998,6 +999,39 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
+   public void testClientConnectionFailureSendsWillMessage() throws Exception {
+      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+
+      MQTT mqtt = createMQTTConnection("1", false);
+      mqtt.setKeepAlive((short) 1);
+      mqtt.setWillMessage("test message");
+      mqtt.setWillTopic("will");
+      mqtt.setWillQos(QoS.AT_LEAST_ONCE);
+
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return connection.isConnected();
+         }
+      });
+
+      MQTT mqtt2 = createMQTTConnection("2", false);
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(new Topic[]{new Topic("will", QoS.AT_LEAST_ONCE)});
+
+      // kill transport
+      connection.kill();
+
+      // FIXME Wait for the previous connection to timeout.  This is not required in ActiveMQ.  Needs investigating.
+      Thread.sleep(10000);
+      Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
+      assertEquals("test message", new String(m.getPayload()));
+   }
+
+   @Test(timeout = 60 * 1000)
    public void testCleanSession() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
@@ -1778,5 +1812,23 @@ public class MQTTTest extends MQTTTestSupport {
 
       Message message = connection2.receive();
       assertEquals(payload, new String(message.getPayload()));
+   }
+
+   @Test
+   public void testDuplicateIDReturnsError() throws Exception {
+      String clientId = "clientId";
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId(clientId);
+      mqtt.blockingConnection().connect();
+
+      MQTTException e = null;
+      try {
+         MQTT mqtt2 = createMQTTConnection();
+         mqtt2.setClientId(clientId);
+         mqtt2.blockingConnection().connect();
+      } catch (MQTTException mqttE) {
+         e = mqttE;
+      }
+      assertTrue(e.getMessage().contains("CONNECTION_REFUSED_IDENTIFIER_REJECTED"));
    }
 }
