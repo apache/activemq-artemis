@@ -33,6 +33,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -72,7 +74,7 @@ public class MessageCounterExample {
          Thread.sleep(3000);
 
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
-         ObjectName on = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queue.getQueueName());
+         ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
          QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, QueueControl.class, false);

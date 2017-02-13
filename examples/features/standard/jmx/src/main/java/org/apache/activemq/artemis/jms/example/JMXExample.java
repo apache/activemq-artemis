@@ -33,6 +33,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
@@ -74,7 +76,7 @@ public class JMXExample {
          producer.send(message);
 
          // Step 9. Retrieve the ObjectName of the queue. This is used to identify the server resources to manage
-         ObjectName on = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queue.getQueueName());
+         ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
 
          // Step 10. Create JMX Connector to connect to the server's MBeanServer
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXExample.JMX_URL), new HashMap());
