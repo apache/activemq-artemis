@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class CoreQueueConfiguration implements Serializable {
 

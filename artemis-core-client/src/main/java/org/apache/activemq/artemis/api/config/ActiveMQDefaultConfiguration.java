@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.config;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
-import org.apache.activemq.artemis.core.server.RoutingType;
+import org.apache.activemq.artemis.api.core.RoutingType;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
