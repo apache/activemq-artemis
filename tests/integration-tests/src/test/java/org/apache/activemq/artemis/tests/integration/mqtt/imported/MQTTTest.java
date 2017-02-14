@@ -35,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
@@ -995,7 +996,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testClientConnectionFailureSendsWillMessage() throws Exception {
-      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+      getServer().createQueue(SimpleString.toSimpleString("will"), SimpleString.toSimpleString("will"), null, true, false);
 
       MQTT mqtt = createMQTTConnection("1", false);
       mqtt.setKeepAlive((short) 1);
@@ -1005,12 +1006,10 @@ public class MQTTTest extends MQTTTestSupport {
 
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      });
+      long time = System.currentTimeMillis();
+      while (connection.isConnected() && time + 10000 < System.currentTimeMillis()) {
+         Thread.sleep(1000);
+      }
 
       MQTT mqtt2 = createMQTTConnection("2", false);
       BlockingConnection connection2 = mqtt2.blockingConnection();

@@ -133,7 +133,7 @@ public class MQTTConnectionManager {
    }
 
    private void sendWill() throws Exception {
-      session.getServer().getPostOffice().route(session.getSessionState().getWillMessage(), true);
+      session.getServer().getPostOffice().route(session.getSessionState().getWillMessage(), null, true);
       session.getSessionState().deleteWillMessage();
    }
 
