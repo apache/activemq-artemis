@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -43,8 +44,11 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.jboss.logging.Logger;
 
 public class WebServerComponent implements ExternalComponent {
+
+   private static final Logger logger = Logger.getLogger(WebServerComponent.class);
 
    private Server server;
    private HandlerList handlers;
@@ -145,9 +149,16 @@ public class WebServerComponent implements ExternalComponent {
                //tmpdir will be removed by deleteOnExit()
                //somehow when broker is stopped and restarted quickly
                //this tmpdir won't get deleted sometimes
-               boolean fileDeleted = TimeUtils.waitOnBoolean(false, 10000, tmpdir::exists);
+               boolean fileDeleted = TimeUtils.waitOnBoolean(false, 5000, tmpdir::exists);
                if (!fileDeleted) {
-                  ActiveMQWebLogger.LOGGER.tmpFileNotDeleted(tmpdir);
+                  //because the execution order of shutdown hooks are
+                  //not determined, so it's possible that the deleteOnExit
+                  //is executed after this hook, in that case we force a delete.
+                  FileUtil.deleteDirectory(tmpdir);
+                  logger.debug("Force to delete temporary file on shutdown: " + tmpdir.getAbsolutePath());
+                  if (tmpdir.exists()) {
+                     ActiveMQWebLogger.LOGGER.tmpFileNotDeleted(tmpdir);
+                  }
                }
             }
          }
