@@ -17,9 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.UUID;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -75,7 +78,10 @@ public class MQTTConnectionManager {
       session.setIsClean(cleanSession);
 
       if (will) {
-         ServerMessage w = MQTTUtil.createServerMessageFromString(session, willMessage, willTopic, willQosLevel, willRetain);
+         byte[] payload = willMessage.getBytes(Charset.forName("UTF-8"));
+         ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(payload.length);
+         buf.writeBytes(payload);
+         ServerMessage w = MQTTUtil.createServerMessageFromByteBuf(session, willTopic, willRetain, willQosLevel, buf);
          session.getSessionState().setWillMessage(w);
       }
 
@@ -113,56 +119,50 @@ public class MQTTConnectionManager {
       return (ServerSessionImpl) serverSession;
    }
 
-   void disconnect() {
+   synchronized void disconnect() {
       if (session == null) {
          return;
       }
-      try {
-         if (session.getSessionState() != null) {
-            String clientId = session.getSessionState().getClientId();
-            if (clientId != null)
-               CONNECTED_CLIENTS.remove(clientId);
 
-            if (session.getState().isWill()) {
-               session.getConnectionManager().sendWill();
+      try {
+         session.stop();
+         session.getConnection().destroy();
+
+         if (session.getState().isWill()) {
+            session.getConnectionManager().sendWill();
+         }
+      } catch (Exception e) {
+         log.error("Error disconnecting client: " + e.getMessage());
+      } finally {
+         if (session.getSessionState() != null) {
+            session.getSessionState().setAttached(false);
+            String clientId = session.getSessionState().getClientId();
+            if (clientId != null) {
+               CONNECTED_CLIENTS.remove(clientId);
             }
          }
-         session.stop();
-         session.getConnection().disconnect(false);
-         session.getConnection().destroy();
-      } catch (Exception e) {
-         /* FIXME Failure during disconnect would leave the session state in an unrecoverable state.  We should handle
-         errors more gracefully.
-          */
-         log.error("Error disconnecting client: " + e.getMessage());
       }
    }
 
    private void sendWill() throws Exception {
-      session.getServerSession().send(session.getSessionState().getWillMessage(), true);
+      session.getServer().getPostOffice().route(session.getSessionState().getWillMessage(), true);
       session.getSessionState().deleteWillMessage();
    }
 
    private MQTTSessionState getSessionState(String clientId) throws InterruptedException {
-      synchronized (MQTTSession.SESSIONS) {
-         /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
-          * start a new one  This Session lasts as long as the Network Connection. State data associated with this Session
-          * MUST NOT be reused in any subsequent Session */
+      /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
+       * start a new one  This Session lasts as long as the Network Connection. State data associated with this Session
+       * MUST NOT be reused in any subsequent Session */
 
-         /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
-         a new one. */
-         MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
-         if (state != null) {
-            // TODO Add a count down latch for handling wait during attached session state.
-            while (state.getAttached()) {
-               Thread.sleep(1000);
-            }
-            return state;
-         } else {
-            state = new MQTTSessionState(clientId);
-            MQTTSession.SESSIONS.put(clientId, state);
-            return state;
-         }
+      /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
+      a new one. */
+      MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
+      if (state != null) {
+         return state;
+      } else {
+         state = new MQTTSessionState(clientId);
+         MQTTSession.SESSIONS.put(clientId, state);
+         return state;
       }
    }
 

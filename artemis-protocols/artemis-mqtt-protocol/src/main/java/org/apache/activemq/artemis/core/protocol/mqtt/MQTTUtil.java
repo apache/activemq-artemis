@@ -115,7 +115,6 @@ public class MQTTUtil {
       message.setAddress(address);
       message.putBooleanProperty(new SimpleString(MQTT_MESSAGE_RETAIN_KEY), retain);
       message.putIntProperty(new SimpleString(MQTT_QOS_LEVEL_KEY), qos);
-      // For JMS Consumption
       message.setType(Message.BYTES_TYPE);
       return message;
    }
@@ -130,16 +129,6 @@ public class MQTTUtil {
 
       // FIXME does this involve a copy?
       message.getBodyBuffer().writeBytes(new ChannelBufferWrapper(payload), payload.readableBytes());
-      return message;
-   }
-
-   public static ServerMessage createServerMessageFromString(MQTTSession session,
-                                                             String payload,
-                                                             String topic,
-                                                             int qos,
-                                                             boolean retain) {
-      ServerMessage message = createServerMessage(session, new SimpleString(topic), retain, qos);
-      message.getBodyBuffer().writeString(payload);
       return message;
    }
 
