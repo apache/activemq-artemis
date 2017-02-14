@@ -746,7 +746,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       message.setDurable(durable);
       message.setTimestamp(System.currentTimeMillis());
       if (body != null) {
-         message.getBodyBuffer().writeBytes(Base64.decode(body));
+         if (type == Message.TEXT_TYPE) {
+            message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+         } else {
+            message.getBodyBuffer().writeBytes(Base64.decode(body));
+         }
       }
       message.setAddress(queue.getAddress());
       ByteBuffer buffer = ByteBuffer.allocate(8);
