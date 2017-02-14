@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -36,7 +33,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import io.airlift.airline.Command;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -80,9 +80,10 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+
+import io.airlift.airline.Command;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends OptionalLocking {
@@ -471,11 +472,7 @@ public final class XmlDataExporter extends OptionalLocking {
       if (message.isLargeMessage()) {
          printLargeMessageBody((LargeServerMessage) message);
       } else {
-         int size = message.getEndOfBodyPosition() - message.getBodyBuffer().readerIndex();
-         byte[] buffer = new byte[size];
-         message.getBodyBuffer().readBytes(buffer);
-
-         xmlWriter.writeCData(encode(buffer));
+         xmlWriter.writeCData(XmlDataExporterUtil.encodeMessageBody(message));
       }
       xmlWriter.writeEndElement(); // end MESSAGE_BODY
    }
@@ -499,7 +496,7 @@ public final class XmlDataExporter extends OptionalLocking {
             }
             ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
             encoder.encode(buffer, bufferSize.intValue());
-            xmlWriter.writeCData(encode(buffer.toByteBuffer().array()));
+            xmlWriter.writeCData(XmlDataExporterUtil.encode(buffer.toByteBuffer().array()));
             totalBytesWritten += bufferSize;
          }
          encoder.close();
@@ -531,35 +528,12 @@ public final class XmlDataExporter extends OptionalLocking {
          Object value = message.getObjectProperty(key);
          xmlWriter.writeEmptyElement(XmlDataConstants.PROPERTIES_CHILD);
          xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_NAME, key.toString());
-         if (value instanceof byte[]) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, encode((byte[]) value));
-         } else {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value == null ? XmlDataConstants.NULL : value.toString());
-         }
+         xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, XmlDataExporterUtil.convertProperty(value));
 
-         // if the value is null then we can't really know what it is so just set the type to the most generic thing
-         if (value == null) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTES);
-         } else if (value instanceof Boolean) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BOOLEAN);
-         } else if (value instanceof Byte) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTE);
-         } else if (value instanceof Short) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SHORT);
-         } else if (value instanceof Integer) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_INTEGER);
-         } else if (value instanceof Long) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_LONG);
-         } else if (value instanceof Float) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_FLOAT);
-         } else if (value instanceof Double) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_DOUBLE);
-         } else if (value instanceof String) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_STRING);
-         } else if (value instanceof SimpleString) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING);
-         } else if (value instanceof byte[]) {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTES);
+         // Write the property type as an attribute
+         String propertyType = XmlDataExporterUtil.getPropertyType(value);
+         if (propertyType != null) {
+            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, propertyType);
          }
       }
       xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
@@ -570,19 +544,7 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TIMESTAMP, Long.toString(message.getTimestamp()));
-      byte rawType = message.getType();
-      String prettyType = XmlDataConstants.DEFAULT_TYPE_PRETTY;
-      if (rawType == Message.BYTES_TYPE) {
-         prettyType = XmlDataConstants.BYTES_TYPE_PRETTY;
-      } else if (rawType == Message.MAP_TYPE) {
-         prettyType = XmlDataConstants.MAP_TYPE_PRETTY;
-      } else if (rawType == Message.OBJECT_TYPE) {
-         prettyType = XmlDataConstants.OBJECT_TYPE_PRETTY;
-      } else if (rawType == Message.STREAM_TYPE) {
-         prettyType = XmlDataConstants.STREAM_TYPE_PRETTY;
-      } else if (rawType == Message.TEXT_TYPE) {
-         prettyType = XmlDataConstants.TEXT_TYPE_PRETTY;
-      }
+      String prettyType = XmlDataExporterUtil.getMessagePrettyType(message.getType());
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TYPE, prettyType);
       if (message.getUserID() != null) {
          xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_USER_ID, message.getUserID().toString());
@@ -595,10 +557,6 @@ public final class XmlDataExporter extends OptionalLocking {
          queues.add(queueBindings.get(ref.refEncoding.queueID).getQueueName().toString());
       }
       return queues;
-   }
-
-   private static String encode(final byte[] data) {
-      return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
    // Inner classes -------------------------------------------------
