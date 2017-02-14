@@ -2514,7 +2514,7 @@
             <xsd:element name="slow-consumer-check-period" type="xsd:long" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     How often to check for slow consumers on a particular queue. Measured in minutes.
+                     How often to check for slow consumers on a particular queue. Measured in seconds.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
