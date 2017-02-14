@@ -27,7 +27,8 @@ public interface CompositeDataConstants {
    String PRIORITY = "priority";
    String REDELIVERED = "redelivered";
    String TIMESTAMP = "timestamp";
-   String BODY = "body";
+   String BODY = "BodyPreview";
+   String TEXT_BODY = "text";
    String PROPERTIES = "PropertiesText";
 
    String ADDRESS_DESCRIPTION = "The Address";
