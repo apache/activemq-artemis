@@ -443,8 +443,10 @@ public class AMQPSessionCallback implements SessionCallback {
                                    final Receiver receiver) {
       try {
          if (address == null) {
-            receiver.flow(credits);
-            connection.flush();
+            synchronized (connection.getLock()) {
+               receiver.flow(credits);
+               connection.flush();
+            }
             return;
          }
          final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
