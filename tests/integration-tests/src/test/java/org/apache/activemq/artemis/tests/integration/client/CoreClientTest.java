@@ -25,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.hazelcast.util.UuidUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -44,6 +43,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -195,7 +195,7 @@ public class CoreClientTest extends ActiveMQTestBase {
       Map<String, ClientConsumer> consumerMap = new HashMap<>();
 
       for (String prefix : anycastPrefixes) {
-         String queueName = UuidUtil.buildRandomUuidString();
+         String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
          session.createQueue(prefix + baseAddress, null, queueName, null, false);
@@ -203,7 +203,7 @@ public class CoreClientTest extends ActiveMQTestBase {
       }
 
       for (String prefix : multicastPrefixes) {
-         String queueName = UuidUtil.buildRandomUuidString();
+         String queueName = UUIDGenerator.getInstance().generateSimpleStringUUID().toString();
          String address = prefix + baseAddress;
 
          session.createQueue(prefix + baseAddress, null, queueName, null, false);
