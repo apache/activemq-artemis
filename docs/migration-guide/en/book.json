@@ -1,0 +1,12 @@
+{
+    "title": "ActiveMQ Artemis Documentation",
+    "description": "ActiveMQ Artemis Migration Guide",
+    "github": "apache/activemq-artemis",
+    "githubHost": "https://github.com/",
+    "gitbook": "3.x.x",
+    "links": {
+        "home": "http://activemq.apache.org/",
+        "issues": "http://activemq.apache.org/",
+        "contribute": "http://activemq.apache.org/contributing.html"
+    }
+}
