@@ -637,7 +637,7 @@ public class PagingStoreImpl implements PagingStore {
    // To be used when the memory is oversized either by local settings or global settings on blocking addresses
    private static final class OverSizedRunnable implements Runnable {
 
-      private boolean ran;
+      private final AtomicBoolean ran = new AtomicBoolean(false);
 
       private final Runnable runnable;
 
@@ -646,11 +646,9 @@ public class PagingStoreImpl implements PagingStore {
       }
 
       @Override
-      public synchronized void run() {
-         if (!ran) {
+      public void run() {
+         if (ran.compareAndSet(false, true)) {
             runnable.run();
-
-            ran = true;
          }
       }
    }
