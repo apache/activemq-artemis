@@ -34,11 +34,11 @@ public class MQTTFailureListener implements FailureListener {
 
    @Override
    public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-      connectionManager.disconnect();
+      connectionManager.disconnect(true);
    }
 
    @Override
    public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
-      connectionManager.disconnect();
+      connectionManager.disconnect(true);
    }
 }

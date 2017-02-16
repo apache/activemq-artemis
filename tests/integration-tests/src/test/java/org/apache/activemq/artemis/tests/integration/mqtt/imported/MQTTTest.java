@@ -37,10 +37,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
@@ -1028,6 +1028,43 @@ public class MQTTTest extends MQTTTestSupport {
       Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
       assertEquals("test message", new String(m.getPayload()));
    }
+
+   @Test(timeout = 60 * 1000)
+   public void testWillMessageIsRetained() throws Exception {
+      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+
+      MQTT mqtt = createMQTTConnection("1", false);
+      mqtt.setKeepAlive((short) 1);
+      mqtt.setWillMessage("test message");
+      mqtt.setWillTopic("will");
+      mqtt.setWillQos(QoS.AT_LEAST_ONCE);
+      mqtt.setWillRetain(true);
+
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return connection.isConnected();
+         }
+      });
+
+      // kill transport
+      connection.kill();
+
+      Thread.sleep(10000);
+
+      MQTT mqtt2 = createMQTTConnection("2", false);
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(new Topic[]{new Topic("will", QoS.AT_LEAST_ONCE)});
+
+      Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
+      assertNotNull(m);
+      m.ack();
+      assertEquals("test message", new String(m.getPayload()));
+   }
+
 
    @Test(timeout = 60 * 1000)
    public void testCleanSession() throws Exception {

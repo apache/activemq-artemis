@@ -39,9 +39,9 @@ import io.netty.handler.codec.mqtt.MqttSubAckPayload;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 
 /**
@@ -89,7 +89,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    public void channelRead(ChannelHandlerContext ctx, Object msg) {
       try {
          if (stopped) {
-            disconnect();
+            disconnect(true);
             return;
          }
 
@@ -98,7 +98,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          // Disconnect if Netty codec failed to decode the stream.
          if (message.decoderResult().isFailure()) {
             log.debug("Bad Message Disconnecting Client.");
-            disconnect();
+            disconnect(true);
             return;
          }
 
@@ -150,11 +150,11 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
                handleDisconnect(message);
                break;
             default:
-               disconnect();
+               disconnect(true);
          }
       } catch (Exception e) {
          log.debug("Error processing Control Packet, Disconnecting Client", e);
-         disconnect();
+         disconnect(true);
       }
    }
 
@@ -171,8 +171,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().password(), connect.variableHeader().isWillFlag(), connect.payload().willMessage(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
    }
 
-   void disconnect() {
-      session.getConnectionManager().disconnect();
+   void disconnect(boolean error) {
+      session.getConnectionManager().disconnect(error);
    }
 
    void sendConnack(MqttConnectReturnCode returnCode) {
@@ -193,7 +193,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    void handleConnack(MqttConnAckMessage message) {
       log.debug("Received invalid CONNACK from client: " + session.getSessionState().getClientId());
       log.debug("Disconnecting client: " + session.getSessionState().getClientId());
-      disconnect();
+      disconnect(true);
    }
 
    void handlePublish(MqttPublishMessage message) throws Exception {
@@ -257,7 +257,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleSuback(MqttSubAckMessage message) {
-      disconnect();
+      disconnect(true);
    }
 
    void handleUnsubscribe(MqttUnsubscribeMessage message) throws Exception {
@@ -270,7 +270,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleUnsuback(MqttUnsubAckMessage message) {
-      disconnect();
+      disconnect(true);
    }
 
    void handlePingreq(MqttMessage message, ChannelHandlerContext ctx) {
@@ -281,13 +281,11 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handlePingresp(MqttMessage message) {
-      disconnect();
+      disconnect(true);
    }
 
    void handleDisconnect(MqttMessage message) {
-      if (session.getSessionState() != null)
-         session.getState().deleteWillMessage();
-      disconnect();
+      disconnect(false);
    }
 
    protected int send(int messageId, String topicName, int qosLevel, ByteBuf payload, int deliveryCount) {
