@@ -17,13 +17,15 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.Iterator;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
 
 public class MQTTRetainMessageManager {
 
@@ -42,7 +44,7 @@ public class MQTTRetainMessageManager {
     * the subscription queue for the consumer.  When a new retained message is received the message will be sent to
     * the retained queue and the previous retain message consumed to remove it from the queue.
     */
-   void handleRetainedMessage(ServerMessage message, String address, boolean reset) throws Exception {
+   void handleRetainedMessage(ServerMessage message, String address, boolean reset, Transaction tx) throws Exception {
       SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration()));
 
       Queue queue = session.getServer().locateQueue(retainAddress);
@@ -50,39 +52,52 @@ public class MQTTRetainMessageManager {
          queue = session.getServerSession().createQueue(retainAddress, retainAddress, null, false, true);
       }
 
-      // Set the address of this message to the retained queue.
-      message.setAddress(retainAddress);
 
-      Iterator<MessageReference> iterator = queue.iterator();
-      synchronized (iterator) {
-         if (iterator.hasNext()) {
-            Long messageId = iterator.next().getMessage().getMessageID();
-            queue.deleteReference(messageId);
-         }
+      try (LinkedListIterator<MessageReference> iterator = queue.iterator()) {
+         synchronized (queue) {
+            if (iterator.hasNext()) {
+               MessageReference ref = iterator.next();
+               iterator.remove();
+               queue.acknowledge(tx, ref);
+            }
 
-         if (!reset) {
-            session.getServerSession().send(message.copy(), true);
+            if (!reset) {
+               sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
+            }
          }
       }
    }
 
+   // SEND to Queue.
    void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
-      // Queue to add the retained messages to
-
       // The address filter that matches all retained message queues.
       String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration());
       BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
 
-      // Iterate over all matching retain queues and add the head message to the original queue.
-      for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames()) {
-         Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
-         synchronized (this) {
-            Iterator<MessageReference> i = retainedQueue.iterator();
-            if (i.hasNext()) {
-               ServerMessage message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
-               queue.addTail(message.createReference(queue), true);
+      // Iterate over all matching retain queues and add the queue
+      Transaction tx = session.getServerSession().newTransaction();
+      try {
+         synchronized (queue) {
+            for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames()) {
+               Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
+               try (LinkedListIterator<MessageReference> i = retainedQueue.iterator()) {
+                  if (i.hasNext()) {
+                     ServerMessage message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
+                     sendToQueue(message, queue, tx);
+                  }
+               }
             }
          }
+      } catch (Throwable t) {
+         tx.rollback();
+         throw t;
       }
+      tx.commit();
+   }
+
+   private void sendToQueue(ServerMessage message, Queue queue, Transaction tx) throws Exception {
+      RoutingContext context = new RoutingContextImpl(tx);
+      queue.route(message, context);
+      session.getServer().getPostOffice().processRoute(message, context, false);
    }
 }
