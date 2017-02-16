@@ -17,13 +17,17 @@
 package org.apache.activemq.artemis.jdbc.store.file;
 
 import java.nio.ByteBuffer;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
+
+import javax.sql.DataSource;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public final class PostgresSequentialSequentialFileDriver extends JDBCSequentialFileFactoryDriver {
@@ -32,6 +36,18 @@ public final class PostgresSequentialSequentialFileDriver extends JDBCSequential
 
    public PostgresSequentialSequentialFileDriver() throws SQLException {
       super();
+   }
+
+   public PostgresSequentialSequentialFileDriver(DataSource dataSource, SQLProvider provider) {
+      super();
+      this.setDataSource(dataSource);
+      this.setSqlProvider(provider);
+   }
+
+   public PostgresSequentialSequentialFileDriver(Connection connection, SQLProvider provider) {
+      super();
+      this.setConnection(connection);
+      this.setSqlProvider(provider);
    }
 
    @Override
