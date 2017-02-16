@@ -57,8 +57,17 @@ public class WildcardConfiguration implements Serializable {
       return result;
    }
 
-   public boolean isEnabled() {
+   @Override
+   public String toString() {
+      return "WildcardConfiguration{" +
+              "anyWords=" + anyWords +
+              ", enabled=" + enabled +
+              ", singleWord=" + singleWord +
+              ", delimiter=" + delimiter +
+              '}';
+   }
 
+   public boolean isEnabled() {
       return enabled;
    }
 
@@ -88,6 +97,12 @@ public class WildcardConfiguration implements Serializable {
 
    public void setSingleWord(char singleWord) {
       this.singleWord = singleWord;
+   }
+
+   public String convert(String filter, WildcardConfiguration to) {
+      return filter.replace(getDelimiter(), to.getDelimiter())
+              .replace(getSingleWord(), to.getSingleWord())
+              .replace(getAnyWords(), to.getAnyWords());
    }
 
 }
