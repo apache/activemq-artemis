@@ -59,7 +59,8 @@ public class AIOJournalImplTest extends JournalImplTestUnit {
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile(), ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 1000000, 10, false);
+      // forcing the alignment to be 512, as this test was hard coded around this size.
+      return new AIOSequentialFileFactory(getTestDirfile(), ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 1000000, 10, false).setAlignment(512);
    }
 
    @Override
