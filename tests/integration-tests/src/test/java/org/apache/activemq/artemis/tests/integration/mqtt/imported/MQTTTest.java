@@ -1026,6 +1026,44 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
+   public void testWillMessageIsRetained() throws Exception {
+      getServer().createQueue(SimpleString.toSimpleString("will"), SimpleString.toSimpleString("will"), null, true, false);
+
+      MQTT mqtt = createMQTTConnection("1", false);
+      mqtt.setKeepAlive((short) 1);
+      mqtt.setWillMessage("test message");
+      mqtt.setWillTopic("will");
+      mqtt.setWillQos(QoS.AT_LEAST_ONCE);
+      mqtt.setWillRetain(true);
+
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return connection.isConnected();
+         }
+      });
+
+      // kill transport
+      connection.kill();
+
+      Thread.sleep(10000);
+
+      MQTT mqtt2 = createMQTTConnection("2", false);
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(new Topic[]{new Topic("will", QoS.AT_LEAST_ONCE)});
+
+      Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
+      assertNotNull(m);
+      m.ack();
+      assertEquals("test message", new String(m.getPayload()));
+   }
+
+
+   @Test(timeout = 60 * 1000)
    public void testCleanSession() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
