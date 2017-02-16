@@ -44,8 +44,7 @@ class JDBCFileUtils {
    static JDBCSequentialFileFactoryDriver getDBFileDriver(DataSource dataSource, SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
       if (provider instanceof PostgresSQLProvider) {
-         dbDriver = new PostgresSequentialSequentialFileDriver();
-         dbDriver.setDataSource(dataSource);
+         dbDriver = new PostgresSequentialSequentialFileDriver(dataSource, provider);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(dataSource, provider);
       }
@@ -55,7 +54,7 @@ class JDBCFileUtils {
    static JDBCSequentialFileFactoryDriver getDBFileDriver(Connection connection, SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
       if (provider instanceof PostgresSQLProvider) {
-         dbDriver = new PostgresSequentialSequentialFileDriver();
+         dbDriver = new PostgresSequentialSequentialFileDriver(connection, provider);
          dbDriver.setConnection(connection);
       } else {
          dbDriver = new JDBCSequentialFileFactoryDriver(connection, provider);
