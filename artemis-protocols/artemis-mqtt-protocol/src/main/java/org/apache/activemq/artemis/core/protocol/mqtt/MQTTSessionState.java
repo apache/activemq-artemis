@@ -29,13 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class MQTTSessionState {
 
    private String clientId;
-
-   private ServerMessage willMessage;
 
    private final ConcurrentMap<String, MqttTopicSubscription> subscriptions = new ConcurrentHashMap<>();
 
@@ -60,7 +57,6 @@ public class MQTTSessionState {
       addressMessageMap.clear();
       pubRec.clear();
       outboundStore.clear();
-      willMessage = null;
    }
 
    OutboundStore getOutboundStore() {
@@ -77,22 +73,6 @@ public class MQTTSessionState {
 
    void setAttached(boolean attached) {
       this.attached = attached;
-   }
-
-   boolean isWill() {
-      return willMessage != null;
-   }
-
-   ServerMessage getWillMessage() {
-      return willMessage;
-   }
-
-   void setWillMessage(ServerMessage willMessage) {
-      this.willMessage = willMessage;
-   }
-
-   void deleteWillMessage() {
-      willMessage = null;
    }
 
    Collection<MqttTopicSubscription> getSubscriptions() {

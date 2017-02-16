@@ -26,7 +26,6 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
@@ -44,6 +43,16 @@ public class MQTTConnectionManager {
    public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<>();
 
    private MQTTLogger log = MQTTLogger.LOGGER;
+
+   private boolean isWill = false;
+
+   private ByteBuf willMessage;
+
+   private String willTopic;
+
+   private int willQoSLevel;
+
+   private boolean willRetain;
 
    public MQTTConnectionManager(MQTTSession session) {
       this.session = session;
@@ -66,7 +75,7 @@ public class MQTTConnectionManager {
       String clientId = validateClientId(cId, cleanSession);
       if (clientId == null) {
          session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED);
-         session.getProtocolHandler().disconnect();
+         session.getProtocolHandler().disconnect(true);
          return;
       }
 
@@ -78,11 +87,13 @@ public class MQTTConnectionManager {
       session.setIsClean(cleanSession);
 
       if (will) {
+         isWill = true;
          byte[] payload = willMessage.getBytes(Charset.forName("UTF-8"));
-         ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(payload.length);
-         buf.writeBytes(payload);
-         ServerMessage w = MQTTUtil.createServerMessageFromByteBuf(session, willTopic, willRetain, willQosLevel, buf);
-         session.getSessionState().setWillMessage(w);
+         this.willMessage = ByteBufAllocator.DEFAULT.buffer(payload.length);
+         this.willMessage.writeBytes(payload);
+         this.willQoSLevel = willQosLevel;
+         this.willRetain = willRetain;
+         this.willTopic = willTopic;
       }
 
       session.getConnection().setConnected(true);
@@ -119,18 +130,17 @@ public class MQTTConnectionManager {
       return (ServerSessionImpl) serverSession;
    }
 
-   synchronized void disconnect() {
-      if (session == null) {
+   synchronized void disconnect(boolean failure) {
+      if (session == null || session.getStopped()) {
          return;
       }
 
       try {
+         if (isWill && failure) {
+            session.getMqttPublishManager().sendInternal(0, willTopic, willQoSLevel, willMessage, willRetain, true);
+         }
          session.stop();
          session.getConnection().destroy();
-
-         if (session.getState().isWill()) {
-            session.getConnectionManager().sendWill();
-         }
       } catch (Exception e) {
          log.error("Error disconnecting client: " + e.getMessage());
       } finally {
@@ -142,11 +152,6 @@ public class MQTTConnectionManager {
             }
          }
       }
-   }
-
-   private void sendWill() throws Exception {
-      session.getServer().getPostOffice().route(session.getSessionState().getWillMessage(), true);
-      session.getSessionState().deleteWillMessage();
    }
 
    private MQTTSessionState getSessionState(String clientId) throws InterruptedException {
