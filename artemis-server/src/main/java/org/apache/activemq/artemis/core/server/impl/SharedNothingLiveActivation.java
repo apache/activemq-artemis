@@ -29,7 +29,10 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
@@ -402,12 +405,36 @@ public class SharedNothingLiveActivation extends LiveActivation {
       @Override
       public void nodeUP(TopologyMember topologyMember, boolean last) {
          boolean isOurNodeId = nodeId != null && nodeId.toString().equals(topologyMember.getNodeId());
-         if (isOurNodeId) {
+         if (isOurNodeId && isActive(topologyMember.getLive())) {
             isNodePresent = true;
          }
          if (isOurNodeId || last) {
             latch.countDown();
          }
+      }
+
+      /**
+       * In a cluster of replicated live/backup pairs if a backup crashes and then its live crashes the cluster will
+       * retain the topology information of the live such that when the live server restarts it will check the
+       * cluster to see if its nodeID is present (which it will be) and then it will activate as a backup rather than
+       * a live. To prevent this situation an additional check is necessary to see if the server with the matching
+       * nodeID is actually active or not which is done by attempting to make a connection to it.
+       *
+       * @param transportConfiguration
+       * @return
+       */
+      private boolean isActive(TransportConfiguration transportConfiguration) {
+         boolean result = false;
+
+         try (ServerLocator serverLocator = ActiveMQClient.createServerLocator(false, transportConfiguration);
+            ClientSessionFactory clientSessionFactory = serverLocator.createSessionFactory();
+            ClientSession clientSession = clientSessionFactory.createSession();) {
+            result = true;
+         } catch (Exception e) {
+            // ignore
+         }
+
+         return result;
       }
 
       @Override
