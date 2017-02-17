@@ -412,6 +412,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testGetAddressDeletedFromJournal() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      // due to replication, there can be another queue created for replicating
+      // management operations
+
+      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      Assert.assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+
+      restartServer();
+
+      serverControl.deleteAddress(address.toString());
+
+      restartServer();
+
+      Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
+   }
+
+   @Test
    public void testMessageCounterMaxDayCount() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
