@@ -1748,7 +1748,7 @@ public class PagingTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false, false);
 
       session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
-      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS.concat("-invalid"), new SimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true);
+      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS.concat("-invalid"), new SimpleString(Filter.GENERIC_IGNORED_FILTER), true);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
