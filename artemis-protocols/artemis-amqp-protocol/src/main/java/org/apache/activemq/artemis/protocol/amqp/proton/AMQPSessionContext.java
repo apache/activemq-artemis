@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
@@ -44,9 +44,9 @@ public class AMQPSessionContext extends ProtonInitializable {
 
    private long currentTag = 0;
 
-   protected Map<Receiver, ProtonServerReceiverContext> receivers = new HashMap<>();
+   protected Map<Receiver, ProtonServerReceiverContext> receivers = new ConcurrentHashMap<>();
 
-   protected Map<Sender, ProtonServerSenderContext> senders = new HashMap<>();
+   protected Map<Sender, ProtonServerSenderContext> senders = new ConcurrentHashMap<>();
 
    protected boolean closed = false;
 
@@ -56,7 +56,7 @@ public class AMQPSessionContext extends ProtonInitializable {
       this.session = session;
    }
 
-   protected Map<Object, ProtonServerSenderContext> serverSenders = new HashMap<>();
+   protected Map<Object, ProtonServerSenderContext> serverSenders = new ConcurrentHashMap<>();
 
    @Override
    public void initialise() throws Exception {

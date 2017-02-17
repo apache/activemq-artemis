@@ -335,11 +335,13 @@ public class AMQPConnectionContext extends ProtonInitializable {
          synchronized (getLock()) {
             connection.close();
             connection.free();
-            for (AMQPSessionContext protonSession : sessions.values()) {
-               protonSession.close();
-            }
-            sessions.clear();
          }
+
+         for (AMQPSessionContext protonSession : sessions.values()) {
+            protonSession.close();
+         }
+         sessions.clear();
+
          // We must force write the channel before we actually destroy the connection
          onTransport(handler.getTransport());
          destroy();
