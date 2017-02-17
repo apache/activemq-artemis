@@ -73,7 +73,7 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
    @Override
    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       FullHttpRequest request = (FullHttpRequest) msg;
-      HttpMethod method = request.getMethod();
+      HttpMethod method = request.method();
       // if we are a post then we send upstream, otherwise we are just being prompted for a response.
       if (method.equals(HttpMethod.POST)) {
          ctx.fireChannelRead(ReferenceCountUtil.retain(((FullHttpRequest) msg).content()));
