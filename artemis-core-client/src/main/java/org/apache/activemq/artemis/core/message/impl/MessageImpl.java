@@ -859,13 +859,9 @@ public abstract class MessageImpl implements MessageInternal {
 
    @Override
    public Object removeProperty(final SimpleString key) {
-      Object oldValue = properties.removeProperty(key);
+      bufferValid = false;
 
-      if (oldValue != null) {
-         bufferValid = false;
-      }
-
-      return oldValue;
+      return properties.removeProperty(key);
    }
 
    @Override
