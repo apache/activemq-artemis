@@ -158,7 +158,12 @@ public class MQTTPublishManager {
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
-               session.getServerSession().send(tx, serverMessage, true, false);
+               if (internal) {
+                  session.getServer().getPostOffice().route(serverMessage, tx, true);
+               } else {
+                  session.getServerSession().send(tx, serverMessage, true, false);
+               }
+
                if (retain) {
                   boolean reset = payload instanceof EmptyByteBuf || payload.capacity() == 0;
                   session.getRetainMessageManager().handleRetainedMessage(serverMessage, topic, reset, tx);
