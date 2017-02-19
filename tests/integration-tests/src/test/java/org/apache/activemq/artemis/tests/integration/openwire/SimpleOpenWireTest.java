@@ -31,6 +31,8 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.TopicSession;
 import javax.jms.XAConnection;
 import javax.jms.XASession;
 import javax.transaction.xa.XAResource;
@@ -352,6 +354,141 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       }
 
       assertNull(consumer2.receive(500));
+      session.close();
+   }
+
+   @Test
+   public void testTopicNoLocal() throws Exception {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      System.out.println("creating queue: " + topicName);
+      Destination dest = new ActiveMQTopic(topicName);
+
+      MessageConsumer nolocalConsumer = session.createConsumer(dest, null, true);
+      MessageConsumer consumer = session.createConsumer(dest, null, false);
+      MessageConsumer selectorConsumer  = session.createConsumer(dest,"TESTKEY = 'test'", false);
+
+      MessageProducer producer = session.createProducer(dest);
+
+      final String body1 = "MfromAMQ-1";
+      final String body2 = "MfromAMQ-2";
+      TextMessage msg = session.createTextMessage(body1);
+      producer.send(msg);
+
+      msg = session.createTextMessage(body2);
+      msg.setStringProperty("TESTKEY", "test");
+      producer.send(msg);
+
+      //receive nolocal
+      TextMessage receivedMsg = (TextMessage) nolocalConsumer.receive(1000);
+      assertNull("nolocal consumer got: " + receivedMsg, receivedMsg);
+
+      //receive normal consumer
+      receivedMsg = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body1, receivedMsg.getText());
+
+      receivedMsg = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body2, receivedMsg.getText());
+
+      assertNull(consumer.receiveNoWait());
+
+      //selector should only receive one
+      receivedMsg = (TextMessage) selectorConsumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body2, receivedMsg.getText());
+      assertEquals("test", receivedMsg.getStringProperty("TESTKEY"));
+
+      assertNull(selectorConsumer.receiveNoWait());
+
+      //send from another connection
+      Connection anotherConn = this.factory.createConnection();
+      try {
+         anotherConn.start();
+
+         Session anotherSession = anotherConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer anotherProducer = anotherSession.createProducer(dest);
+         TextMessage anotherMsg = anotherSession.createTextMessage(body1);
+         anotherProducer.send(anotherMsg);
+
+         assertNotNull(consumer.receive(1000));
+         assertNull(selectorConsumer.receive(1000));
+         assertNotNull(nolocalConsumer.receive(1000));
+      } finally {
+         anotherConn.close();
+      }
+
+      session.close();
+   }
+
+   @Test
+   public void testTopicNoLocalDurable() throws Exception {
+      connection.setClientID("forNoLocal-1");
+      connection.start();
+      TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      System.out.println("creating queue: " + topicName);
+      Topic dest = new ActiveMQTopic(topicName);
+
+      MessageConsumer nolocalConsumer = session.createDurableSubscriber(dest, "nolocal-subscriber1", "", true);
+      MessageConsumer consumer = session.createDurableSubscriber(dest, "normal-subscriber", null, false);
+      MessageConsumer selectorConsumer = session.createDurableSubscriber(dest, "selector-subscriber", "TESTKEY = 'test'", false);
+
+      MessageProducer producer = session.createProducer(dest);
+
+      final String body1 = "MfromAMQ-1";
+      final String body2 = "MfromAMQ-2";
+      TextMessage msg = session.createTextMessage(body1);
+      producer.send(msg);
+
+      msg = session.createTextMessage(body2);
+      msg.setStringProperty("TESTKEY", "test");
+      producer.send(msg);
+
+      //receive nolocal
+      TextMessage receivedMsg = (TextMessage) nolocalConsumer.receive(1000);
+      assertNull("nolocal consumer got: " + receivedMsg, receivedMsg);
+
+      //receive normal consumer
+      receivedMsg = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body1, receivedMsg.getText());
+
+      receivedMsg = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body2, receivedMsg.getText());
+
+      assertNull(consumer.receiveNoWait());
+
+      //selector should only receive one
+      receivedMsg = (TextMessage) selectorConsumer.receive(1000);
+      assertNotNull(receivedMsg);
+      assertEquals(body2, receivedMsg.getText());
+      assertEquals("test", receivedMsg.getStringProperty("TESTKEY"));
+
+      assertNull(selectorConsumer.receiveNoWait());
+
+      //send from another connection
+      Connection anotherConn = this.factory.createConnection();
+      try {
+         anotherConn.start();
+
+         Session anotherSession = anotherConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer anotherProducer = anotherSession.createProducer(dest);
+         TextMessage anotherMsg = anotherSession.createTextMessage(body1);
+         anotherProducer.send(anotherMsg);
+
+         assertNotNull(consumer.receive(1000));
+         assertNull(selectorConsumer.receive(1000));
+         assertNotNull(nolocalConsumer.receive(1000));
+      } finally {
+         anotherConn.close();
+      }
+
       session.close();
    }
 

@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.command.ConsumerControl;
 import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
@@ -79,6 +81,18 @@ public class AMQConsumer {
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
       SimpleString selector = info.getSelector() == null ? null : new SimpleString(info.getSelector());
+      if (info.isNoLocal()) {
+         if (!AdvisorySupport.isAdvisoryTopic(openwireDestination)) {
+            //tell the connection to add the property
+            this.session.getConnection().setNoLocal(true);
+         }
+         String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + this.getId().getConnectionId() + "'";
+         if (selector == null) {
+            selector = new SimpleString(noLocalSelector);
+         } else {
+            selector = new SimpleString(info.getSelector() + " AND " + noLocalSelector);
+         }
+      }
 
       String physicalName = session.convertWildcard(openwireDestination.getPhysicalName());
 
@@ -201,6 +215,9 @@ public class AMQConsumer {
             return 0;
          }
 
+         if (session.getConnection().isNoLocal()) {
+            message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
+         }
          dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
