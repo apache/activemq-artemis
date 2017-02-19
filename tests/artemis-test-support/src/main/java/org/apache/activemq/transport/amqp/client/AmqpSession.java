@@ -176,7 +176,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given Target
     *
-    * @param target the caller created and configured Traget used to create the sender link.
+    * @param target the caller created and configured Target used to create the sender link.
     * @return a newly created sender that is ready for use.
     * @throws Exception if an error occurs while creating the receiver.
     */
@@ -187,7 +187,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given Target
     *
-    * @param target the caller created and configured Traget used to create the sender link.
+    * @param target the caller created and configured Target used to create the sender link.
     * @param senderId the sender ID to assign to the newly created Sender.
     * @return a newly created sender that is ready for use.
     * @throws Exception if an error occurs while creating the receiver.
@@ -199,7 +199,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given Target
     *
-    * @param target the caller created and configured Traget used to create the sender link.
+    * @param target the caller created and configured Target used to create the sender link.
     * @param senderId the sender ID to assign to the newly created Sender.
     * @param desiredCapabilities the capabilities that the caller wants the remote to support.
     * @param offeredCapabilities the capabilities that the caller wants the advertise support for.

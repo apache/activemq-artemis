@@ -205,7 +205,7 @@ public class TimedBuffer {
 
       if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
          // Either there is not enough space left in the buffer for the sized record
-         // Or a flush has just been performed and we need to re-calcualate bufferLimit
+         // Or a flush has just been performed and we need to re-calculate bufferLimit
 
          flush();
 

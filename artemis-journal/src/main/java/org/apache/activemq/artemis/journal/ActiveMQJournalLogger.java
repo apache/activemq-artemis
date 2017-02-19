@@ -143,7 +143,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void compactReadError(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142012, value = "Couldn't find tx={0} to merge after compacting",
+   @Message(id = 142012, value = "Couldn''t find tx={0} to merge after compacting",
       format = Message.Format.MESSAGE_FORMAT)
    void compactMergeError(Long id);
 
@@ -173,7 +173,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    void couldNotStopJournalExecutor();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142018, value = "Temporary files were left unnatended after a crash on journal directory, deleting invalid files now",
+   @Message(id = 142018, value = "Temporary files were left unattended after a crash on journal directory, deleting invalid files now",
       format = Message.Format.MESSAGE_FORMAT)
    void tempFilesLeftOpen();
 

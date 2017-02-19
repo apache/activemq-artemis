@@ -715,7 +715,7 @@ public class TransactedSessionTest extends JMSTestCase {
    }
 
    /**
-    * Test IllegateStateException is thrown if commit is called on a non-transacted session
+    * Test IllegalStateException is thrown if commit is called on a non-transacted session
     */
    @Test
    public void testCommitIllegalState() throws Exception {
@@ -916,12 +916,9 @@ public class TransactedSessionTest extends JMSTestCase {
       }
    }
 
-   /*
-    * Test IllegateStateException is thrown if rollback is
-    * called on a non-transacted session
-    *
+   /**
+    * Test IllegalStateException is thrown if rollback is called on a non-transacted session
     */
-
    @Test
    public void testRollbackIllegalState() throws Exception {
       Connection conn = createConnection();

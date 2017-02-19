@@ -65,7 +65,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
-      //make sure thet activation didn't start, i.e. no MDB consumers
+      //make sure that activation didn't start, i.e. no MDB consumers
       assertEquals(((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount(), 0);
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -194,7 +194,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       spec.setSetupAttempts(5);
       spec.setSetupInterval(200);
       spec.setReconnectAttempts(reconnectAttempts);
-      spec.setHA(true); // if this isn't true then the toplogy listener won't get nodeDown notifications
+      spec.setHA(true); // if this isn't true then the topology listener won't get nodeDown notifications
       spec.setCallTimeout(500L); // if this isn't set then it may take a long time for tearDown to occur on the MDB connection
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       CountDownLatch latch = new CountDownLatch(1);

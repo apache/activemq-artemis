@@ -155,7 +155,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
          double count = clientConnectionCounts.get(key);
          double percentage = count / total;
          System.out.println(count + " of " + total + " connections for " + key + " = " + percentage);
-         Assert.assertTrue("Connections distribution expected to be >= than " + minimumPercentage + ".  Actuall distribution was " + percentage + " for connection " + key, percentage >= minimumPercentage);
+         Assert.assertTrue("Connections distribution expected to be >= than " + minimumPercentage + ".  Actual distribution was " + percentage + " for connection " + key, percentage >= minimumPercentage);
       }
    }
 

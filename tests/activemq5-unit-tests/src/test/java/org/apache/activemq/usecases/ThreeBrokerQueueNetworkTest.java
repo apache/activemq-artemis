@@ -519,7 +519,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
       // Setup destination
       final Destination dest = createDestination("TEST.FOO", false);
 
-      // delay the advisory messages so that one can percolate fully (cyclicly) before the other
+      // delay the advisory messages so that one can percolate fully (cyclically) before the other
       BrokerItem brokerB = brokers.get("BrokerA");
       brokerB.broker.setPlugins(new BrokerPlugin[]{new BrokerPlugin() {
 

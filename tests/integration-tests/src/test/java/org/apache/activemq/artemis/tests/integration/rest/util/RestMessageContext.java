@@ -181,7 +181,7 @@ public abstract class RestMessageContext implements Closeable {
                message = EntityUtils.toString(entity);
             } else {
                // drop message
-               System.err.println("Mesage too large, drop it " + len);
+               System.err.println("Message too large, drop it " + len);
             }
 
             Header header = response.getFirstHeader(KEY_MSG_CONSUMER);

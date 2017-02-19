@@ -211,7 +211,7 @@ public class AbortSlowConsumer0Test extends AbortSlowConsumerBase {
       assertTrue("Consumer gone from broker view", Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisified() throws Exception {
-            LOG.info("DestView {} comsumerCount {}", destView, destView.getConsumerCount());
+            LOG.info("DestView {} consumerCount {}", destView, destView.getConsumerCount());
             return 0 == destView.getConsumerCount();
          }
       }));
