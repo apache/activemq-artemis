@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -26,11 +27,13 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.QueueReceiver;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
@@ -159,6 +162,53 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          message.acknowledge();
       }
+   }
+
+   @Test
+   public void testSendEmptyMessages() throws Exception {
+      Queue dest = new ActiveMQQueue(queueName);
+
+      QueueSession defaultQueueSession =  connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      QueueSender defaultSender = defaultQueueSession.createSender(dest);
+      defaultSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      connection.start();
+
+      Message msg = defaultQueueSession.createMessage();
+      msg.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(msg);
+
+      QueueReceiver queueReceiver = defaultQueueSession.createReceiver(dest);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+
+      //bytes
+      BytesMessage bytesMessage = defaultQueueSession.createBytesMessage();
+      bytesMessage.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(bytesMessage);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+
+      //map
+      MapMessage mapMessage = defaultQueueSession.createMapMessage();
+      mapMessage.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(mapMessage);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+
+      //object
+      ObjectMessage objMessage = defaultQueueSession.createObjectMessage();
+      objMessage.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(objMessage);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+
+      //stream
+      StreamMessage streamMessage = defaultQueueSession.createStreamMessage();
+      streamMessage.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(streamMessage);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
+
+      //text
+      TextMessage textMessage = defaultQueueSession.createTextMessage();
+      textMessage.setStringProperty("testName", "testSendEmptyMessages");
+      defaultSender.send(textMessage);
+      assertNotNull("Didn't receive message", queueReceiver.receive(1000));
    }
 
    @Test
