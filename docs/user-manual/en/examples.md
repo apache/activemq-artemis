@@ -481,7 +481,7 @@ of the Broker receiving it.
 JMS Bridge
 ----------
 
-The `jms-brigde` example shows how to setup a bridge between two
+The `jms-bridge` example shows how to setup a bridge between two
 standalone Apache ActiveMQ Artemis servers.
 
 JMS Context
