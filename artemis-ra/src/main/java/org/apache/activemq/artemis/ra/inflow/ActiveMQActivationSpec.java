@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 
 /**
  * The activation spec
- * These properties are set on the MDB ActivactionProperties
+ * These properties are set on the MDB ActivationProperties
  */
 public class ActiveMQActivationSpec extends ConnectionFactoryProperties implements ActivationSpec, Serializable {
 

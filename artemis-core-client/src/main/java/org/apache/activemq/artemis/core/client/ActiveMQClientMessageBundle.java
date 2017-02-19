@@ -190,7 +190,7 @@ public interface ActiveMQClientMessageBundle {
    @Message(id = 119047, value = "nodes have different node names")
    IllegalArgumentException nodeHaveDifferentNames();
 
-   @Message(id = 119048, value = "nodes hava a different number of attributes")
+   @Message(id = 119048, value = "nodes have a different number of attributes")
    IllegalArgumentException nodeHaveDifferentAttNumber();
 
    @Message(id = 119049, value = "attribute {0}={1} does not match", format = Message.Format.MESSAGE_FORMAT)
@@ -199,7 +199,7 @@ public interface ActiveMQClientMessageBundle {
    @Message(id = 119050, value = "one node has children and the other does not")
    IllegalArgumentException oneNodeHasChildren();
 
-   @Message(id = 119051, value = "nodes hava a different number of children")
+   @Message(id = 119051, value = "nodes have a different number of children")
    IllegalArgumentException nodeHasDifferentChildNumber();
 
    @Message(id = 119052, value = "Element {0} requires a valid Boolean value, but ''{1}'' cannot be parsed as a Boolean", format = Message.Format.MESSAGE_FORMAT)

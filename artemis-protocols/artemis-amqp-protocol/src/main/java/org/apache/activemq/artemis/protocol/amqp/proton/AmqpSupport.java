@@ -88,7 +88,7 @@ public class AmqpSupport {
    }
 
    /**
-    * Search for a particular filter using a set of known indentification values
+    * Search for a particular filter using a set of known identification values
     * in the Map of filters.
     *
     * @param filters   The filters map that should be searched.

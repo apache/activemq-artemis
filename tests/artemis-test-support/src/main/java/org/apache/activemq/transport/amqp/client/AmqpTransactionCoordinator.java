@@ -120,7 +120,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 
    public void declare(AmqpTransactionId txId, AsyncResult request) throws Exception {
       if (txId.getRemoteTxId() != null) {
-         throw new IllegalStateException("Declar called while a TX is still Active.");
+         throw new IllegalStateException("Declare called while a TX is still Active.");
       }
 
       if (isClosed()) {

@@ -309,7 +309,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
          initialise();
 
          /*
-         * This can be null which is in effect an empty map, also we really dont need to check this for in bound connections
+         * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
          * but its here in case we add support for outbound connections.
          * */
          if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {

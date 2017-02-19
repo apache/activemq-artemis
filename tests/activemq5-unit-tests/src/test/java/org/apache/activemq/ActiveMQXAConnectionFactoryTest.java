@@ -500,7 +500,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
          if (connection.getConnectionId().equals(clientId)) {
             try {
                connection.processPrepareTransaction(new TransactionInfo(connectionId, new XATransactionId(tid), TransactionInfo.PREPARE));
-               fail("did not get expected excepton on missing transaction, it must be still there in error!");
+               fail("did not get expected exception on missing transaction, it must be still there in error!");
             } catch (IllegalStateException expectedOnNoTransaction) {
             }
          }

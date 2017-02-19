@@ -20,7 +20,7 @@ package org.apache.activemq.artemis.jlibaio.util;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 
 /**
- * this is an utility class where you can reuse Callbackk objects for your LibaioContext usage.
+ * this is an utility class where you can reuse Callback objects for your LibaioContext usage.
  */
 public class CallbackCache<Callback extends SubmitInfo> {
 

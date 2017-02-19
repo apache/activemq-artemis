@@ -54,7 +54,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override
@@ -72,7 +72,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override
@@ -84,7 +84,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
       try {
          underTest.commit();
-         fail("exepcted rollback exception");
+         fail("expected rollback exception");
       } catch (TransactionRolledBackException expected) {
       }
 
@@ -106,7 +106,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override

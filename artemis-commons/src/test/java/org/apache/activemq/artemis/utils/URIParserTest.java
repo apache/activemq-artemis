@@ -71,12 +71,12 @@ public class URIParserTest {
    }
 
    /**
-    * Even thought there's no host Poperty on FruitBase.. this should still work fine without throwing any exceptions
+    * Even thought there's no host Property on FruitBase.. this should still work fine without throwing any exceptions
     *
     * @throws Throwable
     */
    @Test
-   public void testSchemaNoHosPropertyt() throws Throwable {
+   public void testSchemaNoHosProperty() throws Throwable {
       FruitParser parser = new FruitParser();
       FruitBase fruit = parser.newObject(new URI("base://some:guy@fair-market:3030?color=green&fluentName=something"), null);
       Assert.assertEquals("base", fruit.getName());
@@ -85,7 +85,7 @@ public class URIParserTest {
    }
 
    /**
-    * Even thought there's no host Poperty on FruitBase.. this should still work fine without throwing any exceptions
+    * Even thought there's no host Property on FruitBase.. this should still work fine without throwing any exceptions
     *
     * @throws Throwable
     */

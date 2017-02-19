@@ -253,7 +253,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
       }
    }
 
-   //Peroidically receive a number of messages
+   //Periodically receive a number of messages
    private class PeriodicalReceiver extends TimerTask {
       private int batchSize;
       private int serverID;

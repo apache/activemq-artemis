@@ -54,7 +54,7 @@ public interface ActiveMQBuffer extends DataInput {
    /**
     * Sets the {@code readerIndex} of this buffer.
     *
-    * @param readerIndex The reader's index The reader infex
+    * @param readerIndex The reader's index
     * @throws IndexOutOfBoundsException if the specified {@code readerIndex} is
     *                                   less than {@code 0} or
     *                                   greater than {@code this.writerIndex}

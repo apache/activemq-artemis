@@ -83,8 +83,8 @@ public class BackupManager implements ActiveMQComponent {
       for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations()) {
          deployBackupConnector(config);
       }
-      //start each connector and if we are backup and shared store announce ourselves. NB with replication we dont do this
-      //as we wait for replication to start and be notififed by the replication manager.
+      //start each connector and if we are backup and shared store announce ourselves. NB with replication we don't do this
+      //as we wait for replication to start and be notified by the replication manager.
       for (BackupConnector conn : backupConnectors) {
          conn.start();
          if (server.getHAPolicy().isBackup() && server.getHAPolicy().isSharedStore()) {
