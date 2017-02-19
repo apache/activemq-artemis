@@ -37,9 +37,9 @@
          <xsd:element name="internal-naming-prefix" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Artemis uses internal queues and addresses for implmenting certain behaviours.  These queues and addresses
+                  Artemis uses internal queues and addresses for implementing certain behaviours.  These queues and addresses
                   will be prefixed by default with "$.activemq.internal" to avoid naming clashes with user namespacing.
-                  This can be overriden by setting this value to a valid Artemis address.
+                  This can be overridden by setting this value to a valid Artemis address.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1216,7 +1216,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Upon reconnection this configures the number of time the same node on the topology will be retried
-                  before reseting the server locator and using the initial connectors
+                  before resetting the server locator and using the initial connectors
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1602,7 +1602,7 @@
          <xsd:element name="file-store" type="fileStoreType" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
-                  Use a file based store for peristing journal, paging and large messages
+                  Use a file based store for persisting journal, paging and large messages
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1753,7 +1753,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   the connectors that shouldn't have their ports offset, typically remote connectors or the
-                  connector used in the cluster connection if scalinmg down
+                  connector used in the cluster connection if scaling down
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>
@@ -2274,7 +2274,7 @@
             <xsd:element name="redelivery-delay-multiplier" type="xsd:double" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     multipler to apply to the "redelivery-delay"
+                     multiplier to apply to the "redelivery-delay"
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

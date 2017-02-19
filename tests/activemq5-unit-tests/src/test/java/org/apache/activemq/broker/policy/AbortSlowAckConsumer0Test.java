@@ -136,7 +136,7 @@ public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
       Message message = consumer.receive(5000);
       assertNotNull(message);
 
-      // Consumer needs to be closed before the reeive call.
+      // Consumer needs to be closed before the receive call.
       TimeUnit.SECONDS.sleep(15);
 
       try {
@@ -165,7 +165,7 @@ public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
       assertNotNull(message);
       message.acknowledge();
 
-      // Consumer needs to be closed before the reeive call.
+      // Consumer needs to be closed before the receive call.
       TimeUnit.SECONDS.sleep(15);
 
       try {

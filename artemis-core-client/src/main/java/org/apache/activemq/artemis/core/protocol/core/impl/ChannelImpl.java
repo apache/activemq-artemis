@@ -271,7 +271,7 @@ public final class ChannelImpl implements Channel {
          packet.setChannelID(id);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
+            logger.trace("Sending packet nonblocking " + packet + " on channelID=" + id);
          }
 
          ActiveMQBuffer buffer = packet.encode(connection);

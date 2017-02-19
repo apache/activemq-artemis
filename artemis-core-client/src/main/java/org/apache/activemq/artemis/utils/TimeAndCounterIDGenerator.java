@@ -86,7 +86,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
          // This will only happen if a computer can generate more than ID_MASK ids (16 million IDs per 16
          // milliseconds)
          // If this wrapping code starts to happen, it needs revision
-         throw new IllegalStateException("The IDGenerator is being overlaped, and it needs revision as the system generated more than " + TimeAndCounterIDGenerator.ID_MASK +
+         throw new IllegalStateException("The IDGenerator is being overlapped, and it needs revision as the system generated more than " + TimeAndCounterIDGenerator.ID_MASK +
                                             " ids per 16 milliseconds which exceeded the IDgenerator limit");
       }
 

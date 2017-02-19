@@ -254,7 +254,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-value></config-property-value>\n" +
       "      </config-property>\n" +
       "      <config-property>\n" +
-      "         <description>max number of threads for scheduled threrad pool</description>\n" +
+      "         <description>max number of threads for scheduled thread pool</description>\n" +
       "         <config-property-name>ScheduledThreadPoolMaxSize</config-property-name>\n" +
       "         <config-property-type>int</config-property-type>\n" +
       "         <config-property-value></config-property-value>\n" +
@@ -392,13 +392,13 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +
       "      <config-property>" +
-      "         <description>List of package/class names against which matching objects are permitted to be deserilized</description>" +
+      "         <description>List of package/class names against which matching objects are permitted to be deserialized</description>" +
       "         <config-property-name>DeserializationWhiteList</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +
       "      <config-property>" +
-      "         <description>List of package/classe names against which matching objects are forbidden to be deserialized</description>" +
+      "         <description>List of package/class names against which matching objects are forbidden to be deserialized</description>" +
       "         <config-property-name>DeserializationBlackList</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +

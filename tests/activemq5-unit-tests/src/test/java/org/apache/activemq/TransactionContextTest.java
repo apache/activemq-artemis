@@ -69,7 +69,7 @@ public class TransactionContextTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override
@@ -87,7 +87,7 @@ public class TransactionContextTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override
@@ -99,7 +99,7 @@ public class TransactionContextTest {
 
       try {
          underTest.commit();
-         fail("exepcted rollback exception");
+         fail("expected rollback exception");
       } catch (TransactionRolledBackException expected) {
       }
 
@@ -122,7 +122,7 @@ public class TransactionContextTest {
 
          @Override
          public void afterCommit() throws Exception {
-            fail("exepcted rollback exception");
+            fail("expected rollback exception");
          }
 
          @Override

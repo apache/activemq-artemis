@@ -501,7 +501,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    /* Hook for processing message before forwarding */
    protected ServerMessage beforeForward(final ServerMessage message) {
       if (useDuplicateDetection) {
-         // We keep our own DuplicateID for the Bridge, so bouncing back and forths will work fine
+         // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
          message.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, bytes);

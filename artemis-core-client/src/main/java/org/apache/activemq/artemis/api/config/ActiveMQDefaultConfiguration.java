@@ -310,7 +310,7 @@ public final class ActiveMQDefaultConfiguration {
    // Producer flow control
    private static int DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE = -1;
 
-   // Upon reconnection this configures the number of time the same node on the topology will be retried before reseting the server locator and using the initial connectors
+   // Upon reconnection this configures the number of time the same node on the topology will be retried before resetting the server locator and using the initial connectors
    private static int DEFAULT_BRIDGE_CONNECT_SAME_NODE = 10;
 
    // The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another server

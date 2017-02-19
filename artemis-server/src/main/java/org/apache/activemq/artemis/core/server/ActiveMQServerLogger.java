@@ -195,7 +195,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(
       id = 221026,
-      value = "Bridge {0} connected to fowardingAddress={1}. {2} does not have any bindings. Messages will be ignored until a binding is created.",
+      value = "Bridge {0} connected to forwardingAddress={1}. {2} does not have any bindings. Messages will be ignored until a binding is created.",
       format = Message.Format.MESSAGE_FORMAT)
    void bridgeNoBindings(SimpleString name, SimpleString forwardingAddress, SimpleString address);
 
@@ -621,7 +621,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void stompTXAckNorSupported();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222071, value = "Interrupted while waiting for stomp heart beate to die", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222071, value = "Interrupted while waiting for stomp heartbeat to die", format = Message.Format.MESSAGE_FORMAT)
    void errorOnStompHeartBeat(@Cause InterruptedException e);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -1125,7 +1125,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222187,
-      value = "Failed to activate replicata",
+      value = "Failed to activate replicated backup",
       format = Message.Format.MESSAGE_FORMAT)
    void activateReplicatedBackupFailed(@Cause Throwable e);
 
@@ -1171,7 +1171,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222195,
-      value = "Large message {0} wasn't found when dealing with add pending large message",
+      value = "Large message {0} wasn''t found when dealing with add pending large message",
       format = Message.Format.MESSAGE_FORMAT)
    void largeMessageNotFound(long id);
 
@@ -1385,7 +1385,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorWritingToInvmConnector(@Cause Exception e, Runnable runnable);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224028, value = "Failed to stop accepto {0}r", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 224028, value = "Failed to stop acceptor {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorStoppingAcceptor(String name);
 
    @LogMessage(level = Logger.Level.ERROR)

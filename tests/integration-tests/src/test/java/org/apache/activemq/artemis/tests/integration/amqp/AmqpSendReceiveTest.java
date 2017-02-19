@@ -753,7 +753,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       LOG.info("*** Attempting to read remaining messages with both receivers");
       int splitCredit = (MSG_COUNT - 4) / 2;
 
-      LOG.info("**** Receiver #1 granting creadit[{}] for its block of messages", splitCredit);
+      LOG.info("**** Receiver #1 granting credit[{}] for its block of messages", splitCredit);
       receiver1.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver1.receive(10, TimeUnit.SECONDS);
@@ -762,7 +762,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          message.accept();
       }
 
-      LOG.info("**** Receiver #2 granting creadit[{}] for its block of messages", splitCredit);
+      LOG.info("**** Receiver #2 granting credit[{}] for its block of messages", splitCredit);
       receiver2.flow(splitCredit);
       for (int i = 0; i < splitCredit; i++) {
          AmqpMessage message = receiver2.receive(10, TimeUnit.SECONDS);

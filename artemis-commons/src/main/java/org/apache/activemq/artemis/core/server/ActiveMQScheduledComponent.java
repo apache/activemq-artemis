@@ -162,7 +162,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       return future != null;
    }
 
-   // this will restart the schedulped component upon changes
+   // this will restart the scheduled component upon changes
    private void restartIfNeeded() {
       if (isStarted()) {
          stop();
