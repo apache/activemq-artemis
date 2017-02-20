@@ -48,6 +48,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -67,36 +68,21 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
       return TRANSFORMER_JMS;
    }
 
-   @Override
-   public InboundTransformer getFallbackTransformer() {
-      return new AMQPNativeInboundTransformer(idGenerator);
+
+   public ServerJMSMessage transform(EncodedMessage message) throws Exception {
+      AMQPMessage messageEncode = new AMQPMessage(message.getMessageFormat(), message.getArray(), null);
+      return transform(messageEncode);
    }
 
    @Override
-   public ServerJMSMessage transform(EncodedMessage encodedMessage) throws Exception {
-      ServerJMSMessage transformedMessage = null;
-
-      try {
-         Message amqpMessage = encodedMessage.decode();
-         transformedMessage = createServerMessage(amqpMessage);
-         populateMessage(transformedMessage, amqpMessage);
-      } catch (Exception ex) {
-         InboundTransformer transformer = this.getFallbackTransformer();
-
-         while (transformer != null) {
-            try {
-               transformedMessage = transformer.transform(encodedMessage);
-               break;
-            } catch (Exception e) {
-               transformer = transformer.getFallbackTransformer();
-            }
-         }
-      }
+   public ServerJMSMessage transform(AMQPMessage amqpMessage) throws Exception {
+      ServerJMSMessage transformedMessage = createServerMessage(amqpMessage.getProtonMessage());
+      populateMessage(transformedMessage, amqpMessage.getProtonMessage());
 
       // Regardless of the transformer that finally decoded the message we need to ensure that
       // the AMQP Message Format value is preserved for application on retransmit.
-      if (transformedMessage != null && encodedMessage.getMessageFormat() != 0) {
-         transformedMessage.setLongProperty(JMS_AMQP_MESSAGE_FORMAT, encodedMessage.getMessageFormat());
+      if (transformedMessage != null && amqpMessage.getMessageFormat() != 0) {
+         transformedMessage.setLongProperty(JMS_AMQP_MESSAGE_FORMAT, amqpMessage.getMessageFormat());
       }
 
       return transformedMessage;

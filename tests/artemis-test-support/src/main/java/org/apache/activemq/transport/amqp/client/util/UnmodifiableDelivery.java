@@ -52,6 +52,11 @@ public class UnmodifiableDelivery implements Delivery {
    }
 
    @Override
+   public int getDataLength() {
+      return delivery.getDataLength();
+   }
+
+   @Override
    public DeliveryState getLocalState() {
       return delivery.getLocalState();
    }

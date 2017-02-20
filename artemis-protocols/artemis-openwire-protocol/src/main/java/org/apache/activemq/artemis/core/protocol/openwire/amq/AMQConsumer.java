@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
@@ -35,7 +36,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -208,7 +208,7 @@ public class AMQConsumer {
 
    }
 
-   public int handleDeliver(MessageReference reference, ServerMessage message, int deliveryCount) {
+   public int handleDeliver(MessageReference reference, Message message, int deliveryCount) {
       MessageDispatch dispatch;
       try {
          if (messagePullHandler != null && !messagePullHandler.checkForcedConsumer(message)) {
@@ -394,7 +394,7 @@ public class AMQConsumer {
          }
       }
 
-      public boolean checkForcedConsumer(ServerMessage message) {
+      public boolean checkForcedConsumer(Message message) {
          if (message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE)) {
             if (next >= 0) {
                if (timeout <= 0) {

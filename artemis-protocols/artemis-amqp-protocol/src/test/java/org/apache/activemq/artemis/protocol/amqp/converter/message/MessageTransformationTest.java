@@ -26,8 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.qpid.proton.Proton;
@@ -87,7 +87,7 @@ public class MessageTransformationTest {
 
       EncodedMessage encoded = encode(incomingMessage);
 
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(encoded);
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, outbound.getLongProperty("JMSXDeliveryCount").intValue())).decode();
 
       // Test that message details are equal
@@ -128,8 +128,7 @@ public class MessageTransformationTest {
 
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      EncodedMessage encoded = encode(incomingMessage);
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(new AMQPMessage(incomingMessage, null));
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, 1)).decode();
 
       assertNull(outboudMessage.getHeader());
@@ -144,8 +143,7 @@ public class MessageTransformationTest {
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
       incomingMessage.setMessageId("ID:SomeQualifier:0:0:1");
 
-      EncodedMessage encoded = encode(incomingMessage);
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(new AMQPMessage(incomingMessage, null));
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, 1)).decode();
 
       assertNull(outboudMessage.getHeader());
@@ -160,8 +158,7 @@ public class MessageTransformationTest {
       incomingMessage.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
       incomingMessage.setDurable(true);
 
-      EncodedMessage encoded = encode(incomingMessage);
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(new AMQPMessage(incomingMessage, null));
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, 1)).decode();
 
       assertNotNull(outboudMessage.getHeader());
@@ -175,8 +172,7 @@ public class MessageTransformationTest {
 
       incomingMessage.setBody(new AmqpValue(new Boolean(true)));
 
-      EncodedMessage encoded = encode(incomingMessage);
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(new AMQPMessage(incomingMessage, null));
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, 1)).decode();
 
       Section section = outboudMessage.getBody();
@@ -233,8 +229,7 @@ public class MessageTransformationTest {
       message.setMessageAnnotations(new MessageAnnotations(messageAnnotations));
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      EncodedMessage encoded = encode(message);
-      ServerMessage outbound = converter.inbound(encoded);
+      org.apache.activemq.artemis.api.core.Message outbound = converter.inbound(new AMQPMessage(message, null));
       Message outboudMessage = ((EncodedMessage) converter.outbound(outbound, 1)).decode();
 
       assertNotNull(outboudMessage.getHeader());

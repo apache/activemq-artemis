@@ -57,11 +57,11 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecordTX;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalCompleteRecordTX;
@@ -713,7 +713,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    @Override
    public void appendAddRecord(final long id,
                                final byte recordType,
-                               final EncodingSupport record,
+                               final Persister persister,
+                               final Object record,
                                final boolean sync,
                                final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
@@ -727,7 +728,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          public void run() {
             journalLock.readLock().lock();
             try {
-               JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, record);
+               JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(addRecord, false, sync, null, callback);
                records.put(id, new JournalRecord(usedFile, addRecord.getEncodeSize()));
 
@@ -762,7 +763,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    @Override
    public void appendUpdateRecord(final long id,
                                   final byte recordType,
-                                  final EncodingSupport record,
+                                  final Persister persister,
+                                  final Object record,
                                   final boolean sync,
                                   final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
@@ -777,7 +779,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             journalLock.readLock().lock();
             try {
                JournalRecord jrnRecord = records.get(id);
-               JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, record);
+               JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(updateRecord, false, sync, null, callback);
 
                if (logger.isTraceEnabled()) {
@@ -873,7 +875,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public void appendAddRecordTransactional(final long txID,
                                             final long id,
                                             final byte recordType,
-                                            final EncodingSupport record) throws Exception {
+                                            final Persister persister,
+                                            final Object record) throws Exception {
       checkJournalIsLoaded();
 
       final JournalTransaction tx = getTransactionInfo(txID);
@@ -885,7 +888,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          public void run() {
             journalLock.readLock().lock();
             try {
-               JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, record);
+               JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
                JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
 
                if (logger.isTraceEnabled()) {
@@ -952,7 +955,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public void appendUpdateRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
-                                               final EncodingSupport record) throws Exception {
+                                               final Persister persister,
+                                               final Object record) throws Exception {
       checkJournalIsLoaded();
 
       final JournalTransaction tx = getTransactionInfo(txID);
@@ -965,7 +969,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             journalLock.readLock().lock();
             try {
 
-               JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, record );
+               JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, persister, record );
                JournalFile usedFile = appendRecord( updateRecordTX, false, false, tx, null );
 
                if ( logger.isTraceEnabled() ) {
@@ -2165,45 +2169,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
    }
 
-   @Override
-   public void perfBlast(final int pages) {
-
-      checkJournalIsLoaded();
-
-      final ByteArrayEncoding byteEncoder = new ByteArrayEncoding(new byte[128 * 1024]);
-
-      final JournalInternalRecord blastRecord = new JournalInternalRecord() {
-
-         @Override
-         public int getEncodeSize() {
-            return byteEncoder.getEncodeSize();
-         }
-
-         @Override
-         public void encode(final ActiveMQBuffer buffer) {
-            byteEncoder.encode(buffer);
-         }
-      };
-
-      appendExecutor.execute(new Runnable() {
-         @Override
-         public void run() {
-            journalLock.readLock().lock();
-            try {
-
-               for (int i = 0; i < pages; i++) {
-                  appendRecord(blastRecord, false, false, null, null);
-               }
-
-            } catch (Exception e) {
-               ActiveMQJournalLogger.LOGGER.failedToPerfBlast(e);
-            } finally {
-               journalLock.readLock().unlock();
-            }
-         }
-      });
-   }
-
    // ActiveMQComponent implementation
    // ---------------------------------------------------
 
@@ -2921,5 +2886,4 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public int getCompactCount() {
       return compactCount;
    }
-
 }

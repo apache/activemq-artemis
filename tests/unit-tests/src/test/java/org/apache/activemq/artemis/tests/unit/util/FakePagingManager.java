@@ -19,11 +19,12 @@ package org.apache.activemq.artemis.tests.unit.util;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 
 public final class FakePagingManager implements PagingManager {
@@ -64,11 +65,11 @@ public final class FakePagingManager implements PagingManager {
       return false;
    }
 
-   public boolean page(final ServerMessage message, final boolean duplicateDetection) throws Exception {
+   public boolean page(final Message message, final boolean duplicateDetection) throws Exception {
       return false;
    }
 
-   public boolean page(final ServerMessage message,
+   public boolean page(final Message message,
                        final long transactionId,
                        final boolean duplicateDetection) throws Exception {
       return false;

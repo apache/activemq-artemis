@@ -16,24 +16,15 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
-
+import javax.jms.Destination;
+import javax.jms.JMSException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -47,6 +38,13 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.Message;
+
+import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
 
 /**
  * Support class containing constant values and static methods that are used to map to / from
@@ -181,7 +179,7 @@ public final class AMQPMessageSupport {
       }
    }
 
-   public static ServerJMSMessage wrapMessage(int messageType, ServerMessage wrapped, int deliveryCount) {
+   public static ServerJMSMessage wrapMessage(int messageType, org.apache.activemq.artemis.api.core.Message wrapped, int deliveryCount) {
       switch (messageType) {
          case STREAM_TYPE:
             return new ServerJMSStreamMessage(wrapped, deliveryCount);
@@ -267,8 +265,8 @@ public final class AMQPMessageSupport {
       return message;
    }
 
-   private static ServerMessageImpl newMessage(IDGenerator idGenerator, byte messageType) {
-      ServerMessageImpl message = new ServerMessageImpl(idGenerator.generateID(), 512);
+   private static CoreMessage newMessage(IDGenerator idGenerator, byte messageType) {
+      CoreMessage message = new CoreMessage(idGenerator.generateID(), 512);
       message.setType(messageType);
       ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;

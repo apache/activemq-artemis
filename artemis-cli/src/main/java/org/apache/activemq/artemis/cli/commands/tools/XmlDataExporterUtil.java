@@ -17,10 +17,9 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import com.google.common.base.Preconditions;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.utils.Base64;
 
 /**
@@ -92,10 +91,10 @@ public class XmlDataExporterUtil {
     * @param message
     * @return
     */
-   public static String encodeMessageBody(final ServerMessage message) {
+   public static String encodeMessageBody(final Message message) {
       Preconditions.checkNotNull(message, "ServerMessage can not be null");
 
-      int size = message.getEndOfBodyPosition() - message.getBodyBuffer().readerIndex();
+      int size = ((CoreMessage)message.toCore()).getEndOfBodyPosition() - message.getBodyBuffer().readerIndex();
       byte[] buffer = new byte[size];
       message.getBodyBuffer().readBytes(buffer);
 

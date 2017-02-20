@@ -750,10 +750,6 @@ public interface Configuration {
 
    Configuration setLogJournalWriteRate(boolean rate);
 
-   int getJournalPerfBlastPages();
-
-   Configuration setJournalPerfBlastPages(int pages);
-
    long getServerDumpInterval();
 
    Configuration setServerDumpInterval(long interval);
@@ -765,10 +761,6 @@ public interface Configuration {
    long getMemoryMeasureInterval();
 
    Configuration setMemoryMeasureInterval(long memoryMeasureInterval);
-
-   boolean isRunSyncSpeedTest();
-
-   Configuration setRunSyncSpeedTest(boolean run);
 
    // Paging Properties --------------------------------------------------------------------
 

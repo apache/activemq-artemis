@@ -17,14 +17,16 @@
 package org.apache.activemq.artemis.core.journal.impl.dataformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
 public class JournalAddRecord extends JournalInternalRecord {
 
    protected final long id;
 
-   protected final EncodingSupport record;
+   protected final Persister persister;
+
+   protected final Object record;
 
    protected final byte recordType;
 
@@ -35,7 +37,7 @@ public class JournalAddRecord extends JournalInternalRecord {
     * @param recordType
     * @param record
     */
-   public JournalAddRecord(final boolean add, final long id, final byte recordType, final EncodingSupport record) {
+   public JournalAddRecord(final boolean add, final long id, final byte recordType, final Persister persister, Object record) {
       this.id = id;
 
       this.record = record;
@@ -43,6 +45,8 @@ public class JournalAddRecord extends JournalInternalRecord {
       this.recordType = recordType;
 
       this.add = add;
+
+      this.persister = persister;
    }
 
    @Override
@@ -59,17 +63,19 @@ public class JournalAddRecord extends JournalInternalRecord {
 
       buffer.writeLong(id);
 
-      buffer.writeInt(record.getEncodeSize());
+      int recordEncodeSize = persister.getEncodeSize(record);
+
+      buffer.writeInt(persister.getEncodeSize(record));
 
       buffer.writeByte(recordType);
 
-      record.encode(buffer);
+      persister.encode(buffer, record);
 
-      buffer.writeInt(getEncodeSize());
+      buffer.writeInt(recordEncodeSize + JournalImpl.SIZE_ADD_RECORD + 1);
    }
 
    @Override
    public int getEncodeSize() {
-      return JournalImpl.SIZE_ADD_RECORD + record.getEncodeSize() + 1;
+      return JournalImpl.SIZE_ADD_RECORD + persister.getEncodeSize(record) + 1;
    }
 }

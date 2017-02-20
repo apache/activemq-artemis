@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -68,11 +68,11 @@ public class JMSTransformationSpeedComparisonTest {
 
       Message message = Proton.message();
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
-      EncodedMessage encoded = encode(message);
+      AMQPMessage encoded = encode(message);
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
 
@@ -80,7 +80,7 @@ public class JMSTransformationSpeedComparisonTest {
 
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
       totalDuration += System.nanoTime() - startTime;
@@ -99,11 +99,11 @@ public class JMSTransformationSpeedComparisonTest {
       message.setContentType("text/plain");
       message.setBody(new AmqpValue("String payload for AMQP message conversion performance testing."));
 
-      EncodedMessage encoded = encode(message);
+      AMQPMessage encoded = encode(message);
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
 
@@ -111,7 +111,7 @@ public class JMSTransformationSpeedComparisonTest {
 
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
       totalDuration += System.nanoTime() - startTime;
@@ -122,11 +122,11 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testTypicalQpidJMSMessage() throws Exception {
 
-      EncodedMessage encoded = encode(createTypicalQpidJMSMessage());
+      AMQPMessage encoded = encode(createTypicalQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
 
@@ -134,7 +134,7 @@ public class JMSTransformationSpeedComparisonTest {
 
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
       totalDuration += System.nanoTime() - startTime;
@@ -145,11 +145,11 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testComplexQpidJMSMessage() throws Exception {
 
-      EncodedMessage encoded = encode(createComplexQpidJMSMessage());
+      AMQPMessage encoded = encode(createComplexQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
 
@@ -157,7 +157,7 @@ public class JMSTransformationSpeedComparisonTest {
 
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
-         ServerMessage intermediate = converter.inbound(encoded);
+         org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
          encode(converter.outbound(intermediate, 1));
       }
       totalDuration += System.nanoTime() - startTime;
@@ -168,7 +168,7 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testTypicalQpidJMSMessageInBoundOnly() throws Exception {
 
-      EncodedMessage encoded = encode(createTypicalQpidJMSMessage());
+      AMQPMessage encoded = encode(createTypicalQpidJMSMessage());
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
@@ -190,8 +190,8 @@ public class JMSTransformationSpeedComparisonTest {
    @Test
    public void testTypicalQpidJMSMessageOutBoundOnly() throws Exception {
 
-      EncodedMessage encoded = encode(createTypicalQpidJMSMessage());
-      ServerMessage intermediate = converter.inbound(encoded);
+      AMQPMessage encoded = encode(createTypicalQpidJMSMessage());
+      org.apache.activemq.artemis.api.core.Message intermediate = converter.inbound(encoded);
 
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
@@ -278,14 +278,14 @@ public class JMSTransformationSpeedComparisonTest {
       return message;
    }
 
-   private EncodedMessage encode(Object target) {
+   private AMQPMessage encode(Object target) {
       if (target instanceof ProtonJMessage) {
          ProtonJMessage amqp = (ProtonJMessage) target;
 
          ByteBuf nettyBuffer = Unpooled.buffer(1024);
          amqp.encode(new NettyWritable(nettyBuffer));
 
-         return new EncodedMessage(0, nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
+         return new AMQPMessage(0, nettyBuffer.array(), null);
       } else {
          return null;
       }

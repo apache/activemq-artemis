@@ -64,7 +64,6 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -510,7 +509,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          // will be unknown so we check for special cases of messages with special data
          // encoded into the server message body.
          if (orignalEncoding == AMQP_UNKNOWN) {
-            MessageInternal internalMessage = message.getInnerMessage();
+            org.apache.activemq.artemis.api.core.Message internalMessage = message.getInnerMessage();
             int readerIndex = internalMessage.getBodyBuffer().readerIndex();
             try {
                Object s = internalMessage.getBodyBuffer().readNullableSimpleString();

@@ -20,7 +20,7 @@ import javax.transaction.xa.Xid;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionDetail;
 
@@ -31,7 +31,7 @@ public class CoreTransactionDetail extends TransactionDetail {
    }
 
    @Override
-   public String decodeMessageType(ServerMessage msg) {
+   public String decodeMessageType(Message msg) {
       int type = msg.getType();
       switch (type) {
          case Message.DEFAULT_TYPE: // 0
@@ -52,7 +52,7 @@ public class CoreTransactionDetail extends TransactionDetail {
    }
 
    @Override
-   public Map<String, Object> decodeMessageProperties(ServerMessage msg) {
+   public Map<String, Object> decodeMessageProperties(Message msg) {
       return msg.toMap();
    }
 }

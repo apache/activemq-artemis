@@ -673,22 +673,6 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="perf-blast-pages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  XXX Only meant to be used by project developers
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="run-sync-speed-test" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  XXX Only meant to be used by project developers
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
          <xsd:element name="server-dump-interval" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import java.util.Collections;
-import java.util.Enumeration;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
@@ -35,16 +34,16 @@ import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAG
 
 public class ServerJMSMessage implements Message {
 
-   protected final MessageInternal message;
+   protected final CoreMessage message;
 
    protected int deliveryCount;
 
-   public MessageInternal getInnerMessage() {
+   public org.apache.activemq.artemis.api.core.Message getInnerMessage() {
       return message;
    }
 
-   public ServerJMSMessage(MessageInternal message, int deliveryCount) {
-      this.message = message;
+   public ServerJMSMessage(org.apache.activemq.artemis.api.core.Message message, int deliveryCount) {
+      this.message = (CoreMessage)message;
       this.deliveryCount = deliveryCount;
    }
 
@@ -60,7 +59,7 @@ public class ServerJMSMessage implements Message {
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
          // to avoid clashes between multiple threads
-         readBodyBuffer = message.getBodyBufferDuplicate();
+         readBodyBuffer = message.getReadOnlyBodyBuffer();
       }
       return readBodyBuffer;
    }
@@ -140,7 +139,7 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final Destination getJMSDestination() throws JMSException {
-      SimpleString sdest = message.getAddress();
+      SimpleString sdest = message.getAddressSimpleString();
 
       if (sdest == null) {
          return null;
@@ -152,7 +151,7 @@ public class ServerJMSMessage implements Message {
    @Override
    public final void setJMSDestination(Destination destination) throws JMSException {
       if (destination == null) {
-         message.setAddress(null);
+         message.setAddress((SimpleString)null);
       } else {
          message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }

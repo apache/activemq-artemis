@@ -224,6 +224,7 @@ public class ProtonTest extends ProtonTestBase {
 
          TextMessage message = session.createTextMessage("test-message");
          producer.send(message);
+
          producer.close();
 
          connection.start();
@@ -827,12 +828,7 @@ public class ProtonTest extends ProtonTestBase {
          AmqpReceiver receiver = session.createReceiver(coreAddress);
          server.destroyQueue(new SimpleString(coreAddress), null, false, true);
 
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return receiver.isClosed();
-            }
-         });
+         Wait.waitFor(receiver::isClosed);
          assertTrue(receiver.isClosed());
       } finally {
          amqpConnection.close();
@@ -851,12 +847,7 @@ public class ProtonTest extends ProtonTestBase {
             connection.disconnect(true);
          }
 
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return amqpConnection.isClosed();
-            }
-         });
+         Wait.waitFor(amqpConnection::isClosed);
 
          assertTrue(amqpConnection.isClosed());
          assertEquals(AmqpSupport.CONNECTION_FORCED, amqpConnection.getConnection().getRemoteCondition().getCondition());
@@ -1001,12 +992,7 @@ public class ProtonTest extends ProtonTestBase {
       final ActiveMQServer remote = createAMQPServer(5673);
       remote.start();
       try {
-         Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return remote.isActive();
-            }
-         });
+         Wait.waitFor(remote::isActive);
       } catch (Exception e) {
          remote.stop();
          throw e;

@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 
 public final class OpenTypeSupport {
 
@@ -128,6 +128,7 @@ public final class OpenTypeSupport {
 
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = new HashMap<>();
+         // TODO-now: fix this
          Message m = ref.getMessage();
          rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
          if (m.getUserID() != null) {
@@ -142,6 +143,11 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.TIMESTAMP, m.getTimestamp());
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
+
+         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
+         byte[] bytes = new byte[bodyCopy.readableBytes()];
+         bodyCopy.readBytes(bytes);
+         rc.put(CompositeDataConstants.BODY, bytes);
 
          Map<String, Object> propertyMap = m.toPropertyMap();
 
@@ -264,8 +270,8 @@ public final class OpenTypeSupport {
       @Override
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
-         ServerMessage m = ref.getMessage();
-         ActiveMQBuffer bodyCopy = m.getBodyBufferDuplicate();
+         Message m = ref.getMessage();
+         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
          byte[] bytes = new byte[bodyCopy.readableBytes()];
          bodyCopy.readBytes(bytes);
          rc.put(CompositeDataConstants.BODY, bytes);
@@ -285,8 +291,8 @@ public final class OpenTypeSupport {
       @Override
       public Map<String, Object> getFields(MessageReference ref) throws OpenDataException {
          Map<String, Object> rc = super.getFields(ref);
-         ServerMessage m = ref.getMessage();
-         SimpleString text = m.getBodyBuffer().copy().readNullableSimpleString();
+         Message m = ref.getMessage();
+         SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
          rc.put(CompositeDataConstants.TEXT_BODY, text != null ? text.toString() : "");
          return rc;
       }

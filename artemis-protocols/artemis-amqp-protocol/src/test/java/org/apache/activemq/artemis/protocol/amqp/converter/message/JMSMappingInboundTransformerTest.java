@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessa
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.qpid.proton.Proton;
@@ -82,8 +83,9 @@ public class JMSMappingInboundTransformerTest {
       Message message = Message.Factory.create();
       message.setContentType(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE);
 
-      EncodedMessage em = encodeMessage(message);
-      javax.jms.Message jmsMessage = transformer.transform(em);
+      AMQPMessage messageEncode = new AMQPMessage(message, null);
+
+      javax.jms.Message jmsMessage = transformer.transform(messageEncode);
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());

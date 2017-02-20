@@ -2622,6 +2622,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void addProtocolManagerFactory(ProtocolManagerFactory factory) {
       protocolManagerFactories.add(factory);
+      new Exception("protocol....").printStackTrace();
    }
 
    @Override

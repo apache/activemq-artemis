@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
@@ -37,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternal
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.selector.filter.FilterException;
@@ -474,7 +476,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       if (closed) {
          return;
       }
-      Object message = delivery.getContext();
+      Message message = (Message)delivery.getContext();
 
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
@@ -566,7 +568,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
-   public int deliverMessage(Object message, int deliveryCount) throws Exception {
+   public int deliverMessage(Message message, int deliveryCount) throws Exception {
       if (closed) {
          return 0;
       }
@@ -592,13 +594,18 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       try {
          long messageFormat = 0;
 
-         // Encode the Server Message into the given Netty Buffer as an AMQP
-         // Message transformed from the internal message model.
-         try {
-            messageFormat = sessionSPI.encodeMessage(message, deliveryCount, new NettyWritable(nettyBuffer));
-         } catch (Throwable e) {
-            log.warn(e.getMessage(), e);
-            throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+
+         if (message instanceof AMQPMessage) {
+            message.sendBuffer(nettyBuffer, deliveryCount);
+         } else {
+            // Encode the Server Message into the given Netty Buffer as an AMQP
+            // Message transformed from the internal message model.
+            try {
+               messageFormat = sessionSPI.encodeMessage(message, deliveryCount, new NettyWritable(nettyBuffer));
+            } catch (Throwable e) {
+               log.warn(e.getMessage(), e);
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
          }
 
          int size = nettyBuffer.writerIndex();

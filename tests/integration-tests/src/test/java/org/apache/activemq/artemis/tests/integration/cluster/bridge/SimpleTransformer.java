@@ -16,40 +16,43 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class SimpleTransformer implements Transformer {
 
    @Override
-   public ServerMessage transform(final ServerMessage message) {
-      SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
+   public Message transform(final Message message) {
 
-      if (!oldProp.equals(new SimpleString("bing"))) {
-         throw new IllegalStateException("Wrong property value!!");
-      }
+      // TODO-now: fix this test!!!
 
-      // Change a property
-      message.putStringProperty(new SimpleString("wibble"), new SimpleString("bong"));
-
-      // Change the body
-      ActiveMQBuffer buffer = message.getBodyBuffer();
-
-      buffer.readerIndex(0);
-
-      String str = buffer.readString();
-
-      if (!str.equals("doo be doo be doo be doo")) {
-         throw new IllegalStateException("Wrong body!!");
-      }
-
-      buffer.clear();
-
-      buffer.writeString("dee be dee be dee be dee");
-
-      return message;
+      throw new RuntimeException(("Fix me"));
+//      SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
+//
+//      if (!oldProp.equals(new SimpleString("bing"))) {
+//         throw new IllegalStateException("Wrong property value!!");
+//      }
+//
+//      // Change a property
+//      message.putStringProperty(new SimpleString("wibble"), new SimpleString("bong"));
+//
+//      // Change the body
+//      ActiveMQBuffer buffer = message.getBodyBuffer();
+//
+//      buffer.readerIndex(0);
+//
+//      String str = buffer.readString();
+//
+//      if (!str.equals("doo be doo be doo be doo")) {
+//         throw new IllegalStateException("Wrong body!!");
+//      }
+//
+//      buffer.clear();
+//
+//      buffer.writeString("dee be dee be dee be dee");
+//
+//      return message;
    }
 
 }

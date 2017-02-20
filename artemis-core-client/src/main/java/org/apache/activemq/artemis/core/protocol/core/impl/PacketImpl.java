@@ -16,14 +16,18 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
+
 
    public static final int ADDRESSING_CHANGE_VERSION = 129;
 
@@ -310,7 +314,7 @@ public class PacketImpl implements Packet {
 
    @Override
    public ActiveMQBuffer encode(final RemotingConnection connection, boolean usePooled) {
-      ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE, usePooled);
+      ActiveMQBuffer buffer = createPacket(connection, usePooled);
 
       // The standard header fields
 
@@ -330,6 +334,14 @@ public class PacketImpl implements Packet {
       return buffer;
    }
 
+   protected ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+      if (connection == null) {
+         return new ChannelBufferWrapper(Unpooled.buffer(INITIAL_PACKET_SIZE));
+      } else {
+         return connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE, usePooled);
+      }
+   }
+
    @Override
    public void decode(final ActiveMQBuffer buffer) {
       channelID = buffer.readLong();
@@ -338,6 +350,22 @@ public class PacketImpl implements Packet {
 
       size = buffer.readerIndex();
    }
+
+   protected ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
+
+      ByteBuf newNettyBuffer = Unpooled.buffer(buffer.capacity() - PACKET_HEADERS_SIZE - skipBytes);
+
+      int read = buffer.readerIndex();
+      int writ = buffer.writerIndex();
+      buffer.readerIndex(PACKET_HEADERS_SIZE);
+
+      newNettyBuffer.writeBytes(buffer, buffer.readableBytes() - skipBytes);
+      buffer.setIndex( read, writ );
+      newNettyBuffer.setIndex( 0, writ - PACKET_HEADERS_SIZE - skipBytes);
+
+      return newNettyBuffer;
+   }
+
 
    @Override
    public int getPacketSize() {

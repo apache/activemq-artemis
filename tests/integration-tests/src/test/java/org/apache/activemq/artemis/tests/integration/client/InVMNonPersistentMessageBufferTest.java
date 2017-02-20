@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -130,9 +130,9 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
          message.getBodyBuffer().clear();
 
-         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().writerIndex());
+         Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().writerIndex());
 
-         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+         Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
       }
    }
 
@@ -148,6 +148,18 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(received);
 
+      ActiveMQBuffer buffer = received.getReadOnlyBodyBuffer();
+
+      Assert.assertEquals(body, buffer.readString());
+
+      try {
+         buffer.readByte();
+         Assert.fail("Should throw exception");
+      } catch (IndexOutOfBoundsException e) {
+         // OK
+      }
+
+
       Assert.assertEquals(body, received.getBodyBuffer().readString());
 
       try {
@@ -157,6 +169,18 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
       } catch (IndexOutOfBoundsException e) {
          // OK
       }
+
+      buffer = received.getReadOnlyBodyBuffer();
+
+      Assert.assertEquals(body, buffer.readString());
+
+      try {
+         buffer.readByte();
+         Assert.fail("Should throw exception");
+      } catch (IndexOutOfBoundsException e) {
+         // OK
+      }
+
    }
 
    @Test
@@ -167,7 +191,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       message.getBodyBuffer().writeString(body);
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+      Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body2 = message.getBodyBuffer().readString();
 
@@ -175,7 +199,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       message.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
+      Assert.assertEquals(DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body3 = message.getBodyBuffer().readString();
 
@@ -189,7 +213,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
 
       received.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, received.getBodyBuffer().readerIndex());
+      Assert.assertEquals(DataConstants.SIZE_INT, received.getBodyBuffer().readerIndex());
 
       String body4 = received.getBodyBuffer().readString();
 

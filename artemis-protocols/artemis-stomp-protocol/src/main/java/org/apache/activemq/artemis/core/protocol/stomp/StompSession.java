@@ -28,20 +28,18 @@ import java.util.zip.Inflater;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.BodyEncoder;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -127,11 +125,13 @@ public class StompSession implements SessionCallback {
 
    @Override
    public int sendMessage(MessageReference ref,
-                          ServerMessage serverMessage,
+                          Message serverMessage,
                           final ServerConsumer consumer,
                           int deliveryCount) {
+
+      //TODO-now: fix encoders
       LargeServerMessageImpl largeMessage = null;
-      ServerMessage newServerMessage = serverMessage;
+      Message newServerMessage = serverMessage;
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
          StompFrame frame = null;
@@ -139,20 +139,23 @@ public class StompSession implements SessionCallback {
             newServerMessage = serverMessage.copy();
 
             largeMessage = (LargeServerMessageImpl) serverMessage;
-            BodyEncoder encoder = largeMessage.getBodyEncoder();
+            LargeBodyEncoder encoder = largeMessage.getBodyEncoder();
             encoder.open();
             int bodySize = (int) encoder.getLargeBodySize();
 
+            // TODO-now: Convert large mesasge body into the stomp message
             //large message doesn't have a body.
-            ((ServerMessageImpl) newServerMessage).createBody(bodySize);
-            encoder.encode(newServerMessage.getBodyBuffer(), bodySize);
-            encoder.close();
+            // ((Message) newServerMessage).createBody(bodySize);
+//            encoder.encode(((ServerMessage)newServerMessage).getBodyBuffer(), bodySize);
+//            encoder.close();
+
+            throw new RuntimeException("Large message body won't work with stomp now");
          }
 
          if (serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
             //decompress
             ActiveMQBuffer qbuff = newServerMessage.getBodyBuffer();
-            int bytesToRead = qbuff.writerIndex() - MessageImpl.BODY_OFFSET;
+            int bytesToRead = qbuff.writerIndex() - CoreMessage.BODY_OFFSET;
             Inflater inflater = new Inflater();
             inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
 
@@ -219,7 +222,7 @@ public class StompSession implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference ref,
-                               ServerMessage msg,
+                               Message msg,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {
@@ -370,11 +373,11 @@ public class StompSession implements SessionCallback {
       this.noLocal = noLocal;
    }
 
-   public void sendInternal(ServerMessageImpl message, boolean direct) throws Exception {
+   public void sendInternal(Message message, boolean direct) throws Exception {
       session.send(message, direct);
    }
 
-   public void sendInternalLarge(ServerMessageImpl message, boolean direct) throws Exception {
+   public void sendInternalLarge(CoreMessage message, boolean direct) throws Exception {
       int headerSize = message.getHeadersAndPropertiesEncodeSize();
       if (headerSize >= connection.getMinLargeMessageSize()) {
          throw BUNDLE.headerTooBig();
@@ -384,7 +387,7 @@ public class StompSession implements SessionCallback {
       long id = storageManager.generateID();
       LargeServerMessage largeMessage = storageManager.createLargeMessage(id, message);
 
-      byte[] bytes = new byte[message.getBodyBuffer().writerIndex() - MessageImpl.BODY_OFFSET];
+      byte[] bytes = new byte[message.getBodyBuffer().writerIndex() - CoreMessage.BODY_OFFSET];
       message.getBodyBuffer().readBytes(bytes);
 
       largeMessage.addBytes(bytes);

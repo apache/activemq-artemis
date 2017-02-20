@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -53,8 +53,6 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -609,7 +607,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Filter singleMessageFilter = new Filter() {
             @Override
-            public boolean match(ServerMessage message) {
+            public boolean match(Message message) {
                return message.getMessageID() == messageID;
             }
 
@@ -738,7 +736,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             return null;
          }
       });
-      ServerMessageImpl message = new ServerMessageImpl(storageManager.generateID(), 50);
+      CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
       for (String header : headers.keySet()) {
          message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
       }
@@ -755,7 +753,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       message.setAddress(queue.getAddress());
       ByteBuffer buffer = ByteBuffer.allocate(8);
       buffer.putLong(queue.getID());
-      message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+      message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
       postOffice.route(message, true);
       return "" + message.getMessageID();
    }

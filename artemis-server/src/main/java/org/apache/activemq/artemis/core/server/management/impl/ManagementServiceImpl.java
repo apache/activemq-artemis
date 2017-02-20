@@ -34,6 +34,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
@@ -56,6 +58,7 @@ import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImp
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
@@ -71,13 +74,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -365,9 +365,9 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public ServerMessage handleMessage(final ServerMessage message) throws Exception {
+   public Message handleMessage(final Message message) throws Exception {
       // a reply message is sent with the result stored in the message body.
-      ServerMessage reply = new ServerMessageImpl(storageManager.generateID(), 512);
+      Message reply = new CoreMessage(storageManager.generateID(), 512);
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (logger.isDebugEnabled()) {
@@ -631,7 +631,7 @@ public class ManagementServiceImpl implements ManagementService {
 
                long messageID = storageManager.generateID();
 
-               ServerMessage notificationMessage = new ServerMessageImpl(messageID, 512);
+               Message notificationMessage = new CoreMessage(messageID, 512);
 
                // Notification messages are always durable so the user can choose whether to add a durable queue to
                // consume them in

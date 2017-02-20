@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
+/**
+ * Info: ProtocolManager is loaded by {@link org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)} */
 public interface ProtocolManager<P extends BaseInterceptor> {
 
    ProtocolManagerFactory<P> getFactory();

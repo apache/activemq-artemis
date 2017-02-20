@@ -234,24 +234,16 @@ public interface ClientMessage extends Message {
     * Overridden from {@link Message} to enable fluent API
     */
    @Override
-   ClientMessage putStringProperty(SimpleString key, SimpleString value);
-
-   /**
-    * Overridden from {@link Message} to enable fluent API
-    */
-   @Override
    ClientMessage putStringProperty(String key, String value);
 
    /**
     * Overridden from {@link Message} to enable fluent API
     */
-   @Override
    ClientMessage writeBodyBufferBytes(byte[] bytes);
 
    /**
     * Overridden from {@link Message} to enable fluent API
     */
-   @Override
    ClientMessage writeBodyBufferString(String string);
 
 }

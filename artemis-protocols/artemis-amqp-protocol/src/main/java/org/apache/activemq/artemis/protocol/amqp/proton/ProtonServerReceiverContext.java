@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -25,7 +23,6 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
-import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -144,26 +141,25 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (delivery.isPartial()) {
             return;
          }
+         byte[] data = new byte[delivery.getDataLength()];
+         Transaction tx = null;
 
-         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(10 * 1024);
-         try {
-            synchronized (connection.getLock()) {
-               DeliveryUtil.readDelivery(receiver, buffer);
+         synchronized (connection.getLock()) {
+            receiver.recv(data, 0, data.length);
 
-               receiver.advance();
+            receiver.advance();
+         }
 
-               Transaction tx = null;
-               if (delivery.getRemoteState() instanceof TransactionalState) {
+         if (delivery.getRemoteState() instanceof TransactionalState) {
 
-                  TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-                  tx = this.sessionSPI.getTransaction(txState.getTxnId());
-               }
-               sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), buffer);
+            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+            tx = this.sessionSPI.getTransaction(txState.getTxnId());
+         }
 
-               flow(maxCreditAllocation, minCreditRefresh);
-            }
-         } finally {
-            buffer.release();
+         sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), data);
+
+         synchronized (connection.getLock()) {
+            flow(maxCreditAllocation, minCreditRefresh);
          }
       } catch (Exception e) {
          log.warn(e.getMessage(), e);

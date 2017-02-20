@@ -33,10 +33,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -49,10 +51,8 @@ import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -152,7 +152,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       buffers.add(buffer);
       SimpleString destination = new SimpleString("test");
 
-      ServerMessage msg = createMessage(1, storeImpl, destination, buffer);
+      Message msg = createMessage(1, storeImpl, destination, buffer);
 
       Assert.assertTrue(storeImpl.isPaging());
 
@@ -197,7 +197,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          buffers.add(buffer);
 
-         ServerMessage msg = createMessage(i, storeImpl, destination, buffer);
+         Message msg = createMessage(i, storeImpl, destination, buffer);
          final RoutingContextImpl ctx = new RoutingContextImpl(null);
          Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName()), lock));
 
@@ -263,7 +263,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             store.forceAnotherPage();
          }
 
-         ServerMessage msg = createMessage(i, store, destination, buffer);
+         Message msg = createMessage(i, store, destination, buffer);
 
          final RoutingContextImpl ctx = new RoutingContextImpl(null);
          Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
@@ -298,7 +298,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertTrue(store.isPaging());
 
-      ServerMessage msg = createMessage(1, store, destination, buffers.get(0));
+      Message msg = createMessage(1, store, destination, buffers.get(0));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
       Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
@@ -374,7 +374,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       final CountDownLatch latchStart = new CountDownLatch(numberOfThreads);
 
-      final ConcurrentHashMap<Long, ServerMessage> buffers = new ConcurrentHashMap<>();
+      final ConcurrentHashMap<Long, Message> buffers = new ConcurrentHashMap<>();
 
       final ArrayList<Page> readPages = new ArrayList<>();
 
@@ -408,7 +408,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                   // Each thread will Keep paging until all the messages are depaged.
                   // This is possible because the depage thread is not actually reading the pages.
                   // Just using the internal API to remove it from the page file system
-                  ServerMessage msg = createMessage(id, storeImpl, destination, createRandomBuffer(id, 5));
+                  Message msg = createMessage(id, storeImpl, destination, createRandomBuffer(id, 5));
                   final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
                   if (storeImpl.page(msg, ctx2.getTransaction(), ctx2.getContextListing(storeImpl.getStoreName()), lock)) {
                      buffers.put(id, msg);
@@ -477,7 +477,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          throw consumer.e;
       }
 
-      final ConcurrentMap<Long, ServerMessage> buffers2 = new ConcurrentHashMap<>();
+      final ConcurrentMap<Long, Message> buffers2 = new ConcurrentHashMap<>();
 
       for (Page page : readPages) {
          page.open();
@@ -488,10 +488,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
             long id = msg.getMessage().getBodyBuffer().readLong();
             msg.getMessage().getBodyBuffer().resetReaderIndex();
 
-            ServerMessage msgWritten = buffers.remove(id);
+            Message msgWritten = buffers.remove(id);
             buffers2.put(id, msg.getMessage());
             Assert.assertNotNull(msgWritten);
-            Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
+            Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddressSimpleString());
             ActiveMQTestBase.assertEqualsBuffers(10, msgWritten.getBodyBuffer(), msg.getMessage().getBodyBuffer());
          }
       }
@@ -522,7 +522,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       Assert.assertEquals(numberOfPages, storeImpl2.getNumberOfPages());
 
       long lastMessageId = messageIdGenerator.incrementAndGet();
-      ServerMessage lastMsg = createMessage(lastMessageId, storeImpl, destination, createRandomBuffer(lastMessageId, 5));
+      Message lastMsg = createMessage(lastMessageId, storeImpl, destination, createRandomBuffer(lastMessageId, 5));
 
       storeImpl2.forceAnotherPage();
 
@@ -548,9 +548,9 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          for (PagedMessage msg : msgs) {
 
             long id = msg.getMessage().getBodyBuffer().readLong();
-            ServerMessage msgWritten = buffers2.remove(id);
+            Message msgWritten = buffers2.remove(id);
             Assert.assertNotNull(msgWritten);
-            Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
+            Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddressSimpleString());
             ActiveMQTestBase.assertEqualsByteArrays(msgWritten.getBodyBuffer().writerIndex(), msgWritten.getBodyBuffer().toByteBuffer().array(), msg.getMessage().getBodyBuffer().toByteBuffer().array());
          }
       }
@@ -643,7 +643,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                   // Each thread will Keep paging until all the messages are depaged.
                   // This is possible because the depage thread is not actually reading the pages.
                   // Just using the internal API to remove it from the page file system
-                  ServerMessage msg = createMessage(i, store, destination, createRandomBuffer(i, 1024));
+                  Message msg = createMessage(i, store, destination, createRandomBuffer(i, 1024));
                   msg.putLongProperty("count", i);
 
                   final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
@@ -681,7 +681,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      List<PagedMessage> messages = page.read(new NullStorageManager());
 
                      for (PagedMessage pgmsg : messages) {
-                        ServerMessage msg = pgmsg.getMessage();
+                        Message msg = pgmsg.getMessage();
 
                         Assert.assertEquals(msgsRead++, msg.getMessageID());
 
@@ -739,15 +739,15 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       };
    }
 
-   private ServerMessage createMessage(final long id,
+   private Message createMessage(final long id,
                                        final PagingStore store,
                                        final SimpleString destination,
                                        final ActiveMQBuffer buffer) {
-      ServerMessage msg = new ServerMessageImpl(id, 50 + buffer.capacity());
+      Message msg = new CoreMessage(id, 50 + buffer.capacity());
 
       msg.setAddress(destination);
 
-      msg.setPagingStore(store);
+      msg.setContext(store);
 
       msg.getBodyBuffer().resetReaderIndex();
       msg.getBodyBuffer().resetWriterIndex();

@@ -193,10 +193,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected boolean logJournalWriteRate = ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate();
 
-   protected int journalPerfBlastPages = ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages();
-
-   protected boolean runSyncSpeedTest = ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest();
-
    private WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
 
    private boolean messageCounterEnabled = ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled();
@@ -850,28 +846,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setLogJournalWriteRate(final boolean logJournalWriteRate) {
       this.logJournalWriteRate = logJournalWriteRate;
-      return this;
-   }
-
-   @Override
-   public int getJournalPerfBlastPages() {
-      return journalPerfBlastPages;
-   }
-
-   @Override
-   public ConfigurationImpl setJournalPerfBlastPages(final int journalPerfBlastPages) {
-      this.journalPerfBlastPages = journalPerfBlastPages;
-      return this;
-   }
-
-   @Override
-   public boolean isRunSyncSpeedTest() {
-      return runSyncSpeedTest;
-   }
-
-   @Override
-   public ConfigurationImpl setRunSyncSpeedTest(final boolean run) {
-      runSyncSpeedTest = run;
       return this;
    }
 
@@ -1556,7 +1530,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + journalMaxIO_AIO;
       result = prime * result + journalMaxIO_NIO;
       result = prime * result + journalMinFiles;
-      result = prime * result + journalPerfBlastPages;
       result = prime * result + (journalSyncNonTransactional ? 1231 : 1237);
       result = prime * result + (journalSyncTransactional ? 1231 : 1237);
       result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
@@ -1580,7 +1553,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (persistIDCache ? 1231 : 1237);
       result = prime * result + (persistenceEnabled ? 1231 : 1237);
       result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
-      result = prime * result + (runSyncSpeedTest ? 1231 : 1237);
       result = prime * result + scheduledThreadPoolMaxSize;
       result = prime * result + (securityEnabled ? 1231 : 1237);
       result = prime * result + (populateValidatedUser ? 1231 : 1237);
@@ -1723,8 +1695,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       if (journalMinFiles != other.journalMinFiles)
          return false;
-      if (journalPerfBlastPages != other.journalPerfBlastPages)
-         return false;
       if (journalSyncNonTransactional != other.journalSyncNonTransactional)
          return false;
       if (journalSyncTransactional != other.journalSyncTransactional)
@@ -1792,8 +1762,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (other.queueConfigurations != null)
             return false;
       } else if (!queueConfigurations.equals(other.queueConfigurations))
-         return false;
-      if (runSyncSpeedTest != other.runSyncSpeedTest)
          return false;
       if (scheduledThreadPoolMaxSize != other.scheduledThreadPoolMaxSize)
          return false;

@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.message.BodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -75,7 +75,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
@@ -367,7 +367,7 @@ public final class XmlDataExporter extends OptionalLocking {
       // Order here is important.  We must process the messages from the journal before we process those from the page
       // files in order to get the messages in the right order.
       for (Map.Entry<Long, Message> messageMapEntry : messages.entrySet()) {
-         printSingleMessageAsXML((ServerMessage) messageMapEntry.getValue(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
+         printSingleMessageAsXML(messageMapEntry.getValue(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
       }
 
       printPagedMessagesAsXML();
@@ -381,6 +381,8 @@ public final class XmlDataExporter extends OptionalLocking {
     */
    private void printPagedMessagesAsXML() {
       try {
+
+         // TODO-now: fix encodings
          ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
          final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
          ExecutorFactory executorFactory = new ExecutorFactory() {
@@ -456,7 +458,7 @@ public final class XmlDataExporter extends OptionalLocking {
       }
    }
 
-   private void printSingleMessageAsXML(ServerMessage message, List<String> queues) throws XMLStreamException {
+   private void printSingleMessageAsXML(Message message, List<String> queues) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_CHILD);
       printMessageAttributes(message);
       printMessageProperties(message);
@@ -466,7 +468,7 @@ public final class XmlDataExporter extends OptionalLocking {
       messagesPrinted++;
    }
 
-   private void printMessageBody(ServerMessage message) throws XMLStreamException {
+   private void printMessageBody(Message message) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGE_BODY);
 
       if (message.isLargeMessage()) {
@@ -479,7 +481,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
    private void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
-      BodyEncoder encoder = null;
+      LargeBodyEncoder encoder = null;
 
       try {
          encoder = message.getBodyEncoder();
@@ -522,7 +524,7 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeEndElement(); // end QUEUES_PARENT
    }
 
-   private void printMessageProperties(ServerMessage message) throws XMLStreamException {
+   private void printMessageProperties(Message message) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.PROPERTIES_PARENT);
       for (SimpleString key : message.getPropertyNames()) {
          Object value = message.getObjectProperty(key);
@@ -539,7 +541,7 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
    }
 
-   private void printMessageAttributes(ServerMessage message) throws XMLStreamException {
+   private void printMessageAttributes(Message message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_ID, Long.toString(message.getMessageID()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));

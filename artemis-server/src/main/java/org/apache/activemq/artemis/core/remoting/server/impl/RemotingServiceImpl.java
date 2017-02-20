@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -147,7 +148,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       this.scheduledThreadPool = scheduledThreadPool;
 
       CoreProtocolManagerFactory coreProtocolManagerFactory = new CoreProtocolManagerFactory();
-      //i know there is only 1
+
+      MessagePersister.getInstance().registerProtocol(coreProtocolManagerFactory);
+
       this.flushExecutor = flushExecutor;
 
       ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
@@ -171,6 +174,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    private void setInterceptors(Configuration configuration) {
       incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors(configuration.getIncomingInterceptorClassNames()));
       outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors(configuration.getOutgoingInterceptorClassNames()));
+   }
+
+   @Override
+   public Map<String, ProtocolManagerFactory> getProtocolFactoryMap() {
+      return protocolMap;
    }
 
    @Override
@@ -768,6 +776,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
     */
    private void loadProtocolManagerFactories(Iterable<ProtocolManagerFactory> protocolManagerFactoryCollection) {
       for (ProtocolManagerFactory next : protocolManagerFactoryCollection) {
+         MessagePersister.registerProtocol(next);
          String[] protocols = next.getProtocols();
          for (String protocol : protocols) {
             ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());

@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.spi.core.protocol;
 
-import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.api.core.Message;
 
-// TODO: use this interface properly on OpenWire
 public interface MessageConverter {
 
-   ServerMessage inbound(Object messageInbound) throws Exception;
+   Message inbound(Object messageInbound) throws Exception;
 
-   Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception;
+   Object outbound(Message messageOutbound, int deliveryCount) throws Exception;
 }

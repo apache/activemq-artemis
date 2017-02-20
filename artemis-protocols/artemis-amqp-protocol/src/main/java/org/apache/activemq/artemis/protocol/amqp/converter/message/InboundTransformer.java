@@ -37,6 +37,7 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
@@ -65,11 +66,9 @@ public abstract class InboundTransformer {
       this.idGenerator = idGenerator;
    }
 
-   public abstract ServerJMSMessage transform(EncodedMessage amqpMessage) throws Exception;
+   public abstract ServerJMSMessage transform(AMQPMessage amqpMessage) throws Exception;
 
    public abstract String getTransformerName();
-
-   public abstract InboundTransformer getFallbackTransformer();
 
    @SuppressWarnings("unchecked")
    protected ServerJMSMessage populateMessage(ServerJMSMessage jms, org.apache.qpid.proton.message.Message amqp) throws Exception {

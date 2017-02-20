@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
@@ -52,7 +51,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
    /*
     * This constructor is used to construct messages prior to sending
     */
-   public ServerJMSMapMessage(MessageInternal message, int deliveryCount) {
+   public ServerJMSMapMessage(Message message, int deliveryCount) {
       super(message, deliveryCount);
 
    }

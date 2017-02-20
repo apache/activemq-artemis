@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
@@ -293,7 +293,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public String getJMSMessageID() {
       if (msgID == null) {
-         UUID uid = message.getUserID();
+         UUID uid = (UUID)message.getUserID();
 
          msgID = uid == null ? null : "ID:" + uid.toString();
       }
@@ -397,7 +397,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public Destination getJMSDestination() throws JMSException {
       if (dest == null) {
-         SimpleString address = message.getAddress();
+         SimpleString address = message.getAddressSimpleString();
          String prefix = "";
          if (message.containsProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE)) {
             RoutingType routingType = RoutingType.getType(message.getByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE));
@@ -756,7 +756,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @SuppressWarnings("unchecked")
    protected <T> T getBodyInternal(Class<T> c) throws MessageFormatException {
-      InputStream is = ((MessageInternal) message).getBodyInputStream();
+      InputStream is = ((ClientMessageInternal) message).getBodyInputStream();
       try {
          ObjectInputStream ois = new ObjectInputStream(is);
          return (T) ois.readObject();

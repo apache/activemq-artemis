@@ -20,6 +20,7 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -29,7 +30,6 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AddMessageRecord;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -43,7 +43,7 @@ public interface JournalLoader {
 
    void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception;
 
-   void handleNoMessageReferences(Map<Long, ServerMessage> messages);
+   void handleNoMessageReferences(Map<Long, Message> messages);
 
    void handleGroupingBindings(List<GroupingInfo> groupingInfos);
 
@@ -53,7 +53,7 @@ public interface JournalLoader {
                  ResourceManager resourceManager,
                  Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception;
 
-   void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) throws Exception;
+   void handlePreparedSendMessage(Message message, Transaction tx, long queueID) throws Exception;
 
    void handlePreparedAcknowledge(long messageID,
                                   List<MessageReference> referencesToAck,

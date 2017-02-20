@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.io.InputStream;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.utils.TypedProperties;
@@ -44,4 +46,7 @@ public interface ClientMessageInternal extends ClientMessage {
    void discardBody();
 
    boolean isCompressed();
+
+   InputStream getBodyInputStream();
+
 }

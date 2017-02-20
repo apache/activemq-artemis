@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -35,7 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
@@ -1301,7 +1302,7 @@ public class DivertTest extends ActiveMQTestBase {
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
       Transformer transformer = new Transformer() {
          @Override
-         public ServerMessage transform(ServerMessage message) {
+         public Message transform(Message message) {
             return null;
          }
       };

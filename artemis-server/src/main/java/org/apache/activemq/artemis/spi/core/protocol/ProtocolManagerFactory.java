@@ -20,9 +20,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public interface ProtocolManagerFactory<P extends BaseInterceptor> {
+
+   /** This is to be used to store the protocol-id on Messages.
+    *  Messages are stored on their bare format.
+    *  The protocol manager will be responsible to code or decode messages.
+    *  The caveat here is that the first short-sized bytes need to be this constant. */
+   default byte getStoreID() {
+      return (byte)0;
+   }
+
+   default Persister<Message> getPersister() {
+      return null;
+   }
+
 
    /**
     * When you create the ProtocolManager, you should filter out any interceptors that won't belong

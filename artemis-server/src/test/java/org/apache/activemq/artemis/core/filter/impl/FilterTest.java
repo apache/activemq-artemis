@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.filter.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.tests.util.SilentTestCase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -35,13 +35,13 @@ public class FilterTest extends SilentTestCase {
 
    private Filter filter;
 
-   private ServerMessage message;
+   private Message message;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      message = new ServerMessageImpl(1, 1000);
+      message = new CoreMessage().initBuffer(1024).setMessageID(1);
    }
 
    @Test
@@ -59,7 +59,7 @@ public class FilterTest extends SilentTestCase {
 
       message.putStringProperty(new SimpleString("color"), new SimpleString("RED"));
       Assert.assertTrue(filter.match(message));
-      message = new ServerMessageImpl();
+      message = new CoreMessage();
       Assert.assertFalse(filter.match(message));
    }
 
@@ -94,7 +94,7 @@ public class FilterTest extends SilentTestCase {
 
       filter = FilterImpl.createFilter(new SimpleString("AMQDurable='NON_DURABLE'"));
 
-      message = new ServerMessageImpl();
+      message = new CoreMessage();
       message.setDurable(true);
 
       Assert.assertFalse(filter.match(message));

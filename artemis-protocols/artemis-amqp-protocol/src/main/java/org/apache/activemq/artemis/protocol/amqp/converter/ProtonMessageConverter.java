@@ -23,7 +23,6 @@ import java.io.IOException;
 import javax.jms.BytesMessage;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport;
@@ -33,6 +32,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.message.InboundTransf
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingInboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSMappingOutboundTransformer;
 import org.apache.activemq.artemis.protocol.amqp.converter.message.OutboundTransformer;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.IDGenerator;
@@ -52,8 +52,8 @@ public class ProtonMessageConverter implements MessageConverter {
    private final OutboundTransformer outboundTransformer;
 
    @Override
-   public ServerMessage inbound(Object messageSource) throws Exception {
-      EncodedMessage encodedMessageSource = (EncodedMessage) messageSource;
+   public org.apache.activemq.artemis.api.core.Message inbound(Object messageSource) throws Exception {
+      AMQPMessage encodedMessageSource = (AMQPMessage) messageSource;
       ServerJMSMessage transformedMessage = null;
 
       try {
@@ -67,11 +67,11 @@ public class ProtonMessageConverter implements MessageConverter {
 
       transformedMessage.encode();
 
-      return (ServerMessage) transformedMessage.getInnerMessage();
+      return transformedMessage.getInnerMessage();
    }
 
    @Override
-   public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception {
+   public Object outbound(org.apache.activemq.artemis.api.core.Message messageOutbound, int deliveryCount) throws Exception {
       // Useful for testing but not recommended for real life use.
       ByteBuf nettyBuffer = Unpooled.buffer(1024);
       NettyWritable buffer = new NettyWritable(nettyBuffer);
@@ -83,7 +83,7 @@ public class ProtonMessageConverter implements MessageConverter {
       return encoded;
    }
 
-   public Object outbound(ServerMessage messageOutbound, int deliveryCount, WritableBuffer buffer) throws Exception {
+   public Object outbound(org.apache.activemq.artemis.api.core.Message messageOutbound, int deliveryCount, WritableBuffer buffer) throws Exception {
       ServerJMSMessage jmsMessage = AMQPMessageSupport.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
 
       jmsMessage.decode();

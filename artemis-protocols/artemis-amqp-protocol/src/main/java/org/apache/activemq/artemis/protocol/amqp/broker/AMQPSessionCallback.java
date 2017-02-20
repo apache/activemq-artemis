@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -34,14 +35,12 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
-import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
@@ -69,7 +68,6 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
-import io.netty.buffer.ByteBuf;
 import org.jboss.logging.Logger;
 
 public class AMQPSessionCallback implements SessionCallback {
@@ -298,11 +296,11 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public long encodeMessage(Object message, int deliveryCount, WritableBuffer buffer) throws Exception {
+   public long encodeMessage(Message message, int deliveryCount, WritableBuffer buffer) throws Exception {
       ProtonMessageConverter converter = (ProtonMessageConverter) manager.getConverter();
 
       // The Proton variant accepts a WritableBuffer to allow for a faster more direct encode.
-      return (long) converter.outbound((ServerMessage) message, deliveryCount, buffer);
+      return (long) converter.outbound(message, deliveryCount, buffer);
    }
 
    public String tempQueueName() {
@@ -321,22 +319,22 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public void ack(Transaction transaction, Object brokerConsumer, Object message) throws Exception {
+   public void ack(Transaction transaction, Object brokerConsumer, Message message) throws Exception {
       if (transaction == null) {
          transaction = serverSession.getCurrentTransaction();
       }
       recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualAcknowledge(transaction, ((ServerMessage) message).getMessageID());
+         ((ServerConsumer) brokerConsumer).individualAcknowledge(transaction, message.getMessageID());
       } finally {
          resetContext();
       }
    }
 
-   public void cancel(Object brokerConsumer, Object message, boolean updateCounts) throws Exception {
+   public void cancel(Object brokerConsumer, Message message, boolean updateCounts) throws Exception {
       recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualCancel(((ServerMessage) message).getMessageID(), updateCounts);
+         ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);
       } finally {
          resetContext();
       }
@@ -351,11 +349,8 @@ public class AMQPSessionCallback implements SessionCallback {
                           final Delivery delivery,
                           String address,
                           int messageFormat,
-                          ByteBuf messageEncoded) throws Exception {
-      EncodedMessage encodedMessage = new EncodedMessage(messageFormat, messageEncoded.array(), messageEncoded.arrayOffset(), messageEncoded.writerIndex());
-
-      ServerMessage message = manager.getConverter().inbound(encodedMessage);
-      //use the address on the receiver if not null, if null let's hope it was set correctly on the message
+                          byte[] data) throws Exception {
+      AMQPMessage message = new AMQPMessage(messageFormat, data, manager);
       if (address != null) {
          message.setAddress(new SimpleString(address));
       } else {
@@ -372,7 +367,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       recoverContext();
 
-      PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddress());
+      PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
       if (store.isRejectingMessages()) {
          // We drop pre-settled messages (and abort any associated Tx)
          if (delivery.remotelySettled()) {
@@ -401,7 +396,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    private void serverSend(final Transaction transaction,
-                           final ServerMessage message,
+                           final Message message,
                            final Delivery delivery,
                            final Receiver receiver) throws Exception {
       try {
@@ -416,8 +411,8 @@ public class AMQPSessionCallback implements SessionCallback {
                synchronized (connection.getLock()) {
                   delivery.disposition(Accepted.getInstance());
                   delivery.settle();
-                  connection.flush();
                }
+               connection.flush(true);
             }
 
             @Override
@@ -492,7 +487,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
 
       message.removeProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString());
 
@@ -512,7 +507,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference ref,
-                               ServerMessage message,
+                               Message message,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {

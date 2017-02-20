@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -68,7 +69,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
@@ -1885,12 +1885,8 @@ public class BridgeTest extends ActiveMQTestBase {
       final String BRIDGE = "myBridge";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
-      Transformer transformer = new Transformer() {
-         @Override
-         public ServerMessage transform(ServerMessage message) {
-            return null;
-         }
-      };
+      Transformer transformer = (Message encode) -> null;
+
       serviceRegistry.addBridgeTransformer(BRIDGE, transformer);
       Configuration config = createDefaultInVMConfig().addConnectorConfiguration("in-vm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       ActiveMQServer server = addServer(new ActiveMQServerImpl(config, null, null, null, serviceRegistry));

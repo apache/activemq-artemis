@@ -22,7 +22,6 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.qpid.proton.amqp.Binary;
 
 public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMessage {
@@ -31,7 +30,7 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
 
    private Binary payload;
 
-   public ServerJMSObjectMessage(MessageInternal message, int deliveryCount) {
+   public ServerJMSObjectMessage(Message message, int deliveryCount) {
       super(message, deliveryCount);
    }
 

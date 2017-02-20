@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter;
 
-import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
-import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.wrapMessage;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -29,10 +23,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
@@ -52,8 +47,11 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
+import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.wrapMessage;
 
 public class TestConversions extends Assert {
 
@@ -72,10 +70,10 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpValue(new Boolean(true)));
 
-      EncodedMessage encodedMessage = encodeMessage(message);
+      AMQPMessage encodedMessage = new AMQPMessage(message, null);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessage serverMessage = converter.inbound(encodedMessage);
+      org.apache.activemq.artemis.api.core.Message serverMessage = converter.inbound(encodedMessage);
 
       verifyProperties(new ServerJMSMessage(serverMessage, 0));
 
@@ -101,10 +99,10 @@ public class TestConversions extends Assert {
 
       message.setBody(new Data(new Binary(bodyBytes)));
 
-      EncodedMessage encodedMessage = encodeMessage(message);
+      AMQPMessage encodedMessage = new AMQPMessage(message, null);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessage serverMessage = converter.inbound(encodedMessage);
+      org.apache.activemq.artemis.api.core.Message serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSBytesMessage bytesMessage = (ServerJMSBytesMessage) wrapMessage(BYTES_TYPE, serverMessage, 0);
 
@@ -151,10 +149,10 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpValue(mapValues));
 
-      EncodedMessage encodedMessage = encodeMessage(message);
+      AMQPMessage encodedMessage = new AMQPMessage(message, null);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessage serverMessage = converter.inbound(encodedMessage);
+      org.apache.activemq.artemis.api.core.Message serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) wrapMessage(MAP_TYPE, serverMessage, 0);
       mapMessage.decode();
@@ -188,12 +186,10 @@ public class TestConversions extends Assert {
 
       message.setBody(new AmqpSequence(objects));
 
-      EncodedMessage encodedMessage = encodeMessage(message);
+      AMQPMessage encodedMessage = new AMQPMessage(message, null);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessage serverMessage = converter.inbound(encodedMessage);
-
-      simulatePersistence(serverMessage);
+      org.apache.activemq.artemis.api.core.Message serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSStreamMessage streamMessage = (ServerJMSStreamMessage) wrapMessage(STREAM_TYPE, serverMessage, 0);
 
@@ -222,12 +218,10 @@ public class TestConversions extends Assert {
       String text = "someText";
       message.setBody(new AmqpValue(text));
 
-      EncodedMessage encodedMessage = encodeMessage(message);
+      AMQPMessage encodedMessage = new AMQPMessage(message, null);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerMessage serverMessage = converter.inbound(encodedMessage);
-
-      simulatePersistence(serverMessage);
+      org.apache.activemq.artemis.api.core.Message serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSTextMessage textMessage = (ServerJMSTextMessage) wrapMessage(TEXT_TYPE, serverMessage, 0);
       textMessage.decode();
@@ -247,13 +241,6 @@ public class TestConversions extends Assert {
       System.out.println("output = " + amqpMessage);
    }
 
-   private void simulatePersistence(ServerMessage serverMessage) {
-      serverMessage.setAddress(new SimpleString("SomeAddress"));
-      // This is just to simulate what would happen during the persistence of the message
-      // We need to still be able to recover the message when we read it back
-      ((EncodingSupport) serverMessage).encode(new EmptyBuffer());
-   }
-
    private ProtonJMessage reEncodeMsg(Object obj) {
       ProtonJMessage objOut = (ProtonJMessage) obj;
 
@@ -261,14 +248,6 @@ public class TestConversions extends Assert {
 
       objOut.encode(new NettyWritable(nettyBuffer));
       return objOut;
-   }
-
-   private EncodedMessage encodeMessage(MessageImpl message) {
-      ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer(1024 * 1024);
-      message.encode(new NettyWritable(buf));
-      byte[] bytesConvert = new byte[buf.writerIndex()];
-      buf.readBytes(bytesConvert);
-      return new EncodedMessage(0, bytesConvert, 0, bytesConvert.length);
    }
 
    class EmptyBuffer implements ActiveMQBuffer {
@@ -769,6 +748,11 @@ public class TestConversions extends Assert {
       @Override
       public void release() {
          //no-op
+      }
+
+      @Override
+      public void writeBytes(ByteBuf src, int srcIndex, int length) {
+
       }
    }
 }

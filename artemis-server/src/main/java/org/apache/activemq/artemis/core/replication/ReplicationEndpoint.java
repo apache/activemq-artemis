@@ -32,6 +32,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -76,7 +77,7 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERA
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
@@ -651,8 +652,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handlePageWrite(final ReplicationPageWriteMessage packet) throws Exception {
       PagedMessage pgdMessage = packet.getPagedMessage();
       pgdMessage.initMessage(storageManager);
-      ServerMessage msg = pgdMessage.getMessage();
-      Page page = getPage(msg.getAddress(), packet.getPageNumber());
+      Message msg = pgdMessage.getMessage();
+      Page page = getPage(msg.getAddressSimpleString(), packet.getPageNumber());
       page.write(pgdMessage);
    }
 

@@ -132,7 +132,7 @@ public final class Page implements Comparable<Page> {
                   int messageSize = fileBuffer.readInt();
                   int oldPos = fileBuffer.readerIndex();
                   if (fileBuffer.readerIndex() + messageSize < fileBuffer.capacity() && fileBuffer.getByte(oldPos + messageSize) == Page.END_BYTE) {
-                     PagedMessage msg = new PagedMessageImpl();
+                     PagedMessage msg = new PagedMessageImpl(storageManager);
                      msg.decode(fileBuffer);
                      byte b = fileBuffer.readByte();
                      if (b != Page.END_BYTE) {

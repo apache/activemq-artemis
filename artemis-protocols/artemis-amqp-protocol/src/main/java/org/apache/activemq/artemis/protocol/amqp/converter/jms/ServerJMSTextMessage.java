@@ -21,7 +21,6 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
 import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
@@ -49,7 +48,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    /*
     * This constructor is used to construct messages prior to sending
     */
-   public ServerJMSTextMessage(MessageInternal message, int deliveryCount) {
+   public ServerJMSTextMessage(Message message, int deliveryCount) {
       super(message, deliveryCount);
 
    }

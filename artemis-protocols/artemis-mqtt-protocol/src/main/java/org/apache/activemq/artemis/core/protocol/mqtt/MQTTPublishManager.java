@@ -28,10 +28,9 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
@@ -112,19 +111,20 @@ public class MQTTPublishManager {
     * to original ID and consumer in the Session state.  This way we can look up the consumer Id and the message Id from
     * the PubAck or PubRec message id. *
     */
-   protected void sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
+   protected void sendMessage(CoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
       // This is to allow retries of PubRel.
       if (isManagementConsumer(consumer)) {
          sendPubRelMessage(message);
       } else {
          int qos = decideQoS(message, consumer);
          if (qos == 0) {
-            sendServerMessage((int) message.getMessageID(), (ServerMessageImpl) message, deliveryCount, qos);
+            // TODO-now: fix encoding
+            sendServerMessage((int) message.getMessageID(),  message, deliveryCount, qos);
             session.getServerSession().acknowledge(consumer.getID(), message.getMessageID());
          } else if (qos == 1 || qos == 2) {
             int mqttid = outboundStore.generateMqttId(message.getMessageID(), consumer.getID());
             outboundStore.publish(mqttid, message.getMessageID(), consumer.getID());
-            sendServerMessage(mqttid, (ServerMessageImpl) message, deliveryCount, qos);
+            sendServerMessage(mqttid, message, deliveryCount, qos);
          } else {
             // Client must have disconnected and it's Subscription QoS cleared
             consumer.individualCancel(message.getMessageID(), false);
@@ -149,7 +149,7 @@ public class MQTTPublishManager {
     */
    void sendInternal(int messageId, String topic, int qos, ByteBuf payload, boolean retain, boolean internal) throws Exception {
       synchronized (lock) {
-         ServerMessage serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, topic, retain, qos, payload);
+         Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, topic, retain, qos, payload);
 
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
@@ -181,7 +181,7 @@ public class MQTTPublishManager {
       }
    }
 
-   void sendPubRelMessage(ServerMessage message) {
+   void sendPubRelMessage(Message message) {
       int messageId = message.getIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY);
       session.getProtocolHandler().sendPubRel(messageId);
    }
@@ -190,7 +190,7 @@ public class MQTTPublishManager {
       try {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
-            ServerMessage m = MQTTUtil.createPubRelMessage(session, managementAddress, messageId);
+            Message m = MQTTUtil.createPubRelMessage(session, managementAddress, messageId);
             session.getServerSession().send(m, true);
             session.getServerSession().acknowledge(ref.getB(), ref.getA());
          } else {
@@ -246,7 +246,7 @@ public class MQTTPublishManager {
       }
    }
 
-   private void sendServerMessage(int messageId, ServerMessageImpl message, int deliveryCount, int qos) {
+   private void sendServerMessage(int messageId, CoreMessage message, int deliveryCount, int qos) {
       String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString(), session.getWildcardConfiguration());
 
       ByteBuf payload;
@@ -262,14 +262,14 @@ public class MQTTPublishManager {
                log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
             }
          default:
-            ActiveMQBuffer bufferDup = message.getBodyBufferDuplicate();
+            ActiveMQBuffer bufferDup = message.getReadOnlyBodyBuffer();
             payload = bufferDup.readBytes(message.getEndOfBodyPosition() - bufferDup.readerIndex()).byteBuf();
             break;
       }
       session.getProtocolHandler().send(messageId, address, qos, payload, deliveryCount);
    }
 
-   private int decideQoS(ServerMessage message, ServerConsumer consumer) {
+   private int decideQoS(Message message, ServerConsumer consumer) {
 
       int subscriptionQoS = -1;
       try {

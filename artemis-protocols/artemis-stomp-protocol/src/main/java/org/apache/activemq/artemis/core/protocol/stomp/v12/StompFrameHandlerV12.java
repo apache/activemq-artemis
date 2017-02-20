@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
@@ -27,7 +28,6 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompSubscription;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -48,7 +48,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
    }
 
    @Override
-   public StompFrame createMessageFrame(ServerMessage serverMessage,
+   public StompFrame createMessageFrame(Message serverMessage,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
       StompFrame frame = super.createMessageFrame(serverMessage, subscription, deliveryCount);

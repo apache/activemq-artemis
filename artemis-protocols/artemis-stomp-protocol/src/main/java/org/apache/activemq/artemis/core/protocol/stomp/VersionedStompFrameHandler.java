@@ -21,15 +21,13 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp.Headers;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
@@ -180,7 +178,7 @@ public abstract class VersionedStompFrameHandler {
 
          long timestamp = System.currentTimeMillis();
 
-         ServerMessageImpl message = connection.createServerMessage();
+         CoreMessage message = connection.createServerMessage();
          if (routingType != null) {
             message.putByteProperty(Message.HDR_ROUTING_TYPE, routingType.getType());
          }
@@ -289,7 +287,7 @@ public abstract class VersionedStompFrameHandler {
       return response;
    }
 
-   public StompFrame createMessageFrame(ServerMessage serverMessage,
+   public StompFrame createMessageFrame(Message serverMessage,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
       StompFrame frame = createStompFrame(Stomp.Responses.MESSAGE);
@@ -298,11 +296,12 @@ public abstract class VersionedStompFrameHandler {
          frame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, subscription.getID());
       }
 
-      ActiveMQBuffer buffer = serverMessage.getBodyBufferDuplicate();
+      // TODO-now fix encoders
+      ActiveMQBuffer buffer = serverMessage.getReadOnlyBodyBuffer();
 
-      int bodyPos = serverMessage.getEndOfBodyPosition() == -1 ? buffer.writerIndex() : serverMessage.getEndOfBodyPosition();
+      int bodyPos = ((CoreMessage)serverMessage).getEndOfBodyPosition() == -1 ? buffer.writerIndex() : ((CoreMessage)serverMessage).getEndOfBodyPosition();
 
-      buffer.readerIndex(MessageImpl.BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
+      buffer.readerIndex(CoreMessage.BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
 
       int size = bodyPos - buffer.readerIndex();
 
@@ -321,7 +320,7 @@ public abstract class VersionedStompFrameHandler {
       }
       frame.setByteBody(data);
 
-      StompUtils.copyStandardHeadersFromMessageToFrame(serverMessage, frame, deliveryCount);
+      StompUtils.copyStandardHeadersFromMessageToFrame((serverMessage), frame, deliveryCount);
 
       return frame;
    }

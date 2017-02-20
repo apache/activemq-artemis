@@ -23,7 +23,6 @@ import javax.jms.StreamMessage;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBoolean;
@@ -44,7 +43,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    private int bodyLength = 0;
 
-   public ServerJMSStreamMessage(MessageInternal message, int deliveryCount) {
+   public ServerJMSStreamMessage(Message message, int deliveryCount) {
       super(message, deliveryCount);
    }
 
@@ -180,7 +179,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    @Override
    public Object readObject() throws JMSException {
 
-      if (getReadBodyBuffer().readerIndex() >= message.getEndOfBodyPosition()) {
+      if (getReadBodyBuffer().readerIndex() >= getReadBodyBuffer().writerIndex()) {
          throw new MessageEOFException("");
       }
       try {
