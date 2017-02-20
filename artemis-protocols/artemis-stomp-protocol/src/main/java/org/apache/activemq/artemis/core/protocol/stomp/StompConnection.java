@@ -30,18 +30,18 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -569,7 +569,7 @@ public final class StompConnection implements RemotingConnection {
       return valid;
    }
 
-   public ServerMessageImpl createServerMessage() {
+   public CoreMessage createServerMessage() {
       return manager.createServerMessage();
    }
 
@@ -598,7 +598,7 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   protected void sendServerMessage(ServerMessageImpl message, String txID) throws ActiveMQStompException {
+   protected void sendServerMessage(ICoreMessage message, String txID) throws ActiveMQStompException {
       StompSession stompSession = getSession(txID);
 
       if (stompSession.isNoLocal()) {
@@ -611,7 +611,7 @@ public final class StompConnection implements RemotingConnection {
          if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
             stompSession.sendInternal(message, false);
          } else {
-            stompSession.sendInternalLarge(message, false);
+            stompSession.sendInternalLarge((CoreMessage)message, false);
          }
       } catch (Exception e) {
          throw BUNDLE.errorSendMessage(message, e).setHandler(frameHandler);
@@ -726,10 +726,11 @@ public final class StompConnection implements RemotingConnection {
       return SERVER_NAME;
    }
 
-   public StompFrame createStompMessage(ServerMessage serverMessage,
+   public StompFrame createStompMessage(ICoreMessage serverMessage,
+                                        ActiveMQBuffer bodyBuffer,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
-      return frameHandler.createMessageFrame(serverMessage, subscription, deliveryCount);
+      return frameHandler.createMessageFrame(serverMessage, bodyBuffer, subscription, deliveryCount);
    }
 
    public void addStompEventListener(FrameEventListener listener) {

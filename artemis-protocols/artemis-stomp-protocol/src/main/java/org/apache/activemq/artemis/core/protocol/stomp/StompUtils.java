@@ -24,8 +24,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
 public class StompUtils {
@@ -37,7 +35,7 @@ public class StompUtils {
 
    // Static --------------------------------------------------------
 
-   public static void copyStandardHeadersFromFrameToMessage(StompFrame frame, ServerMessageImpl msg) throws Exception {
+   public static void copyStandardHeadersFromFrameToMessage(StompFrame frame, Message msg) throws Exception {
       Map<String, String> headers = new HashMap<>(frame.getHeadersMap());
 
       String priority = headers.remove(Stomp.Headers.Send.PRIORITY);
@@ -79,7 +77,7 @@ public class StompUtils {
       }
    }
 
-   public static void copyStandardHeadersFromMessageToFrame(MessageInternal message,
+   public static void copyStandardHeadersFromMessageToFrame(Message message,
                                                             StompFrame command,
                                                             int deliveryCount) throws Exception {
       command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));

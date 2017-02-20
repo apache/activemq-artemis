@@ -371,6 +371,7 @@ public final class ChannelImpl implements Channel {
             if (logger.isTraceEnabled()) {
                logger.trace("Sending blocking " + packet);
             }
+
             connection.getTransportConnection().write(buffer, false, false);
 
             long toWait = connection.getBlockingCallTimeout();

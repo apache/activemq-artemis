@@ -17,12 +17,14 @@
 package org.apache.activemq.artemis.core.remoting.server;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -64,6 +66,8 @@ public interface RemotingService {
    void startAcceptors() throws Exception;
 
    boolean isStarted();
+
+   Map<String, ProtocolManagerFactory> getProtocolFactoryMap();
 
    /**
     * Allow acceptors to use this as their default security Principal if applicable.

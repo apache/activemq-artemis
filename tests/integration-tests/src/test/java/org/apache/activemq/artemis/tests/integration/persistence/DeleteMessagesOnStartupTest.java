@@ -21,17 +21,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.AddressBindingInfo;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.junit.Assert;
@@ -39,8 +39,6 @@ import org.junit.Test;
 import org.junit.runners.Parameterized;
 
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
-
-   volatile boolean deleteMessages = false;
 
    ArrayList<Long> deletedMessage = new ArrayList<>();
 
@@ -63,12 +61,12 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
       HashMap<Long, Queue> queues = new HashMap<>();
       queues.put(100L, theQueue);
 
-      ServerMessage msg = new ServerMessageImpl(1, 100);
+      Message msg = new CoreMessage(1, 100);
 
       journal.storeMessage(msg);
 
       for (int i = 2; i < 100; i++) {
-         journal.storeMessage(new ServerMessageImpl(i, 100));
+         journal.storeMessage(new CoreMessage(i, 100));
       }
 
       journal.storeReference(100, 1, true);

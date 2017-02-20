@@ -17,12 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
@@ -44,7 +44,7 @@ public class MQTTRetainMessageManager {
     * the subscription queue for the consumer.  When a new retained message is received the message will be sent to
     * the retained queue and the previous retain message consumed to remove it from the queue.
     */
-   void handleRetainedMessage(ServerMessage message, String address, boolean reset, Transaction tx) throws Exception {
+   void handleRetainedMessage(Message message, String address, boolean reset, Transaction tx) throws Exception {
       SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration()));
 
       Queue queue = session.getServer().locateQueue(retainAddress);
@@ -82,7 +82,7 @@ public class MQTTRetainMessageManager {
                Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
                try (LinkedListIterator<MessageReference> i = retainedQueue.iterator()) {
                   if (i.hasNext()) {
-                     ServerMessage message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
+                     Message message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
                      sendToQueue(message, queue, tx);
                   }
                }
@@ -95,7 +95,7 @@ public class MQTTRetainMessageManager {
       tx.commit();
    }
 
-   private void sendToQueue(ServerMessage message, Queue queue, Transaction tx) throws Exception {
+   private void sendToQueue(Message message, Queue queue, Transaction tx) throws Exception {
       RoutingContext context = new RoutingContextImpl(tx);
       queue.route(message, context);
       session.getServer().getPostOffice().processRoute(message, context, false);

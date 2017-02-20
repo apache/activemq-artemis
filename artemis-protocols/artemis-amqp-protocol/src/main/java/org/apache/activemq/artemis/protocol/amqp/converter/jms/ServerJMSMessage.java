@@ -16,43 +16,56 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 
-import java.util.Collections;
-import java.util.Enumeration;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
+import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
 
 public class ServerJMSMessage implements Message {
 
-   protected final MessageInternal message;
+   protected final ICoreMessage message;
+   private ActiveMQBuffer readBodyBuffer;
 
-   protected int deliveryCount;
+   public ServerJMSMessage(ICoreMessage message) {
+      this.message = message;
+   }
 
-   public MessageInternal getInnerMessage() {
+   public static ServerJMSMessage wrapCoreMessage(ICoreMessage wrapped) {
+      switch (wrapped.getType()) {
+         case STREAM_TYPE:
+            return new ServerJMSStreamMessage(wrapped);
+         case BYTES_TYPE:
+            return new ServerJMSBytesMessage(wrapped);
+         case MAP_TYPE:
+            return new ServerJMSMapMessage(wrapped);
+         case TEXT_TYPE:
+            return new ServerJMSTextMessage(wrapped);
+         case OBJECT_TYPE:
+            return new ServerJMSObjectMessage(wrapped);
+         default:
+            return new ServerJMSMessage(wrapped);
+      }
+   }
+
+   public ICoreMessage getInnerMessage() {
       return message;
    }
-
-   public ServerJMSMessage(MessageInternal message, int deliveryCount) {
-      this.message = message;
-      this.deliveryCount = deliveryCount;
-   }
-
-   public int getDeliveryCount() {
-      return deliveryCount;
-   }
-
-   private ActiveMQBuffer readBodyBuffer;
 
    /**
     * When reading we use a protected copy so multi-threads can work fine
@@ -60,7 +73,7 @@ public class ServerJMSMessage implements Message {
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
          // to avoid clashes between multiple threads
-         readBodyBuffer = message.getBodyBufferDuplicate();
+         readBodyBuffer = message.getReadOnlyBodyBuffer();
       }
       return readBodyBuffer;
    }
@@ -113,13 +126,13 @@ public class ServerJMSMessage implements Message {
    }
 
    @Override
-   public final void setJMSCorrelationID(String correlationID) throws JMSException {
-      MessageUtil.setJMSCorrelationID(message, correlationID);
+   public final String getJMSCorrelationID() throws JMSException {
+      return MessageUtil.getJMSCorrelationID(message);
    }
 
    @Override
-   public final String getJMSCorrelationID() throws JMSException {
-      return MessageUtil.getJMSCorrelationID(message);
+   public final void setJMSCorrelationID(String correlationID) throws JMSException {
+      MessageUtil.setJMSCorrelationID(message, correlationID);
    }
 
    @Override
@@ -140,7 +153,7 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final Destination getJMSDestination() throws JMSException {
-      SimpleString sdest = message.getAddress();
+      SimpleString sdest = message.getAddressSimpleString();
 
       if (sdest == null) {
          return null;
@@ -152,7 +165,7 @@ public class ServerJMSMessage implements Message {
    @Override
    public final void setJMSDestination(Destination destination) throws JMSException {
       if (destination == null) {
-         message.setAddress(null);
+         message.setAddress((SimpleString)null);
       } else {
          message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }
@@ -254,19 +267,11 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final int getIntProperty(String name) throws JMSException {
-      if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return deliveryCount;
-      }
-
       return message.getIntProperty(name);
    }
 
    @Override
    public final long getLongProperty(String name) throws JMSException {
-      if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return deliveryCount;
-      }
-
       return message.getLongProperty(name);
    }
 
@@ -282,10 +287,6 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final String getStringProperty(String name) throws JMSException {
-      if (MessageUtil.JMSXDELIVERYCOUNT.equals(name)) {
-         return String.valueOf(deliveryCount);
-      }
-
       return message.getStringProperty(name);
    }
 

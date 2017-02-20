@@ -20,11 +20,11 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
+
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
@@ -41,7 +41,7 @@ public class PagedReferenceImpl implements PagedReference {
 
    private int persistedCount;
 
-   private int messageEstimate;
+   private int messageEstimate = -1;
 
    private Long consumerId;
 
@@ -64,7 +64,7 @@ public class PagedReferenceImpl implements PagedReference {
    }
 
    @Override
-   public ServerMessage getMessage() {
+   public Message getMessage() {
       return getPagedMessage().getMessage();
    }
 
@@ -93,12 +93,6 @@ public class PagedReferenceImpl implements PagedReference {
                              final PagedMessage message,
                              final PageSubscription subscription) {
       this.position = position;
-
-      if (message == null) {
-         this.messageEstimate = -1;
-      } else {
-         this.messageEstimate = message.getMessage().getMemoryEstimate();
-      }
       this.message = new WeakReference<>(message);
       this.subscription = subscription;
    }
@@ -120,7 +114,7 @@ public class PagedReferenceImpl implements PagedReference {
 
    @Override
    public int getMessageMemoryEstimate() {
-      if (messageEstimate < 0) {
+      if (messageEstimate <= 0) {
          try {
             messageEstimate = getMessage().getMemoryEstimate();
          } catch (Throwable e) {
@@ -139,7 +133,7 @@ public class PagedReferenceImpl implements PagedReference {
    public long getScheduledDeliveryTime() {
       if (deliveryTime == null) {
          try {
-            ServerMessage msg = getMessage();
+            Message msg = getMessage();
             if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
                deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
             } else {

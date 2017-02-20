@@ -24,6 +24,7 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -35,6 +36,7 @@ import org.apache.activemq.transport.amqp.client.AmqpNoLocalFilter;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
 
 /**
@@ -119,7 +121,7 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       assertEquals(1, queue.getMessageCount());
 
       // Receive and resend with OpenWire JMS client
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      JmsConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
       Connection jmsConnection = factory.createConnection();
       try {
          Session jmsSession = jmsConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -129,7 +131,7 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
 
          Message received = jmsConsumer.receive(5000);
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertTrue(received instanceof ObjectMessage);
 
          MessageProducer jmsProducer = jmsSession.createProducer(destination);
          jmsProducer.send(received);

@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionSendMessage extends MessagePacket {
 
@@ -36,7 +37,8 @@ public class SessionSendMessage extends MessagePacket {
     */
    private final transient SendAcknowledgementHandler handler;
 
-   public SessionSendMessage(final MessageInternal message,
+   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   public SessionSendMessage(final ICoreMessage message,
                              final boolean requiresResponse,
                              final SendAcknowledgementHandler handler) {
       super(SESS_SEND, message);
@@ -44,7 +46,7 @@ public class SessionSendMessage extends MessagePacket {
       this.requiresResponse = requiresResponse;
    }
 
-   public SessionSendMessage(final MessageInternal message) {
+   public SessionSendMessage(final CoreMessage message) {
       super(SESS_SEND, message);
       this.handler = null;
    }
@@ -60,52 +62,28 @@ public class SessionSendMessage extends MessagePacket {
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection) {
-      ActiveMQBuffer buffer = message.getEncodedBuffer();
+   protected ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + 1, connection, usePooled);
+   }
 
-      ActiveMQBuffer bufferWrite;
-      if (connection == null) {
-         // this is for unit tests only
-         bufferWrite = buffer.copy(0, buffer.capacity());
-      } else {
-         bufferWrite = connection.createTransportBuffer(buffer.writerIndex() + 1, true); // 1 for the requireResponse
-      }
-      bufferWrite.writeBytes(buffer, 0, buffer.writerIndex());
-      bufferWrite.setIndex(buffer.readerIndex(), buffer.writerIndex());
+   @Override
+   public void encodeRest(ActiveMQBuffer buffer) {
+      message.sendBuffer(buffer.byteBuf(), 0);
+      buffer.writeBoolean(requiresResponse);
 
-      // Sanity check
-      if (bufferWrite.writerIndex() != message.getEndOfMessagePosition()) {
-         throw new IllegalStateException("Wrong encode position");
-      }
 
-      bufferWrite.writeBoolean(requiresResponse);
-
-      size = bufferWrite.writerIndex();
-
-      // Write standard headers
-
-      int len = size - DataConstants.SIZE_INT;
-      bufferWrite.setInt(0, len);
-      bufferWrite.setByte(DataConstants.SIZE_INT, getType());
-      bufferWrite.setLong(DataConstants.SIZE_INT + DataConstants.SIZE_BYTE, channelID);
-
-      // Position reader for reading by Netty
-      bufferWrite.readerIndex(0);
-
-      return bufferWrite;
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       // Buffer comes in after having read standard headers and positioned at Beginning of body part
 
-      message.decodeFromBuffer(buffer);
+      ByteBuf messageBuffer = copyMessageBuffer(buffer.byteBuf(), 1);
+      message.receiveBuffer(messageBuffer);
 
-      int ri = buffer.readerIndex();
+      buffer.readerIndex(buffer.capacity() - 1);
 
       requiresResponse = buffer.readBoolean();
-
-      buffer.readerIndex(ri);
 
    }
 

@@ -31,7 +31,9 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -45,7 +47,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
@@ -103,7 +105,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAR
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -422,12 +423,12 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public int getCreditsOnSendingFull(MessageInternal msgI) {
+   public int getCreditsOnSendingFull(Message msgI) {
       return msgI.getEncodeSize();
    }
 
    @Override
-   public void sendFullMessage(MessageInternal msgI,
+   public void sendFullMessage(ICoreMessage msgI,
                                boolean sendBlocking,
                                SendAcknowledgementHandler handler,
                                SimpleString defaultAddress) throws ActiveMQException {
@@ -441,16 +442,16 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException {
+   public int sendInitialChunkOnLargeMessage(Message msgI) throws ActiveMQException {
       SessionSendLargeMessage initialChunk = new SessionSendLargeMessage(msgI);
 
       sessionChannel.send(initialChunk);
 
-      return msgI.getHeadersAndPropertiesEncodeSize();
+      return ((CoreMessage)msgI).getHeadersAndPropertiesEncodeSize();
    }
 
    @Override
-   public int sendLargeMessageChunk(MessageInternal msgI,
+   public int sendLargeMessageChunk(Message msgI,
                                     long messageBodySize,
                                     boolean sendBlocking,
                                     boolean lastChunk,
@@ -471,7 +472,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public int sendServerLargeMessageChunk(MessageInternal msgI,
+   public int sendServerLargeMessageChunk(Message msgI,
                                           long messageBodySize,
                                           boolean sendBlocking,
                                           boolean lastChunk,

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
@@ -36,7 +36,9 @@ public class ReplicationAddTXMessage extends PacketImpl {
 
    private byte recordType;
 
-   private EncodingSupport encodingData;
+   private Persister persister;
+
+   private Object encodingData;
 
    private byte[] recordData;
 
@@ -51,7 +53,8 @@ public class ReplicationAddTXMessage extends PacketImpl {
                                   final long txId,
                                   final long id,
                                   final byte recordType,
-                                  final EncodingSupport encodingData) {
+                                  final Persister persister,
+                                  final Object encodingData) {
       this();
       this.journalID = journalID;
       this.operation = operation;
@@ -59,6 +62,7 @@ public class ReplicationAddTXMessage extends PacketImpl {
       this.id = id;
       this.recordType = recordType;
       this.encodingData = encodingData;
+      this.persister = persister;
    }
 
    // Public --------------------------------------------------------
@@ -70,8 +74,8 @@ public class ReplicationAddTXMessage extends PacketImpl {
       buffer.writeLong(txId);
       buffer.writeLong(id);
       buffer.writeByte(recordType);
-      buffer.writeInt(encodingData.getEncodeSize());
-      encodingData.encode(buffer);
+      buffer.writeInt(persister.getEncodeSize(encodingData));
+      persister.encode(buffer, encodingData);
    }
 
    @Override

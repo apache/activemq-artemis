@@ -39,6 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -72,7 +73,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.Duplicate
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.FinishPageMessageOperation;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.GroupingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.HeuristicCompletionEncoding;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessageEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountPendingImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecord;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecordInc;
@@ -93,15 +94,14 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
@@ -173,8 +173,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    private final boolean syncTransactional;
 
    private final boolean syncNonTransactional;
-
-   protected int perfBlastPages = -1;
 
    protected boolean journalLoaded = false;
 
@@ -347,7 +345,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    }
 
    @Override
-   public void storeMessage(final ServerMessage message) throws Exception {
+   public void storeMessage(final Message message) throws Exception {
       if (message.getMessageID() <= 0) {
          // Sanity check only... this shouldn't happen unless there is a bug
          throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
@@ -359,9 +357,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          // appropriate
 
          if (message.isLargeMessage()) {
-            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, new LargeMessageEncoding((LargeServerMessage) message), false, getContext(false));
+            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message, false, getContext(false));
          } else {
-            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE, message, false, getContext(false));
+            messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message, false, getContext(false));
          }
       } finally {
          readUnLock();
@@ -460,7 +458,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    // Transactional operations
 
    @Override
-   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
+   public void storeMessageTransactional(final long txID, final Message message) throws Exception {
       if (message.getMessageID() <= 0) {
          throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
       }
@@ -468,9 +466,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          if (message.isLargeMessage()) {
-            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, new LargeMessageEncoding(((LargeServerMessage) message)));
+            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, LargeMessagePersister.getInstance(), message);
          } else {
-            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE, message);
+            messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE_PROTOCOL, message.getPersister(), message);
          }
 
       } finally {
@@ -496,16 +494,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecordTransactional(txID, pageTransaction.getRecordID(), JournalRecordIds.PAGE_TRANSACTION, new PageUpdateTXEncoding(pageTransaction.getTransactionID(), depages));
-      } finally {
-         readUnLock();
-      }
-   }
-
-   @Override
-   public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depages) throws Exception {
-      readLock();
-      try {
-         messageJournal.appendUpdateRecord(pageTransaction.getRecordID(), JournalRecordIds.PAGE_TRANSACTION, new PageUpdateTXEncoding(pageTransaction.getTransactionID(), depages), syncNonTransactional, getContext(syncNonTransactional));
       } finally {
          readUnLock();
       }
@@ -833,7 +821,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
-      Map<Long, ServerMessage> messages = new HashMap<>();
+      Map<Long, Message> messages = new HashMap<>();
       readLock();
       try {
 
@@ -884,9 +872,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   break;
                }
                case JournalRecordIds.ADD_MESSAGE: {
-                  ServerMessage message = new ServerMessageImpl(record.id, 50);
+                  throw new IllegalStateException("This is using old journal data, export your data and import at the correct version");
+               }
 
-                  message.decode(buff);
+               case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
+
+                  Message message = MessagePersister.getInstance().decode(buff, null);
 
                   messages.put(record.id, message);
 
@@ -907,7 +898,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                      queueMap.put(encoding.queueID, queueMessages);
                   }
 
-                  ServerMessage message = messages.get(messageID);
+                  Message message = messages.get(messageID);
 
                   if (message == null) {
                      ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
@@ -1149,10 +1140,6 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
             // it could be null on certain tests that are not dealing with paging
             // This could also be the case in certain embedded conditions
             pagingManager.processReload();
-         }
-
-         if (perfBlastPages != -1) {
-            messageJournal.perfBlast(perfBlastPages);
          }
 
          journalLoader.postLoad(messageJournal, resourceManager, duplicateIDMap);
@@ -1581,7 +1568,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
-   protected abstract LargeServerMessage parseLargeMessage(Map<Long, ServerMessage> messages,
+   protected abstract LargeServerMessage parseLargeMessage(Map<Long, Message> messages,
                                                            ActiveMQBuffer buff) throws Exception;
 
    private void loadPreparedTransactions(final PostOffice postOffice,
@@ -1603,7 +1590,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
          List<MessageReference> referencesToAck = new ArrayList<>();
 
-         Map<Long, ServerMessage> messages = new HashMap<>();
+         Map<Long, Message> messages = new HashMap<>();
 
          // Use same method as load message journal to prune out acks, so they don't get added.
          // Then have reacknowledge(tx) methods on queue, which needs to add the page size
@@ -1623,9 +1610,11 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   break;
                }
                case JournalRecordIds.ADD_MESSAGE: {
-                  ServerMessage message = new ServerMessageImpl(record.id, 50);
 
-                  message.decode(buff);
+                  break;
+               }
+               case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
+                  Message message = MessagePersister.getInstance().decode(buff, null);
 
                   messages.put(record.id, message);
 
@@ -1638,7 +1627,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   encoding.decode(buff);
 
-                  ServerMessage message = messages.get(messageID);
+                  Message message = messages.get(messageID);
 
                   if (message == null) {
                      throw new IllegalStateException("Cannot find message with id " + messageID);
@@ -1915,7 +1904,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    @Override
    public boolean addToPage(PagingStore store,
-                            ServerMessage msg,
+                            Message msg,
                             Transaction tx,
                             RouteContextList listCtx) throws Exception {
       /**
@@ -1939,4 +1928,5 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
       txoper.confirmedMessages.add(recordID);
    }
+
 }

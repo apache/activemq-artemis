@@ -49,12 +49,11 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessageEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
@@ -63,7 +62,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.jboss.logging.Logger;
@@ -156,8 +154,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       largeMessagesDirectory = config.getLargeMessagesDirectory();
 
       largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener, 1);
-
-      perfBlastPages = config.getJournalPerfBlastPages();
 
       if (config.getPageMaxConcurrentIO() != 1) {
          pageMaxConcurrentIO = new Semaphore(config.getPageMaxConcurrentIO());
@@ -287,13 +283,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     * @param buff
     * @return
     * @throws Exception
-    */ protected LargeServerMessage parseLargeMessage(final Map<Long, ServerMessage> messages,
+    */ protected LargeServerMessage parseLargeMessage(final Map<Long, Message> messages,
                                                       final ActiveMQBuffer buff) throws Exception {
       LargeServerMessage largeMessage = createLargeMessage();
 
-      LargeMessageEncoding messageEncoding = new LargeMessageEncoding(largeMessage);
-
-      messageEncoding.decode(buff);
+      LargeMessagePersister.getInstance().decode(buff, largeMessage);
 
       if (largeMessage.containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
          // for compatibility: couple with old behaviour, copying the old file to avoid message loss
@@ -451,7 +445,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public LargeServerMessage createLargeMessage(final long id, final MessageInternal message) throws Exception {
+   public LargeServerMessage createLargeMessage(final long id, final Message message) throws Exception {
       readLock();
       try {
          if (isReplicated()) {

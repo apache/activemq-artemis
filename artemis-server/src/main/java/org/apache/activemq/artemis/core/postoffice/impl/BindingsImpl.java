@@ -30,14 +30,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
@@ -152,7 +150,7 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public boolean redistribute(final ServerMessage message,
+   public boolean redistribute(final Message message,
                                final Queue originatingQueue,
                                final RoutingContext context) throws Exception {
       if (messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF)) {
@@ -230,18 +228,18 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+   public void route(final Message message, final RoutingContext context) throws Exception {
       route(message, context, true);
    }
 
-   private void route(final ServerMessage message,
+   private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
       /* This is a special treatment for scaled-down messages involving SnF queues.
        * See org.apache.activemq.artemis.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
        */
-      if (message.containsProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS)) {
-         byte[] ids = (byte[]) message.removeProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS);
+      if (message.containsProperty(Message.HDR_SCALEDOWN_TO_IDS)) {
+         byte[] ids = (byte[]) message.removeProperty(Message.HDR_SCALEDOWN_TO_IDS);
 
          if (ids != null) {
             ByteBuffer buffer = ByteBuffer.wrap(ids);
@@ -251,7 +249,7 @@ public final class BindingsImpl implements Bindings {
                   if (entry.getValue() instanceof RemoteQueueBinding) {
                      RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
                      if (remoteQueueBinding.getRemoteQueueID() == id) {
-                        message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
+                        message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
                      }
                   }
                }
@@ -272,7 +270,7 @@ public final class BindingsImpl implements Bindings {
 
       if (!routed) {
          // Remove the ids now, in order to avoid double check
-         byte[] ids = (byte[]) message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
+         byte[] ids = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_IDS);
 
          // Fetch the groupId now, in order to avoid double checking
          SimpleString groupId = message.getSimpleStringProperty(Message.HDR_GROUP_ID);
@@ -319,7 +317,7 @@ public final class BindingsImpl implements Bindings {
     * these two servers. This will eventually send more messages to one server than the other
     * (depending if you are using multi-thread), and not lose messages.
     */
-   private Binding getNextBinding(final ServerMessage message,
+   private Binding getNextBinding(final Message message,
                                   final SimpleString routingName,
                                   final List<Binding> bindings) {
       Integer ipos = routingNamePositions.get(routingName);
@@ -407,7 +405,7 @@ public final class BindingsImpl implements Bindings {
       return theBinding;
    }
 
-   private void routeUsingStrictOrdering(final ServerMessage message,
+   private void routeUsingStrictOrdering(final Message message,
                                          final RoutingContext context,
                                          final GroupingHandler groupingGroupingHandler,
                                          final SimpleString groupId,
@@ -473,7 +471,7 @@ public final class BindingsImpl implements Bindings {
       return null;
    }
 
-   private void routeAndCheckNull(ServerMessage message,
+   private void routeAndCheckNull(Message message,
                                   RoutingContext context,
                                   Response resp,
                                   Binding theBinding,
@@ -552,10 +550,10 @@ public final class BindingsImpl implements Bindings {
       return writer.toString();
    }
 
-   private void routeFromCluster(final ServerMessage message,
+   private void routeFromCluster(final Message message,
                                  final RoutingContext context,
                                  final byte[] ids) throws Exception {
-      byte[] idsToAck = (byte[]) message.removeProperty(MessageImpl.HDR_ROUTE_TO_ACK_IDS);
+      byte[] idsToAck = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_ACK_IDS);
 
       List<Long> idsToAckList = new ArrayList<>();
 

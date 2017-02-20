@@ -31,12 +31,14 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.BodyEncoder;
+import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -48,7 +50,6 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -205,7 +206,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       this.creationTime = System.currentTimeMillis();
 
-
       if (browseOnly) {
          browserDeliverer = new BrowserDeliverer(messageQueue.browserIterator());
       } else {
@@ -341,7 +341,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
             return HandleStatus.BUSY;
          }
-         final ServerMessage message = ref.getMessage();
+         final Message message = ref.getMessage();
 
          if (filter != null && !filter.match(message)) {
             if (logger.isTraceEnabled()) {
@@ -400,7 +400,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void proceedDeliver(MessageReference reference) throws Exception {
       try {
-         ServerMessage message = reference.getMessage();
+         Message message = reference.getMessage();
 
          if (message.isLargeMessage() && supportLargeMessage) {
             if (largeMessageDeliverer == null) {
@@ -507,17 +507,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * there are no other messages to be delivered.
     */
    @Override
-   public void forceDelivery(final long sequence) {
-      forceDelivery(sequence, new Runnable() {
-         @Override
-         public void run() {
-            ServerMessage forcedDeliveryMessage = new ServerMessageImpl(storageManager.generateID(), 50);
+   public void forceDelivery(final long sequence)  {
+      forceDelivery(sequence, () -> {
+         Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
 
-            forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
-            forcedDeliveryMessage.setAddress(messageQueue.getName());
+         forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
+         forcedDeliveryMessage.setAddress(messageQueue.getName());
 
-            callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
-         }
+         callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+
       });
    }
 
@@ -1018,7 +1016,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * @param ref
     * @param message
     */
-   private void deliverStandardMessage(final MessageReference ref, final ServerMessage message) {
+   private void deliverStandardMessage(final MessageReference ref, final Message message) throws ActiveMQException {
       int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
 
       if (availableCredits != null) {
@@ -1070,7 +1068,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
        */
       private long positionPendingLargeMessage;
 
-      private BodyEncoder context;
+      private LargeBodyEncoder context;
 
       private LargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
          largeMessage = message;

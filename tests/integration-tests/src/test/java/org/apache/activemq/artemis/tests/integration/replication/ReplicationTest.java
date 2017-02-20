@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -65,6 +66,7 @@ import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
@@ -74,10 +76,8 @@ import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -228,7 +228,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       Assert.assertTrue("Expecting no active tokens:" + manager.getActiveTokens(), manager.getActiveTokens().isEmpty());
 
-      ServerMessage msg = new ServerMessageImpl(1, 1024);
+      CoreMessage msg = new CoreMessage().initBuffer(1024).setMessageID(1);
 
       SimpleString dummy = new SimpleString("dummy");
       msg.setAddress(dummy);
@@ -259,12 +259,12 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       blockOnReplication(storage, manager);
 
-      ServerMessageImpl serverMsg = new ServerMessageImpl();
+      CoreMessage serverMsg = new CoreMessage();
       serverMsg.setMessageID(500);
       serverMsg.setAddress(new SimpleString("tttt"));
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(100);
-      serverMsg.encodeHeadersAndProperties(buffer);
+      serverMsg.encodeHeadersAndProperties(buffer.byteBuf());
 
       manager.largeMessageBegin(500);
 
@@ -619,6 +619,62 @@ public final class ReplicationTest extends ActiveMQTestBase {
    static final class FakeJournal implements Journal {
 
       @Override
+      public void appendAddRecord(long id,
+                                  byte recordType,
+                                  Persister persister,
+                                  Object record,
+                                  boolean sync) throws Exception {
+
+      }
+
+      @Override
+      public void appendAddRecord(long id,
+                                  byte recordType,
+                                  Persister persister,
+                                  Object record,
+                                  boolean sync,
+                                  IOCompletion completionCallback) throws Exception {
+
+      }
+
+      @Override
+      public void appendUpdateRecord(long id,
+                                     byte recordType,
+                                     Persister persister,
+                                     Object record,
+                                     boolean sync) throws Exception {
+
+      }
+
+      @Override
+      public void appendUpdateRecord(long id,
+                                     byte recordType,
+                                     Persister persister,
+                                     Object record,
+                                     boolean sync,
+                                     IOCompletion callback) throws Exception {
+
+      }
+
+      @Override
+      public void appendAddRecordTransactional(long txID,
+                                               long id,
+                                               byte recordType,
+                                               Persister persister,
+                                               Object record) throws Exception {
+
+      }
+
+      @Override
+      public void appendUpdateRecordTransactional(long txID,
+                                                  long id,
+                                                  byte recordType,
+                                                  Persister persister,
+                                                  Object record) throws Exception {
+
+      }
+
+      @Override
       public void appendAddRecord(final long id,
                                   final byte recordType,
                                   final byte[] record,
@@ -753,11 +809,6 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                          final TransactionFailureCallback transactionFailure) throws Exception {
 
          return new JournalLoadInformation();
-      }
-
-      @Override
-      public void perfBlast(final int pages) {
-
       }
 
       @Override

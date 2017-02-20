@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -129,11 +128,6 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
          array[6] == 73 && // I
          array[7] == 115;   // s
       return mqtt311 || mqtt31;
-   }
-
-   @Override
-   public MessageConverter getConverter() {
-      return null;
    }
 
    @Override

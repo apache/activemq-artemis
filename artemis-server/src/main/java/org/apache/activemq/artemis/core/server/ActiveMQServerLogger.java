@@ -577,12 +577,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void ioErrorAddingReferences(Integer errorCode, String errorMessage);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222058, value = "Duplicate message detected through the bridge - message will not be routed. Message information:\n{0}", format = Message.Format.MESSAGE_FORMAT)
-   void duplicateMessageDetectedThruBridge(ServerMessage message);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222059, value = "Duplicate message detected - message will not be routed. Message information:\n{0}", format = Message.Format.MESSAGE_FORMAT)
-   void duplicateMessageDetected(ServerMessage message);
+   void duplicateMessageDetected(org.apache.activemq.artemis.api.core.Message message);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222060, value = "Error while confirming large message completion on rollback for recordID={0}", format = Message.Format.MESSAGE_FORMAT)
@@ -783,7 +779,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222110, value = "no queue IDs defined!,  originalMessage  = {0}, copiedMessage = {1}, props={2}",
       format = Message.Format.MESSAGE_FORMAT)
-   void noQueueIdDefined(ServerMessage message, ServerMessage messageCopy, SimpleString idsHeaderName);
+   void noQueueIdDefined(org.apache.activemq.artemis.api.core.Message message, org.apache.activemq.artemis.api.core.Message messageCopy, SimpleString idsHeaderName);
 
    @LogMessage(level = Logger.Level.TRACE)
    @Message(id = 222111, value = "exception while invoking {0} on {1}",

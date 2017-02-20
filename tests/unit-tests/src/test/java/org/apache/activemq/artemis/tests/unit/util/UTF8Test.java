@@ -44,7 +44,7 @@ public class UTF8Test extends ActiveMQTestBase {
 
       String str = new String(bytes);
 
-      UTF8Util.saveUTF(buffer, str);
+      UTF8Util.saveUTF(buffer.byteBuf(), str);
 
       String newStr = UTF8Util.readUTF(buffer);
 
@@ -72,7 +72,7 @@ public class UTF8Test extends ActiveMQTestBase {
    }
 
    private void testValidateUTFOnDataInputStream(final String str, final ActiveMQBuffer wrap) throws Exception {
-      UTF8Util.saveUTF(wrap, str);
+      UTF8Util.saveUTF(wrap.byteBuf(), str);
 
       DataInputStream data = new DataInputStream(new ByteArrayInputStream(wrap.toByteBuffer().array()));
 
@@ -106,7 +106,7 @@ public class UTF8Test extends ActiveMQTestBase {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(0xffff + 4);
 
       try {
-         UTF8Util.saveUTF(buffer, str);
+         UTF8Util.saveUTF(buffer.byteBuf(), str);
          Assert.fail("String is too big, supposed to throw an exception");
       } catch (Exception ignored) {
       }
@@ -122,7 +122,7 @@ public class UTF8Test extends ActiveMQTestBase {
       str = new String(chars);
 
       try {
-         UTF8Util.saveUTF(buffer, str);
+         UTF8Util.saveUTF(buffer.byteBuf(), str);
          Assert.fail("Encoded String is too big, supposed to throw an exception");
       } catch (Exception ignored) {
       }
@@ -138,7 +138,7 @@ public class UTF8Test extends ActiveMQTestBase {
 
       str = new String(chars);
 
-      UTF8Util.saveUTF(buffer, str);
+      UTF8Util.saveUTF(buffer.byteBuf(), str);
 
       Assert.assertEquals(0xffff + DataConstants.SIZE_SHORT, buffer.writerIndex());
 

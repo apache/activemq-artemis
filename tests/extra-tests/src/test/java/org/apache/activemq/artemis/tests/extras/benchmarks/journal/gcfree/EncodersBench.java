@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
@@ -61,7 +62,7 @@ public class EncodersBench {
       this.byteBuffer.order(ByteOrder.nativeOrder());
       this.addJournalRecordEncoder = new AddJournalRecordEncoder();
 
-      this.record = new JournalAddRecord(true, 1, (byte) 1, ZeroEncodingSupport.Instance);
+      this.record = new JournalAddRecord(true, 1, (byte) 1, EncoderPersister.getInstance(), ZeroEncodingSupport.Instance);
       this.record.setFileID(1);
       this.record.setCompactCount((short) 1);
       this.outBuffer = new ChannelBufferWrapper(Unpooled.directBuffer(this.record.getEncodeSize(), this.record.getEncodeSize()).order(ByteOrder.nativeOrder()));
@@ -86,7 +87,7 @@ public class EncodersBench {
    @Benchmark
    public int encodeUnalignedWithGarbage() {
       outBuffer.clear();
-      final JournalAddRecord addRecord = new JournalAddRecord(true, 1, (byte) 1, ZeroEncodingSupport.Instance);
+      final JournalAddRecord addRecord = new JournalAddRecord(true, 1, (byte) 1, EncoderPersister.getInstance(), ZeroEncodingSupport.Instance);
       addRecord.setFileID(1);
       addRecord.setCompactCount((short) 1);
       addRecord.encode(outBuffer);

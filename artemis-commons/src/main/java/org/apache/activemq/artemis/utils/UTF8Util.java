@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.utils;
 
 import java.lang.ref.SoftReference;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 
@@ -29,15 +31,43 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
  */
 public final class UTF8Util {
 
-   private UTF8Util() {
-      // utility class
-   }
 
    private static final boolean isTrace = ActiveMQUtilLogger.LOGGER.isTraceEnabled();
 
    private static final ThreadLocal<SoftReference<StringUtilBuffer>> currenBuffer = new ThreadLocal<>();
 
-   public static void saveUTF(final ActiveMQBuffer out, final String str) {
+   private UTF8Util() {
+      // utility class
+   }
+   public static void writeNullableString(ByteBuf buffer, final String val) {
+      if (val == null) {
+         buffer.writeByte(DataConstants.NULL);
+      } else {
+         buffer.writeByte(DataConstants.NOT_NULL);
+         writeString(buffer, val);
+      }
+   }
+
+   public static void writeString(final ByteBuf buffer, final String val) {
+      int length = val.length();
+
+      buffer.writeInt(length);
+
+      if (length < 9) {
+         // If very small it's more performant to store char by char
+         for (int i = 0; i < val.length(); i++) {
+            buffer.writeShort((short) val.charAt(i));
+         }
+      } else if (length < 0xfff) {
+         // Store as UTF - this is quicker than char by char for most strings
+         saveUTF(buffer, val);
+      } else {
+         // Store as SimpleString, since can't store utf > 0xffff in length
+         SimpleString.writeSimpleString(buffer, new SimpleString(val));
+      }
+   }
+
+   public static void saveUTF(final ByteBuf out, final String str) {
       StringUtilBuffer buffer = UTF8Util.getThreadLocalBuffer();
 
       if (str.length() > 0xffff) {

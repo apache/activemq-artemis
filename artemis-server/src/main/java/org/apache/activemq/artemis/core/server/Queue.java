@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -197,7 +198,7 @@ public interface Queue extends Bindable {
 
    void cancelRedistributor() throws Exception;
 
-   boolean hasMatchingConsumer(ServerMessage message);
+   boolean hasMatchingConsumer(Message message);
 
    Collection<Consumer> getConsumers();
 

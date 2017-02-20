@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.tests.timing.core.server.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
@@ -138,9 +138,9 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
          long start = System.currentTimeMillis();
 
          while (System.currentTimeMillis() - start < testTime) {
-            ServerMessage message = generateMessage(i);
+            Message message = generateMessage(i);
 
-            MessageReference ref = message.createReference(queue);
+            MessageReference ref = MessageReference.Factory.createReference(message, queue);
 
             queue.addTail(ref, false);
 

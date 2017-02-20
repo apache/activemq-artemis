@@ -14,31 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.converter.message;
+package org.apache.activemq.artemis.protocol.amqp.converter;
 
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 
-public class AMQPNativeInboundTransformer extends AMQPRawInboundTransformer {
 
-   public AMQPNativeInboundTransformer(IDGenerator idGenerator) {
-      super(idGenerator);
+public class AMQPConverter implements MessageConverter<AMQPMessage> {
+
+   private static final AMQPConverter theInstance = new AMQPConverter();
+
+   private AMQPConverter() {
+   }
+
+   public static AMQPConverter getInstance() {
+      return theInstance;
    }
 
    @Override
-   public String getTransformerName() {
-      return TRANSFORMER_NATIVE;
+   public AMQPMessage fromCore(ICoreMessage coreMessage) throws Exception {
+      return CoreAmqpConverter.fromCore(coreMessage);
    }
 
    @Override
-   public InboundTransformer getFallbackTransformer() {
-      return new AMQPRawInboundTransformer(idGenerator);
-   }
-
-   @Override
-   public ServerJMSMessage transform(EncodedMessage amqpMessage) throws Exception {
-      org.apache.qpid.proton.message.Message amqp = amqpMessage.decode();
-
-      return populateMessage(super.transform(amqpMessage), amqp);
+   public ICoreMessage toCore(AMQPMessage messageSource) throws Exception {
+      return AmqpCoreConverter.toCore(messageSource);
    }
 }

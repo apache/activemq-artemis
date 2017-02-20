@@ -101,6 +101,14 @@ public class ByteUtil {
    }
 
    public static String bytesToHex(byte[] bytes, int groupSize) {
+      if (bytes == null) {
+         return "NULL";
+      }
+
+      if (bytes.length == 0) {
+         return "[]";
+      }
+
       char[] hexChars = new char[bytes.length * 2 + numberOfGroups(bytes, groupSize)];
       int outPos = 0;
       for (int j = 0; j < bytes.length; j++) {

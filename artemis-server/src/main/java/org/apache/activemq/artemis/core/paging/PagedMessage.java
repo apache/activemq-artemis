@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.paging;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 /**
  * A Paged message.
@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
  */
 public interface PagedMessage extends EncodingSupport {
 
-   ServerMessage getMessage();
+   Message getMessage();
 
    /**
     * The queues that were routed during paging

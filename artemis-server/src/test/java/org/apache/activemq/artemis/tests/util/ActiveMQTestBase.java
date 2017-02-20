@@ -65,6 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -94,6 +95,7 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -117,14 +119,12 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -855,7 +855,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return testDir1 + "/journal";
    }
 
-   protected String getJournalDir(final int index, final boolean backup) {
+   public String getJournalDir(final int index, final boolean backup) {
       return getJournalDir(getTestDir(), index, backup);
    }
 
@@ -2079,8 +2079,8 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   protected ServerMessage generateMessage(final long id) {
-      ServerMessage message = new ServerMessageImpl(id, 1000);
+   protected Message generateMessage(final long id) {
+      ICoreMessage message = new CoreMessage(id, 1000);
 
       message.setMessageID(id);
 
@@ -2092,9 +2092,9 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected MessageReference generateReference(final Queue queue, final long id) {
-      ServerMessage message = generateMessage(id);
+      Message message = generateMessage(id);
 
-      return message.createReference(queue);
+      return MessageReference.Factory.createReference(message, queue);
    }
 
    protected int calculateRecordSize(final int size, final int alignment) {

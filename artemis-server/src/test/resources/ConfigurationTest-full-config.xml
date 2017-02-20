@@ -231,8 +231,6 @@
       <journal-compact-percentage>33</journal-compact-percentage>
       <journal-compact-min-files>123</journal-compact-min-files>
       <journal-max-io>56546</journal-max-io>
-      <perf-blast-pages>5</perf-blast-pages>
-      <run-sync-speed-test>true</run-sync-speed-test>
       <server-dump-interval>5000</server-dump-interval>
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>

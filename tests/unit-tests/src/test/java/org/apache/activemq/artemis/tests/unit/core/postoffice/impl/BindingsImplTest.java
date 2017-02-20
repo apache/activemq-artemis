@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -31,10 +33,8 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -91,9 +91,9 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          if (route) {
-            bind.route(new ServerMessageImpl(i, 100), new RoutingContextImpl(new FakeTransaction()));
+            bind.route(new CoreMessage(i, 100), new RoutingContextImpl(new FakeTransaction()));
          } else {
-            bind.redistribute(new ServerMessageImpl(i, 100), queue, new RoutingContextImpl(new FakeTransaction()));
+            bind.redistribute(new CoreMessage(i, 100), queue, new RoutingContextImpl(new FakeTransaction()));
          }
       }
    }
@@ -273,7 +273,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
        * @see org.apache.activemq.artemis.core.filter.Filter#match(org.apache.activemq.artemis.core.server.ServerMessage)
        */
       @Override
-      public boolean match(final ServerMessage message) {
+      public boolean match(final Message message) {
          return false;
       }
 
@@ -372,12 +372,12 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isHighAcceptPriority(final ServerMessage message) {
+      public boolean isHighAcceptPriority(final Message message) {
          return false;
       }
 
       @Override
-      public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+      public void route(final Message message, final RoutingContext context) throws Exception {
 
       }
 
@@ -395,7 +395,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void routeWithAck(ServerMessage message, RoutingContext context) {
+      public void routeWithAck(Message message, RoutingContext context) {
 
       }
 

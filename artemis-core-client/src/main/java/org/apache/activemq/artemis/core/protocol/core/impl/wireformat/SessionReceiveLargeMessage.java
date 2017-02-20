@@ -18,12 +18,12 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class SessionReceiveLargeMessage extends PacketImpl implements MessagePacketI {
 
-   private final MessageInternal message;
+   private final Message message;
 
    /**
     * Since we receive the message before the entire message was received,
@@ -35,13 +35,13 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
    private int deliveryCount;
 
    // To be used on decoding at the client while receiving a large message
-   public SessionReceiveLargeMessage(final MessageInternal message) {
+   public SessionReceiveLargeMessage(final Message message) {
       super(SESS_RECEIVE_LARGE_MSG);
       this.message = message;
    }
 
    public SessionReceiveLargeMessage(final long consumerID,
-                                     final MessageInternal message,
+                                     final Message message,
                                      final long largeMessageSize,
                                      final int deliveryCount) {
       super(SESS_RECEIVE_LARGE_MSG);
@@ -55,7 +55,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       this.largeMessageSize = largeMessageSize;
    }
 
-   public MessageInternal getLargeMessage() {
+   public Message getLargeMessage() {
       return message;
    }
 
@@ -85,7 +85,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       buffer.writeInt(deliveryCount);
       buffer.writeLong(largeMessageSize);
       if (message != null) {
-         message.encodeHeadersAndProperties(buffer);
+         ((CoreMessage)message).encodeHeadersAndProperties(buffer.byteBuf());
       }
    }
 
@@ -94,7 +94,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       consumerID = buffer.readLong();
       deliveryCount = buffer.readInt();
       largeMessageSize = buffer.readLong();
-      message.decodeHeadersAndProperties(buffer);
+      ((CoreMessage)message).decodeHeadersAndProperties(buffer.byteBuf());
    }
 
    @Override

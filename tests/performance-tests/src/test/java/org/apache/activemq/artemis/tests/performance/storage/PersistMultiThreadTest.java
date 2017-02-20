@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
@@ -37,8 +39,6 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -188,8 +188,8 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       private void storeMessage(long txID, long id) throws Exception {
-         ServerMessage message = new ServerMessageImpl(id, 10 * 1024);
-         message.setPagingStore(fakePagingStore);
+         Message message = new CoreMessage(id, 10 * 1024);
+         message.setContext(fakePagingStore);
 
          message.getBodyBuffer().writeBytes(new byte[104]);
          message.putStringProperty("hello", "" + id);
@@ -246,6 +246,26 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
    }
 
    class FakePagingStore implements PagingStore {
+
+      @Override
+      public void durableDown(Message message, int durableCount) {
+
+      }
+
+      @Override
+      public void durableUp(Message message, int durableCount) {
+
+      }
+
+      @Override
+      public void nonDurableUp(Message message, int nonDurableCoun) {
+
+      }
+
+      @Override
+      public void nonDurableDown(Message message, int nonDurableCoun) {
+
+      }
 
       @Override
       public SimpleString getAddress() {
@@ -328,7 +348,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean page(ServerMessage message,
+      public boolean page(Message message,
                           Transaction tx,
                           RouteContextList listCtx,
                           ReentrantReadWriteLock.ReadLock readLock) throws Exception {

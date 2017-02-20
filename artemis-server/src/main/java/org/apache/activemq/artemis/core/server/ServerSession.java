@@ -21,10 +21,11 @@ import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.artemis.Closeable;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -98,6 +99,8 @@ public interface ServerSession extends SecurityAuth {
    void start();
 
    void stop();
+
+   void addCloseable(Closeable closeable);
 
    /**
     * To be used by protocol heads that needs to control the transaction outside the session context.
@@ -178,18 +181,20 @@ public interface ServerSession extends SecurityAuth {
 
    void receiveConsumerCredits(long consumerID, int credits) throws Exception;
 
-   void sendContinuations(int packetSize, long totalBodySize, byte[] body, boolean continues) throws Exception;
-
    RoutingStatus send(Transaction tx,
-                      ServerMessage message,
+                      Message message,
                       boolean direct,
                       boolean noAutoCreateQueue) throws Exception;
 
-   RoutingStatus send(ServerMessage message, boolean direct, boolean noAutoCreateQueue) throws Exception;
+   RoutingStatus doSend(final Transaction tx,
+                        final Message msg,
+                        final SimpleString originalAddress,
+                        final boolean direct,
+                        final boolean noAutoCreateQueue) throws Exception;
 
-   RoutingStatus send(ServerMessage message, boolean direct) throws Exception;
+   RoutingStatus send(Message message, boolean direct, boolean noAutoCreateQueue) throws Exception;
 
-   void sendLarge(MessageInternal msg) throws Exception;
+   RoutingStatus send(Message message, boolean direct) throws Exception;
 
    void forceConsumerDelivery(long consumerID, long sequence) throws Exception;
 
@@ -249,7 +254,9 @@ public interface ServerSession extends SecurityAuth {
 
    SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception;
 
-   SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
+   SimpleString getMatchingQueue(SimpleString address,
+                                 SimpleString queueName,
+                                 RoutingType routingType) throws Exception;
 
    AddressInfo getAddress(SimpleString address);
 

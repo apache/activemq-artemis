@@ -254,7 +254,7 @@ public class ProtonHandler extends ProtonInitializable {
       flush(false);
    }
 
-   private void flush(boolean wait) {
+   public void flush(boolean wait) {
       synchronized (lock) {
          transport.process();
 

@@ -20,18 +20,18 @@ import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
 /**
  * A ResetLimitWrappedActiveMQBuffer
- * TODO: Move this to commons
  */
 public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper {
 
    private final int limit;
 
-   private MessageInternal message;
+   private Message message;
 
    /**
     * We need to turn of notifications of body changes on reset on the server side when dealing with AMQP conversions,
@@ -39,17 +39,17 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
     *
     * @param message
     */
-   public void setMessage(MessageInternal message) {
+   public void setMessage(Message message) {
       this.message = message;
    }
 
-   public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message) {
+   public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final Message message) {
       // a wrapped inside a wrapper will increase the stack size.
       // we fixed this here due to some profiling testing
       this(limit, unwrap(buffer.byteBuf()).duplicate(), message);
    }
 
-   public ResetLimitWrappedActiveMQBuffer(final int limit, final ByteBuf buffer, final MessageInternal message) {
+   public ResetLimitWrappedActiveMQBuffer(final int limit, final ByteBuf buffer, final Message message) {
       // a wrapped inside a wrapper will increase the stack size.
       // we fixed this here due to some profiling testing
       super(buffer);
@@ -67,7 +67,7 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
 
    private void changed() {
       if (message != null) {
-         message.bodyChanged();
+         message.messageChanged();
       }
    }
 
@@ -94,8 +94,6 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
 
    @Override
    public void resetReaderIndex() {
-      changed();
-
       buffer.readerIndex(limit);
    }
 
@@ -254,6 +252,14 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
       changed();
 
       super.writeBytes(src);
+   }
+
+
+   @Override
+   public void writeBytes(final ByteBuf src, final int srcIndex, final int length) {
+      changed();
+
+      super.writeBytes(src, srcIndex, length);
    }
 
    @Override
