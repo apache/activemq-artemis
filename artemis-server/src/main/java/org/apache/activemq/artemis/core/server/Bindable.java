@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.Message;
+
 public interface Bindable {
 
-   void route(ServerMessage message, RoutingContext context) throws Exception;
+   void route(Message message, RoutingContext context) throws Exception;
 
-   void routeWithAck(ServerMessage message, RoutingContext context) throws Exception;
+   void routeWithAck(Message message, RoutingContext context) throws Exception;
 }

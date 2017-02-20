@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadBoolean;
@@ -374,7 +374,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       if (bodyLength == 0)
          return null;
       byte[] dst = new byte[bodyLength];
-      message.getBodyBuffer().getBytes(MessageImpl.BODY_OFFSET, dst);
+      message.getBodyBuffer().getBytes(CoreMessage.BODY_OFFSET, dst);
       return (T) dst;
    }
 }

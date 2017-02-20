@@ -18,9 +18,11 @@ package org.apache.activemq.artemis.api.core.management;
 
 import javax.json.JsonArray;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -86,7 +88,7 @@ public final class ManagementHelper {
     * @param attribute    the name of the attribute
     * @see ResourceNames
     */
-   public static void putAttribute(final Message message, final String resourceName, final String attribute) {
+   public static void putAttribute(final ICoreMessage message, final String resourceName, final String attribute) {
       message.putStringProperty(ManagementHelper.HDR_RESOURCE_NAME, new SimpleString(resourceName));
       message.putStringProperty(ManagementHelper.HDR_ATTRIBUTE, new SimpleString(attribute));
    }
@@ -99,7 +101,7 @@ public final class ManagementHelper {
     * @param operationName the name of the operation to invoke on the resource
     * @see ResourceNames
     */
-   public static void putOperationInvocation(final Message message,
+   public static void putOperationInvocation(final ICoreMessage message,
                                              final String resourceName,
                                              final String operationName) throws Exception {
       ManagementHelper.putOperationInvocation(message, resourceName, operationName, (Object[]) null);
@@ -114,7 +116,7 @@ public final class ManagementHelper {
     * @param parameters    the parameters to use to invoke the server resource
     * @see ResourceNames
     */
-   public static void putOperationInvocation(final Message message,
+   public static void putOperationInvocation(final ICoreMessage message,
                                              final String resourceName,
                                              final String operationName,
                                              final Object... parameters) throws Exception {
@@ -141,7 +143,7 @@ public final class ManagementHelper {
     * Used by ActiveMQ Artemis management service.
     */
    public static Object[] retrieveOperationParameters(final Message message) throws Exception {
-      SimpleString sstring = message.getBodyBuffer().readNullableSimpleString();
+      SimpleString sstring = message.toCore().getReadOnlyBodyBuffer().readNullableSimpleString();
       String jsonString = (sstring == null) ? null : sstring.toString();
 
       if (jsonString != null) {
@@ -170,7 +172,7 @@ public final class ManagementHelper {
    /**
     * Used by ActiveMQ Artemis management service.
     */
-   public static void storeResult(final Message message, final Object result) throws Exception {
+   public static void storeResult(final CoreMessage message, final Object result) throws Exception {
       String resultString;
 
       if (result != null) {
@@ -192,7 +194,7 @@ public final class ManagementHelper {
     * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
     * and the result will be a String corresponding to the server exception.
     */
-   public static Object[] getResults(final Message message) throws Exception {
+   public static Object[] getResults(final ICoreMessage message) throws Exception {
       SimpleString sstring = message.getBodyBuffer().readNullableSimpleString();
       String jsonString = (sstring == null) ? null : sstring.toString();
 
@@ -210,7 +212,7 @@ public final class ManagementHelper {
     * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
     * and the result will be a String corresponding to the server exception.
     */
-   public static Object getResult(final Message message) throws Exception {
+   public static Object getResult(final ICoreMessage message) throws Exception {
       return getResult(message, null);
    }
 
@@ -220,7 +222,7 @@ public final class ManagementHelper {
     * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
     * and the result will be a String corresponding to the server exception.
     */
-   public static Object getResult(final Message message, Class desiredType) throws Exception {
+   public static Object getResult(final ICoreMessage message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
 
       if (res != null) {

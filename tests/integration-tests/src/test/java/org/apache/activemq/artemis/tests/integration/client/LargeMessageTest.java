@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -350,7 +349,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      Message clientFile = session.createMessage(true);
+      ClientMessage clientFile = session.createMessage(true);
       for (int i = 0; i < messageSize; i++) {
          clientFile.getBodyBuffer().writeByte(getSamplebyte(i));
       }
@@ -890,7 +889,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
 
             if (isSimulateBridge) {
-               clientFile.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, someDuplicateInfo.getBytes());
+               clientFile.putBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, someDuplicateInfo.getBytes());
             } else {
                clientFile.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, someDuplicateInfo.getBytes());
             }

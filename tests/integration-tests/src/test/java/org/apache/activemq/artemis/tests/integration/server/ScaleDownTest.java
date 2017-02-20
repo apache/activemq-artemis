@@ -425,7 +425,7 @@ public class ScaleDownTest extends ClusterTestBase {
 
       while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
-            Message message = session.createMessage(true);
+            ClientMessage message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
             producer.send(message);
             messageCount++;
@@ -463,7 +463,7 @@ public class ScaleDownTest extends ClusterTestBase {
 
       while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
          for (int i = 0; i < CHUNK_SIZE; i++) {
-            Message message = session.createMessage(true);
+            ClientMessage message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
             message.putIntProperty("order", i);
             producer.send(message);

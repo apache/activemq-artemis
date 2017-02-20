@@ -262,12 +262,6 @@ public final class ActiveMQDefaultConfiguration {
    // The minimal number of data files before we can start compacting
    private static int DEFAULT_JOURNAL_COMPACT_MIN_FILES = 10;
 
-   // XXX Only meant to be used by project developers
-   private static int DEFAULT_JOURNAL_PERF_BLAST_PAGES = -1;
-
-   // XXX Only meant to be used by project developers
-   private static boolean DEFAULT_RUN_SYNC_SPEED_TEST = false;
-
    // Interval to log server specific information (e.g. memory usage etc)
    private static long DEFAULT_SERVER_DUMP_INTERVAL = -1;
 
@@ -798,20 +792,6 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultJournalCompactMinFiles() {
       return DEFAULT_JOURNAL_COMPACT_MIN_FILES;
-   }
-
-   /**
-    * XXX Only meant to be used by project developers
-    */
-   public static int getDefaultJournalPerfBlastPages() {
-      return DEFAULT_JOURNAL_PERF_BLAST_PAGES;
-   }
-
-   /**
-    * XXX Only meant to be used by project developers
-    */
-   public static boolean isDefaultRunSyncSpeedTest() {
-      return DEFAULT_RUN_SYNC_SPEED_TEST;
    }
 
    /**

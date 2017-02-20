@@ -35,12 +35,12 @@ import java.util.zip.InflaterOutputStream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -69,7 +69,7 @@ import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
 
-public class OpenWireMessageConverter implements MessageConverter {
+public class OpenWireMessageConverter implements MessageConverter<OpenwireMessage> {
 
    public static final String AMQ_PREFIX = "__HDR_";
    public static final String AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY = AMQ_PREFIX + "dlqDeliveryFailureCause";
@@ -102,16 +102,26 @@ public class OpenWireMessageConverter implements MessageConverter {
    }
 
    @Override
-   public Object outbound(ServerMessage message, int deliveryCount) {
-      // TODO: implement this
+   public OpenwireMessage fromCore(ICoreMessage coreMessage) throws Exception {
       return null;
    }
 
    @Override
-   public ServerMessage inbound(Object message) throws Exception {
+   public ICoreMessage toCore(OpenwireMessage pureMessage) throws Exception {
+      return null;
+   }
+
+   //   @Override
+   public Object outbound(org.apache.activemq.artemis.api.core.Message message, int deliveryCount) {
+      // TODO: implement this
+      return null;
+   }
+
+//   @Override
+   public org.apache.activemq.artemis.api.core.Message inbound(Object message) throws Exception {
 
       Message messageSend = (Message) message;
-      ServerMessageImpl coreMessage = new ServerMessageImpl(-1, messageSend.getSize());
+      CoreMessage coreMessage = new CoreMessage(-1, messageSend.getSize());
 
       String type = messageSend.getType();
       if (type != null) {
@@ -157,7 +167,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                mdataIn.close();
                TypedProperties props = new TypedProperties();
                loadMapIntoProperties(props, map);
-               props.encode(body);
+               props.encode(body.byteBuf());
                break;
             case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
                if (messageCompressed) {
@@ -415,7 +425,7 @@ public class OpenWireMessageConverter implements MessageConverter {
    }
 
    public static MessageDispatch createMessageDispatch(MessageReference reference,
-                                                       ServerMessage message,
+                                                       ICoreMessage message,
                                                        AMQConsumer consumer) throws IOException, JMSException {
       ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getMarshaller(), consumer.getOpenwireDestination());
 
@@ -433,7 +443,7 @@ public class OpenWireMessageConverter implements MessageConverter {
    }
 
    private static ActiveMQMessage toAMQMessage(MessageReference reference,
-                                               ServerMessage coreMessage,
+                                               ICoreMessage coreMessage,
                                                WireFormat marshaller,
                                                ActiveMQDestination actualDestination) throws IOException {
       ActiveMQMessage amqMsg = null;
@@ -476,7 +486,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       }
       amqMsg.setBrokerInTime(brokerInTime);
 
-      ActiveMQBuffer buffer = coreMessage.getBodyBufferDuplicate();
+      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
       Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
       boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       amqMsg.setCompressed(isCompressed);
@@ -503,7 +513,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                TypedProperties mapData = new TypedProperties();
                //it could be a null map
                if (buffer.readableBytes() > 0) {
-                  mapData.decode(buffer);
+                  mapData.decode(buffer.byteBuf());
                   Map<String, Object> map = mapData.getMap();
                   ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
                   OutputStream os = out;

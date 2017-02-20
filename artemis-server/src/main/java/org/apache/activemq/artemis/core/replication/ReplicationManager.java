@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -147,9 +148,10 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                                   final ADD_OPERATION_TYPE operation,
                                   final long id,
                                   final byte recordType,
-                                  final EncodingSupport record) throws Exception {
+                                  final Persister persister,
+                                  final Object record) throws Exception {
       if (enabled) {
-         sendReplicatePacket(new ReplicationAddMessage(journalID, operation, id, recordType, record));
+         sendReplicatePacket(new ReplicationAddMessage(journalID, operation, id, recordType, persister, record));
       }
    }
 
@@ -164,9 +166,10 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                                             final long txID,
                                             final long id,
                                             final byte recordType,
-                                            final EncodingSupport record) throws Exception {
+                                            final Persister persister,
+                                            final Object record) throws Exception {
       if (enabled) {
-         sendReplicatePacket(new ReplicationAddTXMessage(journalID, operation, txID, id, recordType, record));
+         sendReplicatePacket(new ReplicationAddTXMessage(journalID, operation, txID, id, recordType, persister, record));
       }
    }
 

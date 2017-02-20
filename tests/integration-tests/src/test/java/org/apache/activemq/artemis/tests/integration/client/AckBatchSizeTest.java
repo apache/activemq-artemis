@@ -63,7 +63,8 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(false);
       server.start();
       int numMessages = 100;
-      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(numMessages * getMessageEncodeSize(addressA)).setBlockOnAcknowledge(true);
+      int originalSize = getMessageEncodeSize(addressA);
+      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(numMessages * originalSize).setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
 
@@ -71,20 +72,25 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       session.createQueue(addressA, queueA, false);
       ClientProducer cp = sendSession.createProducer(addressA);
       for (int i = 0; i < numMessages; i++) {
-         cp.send(sendSession.createMessage(false));
+         ClientMessage message = (ClientMessage)sendSession.createMessage(false).setAddress(addressA);
+         Assert.assertEquals(originalSize, message.getEncodeSize());
+         cp.send(message);
+         Assert.assertEquals(originalSize, message.getEncodeSize());
       }
 
       ClientConsumer consumer = session.createConsumer(queueA);
       session.start();
       for (int i = 0; i < numMessages - 1; i++) {
+         System.out.println("Receive ");
          ClientMessage m = consumer.receive(5000);
-
+         Assert.assertEquals(0, m.getPropertyNames().size());
+         Assert.assertEquals("expected to be " + originalSize, originalSize, m.getEncodeSize());
          m.acknowledge();
       }
 
       ClientMessage m = consumer.receive(5000);
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(100, q.getDeliveringCount());
+      Assert.assertEquals(numMessages, q.getDeliveringCount());
       m.acknowledge();
       Assert.assertEquals(0, q.getDeliveringCount());
       sendSession.close();

@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAck
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DeliveryCountUpdateEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.DuplicateIDEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.HeuristicCompletionEncoding;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessageEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountPendingImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecord;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageCountRecordInc;
@@ -53,8 +53,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLa
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.ScheduledDeliveryEncoding;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
@@ -64,6 +63,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_MESSAGE;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_MESSAGE_PROTOCOL;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_REF;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.HEURISTIC_COMPLETION;
@@ -445,16 +445,15 @@ public final class DescribeJournal {
 
             LargeServerMessage largeMessage = new LargeServerMessageImpl(storageManager);
 
-            LargeMessageEncoding messageEncoding = new LargeMessageEncoding(largeMessage);
-
-            messageEncoding.decode(buffer);
+            LargeMessagePersister.getInstance().decode(buffer, largeMessage);
 
             return new MessageDescribe(largeMessage);
          }
          case ADD_MESSAGE: {
-            ServerMessage message = new ServerMessageImpl(rec, 50);
-
-            message.decode(buffer);
+            return "ADD-MESSAGE is not supported any longer, use export/import";
+         }
+         case ADD_MESSAGE_PROTOCOL: {
+            Message message = MessagePersister.getInstance().decode(buffer, null);
 
             return new MessageDescribe(message);
          }

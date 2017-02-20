@@ -17,12 +17,13 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
 public class SessionReceiveClientLargeMessage extends SessionReceiveLargeMessage {
 
-   public SessionReceiveClientLargeMessage(MessageInternal message) {
+   public SessionReceiveClientLargeMessage(Message message) {
       super(message);
    }
 

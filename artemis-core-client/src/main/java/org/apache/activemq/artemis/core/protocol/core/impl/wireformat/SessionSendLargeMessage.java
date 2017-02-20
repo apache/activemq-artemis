@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class SessionSendLargeMessage extends PacketImpl implements MessagePacketI {
@@ -26,13 +26,13 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
    /**
     * Used only if largeMessage
     */
-   private final MessageInternal largeMessage;
+   private final Message largeMessage;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public SessionSendLargeMessage(final MessageInternal largeMessage) {
+   public SessionSendLargeMessage(final Message largeMessage) {
       super(SESS_SEND_LARGE);
 
       this.largeMessage = largeMessage;
@@ -40,7 +40,7 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    // Public --------------------------------------------------------
 
-   public MessageInternal getLargeMessage() {
+   public Message getLargeMessage() {
       return largeMessage;
    }
 
@@ -51,12 +51,12 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
-      largeMessage.encodeHeadersAndProperties(buffer);
+      ((CoreMessage)largeMessage).encodeHeadersAndProperties(buffer.byteBuf());
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
-      largeMessage.decodeHeadersAndProperties(buffer);
+      ((CoreMessage)largeMessage).decodeHeadersAndProperties(buffer.byteBuf());
    }
 
    @Override

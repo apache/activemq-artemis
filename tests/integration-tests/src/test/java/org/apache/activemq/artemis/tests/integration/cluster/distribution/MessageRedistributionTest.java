@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
@@ -474,7 +474,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
          bb.putLong(i);
 
-         msg.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, bytes);
+         msg.putBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
 
          prod0.send(msg);
 

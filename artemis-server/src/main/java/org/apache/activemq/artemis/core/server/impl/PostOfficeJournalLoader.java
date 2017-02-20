@@ -57,7 +57,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -233,8 +232,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handleNoMessageReferences(Map<Long, ServerMessage> messages) {
-      for (ServerMessage msg : messages.values()) {
+   public void handleNoMessageReferences(Map<Long, Message> messages) {
+      for (Message msg : messages.values()) {
          if (msg.getRefCount() == 0) {
             ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
             try {
@@ -284,7 +283,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
    }
 
    @Override
-   public void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) throws Exception {
+   public void handlePreparedSendMessage(Message message, Transaction tx, long queueID) throws Exception {
       Queue queue = queues.get(queueID);
 
       if (queue == null) {

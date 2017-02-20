@@ -18,8 +18,9 @@ package org.apache.activemq.artemis.core.protocol.openwire.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -53,9 +54,14 @@ public class OpenWireUtil {
     * set on publish/send so a divert or wildcard may mean thats its different to the destination subscribed to by the
     * consumer
     */
-   public static ActiveMQDestination toAMQAddress(ServerMessage message, ActiveMQDestination actualDestination) {
-      String address = message.getAddress().toString();
+   public static ActiveMQDestination toAMQAddress(Message message, ActiveMQDestination actualDestination) {
+      String address = message.getAddress();
       String strippedAddress = address;//.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
+
+      if (address == null) {
+         return actualDestination;
+      }
+
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
       } else {

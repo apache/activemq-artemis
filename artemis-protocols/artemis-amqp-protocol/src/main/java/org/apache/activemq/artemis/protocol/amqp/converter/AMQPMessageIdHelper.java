@@ -18,7 +18,7 @@
  * under the License.
  *
  */
-package org.apache.activemq.artemis.protocol.amqp.converter.message;
+package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

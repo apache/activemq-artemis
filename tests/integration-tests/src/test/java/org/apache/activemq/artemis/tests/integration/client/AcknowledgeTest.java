@@ -21,10 +21,14 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -34,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -332,9 +337,132 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
    }
 
-   class FakeMessageWithID implements Message {
+   class FakeMessageWithID extends RefCountMessage {
 
       final long id;
+
+      @Override
+      public RoutingType getRouteType() {
+         return null;
+      }
+
+      @Override
+      public SimpleString getReplyTo() {
+         return null;
+      }
+
+      @Override
+      public Message setReplyTo(SimpleString address) {
+         return null;
+      }
+
+      @Override
+      public boolean containsDeliveryAnnotationProperty(SimpleString property) {
+         return false;
+      }
+
+      @Override
+      public Object removeDeliveryAnnoationProperty(SimpleString key) {
+         return null;
+      }
+
+      @Override
+      public Object getDeliveryAnnotationProperty(SimpleString key) {
+         return null;
+      }
+
+      @Override
+      public int getPersistSize() {
+         return 0;
+      }
+
+      @Override
+      public void persist(ActiveMQBuffer targetRecord) {
+      }
+
+      @Override
+      public Persister<Message> getPersister() {
+         return null;
+      }
+
+      @Override
+      public void reloadPersistence(ActiveMQBuffer record) {
+
+      }
+
+      @Override
+      public Long getScheduledDeliveryTime() {
+         return null;
+      }
+
+      @Override
+      public ICoreMessage toCore() {
+         return null;
+      }
+
+      @Override
+      public void receiveBuffer(ByteBuf buffer) {
+
+      }
+
+      @Override
+      public void sendBuffer(ByteBuf buffer, int count) {
+
+      }
+      @Override
+      public Message setUserID(Object userID) {
+         return null;
+      }
+
+      @Override
+      public void messageChanged() {
+
+      }
+
+      @Override
+      public Message copy() {
+         return null;
+      }
+
+      @Override
+      public Message copy(long newID) {
+         return null;
+      }
+
+      @Override
+      public Message setMessageID(long id) {
+         return null;
+      }
+
+      @Override
+      public int getRefCount() {
+         return 0;
+      }
+
+      @Override
+      public int incrementRefCount() throws Exception {
+         return 0;
+      }
+
+      @Override
+      public int decrementRefCount() throws Exception {
+         return 0;
+      }
+
+      @Override
+      public int incrementDurableRefCount() {
+         return 0;
+      }
+
+      @Override
+      public int decrementDurableRefCount() {
+         return 0;
+      }
+
+      @Override
+      public int getMemoryEstimate() {
+         return 0;
+      }
 
       FakeMessageWithID(final long id) {
          this.id = id;
@@ -351,23 +479,33 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public FakeMessageWithID setUserID(UUID userID) {
-         return this;
+      public String getAddress() {
+         return null;
       }
 
       @Override
-      public SimpleString getAddress() {
+      public SimpleString getAddressSimpleString() {
+         return null;
+      }
+
+      @Override
+      public Message setBuffer(ByteBuf buffer) {
+         return null;
+      }
+
+      @Override
+      public ByteBuf getBuffer() {
+         return null;
+      }
+
+      @Override
+      public Message setAddress(String address) {
          return null;
       }
 
       @Override
       public Message setAddress(SimpleString address) {
          return null;
-      }
-
-      @Override
-      public byte getType() {
-         return 0;
       }
 
       @Override
@@ -423,16 +561,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public boolean isLargeMessage() {
          return false;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBuffer() {
-         return null;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBufferDuplicate() {
-         return null;
       }
 
       @Override
@@ -688,16 +816,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public Map<String, Object> toPropertyMap() {
          return null;
-      }
-
-      @Override
-      public FakeMessageWithID writeBodyBufferBytes(byte[] bytes) {
-         return this;
-      }
-
-      @Override
-      public FakeMessageWithID writeBodyBufferString(String string) {
-         return this;
       }
    }
 }

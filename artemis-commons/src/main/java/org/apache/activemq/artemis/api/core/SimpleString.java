@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
@@ -132,6 +133,39 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    public CharSequence subSequence(final int start, final int end) {
       return subSeq(start, end);
    }
+
+
+   public static SimpleString readNullableSimpleString(ByteBuf buffer) {
+      int b = buffer.readByte();
+      if (b == DataConstants.NULL) {
+         return null;
+      }
+      return readSimpleString(buffer);
+   }
+
+
+   public static SimpleString readSimpleString(ByteBuf buffer) {
+      int len = buffer.readInt();
+      byte[] data = new byte[len];
+      buffer.readBytes(data);
+      return new SimpleString(data);
+   }
+
+   public static void writeNullableSimpleString(ByteBuf buffer, SimpleString val) {
+      if (val == null) {
+         buffer.writeByte(DataConstants.NULL);
+      } else {
+         buffer.writeByte(DataConstants.NOT_NULL);
+         writeSimpleString(buffer, val);
+      }
+   }
+
+   public static void writeSimpleString(ByteBuf buffer, SimpleString val) {
+      byte[] data = val.getData();
+      buffer.writeInt(data.length);
+      buffer.writeBytes(data);
+   }
+
 
 
    public SimpleString subSeq(final int start, final int end) {

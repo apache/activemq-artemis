@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.filter;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public interface Filter {
 
@@ -31,7 +31,7 @@ public interface Filter {
     */
    String GENERIC_IGNORED_FILTER = "__AMQX=-1";
 
-   boolean match(ServerMessage message);
+   boolean match(Message message);
 
    SimpleString getFilterString();
 }

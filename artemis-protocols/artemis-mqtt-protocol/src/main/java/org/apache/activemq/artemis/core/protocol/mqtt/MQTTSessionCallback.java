@@ -17,10 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
@@ -43,13 +45,13 @@ public class MQTTSessionCallback implements SessionCallback {
 
    @Override
    public int sendMessage(MessageReference reference,
-                          ServerMessage message,
+                          Message message,
                           ServerConsumer consumer,
                           int deliveryCount) {
       try {
-         session.getMqttPublishManager().sendMessage(message, consumer, deliveryCount);
+         session.getMqttPublishManager().sendMessage((CoreMessage)message, consumer, deliveryCount);
       } catch (Exception e) {
-         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
+         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
       }
       return 1;
    }
@@ -70,7 +72,7 @@ public class MQTTSessionCallback implements SessionCallback {
 
    @Override
    public int sendLargeMessage(MessageReference reference,
-                               ServerMessage message,
+                               Message message,
                                ServerConsumer consumer,
                                long bodySize,
                                int deliveryCount) {

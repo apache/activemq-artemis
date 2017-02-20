@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 
 abstract class JournalBase implements Journal {
@@ -37,68 +38,15 @@ abstract class JournalBase implements Journal {
    }
 
    @Override
-   public abstract void appendAddRecord(final long id,
-                                        final byte recordType,
-                                        final EncodingSupport record,
-                                        final boolean sync,
-                                        final IOCompletion callback) throws Exception;
-
-   @Override
-   public abstract void appendAddRecordTransactional(final long txID,
-                                                     final long id,
-                                                     final byte recordType,
-                                                     final EncodingSupport record) throws Exception;
-
-   @Override
-   public abstract void appendCommitRecord(final long txID,
-                                           final boolean sync,
-                                           final IOCompletion callback,
-                                           boolean lineUpContext) throws Exception;
-
-   @Override
-   public abstract void appendDeleteRecord(final long id,
-                                           final boolean sync,
-                                           final IOCompletion callback) throws Exception;
-
-   @Override
-   public abstract void appendDeleteRecordTransactional(final long txID,
-                                                        final long id,
-                                                        final EncodingSupport record) throws Exception;
-
-   @Override
-   public abstract void appendPrepareRecord(final long txID,
-                                            final EncodingSupport transactionData,
-                                            final boolean sync,
-                                            final IOCompletion callback) throws Exception;
-
-   @Override
-   public abstract void appendUpdateRecord(final long id,
-                                           final byte recordType,
-                                           final EncodingSupport record,
-                                           final boolean sync,
-                                           final IOCompletion callback) throws Exception;
-
-   @Override
-   public abstract void appendUpdateRecordTransactional(final long txID,
-                                                        final long id,
-                                                        final byte recordType,
-                                                        final EncodingSupport record) throws Exception;
-
-   @Override
-   public abstract void appendRollbackRecord(final long txID,
-                                             final boolean sync,
-                                             final IOCompletion callback) throws Exception;
-
-   @Override
    public void appendAddRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception {
       appendAddRecord(id, recordType, new ByteArrayEncoding(record), sync);
    }
 
    @Override
-   public void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
+   public void appendAddRecord(long id, byte recordType, Persister persister, Object record, boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
-      appendAddRecord(id, recordType, record, sync, callback);
+      appendAddRecord(id, recordType, persister, record, sync, callback);
 
       if (callback != null) {
          callback.waitCompletion();
@@ -176,11 +124,12 @@ abstract class JournalBase implements Journal {
    @Override
    public void appendUpdateRecord(final long id,
                                   final byte recordType,
-                                  final EncodingSupport record,
+                                  final Persister persister,
+                                  final Object record,
                                   final boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
-      appendUpdateRecord(id, recordType, record, sync, callback);
+      appendUpdateRecord(id, recordType, persister, record, sync, callback);
 
       if (callback != null) {
          callback.waitCompletion();

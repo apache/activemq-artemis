@@ -187,12 +187,12 @@ public class TypedPropertiesTest {
       props.putSimpleStringProperty(keyToRemove, RandomUtil.randomSimpleString());
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
-      props.encode(buffer);
+      props.encode(buffer.byteBuf());
 
       Assert.assertEquals(props.getEncodeSize(), buffer.writerIndex());
 
       TypedProperties decodedProps = new TypedProperties();
-      decodedProps.decode(buffer);
+      decodedProps.decode(buffer.byteBuf());
 
       TypedPropertiesTest.assertEqualsTypeProperties(props, decodedProps);
 
@@ -200,7 +200,7 @@ public class TypedPropertiesTest {
 
       // After removing a property, you should still be able to encode the Property
       props.removeProperty(keyToRemove);
-      props.encode(buffer);
+      props.encode(buffer.byteBuf());
 
       Assert.assertEquals(props.getEncodeSize(), buffer.writerIndex());
    }
@@ -210,12 +210,12 @@ public class TypedPropertiesTest {
       TypedProperties emptyProps = new TypedProperties();
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
-      emptyProps.encode(buffer);
+      emptyProps.encode(buffer.byteBuf());
 
       Assert.assertEquals(props.getEncodeSize(), buffer.writerIndex());
 
       TypedProperties decodedProps = new TypedProperties();
-      decodedProps.decode(buffer);
+      decodedProps.decode(buffer.byteBuf());
 
       TypedPropertiesTest.assertEqualsTypeProperties(emptyProps, decodedProps);
    }

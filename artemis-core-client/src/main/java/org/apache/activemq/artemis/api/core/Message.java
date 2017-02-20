@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.utils.UUID;
+import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.persistence.Persister;
 
 /**
  * A Message is a routable instance that has a payload.
@@ -48,8 +51,40 @@ import org.apache.activemq.artemis.utils.UUID;
  * <p>
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
  * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
+ *
+ *
+ * User cases that will be covered by Message
+ *
+ * Receiving a buffer:
+ *
+ * Message encode = new CoreMessage(); // or any other implementation
+ * encode.receiveBuffer(buffer);
+ *
+ *
+ * Sending to a buffer:
+ *
+ * Message encode;
+ * size = encode.getEncodeSize();
+ * encode.encodeDirectly(bufferOutput);
+ *
  */
 public interface Message {
+
+   // This is an estimate of how much memory a Message takes up, exclusing body and properties
+   // Note, it is only an estimate, it's not possible to be entirely sure with Java
+   // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
+   // The value is somewhat higher on 64 bit architectures, probably due to different alignment
+   int memoryOffset = 352;
+
+
+   SimpleString HDR_ROUTE_TO_IDS = new SimpleString("_AMQ_ROUTE_TO");
+
+   SimpleString HDR_SCALEDOWN_TO_IDS = new SimpleString("_AMQ_SCALEDOWN_TO");
+
+   SimpleString HDR_ROUTE_TO_ACK_IDS = new SimpleString("_AMQ_ACK_ROUTE_TO");
+
+   // used by the bridges to set duplicates
+   SimpleString HDR_BRIDGE_DUPLICATE_ID = new SimpleString("_AMQ_BRIDGE_DUP");
 
    /**
     * the actual time the message was expired.
@@ -129,6 +164,91 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
+
+   default SimpleString getDeliveryAnnotationPropertyString(SimpleString property) {
+      Object obj = getDeliveryAnnotationProperty(property);
+      if (obj instanceof SimpleString) {
+         return (SimpleString)obj;
+      } else {
+         return SimpleString.toSimpleString(obj.toString());
+      }
+   }
+
+   default void cleanupInternalProperties() {
+      // only on core
+   }
+
+   RoutingType getRouteType();
+
+   boolean containsDeliveryAnnotationProperty(SimpleString property);
+
+   /**
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
+   @Deprecated
+   default InputStream getBodyInputStream() {
+      return null;
+   }
+
+   /**
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
+   @Deprecated
+   default ActiveMQBuffer getBodyBuffer() {
+      return null;
+   }
+
+      /**
+       * @deprecated do not use this, use through ICoreMessage or ClientMessage
+       */
+   @Deprecated
+   default byte getType() {
+      return (byte)0;
+   }
+
+   /**
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
+   @Deprecated
+   default Message setType(byte type) {
+      return this;
+   }
+
+
+   void messageChanged();
+
+   /** Used to calculate what is the delivery time.
+    *  Return null if not scheduled. */
+   Long getScheduledDeliveryTime();
+
+   default Message setScheduledDeliveryTime(Long time) {
+      return this;
+   }
+
+   /** Context can be used by the application server to inject extra control, like a protocol specific on the server.
+    * There is only one per Object, use it wisely!
+    *
+    * Note: the intent of this was to replace PageStore reference on Message, but it will be later increased by adidn a ServerPojo
+    * */
+   RefCountMessageListener getContext();
+
+   SimpleString getReplyTo();
+
+   Message setReplyTo(SimpleString address);
+
+   Message setContext(RefCountMessageListener context);
+
+   /** The buffer will belong to this message, until release is called. */
+   Message setBuffer(ByteBuf buffer);
+
+   ByteBuf getBuffer();
+
+   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   Message copy();
+
+   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   Message copy(long newID);
+
    /**
     * Returns the messageID.
     * <br>
@@ -136,39 +256,45 @@ public interface Message {
     */
    long getMessageID();
 
+   Message setMessageID(long id);
+
+   default boolean isLargeMessage() {
+      return false;
+   }
+
+   /**
+    * Returns the expiration time of this message.
+    */
+   long getExpiration();
+
+   /**
+    * Sets the expiration of this message.
+    *
+    * @param expiration expiration time
+    */
+   Message setExpiration(long expiration);
+
+   /**
+    * Returns whether this message is expired or not.
+    */
+   default boolean isExpired() {
+      if (getExpiration() == 0) {
+         return false;
+      }
+
+      return System.currentTimeMillis() - getExpiration() >= 0;
+   }
+
+
    /**
     * Returns the userID - this is an optional user specified UUID that can be set to identify the message
     * and will be passed around with the message
     *
     * @return the user id
     */
-   UUID getUserID();
+   Object getUserID();
 
-   /**
-    * Sets the user ID
-    *
-    * @param userID
-    */
-   Message setUserID(UUID userID);
-
-   /**
-    * Returns the address this message is sent to.
-    */
-   SimpleString getAddress();
-
-   /**
-    * Sets the address to send this message to.
-    *
-    * @param address address to send the message to
-    */
-   Message setAddress(SimpleString address);
-
-   /**
-    * Returns this message type.
-    * <p>
-    * See fields {@literal *_TYPE} for possible values.
-    */
-   byte getType();
+   Message setUserID(Object userID);
 
    /**
     * Returns whether this message is durable or not.
@@ -182,36 +308,18 @@ public interface Message {
     */
    Message setDurable(boolean durable);
 
-   /**
-    * Returns the expiration time of this message.
-    */
-   long getExpiration();
+   Persister<Message> getPersister();
 
-   /**
-    * Returns whether this message is expired or not.
-    */
-   boolean isExpired();
+   String getAddress();
 
-   /**
-    * Sets the expiration of this message.
-    *
-    * @param expiration expiration time
-    */
-   Message setExpiration(long expiration);
+   Message setAddress(String address);
 
-   /**
-    * Returns the message timestamp.
-    * <br>
-    * The timestamp corresponds to the time this message
-    * was handled by an ActiveMQ Artemis server.
-    */
+   SimpleString getAddressSimpleString();
+
+   Message setAddress(SimpleString address);
+
    long getTimestamp();
 
-   /**
-    * Sets the message timestamp.
-    *
-    * @param timestamp timestamp
-    */
    Message setTimestamp(long timestamp);
 
    /**
@@ -230,164 +338,116 @@ public interface Message {
     */
    Message setPriority(byte priority);
 
-   /**
-    * Returns the size of the <em>encoded</em> message.
-    */
-   int getEncodeSize();
+   /** Used to receive this message from an encoded medium buffer */
+   void receiveBuffer(ByteBuf buffer);
+
+   /** Used to send this message to an encoded medium buffer.
+    * @param buffer the buffer used.
+    * @param deliveryCount Some protocols (AMQP) will have this as part of the message. */
+   void sendBuffer(ByteBuf buffer, int deliveryCount);
+
+   int getPersistSize();
+
+   void persist(ActiveMQBuffer targetRecord);
+
+   void reloadPersistence(ActiveMQBuffer record);
+
+   default void releaseBuffer() {
+      ByteBuf buffer = getBuffer();
+      if (buffer != null) {
+         buffer.release();
+      }
+      setBuffer(null);
+   }
+   default void referenceOriginalMessage(final Message original, String originalQueue) {
+      String queueOnMessage = original.getStringProperty(Message.HDR_ORIGINAL_QUEUE.toString());
+
+      if (queueOnMessage != null) {
+         putStringProperty(Message.HDR_ORIGINAL_QUEUE.toString(), queueOnMessage);
+      } else if (originalQueue != null) {
+         putStringProperty(Message.HDR_ORIGINAL_QUEUE.toString(), originalQueue);
+      }
+
+      if (original.containsProperty(Message.HDR_ORIG_MESSAGE_ID.toString())) {
+         putStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString(), original.getStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString()));
+
+         putLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString(), original.getLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString()));
+      } else {
+         putStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString(), original.getAddress());
+
+         putLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString(), original.getMessageID());
+      }
+
+      // reset expiry
+      setExpiration(0);
+   }
 
    /**
-    * Returns whether this message is a <em>large message</em> or a regular message.
+    * it will translate a property named HDR_DUPLICATE_DETECTION_ID.
+    * @return
     */
-   boolean isLargeMessage();
+   default byte[] getDuplicateIDBytes() {
+      Object duplicateID = getDuplicateProperty();
+
+      if (duplicateID == null) {
+         return null;
+      } else {
+         if (duplicateID instanceof SimpleString) {
+            return ((SimpleString) duplicateID).getData();
+         } else if (duplicateID instanceof String) {
+            return new SimpleString(duplicateID.toString()).getData();
+         } else {
+            return (byte[]) duplicateID;
+         }
+      }
+   }
 
    /**
-    * Returns the message body as an ActiveMQBuffer
+    * it will translate a property named HDR_DUPLICATE_DETECTION_ID.
+    * @return
     */
-   ActiveMQBuffer getBodyBuffer();
+   default Object getDuplicateProperty() {
+      return getDeliveryAnnotationProperty(Message.HDR_DUPLICATE_DETECTION_ID);
+   }
 
-   /**
-    * Writes the input byte array to the message body ActiveMQBuffer
-    */
-   Message writeBodyBufferBytes(byte[] bytes);
 
-   /**
-    * Writes the input String to the message body ActiveMQBuffer
-    */
-   Message writeBodyBufferString(String string);
-
-   /**
-    * Returns a <em>copy</em> of the message body as an ActiveMQBuffer. Any modification
-    * of this buffer should not impact the underlying buffer.
-    */
-   ActiveMQBuffer getBodyBufferDuplicate();
-
-   // Properties
-   // -----------------------------------------------------------------
-
-   /**
-    * Puts a boolean property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putBooleanProperty(SimpleString key, boolean value);
-
-   /**
-    * @see #putBooleanProperty(SimpleString, boolean)
-    */
    Message putBooleanProperty(String key, boolean value);
 
-   /**
-    * Puts a byte property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putByteProperty(SimpleString key, byte value);
-
-   /**
-    * @see #putByteProperty(SimpleString, byte)
-    */
    Message putByteProperty(String key, byte value);
 
-   /**
-    * Puts a byte[] property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putBytesProperty(SimpleString key, byte[] value);
-
-   /**
-    * @see #putBytesProperty(SimpleString, byte[])
-    */
    Message putBytesProperty(String key, byte[] value);
 
-   /**
-    * Puts a short property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putShortProperty(SimpleString key, short value);
-
-   /**
-    * @see #putShortProperty(SimpleString, short)
-    */
    Message putShortProperty(String key, short value);
 
-   /**
-    * Puts a char property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putCharProperty(SimpleString key, char value);
-
-   /**
-    * @see #putCharProperty(SimpleString, char)
-    */
    Message putCharProperty(String key, char value);
 
-   /**
-    * Puts an int property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putIntProperty(SimpleString key, int value);
-
-   /**
-    * @see #putIntProperty(SimpleString, int)
-    */
    Message putIntProperty(String key, int value);
 
-   /**
-    * Puts a long property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putLongProperty(SimpleString key, long value);
-
-   /**
-    * @see #putLongProperty(SimpleString, long)
-    */
    Message putLongProperty(String key, long value);
 
-   /**
-    * Puts a float property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putFloatProperty(SimpleString key, float value);
-
-   /**
-    * @see #putFloatProperty(SimpleString, float)
-    */
    Message putFloatProperty(String key, float value);
 
-   /**
-    * Puts a double property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putDoubleProperty(SimpleString key, double value);
-
-   /**
-    * @see #putDoubleProperty(SimpleString, double)
-    */
    Message putDoubleProperty(String key, double value);
 
-   /**
-    * Puts a SimpleString property in this message.
-    *
-    * @param key   property name
-    * @param value property value
-    */
-   Message putStringProperty(SimpleString key, SimpleString value);
+
+
+   Message putBooleanProperty(SimpleString key, boolean value);
+
+   Message putByteProperty(SimpleString key, byte value);
+
+   Message putBytesProperty(SimpleString key, byte[] value);
+
+   Message putShortProperty(SimpleString key, short value);
+
+   Message putCharProperty(SimpleString key, char value);
+
+   Message putIntProperty(SimpleString key, int value);
+
+   Message putLongProperty(SimpleString key, long value);
+
+   Message putFloatProperty(SimpleString key, float value);
+
+   Message putDoubleProperty(SimpleString key, double value);
 
    /**
     * Puts a String property in this message.
@@ -397,202 +457,127 @@ public interface Message {
     */
    Message putStringProperty(String key, String value);
 
-   /**
-    * Puts an Object property in this message. <br>
-    * Accepted types are:
-    * <ul>
-    * <li>Boolean</li>
-    * <li>Byte</li>
-    * <li>Short</li>
-    * <li>Character</li>
-    * <li>Integer</li>
-    * <li>Long</li>
-    * <li>Float</li>
-    * <li>Double</li>
-    * <li>String</li>
-    * <li>SimpleString</li>
-    * </ul>
-    * Using any other type will throw a PropertyConversionException.
-    *
-    * @param key   property name
-    * @param value property value
-    * @throws ActiveMQPropertyConversionException if the value is not one of the accepted property
-    *                                             types.
-    */
-   Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #putObjectProperty(SimpleString, Object)
-    */
    Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Removes the property corresponding to the specified key.
-    *
-    * @param key property name
-    * @return the value corresponding to the specified key or @{code null}
-    */
-   Object removeProperty(SimpleString key);
+   Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
-   /**
-    * @see #removeProperty(SimpleString)
-    */
    Object removeProperty(String key);
 
-   /**
-    * Returns {@code true} if this message contains a property with the given key, {@code false} else.
-    *
-    * @param key property name
-    */
-   boolean containsProperty(SimpleString key);
-
-   /**
-    * @see #containsProperty(SimpleString)
-    */
    boolean containsProperty(String key);
 
-   /**
-    * Returns the property corresponding to the specified key as a Boolean.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Boolean
-    */
-   Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getBooleanProperty(SimpleString)
-    */
    Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a Byte.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Byte
-    */
-   Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getByteProperty(SimpleString)
-    */
    Byte getByteProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a Double.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Double
-    */
-   Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getDoubleProperty(SimpleString)
-    */
    Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as an Integer.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to an Integer
-    */
-   Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getIntProperty(SimpleString)
-    */
    Integer getIntProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a Long.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Long
-    */
-   Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getLongProperty(SimpleString)
-    */
    Long getLongProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key
-    */
-   Object getObjectProperty(SimpleString key);
-
-   /**
-    * @see #getBooleanProperty(SimpleString)
-    */
    Object getObjectProperty(String key);
 
-   /**
-    * Returns the property corresponding to the specified key as a Short.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Short
-    */
-   Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getShortProperty(SimpleString)
-    */
    Short getShortProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a Float.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Float
-    */
-   Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getFloatProperty(SimpleString)
-    */
    Float getFloatProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a String.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a String
-    */
-   String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getStringProperty(SimpleString)
-    */
    String getStringProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a SimpleString.
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a SimpleString
-    */
-   SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
-
-   /**
-    * @see #getSimpleStringProperty(SimpleString)
-    */
    SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException;
 
-   /**
-    * Returns the property corresponding to the specified key as a byte[].
-    *
-    * @throws ActiveMQPropertyConversionException if the value can not be converted to a byte[]
-    */
+   byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException;
+
+   Object removeProperty(SimpleString key);
+
+   boolean containsProperty(SimpleString key);
+
+   Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Object getObjectProperty(SimpleString key);
+
+   Object removeDeliveryAnnoationProperty(SimpleString key);
+
+   Object getDeliveryAnnotationProperty(SimpleString key);
+
+   Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
+   SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
+
    byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
+   Message putStringProperty(SimpleString key, SimpleString value);
+
    /**
-    * @see #getBytesProperty(SimpleString)
+    * Returns the size of the <em>encoded</em> message.
     */
-   byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException;
+   int getEncodeSize();
 
    /**
     * Returns all the names of the properties for this message.
     */
    Set<SimpleString> getPropertyNames();
 
+
+
+   int getRefCount();
+
+   int incrementRefCount() throws Exception;
+
+   int decrementRefCount() throws Exception;
+
+   int incrementDurableRefCount();
+
+   int decrementDurableRefCount();
+
    /**
     * @return Returns the message in Map form, useful when encoding to JSON
     */
-   Map<String, Object> toMap();
+   default Map<String, Object> toMap() {
+      Map map = toPropertyMap();
+      map.put("messageID", getMessageID());
+      Object userID = getUserID();
+      if (getUserID() != null) {
+         map.put("userID", "ID:" + userID.toString());
+      }
+
+      map.put("address", getAddress());
+      map.put("durable", isDurable());
+      map.put("expiration", getExpiration());
+      map.put("timestamp", getTimestamp());
+      map.put("priority", (int)getPriority());
+
+      return map;
+   }
 
    /**
     * @return Returns the message properties in Map form, useful when encoding to JSON
     */
-   Map<String, Object> toPropertyMap();
+   default Map<String, Object> toPropertyMap() {
+      Map map = new HashMap<>();
+      for (SimpleString name : getPropertyNames()) {
+         map.put(name.toString(), getObjectProperty(name.toString()));
+      }
+      return map;
+   }
+
+
+   /** This should make you convert your message into Core format. */
+   ICoreMessage toCore();
+
+   int getMemoryEstimate();
+
+
+
 }

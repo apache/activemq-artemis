@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
 /**
  * A SessionSendContinuationMessage<br>
@@ -28,7 +28,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    private boolean requiresResponse;
 
    // Used on confirmation handling
-   private MessageInternal message;
+   private Message message;
    /**
     * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
     * <br>
@@ -58,7 +58,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
     * @param continues
     * @param requiresResponse
     */
-   public SessionSendContinuationMessage(final MessageInternal message,
+   public SessionSendContinuationMessage(final Message message,
                                          final byte[] body,
                                          final boolean continues,
                                          final boolean requiresResponse,
@@ -87,7 +87,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    /**
     * @return the message
     */
-   public MessageInternal getMessage() {
+   public Message getMessage() {
       return message;
    }
 

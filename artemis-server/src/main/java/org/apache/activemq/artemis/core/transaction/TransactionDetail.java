@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -97,7 +97,7 @@ public abstract class TransactionDetail {
 
             msgJson.add(KEY_MSG_OP_TYPE, opType);
 
-            ServerMessage msg = ref.getMessage().copy();
+            Message msg = ref.getMessage().copy();
 
             msgJson.add(KEY_MSG_TYPE, decodeMessageType(msg));
             JsonUtil.addToObject(KEY_MSG_PROPERTIES, decodeMessageProperties(msg), msgJson);
@@ -108,7 +108,7 @@ public abstract class TransactionDetail {
       return detailJson.build();
    }
 
-   public abstract String decodeMessageType(ServerMessage msg);
+   public abstract String decodeMessageType(Message msg);
 
-   public abstract Map<String, Object> decodeMessageProperties(ServerMessage msg);
+   public abstract Map<String, Object> decodeMessageProperties(Message msg);
 }

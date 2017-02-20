@@ -17,14 +17,16 @@
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class SimpleTransformer implements Transformer {
 
    @Override
-   public ServerMessage transform(final ServerMessage message) {
+   public Message transform(final Message messageParameter) {
+      ICoreMessage message = messageParameter.toCore();
       SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
 
       if (!oldProp.equals(new SimpleString("bing"))) {

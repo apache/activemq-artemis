@@ -353,6 +353,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          }
 
          dataReceived = true;
+
          doBufferReceived(packet);
 
          super.bufferReceived(connectionID, buffer);

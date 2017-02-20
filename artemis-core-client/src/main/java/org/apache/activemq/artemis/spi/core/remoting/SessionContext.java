@@ -23,7 +23,9 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -33,8 +35,6 @@ import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -128,9 +128,9 @@ public abstract class SessionContext {
 
    }
 
-   public abstract int getCreditsOnSendingFull(MessageInternal msgI);
+   public abstract int getCreditsOnSendingFull(Message msgI);
 
-   public abstract void sendFullMessage(MessageInternal msgI,
+   public abstract void sendFullMessage(ICoreMessage msgI,
                                         boolean sendBlocking,
                                         SendAcknowledgementHandler handler,
                                         SimpleString defaultAddress) throws ActiveMQException;
@@ -142,9 +142,9 @@ public abstract class SessionContext {
     * @return
     * @throws ActiveMQException
     */
-   public abstract int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException;
+   public abstract int sendInitialChunkOnLargeMessage(Message msgI) throws ActiveMQException;
 
-   public abstract int sendLargeMessageChunk(MessageInternal msgI,
+   public abstract int sendLargeMessageChunk(Message msgI,
                                              long messageBodySize,
                                              boolean sendBlocking,
                                              boolean lastChunk,
@@ -152,7 +152,7 @@ public abstract class SessionContext {
                                              int reconnectID,
                                              SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
-   public abstract int sendServerLargeMessageChunk(MessageInternal msgI,
+   public abstract int sendServerLargeMessageChunk(Message msgI,
                                                    long messageBodySize,
                                                    boolean sendBlocking,
                                                    boolean lastChunk,
