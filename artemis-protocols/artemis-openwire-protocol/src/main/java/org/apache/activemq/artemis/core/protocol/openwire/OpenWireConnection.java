@@ -156,6 +156,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private ConnectionState state;
 
+   private volatile boolean noLocal;
+
    /**
     * Openwire doesn't sen transactions associated with any sessions.
     * It will however send beingTX / endTX as it would be doing it with XA Transactions.
@@ -834,6 +836,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void enableTtl() {
       disableTtl.set(false);
+   }
+
+   public boolean isNoLocal() {
+      return noLocal;
+   }
+
+   public void setNoLocal(boolean noLocal) {
+      this.noLocal = noLocal;
    }
 
    class SlowConsumerDetection implements SlowConsumerDetectionListener {
