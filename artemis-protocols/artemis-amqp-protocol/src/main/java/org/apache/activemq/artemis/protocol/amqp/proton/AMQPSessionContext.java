@@ -89,22 +89,6 @@ public class AMQPSessionContext extends ProtonInitializable {
       }
    }
 
-   /**
-    * The consumer object from the broker or the key used to store the sender
-    *
-    * @param message
-    * @param consumer
-    * @param deliveryCount
-    * @return the number of bytes sent
-    */
-   public int serverDelivery(Object message, Object consumer, int deliveryCount) throws Exception {
-      ProtonServerSenderContext protonSender = serverSenders.get(consumer);
-      if (protonSender != null) {
-         return protonSender.deliverMessage(message, deliveryCount);
-      }
-      return 0;
-   }
-
    public byte[] getTag() {
       return Long.toHexString(currentTag++).getBytes();
    }
