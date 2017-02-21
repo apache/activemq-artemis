@@ -27,12 +27,17 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import javax.jms.XAConnection;
 import javax.jms.XASession;
 import javax.transaction.xa.XAResource;
@@ -45,6 +50,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -490,6 +496,80 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       }
 
       session.close();
+   }
+
+   @Test
+   public void testTempTopicDelete() throws Exception {
+      connection.start();
+      TopicSession topicSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      TemporaryTopic tempTopic = topicSession.createTemporaryTopic();
+
+      ActiveMQConnection newConn = (ActiveMQConnection) factory.createConnection();
+
+      try {
+         TopicSession newTopicSession = newConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+         TopicPublisher publisher = newTopicSession.createPublisher(tempTopic);
+
+         TextMessage msg = newTopicSession.createTextMessage("Test Message");
+
+         publisher.publish(msg);
+
+         try {
+            TopicSubscriber consumer = newTopicSession.createSubscriber(tempTopic);
+            fail("should have gotten exception but got consumer: " + consumer);
+         } catch (JMSException ex) {
+            //correct
+         }
+
+         connection.close();
+
+         try {
+            Message newMsg = newTopicSession.createMessage();
+            publisher.publish(newMsg);
+         } catch (JMSException e) {
+            //ok
+         }
+
+      } finally {
+         newConn.close();
+      }
+   }
+
+   @Test
+   public void testTempQueueDelete() throws Exception {
+      connection.start();
+      QueueSession queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      TemporaryQueue tempQueue = queueSession.createTemporaryQueue();
+
+      ActiveMQConnection newConn = (ActiveMQConnection) factory.createConnection();
+      try {
+         QueueSession newQueueSession = newConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+         QueueSender queueSender = newQueueSession.createSender(tempQueue);
+
+         Message msg = queueSession.createMessage();
+         queueSender.send(msg);
+
+         try {
+            QueueReceiver consumer = newQueueSession.createReceiver(tempQueue);
+            fail("should have gotten exception but got consumer: " + consumer);
+         } catch (JMSException ex) {
+            //correct
+         }
+
+         connection.close();
+
+         try {
+            Message newMsg = newQueueSession.createMessage();
+            queueSender.send(newMsg);
+         } catch (JMSException e) {
+            //ok
+         }
+
+      } finally {
+         newConn.close();
+      }
    }
 
    @Test
