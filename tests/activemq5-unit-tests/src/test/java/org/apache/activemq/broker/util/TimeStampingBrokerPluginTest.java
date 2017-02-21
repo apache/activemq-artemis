@@ -188,7 +188,7 @@ public class TimeStampingBrokerPluginTest extends TestCase {
       consumer.close();
       consumer = session.createConsumer(session.createQueue("DLQ." + queue));
 
-      // Get mesage from DLQ
+      // Get message from DLQ
       receivedMessage = consumer.receive(1000);
 
       // assert we got the same message ID we sent

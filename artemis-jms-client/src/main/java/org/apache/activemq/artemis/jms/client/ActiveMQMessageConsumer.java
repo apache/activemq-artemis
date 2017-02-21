@@ -233,7 +233,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                throw ioob;
             }
 
-            // We Do the ack after doBeforeRecive, as in the case of large messages, this may fail so we don't want messages redelivered
+            // We Do the ack after doBeforeReceive, as in the case of large messages, this may fail so we don't want messages redelivered
             // https://issues.jboss.org/browse/JBPAPP-6110
             if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
                jmsMsg.setIndividualAcknowledge();

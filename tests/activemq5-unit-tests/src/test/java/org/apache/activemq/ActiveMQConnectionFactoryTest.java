@@ -56,7 +56,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
 
    @Override
    public void tearDown() throws Exception {
-      // Try our best to close any previously opend connection.
+      // Try our best to close any previously opened connection.
       try {
          connection.close();
       } catch (Throwable ignore) {
@@ -107,7 +107,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
    }
 
    //we don't support in-vm connector (will we?)
-   public void testCreateVMConnectionWithEmbdeddBroker() throws URISyntaxException, JMSException {
+   public void testCreateVMConnectionWithEmbeddedBroker() throws URISyntaxException, JMSException {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://myBroker2?broker.persistent=false");
       // Make sure the broker is not created until the connection is
       // instantiated.

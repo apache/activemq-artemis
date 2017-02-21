@@ -204,7 +204,7 @@ public class AdvisoryBrokerTest extends BrokerTestSupport {
       connection2.send(sessionInfo2);
       connection2.send(producerInfo2);
 
-      // We should get an advisory of the new produver.
+      // We should get an advisory of the new producer.
       Message m1 = receiveMessage(connection1);
       assertNotNull(m1);
       assertNotNull(m1.getDataStructure());
