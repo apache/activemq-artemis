@@ -298,8 +298,9 @@ public class AMQSession implements SessionCallback {
 
       ServerMessage originalCoreMsg = getConverter().inbound(messageSend);
 
-      if (connection.isNoLocal() || sessInfo.getSessionId().getValue() == -1) {
-         //Internal session is used to send advisory messages, which are always noLocal
+      if (connection.isNoLocal()) {
+         //Note: advisory messages are dealt with in
+         //OpenWireProtocolManager#fireAdvisory
          originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString(), this.connection.getState().getInfo().getConnectionId().getValue());
       }
 
@@ -446,5 +447,9 @@ public class AMQSession implements SessionCallback {
 
    public OpenWireConnection getConnection() {
       return connection;
+   }
+
+   public boolean isInternal() {
+      return sessInfo.getSessionId().getValue() == -1;
    }
 }
