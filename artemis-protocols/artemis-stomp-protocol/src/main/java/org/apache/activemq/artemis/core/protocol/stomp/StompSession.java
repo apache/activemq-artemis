@@ -177,7 +177,7 @@ public class StompSession implements SessionCallback {
                final long consumerID = consumer.getID();
 
                // this will be called after the delivery is complete
-               // we can't call sesison.ack within the delivery
+               // we can't call session.ack within the delivery
                // as it could dead lock.
                afterDeliveryTasks.offer(new PendingTask() {
                   @Override

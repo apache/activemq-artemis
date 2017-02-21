@@ -242,7 +242,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
 
       if (result == null) {
-         // we should always throw a retry for certain methods comit etc, if not the tx is marked as a heuristic and
+         // we should always throw a retry for certain methods commit etc, if not the tx is marked as a heuristic and
          // all chaos is let loose
          if (retry) {
             XAException xae = new XAException("Connection unavailable for xa recovery");

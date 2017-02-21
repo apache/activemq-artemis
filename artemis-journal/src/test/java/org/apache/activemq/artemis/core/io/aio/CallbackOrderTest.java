@@ -65,7 +65,7 @@ public class CallbackOrderTest {
 
       ArrayList<AIOSequentialFileFactory.AIOSequentialCallback> list = new ArrayList<>();
 
-      // We will repeat the teset a few times, increasing N
+      // We will repeat the test a few times, increasing N
       // to increase possibility of issues due to reuse of callbacks
       for (int n = 1; n < 100; n++) {
          System.out.println("n = " + n);

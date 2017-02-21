@@ -213,7 +213,7 @@ public interface ActiveMQServerControl {
    /**
     * Returns whether the bindings directory is created on this server startup.
     */
-   @Attribute(desc = "whether the bindings directory is created on this server startu")
+   @Attribute(desc = "whether the bindings directory is created on this server startup")
    boolean isCreateBindingsDir();
 
    /**
@@ -999,7 +999,7 @@ public interface ActiveMQServerControl {
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
                      @Parameter(name = "forwardingAddress", desc = "Forwarding address") String forwardingAddress,
-                     @Parameter(name = "filterString", desc = "Filter of the brdige") String filterString,
+                     @Parameter(name = "filterString", desc = "Filter of the bridge") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the bridge transformer") String transformerClassName,
                      @Parameter(name = "retryInterval", desc = "Connection retry interval") long retryInterval,
                      @Parameter(name = "retryIntervalMultiplier", desc = "Connection retry interval multiplier") double retryIntervalMultiplier,
@@ -1019,7 +1019,7 @@ public interface ActiveMQServerControl {
    void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
                      @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
                      @Parameter(name = "forwardingAddress", desc = "Forwarding address") String forwardingAddress,
-                     @Parameter(name = "filterString", desc = "Filter of the brdige") String filterString,
+                     @Parameter(name = "filterString", desc = "Filter of the bridge") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the bridge transformer") String transformerClassName,
                      @Parameter(name = "retryInterval", desc = "Connection retry interval") long retryInterval,
                      @Parameter(name = "retryIntervalMultiplier", desc = "Connection retry interval multiplier") double retryIntervalMultiplier,

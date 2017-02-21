@@ -333,7 +333,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    /**
     * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot
-    * not be NULL TRUE or FALSE litterals.
+    * not be NULL TRUE or FALSE literals.
     *
     * @param expr
     */

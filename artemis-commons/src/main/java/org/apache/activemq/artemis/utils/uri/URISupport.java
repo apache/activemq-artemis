@@ -255,10 +255,10 @@ public class URISupport {
 
    /**
     * Given a composite URI, parse the individual URI elements contained within that URI and return
-    * a CompsoteData instance that contains the parsed URI values.
+    * a CompositeData instance that contains the parsed URI values.
     *
     * @param uri The target URI that should be parsed.
-    * @return a new CompsiteData instance representing the parsed composite URI.
+    * @return a new CompositeData instance representing the parsed composite URI.
     * @throws java.net.URISyntaxException
     */
    public static CompositeData parseComposite(URI uri) throws URISyntaxException {
@@ -277,7 +277,7 @@ public class URISupport {
     * Examine a URI and determine if it is a Composite type or not.
     *
     * @param uri The URI that is to be examined.
-    * @return true if the given URI is a Compsote type.
+    * @return true if the given URI is a Composite type.
     */
    public static boolean isCompositeURI(URI uri) {
       String ssp = stripPrefix(uri.getRawSchemeSpecificPart().trim(), "//").trim();
@@ -333,7 +333,7 @@ public class URISupport {
     * for logging as the ssp should have already been extracted from it and passed here.
     *
     * @param uri The original source URI whose ssp is parsed into the composite data.
-    * @param rc  The CompsositeData instance that will be populated from the given ssp.
+    * @param rc  The CompositeData instance that will be populated from the given ssp.
     * @param ssp The scheme specific part from the original string that is a composite or one or more URIs.
     * @throws java.net.URISyntaxException
     */
@@ -524,10 +524,10 @@ public class URISupport {
    }
 
    /**
-    * Examine the supplied string and ensure that all parends appear as matching pairs.
+    * Examine the supplied string and ensure that all parens appear as matching pairs.
     *
     * @param str The target string to examine.
-    * @return true if the target string has valid parend pairings.
+    * @return true if the target string has valid paren pairings.
     */
    public static boolean checkParenthesis(String str) {
       boolean result = true;

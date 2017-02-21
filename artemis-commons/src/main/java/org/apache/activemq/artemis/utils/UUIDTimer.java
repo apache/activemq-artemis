@@ -25,7 +25,7 @@ import java.util.Random;
  * <li>Java classes can only product time stamps with maximum resolution of one
  * millisecond (at least before JDK 1.5). To compensate, an additional counter
  * is used, so that more than one UUID can be generated between java clock
- * updates. Counter may be used to generate up to 10000 UUIDs for each distrinct
+ * updates. Counter may be used to generate up to 10000 UUIDs for each distinct
  * java clock value.
  * <li>Due to even lower clock resolution on some platforms (older Windows
  * versions use 55 msec resolution), timestamp value can also advanced ahead of
