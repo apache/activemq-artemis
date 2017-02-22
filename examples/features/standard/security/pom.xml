@@ -56,6 +56,7 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
+                     <allowAnonymous>false</allowAnonymous>
                   </configuration>
                </execution>
                <execution>
