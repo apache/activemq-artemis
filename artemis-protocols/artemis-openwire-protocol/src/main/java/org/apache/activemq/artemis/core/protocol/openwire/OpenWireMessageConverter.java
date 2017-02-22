@@ -518,16 +518,18 @@ public class OpenWireMessageConverter implements MessageConverter {
                }
 
             } else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
-               int len = buffer.readInt();
-               bytes = new byte[len];
-               buffer.readBytes(bytes);
-               if (isCompressed) {
-                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                  try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
-                     out.write(bytes);
-                     out.flush();
+               if (buffer.readableBytes() > 0) {
+                  int len = buffer.readInt();
+                  bytes = new byte[len];
+                  buffer.readBytes(bytes);
+                  if (isCompressed) {
+                     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+                     try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
+                        out.write(bytes);
+                        out.flush();
+                     }
+                     bytes = bytesOut.toByteArray();
                   }
-                  bytes = bytesOut.toByteArray();
                }
             } else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE) {
                org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
