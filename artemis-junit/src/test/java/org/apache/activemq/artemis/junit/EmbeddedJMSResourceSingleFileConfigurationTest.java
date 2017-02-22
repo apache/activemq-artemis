@@ -58,7 +58,7 @@ public class EmbeddedJMSResourceSingleFileConfigurationTest {
       connectionFactory = new ActiveMQConnectionFactory(jmsServer.getVmURL());
       connection = connectionFactory.createConnection();
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      consumer = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQDestination.createDestination(TEST_TOPIC, ActiveMQDestination.TOPIC_TYPE));
+      consumer = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQDestination.createDestination(TEST_TOPIC, ActiveMQDestination.TYPE.TOPIC));
       connection.start();
    }
 

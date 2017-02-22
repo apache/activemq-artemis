@@ -571,7 +571,7 @@ public class ArtemisTest extends CliTestBase {
          ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
          Connection connection = cf.createConnection("admin", "admin");
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://TEST", ActiveMQDestination.QUEUE_TYPE));
+         MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://TEST", ActiveMQDestination.TYPE.QUEUE));
 
          TextMessage message = session.createTextMessage("Banana");
          message.setStringProperty("fruit", "banana");
