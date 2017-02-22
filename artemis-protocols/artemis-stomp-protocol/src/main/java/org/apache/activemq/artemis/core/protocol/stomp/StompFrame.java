@@ -171,6 +171,10 @@ public class StompFrame {
    }
 
    public String encode(String str) {
+      if (str == null) {
+         return "";
+      }
+
       int len = str.length();
 
       char[] buffer = new char[2 * len];
