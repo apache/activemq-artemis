@@ -215,7 +215,9 @@ public class AMQConsumer {
             return 0;
          }
 
-         if (session.getConnection().isNoLocal()) {
+         if (session.getConnection().isNoLocal() || session.isInternal()) {
+            //internal session always delivers messages to noLocal advisory consumers
+            //so we need to remove this property too.
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
          dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
