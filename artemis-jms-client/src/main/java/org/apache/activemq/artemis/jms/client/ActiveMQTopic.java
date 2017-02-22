@@ -44,7 +44,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    }
 
    public ActiveMQTopic(final String name, boolean temporary) {
-      super(name, name, temporary, false, null);
+      super(name, name, TYPE.TOPIC, null);
    }
 
    /**
@@ -54,7 +54,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
     * @param session
     */
    protected ActiveMQTopic(String address, String name, boolean temporary, ActiveMQSession session) {
-      super(address, name, temporary, false, session);
+      super(address, name, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
    }
 
    // Topic implementation ------------------------------------------

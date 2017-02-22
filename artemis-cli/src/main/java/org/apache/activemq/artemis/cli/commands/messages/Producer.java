@@ -52,7 +52,7 @@ public class Producer extends DestAbstract {
 
       ActiveMQConnectionFactory factory = createConnectionFactory();
 
-      Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.QUEUE_TYPE);
+      Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.TYPE.QUEUE);
       try (Connection connection = factory.createConnection()) {
          ProducerThread[] threadsArray = new ProducerThread[threads];
          for (int i = 0; i < threads; i++) {
