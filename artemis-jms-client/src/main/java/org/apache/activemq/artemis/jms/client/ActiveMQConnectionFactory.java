@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
@@ -297,7 +298,9 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          case JMSContext.AUTO_ACKNOWLEDGE:
          case JMSContext.CLIENT_ACKNOWLEDGE:
          case JMSContext.DUPS_OK_ACKNOWLEDGE:
-         case JMSContext.SESSION_TRANSACTED: {
+         case JMSContext.SESSION_TRANSACTED:
+         case ActiveMQJMSConstants.PRE_ACKNOWLEDGE:
+         case ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE: {
             return;
          }
          default:
