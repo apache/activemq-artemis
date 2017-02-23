@@ -187,7 +187,7 @@ public class ConsumerTest extends JMSTestBase {
    @Test
    public void testIndividualACKJms2() throws Exception {
       JMSContext context = cf.createContext(ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
-      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       JMSProducer producer = context.createProducer();
       JMSConsumer consumer = context.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -224,8 +224,8 @@ public class ConsumerTest extends JMSTestBase {
          Assert.assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
+      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       context.close();
    }
