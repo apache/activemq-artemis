@@ -41,11 +41,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
    // Constructors --------------------------------------------------
 
    public ActiveMQQueue(final String name) {
-      super(name, name, false, true, null);
+      super(name, name, TYPE.QUEUE, null);
    }
 
    public ActiveMQQueue(final String name, boolean temporary) {
-      super(name, name, temporary, true, null);
+      super(name, name, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, null);
    }
 
    /**
@@ -55,11 +55,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
     * @param session
     */
    public ActiveMQQueue(String address, String name, boolean temporary, ActiveMQSession session) {
-      super(address, name, temporary, true, session);
+      super(address, name, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, session);
    }
 
    public ActiveMQQueue(final String address, final String name) {
-      super(address, name, false, true, null);
+      super(address, name, TYPE.QUEUE, null);
    }
 
    // Queue implementation ------------------------------------------

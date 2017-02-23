@@ -73,7 +73,7 @@ public class EmbeddedJMSResourceTopicTest {
       connectionFactory = new ActiveMQConnectionFactory(jmsServer.getVmURL());
       connection = connectionFactory.createConnection();
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      consumer = session.createConsumer(ActiveMQDestination.createDestination(TEST_DESTINATION_NAME, ActiveMQDestination.TOPIC_TYPE));
+      consumer = session.createConsumer(ActiveMQDestination.createDestination(TEST_DESTINATION_NAME, ActiveMQDestination.TYPE.TOPIC));
       connection.start();
    }
 

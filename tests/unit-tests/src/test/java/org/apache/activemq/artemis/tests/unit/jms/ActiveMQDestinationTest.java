@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms;
 
-import javax.jms.JMSRuntimeException;
+import javax.jms.Destination;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
@@ -77,11 +77,8 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String invalidPrefix = "junk";
       String destinationName = RandomUtil.randomString();
       String address = invalidPrefix + destinationName;
-      try {
-         ActiveMQDestination.fromPrefixedName(address);
-         Assert.fail("IllegalArgumentException");
-      } catch (JMSRuntimeException e) {
-      }
+      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
+      Assert.assertTrue(destination instanceof Destination);
    }
 
    // Package protected ---------------------------------------------

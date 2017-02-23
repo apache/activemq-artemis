@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 public class ServerDestination extends ActiveMQDestination implements Queue {
 
    public ServerDestination(String name) {
-      super(name, name, false, false, null);
+      super(name, name, TYPE.DESTINATION, null);
    }
 
    @Override
