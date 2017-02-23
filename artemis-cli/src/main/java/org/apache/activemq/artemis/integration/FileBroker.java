@@ -118,15 +118,19 @@ public class FileBroker implements Broker {
    }
 
    @Override
-   public void stop(boolean isShutdown) throws Exception {
+   public void exit() throws Exception {
+      stop(true);
+   }
+
+   private void stop(boolean isShutdown) throws Exception {
       if (!started) {
          return;
       }
       ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
       components.values().toArray(mqComponents);
       for (int i = mqComponents.length - 1; i >= 0; i--) {
-         if (mqComponents[i] instanceof ServiceComponent) {
-            ((ServiceComponent)mqComponents[i]).stop(isShutdown);
+         if (mqComponents[i] instanceof ServiceComponent && isShutdown) {
+            ((ServiceComponent) mqComponents[i]).exit();
          } else {
             mqComponents[i].stop();
          }
