@@ -130,6 +130,7 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
@@ -335,7 +336,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       @Override
       public void stop() throws Exception {
-         internalStop();
+         internalStop(false);
       }
 
       @Override
@@ -668,16 +669,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void exit() throws Exception {
+      internalStop(true);
+   }
+
+   @Override
    public final void stop() throws Exception {
+      internalStop(false);
+   }
+
+   private void internalStop(boolean isExit) throws Exception {
       try {
-         internalStop();
+         stop(false, isExit);
       } finally {
          networkHealthCheck.stop();
       }
-   }
-
-   private void internalStop() throws Exception {
-      stop(false);
    }
 
    @Override
@@ -810,7 +816,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public final void stop(boolean failoverOnServerShutdown) throws Exception {
-      stop(failoverOnServerShutdown, false, false);
+      stop(failoverOnServerShutdown, false, false, false);
+   }
+
+   public final void stop(boolean failoverOnServerShutdown, boolean isExit) throws Exception {
+      stop(failoverOnServerShutdown, false, false, isExit);
    }
 
    @Override
@@ -830,12 +840,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
+      this.stop(failoverOnServerShutdown, criticalIOError, restarting, false);
+   }
+
    /**
     * Stops the server
     *
     * @param criticalIOError whether we have encountered an IO error with the journal etc
     */
-   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
+   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isExit) {
 
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
@@ -1024,7 +1038,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       for (ActiveMQComponent externalComponent : externalComponents) {
          try {
-            externalComponent.stop();
+            if (isExit && externalComponent instanceof ServiceComponent) {
+               ((ServiceComponent)externalComponent).exit();
+            } else {
+               externalComponent.stop();
+            }
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(e, externalComponent.getClass().getName());
          }
