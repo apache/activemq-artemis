@@ -1287,6 +1287,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222216, value = "Security problem while creating session: {0}", format = Message.Format.MESSAGE_FORMAT)
    void securityProblemWhileCreatingSession(String message);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222217, value = "Cannot find connector-ref {0}. The cluster-connection {1} will not be deployed.", format = Message.Format.MESSAGE_FORMAT)
+   void connectorRefNotFound(String connectorRef, String clusterConnection);
+
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

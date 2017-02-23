@@ -317,6 +317,10 @@ public class ClusterController implements ActiveMQComponent {
 
       @Override
       public void handlePacket(Packet packet) {
+         if (!isStarted()) {
+            return;
+         }
+
          if (!authorized) {
             if (packet.getType() == PacketImpl.CLUSTER_CONNECT) {
                ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
