@@ -185,6 +185,52 @@ public class JmsConsumerTest extends JMSTestBase {
    }
 
    @Test
+   public void testIndividualACKJms2() throws Exception {
+      JMSContext context = cf.createContext(ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      jBossQueue = ActiveMQJMSClient.createQueue(JmsConsumerTest.Q_NAME);
+      JMSProducer producer = context.createProducer();
+      JMSConsumer consumer = context.createConsumer(jBossQueue);
+      int noOfMessages = 100;
+      for (int i = 0; i < noOfMessages; i++) {
+         producer.send(jBossQueue, context.createTextMessage("m" + i));
+      }
+
+      context.start();
+
+      // Consume even numbers first
+      for (int i = 0; i < noOfMessages; i++) {
+         Message m = consumer.receive(500);
+         Assert.assertNotNull(m);
+         if (i % 2 == 0) {
+            m.acknowledge();
+         }
+      }
+
+      context.close();
+
+      context = cf.createContext(ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+
+      consumer = context.createConsumer(jBossQueue);
+
+      // Consume odd numbers first
+      for (int i = 0; i < noOfMessages; i++) {
+         if (i % 2 == 0) {
+            continue;
+         }
+
+         TextMessage m = (TextMessage) consumer.receive(1000);
+         Assert.assertNotNull(m);
+         m.acknowledge();
+         Assert.assertEquals("m" + i, m.getText());
+      }
+
+      SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      context.close();
+   }
+
+   @Test
    public void testIndividualACKMessageConsumer() throws Exception {
       Connection conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
