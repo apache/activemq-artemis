@@ -64,7 +64,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  * <p>
  * This is not part of our public API.
  */
-public interface ActiveMQServer extends ActiveMQComponent {
+public interface ActiveMQServer extends ServiceComponent {
 
    /**
     * Sets the server identity.
