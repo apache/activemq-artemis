@@ -1404,6 +1404,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String connectorName = getString(e, "connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
 
+      if (!mainConfig.getConnectorConfigurations().containsKey(connectorName)) {
+         ActiveMQServerLogger.LOGGER.connectorRefNotFound(connectorName, name);
+         return;
+      }
+
       boolean duplicateDetection = getBoolean(e, "use-duplicate-detection", ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection());
 
       MessageLoadBalancingType messageLoadBalancingType;
