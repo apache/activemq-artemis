@@ -21,5 +21,6 @@ package org.apache.activemq.artemis.core.server;
  */
 public interface ServiceComponent extends ActiveMQComponent {
 
-   void stop(boolean isShutdown) throws Exception;
+   //called by shutdown hooks before exit the VM
+   void exit() throws Exception;
 }

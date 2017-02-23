@@ -150,6 +150,7 @@ public class WebServerComponent implements ExternalComponent {
                //somehow when broker is stopped and restarted quickly
                //this tmpdir won't get deleted sometimes
                boolean fileDeleted = TimeUtils.waitOnBoolean(false, 5000, tmpdir::exists);
+
                if (!fileDeleted) {
                   //because the execution order of shutdown hooks are
                   //not determined, so it's possible that the deleteOnExit
@@ -190,6 +191,10 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    @Override
+   public void exit() throws Exception {
+      stop(true);
+   }
+
    public void stop(boolean isShutdown) throws Exception {
       if (isShutdown) {
          internalStop();
