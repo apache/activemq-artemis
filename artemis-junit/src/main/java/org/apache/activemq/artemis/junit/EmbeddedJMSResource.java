@@ -333,7 +333,7 @@ public class EmbeddedJMSResource extends ExternalResource {
     */
    public Queue getDestinationQueue(String destinationName) {
       Queue queue = null;
-      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.QUEUE_TYPE);
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.TYPE.QUEUE);
       String address = destination.getAddress();
       String name = destination.getName();
       if (destination.isQueue()) {
@@ -368,7 +368,7 @@ public class EmbeddedJMSResource extends ExternalResource {
     */
    public List<Queue> getTopicQueues(String topicName) {
       List<Queue> queues = new LinkedList<>();
-      ActiveMQDestination destination = ActiveMQDestination.createDestination(topicName, ActiveMQDestination.TOPIC_TYPE);
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(topicName, ActiveMQDestination.TYPE.TOPIC);
       if (!destination.isQueue()) {
          BindingQueryResult bindingQueryResult = null;
          try {
@@ -405,7 +405,7 @@ public class EmbeddedJMSResource extends ExternalResource {
     */
    public long getMessageCount(String destinationName) {
       long count = 0;
-      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.QUEUE_TYPE);
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.TYPE.QUEUE);
       if (destination.isQueue()) {
          Queue queue = getDestinationQueue(destinationName);
          if (queue == null) {
@@ -529,7 +529,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       } else if (message == null) {
          throw new IllegalArgumentException("sendMessage failure - a Message is required");
       }
-      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.QUEUE_TYPE);
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.TYPE.QUEUE);
 
       getInternalClient().pushMessage(destination, message);
    }
