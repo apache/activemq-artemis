@@ -100,13 +100,21 @@ public class InputAbstract extends ActionAbstract {
          return silentDefault;
       }
 
-      String inputStr;
+      String inputStr = "";
       boolean valid = false;
       System.out.println();
       do {
          context.out.println(propertyName + ": is mandatory with this configuration:");
          context.out.println(prompt);
-         inputStr = new String(System.console().readPassword());
+         char[] chars = System.console().readPassword();
+
+         // could be null if the user input something weird like Ctrl-d
+         if (chars == null) {
+            System.out.println("Invalid Entry!");
+            continue;
+         }
+
+         inputStr = new String(chars);
 
          if (inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
