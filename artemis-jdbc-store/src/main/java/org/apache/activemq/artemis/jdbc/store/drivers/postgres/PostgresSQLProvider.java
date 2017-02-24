@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 public class PostgresSQLProvider extends GenericSQLProvider {
 
    // BYTEA Size used in Journal
-   private static final int MAX_BLOB_SIZE = 1024 * 1024 * 1024; // 1GB
+   private static final long MAX_BLOB_SIZE = 1024 * 1024 * 1024; // 1GB
 
    private final String createFileTableSQL;
 
@@ -50,7 +50,7 @@ public class PostgresSQLProvider extends GenericSQLProvider {
    }
 
    @Override
-   public int getMaxBlobSize() {
+   public long getMaxBlobSize() {
       return MAX_BLOB_SIZE;
    }
 
