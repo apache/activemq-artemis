@@ -90,7 +90,8 @@ public final class SpawnedVMSupport {
                                  final String... args) throws Exception {
       ProcessBuilder builder = new ProcessBuilder();
       final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
-      builder.command(javaPath, memoryArg1, memoryArg2, "-cp", System.getProperty("java.class.path"));
+      builder.command(javaPath, memoryArg1, memoryArg2);
+      builder.environment().put("CLASSPATH", System.getProperty("java.class.path"));
 
       List<String> commandList = builder.command();
 

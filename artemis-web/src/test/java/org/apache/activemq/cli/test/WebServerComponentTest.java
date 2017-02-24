@@ -20,6 +20,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +45,9 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +58,21 @@ public class WebServerComponentTest extends Assert {
    static final String SECURE_URL = System.getProperty("url", "https://localhost:8448/WebServerComponentTest.txt");
    private Bootstrap bootstrap;
    private EventLoopGroup group;
+   private List<ActiveMQComponent> testedComponents;
 
    @Before
    public void setupNetty() throws URISyntaxException {
       // Configure the client.
       group = new NioEventLoopGroup();
       bootstrap = new Bootstrap();
+      testedComponents = new ArrayList<>();
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      for (ActiveMQComponent c : testedComponents) {
+         c.stop();
+      }
    }
 
    @Test
@@ -70,6 +83,7 @@ public class WebServerComponentTest extends Assert {
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
       webServerComponent.start();
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
@@ -152,6 +166,7 @@ public class WebServerComponentTest extends Assert {
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
       webServerComponent.start();
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
@@ -205,6 +220,7 @@ public class WebServerComponentTest extends Assert {
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
       webServerComponent.start();
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
