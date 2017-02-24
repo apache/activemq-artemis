@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.jdbc.store.sql;
 public class GenericSQLProvider implements SQLProvider {
 
    // Default to lowest (MYSQL = 64k)
-   private static final int MAX_BLOB_SIZE = 64512;
+   private static final long MAX_BLOB_SIZE = 64512;
 
    protected final String tableName;
 
@@ -101,7 +101,7 @@ public class GenericSQLProvider implements SQLProvider {
    }
 
    @Override
-   public int getMaxBlobSize() {
+   public long getMaxBlobSize() {
       return MAX_BLOB_SIZE;
    }
 
