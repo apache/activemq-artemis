@@ -206,9 +206,9 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    protected void after() {
       log.info("Stopping {}: {}", this.getClass().getSimpleName(), getServerName());
 
-      super.after();
-
       this.stop();
+
+      super.after();
    }
 
    public boolean isUseDurableMessage() {
