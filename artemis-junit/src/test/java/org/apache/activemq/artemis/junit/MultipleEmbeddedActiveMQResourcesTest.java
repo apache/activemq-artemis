@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.junit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +55,12 @@ public class MultipleEmbeddedActiveMQResourcesTest {
    public void setUp() throws Exception {
       serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
       serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);
+   }
+
+   @After
+   public void tearDown() {
+      serverOne.stop();
+      serverTwo.stop();
    }
 
    @Test

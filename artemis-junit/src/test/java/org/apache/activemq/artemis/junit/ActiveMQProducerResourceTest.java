@@ -55,6 +55,7 @@ public class ActiveMQProducerResourceTest {
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
 
+
    ClientMessage sent = null;
 
    @After
