@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -134,30 +133,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "${noServer}")
    boolean ignore;
 
-   /**
-    * Validate if the directory is a artemis.home *
-    *
-    * @param path
-    * @return
-    */
-   private boolean lookupHome(Path path) {
-
-      if (path == null) {
-         return false;
-      }
-
-      Path binFolder = path.resolve("bin");
-
-      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS)) {
-         return false;
-      }
-
-      Path artemisScript = binFolder.resolve("artemis");
-
-      return artemisScript != null && Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
-
-   }
-
    private void add(List<String> list, String... str) {
       for (String s : str) {
          list.add(s);
@@ -174,8 +149,8 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       getLog().info("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!lookupHome(home.toPath())) {
-         if (lookupHome(alternateHome.toPath())) {
+      if (!isArtemisHome(home.toPath())) {
+         if (isArtemisHome(alternateHome.toPath())) {
             home = alternateHome;
          } else {
             getLog().error("********************************************************************************************");
