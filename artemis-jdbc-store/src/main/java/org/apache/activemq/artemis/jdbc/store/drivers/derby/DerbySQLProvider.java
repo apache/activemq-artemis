@@ -35,7 +35,7 @@ public class DerbySQLProvider extends GenericSQLProvider {
    }
 
    @Override
-   public int getMaxBlobSize() {
+   public long getMaxBlobSize() {
       return MAX_BLOB_SIZE;
    }
 

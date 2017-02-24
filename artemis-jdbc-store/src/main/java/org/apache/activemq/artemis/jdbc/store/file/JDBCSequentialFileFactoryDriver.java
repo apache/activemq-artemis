@@ -342,7 +342,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       }
    }
 
-   public int getMaxSize() {
+   public long getMaxSize() {
       return sqlProvider.getMaxBlobSize();
    }
 }
