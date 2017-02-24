@@ -68,6 +68,8 @@ public class ActiveMQConsumerResourceTest {
 
       ClientMessage received = consumer.receiveMessage();
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+
+      server.stop();
    }
 
    @Test

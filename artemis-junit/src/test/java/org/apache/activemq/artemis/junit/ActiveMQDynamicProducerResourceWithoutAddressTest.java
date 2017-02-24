@@ -45,6 +45,9 @@ public class ActiveMQDynamicProducerResourceWithoutAddressTest {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
       TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
    }
 
    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
@@ -82,6 +85,8 @@ public class ActiveMQDynamicProducerResourceWithoutAddressTest {
 
       ClientMessage receivedTwo = server.receiveMessage(TEST_QUEUE_TWO);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedTwo);
+
+      server.stop();
    }
 
    @Test

@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -36,6 +37,12 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
+   static {
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
+      ThreadLeakCheckRule.addKownThread("SeedGenerator Thread");
+   }
+
    CoreQueueConfiguration queueConfiguration = new CoreQueueConfiguration().setAddress(TEST_ADDRESS).setName(TEST_QUEUE);
    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
@@ -43,6 +50,11 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
 
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+
+   @After
+   public void tear() {
+      server.stop();
+   }
 
    @Test
    public void testCustomConfiguration() throws Exception {

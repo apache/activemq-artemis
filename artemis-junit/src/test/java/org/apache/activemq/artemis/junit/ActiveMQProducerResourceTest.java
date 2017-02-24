@@ -43,6 +43,9 @@ public class ActiveMQProducerResourceTest {
       TEST_PROPERTIES = new HashMap<String, Object>(2);
       TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
       TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
    }
 
    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
@@ -51,6 +54,7 @@ public class ActiveMQProducerResourceTest {
 
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
+
 
    ClientMessage sent = null;
 

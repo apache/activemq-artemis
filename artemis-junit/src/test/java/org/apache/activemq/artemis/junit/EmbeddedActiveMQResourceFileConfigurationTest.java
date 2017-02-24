@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -32,10 +33,21 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
+   static {
+      ThreadLeakCheckRule.addKownThread("MemoryPoolMXBean notification dispatcher");
+      ThreadLeakCheckRule.addKownThread("threadDeathWatcher");
+      ThreadLeakCheckRule.addKownThread("SeedGenerator Thread");
+   }
+
    private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource("embedded-artemis-server.xml");
 
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+
+   @After
+   public void tear() {
+      server.stop();
+   }
 
    @Test
    public void testConfiguredQueue() throws Exception {
