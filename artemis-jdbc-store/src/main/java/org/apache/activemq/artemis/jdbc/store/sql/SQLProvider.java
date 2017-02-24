@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.jdbc.store.sql;
 
 public interface SQLProvider {
 
-   int getMaxBlobSize();
+   long getMaxBlobSize();
 
    String[] getCreateJournalTableSQL();
 
