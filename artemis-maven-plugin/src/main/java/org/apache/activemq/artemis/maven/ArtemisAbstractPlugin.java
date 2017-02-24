@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.maven;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,6 +77,15 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          // Notice this has no implementations if you are using spawn
          LockAbstract.unlock();
       }
+   }
+
+   boolean isArtemisHome(Path path) {
+      if (path == null) {
+         return false;
+      }
+
+      Path artemisScript = path.resolve("bin").resolve("artemis");
+      return Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
    }
 
    protected abstract boolean isIgnore();

@@ -17,9 +17,6 @@
 package org.apache.activemq.artemis.maven;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 
 import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
@@ -70,30 +67,6 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String testPassword = null;
 
-   /**
-    * Validate if the directory is a artemis.home *
-    *
-    * @param path
-    * @return
-    */
-   private boolean lookupHome(Path path) {
-
-      if (path == null) {
-         return false;
-      }
-
-      Path binFolder = path.resolve("bin");
-
-      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS)) {
-         return false;
-      }
-
-      Path artemisScript = binFolder.resolve("artemis");
-
-      return artemisScript != null && Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
-
-   }
-
    @Override
    protected boolean isIgnore() {
       return ignore;
@@ -106,8 +79,8 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-      if (!lookupHome(home.toPath())) {
-         if (lookupHome(alternateHome.toPath())) {
+      if (!isArtemisHome(home.toPath())) {
+         if (isArtemisHome(alternateHome.toPath())) {
             home = alternateHome;
          } else {
             getLog().error("********************************************************************************************");
