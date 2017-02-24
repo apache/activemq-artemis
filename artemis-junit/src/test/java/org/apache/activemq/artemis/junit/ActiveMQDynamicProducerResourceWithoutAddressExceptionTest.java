@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +45,11 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
    ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
+
+   @After
+   public void tear() {
+      server.stop();
+   }
 
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);

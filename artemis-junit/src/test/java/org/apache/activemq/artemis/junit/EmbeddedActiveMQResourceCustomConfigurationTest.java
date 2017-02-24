@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -49,6 +50,11 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
 
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+
+   @After
+   public void tear() {
+      server.stop();
+   }
 
    @Test
    public void testCustomConfiguration() throws Exception {
