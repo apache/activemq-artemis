@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -42,6 +43,11 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
 
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+
+   @After
+   public void tear() {
+      server.stop();
+   }
 
    @Test
    public void testConfiguredQueue() throws Exception {

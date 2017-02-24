@@ -77,6 +77,8 @@ public class ActiveMQDynamicProducerResourceTest {
 
       ClientMessage receivedTwo = server.receiveMessage(TEST_QUEUE_TWO);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedTwo);
+
+      server.stop();
    }
 
    @Test

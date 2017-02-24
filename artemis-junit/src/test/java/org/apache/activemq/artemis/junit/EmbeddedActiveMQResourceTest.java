@@ -75,6 +75,8 @@ public class EmbeddedActiveMQResourceTest {
 
       ClientMessage received = server.receiveMessage(TEST_QUEUE);
       assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+
+      server.stop();
    }
 
    @Test
