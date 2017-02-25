@@ -5,15 +5,19 @@ Now that we have our acceptors and addresses ready, it's time to deal with broke
  
  Both ActiveMQ and Artemis use JAAS to define authentication credentials. In ActiveMQ, that's configured through the appropriate broker plugin in `conf/activemq.xml`
 
-    <plugins>
-      <jaasAuthenticationPlugin configuration="activemq" />
-    </plugins>
+```xml
+<plugins>
+  <jaasAuthenticationPlugin configuration="activemq" />
+</plugins>
+```
     
 The name of the JAAS domain is specified as a configuration parameter.    
     
 In Artemis, the same thing is achieved by defining `<jaas-security>` configuration in `etc/bootstrap.xml`
 
-    <jaas-security domain="activemq"/>
+```xml
+<jaas-security domain="activemq"/>
+```
     
 From this point on, you can go and define your users and their roles in appropriate files, like `conf/users.properties` and `conf/groups.properties` in ActiveMQ. Similarly, `etc/artemis-users.properties` and `etc/artemis-roles.properties` files are used in Artemis. These files are intechangable, so you should be able to just copy your existing configuration over to the new broker. 
 
