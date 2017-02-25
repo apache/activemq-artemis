@@ -5,26 +5,29 @@ We already talked about addressing differences between ActiveMQ and Artemis in t
  
 In ActiveMQ, destinations are pre-defined in the `<destinations>` section of the `conf/activemq.xml` configuration file.
 
-    <destinations>
-         <queue physicalName="my-queue" />
-         <topic physicalName="my-topic" />
-	</destinations>	
+```xml
+<destinations>
+     <queue physicalName="my-queue" />
+     <topic physicalName="my-topic" />
+</destinations>	
+```
 
 Things looks a bit different in Artemis. We already explained that queues are `anycast` addresses and topics are `muticast` ones. We're not gonna go deep into the address settings details here and you're advised to look at the user manual for that. Let's just see what we need to do in order to replicate ActiveMQ configuration. 
 
 Addresses are defined in `<addresses>` section of the `etc/broker.xml` configuration file. So the corresponding Artemis configuration for the ActiveMQ example above, looks like this:
 
-    <addresses>    
-        <address name="my-queue">
-            <anycast>
-                <queue name="my-queue"/>
-            </anycast>
-        </address>
+```xml
+<addresses>    
+    <address name="my-queue">
+        <anycast>
+            <queue name="my-queue"/>
+        </anycast>
+    </address>
 
-        <address name="my-topic">
-            <multicast></multicast>
-        </address>
-    </adresses>
+    <address name="my-topic">
+        <multicast></multicast>
+    </address>
+</adresses>
+```
     
-After this step we have our destinations ready in the new broker.    
-        
+After this step we have our destinations ready in the new broker.
