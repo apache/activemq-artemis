@@ -3078,7 +3078,7 @@ public class QueueImpl implements Queue {
    void scheduleSlowConsumerReaper(AddressSettings settings) {
       slowConsumerReaperRunnable = new SlowConsumerReaperRunnable(settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerThreshold(), settings.getSlowConsumerPolicy());
 
-      slowConsumerReaperFuture = scheduledExecutor.scheduleWithFixedDelay(slowConsumerReaperRunnable, settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerCheckPeriod(), TimeUnit.SECONDS);
+      slowConsumerReaperFuture = scheduledExecutor.scheduleWithFixedDelay(slowConsumerReaperRunnable, settings.getSlowConsumerCheckPeriod(), settings.getSlowConsumerCheckPeriod(), TimeUnit.MINUTES);
 
       if (logger.isDebugEnabled()) {
          logger.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() +
