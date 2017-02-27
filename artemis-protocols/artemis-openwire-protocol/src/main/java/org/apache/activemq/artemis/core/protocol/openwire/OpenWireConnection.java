@@ -289,7 +289,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             if (responseRequired) {
                if (response == null) {
                   response = new Response();
-                  response.setCorrelationId(command.getCommandId());
+                  response.setCorrelationId(commandId);
                }
             }
 
@@ -339,6 +339,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void sendException(Exception e) {
       Response resp = convertException(e);
+      if (context != null) {
+         Command command = context.getLastCommand();
+         if (command != null) {
+            resp.setCorrelationId(command.getCommandId());
+         }
+      }
       try {
          dispatch(resp);
       } catch (IOException e2) {
