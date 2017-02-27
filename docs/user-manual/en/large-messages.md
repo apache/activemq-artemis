@@ -196,7 +196,7 @@ msg.saveOutputStream(someOutputStream);
 ClientMessage msg2 = consumer.receive(...);
 
 // This will not wait the transfer to finish
-msg.setOutputStream(someOtherOutputStream);
+msg2.setOutputStream(someOtherOutputStream);
 ```
 
 Set the input stream when sending a core message:
