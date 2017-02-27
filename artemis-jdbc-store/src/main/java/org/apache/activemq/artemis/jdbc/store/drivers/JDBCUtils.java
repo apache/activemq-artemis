@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.mysql.MySQLSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.oracle.Oracle12CSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -40,6 +41,9 @@ public class JDBCUtils {
       } else if (url.contains("mysql")) {
          logger.tracef("getSQLProvider Returning mysql SQL provider for url::%s", url);
          factory = new MySQLSQLProvider.Factory();
+      } else if (url.contains("oracle")) {
+         logger.tracef("getSQLProvider Returning Oracle12C SQL provider for url::%s", url);
+         factory = new Oracle12CSQLProvider.Factory();
       } else {
          logger.tracef("getSQLProvider Returning generic SQL provider for url::%s", url);
          factory = new GenericSQLProvider.Factory();
@@ -58,6 +62,9 @@ public class JDBCUtils {
       } else if (driverClass.contains("mysql")) {
          logger.tracef("getSQLProvider Returning mysql SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new MySQLSQLProvider.Factory();
+      } else if (driverClass.contains("oracle")) {
+         logger.tracef("getSQLProvider Returning Oracle12C SQL provider for driver::%s, tableName::%s", driverClass, tableName);
+         factory = new Oracle12CSQLProvider.Factory();
       } else {
          logger.tracef("getSQLProvider Returning generic SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new GenericSQLProvider.Factory();
