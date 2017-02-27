@@ -28,31 +28,40 @@ Finally, we have JAAS configuration files (`login.config`, `artemis-users.proper
 
 After this brief walk through the location of different configuration aspects of Artemis, we're ready to start the broker. If you wish to start the broker in the foreground, you should execute
 
-	$ bin/artemis run
+```sh
+$ bin/artemis run
+```
 
 This is the same as
 
-	$ bin/activemq console
-
+```sh
+$ bin/activemq console
+```
 command in ActiveMQ.
 
 For running the broker as a service, Artemis provides a separate shell script `bin/artemis-service`. So you can run the broker in the background like
-
-	$ bin/artemis-service start
+```sh
+$ bin/artemis-service start
+```
 
 This is the same as running ActiveMQ with
-
- 	$ bin/activemq start
+```sh
+$ bin/activemq start
+```
 
 After the start, you can check the broker status in `logs/artemis.log` file.
 
 Congratulations, you have your Artemis broker up and running. By default, Artemis starts *Openwire* connector on the same port as ActiveMQ, so clients can connect. To test this you can go to your existing ActiveMQ instance and run the following commands.
 
-	$ bin/activemq producer
-	$ bin/activemq consumer
+````sh
+$ bin/activemq producer
+$ bin/activemq consumer
+````
 
 You should see the messages flowing through the broker. Finally, we can stop the broker with
 
-	$ bin/artemis-service stop
+```sh
+$ bin/artemis-service stop
+```
 
 With this, our orienteering session around Artemis is finished. In the following articles we'll start digging deeper into the configuration details and differences between two brokers and see how that can affect your messaging applications.
