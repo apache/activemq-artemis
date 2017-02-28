@@ -97,6 +97,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.jboss.logging.Logger;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * A Deployer used to create and add to Bindings queues, topics and connection
@@ -1718,11 +1719,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          Element e = XMLUtil.stringToElement(xml);
 
          if (config instanceof FileJMSConfiguration) {
-            ((FileJMSConfiguration) config).parse(e, url);
-
-            JMSServerManagerImpl.this.deploy();
+            NodeList children = e.getElementsByTagName("jms");
+            //if the "jms" element exists then parse it
+            if (children.getLength() > 0) {
+               ((FileJMSConfiguration) config).parse((Element) children.item(0), url);
+               JMSServerManagerImpl.this.deploy();
+            }
          }
-
       }
    }
 
