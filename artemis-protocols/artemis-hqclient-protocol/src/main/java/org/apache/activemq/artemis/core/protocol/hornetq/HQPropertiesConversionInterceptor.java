@@ -28,6 +28,10 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
 
    private final boolean replaceHQ;
 
+   public HQPropertiesConversionInterceptor() {
+      this(true);
+   }
+   
    public HQPropertiesConversionInterceptor(final boolean replaceHQ) {
       this.replaceHQ = replaceHQ;
    }
