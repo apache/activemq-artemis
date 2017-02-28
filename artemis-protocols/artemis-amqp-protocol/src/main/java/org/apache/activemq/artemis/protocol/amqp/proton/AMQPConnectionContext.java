@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -46,6 +49,12 @@ import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
 
 import io.netty.buffer.ByteBuf;
+
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
 
 public class AMQPConnectionContext extends ProtonInitializable {
 
@@ -206,6 +215,21 @@ public class AMQPConnectionContext extends ProtonInitializable {
    }
 
    public Symbol[] getConnectionCapabilitiesOffered() {
+      URI tc = connectionCallback.getFailoverList();
+      if (tc != null) {
+         Map<Symbol,Object> hostDetails = new HashMap<>();
+         hostDetails.put(NETWORK_HOST, tc.getHost());
+         boolean isSSL = tc.getQuery().contains(TransportConstants.SSL_ENABLED_PROP_NAME + "=true");
+         if (isSSL) {
+            hostDetails.put(SCHEME, "amqps");
+         } else {
+            hostDetails.put(SCHEME, "amqp");
+         }
+         hostDetails.put(HOSTNAME, tc.getHost());
+         hostDetails.put(PORT, tc.getPort());
+
+         connectionProperties.put(FAILOVER_SERVER_LIST,  Arrays.asList(hostDetails));
+      }
       return ExtCapability.getCapabilities();
    }
 

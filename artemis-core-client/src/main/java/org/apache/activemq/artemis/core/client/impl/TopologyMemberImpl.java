@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Pair;
@@ -127,6 +129,22 @@ public final class TopologyMemberImpl implements TopologyMember {
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", props);
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 0, props);
       return "tcp://" + host + ":" + port;
+   }
+
+   public URI toBackupURI() {
+      TransportConfiguration backupConnector = getBackup();
+      if (backupConnector == null) {
+         return null;
+      }
+      Map<String, Object> props = backupConnector.getParams();
+      String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", props);
+      int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 0, props);
+      boolean sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, false, props);
+      try {
+         return new URI("tcp://" + host + ":" + port + "?" + TransportConstants.SSL_ENABLED_PROP_NAME + "=" + sslEnabled);
+      } catch (URISyntaxException e) {
+         return null;
+      }
    }
 
    @Override
