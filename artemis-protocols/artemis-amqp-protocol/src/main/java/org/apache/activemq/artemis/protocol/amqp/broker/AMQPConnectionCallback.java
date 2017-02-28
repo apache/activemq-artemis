@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +31,13 @@ import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -249,4 +253,13 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       return new XidImpl("amqp".getBytes(), 1, bytes);
    }
 
+   public URI getFailoverList() {
+      ClusterManager clusterManager = server.getClusterManager();
+      ClusterConnection clusterConnection = clusterManager.getDefaultConnection(null);
+      if (clusterConnection != null) {
+         TopologyMemberImpl member = clusterConnection.getTopology().getMember(server.getNodeID().toString());
+         return member.toBackupURI();
+      }
+      return null;
+   }
 }
