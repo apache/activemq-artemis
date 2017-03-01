@@ -198,6 +198,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
             }
          }
       } catch (SQLException e) {
+         logger.warn(e.getMessage(), e);
          executeCallbacks(recordRef, success);
          return 0;
       }
@@ -212,6 +213,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          connection.commit();
          success = true;
       } catch (SQLException e) {
+         logger.warn(e.getMessage(), e);
          performRollback(recordRef);
       }
 
@@ -276,6 +278,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
             }
          }
       } catch (Exception sqlE) {
+         logger.warn(sqlE.getMessage(), sqlE);
          ActiveMQJournalLogger.LOGGER.error("Error performing rollback", sqlE);
       }
    }
@@ -670,6 +673,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          rs.next();
          count = rs.getInt(1);
       } catch (SQLException e) {
+         logger.warn(e.getMessage(), e);
          return -1;
       }
       return count;
