@@ -1060,10 +1060,10 @@ public interface ActiveMQServerControl {
    String listNetworkTopology() throws Exception;
 
    @Operation(desc = "Get the selected address", impact = MBeanOperationInfo.INFO)
-   String getAddressInfo(String address) throws ActiveMQAddressDoesNotExistException;
+   String getAddressInfo(@Parameter(name = "address", desc = "The address") String address) throws ActiveMQAddressDoesNotExistException;
 
    @Operation(desc = "Get a list of bindings associated with an address", impact = MBeanOperationInfo.INFO)
-   String listBindingsForAddress(String address) throws Exception;
+   String listBindingsForAddress(@Parameter(name = "address", desc = "The address") String address) throws Exception;
 
    @Operation(desc = "List Addresses on the broker", impact = MBeanOperationInfo.INFO)
    String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception;
