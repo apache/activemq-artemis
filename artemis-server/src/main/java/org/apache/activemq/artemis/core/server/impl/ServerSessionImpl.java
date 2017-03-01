@@ -1661,7 +1661,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          if (value == null) {
             // TODO-now: userID
-            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>((UUID)msg.getUserID(), new AtomicLong(1)));
+//            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>((UUID)msg.getUserID(), new AtomicLong(1)));
          } else {
             // TODO-now: userID
             value.setA((UUID)msg.getUserID());

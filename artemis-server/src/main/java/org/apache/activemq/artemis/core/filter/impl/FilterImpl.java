@@ -158,7 +158,12 @@ public class FilterImpl implements Filter {
             }
          }
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
-         return new SimpleString("ID:" + msg.getUserID());
+         String userID = msg.getUserID().toString();
+         if (userID.startsWith("ID:")) {
+            return SimpleString.toSimpleString(userID);
+         } else {
+            return new SimpleString("ID:" + msg.getUserID());
+         }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return Integer.valueOf(msg.getPriority());
       } else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {

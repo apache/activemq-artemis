@@ -272,7 +272,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          file.open();
          file.position(0);
 
-         for (; ; ) {
+         for (;;) {
             // The buffer is reused...
             // We need to make sure we clear the limits and the buffer before reusing it
             buffer.clear();

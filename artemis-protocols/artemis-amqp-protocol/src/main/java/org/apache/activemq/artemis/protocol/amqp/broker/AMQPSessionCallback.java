@@ -401,7 +401,7 @@ public class AMQPSessionCallback implements SessionCallback {
                            final Receiver receiver) throws Exception {
       try {
 
-         message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
+//         message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
          serverSession.send(transaction, message, false, false);
 
          // FIXME Potential race here...
