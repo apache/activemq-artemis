@@ -60,6 +60,8 @@ public class Create extends InputAbstract {
 
    private static final Integer HQ_PORT = 5445;
 
+   public static final String HTTP_HOST = "localhost";
+
    public static final Integer HTTP_PORT = 8161;
 
    private static final Integer MQTT_PORT = 1883;
@@ -104,6 +106,9 @@ public class Create extends InputAbstract {
 
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    String host;
+
+   @Option(name = "--http-host", description = "The host name to use for embedded web server (Default: localhost)")
+   String httpHost = HTTP_HOST;
 
    @Option(name = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
    String ping;
@@ -631,6 +636,7 @@ public class Create extends InputAbstract {
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${mqtt.port}", String.valueOf(MQTT_PORT + portOffset));
+      filters.put("${http.host}", httpHost);
       filters.put("${http.port}", String.valueOf(httpPort + portOffset));
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));
