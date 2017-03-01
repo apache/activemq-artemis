@@ -69,12 +69,6 @@ import org.apache.activemq.artemis.core.persistence.Persister;
  * size = encode.getEncodeSize();
  * encode.encodeDirectly(bufferOutput);
  *
- *
- * Disabling temporary buffer:
- *
- * // This will make the message to only be encoded directly to the output stream, useful on client core API
- * encode.disableInternalBuffer();
-
  */
 public interface Message {
 

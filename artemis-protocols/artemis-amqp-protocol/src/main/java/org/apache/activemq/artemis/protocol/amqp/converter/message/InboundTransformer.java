@@ -58,8 +58,6 @@ public abstract class InboundTransformer {
 
    protected IDGenerator idGenerator;
 
-   public static final String TRANSFORMER_NATIVE = "native";
-   public static final String TRANSFORMER_RAW = "raw";
    public static final String TRANSFORMER_JMS = "jms";
 
    public InboundTransformer(IDGenerator idGenerator) {

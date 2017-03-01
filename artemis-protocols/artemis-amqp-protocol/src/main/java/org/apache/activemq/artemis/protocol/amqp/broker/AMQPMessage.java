@@ -488,9 +488,6 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public void sendBuffer(ByteBuf buffer, int deliveryCount) {
-      // TODO: do I need to change the Header with deliveryCount?
-      //       I would send a new instance of Header with a new delivery count, and only send partial of the buffer
-      //       previously received
       checkBuffer();
       Header header = getHeader();
       if (header != null) {

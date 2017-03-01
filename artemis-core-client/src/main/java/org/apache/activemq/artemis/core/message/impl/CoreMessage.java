@@ -541,25 +541,6 @@ public class CoreMessage extends RefCountMessage {
       return false;
    }
 
-   private void encodeBody(ByteBuf intoBuffer) {
-      intoBuffer.writerIndex(DataConstants.SIZE_INT);
-
-      switch (getBodyType()) {
-
-         // TODO-now implement other types
-         case Text:
-            SimpleString.writeNullableSimpleString(intoBuffer, SimpleString.toSimpleString(body == null ? null : body.toString()));
-            break;
-
-         default:
-            break;
-      }
-
-
-      endOfBodyPosition = buffer.writerIndex() + BUFFER_HEADER_SPACE;
-      buffer.setInt(0, endOfBodyPosition);
-   }
-
    @Override
    public String getAddress() {
       if (address == null) {
