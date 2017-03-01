@@ -203,6 +203,10 @@ public class AMQPMessage extends RefCountMessage {
             headerEnd = buffer.position();
             _header = (Header) section;
 
+            if (_header.getTtl() != null) {
+               this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
+            }
+
             if (!readApplicationProperties) {
                return;
             }
@@ -242,10 +246,6 @@ public class AMQPMessage extends RefCountMessage {
          }
          if (section instanceof Properties) {
             _properties = (Properties) section;
-
-            if (_header.getTtl() != null) {
-               this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
-            }
 
             if (buffer.hasRemaining()) {
                section = (Section) decoder.readObject();
