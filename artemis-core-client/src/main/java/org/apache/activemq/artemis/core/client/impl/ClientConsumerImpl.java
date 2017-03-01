@@ -569,7 +569,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private void handleRegularMessage(ClientMessageInternal message) {
       if (message.getAddress() == null) {
-         message.setAddressTransient(queueInfo.getAddress());
+         message.setAddress(queueInfo.getAddress());
       }
 
       message.onReceipt(this);

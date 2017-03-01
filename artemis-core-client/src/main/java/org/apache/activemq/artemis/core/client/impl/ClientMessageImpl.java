@@ -102,11 +102,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
    @Override
-   public void setAddressTransient(SimpleString address) {
-      this.address = address;
-   }
-
-   @Override
    public TypedProperties getProperties() {
       return this.checkProperties();
    }

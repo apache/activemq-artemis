@@ -208,7 +208,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
    }
 
    private void doSend(SimpleString sendingAddress,
-                       final Message msg,
+                       final Message msgToSend,
                        final SendAcknowledgementHandler handler,
                        final boolean forceAsync) throws ActiveMQException {
       if (sendingAddress == null) {
@@ -217,7 +217,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       session.startCall();
 
       try {
-         Message msgI = msg;
+         // In case we received message from another protocol, we first need to convert it to core as the ClientProducer only understands core
+         Message msg = msgToSend.toCore();
 
          ClientProducerCredits theCredits;
 
@@ -225,8 +226,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
          // a note about the second check on the writerIndexSize,
          // If it's a server's message, it means this is being done through the bridge or some special consumer on the
          // server's on which case we can't' convert the message into large at the servers
-         if (sessionContext.supportsLargeMessage() && (getBodyInputStream(msgI) != null || msgI.isLargeMessage() ||
-            msgI.getBodyBuffer().writerIndex() > minLargeMessageSize)) {
+         if (sessionContext.supportsLargeMessage() && (getBodyInputStream(msg) != null || msg.isLargeMessage() ||
+            msg.getBodyBuffer().writerIndex() > minLargeMessageSize)) {
             isLarge = true;
          } else {
             isLarge = false;
@@ -248,19 +249,19 @@ public class ClientProducerImpl implements ClientProducerInternal {
          }
 
          if (groupID != null) {
-            msgI.putStringProperty(Message.HDR_GROUP_ID, groupID);
+            msg.putStringProperty(Message.HDR_GROUP_ID, groupID);
          }
 
-         final boolean sendBlockingConfig = msgI.isDurable() ? blockOnDurableSend : blockOnNonDurableSend;
+         final boolean sendBlockingConfig = msg.isDurable() ? blockOnDurableSend : blockOnNonDurableSend;
          final boolean forceAsyncOverride = handler != null;
          final boolean sendBlocking = sendBlockingConfig && !forceAsyncOverride;
 
          session.workDone();
 
          if (isLarge) {
-            largeMessageSend(sendBlocking, (CoreMessage)msgI, theCredits, handler);
+            largeMessageSend(sendBlocking, (CoreMessage)msg, theCredits, handler);
          } else {
-            sendRegularMessage(sendingAddress, msgI, sendBlocking, theCredits, handler);
+            sendRegularMessage(sendingAddress, msg, sendBlocking, theCredits, handler);
          }
       } finally {
          session.endCall();
@@ -268,7 +269,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
    }
 
    private InputStream getBodyInputStream(Message msgI) {
-      return ((ClientMessageInternal)msgI).getBodyInputStream();
+      return msgI.getBodyInputStream();
    }
 
    private void sendRegularMessage(final SimpleString sendingAddress,

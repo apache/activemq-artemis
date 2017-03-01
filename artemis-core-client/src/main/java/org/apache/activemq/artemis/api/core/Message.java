@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -174,14 +175,29 @@ public interface Message {
 
    void messageChanged();
 
+
+   /** Used for Large messages on Core.
+    *  Do not use this, it will go away
+    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+   @Deprecated
+   default InputStream getBodyInputStream() {
+      return null;
+   }
+
    /**
     * Careful: Unless you are changing the body of the message, prefer getReadOnlyBodyBuffer
-    */
+    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+   @Deprecated
    ActiveMQBuffer getBodyBuffer();
 
+   /**
+    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+   @Deprecated
    ActiveMQBuffer getReadOnlyBodyBuffer();
 
-   /** Used in the cases of large messages */
+   /** Used in the cases of large messages
+    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+   @Deprecated
    LargeBodyEncoder getBodyEncoder() throws ActiveMQException;
 
    /** Context can be used by the application server to inject extra control, like a protocol specific on the server.
