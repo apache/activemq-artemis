@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Header;
@@ -47,6 +48,8 @@ import org.apache.qpid.proton.util.TLSEncoder;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
+
+   private volatile int memoryEstimate = -1;
 
    final long messageFormat;
    private ProtonProtocolManager protocolManager;
@@ -192,6 +195,9 @@ public class AMQPMessage extends RefCountMessage {
             } else {
                section = null;
             }
+         } else {
+            // meaning there is no header
+            headerEnd = 0;
          }
 
          if (!readApplicationProperties) {
@@ -257,27 +263,26 @@ public class AMQPMessage extends RefCountMessage {
       this.data = null;
    }
 
-   // TODO-now this only make sense on Core
    @Override
    public ActiveMQBuffer getBodyBuffer() {
+      // NO-IMPL
       return null;
    }
 
-   // TODO-now this only make sense on Core
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
+      // NO-IMPL
       return null;
    }
 
-   // TODO: Refactor Large message
    @Override
    public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
+      // NO-IMPL
       return null;
    }
 
    @Override
    public byte getType() {
-      // TODO-now: what to do here?
       return type;
    }
 
@@ -309,7 +314,6 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message copy() {
-      // TODO-now: what to do with this?
       AMQPMessage newEncode = new AMQPMessage(this.messageFormat, data.array(), protocolManager);
       return newEncode;
    }
@@ -471,7 +475,19 @@ public class AMQPMessage extends RefCountMessage {
       //       I would send a new instance of Header with a new delivery count, and only send partial of the buffer
       //       previously received
       checkBuffer();
-      buffer.writeBytes(data);
+      Header header = getHeader();
+      if (header != null) {
+         synchronized (header) {
+            if (header.getDeliveryCount() != null) {
+               header.setDeliveryCount(UnsignedInteger.valueOf(header.getDeliveryCount().intValue() + 1));
+            } else {
+               header.setDeliveryCount(UnsignedInteger.valueOf(1));
+            }
+            TLSEncoder.getEncoder().setByteBuffer(new NettyWritable(buffer));
+            TLSEncoder.getEncoder().writeObject(header);
+         }
+      }
+      buffer.writeBytes(data, headerEnd, data.writerIndex() - headerEnd);
    }
 
    @Override
@@ -728,7 +744,12 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public int getMemoryEstimate() {
-      return 0;
+      if (memoryEstimate == -1) {
+         memoryEstimate = memoryOffset +
+            (data != null ? data.capacity() : 0);
+      }
+
+      return memoryEstimate;
    }
 
    @Override

@@ -45,14 +45,7 @@ public class CoreMessage extends RefCountMessage {
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
 
-   // This is an estimate of how much memory a ServerMessageImpl takes up, exclusing body and properties
-   // Note, it is only an estimate, it's not possible to be entirely sure with Java
-   // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
-   // The value is somewhat higher on 64 bit architectures, probably due to different alignment
-   private static final int memoryOffset = 352;
-
    private volatile int memoryEstimate = -1;
-
 
    private static final Logger logger = Logger.getLogger(CoreMessage.class);
 
@@ -351,16 +344,9 @@ public class CoreMessage extends RefCountMessage {
       return this.properties;
    }
 
-
    @Override
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
-         if (buffer == null) {
-            new Exception("It is null").printStackTrace();
-         }
-         if (properties == null) {
-            new Exception("Properties It is null").printStackTrace();
-         }
          memoryEstimate = memoryOffset +
             (buffer != null ? buffer.capacity() : 0) +
             (properties != null ? properties.getMemoryOffset() : 0);
