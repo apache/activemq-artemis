@@ -990,6 +990,7 @@ public class CoreMessage extends RefCountMessage {
 
    @Override
    public void persist(ActiveMQBuffer targetRecord) {
+      checkEncode();
       targetRecord.writeInt(buffer.writerIndex());
       targetRecord.writeBytes(buffer, 0, buffer.writerIndex());
    }
