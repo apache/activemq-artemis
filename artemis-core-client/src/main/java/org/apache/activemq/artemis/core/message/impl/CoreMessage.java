@@ -131,6 +131,7 @@ public class CoreMessage extends RefCountMessage {
 
    @Override
    public ActiveMQBuffer getReadOnlyBodyBuffer() {
+      checkEncode();
       internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
    }
@@ -243,6 +244,7 @@ public class CoreMessage extends RefCountMessage {
 
    @Override
    public Message copy() {
+      checkEncode();
       return new CoreMessage(this);
    }
 

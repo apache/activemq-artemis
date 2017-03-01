@@ -51,7 +51,7 @@ public class MQTTSessionCallback implements SessionCallback {
       try {
          session.getMqttPublishManager().sendMessage((CoreMessage)message, consumer, deliveryCount);
       } catch (Exception e) {
-         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
+         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
       }
       return 1;
    }

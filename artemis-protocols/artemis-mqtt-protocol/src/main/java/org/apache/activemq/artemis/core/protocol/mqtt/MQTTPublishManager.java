@@ -32,11 +32,14 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.jboss.logging.Logger;
 
 /**
  * Handles MQTT Exactly Once (QoS level 2) Protocol.
  */
 public class MQTTPublishManager {
+
+   private static final Logger logger = Logger.getLogger(MQTTPublishManager.class);
 
    private static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
 
@@ -173,6 +176,7 @@ public class MQTTPublishManager {
                }
                tx.commit();
             } catch (Throwable t) {
+               logger.warn(t.getMessage(), t);
                tx.rollback();
                throw t;
             }
@@ -253,17 +257,17 @@ public class MQTTPublishManager {
       switch (message.getType()) {
          case Message.TEXT_TYPE:
             try {
-               SimpleString text = message.getBodyBuffer().readNullableSimpleString();
+               SimpleString text = message.getReadOnlyBodyBuffer().readNullableSimpleString();
                byte[] stringPayload = text.toString().getBytes("UTF-8");
                payload = ByteBufAllocator.DEFAULT.buffer(stringPayload.length);
                payload.writeBytes(stringPayload);
                break;
             } catch (UnsupportedEncodingException e) {
-               log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
+               log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
             }
          default:
             ActiveMQBuffer bufferDup = message.getReadOnlyBodyBuffer();
-            payload = bufferDup.readBytes(message.getEndOfBodyPosition() - bufferDup.readerIndex()).byteBuf();
+            payload = bufferDup.readBytes(bufferDup.writerIndex()).byteBuf();
             break;
       }
       session.getProtocolHandler().send(messageId, address, qos, payload, deliveryCount);

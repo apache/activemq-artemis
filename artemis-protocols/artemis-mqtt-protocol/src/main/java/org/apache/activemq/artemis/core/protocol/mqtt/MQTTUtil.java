@@ -26,7 +26,6 @@ import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
@@ -114,8 +113,7 @@ public class MQTTUtil {
       String coreAddress = convertMQTTAddressFilterToCore(topic, session.getWildcardConfiguration());
       Message message = createServerMessage(session, new SimpleString(coreAddress), retain, qos);
 
-      // FIXME does this involve a copy?
-      message.getBodyBuffer().writeBytes(new ChannelBufferWrapper(payload), payload.readableBytes());
+      message.getBodyBuffer().writeBytes(payload, 0, payload.readableBytes());
       return message;
    }
 
