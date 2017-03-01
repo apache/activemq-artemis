@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMe
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
+import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
@@ -87,8 +88,6 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
-import org.apache.qpid.proton.codec.AMQPDefinedTypes;
-import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.jboss.logging.Logger;
@@ -104,22 +103,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
    public static final byte TOPIC_TYPE = 0x01;
    public static final byte TEMP_QUEUE_TYPE = 0x02;
    public static final byte TEMP_TOPIC_TYPE = 0x03;
-
-   // For now Proton requires that we create a decoder to create an encoder
-   private static class EncoderDecoderPair {
-      DecoderImpl decoder = new DecoderImpl();
-      EncoderImpl encoder = new EncoderImpl(decoder);
-      {
-         AMQPDefinedTypes.registerAllTypes(decoder, encoder);
-      }
-   }
-
-   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = new ThreadLocal<EncoderDecoderPair>() {
-      @Override
-      protected EncoderDecoderPair initialValue() {
-         return new EncoderDecoderPair();
-      }
-   };
 
    public JMSMappingOutboundTransformer(IDGenerator idGenerator) {
       super(idGenerator);
@@ -375,7 +358,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          apMap.put(key, objectProperty);
       }
 
-      EncoderImpl encoder = tlsCodec.get().encoder;
+      EncoderImpl encoder = TLSEncode.getEncoder();
       encoder.setByteBuffer(buffer);
 
       if (header != null) {

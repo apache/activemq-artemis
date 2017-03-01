@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.encode.BodyType;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
+import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
@@ -46,7 +47,6 @@ import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.apache.qpid.proton.util.TLSEncoder;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
@@ -183,7 +183,7 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    private synchronized void partialDecode(ByteBuffer buffer, boolean readApplicationProperties) {
-      DecoderImpl decoder = TLSEncoder.getDecoder();
+      DecoderImpl decoder = TLSEncode.getDecoder();
       decoder.setByteBuffer(buffer);
       buffer.position(0);
 
@@ -500,8 +500,8 @@ public class AMQPMessage extends RefCountMessage {
             } else {
                header.setDeliveryCount(UnsignedInteger.valueOf(1));
             }
-            TLSEncoder.getEncoder().setByteBuffer(new NettyWritable(buffer));
-            TLSEncoder.getEncoder().writeObject(header);
+            TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buffer));
+            TLSEncode.getEncoder().writeObject(header);
          }
       }
       buffer.writeBytes(data, headerEnd, data.writerIndex() - headerEnd);
