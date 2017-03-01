@@ -169,6 +169,9 @@ public interface Message {
 
    void messageChanged();
 
+   /** Used to calculate what is the delivery time.
+    *  Return null if not scheduled. */
+   Long getScheduledDeliveryTime();
 
    /** Used for Large messages on Core.
     *  Do not use this, it will go away

@@ -153,6 +153,17 @@ public class CoreMessage extends RefCountMessage {
       }
    }
 
+   @Override
+   public Long getScheduledDeliveryTime() {
+      Object property = getObjectProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+
+      if (property != null && property instanceof Number) {
+         return ((Number) property).longValue();
+      }
+
+      return null;
+   }
+
    /**
     * {@inheritDoc}
     */

@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
@@ -63,6 +64,7 @@ public class AMQPMessage extends RefCountMessage {
    private long expiration = 0;
    // this can be used to encode the header again and the rest of the message buffer
    private int headerEnd = -1;
+   private boolean parsedHeaders = false;
    private Header _header;
    private DeliveryAnnotations _deliveryAnnotations;
    private MessageAnnotations _messageAnnotations;
@@ -142,39 +144,55 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    private ApplicationProperties getApplicationProperties() {
-      if (applicationProperties == null) {
-         if (data != null) {
-            partialDecode(data.nioBuffer(), true);
-         } else {
-            initalizeObjects();
-         }
-      }
-
+      parseHeaders();
       return applicationProperties;
    }
 
-   public Header getHeader() {
-      if (_header == null) {
+   private void parseHeaders() {
+      if (!parsedHeaders) {
          if (data == null) {
             initalizeObjects();
          } else {
-            partialDecode(this.data.nioBuffer(), false);
+            partialDecode(data.nioBuffer());
          }
+         parsedHeaders = true;
       }
+   }
 
+   public MessageAnnotations getMessageAnnotations() {
+      parseHeaders();
+      return _messageAnnotations;
+   }
+
+   public Header getHeader() {
+      parseHeaders();
       return _header;
    }
 
    public Properties getProperties() {
-      if (_properties == null) {
-         if (data == null) {
-            initalizeObjects();
-         } else {
-            partialDecode(this.data.nioBuffer(), true);
-         }
+      parseHeaders();
+      return _properties;
+   }
+
+   private Object getSymbol(String symbol) {
+      MessageAnnotations annotations = getMessageAnnotations();
+      Map mapAnnotations = annotations != null ? annotations.getValue() : null;
+      if (mapAnnotations != null) {
+         return mapAnnotations.get(Symbol.getSymbol("x-opt-delivery-time"));
       }
 
-      return _properties;
+      return null;
+   }
+
+   @Override
+   public Long getScheduledDeliveryTime() {
+
+      Object scheduledTime = getSymbol("x-opt-delivery-time");
+      if (scheduledTime != null && scheduledTime instanceof Number) {
+         return ((Number)scheduledTime).longValue();
+      }
+
+      return null;
    }
 
    @Override
@@ -182,7 +200,7 @@ public class AMQPMessage extends RefCountMessage {
       return AMQPMessagePersister.getInstance();
    }
 
-   private synchronized void partialDecode(ByteBuffer buffer, boolean readApplicationProperties) {
+   private synchronized void partialDecode(ByteBuffer buffer) {
       DecoderImpl decoder = TLSEncode.getDecoder();
       decoder.setByteBuffer(buffer);
       buffer.position(0);
@@ -207,11 +225,7 @@ public class AMQPMessage extends RefCountMessage {
                this.expiration = System.currentTimeMillis() + _header.getTtl().intValue();
             }
 
-            if (!readApplicationProperties) {
-               return;
-            }
-
-            if (buffer.hasRemaining() && readApplicationProperties) {
+            if (buffer.hasRemaining()) {
                section = (Section) decoder.readObject();
             } else {
                section = null;
@@ -219,10 +233,6 @@ public class AMQPMessage extends RefCountMessage {
          } else {
             // meaning there is no header
             headerEnd = 0;
-         }
-
-         if (!readApplicationProperties) {
-            return;
          }
          if (section instanceof DeliveryAnnotations) {
             _deliveryAnnotations = (DeliveryAnnotations) section;
@@ -254,6 +264,7 @@ public class AMQPMessage extends RefCountMessage {
             }
 
          }
+
          if (section instanceof ApplicationProperties) {
             applicationProperties = (ApplicationProperties) section;
          }
@@ -785,7 +796,7 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public org.apache.activemq.artemis.api.core.Message toCore() {
       MessageImpl protonMessage = getProtonMessage();
-      return null;
+      throw new IllegalStateException("conversion between AMQP and Core not implemented yet!");
    }
 
    @Override

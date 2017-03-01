@@ -365,7 +365,8 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public Message handleMessage(final Message message) throws Exception {
+   public Message handleMessage(Message message) throws Exception {
+      message = message.toCore();
       // a reply message is sent with the result stored in the message body.
       Message reply = new CoreMessage(storageManager.generateID(), 512);
 

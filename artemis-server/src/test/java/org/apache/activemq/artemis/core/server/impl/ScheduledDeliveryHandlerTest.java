@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
-
 import org.apache.activemq.artemis.api.core.RefCountMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.encode.BodyType;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -47,8 +47,6 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.api.core.RoutingType;
-
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
@@ -290,6 +288,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void persist(ActiveMQBuffer targetRecord) {
 
+      }
+
+      @Override
+      public Long getScheduledDeliveryTime() {
+         return null;
       }
 
       @Override

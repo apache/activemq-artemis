@@ -1079,6 +1079,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       Transaction tx = context.getTransaction();
 
+      Long deliveryTime = message.getScheduledDeliveryTime();
+
       for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
          PagingStore store = pagingManager.getPageStore(entry.getKey());
 
@@ -1095,12 +1097,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          for (Queue queue : entry.getValue().getNonDurableQueues()) {
             MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
-            refs.add(reference);
-            if (message.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
-               Long scheduledDeliveryTime = message.getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
-
-               reference.setScheduledDeliveryTime(scheduledDeliveryTime);
+            if (deliveryTime != null) {
+               reference.setScheduledDeliveryTime(deliveryTime);
             }
+            refs.add(reference);
 
             message.incrementRefCount();
          }
@@ -1119,13 +1119,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
             }
 
-            refs.add(reference);
 
-            if (message.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
-               Long scheduledDeliveryTime = message.getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
-
-               reference.setScheduledDeliveryTime(scheduledDeliveryTime);
+            if (deliveryTime != null) {
+               reference.setScheduledDeliveryTime(deliveryTime);
             }
+            refs.add(reference);
 
             if (message.isDurable()) {
                int durableRefCount = message.incrementDurableRefCount();
