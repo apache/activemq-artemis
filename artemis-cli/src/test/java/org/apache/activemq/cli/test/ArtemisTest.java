@@ -157,7 +157,7 @@ public class ArtemisTest extends CliTestBase {
       Element webElem = (Element) config.getElementsByTagName("web").item(0);
 
       String bindAttr = webElem.getAttribute("bind");
-      String bindStr = "http://localhost:" + Create.HTTP_PORT;
+      String bindStr = "http://" + Create.HTTP_HOST + ":" + Create.HTTP_PORT;
 
       assertEquals(bindAttr, bindStr);
       //no any of those
