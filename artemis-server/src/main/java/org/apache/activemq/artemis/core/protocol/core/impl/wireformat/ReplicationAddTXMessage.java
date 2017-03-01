@@ -62,6 +62,7 @@ public class ReplicationAddTXMessage extends PacketImpl {
       this.id = id;
       this.recordType = recordType;
       this.encodingData = encodingData;
+      this.persister = persister;
    }
 
    // Public --------------------------------------------------------
