@@ -35,12 +35,12 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
@@ -220,7 +220,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    public Binary newTransaction() {
       XidImpl xid = newXID();
-      Transaction transaction = new TransactionImpl(xid, server.getStorageManager(), -1);
+      Transaction transaction = new ProtonTransactionImpl(xid, server.getStorageManager(), -1);
       transactions.put(xid, transaction);
       return new Binary(xid.getGlobalTransactionId());
    }

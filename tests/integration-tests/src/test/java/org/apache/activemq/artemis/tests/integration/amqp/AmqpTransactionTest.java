@@ -514,7 +514,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          // Rollback the other half the consumed messages
          txnSession.begin();
          for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; ++i) {
-            messages.get(i).accept(txnSession);
+            messages.get(i).accept(txnSession, false);
          }
          txnSession.rollback();
 
@@ -524,18 +524,6 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
             assertEquals(NUM_MESSAGES, message.getApplicationProperty("msgId"));
             message.release();
          }
-
-         // Commit the other half the consumed messages
-         // This is a variation from the .NET client tests which doesn't settle the
-         // messages in the TX until commit is called but on ActiveMQ they will be
-         // redispatched regardless and not stay in the acquired state.
-         txnSession.begin();
-         for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; ++i) {
-            AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            assertNotNull(message);
-            message.accept();
-         }
-         txnSession.commit();
 
          // The final message should still be pending.
          {

@@ -30,17 +30,19 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.converter.CoreAmqpConverter;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
@@ -474,26 +476,29 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       if (closed) {
          return;
       }
-      Message message = (Message)delivery.getContext();
+
+      Message message = ((MessageReference) delivery.getContext()).getMessage();
 
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
       DeliveryState remoteState = delivery.getRemoteState();
 
+      boolean settleImmediate = true;
       if (remoteState != null) {
          // If we are transactional then we need ack if the msg has been accepted
          if (remoteState instanceof TransactionalState) {
 
             TransactionalState txState = (TransactionalState) remoteState;
-            Transaction tx = this.sessionSPI.getTransaction(txState.getTxnId());
+            ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId());
+
             if (txState.getOutcome() != null) {
+               settleImmediate = false;
                Outcome outcome = txState.getOutcome();
                if (outcome instanceof Accepted) {
                   if (!delivery.remotelySettled()) {
                      TransactionalState txAccepted = new TransactionalState();
                      txAccepted.setOutcome(Accepted.getInstance());
                      txAccepted.setTxnId(txState.getTxnId());
-
                      delivery.disposition(txAccepted);
                   }
                   // we have to individual ack as we can't guarantee we will get the delivery
@@ -501,6 +506,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   // from dealer, a perf hit but a must
                   try {
                      sessionSPI.ack(tx, brokerConsumer, message);
+                     tx.addDelivery(delivery, this);
                   } catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
                   }
@@ -550,13 +556,16 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             protonSession.replaceTag(delivery.getTag());
          }
 
-         synchronized (connection.getLock()) {
-            delivery.settle();
-            sender.offer(1);
-         }
+         if (settleImmediate) settle(delivery);
 
       } else {
          // todo not sure if we need to do anything here
+      }
+   }
+
+   public void settle(Delivery delivery) {
+      synchronized (connection.getLock()) {
+         delivery.settle();
       }
    }
 
@@ -567,7 +576,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
-   public int deliverMessage(AMQPMessage message, int deliveryCount) throws Exception {
+   public int deliverMessage(MessageReference messageReference, int deliveryCount) throws Exception {
+      AMQPMessage message = CoreAmqpConverter.checkAMQP(messageReference.getMessage());
+
       if (closed) {
          return 0;
       }
@@ -602,14 +613,14 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
             delivery.setMessageFormat((int) message.getMessageFormat());
-            delivery.setContext(message);
+            delivery.setContext(messageReference);
 
             // this will avoid a copy.. patch provided by Norman using buffer.array()
             sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
-               sessionSPI.ack(null, brokerConsumer, message);
+               sessionSPI.ack(null, brokerConsumer, messageReference.getMessage());
                delivery.settle();
             } else {
                sender.advance();
