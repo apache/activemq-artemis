@@ -501,7 +501,7 @@ public class AMQPSessionCallback implements SessionCallback {
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 
       try {
-         return plugSender.deliverMessage(message, deliveryCount);
+         return plugSender.deliverMessage(ref, deliveryCount);
       } catch (Exception e) {
          synchronized (connection.getLock()) {
             plugSender.getSender().setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage()));
@@ -575,6 +575,10 @@ public class AMQPSessionCallback implements SessionCallback {
       Transaction tx = protonSPI.getTransaction(txid);
       tx.rollback();
       protonSPI.removeTransaction(txid);
+   }
+
+   public void dischargeTx(Binary txid, Delivery delivery) throws ActiveMQAMQPException {
+      ((ProtonTransactionImpl) protonSPI.getTransaction(txid)).discharge(delivery);
    }
 
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {

@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.proton;
+package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonDeliveryHandler;
 import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -79,17 +80,16 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Discharge discharge = (Discharge) action;
 
             Binary txID = discharge.getTxnId();
+            sessionSPI.dischargeTx(txID, delivery);
             if (discharge.getFail()) {
                try {
                   sessionSPI.rollbackTX(txID, true);
-                  delivery.disposition(new Accepted());
                } catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
                }
             } else {
                try {
                   sessionSPI.commitTX(txID);
-                  delivery.disposition(new Accepted());
                } catch (ActiveMQAMQPException amqpE) {
                   throw amqpE;
                } catch (Exception e) {
@@ -103,7 +103,10 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          log.warn(e.getMessage(), e);
          delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
       } finally {
-         delivery.settle();
+         if (!delivery.isSettled()) {
+            delivery.disposition(new Accepted());
+            delivery.settle();
+         }
          buffer.release();
       }
    }

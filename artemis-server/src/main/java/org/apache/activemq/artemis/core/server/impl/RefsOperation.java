@@ -89,18 +89,7 @@ public class RefsOperation extends TransactionOperationAbstract {
             if (ref.isAlreadyAcked()) {
                ackedRefs.add(ref);
             }
-            // if ignore redelivery check, we just perform redelivery straight
-            if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
-               LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
-
-               if (toCancel == null) {
-                  toCancel = new LinkedList<>();
-
-                  queueMap.put((QueueImpl) ref.getQueue(), toCancel);
-               }
-
-               toCancel.addFirst(ref);
-            }
+            rollbackRedelivery(tx, ref, timeBase, queueMap);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorCheckingDLQ(e);
          }
@@ -142,6 +131,21 @@ public class RefsOperation extends TransactionOperationAbstract {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
+      }
+   }
+
+   protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
+      // if ignore redelivery check, we just perform redelivery straight
+      if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
+         LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
+
+         if (toCancel == null) {
+            toCancel = new LinkedList<>();
+
+            queueMap.put((QueueImpl) ref.getQueue(), toCancel);
+         }
+
+         toCancel.addFirst(ref);
       }
    }
 
