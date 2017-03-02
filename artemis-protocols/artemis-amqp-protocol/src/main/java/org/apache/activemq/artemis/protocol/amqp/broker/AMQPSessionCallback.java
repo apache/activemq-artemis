@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -487,7 +488,7 @@ public class AMQPSessionCallback implements SessionCallback {
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 
       try {
-         return plugSender.deliverMessage(CoreAmqpConverter.checkAMQP(message), deliveryCount);
+         return plugSender.deliverMessage(ref, deliveryCount);
       } catch (Exception e) {
          synchronized (connection.getLock()) {
             plugSender.getSender().setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage()));
@@ -561,6 +562,10 @@ public class AMQPSessionCallback implements SessionCallback {
       Transaction tx = protonSPI.getTransaction(txid);
       tx.rollback();
       protonSPI.removeTransaction(txid);
+   }
+
+   public void dischargeTx(Binary txid) throws ActiveMQAMQPException {
+      ((ProtonTransactionImpl) protonSPI.getTransaction(txid)).discharge();
    }
 
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {
