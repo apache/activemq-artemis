@@ -31,7 +31,7 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
    public HQPropertiesConversionInterceptor() {
       this(true);
    }
-   
+
    public HQPropertiesConversionInterceptor(final boolean replaceHQ) {
       this.replaceHQ = replaceHQ;
    }
