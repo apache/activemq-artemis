@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -34,9 +37,6 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ProtonServerReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
