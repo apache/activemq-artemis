@@ -41,7 +41,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -107,13 +106,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       this.outgoingInterceptors.clear();
       this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
-
-   @Override
-   public MessageConverter getConverter() {
-      return null;
-   }
-
-   // ProtocolManager implementation --------------------------------
 
    @Override
    public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {

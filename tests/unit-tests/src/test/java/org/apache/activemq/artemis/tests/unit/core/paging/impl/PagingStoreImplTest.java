@@ -224,7 +224,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ActiveMQBuffer horn1 = buffers.get(i);
-         ActiveMQBuffer horn2 = msg.get(i).getMessage().getBodyBuffer();
+         ActiveMQBuffer horn2 = msg.get(i).getMessage().toCore().getBodyBuffer();
          horn1.resetReaderIndex();
          horn2.resetReaderIndex();
          for (int j = 0; j < horn1.writerIndex(); j++) {
@@ -290,7 +290,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 5; i++) {
             Assert.assertEquals(sequence++, msg.get(i).getMessage().getMessageID());
-            ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(pageNr * 5 + i), msg.get(i).getMessage().getBodyBuffer());
+            ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(pageNr * 5 + i), msg.get(i).getMessage().toCore().getBodyBuffer());
          }
       }
 
@@ -341,7 +341,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1L, msgs.get(0).getMessage().getMessageID());
 
-      ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(0), msgs.get(0).getMessage().getBodyBuffer());
+      ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(0), msgs.get(0).getMessage().toCore().getBodyBuffer());
 
       Assert.assertEquals(1, store.getNumberOfPages());
 
@@ -485,14 +485,14 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          page.close();
 
          for (PagedMessage msg : msgs) {
-            long id = msg.getMessage().getBodyBuffer().readLong();
-            msg.getMessage().getBodyBuffer().resetReaderIndex();
+            long id = msg.getMessage().toCore().getBodyBuffer().readLong();
+            msg.getMessage().toCore().getBodyBuffer().resetReaderIndex();
 
             Message msgWritten = buffers.remove(id);
             buffers2.put(id, msg.getMessage());
             Assert.assertNotNull(msgWritten);
             Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddressSimpleString());
-            ActiveMQTestBase.assertEqualsBuffers(10, msgWritten.getBodyBuffer(), msg.getMessage().getBodyBuffer());
+            ActiveMQTestBase.assertEqualsBuffers(10, msgWritten.toCore().getBodyBuffer(), msg.getMessage().toCore().getBodyBuffer());
          }
       }
 
@@ -547,11 +547,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          for (PagedMessage msg : msgs) {
 
-            long id = msg.getMessage().getBodyBuffer().readLong();
+            long id = msg.getMessage().toCore().getBodyBuffer().readLong();
             Message msgWritten = buffers2.remove(id);
             Assert.assertNotNull(msgWritten);
             Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddressSimpleString());
-            ActiveMQTestBase.assertEqualsByteArrays(msgWritten.getBodyBuffer().writerIndex(), msgWritten.getBodyBuffer().toByteBuffer().array(), msg.getMessage().getBodyBuffer().toByteBuffer().array());
+            ActiveMQTestBase.assertEqualsByteArrays(msgWritten.toCore().getBodyBuffer().writerIndex(), msgWritten.toCore().getBodyBuffer().toByteBuffer().array(), msg.getMessage().toCore().getBodyBuffer().toByteBuffer().array());
          }
       }
 
@@ -560,8 +560,8 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       lastPage.close();
       Assert.assertEquals(1, lastMessages.size());
 
-      lastMessages.get(0).getMessage().getBodyBuffer().resetReaderIndex();
-      Assert.assertEquals(lastMessages.get(0).getMessage().getBodyBuffer().readLong(), lastMessageId);
+      lastMessages.get(0).getMessage().toCore().getBodyBuffer().resetReaderIndex();
+      Assert.assertEquals(lastMessages.get(0).getMessage().toCore().getBodyBuffer().readLong(), lastMessageId);
 
       Assert.assertEquals(0, buffers2.size());
 
@@ -739,11 +739,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       };
    }
 
-   private Message createMessage(final long id,
+   private CoreMessage createMessage(final long id,
                                        final PagingStore store,
                                        final SimpleString destination,
                                        final ActiveMQBuffer buffer) {
-      Message msg = new CoreMessage(id, 50 + buffer.capacity());
+      CoreMessage msg = new CoreMessage(id, 50 + buffer.capacity());
 
       msg.setAddress(destination);
 

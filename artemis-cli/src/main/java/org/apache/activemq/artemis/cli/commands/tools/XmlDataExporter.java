@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -33,14 +36,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
+import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -74,16 +76,12 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.Persisten
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.api.core.RoutingType;
-
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
-
-import io.airlift.airline.Command;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends OptionalLocking {
@@ -361,13 +359,13 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeEndElement(); // end BINDINGS_PARENT
    }
 
-   private void printAllMessagesAsXML() throws XMLStreamException {
+   private void printAllMessagesAsXML() throws Exception {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_PARENT);
 
       // Order here is important.  We must process the messages from the journal before we process those from the page
       // files in order to get the messages in the right order.
       for (Map.Entry<Long, Message> messageMapEntry : messages.entrySet()) {
-         printSingleMessageAsXML(messageMapEntry.getValue(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
+         printSingleMessageAsXML(messageMapEntry.getValue().toCore(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
       }
 
       printPagedMessagesAsXML();
@@ -441,7 +439,7 @@ public final class XmlDataExporter extends OptionalLocking {
                      }
 
                      if (queueNames.size() > 0 && (message.getTransactionID() == -1 || pgTXs.contains(message.getTransactionID()))) {
-                        printSingleMessageAsXML(message.getMessage(), queueNames);
+                        printSingleMessageAsXML(message.getMessage().toCore(), queueNames);
                      }
 
                      messageId++;
@@ -458,20 +456,20 @@ public final class XmlDataExporter extends OptionalLocking {
       }
    }
 
-   private void printSingleMessageAsXML(Message message, List<String> queues) throws XMLStreamException {
+   private void printSingleMessageAsXML(ICoreMessage message, List<String> queues) throws Exception {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_CHILD);
       printMessageAttributes(message);
       printMessageProperties(message);
       printMessageQueues(queues);
-      printMessageBody(message);
+      printMessageBody(message.toCore());
       xmlWriter.writeEndElement(); // end MESSAGES_CHILD
       messagesPrinted++;
    }
 
-   private void printMessageBody(Message message) throws XMLStreamException {
+   private void printMessageBody(Message message) throws Exception {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGE_BODY);
 
-      if (message.isLargeMessage()) {
+      if (message.toCore().isLargeMessage()) {
          printLargeMessageBody((LargeServerMessage) message);
       } else {
          xmlWriter.writeCData(XmlDataExporterUtil.encodeMessageBody(message));
@@ -484,7 +482,7 @@ public final class XmlDataExporter extends OptionalLocking {
       LargeBodyEncoder encoder = null;
 
       try {
-         encoder = message.getBodyEncoder();
+         encoder = message.toCore().getBodyEncoder();
          encoder.open();
          long totalBytesWritten = 0;
          Long bufferSize;
@@ -541,7 +539,7 @@ public final class XmlDataExporter extends OptionalLocking {
       xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
    }
 
-   private void printMessageAttributes(Message message) throws XMLStreamException {
+   private void printMessageAttributes(ICoreMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_ID, Long.toString(message.getMessageID()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));

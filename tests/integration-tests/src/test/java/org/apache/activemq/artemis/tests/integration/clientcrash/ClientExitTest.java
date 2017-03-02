@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
 
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -63,7 +63,7 @@ public class ClientExitTest extends ClientTestBase {
 
       // read the message from the queue
 
-      Message message = consumer.receive(15000);
+      ClientMessage message = consumer.receive(15000);
 
       assertNotNull(message);
       assertEquals(ClientExitTest.MESSAGE_TEXT, message.getBodyBuffer().readString());

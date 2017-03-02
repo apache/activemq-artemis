@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -255,7 +256,7 @@ public final class Page implements Comparable<Page> {
 
       if (messages != null) {
          for (PagedMessage msg : messages) {
-            if (msg.getMessage().isLargeMessage()) {
+            if (msg.getMessage() instanceof ICoreMessage &&  ((ICoreMessage)msg.getMessage()).isLargeMessage()) {
                LargeServerMessage lmsg = (LargeServerMessage) msg.getMessage();
 
                // Remember, cannot call delete directly here

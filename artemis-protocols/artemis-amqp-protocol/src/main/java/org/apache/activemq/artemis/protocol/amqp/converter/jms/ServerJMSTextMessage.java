@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -48,8 +49,8 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    /*
     * This constructor is used to construct messages prior to sending
     */
-   public ServerJMSTextMessage(Message message, int deliveryCount) {
-      super(message, deliveryCount);
+   public ServerJMSTextMessage(ICoreMessage message) {
+      super(message);
 
    }
    // TextMessage implementation ------------------------------------

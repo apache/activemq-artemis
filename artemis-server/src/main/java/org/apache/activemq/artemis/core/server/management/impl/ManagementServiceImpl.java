@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -365,10 +366,10 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public Message handleMessage(Message message) throws Exception {
+   public ICoreMessage handleMessage(Message message) throws Exception {
       message = message.toCore();
       // a reply message is sent with the result stored in the message body.
-      Message reply = new CoreMessage(storageManager.generateID(), 512);
+      CoreMessage reply = new CoreMessage(storageManager.generateID(), 512);
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (logger.isDebugEnabled()) {

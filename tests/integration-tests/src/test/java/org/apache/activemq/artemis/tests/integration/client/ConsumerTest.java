@@ -196,7 +196,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(true);
+      internalSend(true, true);
    }
 
    @Test
@@ -207,21 +207,38 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(false);
+      internalSend(false, true);
    }
 
-   public void internalSend(boolean amqp) throws Throwable {
+   @Test
+   public void testSendAMQPReceiveCore() throws Throwable {
 
-      ConnectionFactory factory;
-
-      if (amqp) {
-         factory = new JmsConnectionFactory("amqp://localhost:61616");
-      } else {
-         factory = new ActiveMQConnectionFactory();
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
       }
 
+      internalSend(true, false);
+   }
 
-      Connection connection = factory.createConnection();
+   @Test
+   public void testSendCoreReceiveAMQP() throws Throwable {
+
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      internalSend(false, true);
+   }
+
+   public void internalSend(boolean amqpSender, boolean amqpConsumer) throws Throwable {
+
+      ConnectionFactory factoryAMQP = new JmsConnectionFactory("amqp://localhost:61616");
+      ConnectionFactory factoryCore = new ActiveMQConnectionFactory();
+
+
+      Connection connection = (amqpSender ? factoryAMQP : factoryCore).createConnection();
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -232,7 +249,9 @@ public class ConsumerTest extends ActiveMQTestBase {
          long time = System.currentTimeMillis();
          int NUMBER_OF_MESSAGES = 100;
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            producer.send(session.createTextMessage("hello " + i));
+            TextMessage msg = session.createTextMessage("hello " + i);
+            msg.setIntProperty("mycount", i);
+            producer.send(msg);
          }
          long end = System.currentTimeMillis();
 
@@ -245,8 +264,9 @@ public class ConsumerTest extends ActiveMQTestBase {
             server.start();
          }
 
-         connection = factory.createConnection();
+         connection = (amqpConsumer ? factoryAMQP : factoryCore).createConnection();
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         queue = session.createQueue(QUEUE.toString());
 
          connection.start();
 
@@ -255,6 +275,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(1000);
             Assert.assertNotNull(message);
+            Assert.assertEquals(i, message.getIntProperty("mycount"));
             Assert.assertEquals("hello " + i, message.getText());
          }
       } finally {

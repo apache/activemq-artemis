@@ -92,10 +92,9 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount)  {
 
-      // TODO-now: fix this
-      Packet packet = new SessionReceiveMessage(consumer.getID(), message, deliveryCount);
+      Packet packet = new SessionReceiveMessage(consumer.getID(), message.toCore(), deliveryCount);
 
       int size = 0;
 

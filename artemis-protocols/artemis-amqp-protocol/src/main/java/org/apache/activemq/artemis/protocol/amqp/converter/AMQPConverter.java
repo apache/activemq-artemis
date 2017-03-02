@@ -14,14 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.spi.core.protocol;
+package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 
-public interface MessageConverter<ProtocolMessage extends Message> {
 
-   ICoreMessage toCore(ProtocolMessage pureMessage) throws Exception;
+public class AMQPConverter implements MessageConverter<AMQPMessage> {
 
-   ProtocolMessage fromCore(ICoreMessage coreMessage) throws Exception;
+   private static final AMQPConverter theInstance = new AMQPConverter();
+
+   private AMQPConverter() {
+   }
+
+   public static AMQPConverter getInstance() {
+      return theInstance;
+   }
+
+   @Override
+   public AMQPMessage fromCore(ICoreMessage coreMessage) throws Exception {
+      return CoreAmqpConverter.fromCore(coreMessage);
+   }
+
+   @Override
+   public ICoreMessage toCore(AMQPMessage messageSource) throws Exception {
+      return AmqpCoreConverter.toCore(messageSource);
+   }
 }

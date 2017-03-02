@@ -16,26 +16,25 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public abstract class MessagePacket extends PacketImpl implements MessagePacketI {
 
-   protected Message message;
+   protected ICoreMessage message;
 
-   public MessagePacket(final byte type, final Message message) {
+   public MessagePacket(final byte type, final ICoreMessage message) {
       super(type);
 
       this.message = message;
    }
 
    @Override
-   public Message getMessage() {
+   public ICoreMessage getMessage() {
       return message;
    }
 

@@ -32,15 +32,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.encode.BodyType;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -312,12 +310,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       final long id;
 
       @Override
-      public Message toCore() {
-         return this;
-      }
-
-      @Override
-      public ActiveMQBuffer getReadOnlyBodyBuffer() {
+      public CoreMessage toCore() {
          return null;
       }
 
@@ -389,10 +382,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public void messageChanged() {
 
       }
-      @Override
-      public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
-         return null;
-      }
 
       @Override
       public UUID getUserID() {
@@ -418,32 +407,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public ByteBuf getBuffer() {
          return null;
       }
-
-      @Override
-      public Object getProtocol() {
-         return null;
-      }
-
-      @Override
-      public Message setProtocol(Object protocol) {
-         return null;
-      }
-
-      @Override
-      public Object getBody() {
-         return null;
-      }
-
-      @Override
-      public BodyType getBodyType() {
-         return null;
-      }
-
-      @Override
-      public Message setBody(BodyType type, Object body) {
-         return null;
-      }
-
       @Override
       public Message setAddress(String address) {
          return null;
@@ -452,11 +415,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public Message setAddress(SimpleString address) {
          return null;
-      }
-
-      @Override
-      public byte getType() {
-         return 0;
       }
 
       @Override
@@ -512,11 +470,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public boolean isLargeMessage() {
          return false;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBuffer() {
-         return null;
       }
 
       @Override
@@ -782,11 +735,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public void copyHeadersAndProperties(Message msg) {
 
-      }
-
-      @Override
-      public Message setType(byte type) {
-         return null;
       }
 
       @Override

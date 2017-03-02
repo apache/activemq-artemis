@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -63,7 +63,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
 
-      Message msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
+      ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
       Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
@@ -82,7 +82,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, msgs.size());
 
-      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), (msgs.get(0).getMessage()).getBodyBuffer().toByteBuffer().array());
+      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), (msgs.get(0).getMessage()).toCore().getBodyBuffer().toByteBuffer().array());
 
       Assert.assertTrue(store.isPaging());
 
@@ -104,10 +104,10 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       pageDirDir.mkdirs();
    }
 
-   protected Message createMessage(final long messageId,
-                                   final SimpleString destination,
-                                   final ByteBuffer buffer) {
-      Message msg = new CoreMessage(messageId, 200);
+   protected ICoreMessage createMessage(final long messageId,
+                                        final SimpleString destination,
+                                        final ByteBuffer buffer) {
+      ICoreMessage msg = new CoreMessage(messageId, 200);
 
       msg.setAddress(destination);
 

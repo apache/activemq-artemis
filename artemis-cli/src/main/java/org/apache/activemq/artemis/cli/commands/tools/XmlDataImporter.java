@@ -45,7 +45,9 @@ import java.util.UUID;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -62,7 +64,6 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
@@ -297,7 +298,7 @@ public final class XmlDataImporter extends ActionAbstract {
          switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
                if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName())) {
-                  processMessageBody(message);
+                  processMessageBody(message.toCore());
                } else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
                   processMessageProperties(message);
                } else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
@@ -468,7 +469,7 @@ public final class XmlDataImporter extends ActionAbstract {
       }
    }
 
-   private void processMessageBody(final Message message) throws XMLStreamException, IOException {
+   private void processMessageBody(final ICoreMessage message) throws XMLStreamException, IOException {
       boolean isLarge = false;
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {

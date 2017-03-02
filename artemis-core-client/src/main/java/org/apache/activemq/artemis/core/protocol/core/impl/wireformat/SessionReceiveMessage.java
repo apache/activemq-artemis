@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -31,7 +31,7 @@ public class SessionReceiveMessage extends MessagePacket {
 
    private int deliveryCount;
 
-   public SessionReceiveMessage(final long consumerID, final Message message, final int deliveryCount) {
+   public SessionReceiveMessage(final long consumerID, final ICoreMessage message, final int deliveryCount) {
       super(SESS_RECEIVE_MSG, message);
 
       this.consumerID = consumerID;
@@ -39,7 +39,7 @@ public class SessionReceiveMessage extends MessagePacket {
       this.deliveryCount = deliveryCount;
    }
 
-   public SessionReceiveMessage(final Message message) {
+   public SessionReceiveMessage(final CoreMessage message) {
       super(SESS_RECEIVE_MSG, message);
    }
 

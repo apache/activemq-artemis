@@ -65,6 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -2079,7 +2080,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected Message generateMessage(final long id) {
-      Message message = new CoreMessage(id, 1000);
+      ICoreMessage message = new CoreMessage(id, 1000);
 
       message.setMessageID(id);
 

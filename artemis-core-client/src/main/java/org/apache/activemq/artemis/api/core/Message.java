@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.artemis.api.core.encode.BodyType;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
 /**
@@ -166,36 +164,44 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
-
-   void messageChanged();
-
-   /** Used to calculate what is the delivery time.
-    *  Return null if not scheduled. */
-   Long getScheduledDeliveryTime();
-
-   /** Used for Large messages on Core.
-    *  Do not use this, it will go away
-    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+   /**
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
    @Deprecated
    default InputStream getBodyInputStream() {
       return null;
    }
 
    /**
-    * Careful: Unless you are changing the body of the message, prefer getReadOnlyBodyBuffer
-    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
    @Deprecated
-   ActiveMQBuffer getBodyBuffer();
+   default ActiveMQBuffer getBodyBuffer() {
+      return null;
+   }
+
+      /**
+       * @deprecated do not use this, use through ICoreMessage or ClientMessage
+       */
+   @Deprecated
+   default byte getType() {
+      return (byte)0;
+   }
 
    /**
-    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
    @Deprecated
-   ActiveMQBuffer getReadOnlyBodyBuffer();
+   default Message setType(byte type) {
+      return this;
+   }
 
-   /** Used in the cases of large messages
-    *  @deprecated  use it directly from core message, as it doesn't make sense on other protocols */
-   @Deprecated
-   LargeBodyEncoder getBodyEncoder() throws ActiveMQException;
+
+   void messageChanged();
+
+   /** Used to calculate what is the delivery time.
+    *  Return null if not scheduled. */
+   Long getScheduledDeliveryTime();
 
    /** Context can be used by the application server to inject extra control, like a protocol specific on the server.
     * There is only one per Object, use it wisely!
@@ -208,27 +214,6 @@ public interface Message {
 
    /** The buffer will belong to this message, until release is called. */
    Message setBuffer(ByteBuf buffer);
-
-   // TODO-now: Do we need this?
-   byte getType();
-
-   // TODO-now: Do we need this?
-   Message setType(byte type);
-
-   /**
-    * Returns whether this message is a <em>large message</em> or a regular message.
-    */
-   boolean isLargeMessage();
-
-   /**
-    * TODO: There's currently some treatment on LargeMessage that is done for server's side large message
-    *       This needs to be refactored, this Method shouldn't be used at all.
-    * @Deprecated do not use this, internal use only. *It will* be removed for sure even on minor releases.
-    * */
-   @Deprecated
-   default boolean isServerMessage() {
-      return false;
-   }
 
    ByteBuf getBuffer();
 
@@ -246,6 +231,10 @@ public interface Message {
    long getMessageID();
 
    Message setMessageID(long id);
+
+   default boolean isLargeMessage() {
+      return false;
+   }
 
    /**
     * Returns the expiration time of this message.
@@ -297,16 +286,6 @@ public interface Message {
 
    Persister<Message> getPersister();
 
-   Object getProtocol();
-
-   Message setProtocol(Object protocol);
-
-   Object getBody();
-
-   BodyType getBodyType();
-
-   Message setBody(BodyType type, Object body);
-
    String getAddress();
 
    Message setAddress(String address);
@@ -356,16 +335,6 @@ public interface Message {
       }
       setBuffer(null);
    }
-
-   default String getText() {
-      if (getBodyType() == BodyType.Text) {
-         return getBody().toString();
-      } else {
-         return null;
-      }
-   }
-
-   // TODO-now: move this to some utility class
    default void referenceOriginalMessage(final Message original, String originalQueue) {
       String queueOnMessage = original.getStringProperty(Message.HDR_ORIGINAL_QUEUE.toString());
 
@@ -559,7 +528,6 @@ public interface Message {
       }
 
       map.put("address", getAddress());
-      map.put("type", getBodyType().toString());
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());
       map.put("timestamp", getTimestamp());
@@ -581,7 +549,7 @@ public interface Message {
 
 
    /** This should make you convert your message into Core format. */
-   Message toCore();
+   ICoreMessage toCore();
 
    int getMemoryEstimate();
 

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -38,7 +38,7 @@ public class SessionSendMessage extends MessagePacket {
    private final transient SendAcknowledgementHandler handler;
 
    /** This will be using the CoreMessage because it is meant for the core-protocol */
-   public SessionSendMessage(final Message message,
+   public SessionSendMessage(final ICoreMessage message,
                              final boolean requiresResponse,
                              final SendAcknowledgementHandler handler) {
       super(SESS_SEND, message);

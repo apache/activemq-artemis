@@ -25,6 +25,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -35,9 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.encode.BodyType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -339,6 +338,8 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
    class FakeMessageWithID extends RefCountMessage {
 
+      final long id;
+
       @Override
       public int getPersistSize() {
          return 0;
@@ -354,11 +355,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Message setProtocol(Object protocol) {
-         return this;
-      }
-
-      @Override
       public void reloadPersistence(ActiveMQBuffer record) {
 
       }
@@ -369,8 +365,8 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Message toCore() {
-         return this;
+      public ICoreMessage toCore() {
+         return null;
       }
 
       @Override
@@ -382,12 +378,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       public void sendBuffer(ByteBuf buffer, int count) {
 
       }
-
-      @Override
-      public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
-         return null;
-      }
-
       @Override
       public Message setUserID(Object userID) {
          return null;
@@ -401,18 +391,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public void messageChanged() {
 
-      }
-
-      @Override
-      public ActiveMQBuffer getReadOnlyBodyBuffer() {
-         return null;
-      }
-
-      final long id;
-
-      @Override
-      public Message setType(byte type) {
-         return null;
       }
 
       @Override
@@ -495,26 +473,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Object getProtocol() {
-         return null;
-      }
-
-      @Override
-      public Object getBody() {
-         return null;
-      }
-
-      @Override
-      public BodyType getBodyType() {
-         return null;
-      }
-
-      @Override
-      public Message setBody(BodyType type, Object body) {
-         return null;
-      }
-
-      @Override
       public Message setAddress(String address) {
          return null;
       }
@@ -522,11 +480,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public Message setAddress(SimpleString address) {
          return null;
-      }
-
-      @Override
-      public byte getType() {
-         return 0;
       }
 
       @Override
@@ -582,11 +535,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public boolean isLargeMessage() {
          return false;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBuffer() {
-         return null;
       }
 
       @Override

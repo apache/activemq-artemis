@@ -52,7 +52,7 @@ public class AMQPMessageTest {
 
       nettyBuffer.readBytes(bytes);
 
-      AMQPMessage encode = new AMQPMessage(0, bytes, null);
+      AMQPMessage encode = new AMQPMessage(0, bytes);
 
       Assert.assertEquals(7, encode.getHeader().getDeliveryCount().intValue());
       Assert.assertEquals(true, encode.getHeader().getDurable());

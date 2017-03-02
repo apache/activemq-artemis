@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
@@ -94,7 +95,7 @@ public interface ServerConsumer extends Consumer {
 
    void individualCancel(final long messageID, boolean failed) throws Exception;
 
-   void forceDelivery(long sequence);
+   void forceDelivery(long sequence) throws ActiveMQException;
 
    void setTransferring(boolean transferring);
 

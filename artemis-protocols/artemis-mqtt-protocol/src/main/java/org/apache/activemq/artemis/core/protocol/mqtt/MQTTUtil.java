@@ -24,6 +24,7 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -91,7 +92,7 @@ public class MQTTUtil {
       return MQTT_RETAIN_ADDRESS_PREFIX + MQTT_WILDCARD.convert(filter, wildcardConfiguration);
    }
 
-   private static Message createServerMessage(MQTTSession session,
+   private static ICoreMessage createServerMessage(MQTTSession session,
                                                     SimpleString address,
                                                     boolean retain,
                                                     int qos) {
@@ -111,7 +112,7 @@ public class MQTTUtil {
                                                               int qos,
                                                               ByteBuf payload) {
       String coreAddress = convertMQTTAddressFilterToCore(topic, session.getWildcardConfiguration());
-      Message message = createServerMessage(session, new SimpleString(coreAddress), retain, qos);
+      ICoreMessage message = createServerMessage(session, new SimpleString(coreAddress), retain, qos);
 
       message.getBodyBuffer().writeBytes(payload, 0, payload.readableBytes());
       return message;

@@ -21,6 +21,7 @@ import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.StreamMessage;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -43,8 +44,8 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    private int bodyLength = 0;
 
-   public ServerJMSStreamMessage(Message message, int deliveryCount) {
-      super(message, deliveryCount);
+   public ServerJMSStreamMessage(ICoreMessage message) {
+      super(message);
    }
 
    // StreamMessage implementation ----------------------------------

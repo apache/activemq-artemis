@@ -507,14 +507,19 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * there are no other messages to be delivered.
     */
    @Override
-   public void forceDelivery(final long sequence) {
+   public void forceDelivery(final long sequence) throws ActiveMQException {
       forceDelivery(sequence, () -> {
          Message forcedDeliveryMessage = new CoreMessage(storageManager.generateID(), 50);
 
          forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
          forcedDeliveryMessage.setAddress(messageQueue.getName());
 
-         callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+         try {
+            callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+
       });
    }
 
@@ -1015,7 +1020,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * @param ref
     * @param message
     */
-   private void deliverStandardMessage(final MessageReference ref, final Message message) {
+   private void deliverStandardMessage(final MessageReference ref, final Message message) throws ActiveMQException {
       int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
 
       if (availableCredits != null) {

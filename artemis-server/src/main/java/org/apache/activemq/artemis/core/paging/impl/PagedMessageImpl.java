@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging.impl;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -136,8 +137,8 @@ public class PagedMessageImpl implements PagedMessage {
       }
    }
 
-   private boolean isLargeMessage() {
-      return message.isLargeMessage();
+   public boolean isLargeMessage() {
+      return message instanceof ICoreMessage && ((ICoreMessage)message).isLargeMessage();
    }
 
    @Override

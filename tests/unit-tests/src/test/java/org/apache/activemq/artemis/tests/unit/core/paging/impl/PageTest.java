@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -207,7 +207,7 @@ public class PageTest extends ActiveMQTestBase {
       int initialNumberOfMessages = page.getNumberOfMessages();
 
       for (int i = 0; i < numberOfElements; i++) {
-         Message msg = new CoreMessage().initBuffer(100);
+         ICoreMessage msg = new CoreMessage().initBuffer(100);
 
          for (int j = 0; j < 10; j++) {
             msg.getBodyBuffer().writeByte((byte) 'b');

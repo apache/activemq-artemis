@@ -22,9 +22,9 @@ import java.util.Map;
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
@@ -51,14 +51,6 @@ public interface ProtocolManager<P extends BaseInterceptor> {
    void addChannelHandlers(ChannelPipeline pipeline);
 
    boolean isProtocol(byte[] array);
-
-   /**
-    * Gets the Message Converter towards ActiveMQ Artemis.
-    * Notice this being null means no need to convert
-    *
-    * @return
-    */
-   MessageConverter getConverter();
 
    /**
     * If this protocols accepts connectoins without an initial handshake.

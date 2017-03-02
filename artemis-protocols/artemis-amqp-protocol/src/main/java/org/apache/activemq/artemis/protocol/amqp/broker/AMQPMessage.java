@@ -27,13 +27,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.encode.BodyType;
-import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -60,7 +59,6 @@ public class AMQPMessage extends RefCountMessage {
    String address;
    MessageImpl protonMessage;
    private volatile int memoryEstimate = -1;
-   private ProtonProtocolManager protocolManager;
    private long expiration = 0;
    // this can be used to encode the header again and the rest of the message buffer
    private int headerEnd = -1;
@@ -71,8 +69,7 @@ public class AMQPMessage extends RefCountMessage {
    private Properties _properties;
    private ApplicationProperties applicationProperties;
 
-   public AMQPMessage(long messageFormat, byte[] data, ProtonProtocolManager protocolManager) {
-      this.protocolManager = protocolManager;
+   public AMQPMessage(long messageFormat, byte[] data) {
       this.data = Unpooled.wrappedBuffer(data);
       this.messageFormat = messageFormat;
       this.bufferValid = true;
@@ -86,15 +83,14 @@ public class AMQPMessage extends RefCountMessage {
 
    }
 
-   public AMQPMessage(long messageFormat, Message message, ProtonProtocolManager protocolManager) {
-      this.protocolManager = protocolManager;
-      this.protonMessage = (MessageImpl)message;
+   public AMQPMessage(long messageFormat, Message message) {
       this.messageFormat = messageFormat;
+      this.protonMessage = (MessageImpl)message;
 
    }
 
-   public AMQPMessage(Message message, ProtonProtocolManager protocolManager) {
-      this(0, message, protocolManager);
+   public AMQPMessage(Message message) {
+      this(0, message);
    }
 
    public MessageImpl getProtonMessage() {
@@ -292,40 +288,6 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public ActiveMQBuffer getBodyBuffer() {
-      // NO-IMPL
-      return null;
-   }
-
-   @Override
-   public ActiveMQBuffer getReadOnlyBodyBuffer() {
-      // NO-IMPL
-      return null;
-   }
-
-   @Override
-   public LargeBodyEncoder getBodyEncoder() throws ActiveMQException {
-      // NO-IMPL
-      return null;
-   }
-
-   @Override
-   public byte getType() {
-      return type;
-   }
-
-   @Override
-   public AMQPMessage setType(byte type) {
-      this.type = type;
-      return this;
-   }
-
-   @Override
-   public boolean isLargeMessage() {
-      return false;
-   }
-
-   @Override
    public ByteBuf getBuffer() {
       if (data == null) {
          return null;
@@ -342,12 +304,14 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message copy() {
-      AMQPMessage newEncode = new AMQPMessage(this.messageFormat, data.array(), protocolManager);
+      checkBuffer();
+      AMQPMessage newEncode = new AMQPMessage(this.messageFormat, data.array());
       return newEncode;
    }
 
    @Override
    public org.apache.activemq.artemis.api.core.Message copy(long newID) {
+      checkBuffer();
       return copy().setMessageID(newID);
    }
 
@@ -399,32 +363,6 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setDurable(boolean durable) {
-      return null;
-   }
-
-   @Override
-   public Object getProtocol() {
-      return protocolManager;
-   }
-
-   @Override
-   public AMQPMessage setProtocol(Object protocol) {
-      this.protocolManager = (ProtonProtocolManager)protocol;
-      return this;
-   }
-
-   @Override
-   public Object getBody() {
-      return null;
-   }
-
-   @Override
-   public BodyType getBodyType() {
-      return null;
-   }
-
-   @Override
-   public org.apache.activemq.artemis.api.core.Message setBody(BodyType type, Object body) {
       return null;
    }
 
@@ -794,9 +732,12 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public org.apache.activemq.artemis.api.core.Message toCore() {
-      MessageImpl protonMessage = getProtonMessage();
-      throw new IllegalStateException("conversion between AMQP and Core not implemented yet!");
+   public ICoreMessage toCore() {
+      try {
+         return AMQPConverter.getInstance().toCore(this);
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
    }
 
    @Override

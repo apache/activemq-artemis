@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.zip.Inflater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -131,12 +132,11 @@ public class StompSession implements SessionCallback {
 
       //TODO-now: fix encoders
       LargeServerMessageImpl largeMessage = null;
-      Message newServerMessage = serverMessage;
+      ICoreMessage newServerMessage = serverMessage.toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
          StompFrame frame = null;
          if (serverMessage.isLargeMessage()) {
-            newServerMessage = serverMessage.copy();
 
             largeMessage = (LargeServerMessageImpl) serverMessage;
             LargeBodyEncoder encoder = largeMessage.getBodyEncoder();

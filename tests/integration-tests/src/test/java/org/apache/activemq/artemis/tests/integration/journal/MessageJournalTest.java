@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
-import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.proton.message.Message;
@@ -52,8 +51,6 @@ public class MessageJournalTest extends ActiveMQTestBase {
       Assert.assertNotNull(factory);
 
       message.getBodyBuffer().writeByte((byte)'Z');
-
-      message.setProtocol(factory.createProtocolManager(server, null, null, null));
 
       server.getStorageManager().storeMessage(message);
 
@@ -95,7 +92,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
       Message protonJMessage = Message.Factory.create();
 
-      AMQPMessage message = new AMQPMessage(protonJMessage, (ProtonProtocolManager)factory.createProtocolManager(server, null, null, null));
+      AMQPMessage message = new AMQPMessage(protonJMessage);
 
       message.setMessageID(333);
 

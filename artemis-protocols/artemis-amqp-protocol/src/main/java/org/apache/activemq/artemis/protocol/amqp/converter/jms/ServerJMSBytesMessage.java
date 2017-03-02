@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
@@ -49,8 +49,8 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
 public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage {
 
-   public ServerJMSBytesMessage(Message message, int deliveryCount) {
-      super(message, deliveryCount);
+   public ServerJMSBytesMessage(ICoreMessage message) {
+      super(message);
    }
 
    @Override

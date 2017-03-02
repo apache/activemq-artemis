@@ -21,16 +21,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
@@ -38,9 +41,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternal
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.qpid.proton.amqp.DescribedType;
@@ -62,9 +63,6 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 
 /**
  * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
@@ -568,7 +566,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
-   public int deliverMessage(Message message, int deliveryCount) throws Exception {
+   public int deliverMessage(AMQPMessage message, int deliveryCount) throws Exception {
       if (closed) {
          return 0;
       }
@@ -592,21 +590,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
       try {
-         long messageFormat = 0;
-
-
-         if (message instanceof AMQPMessage) {
-            message.sendBuffer(nettyBuffer, deliveryCount);
-         } else {
-            // Encode the Server Message into the given Netty Buffer as an AMQP
-            // Message transformed from the internal message model.
-            try {
-               messageFormat = sessionSPI.encodeMessage(message, deliveryCount, new NettyWritable(nettyBuffer));
-            } catch (Throwable e) {
-               log.warn(e.getMessage(), e);
-               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
-            }
-         }
+         message.sendBuffer(nettyBuffer, deliveryCount);
 
          int size = nettyBuffer.writerIndex();
 
@@ -616,7 +600,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
-            delivery.setMessageFormat((int) messageFormat);
+            delivery.setMessageFormat((int) message.getMessageFormat());
             delivery.setContext(message);
 
             // this will avoid a copy.. patch provided by Norman using buffer.array()

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -33,14 +34,13 @@ import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
+import org.apache.activemq.artemis.protocol.amqp.converter.CoreAmqpConverter;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
@@ -64,7 +64,6 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
-import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
@@ -296,13 +295,6 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public long encodeMessage(Message message, int deliveryCount, WritableBuffer buffer) throws Exception {
-      ProtonMessageConverter converter = (ProtonMessageConverter) manager.getConverter();
-
-      // The Proton variant accepts a WritableBuffer to allow for a faster more direct encode.
-      return (long) converter.outbound(message, deliveryCount, buffer);
-   }
-
    public String tempQueueName() {
       return UUIDGenerator.getInstance().generateStringUUID();
    }
@@ -350,7 +342,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           String address,
                           int messageFormat,
                           byte[] data) throws Exception {
-      AMQPMessage message = new AMQPMessage(messageFormat, data, manager);
+      AMQPMessage message = new AMQPMessage(messageFormat, data);
       if (address != null) {
          message.setAddress(new SimpleString(address));
       } else {
@@ -494,7 +486,7 @@ public class AMQPSessionCallback implements SessionCallback {
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 
       try {
-         return plugSender.deliverMessage(message, deliveryCount);
+         return plugSender.deliverMessage(CoreAmqpConverter.checkAMQP(message), deliveryCount);
       } catch (Exception e) {
          synchronized (connection.getLock()) {
             plugSender.getSender().setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage()));

@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
@@ -46,9 +47,9 @@ public class MessageImplTest extends ActiveMQTestBase {
          final long expiration = RandomUtil.randomLong();
          final long timestamp = RandomUtil.randomLong();
          final byte priority = RandomUtil.randomByte();
-         Message message1 = new ClientMessageImpl(type, durable, expiration, timestamp, priority, 100);
+         ICoreMessage message1 = new ClientMessageImpl(type, durable, expiration, timestamp, priority, 100);
 
-         Message message = message1;
+         ICoreMessage message = message1;
 
          Assert.assertEquals(type, message.getType());
          Assert.assertEquals(durable, message.isDurable());

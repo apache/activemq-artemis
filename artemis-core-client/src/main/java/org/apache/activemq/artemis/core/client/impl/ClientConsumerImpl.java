@@ -625,7 +625,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       currentLargeMessageController.setLocal(true);
 
       //sets the packet
-      ActiveMQBuffer qbuff = clMessage.getBodyBuffer();
+      ActiveMQBuffer qbuff = clMessage.toCore().getBodyBuffer();
       int bytesToRead = qbuff.writerIndex() - qbuff.readerIndex();
       final byte[] body = ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer());
 

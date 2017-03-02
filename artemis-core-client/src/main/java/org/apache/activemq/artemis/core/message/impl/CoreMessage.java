@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.message.impl;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -41,7 +43,7 @@ import org.jboss.logging.Logger;
 
 /** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
  *  consumers */
-public class CoreMessage extends RefCountMessage {
+public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
 
@@ -89,20 +91,7 @@ public class CoreMessage extends RefCountMessage {
 
    protected volatile TypedProperties properties;
 
-   private Object protocol;
-
    public CoreMessage() {
-   }
-
-   @Override
-   public CoreMessage setProtocol(Object protocol) {
-      this.protocol = protocol;
-      return this;
-   }
-
-   @Override
-   public Object getProtocol() {
-      return protocol;
    }
 
    @Override
@@ -164,6 +153,11 @@ public class CoreMessage extends RefCountMessage {
       return null;
    }
 
+   @Override
+   public InputStream getBodyInputStream() {
+      return null;
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -187,6 +181,7 @@ public class CoreMessage extends RefCountMessage {
       }
    }
 
+   @Override
    public int getEndOfBodyPosition() {
       if (endOfBodyPosition < 0) {
          endOfBodyPosition = getBodyBuffer().writerIndex();
@@ -238,7 +233,7 @@ public class CoreMessage extends RefCountMessage {
       messageID = msg.getMessageID();
       address = msg.getAddressSimpleString();
       userID = (UUID)msg.getUserID();
-      type = msg.getType();
+      type = msg.toCore().getType();
       durable = msg.isDurable();
       expiration = msg.getExpiration();
       timestamp = msg.getTimestamp();
@@ -369,6 +364,17 @@ public class CoreMessage extends RefCountMessage {
    }
 
    @Override
+   public boolean isServerMessage() {
+      // even though CoreMessage is used both on server and client
+      // callers are interested in knowing if this is a server large message
+      // as it will be used to send the body from the files.
+      //
+      // this may need further refactoring when we improve large messages
+      // and expose that functionality to other protocols.
+      return false;
+   }
+
+   @Override
    public byte getType() {
       return type;
    }
@@ -467,27 +473,6 @@ public class CoreMessage extends RefCountMessage {
    }
 
    @Override
-   public Object getBody() {
-
-      if (body == null) {
-         decodeBody();
-      }
-
-      return body;
-   }
-
-   private void decodeBody() {
-      buffer.readerIndex(DataConstants.SIZE_INT);
-      switch (getBodyType()) {
-         case Text:
-            body = SimpleString.readNullableSimpleString(buffer);
-            break;
-
-         default:
-            break;
-      }
-   }
-
    public int getHeadersAndPropertiesEncodeSize() {
       return DataConstants.SIZE_LONG + // Message ID
          DataConstants.SIZE_BYTE + // user id null?
@@ -501,10 +486,6 @@ public class CoreMessage extends RefCountMessage {
              /* PropertySize and Properties */checkProperties().getEncodeSize();
    }
 
-   @Override
-   public BodyType getBodyType() {
-      return getBodyType(type);
-   }
 
    public static BodyType getBodyType(byte type) {
       switch (type) {
@@ -537,16 +518,6 @@ public class CoreMessage extends RefCountMessage {
    public int getEncodeSize() {
       checkEncode();
       return buffer == null ? -1 : buffer.writerIndex();
-   }
-
-   @Override
-   public CoreMessage setBody(final BodyType bodyType, Object body) {
-      messageChanged();
-
-      this.type = Message.TEXT_TYPE;
-      this.body = body;
-
-      return this;
    }
 
    @Override
@@ -1016,7 +987,7 @@ public class CoreMessage extends RefCountMessage {
    }
 
    @Override
-   public Message toCore() {
+   public CoreMessage toCore() {
       return this;
    }
 

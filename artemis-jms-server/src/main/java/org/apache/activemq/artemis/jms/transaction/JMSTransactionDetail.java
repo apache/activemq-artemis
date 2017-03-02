@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.jms.transaction;
 import javax.transaction.xa.Xid;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionDetail;
@@ -37,7 +38,10 @@ public class JMSTransactionDetail extends TransactionDetail {
 
    @Override
    public String decodeMessageType(Message msg) {
-      int type = msg.getType();
+      if (!(msg instanceof ICoreMessage)) {
+         return "N/A";
+      }
+      int type = ((ICoreMessage) msg).getType();
       switch (type) {
          case ActiveMQMessage.TYPE: // 0
             return "Default";

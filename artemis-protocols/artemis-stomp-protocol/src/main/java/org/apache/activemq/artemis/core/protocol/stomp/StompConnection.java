@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -598,7 +598,7 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   protected void sendServerMessage(Message message, String txID) throws ActiveMQStompException {
+   protected void sendServerMessage(ICoreMessage message, String txID) throws ActiveMQStompException {
       StompSession stompSession = getSession(txID);
 
       if (stompSession.isNoLocal()) {
@@ -726,7 +726,7 @@ public final class StompConnection implements RemotingConnection {
       return SERVER_NAME;
    }
 
-   public StompFrame createStompMessage(Message serverMessage,
+   public StompFrame createStompMessage(ICoreMessage serverMessage,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
       return frameHandler.createMessageFrame(serverMessage, subscription, deliveryCount);

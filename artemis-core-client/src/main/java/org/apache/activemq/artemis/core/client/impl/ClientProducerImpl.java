@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.DeflaterReader;
@@ -218,7 +218,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       try {
          // In case we received message from another protocol, we first need to convert it to core as the ClientProducer only understands core
-         Message msg = msgToSend.toCore();
+         ICoreMessage msg = msgToSend.toCore();
 
          ClientProducerCredits theCredits;
 
@@ -259,7 +259,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          session.workDone();
 
          if (isLarge) {
-            largeMessageSend(sendBlocking, (CoreMessage)msg, theCredits, handler);
+            largeMessageSend(sendBlocking, msg, theCredits, handler);
          } else {
             sendRegularMessage(sendingAddress, msg, sendBlocking, theCredits, handler);
          }
@@ -268,12 +268,12 @@ public class ClientProducerImpl implements ClientProducerInternal {
       }
    }
 
-   private InputStream getBodyInputStream(Message msgI) {
+   private InputStream getBodyInputStream(ICoreMessage msgI) {
       return msgI.getBodyInputStream();
    }
 
    private void sendRegularMessage(final SimpleString sendingAddress,
-                                   final Message msgI,
+                                   final ICoreMessage msgI,
                                    final boolean sendBlocking,
                                    final ClientProducerCredits theCredits,
                                    final SendAcknowledgementHandler handler) throws ActiveMQException {
@@ -306,7 +306,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
     * @throws ActiveMQException
     */
    private void largeMessageSend(final boolean sendBlocking,
-                                 final CoreMessage msgI,
+                                 final ICoreMessage msgI,
                                  final ClientProducerCredits credits,
                                  SendAcknowledgementHandler handler) throws ActiveMQException {
       logger.tracef("largeMessageSend::%s, Blocking=%s", msgI, sendBlocking);
@@ -353,7 +353,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
     * @throws ActiveMQException
     */
    private void largeMessageSendServer(final boolean sendBlocking,
-                                       final Message msgI,
+                                       final ICoreMessage msgI,
                                        final ClientProducerCredits credits,
                                        SendAcknowledgementHandler handler) throws ActiveMQException {
       sendInitialLargeMessageHeader(msgI, credits);
@@ -394,7 +394,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
     * @throws ActiveMQException
     */
    private void largeMessageSendBuffered(final boolean sendBlocking,
-                                         final Message msgI,
+                                         final ICoreMessage msgI,
                                          final ClientProducerCredits credits,
                                          SendAcknowledgementHandler handler) throws ActiveMQException {
       msgI.getBodyBuffer().readerIndex(0);
@@ -409,7 +409,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
     * @throws ActiveMQException
     */
    private void largeMessageSendStreamed(final boolean sendBlocking,
-                                         final Message msgI,
+                                         final ICoreMessage msgI,
                                          final InputStream inputStreamParameter,
                                          final ClientProducerCredits credits,
                                          SendAcknowledgementHandler handler) throws ActiveMQException {
