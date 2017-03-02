@@ -326,7 +326,8 @@ public class AMQPSessionCallback implements SessionCallback {
    public void cancel(Object brokerConsumer, Message message, boolean updateCounts) throws Exception {
       recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);
+         ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);;
+         ((ServerConsumer) brokerConsumer).getQueue().forceDelivery();
       } finally {
          resetContext();
       }
@@ -560,7 +561,6 @@ public class AMQPSessionCallback implements SessionCallback {
       Transaction tx = protonSPI.getTransaction(txid);
       tx.rollback();
       protonSPI.removeTransaction(txid);
-
    }
 
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {

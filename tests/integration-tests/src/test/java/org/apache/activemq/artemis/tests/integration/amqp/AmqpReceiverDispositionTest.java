@@ -44,6 +44,10 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       receiver1.flow(1);
 
       AmqpMessage message = receiver1.receive(5, TimeUnit.SECONDS);
+
+      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+
+
       assertNotNull("did not receive message first time", message);
       assertEquals("MessageID:0", message.getMessageId());
 
@@ -51,12 +55,11 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       assertNotNull(protonMessage);
       assertEquals("Unexpected initial value for AMQP delivery-count", 0, protonMessage.getDeliveryCount());
 
+      receiver2.flow(1);
       message.release();
 
-      // Read the message again and validate its state
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
-      receiver2.flow(1);
+      // Read the message again and validate its state
       message = receiver2.receive(10, TimeUnit.SECONDS);
       assertNotNull("did not receive message again", message);
       assertEquals("MessageID:0", message.getMessageId());
