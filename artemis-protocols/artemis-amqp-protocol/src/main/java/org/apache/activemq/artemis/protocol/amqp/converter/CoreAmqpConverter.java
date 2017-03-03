@@ -56,7 +56,6 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
-import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Footer;
 import org.apache.qpid.proton.amqp.messaging.Header;
@@ -69,13 +68,6 @@ import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_SEQUENCE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_LIST;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_STRING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.EMPTY_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_CONTENT_TYPE;
@@ -87,7 +79,6 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_HEADER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_MESSAGE_ANNOTATION_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_NATIVE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_PROPERTIES;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_REPLYTO_GROUP_ID;
@@ -123,13 +114,13 @@ public class CoreAmqpConverter {
 
       long messageFormat = 0;
       Header header = null;
-      Properties properties = null;
+      final Properties properties = new Properties();
       Map<Symbol, Object> daMap = null;
-      Map<Symbol, Object> maMap = null;
+      final Map<Symbol, Object> maMap = new HashMap<>();
       Map<String, Object> apMap = null;
       Map<Object, Object> footerMap = null;
 
-      Section body = convertBody(message);
+      Section body = convertBody(message, maMap, properties);
 
       if (message.getInnerMessage().isDurable()) {
          if (header == null) {
@@ -146,16 +137,10 @@ public class CoreAmqpConverter {
       }
       String type = message.getJMSType();
       if (type != null) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          properties.setSubject(type);
       }
       String messageId = message.getJMSMessageID();
       if (messageId != null) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          try {
             properties.setMessageId(AMQPMessageIdHelper.INSTANCE.toIdObject(messageId));
          } catch (ActiveMQAMQPIllegalStateException e) {
@@ -164,31 +149,16 @@ public class CoreAmqpConverter {
       }
       Destination destination = message.getJMSDestination();
       if (destination != null) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          properties.setTo(toAddress(destination));
-         if (maMap == null) {
-            maMap = new HashMap<>();
-         }
          maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, destinationType(destination));
       }
       Destination replyTo = message.getJMSReplyTo();
       if (replyTo != null) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          properties.setReplyTo(toAddress(replyTo));
-         if (maMap == null) {
-            maMap = new HashMap<>();
-         }
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(replyTo));
       }
       String correlationId = message.getJMSCorrelationID();
       if (correlationId != null) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          try {
             properties.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(correlationId));
          } catch (ActiveMQAMQPIllegalStateException e) {
@@ -207,16 +177,10 @@ public class CoreAmqpConverter {
          }
          header.setTtl(new UnsignedInteger((int) ttl));
 
-         if (properties == null) {
-            properties = new Properties();
-         }
          properties.setAbsoluteExpiryTime(new Date(expiration));
       }
       long timeStamp = message.getJMSTimestamp();
       if (timeStamp != 0) {
-         if (properties == null) {
-            properties = new Properties();
-         }
          properties.setCreationTime(new Date(timeStamp));
       }
 
@@ -225,32 +189,20 @@ public class CoreAmqpConverter {
          if (key.startsWith("JMSX")) {
             if (key.equals("JMSXUserID")) {
                String value = message.getStringProperty(key);
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setUserId(new Binary(value.getBytes(StandardCharsets.UTF_8)));
                continue;
             } else if (key.equals("JMSXGroupID")) {
                String value = message.getStringProperty(key);
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setGroupId(value);
                continue;
             } else if (key.equals("JMSXGroupSeq")) {
                UnsignedInteger value = new UnsignedInteger(message.getIntProperty(key));
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setGroupSequence(value);
                continue;
             }
          } else if (key.startsWith(JMS_AMQP_PREFIX)) {
             // AMQP Message Information stored from a conversion to the Core Message
             if (key.equals(JMS_AMQP_NATIVE)) {
-               // skip..internal use only
-               continue;
-            } else if (key.equals(JMS_AMQP_ORIGINAL_ENCODING)) {
                // skip..internal use only
                continue;
             } else if (key.equals(JMS_AMQP_FIRST_ACQUIRER)) {
@@ -277,9 +229,6 @@ public class CoreAmqpConverter {
                header.setPriority(UnsignedByte.valueOf(priority));
                continue;
             } else if (key.startsWith(JMS_AMQP_PROPERTIES)) {
-               if (properties == null) {
-                  properties = new Properties();
-               }
                continue;
             } else if (key.startsWith(JMS_AMQP_DELIVERY_ANNOTATION_PREFIX)) {
                if (daMap == null) {
@@ -289,28 +238,16 @@ public class CoreAmqpConverter {
                daMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
                continue;
             } else if (key.startsWith(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX)) {
-               if (maMap == null) {
-                  maMap = new HashMap<>();
-               }
                String name = key.substring(JMS_AMQP_MESSAGE_ANNOTATION_PREFIX.length());
                maMap.put(Symbol.valueOf(name), message.getObjectProperty(key));
                continue;
             } else if (key.equals(JMS_AMQP_CONTENT_TYPE)) {
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setContentType(Symbol.getSymbol(message.getStringProperty(key)));
                continue;
             } else if (key.equals(JMS_AMQP_CONTENT_ENCODING)) {
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setContentEncoding(Symbol.getSymbol(message.getStringProperty(key)));
                continue;
             } else if (key.equals(JMS_AMQP_REPLYTO_GROUP_ID)) {
-               if (properties == null) {
-                  properties = new Properties();
-               }
                properties.setReplyToGroupId(message.getStringProperty(key));
                continue;
             } else if (key.startsWith(JMS_AMQP_FOOTER_PREFIX)) {
@@ -323,9 +260,6 @@ public class CoreAmqpConverter {
             }
          } else if (key.equals("_AMQ_GROUP_ID")) {
             String value = message.getStringProperty(key);
-            if (properties == null) {
-               properties = new Properties();
-            }
             properties.setGroupId(value);
             continue;
          } else if (key.equals(NATIVE_MESSAGE_ID)) {
@@ -379,7 +313,9 @@ public class CoreAmqpConverter {
          byte[] data = new byte[buffer.writerIndex()];
          buffer.readBytes(data);
 
-         return new AMQPMessage(messageFormat, data);
+         AMQPMessage amqpMessage = new AMQPMessage(messageFormat, data);
+         amqpMessage.setMessageID(message.getInnerMessage().getMessageID());
+         return amqpMessage;
 
       } finally {
          TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
@@ -387,52 +323,27 @@ public class CoreAmqpConverter {
       }
    }
 
-   private static Section convertBody(ServerJMSMessage message) throws JMSException {
+   private static Section convertBody(ServerJMSMessage message, Map<Symbol, Object> maMap, Properties properties) throws JMSException {
 
       Section body = null;
-      short orignalEncoding = AMQP_UNKNOWN;
-
-      try {
-         orignalEncoding = message.getShortProperty(JMS_AMQP_ORIGINAL_ENCODING);
-      } catch (Exception ex) {
-         // Ignore and stick with UNKNOWN
-      }
 
       if (message instanceof ServerJMSBytesMessage) {
          Binary payload = getBinaryFromMessageBody((ServerJMSBytesMessage) message);
 
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_BYTES_MESSAGE);
          if (payload == null) {
             payload = EMPTY_BINARY;
-         }
-
-         switch (orignalEncoding) {
-            case AMQP_NULL:
-               break;
-            case AMQP_VALUE_BINARY:
-               body = new AmqpValue(payload);
-               break;
-            case AMQP_DATA:
-            case AMQP_UNKNOWN:
-            default:
-               body = new Data(payload);
-               break;
+         } else {
+            body = new AmqpValue(payload);
          }
       } else if (message instanceof ServerJMSTextMessage) {
-         switch (orignalEncoding) {
-            case AMQP_NULL:
-               break;
-            case AMQP_DATA:
-               body = new Data(getBinaryFromMessageBody((ServerJMSTextMessage) message));
-               break;
-            case AMQP_VALUE_STRING:
-            case AMQP_UNKNOWN:
-            default:
-               body = new AmqpValue(((TextMessage) message).getText());
-               break;
-         }
+         body = new AmqpValue(((TextMessage) message).getText());
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_TEXT_MESSAGE);
       } else if (message instanceof ServerJMSMapMessage) {
          body = new AmqpValue(getMapFromMessageBody((ServerJMSMapMessage) message));
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_MAP_MESSAGE);
       } else if (message instanceof ServerJMSStreamMessage) {
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_STREAM_MESSAGE);
          ArrayList<Object> list = new ArrayList<>();
          final ServerJMSStreamMessage m = (ServerJMSStreamMessage) message;
          try {
@@ -442,57 +353,41 @@ public class CoreAmqpConverter {
          } catch (MessageEOFException e) {
          }
 
-         switch (orignalEncoding) {
-            case AMQP_SEQUENCE:
-               body = new AmqpSequence(list);
-               break;
-            case AMQP_VALUE_LIST:
-            case AMQP_UNKNOWN:
-            default:
-               body = new AmqpValue(list);
-               break;
-         }
+         body = new AmqpSequence(list);
       } else if (message instanceof ServerJMSObjectMessage) {
+         properties.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_OBJECT_MESSAGE);
          Binary payload = getBinaryFromMessageBody((ServerJMSObjectMessage) message);
 
          if (payload == null) {
             payload = EMPTY_BINARY;
          }
 
-         switch (orignalEncoding) {
-            case AMQP_VALUE_BINARY:
-               body = new AmqpValue(payload);
-               break;
-            case AMQP_DATA:
-            case AMQP_UNKNOWN:
-            default:
-               body = new Data(payload);
-               break;
-         }
+         body = new AmqpValue(payload);
 
          // For a non-AMQP message we tag the outbound content type as containing
          // a serialized Java object so that an AMQP client has a hint as to what
          // we are sending it.
          if (!message.propertyExists(JMS_AMQP_CONTENT_TYPE)) {
-            message.setStringProperty(JMS_AMQP_CONTENT_TYPE, SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
+            message.setStringProperty(JMS_AMQP_CONTENT_TYPE, SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
          }
       } else if (message instanceof ServerJMSMessage) {
+         maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_MESSAGE);
          // If this is not an AMQP message that was converted then the original encoding
          // will be unknown so we check for special cases of messages with special data
          // encoded into the server message body.
-         if (orignalEncoding == AMQP_UNKNOWN) {
-            ICoreMessage internalMessage = message.getInnerMessage();
-            int readerIndex = internalMessage.getBodyBuffer().readerIndex();
-            try {
-               Object s = internalMessage.getBodyBuffer().readNullableSimpleString();
-               if (s != null) {
-                  body = new AmqpValue(s.toString());
-               }
-            } catch (Throwable ignored) {
-               logger.debug("Exception ignored during conversion", ignored.getMessage(), ignored);
-            } finally {
-               internalMessage.getBodyBuffer().readerIndex(readerIndex);
+         ICoreMessage internalMessage = message.getInnerMessage();
+         int readerIndex = internalMessage.getBodyBuffer().readerIndex();
+         try {
+            Object s = internalMessage.getBodyBuffer().readNullableSimpleString();
+            if (s != null) {
+               body = new AmqpValue(s.toString());
             }
+         } catch (Throwable ignored) {
+            logger.debug("Exception ignored during conversion", ignored.getMessage(), ignored);
+            body = new AmqpValue("Conversion to AMQP error!");
+         } finally {
+            internalMessage.getBodyBuffer().readerIndex(readerIndex);
          }
       }
 

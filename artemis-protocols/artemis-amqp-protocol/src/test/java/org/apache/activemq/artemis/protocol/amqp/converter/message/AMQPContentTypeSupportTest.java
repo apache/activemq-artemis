@@ -218,7 +218,7 @@ public class AMQPContentTypeSupportTest {
    @Test
    public void testParseContentTypeWithApplicationJavaSerialized() throws Exception {
       // Expect null as this is not a textual type
-      doParseContentTypeTestImpl(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE, null);
+      doParseContentTypeTestImpl(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), null);
    }
 
    private void doParseContentTypeTestImpl(String contentType, Charset expected) throws ActiveMQAMQPInvalidContentTypeException {

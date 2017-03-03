@@ -51,12 +51,62 @@ import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
 public final class AMQPMessageSupport {
 
    // Message Properties used to map AMQP to JMS and back
+   /**
+    * Attribute used to mark the class type of JMS message that a particular message
+    * instance represents, used internally by the client.
+    */
+   public static final Symbol JMS_MSG_TYPE = Symbol.getSymbol("x-opt-jms-msg-type");
+
+   /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final String JMS_DELIVERY_TIME = "x-opt-delivery-time";
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a generic JMS Message
+    * which has no body.
+    */
+   public static final byte JMS_MESSAGE = 0;
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS ObjectMessage
+    * which has an Object value serialized in its message body.
+    */
+   public static final byte JMS_OBJECT_MESSAGE = 1;
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS MapMessage
+    * which has an Map instance serialized in its message body.
+    */
+   public static final byte JMS_MAP_MESSAGE = 2;
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS BytesMessage
+    * which has a body that consists of raw bytes.
+    */
+   public static final byte JMS_BYTES_MESSAGE = 3;
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS StreamMessage
+    * which has a body that is a structured collection of primitives values.
+    */
+   public static final byte JMS_STREAM_MESSAGE = 4;
+
+   /**
+    * Value mapping for JMS_MSG_TYPE which indicates the message is a JMS TextMessage
+    * which has a body that contains a UTF-8 encoded String.
+    */
+   public static final byte JMS_TEXT_MESSAGE = 5;
+
+
+   /**
+    * Content type used to mark Data sections as containing a serialized java object.
+    */
+   public static final Symbol SERIALIZED_JAVA_OBJECT_CONTENT_TYPE = Symbol.getSymbol("application/x-java-serialized-object");
 
    public static final String JMS_AMQP_PREFIX = "JMS_AMQP_";
    public static final int JMS_AMQP_PREFIX_LENGTH = JMS_AMQP_PREFIX.length();
 
-   public static final String MESSAGE_FORMAT = "MESSAGE_FORMAT";
-   public static final String ORIGINAL_ENCODING = "ORIGINAL_ENCODING";
    public static final String NATIVE = "NATIVE";
    public static final String HEADER = "HEADER";
    public static final String PROPERTIES = "PROPERTIES";
@@ -76,7 +126,6 @@ public final class AMQPMessageSupport {
    public static final String JMS_AMQP_HEADER_DURABLE = JMS_AMQP_PREFIX + HEADER + DURABLE;
    public static final String JMS_AMQP_HEADER_PRIORITY = JMS_AMQP_PREFIX + HEADER + PRIORITY;
    public static final String JMS_AMQP_PROPERTIES = JMS_AMQP_PREFIX + PROPERTIES;
-   public static final String JMS_AMQP_ORIGINAL_ENCODING = JMS_AMQP_PREFIX + ORIGINAL_ENCODING;
    public static final String JMS_AMQP_NATIVE = JMS_AMQP_PREFIX + NATIVE;
    public static final String JMS_AMQP_FIRST_ACQUIRER = JMS_AMQP_PREFIX + FIRST_ACQUIRER;
    public static final String JMS_AMQP_CONTENT_TYPE = JMS_AMQP_PREFIX + CONTENT_TYPE;
@@ -107,12 +156,6 @@ public final class AMQPMessageSupport {
    public static final byte TOPIC_TYPE = 0x01;
    public static final byte TEMP_QUEUE_TYPE = 0x02;
    public static final byte TEMP_TOPIC_TYPE = 0x03;
-
-
-   /**
-    * Content type used to mark Data sections as containing a serialized java object.
-    */
-   public static final String SERIALIZED_JAVA_OBJECT_CONTENT_TYPE = "application/x-java-serialized-object";
 
    /**
     * Content type used to mark Data sections as containing arbitrary bytes.

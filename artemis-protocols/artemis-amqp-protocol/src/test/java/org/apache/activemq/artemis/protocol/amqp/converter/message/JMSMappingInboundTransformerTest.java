@@ -116,7 +116,7 @@ public class JMSMappingInboundTransformerTest {
    @Test
    public void testCreateObjectMessageFromNoBodySectionAndContentType() throws Exception {
       Message message = Message.Factory.create();
-      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
+      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
 
       javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
 
@@ -231,7 +231,7 @@ public class JMSMappingInboundTransformerTest {
       Message message = Proton.message();
       Binary binary = new Binary(new byte[0]);
       message.setBody(new Data(binary));
-      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
+      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
 
       javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
 
@@ -393,7 +393,7 @@ public class JMSMappingInboundTransformerTest {
    public void testCreateObjectMessageFromAmqpValueWithBinaryAndContentType() throws Exception {
       Message message = Message.Factory.create();
       message.setBody(new AmqpValue(new Binary(new byte[0])));
-      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE);
+      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
 
       javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
 

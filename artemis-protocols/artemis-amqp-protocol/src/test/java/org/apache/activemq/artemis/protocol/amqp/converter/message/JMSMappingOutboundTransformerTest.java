@@ -54,7 +54,6 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_SEQUENCE;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -92,7 +91,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertTextMessageToAmqpMessageWithNoBodyOriginalEncodingWasNull() throws Exception {
       ServerJMSTextMessage outbound = createTextMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -159,7 +157,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertEmptyBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -174,7 +171,6 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertUncompressedBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       byte[] expectedPayload = new byte[] {8, 16, 24, 32};
       ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
@@ -196,7 +192,6 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertCompressedBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       byte[] expectedPayload = new byte[] {8, 16, 24, 32};
       ServerJMSBytesMessage outbound = createBytesMessage(true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
@@ -308,7 +303,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
       ServerJMSStreamMessage outbound = createStreamMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -340,7 +334,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
       ServerJMSStreamMessage outbound = createStreamMessage(true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       outbound.writeBoolean(false);
       outbound.writeString("test");
       outbound.encode();
@@ -374,7 +367,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -387,7 +379,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -417,7 +408,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -434,7 +424,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -468,7 +457,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -485,7 +473,6 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -518,7 +505,6 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertTextMessageCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
       String contentString = "myTextMessageContent";
       ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -536,7 +522,6 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertTextMessageContentNotStoredCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
       String contentString = "myTextMessageContent";
       ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
@@ -580,7 +565,6 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertCompressedTextMessageCreatesDataSectionBody() throws Exception {
       String contentString = "myTextMessageContent";
       ServerJMSTextMessage outbound = createTextMessage(contentString, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
