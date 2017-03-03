@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -207,7 +208,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(false, true);
+      internalSend(false, false);
    }
 
    @Test
@@ -252,6 +253,11 @@ public class ConsumerTest extends ActiveMQTestBase {
             TextMessage msg = session.createTextMessage("hello " + i);
             msg.setIntProperty("mycount", i);
             producer.send(msg);
+
+            MapMessage mapMessage = session.createMapMessage();
+            mapMessage.setInt("intOne", i);
+            mapMessage.setString("stringOne", Integer.toString(i));
+            producer.send(mapMessage);
          }
          long end = System.currentTimeMillis();
 
@@ -277,6 +283,11 @@ public class ConsumerTest extends ActiveMQTestBase {
             Assert.assertNotNull(message);
             Assert.assertEquals(i, message.getIntProperty("mycount"));
             Assert.assertEquals("hello " + i, message.getText());
+
+            MapMessage mapMessage = (MapMessage) consumer.receive(1000);
+            Assert.assertNotNull(mapMessage);
+            Assert.assertEquals(i, mapMessage.getInt("intOne"));
+            Assert.assertEquals(Integer.toString(i), mapMessage.getString("stringOne"));
          }
       } finally {
          connection.close();

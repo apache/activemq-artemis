@@ -128,6 +128,7 @@ public class TestConversions extends Assert {
       AMQPMessage encodedMessage = new AMQPMessage(message);
 
       ICoreMessage serverMessage = encodedMessage.toCore();
+      serverMessage.getReadOnlyBodyBuffer();
 
       ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) ServerJMSMessage.wrapCoreMessage(serverMessage);
       mapMessage.decode();
@@ -136,6 +137,9 @@ public class TestConversions extends Assert {
 
       Assert.assertEquals(1, mapMessage.getInt("someint"));
       Assert.assertEquals("value", mapMessage.getString("somestr"));
+
+      AMQPMessage newAMQP = CoreAmqpConverter.fromCore(mapMessage.getInnerMessage());
+      System.out.println(newAMQP.getProtonMessage().getBody());
    }
 
    @Test

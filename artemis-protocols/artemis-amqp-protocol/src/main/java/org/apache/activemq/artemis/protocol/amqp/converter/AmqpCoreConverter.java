@@ -189,6 +189,8 @@ public class AmqpCoreConverter {
 
       populateMessage(result, message.getProtonMessage());
 
+      result.encode();
+
       return result != null ? result.getInnerMessage() : null;
    }
 

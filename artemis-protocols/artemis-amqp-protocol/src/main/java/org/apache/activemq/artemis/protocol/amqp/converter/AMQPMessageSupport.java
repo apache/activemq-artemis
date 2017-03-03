@@ -258,7 +258,7 @@ public final class AMQPMessageSupport {
    private static CoreMessage newMessage(long id, byte messageType) {
       CoreMessage message = new CoreMessage(id, 512);
       message.setType(messageType);
-      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
+//      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;
    }
 }
