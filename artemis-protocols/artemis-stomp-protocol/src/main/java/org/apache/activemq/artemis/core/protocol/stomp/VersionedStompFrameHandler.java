@@ -289,6 +289,7 @@ public abstract class VersionedStompFrameHandler {
    }
 
    public StompFrame createMessageFrame(ICoreMessage serverMessage,
+                                        ActiveMQBuffer bodyBuffer,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
       StompFrame frame = createStompFrame(Stomp.Responses.MESSAGE);
@@ -297,14 +298,11 @@ public abstract class VersionedStompFrameHandler {
          frame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, subscription.getID());
       }
 
-      // TODO-now fix encoders
-      ActiveMQBuffer buffer = serverMessage.getReadOnlyBodyBuffer();
+      ActiveMQBuffer buffer = bodyBuffer != null ? bodyBuffer : serverMessage.getReadOnlyBodyBuffer();
 
       int bodyPos = (serverMessage).getEndOfBodyPosition() == -1 ? buffer.writerIndex() : (serverMessage).getEndOfBodyPosition();
 
-      buffer.readerIndex(CoreMessage.BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
-
-      int size = bodyPos - buffer.readerIndex();
+      int size = buffer.writerIndex();
 
       byte[] data = new byte[size];
 

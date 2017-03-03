@@ -25,12 +25,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.zip.Inflater;
 
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.message.LargeBodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -130,32 +134,31 @@ public class StompSession implements SessionCallback {
                           final ServerConsumer consumer,
                           int deliveryCount) {
 
-      //TODO-now: fix encoders
+      ICoreMessage  coreMessage = serverMessage.toCore();
+
       LargeServerMessageImpl largeMessage = null;
       ICoreMessage newServerMessage = serverMessage.toCore();
       try {
          StompSubscription subscription = subscriptions.get(consumer.getID());
-         StompFrame frame = null;
-         if (serverMessage.isLargeMessage()) {
+         StompFrame frame;
+         ActiveMQBuffer buffer;
 
-            largeMessage = (LargeServerMessageImpl) serverMessage;
-            LargeBodyEncoder encoder = largeMessage.getBodyEncoder();
+         if (coreMessage.isLargeMessage()) {
+            LargeBodyEncoder encoder = coreMessage.getBodyEncoder();
             encoder.open();
             int bodySize = (int) encoder.getLargeBodySize();
 
-            // TODO-now: Convert large mesasge body into the stomp message
-            //large message doesn't have a body.
-            // ((Message) newServerMessage).createBody(bodySize);
-//            encoder.encode(((ServerMessage)newServerMessage).getBodyBuffer(), bodySize);
-//            encoder.close();
+            buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
 
-            throw new RuntimeException("Large message body won't work with stomp now");
+            encoder.encode(buffer, bodySize);
+            encoder.close();
+         } else {
+            buffer = coreMessage.getReadOnlyBodyBuffer();
          }
 
          if (serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
-            //decompress
-            ActiveMQBuffer qbuff = newServerMessage.getBodyBuffer();
-            int bytesToRead = qbuff.writerIndex() - CoreMessage.BODY_OFFSET;
+            ActiveMQBuffer qbuff = buffer;
+            int bytesToRead = qbuff.readerIndex();
             Inflater inflater = new Inflater();
             inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
 
@@ -168,9 +171,10 @@ public class StompSession implements SessionCallback {
             qbuff.resetReaderIndex();
             qbuff.resetWriterIndex();
             qbuff.writeBytes(data);
+            buffer = qbuff;
          }
 
-         frame = connection.createStompMessage(newServerMessage, subscription, deliveryCount);
+         frame = connection.createStompMessage(newServerMessage, buffer, subscription, deliveryCount);
 
          int length = frame.getEncodedSize();
 

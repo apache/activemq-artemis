@@ -727,9 +727,10 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public StompFrame createStompMessage(ICoreMessage serverMessage,
+                                        ActiveMQBuffer bodyBuffer,
                                         StompSubscription subscription,
                                         int deliveryCount) throws Exception {
-      return frameHandler.createMessageFrame(serverMessage, subscription, deliveryCount);
+      return frameHandler.createMessageFrame(serverMessage, bodyBuffer, subscription, deliveryCount);
    }
 
    public void addStompEventListener(FrameEventListener listener) {
