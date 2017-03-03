@@ -105,25 +105,6 @@ public class JMSMappingInboundTransformerTest {
       assertEquals("Unexpected message class type", ServerJMSBytesMessage.class, jmsMessage.getClass());
    }
 
-   /**
-    * Test that a message with no body section, but with the content type set to
-    * {@value AMQPMessageSupport#SERIALIZED_JAVA_OBJECT_CONTENT_TYPE} results in an
-    * ObjectMessage when not otherwise annotated to indicate the type of JMS message it is.
-    *
-    * @throws Exception
-    *         if an error occurs during the test.
-    */
-   @Test
-   public void testCreateObjectMessageFromNoBodySectionAndContentType() throws Exception {
-      Message message = Message.Factory.create();
-      message.setContentType(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString());
-
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
-
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", ServerJMSObjectMessage.class, jmsMessage.getClass());
-   }
-
    @Test
    public void testCreateTextMessageFromNoBodySectionAndContentType() throws Exception {
       Message message = Message.Factory.create();
@@ -133,25 +114,6 @@ public class JMSMappingInboundTransformerTest {
 
       assertNotNull("Message should not be null", jmsMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());
-   }
-
-   /**
-    * Test that a message with no body section, and with the content type set to an unknown
-    * value results in a plain Message when not otherwise annotated to indicate the type of JMS
-    * message it is.
-    *
-    * @throws Exception
-    *         if an error occurs during the test.
-    */
-   @Test
-   public void testCreateGenericMessageFromNoBodySectionAndUnknownContentType() throws Exception {
-      Message message = Message.Factory.create();
-      message.setContentType("unknown-content-type");
-
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
-
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", ActiveMQMessage.class, jmsMessage.getClass());
    }
 
    // ----- Data Body Section ------------------------------------------------//
@@ -421,37 +383,6 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a map that has an AMQP Binary as one of the
-    * entries encoded into the Map results in an MapMessage where a byte array can be read from
-    * the entry.
-    *
-    * @throws Exception
-    *         if an error occurs during the test.
-    */
-   @Test
-   public void testCreateAmqpMapMessageFromAmqpValueWithMapContainingBinaryEntry() throws Exception {
-      final String ENTRY_NAME = "bytesEntry";
-
-      Message message = Proton.message();
-      Map<String, Object> map = new HashMap<>();
-
-      byte[] inputBytes = new byte[] {1, 2, 3, 4, 5};
-      map.put(ENTRY_NAME, new Binary(inputBytes));
-
-      message.setBody(new AmqpValue(map));
-
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
-
-      assertNotNull("Message should not be null", jmsMessage);
-      assertEquals("Unexpected message class type", ServerJMSMapMessage.class, jmsMessage.getClass());
-
-      MapMessage mapMessage = (MapMessage) jmsMessage;
-      byte[] outputBytes = mapMessage.getBytes(ENTRY_NAME);
-      assertNotNull(outputBytes);
-      assertTrue(Arrays.equals(inputBytes, outputBytes));
-   }
-
-   /**
     * Test that an amqp-value body containing a list results in an StreamMessage when not
     * otherwise annotated to indicate the type of JMS message it is.
     *
@@ -533,7 +464,8 @@ public class JMSMappingInboundTransformerTest {
       Message message = Message.Factory.create();
       message.setBody(new AmqpValue(contentString));
 
-      javax.jms.Message jmsMessage = ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      ServerJMSTextMessage jmsMessage = (ServerJMSTextMessage)ServerJMSMessage.wrapCoreMessage(new AMQPMessage(message).toCore());
+      jmsMessage.decode();
 
       assertTrue("Expected TextMessage", jmsMessage instanceof TextMessage);
       assertEquals("Unexpected message class type", ServerJMSTextMessage.class, jmsMessage.getClass());

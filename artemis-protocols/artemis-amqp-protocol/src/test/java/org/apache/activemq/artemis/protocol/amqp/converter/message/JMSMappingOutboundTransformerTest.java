@@ -73,61 +73,6 @@ public class JMSMappingOutboundTransformerTest {
 
    // ----- no-body Message type tests ---------------------------------------//
 
-   @Test
-   public void testConvertMessageToAmqpMessageWithNoBody() throws Exception {
-      ServerJMSMessage outbound = createMessage();
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNull(amqp.getBody());
-   }
-
-   @Test
-   public void testConvertTextMessageToAmqpMessageWithNoBodyOriginalEncodingWasNull() throws Exception {
-      ServerJMSTextMessage outbound = createTextMessage();
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNull(amqp.getBody());
-   }
-
-   // ----- BytesMessage type tests ---------------------------------------//
-
-   @Test
-   public void testConvertEmptyBytesMessageToAmqpMessageWithDataBody() throws Exception {
-      ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(0, ((Data) amqp.getBody()).getValue().getLength());
-   }
-
-   @Test
-   public void testConvertUncompressedBytesMessageToAmqpMessageWithDataBody() throws Exception {
-      byte[] expectedPayload = new byte[] {8, 16, 24, 32};
-      ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.writeBytes(expectedPayload);
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(4, ((Data) amqp.getBody()).getValue().getLength());
-
-      Binary amqpData = ((Data) amqp.getBody()).getValue();
-      Binary inputData = new Binary(expectedPayload);
-
-      assertTrue(inputData.equals(amqpData));
-   }
-
    @Ignore("Compressed message body support not yet implemented.")
    @Test
    public void testConvertCompressedBytesMessageToAmqpMessageWithDataBody() throws Exception {
@@ -281,20 +226,6 @@ public class JMSMappingOutboundTransformerTest {
       assertTrue("string".equals(amqpMap.get("property-1")));
    }
 
-   // ----- StreamMessage type tests -----------------------------------------//
-
-   @Test
-   public void testConvertStreamMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSStreamMessage outbound = createStreamMessage();
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof List);
-   }
-
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
       ServerJMSStreamMessage outbound = createStreamMessage();
@@ -317,11 +248,12 @@ public class JMSMappingOutboundTransformerTest {
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof List);
+      assertTrue(amqp.getBody() instanceof AmqpSequence);
+
+      AmqpSequence list = (AmqpSequence)amqp.getBody();
 
       @SuppressWarnings("unchecked")
-      List<Object> amqpList = (List<Object>) ((AmqpValue) amqp.getBody()).getValue();
+      List<Object> amqpList = list.getValue();
 
       assertEquals(2, amqpList.size());
    }
@@ -370,20 +302,6 @@ public class JMSMappingOutboundTransformerTest {
       assertTrue(amqp.getBody() instanceof Data);
       assertEquals(5, ((Data) amqp.getBody()).getValue().getLength());
    }
-
-   @Test
-   public void testConvertEmptyObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage();
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(5, ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
-   }
-
    @Test
    public void testConvertObjectMessageToAmqpMessageWithDataBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
@@ -412,23 +330,6 @@ public class JMSMappingOutboundTransformerTest {
       assertFalse(0 == ((Data) amqp.getBody()).getValue().getLength());
 
       Object value = deserialize(((Data) amqp.getBody()).getValue().getArray());
-      assertNotNull(value);
-      assertTrue(value instanceof UUID);
-   }
-
-   @Test
-   public void testConvertObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertFalse(0 == ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
-
-      Object value = deserialize(((Binary) ((AmqpValue) amqp.getBody()).getValue()).getArray());
       assertNotNull(value);
       assertTrue(value instanceof UUID);
    }
@@ -473,11 +374,11 @@ public class JMSMappingOutboundTransformerTest {
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertFalse(0 == ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
+      assertTrue(amqp.getBody() instanceof Data);
+      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
+      assertFalse(0 == ((Binary) ((Data) amqp.getBody()).getValue()).getLength());
 
-      Object value = deserialize(((Binary) ((AmqpValue) amqp.getBody()).getValue()).getArray());
+      Object value = deserialize((((Data) amqp.getBody()).getValue()).getArray());
       assertNotNull(value);
       assertTrue(value instanceof UUID);
    }
@@ -494,40 +395,6 @@ public class JMSMappingOutboundTransformerTest {
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
       assertNull(((AmqpValue) amqp.getBody()).getValue());
-   }
-
-   @Test
-   public void testConvertTextMessageCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
-      String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
-   }
-
-   @Test
-   public void testConvertTextMessageContentNotStoredCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
-      String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.encode();
-
-      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
    }
 
    @Test
@@ -565,12 +432,11 @@ public class JMSMappingOutboundTransformerTest {
       Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
+      assertTrue(amqp.getBody() instanceof AmqpValue);
 
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
+      AmqpValue value = (AmqpValue)amqp.getBody();
+
+      assertEquals(contentString, value.getValue());
    }
 
    // ----- Test JMSDestination Handling -------------------------------------//

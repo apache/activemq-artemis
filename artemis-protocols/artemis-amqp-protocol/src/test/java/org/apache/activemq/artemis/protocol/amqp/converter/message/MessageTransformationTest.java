@@ -64,7 +64,6 @@ public class MessageTransformationTest {
       Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
 
       assertNull(outboudMessage.getHeader());
-      assertNull(outboudMessage.getProperties());
    }
 
    @Test
@@ -93,27 +92,6 @@ public class MessageTransformationTest {
       ICoreMessage core = new AMQPMessage(incomingMessage).toCore();
       Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
 
-      assertNotNull(outboudMessage.getHeader());
-      assertNull(outboudMessage.getProperties());
-   }
-
-   @Test
-   public void testMessageWithAmqpValueThatFailsJMSConversion() throws Exception {
-
-      Message incomingMessage = Proton.message();
-
-      incomingMessage.setBody(new AmqpValue(new Boolean(true)));
-
-      ICoreMessage core = new AMQPMessage(incomingMessage).toCore();
-      Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
-
-      Section section = outboudMessage.getBody();
-      assertNotNull(section);
-      assertTrue(section instanceof AmqpValue);
-      AmqpValue amqpValue = (AmqpValue) section;
-      assertNotNull(amqpValue.getValue());
-      assertTrue(amqpValue.getValue() instanceof Boolean);
-      assertEquals(true, amqpValue.getValue());
    }
 
    @Test
@@ -164,14 +142,7 @@ public class MessageTransformationTest {
       ICoreMessage core = new AMQPMessage(message).toCore();
       Message outboudMessage = AMQPConverter.getInstance().fromCore(core).getProtonMessage();
 
-      assertNotNull(outboudMessage.getHeader());
-      assertNotNull(outboudMessage.getProperties());
-      assertNotNull(outboudMessage.getMessageAnnotations());
-      assertNotNull(outboudMessage.getApplicationProperties());
-      assertNull(outboudMessage.getDeliveryAnnotations());
-      assertNull(outboudMessage.getFooter());
-
-      assertEquals(9, outboudMessage.getApplicationProperties().getValue().size());
+      assertEquals(10, outboudMessage.getApplicationProperties().getValue().size());
       assertEquals(4, outboudMessage.getMessageAnnotations().getValue().size());
    }
 }
