@@ -56,6 +56,7 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
+import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Footer;
 import org.apache.qpid.proton.amqp.messaging.Header;
@@ -363,7 +364,7 @@ public class CoreAmqpConverter {
             payload = EMPTY_BINARY;
          }
 
-         body = new AmqpValue(payload);
+         body = new Data(payload);
 
          // For a non-AMQP message we tag the outbound content type as containing
          // a serialized Java object so that an AMQP client has a hint as to what

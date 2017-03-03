@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -24,6 +25,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -279,6 +281,15 @@ public class ConsumerTest extends ActiveMQTestBase {
             mapMessage.setInt("intOne", i);
             mapMessage.setString("stringOne", Integer.toString(i));
             producer.send(mapMessage);
+
+            StreamMessage stream = session.createStreamMessage();
+            stream.writeBoolean(true);
+            stream.writeInt(i);
+            producer.send(stream);
+
+            BytesMessage bytes = session.createBytesMessage();
+            bytes.writeUTF("string " + i);
+            producer.send(bytes);
          }
          long end = System.currentTimeMillis();
 
@@ -313,6 +324,13 @@ public class ConsumerTest extends ActiveMQTestBase {
             Assert.assertNotNull(mapMessage);
             Assert.assertEquals(i, mapMessage.getInt("intOne"));
             Assert.assertEquals(Integer.toString(i), mapMessage.getString("stringOne"));
+
+            StreamMessage stream = (StreamMessage)consumer.receive(5000);
+            Assert.assertTrue(stream.readBoolean());
+            Assert.assertEquals(i, stream.readInt());
+
+            BytesMessage bytes = (BytesMessage) consumer.receive(5000);
+            Assert.assertEquals("string " + i, bytes.readUTF());
          }
       } finally {
          connection.close();
