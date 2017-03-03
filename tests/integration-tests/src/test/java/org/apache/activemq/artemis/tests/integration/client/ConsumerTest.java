@@ -22,8 +22,10 @@ import javax.jms.DeliveryMode;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -233,6 +235,22 @@ public class ConsumerTest extends ActiveMQTestBase {
       internalSend(false, true);
    }
 
+
+
+   public static class MyTest implements Serializable {
+      int i;
+
+      public int getI() {
+         return i;
+      }
+
+      public MyTest setI(int i) {
+         this.i = i;
+         return this;
+      }
+   }
+
+
    public void internalSend(boolean amqpSender, boolean amqpConsumer) throws Throwable {
 
       ConnectionFactory factoryAMQP = new JmsConnectionFactory("amqp://localhost:61616");
@@ -253,6 +271,9 @@ public class ConsumerTest extends ActiveMQTestBase {
             TextMessage msg = session.createTextMessage("hello " + i);
             msg.setIntProperty("mycount", i);
             producer.send(msg);
+
+            ObjectMessage objectMessage = session.createObjectMessage(new MyTest().setI(i));
+            producer.send(objectMessage);
 
             MapMessage mapMessage = session.createMapMessage();
             mapMessage.setInt("intOne", i);
@@ -283,6 +304,10 @@ public class ConsumerTest extends ActiveMQTestBase {
             Assert.assertNotNull(message);
             Assert.assertEquals(i, message.getIntProperty("mycount"));
             Assert.assertEquals("hello " + i, message.getText());
+
+            ObjectMessage objectMessage = (ObjectMessage)consumer.receive(5000);
+            Assert.assertNotNull(objectMessage);
+            Assert.assertEquals(i, ((MyTest)objectMessage.getObject()).getI());
 
             MapMessage mapMessage = (MapMessage) consumer.receive(1000);
             Assert.assertNotNull(mapMessage);
