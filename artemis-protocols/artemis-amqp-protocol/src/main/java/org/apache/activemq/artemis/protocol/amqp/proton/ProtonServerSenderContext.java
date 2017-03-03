@@ -21,14 +21,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -37,6 +39,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternal
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.selector.filter.FilterException;
@@ -60,9 +63,6 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 
 /**
  * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
@@ -474,26 +474,29 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       if (closed) {
          return;
       }
-      Object message = delivery.getContext();
+
+      Object message = ((MessageReference) delivery.getContext()).getMessage();
 
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
       DeliveryState remoteState = delivery.getRemoteState();
 
+      boolean settleImmediate = true;
       if (remoteState != null) {
          // If we are transactional then we need ack if the msg has been accepted
          if (remoteState instanceof TransactionalState) {
 
             TransactionalState txState = (TransactionalState) remoteState;
-            Transaction tx = this.sessionSPI.getTransaction(txState.getTxnId());
+            ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId());
+
             if (txState.getOutcome() != null) {
+               settleImmediate = false;
                Outcome outcome = txState.getOutcome();
                if (outcome instanceof Accepted) {
                   if (!delivery.remotelySettled()) {
                      TransactionalState txAccepted = new TransactionalState();
                      txAccepted.setOutcome(Accepted.getInstance());
                      txAccepted.setTxnId(txState.getTxnId());
-
                      delivery.disposition(txAccepted);
                   }
                   // we have to individual ack as we can't guarantee we will get the delivery
@@ -501,6 +504,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   // from dealer, a perf hit but a must
                   try {
                      sessionSPI.ack(tx, brokerConsumer, message);
+                     tx.addDelivery(delivery, this);
                   } catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
                   }
@@ -549,13 +553,16 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             protonSession.replaceTag(delivery.getTag());
          }
 
-         synchronized (connection.getLock()) {
-            delivery.settle();
-            sender.offer(1);
-         }
+         if (settleImmediate) settle(delivery);
 
       } else {
          // todo not sure if we need to do anything here
+      }
+   }
+
+   public void settle(Delivery delivery) {
+      synchronized (connection.getLock()) {
+         delivery.settle();
       }
    }
 
@@ -566,7 +573,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
-   public int deliverMessage(Object message, int deliveryCount) throws Exception {
+   public int deliverMessage(MessageReference messageReference, int deliveryCount) throws Exception {
       if (closed) {
          return 0;
       }
@@ -595,7 +602,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // Encode the Server Message into the given Netty Buffer as an AMQP
          // Message transformed from the internal message model.
          try {
-            messageFormat = sessionSPI.encodeMessage(message, deliveryCount, new NettyWritable(nettyBuffer));
+            messageFormat = sessionSPI.encodeMessage(messageReference.getMessage(), deliveryCount, new NettyWritable(nettyBuffer));
          } catch (Throwable e) {
             log.warn(e.getMessage(), e);
             throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
@@ -610,14 +617,14 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
             delivery.setMessageFormat((int) messageFormat);
-            delivery.setContext(message);
+            delivery.setContext(messageReference);
 
             // this will avoid a copy.. patch provided by Norman using buffer.array()
             sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
 
             if (preSettle) {
                // Presettled means the client implicitly accepts any delivery we send it.
-               sessionSPI.ack(null, brokerConsumer, message);
+               sessionSPI.ack(null, brokerConsumer, messageReference.getMessage());
                delivery.settle();
             } else {
                sender.advance();
