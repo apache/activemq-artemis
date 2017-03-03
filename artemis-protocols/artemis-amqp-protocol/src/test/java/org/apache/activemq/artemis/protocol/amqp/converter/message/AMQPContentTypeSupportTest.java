@@ -16,14 +16,16 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPContentTypeSupport;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInvalidContentTypeException;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class AMQPContentTypeSupportTest {
 

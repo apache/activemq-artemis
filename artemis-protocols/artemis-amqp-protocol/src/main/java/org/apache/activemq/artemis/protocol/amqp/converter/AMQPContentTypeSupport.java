@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.converter.message;
+package org.apache.activemq.artemis.protocol.amqp.converter;
 
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
