@@ -75,6 +75,7 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      converter.setTransformer("jms");
       ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       verifyProperties(new ServerJMSMessage(serverMessage, 0));
@@ -104,6 +105,7 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      converter.setTransformer("jms");
       ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSBytesMessage bytesMessage = (ServerJMSBytesMessage) wrapMessage(BYTES_TYPE, serverMessage, 0);
@@ -154,6 +156,7 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      converter.setTransformer("jms");
       ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       ServerJMSMapMessage mapMessage = (ServerJMSMapMessage) wrapMessage(MAP_TYPE, serverMessage, 0);
@@ -191,6 +194,7 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      converter.setTransformer("jms");
       ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       simulatePersistence(serverMessage);
@@ -225,6 +229,7 @@ public class TestConversions extends Assert {
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      converter.setTransformer("jms");
       ServerMessage serverMessage = converter.inbound(encodedMessage);
 
       simulatePersistence(serverMessage);

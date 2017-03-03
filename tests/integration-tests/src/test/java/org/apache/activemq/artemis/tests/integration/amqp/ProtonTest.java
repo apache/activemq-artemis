@@ -126,16 +126,18 @@ public class ProtonTest extends ProtonTestBase {
    public static Collection getParameters() {
 
       // these 3 are for comparison
-      return Arrays.asList(new Object[][]{{"AMQP", 0}, {"AMQP_ANONYMOUS", 3}});
+      return Arrays.asList(new Object[][]{{"AMQP", 0, "jms"}, {"AMQP_ANONYMOUS", 3, "jms"}, {"AMQP_ANONYMOUS_NATIVE", 3, "native"}, {"AMQP_ANONYMOUS_RAW", 3, "raw"}});
    }
 
    ConnectionFactory factory;
 
    private final int protocol;
+   private String transformer;
 
-   public ProtonTest(String name, int protocol) {
+   public ProtonTest(String name, int protocol, String transformer) {
       this.coreAddress = "exampleQueue";
       this.protocol = protocol;
+      this.transformer = transformer;
       if (protocol == 0 || protocol == 3) {
          this.address = coreAddress;
       } else {
@@ -198,6 +200,11 @@ public class ProtonTest extends ProtonTestBase {
 
       connection = createConnection();
 
+   }
+
+   @Override
+   protected void configureAmqp(Map<String, Object> params) {
+      params.put("transformer", transformer);
    }
 
    @Override
@@ -358,6 +365,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test(timeout = 60000)
    public void testSendWithDeliveryTimeHoldsMessage() throws Exception {
+      if (transformer.equals("raw")) {
+         return;
+      }
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       assertNotNull(client);
 
@@ -919,6 +929,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test
    public void testManagementQueryOverAMQP() throws Throwable {
+      if (transformer.equals("raw")) {
+         return;
+      }
 
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       AmqpConnection amqpConnection = client.connect();
@@ -1556,6 +1569,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test
    public void testSelector() throws Exception {
+      if (transformer.equals("raw")) {
+         return;
+      }
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
@@ -1645,6 +1661,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test
    public void testFilterJMSMessageID() throws Exception {
+      if (transformer.equals("raw")) {
+         return;
+      }
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
@@ -1661,6 +1680,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test
    public void testProducerWithoutUsingDefaultDestination() throws Exception {
+      if (transformer.equals("raw")) {
+         return;
+      }
 
       try {
          javax.jms.Queue queue = createQueue(coreAddress);
@@ -1694,6 +1716,9 @@ public class ProtonTest extends ProtonTestBase {
 
    @Test(timeout = 60000)
    public void testSendMessageOnAnonymousRelayLinkUsingMessageTo() throws Exception {
+      if (transformer.equals("raw")) {
+         return;
+      }
 
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       AmqpConnection connection = client.connect();

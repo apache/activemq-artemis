@@ -57,6 +57,21 @@ default AMQP port.
 There are 2 AMQP examples available see proton-j and proton-ruby which
 use the qpid Java and Ruby clients respectively.
 
+### AMQP and Transforming
+
+There are three basic conversion strategies that can be used with AMQP and inter-operating with the JMS API.
+
+* native
+(Default). Wraps the bytes of the AMQP message into a JMS BytesMessage and maps the headers of the AMQP message to headers on the JMS message.
+* raw
+Wraps the bytes of the AMQP message into a JMS BytesMessage.
+* jms
+Maps headers of the AMQP message to JMS message headers and the body of the AMQP message to the JMS body.
+
+Set the transformer transport option on the Acceptor to the desired mapping strategy. For example, to inter-operate with a JMS client at the payload level, set the transformer option to jms:
+
+    <acceptor name="amqp-acceptor">tcp://localhost:5672?protocols=AMQP;transformer=jms</acceptor>
+   
 ### AMQP and security
 
 The Apache ActiveMQ Artemis Server accepts AMQP SASL Authentication and will use this
