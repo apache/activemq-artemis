@@ -99,12 +99,23 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
       ActiveMQServer server = createServer(true, true);
       serverManager = new JMSServerManagerImpl(server);
       Configuration serverConfig = server.getConfiguration();
+
+      // Address 1
       CoreAddressConfiguration address = new CoreAddressConfiguration();
       address.setName(getTestName()).getRoutingTypes().add(RoutingType.ANYCAST);
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration();
       queueConfig.setName(getTestName()).setAddress(getTestName()).setRoutingType(RoutingType.ANYCAST);
       address.getQueueConfigurations().add(queueConfig);
       serverConfig.addAddressConfiguration(address);
+
+      // Address 2
+      CoreAddressConfiguration address2 = new CoreAddressConfiguration();
+      address2.setName(getTestName2()).getRoutingTypes().add(RoutingType.ANYCAST);
+      CoreQueueConfiguration queueConfig2 = new CoreQueueConfiguration();
+      queueConfig2.setName(getTestName2()).setAddress(getTestName2()).setRoutingType(RoutingType.ANYCAST);
+      address2.getQueueConfigurations().add(queueConfig2);
+      serverConfig.addAddressConfiguration(address2);
+
       serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
@@ -125,6 +136,10 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
 
    public String getTestName() {
       return getName();
+   }
+
+   public String getTestName2() {
+      return getName() + "2";
    }
 
    public AmqpClientTestSupport() {

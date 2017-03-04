@@ -110,7 +110,6 @@ public class ProtonTest extends ProtonTestBase {
    private static final String amqpConnectionUri = "amqp://localhost:5672";
 
    private static final String tcpAmqpConnectionUri = "tcp://localhost:5672";
-
    private static final String brokerName = "my-broker";
 
    private static final long maxSizeBytes = 1 * 1024 * 1024;
@@ -472,7 +471,7 @@ public class ProtonTest extends ProtonTestBase {
       session.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
       //because tx commit is executed async on broker, we use a timed wait.
-      assertTrue(TimeUtils.waitOnBoolean(true, 10000, ()-> q.getMessageCount() == 10));
+      assertTrue(TimeUtils.waitOnBoolean(true, 10000, () -> q.getMessageCount() == 10));
    }
 
    @Test
@@ -548,7 +547,7 @@ public class ProtonTest extends ProtonTestBase {
       session.rollback();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
       //because tx rollback is executed async on broker, we use a timed wait.
-      assertTrue(TimeUtils.waitOnBoolean(true, 10000, ()-> q.getMessageCount() == 10));
+      assertTrue(TimeUtils.waitOnBoolean(true, 10000, () -> q.getMessageCount() == 10));
 
    }
 
@@ -1853,6 +1852,34 @@ public class ProtonTest extends ProtonTestBase {
 
       public int getCount() {
          return count;
+      }
+   }
+
+   @Test
+   public void testReleaseDisposition() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(address);
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         sender.send(message);
+
+         AmqpReceiver receiver = session.createReceiver(address);
+         receiver.flow(10);
+
+         AmqpMessage m1 = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(m1);
+         m1.release();
+
+         //receiver.flow(10);
+         AmqpMessage m2 = receiver.receive(5, TimeUnit.SECONDS);
+         assertNotNull(m2);
+         m2.accept();
+      } finally {
+         connection.close();
       }
    }
 }
