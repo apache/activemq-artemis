@@ -336,7 +336,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
     */
    private void checkDefaultDestination() {
       if (defaultDestination == null) {
-         throw new UnsupportedOperationException("Cannot specify destination if producer has a default destination");
+         throw new UnsupportedOperationException("Producer does not have a default destination");
       }
    }
 
