@@ -218,7 +218,9 @@ public final class XmlDataExporter extends OptionalLocking {
 
          Object o = DescribeJournal.newObjectEncoding(info, storageManager);
          if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE) {
-            messages.put(info.id, ((MessageDescribe) o).getMsg());
+            messages.put(info.id, ((MessageDescribe) o).getMsg().toCore());
+         } else if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE_PROTOCOL) {
+            messages.put(info.id, ((MessageDescribe) o).getMsg().toCore());
          } else if (info.getUserRecordType() == JournalRecordIds.ADD_LARGE_MESSAGE) {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
          } else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
