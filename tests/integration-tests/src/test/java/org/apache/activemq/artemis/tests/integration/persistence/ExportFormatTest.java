@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Ignore;
 import org.junit.Test;
 
-   public class ExportFormatTest extends ActiveMQTestBase {
+public class ExportFormatTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
