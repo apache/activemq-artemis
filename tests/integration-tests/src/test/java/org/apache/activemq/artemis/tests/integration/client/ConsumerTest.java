@@ -295,6 +295,25 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          System.out.println("Time = " + (end - time));
 
+         {
+            TextMessage dummyMessage = session.createTextMessage();
+            dummyMessage.setJMSType("car");
+            dummyMessage.setStringProperty("color", "red");
+            dummyMessage.setLongProperty("weight", 3000);
+            dummyMessage.setText("testSelectorExampleFromSpecs:1");
+            producer.send(dummyMessage);
+
+            dummyMessage = session.createTextMessage();
+            dummyMessage.setJMSType("car");
+            dummyMessage.setStringProperty("color", "blue");
+            dummyMessage.setLongProperty("weight", 3000);
+            dummyMessage.setText("testSelectorExampleFromSpecs:2");
+            producer.send(dummyMessage);
+         }
+
+
+
+
          connection.close();
 
          if (this.durable) {
@@ -332,6 +351,14 @@ public class ConsumerTest extends ActiveMQTestBase {
             BytesMessage bytes = (BytesMessage) consumer.receive(5000);
             Assert.assertEquals("string " + i, bytes.readUTF());
          }
+
+         consumer.close();
+
+         consumer = session.createConsumer(queue, "JMSType = 'car' AND color = 'blue' AND weight > 2500");
+
+         TextMessage msg = (TextMessage) consumer.receive(1000);
+         Assert.assertEquals("testSelectorExampleFromSpecs:2", msg.getText());
+
       } finally {
          connection.close();
       }

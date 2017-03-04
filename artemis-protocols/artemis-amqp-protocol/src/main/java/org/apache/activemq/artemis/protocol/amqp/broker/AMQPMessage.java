@@ -609,6 +609,10 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Object getObjectProperty(String key) {
+      if (key.equals("JMSType")) {
+         return getProperties().getSubject();
+      }
+
       return getApplicationPropertiesMap().get(key);
    }
 
@@ -624,6 +628,9 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public String getStringProperty(String key) throws ActiveMQPropertyConversionException {
+      if (key.equals("JMSType")) {
+         return getProperties().getSubject();
+      }
       return (String)getApplicationPropertiesMap().get(key);
    }
 

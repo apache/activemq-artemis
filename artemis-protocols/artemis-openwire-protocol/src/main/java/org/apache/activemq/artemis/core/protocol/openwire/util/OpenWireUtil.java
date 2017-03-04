@@ -57,6 +57,11 @@ public class OpenWireUtil {
    public static ActiveMQDestination toAMQAddress(Message message, ActiveMQDestination actualDestination) {
       String address = message.getAddress();
       String strippedAddress = address;//.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
+
+      if (address == null) {
+         return actualDestination;
+      }
+
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
       } else {
