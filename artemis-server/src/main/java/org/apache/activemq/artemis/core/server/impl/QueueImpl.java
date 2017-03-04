@@ -2493,7 +2493,7 @@ public class QueueImpl implements Queue {
       Message copy = message.copy(newID);
 
       if (copyOriginalHeaders) {
-         copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getAddress().toString() : null);
+         copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getName().toString() : null);
       }
 
       if (expiry) {
