@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
 import javax.jms.Destination;
-import javax.jms.MapMessage;
 import javax.jms.Queue;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
@@ -26,14 +25,12 @@ import javax.jms.Topic;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
