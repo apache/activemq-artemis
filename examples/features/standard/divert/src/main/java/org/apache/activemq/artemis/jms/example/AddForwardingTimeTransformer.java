@@ -17,12 +17,15 @@
 package org.apache.activemq.artemis.jms.example;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class AddForwardingTimeTransformer implements Transformer {
 
    @Override
    public Message transform(final Message message) {
+      message.putLongProperty(new SimpleString("time_of_forward"), System.currentTimeMillis());
+
       return message;
    }
 
