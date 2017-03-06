@@ -197,7 +197,7 @@ public class CoreMessageTest {
       empty2.receiveBuffer(buffer);
 
       try {
-         empty2.getBodyBuffer().readByte();
+         empty2.getBodyBuffer().readLong();
          Assert.fail("should throw exception");
       } catch (Exception expected) {
 
