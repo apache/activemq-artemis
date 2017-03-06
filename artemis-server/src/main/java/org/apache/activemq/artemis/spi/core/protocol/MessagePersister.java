@@ -18,11 +18,14 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
+import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.jboss.logging.Logger;
 
 public class MessagePersister implements Persister<Message> {
@@ -34,6 +37,14 @@ public class MessagePersister implements Persister<Message> {
    /** This will be used for reading messages */
    private static Map<Byte, Persister<Message>> protocols = new ConcurrentHashMap<>();
 
+   static {
+      MessagePersister.registerPersister(CoreProtocolManagerFactory.ID, CoreMessagePersister.getInstance());
+
+      Iterable<ProtocolManagerFactory> protocols  = ServiceLoader.load(ProtocolManagerFactory.class, MessagePersister.class.getClassLoader());
+      for (ProtocolManagerFactory next : protocols) {
+         MessagePersister.registerPersister(next.getStoreID(), next.getPersister());
+      }
+   }
 
    public static void registerProtocol(ProtocolManagerFactory manager) {
       Persister<Message> messagePersister = manager.getPersister();
@@ -49,7 +60,9 @@ public class MessagePersister implements Persister<Message> {
    }
 
    public static void registerPersister(byte recordType, Persister<Message> persister) {
-      protocols.put(recordType, persister);
+      if (persister != null) {
+         protocols.put(recordType, persister);
+      }
    }
 
    public static MessagePersister getInstance() {
