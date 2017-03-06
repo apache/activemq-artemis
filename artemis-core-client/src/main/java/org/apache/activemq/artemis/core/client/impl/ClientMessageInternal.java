@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
@@ -34,8 +33,6 @@ public interface ClientMessageInternal extends ClientMessage {
     */
    void setFlowControlSize(int flowControlSize);
 
-   void setAddressTransient(SimpleString address);
-
    void onReceipt(ClientConsumerInternal consumer);
 
    /**
@@ -44,4 +41,5 @@ public interface ClientMessageInternal extends ClientMessage {
    void discardBody();
 
    boolean isCompressed();
+
 }

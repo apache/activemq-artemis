@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadBoolean;
@@ -49,13 +49,13 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
 public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage {
 
-   public ServerJMSBytesMessage(MessageInternal message, int deliveryCount) {
-      super(message, deliveryCount);
+   public ServerJMSBytesMessage(ICoreMessage message) {
+      super(message);
    }
 
    @Override
    public long getBodyLength() throws JMSException {
-      return message.getEndOfBodyPosition() - MessageImpl.BODY_OFFSET;
+      return message.getEndOfBodyPosition() - CoreMessage.BODY_OFFSET;
    }
 
    @Override

@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -30,9 +32,7 @@ import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -63,7 +63,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
 
-      ServerMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
+      ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
       Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
@@ -82,7 +82,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, msgs.size());
 
-      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0).getMessage().getBodyBuffer().toByteBuffer().array());
+      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), (msgs.get(0).getMessage()).toCore().getBodyBuffer().toByteBuffer().array());
 
       Assert.assertTrue(store.isPaging());
 
@@ -104,10 +104,10 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       pageDirDir.mkdirs();
    }
 
-   protected ServerMessage createMessage(final long messageId,
-                                         final SimpleString destination,
-                                         final ByteBuffer buffer) {
-      ServerMessage msg = new ServerMessageImpl(messageId, 200);
+   protected ICoreMessage createMessage(final long messageId,
+                                        final SimpleString destination,
+                                        final ByteBuffer buffer) {
+      ICoreMessage msg = new CoreMessage(messageId, 200);
 
       msg.setAddress(destination);
 

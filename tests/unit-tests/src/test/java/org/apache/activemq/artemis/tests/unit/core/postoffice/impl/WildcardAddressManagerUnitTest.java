@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -29,7 +30,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
@@ -132,7 +132,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isHighAcceptPriority(ServerMessage message) {
+      public boolean isHighAcceptPriority(Message message) {
          return false;
       }
 
@@ -152,7 +152,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void route(ServerMessage message, RoutingContext context) throws Exception {
+      public void route(Message message, RoutingContext context) throws Exception {
       }
 
       @Override
@@ -170,7 +170,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void routeWithAck(ServerMessage message, RoutingContext context) {
+      public void routeWithAck(Message message, RoutingContext context) {
 
       }
    }
@@ -204,14 +204,14 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean redistribute(ServerMessage message,
+      public boolean redistribute(Message message,
                                   Queue originatingQueue,
                                   RoutingContext context) throws Exception {
          return false;
       }
 
       @Override
-      public void route(ServerMessage message, RoutingContext context) throws Exception {
+      public void route(Message message, RoutingContext context) throws Exception {
          System.out.println("routing message: " + message);
       }
    }

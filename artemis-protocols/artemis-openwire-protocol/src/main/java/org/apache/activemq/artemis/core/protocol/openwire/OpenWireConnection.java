@@ -187,7 +187,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private AtomicBoolean disableTtl = new AtomicBoolean(false);
 
-   // TODO-NOW: check on why there are two connections created for every createConnection on the client.
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
                              Executor executor,
@@ -1060,8 +1059,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRemoveProducer(ProducerId id) throws Exception {
-
-         // TODO-now: proper implement this method
          return null;
       }
 

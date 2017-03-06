@@ -19,14 +19,15 @@ package org.apache.activemq.artemis.api.core.client;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A ClientMessage represents a message sent and/or received by ActiveMQ Artemis.
  */
-public interface ClientMessage extends Message {
+public interface ClientMessage extends ICoreMessage {
 
    /**
     * Returns the number of times this message was delivered.
@@ -123,135 +124,141 @@ public interface ClientMessage extends Message {
    ClientMessage setBodyInputStream(InputStream bodyInputStream);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Return the bodyInputStream for large messages
+    * @return
+    */
+   @Override
+   InputStream getBodyInputStream();
+
+   /**
+    * The buffer to write the body.
+    * @return
+    */
+   @Override
+   ActiveMQBuffer getBodyBuffer();
+
+   /**
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putBooleanProperty(SimpleString key, boolean value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putBooleanProperty(String key, boolean value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putByteProperty(SimpleString key, byte value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putByteProperty(String key, byte value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putBytesProperty(SimpleString key, byte[] value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putBytesProperty(String key, byte[] value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putShortProperty(SimpleString key, short value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putShortProperty(String key, short value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putCharProperty(SimpleString key, char value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putCharProperty(String key, char value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putIntProperty(SimpleString key, int value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putIntProperty(String key, int value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putLongProperty(SimpleString key, long value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putLongProperty(String key, long value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putFloatProperty(SimpleString key, float value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putFloatProperty(String key, float value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putDoubleProperty(SimpleString key, double value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putDoubleProperty(String key, double value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
-    */
-   @Override
-   ClientMessage putStringProperty(SimpleString key, SimpleString value);
-
-   /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
    @Override
    ClientMessage putStringProperty(String key, String value);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
-   @Override
    ClientMessage writeBodyBufferBytes(byte[] bytes);
 
    /**
-    * Overridden from {@link Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.artemis.api.core.Message} to enable fluent API
     */
-   @Override
    ClientMessage writeBodyBufferString(String string);
 
 }

@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 
-public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage {
+public interface LargeServerMessage extends ReplicatedLargeMessage, ICoreMessage {
 
    @Override
    void addBytes(byte[] bytes) throws Exception;

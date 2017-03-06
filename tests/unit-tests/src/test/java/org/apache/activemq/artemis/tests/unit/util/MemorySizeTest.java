@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.utils.MemorySize;
 import org.junit.Assert;
@@ -30,7 +30,7 @@ public class MemorySizeTest extends Assert {
       UnitTestLogger.LOGGER.info("Server message size is " + MemorySize.calculateSize(new MemorySize.ObjectFactory() {
          @Override
          public Object createObject() {
-            return new ServerMessageImpl(1, 1000);
+            return new CoreMessage(1, 1000);
          }
       }));
 

@@ -46,14 +46,12 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
@@ -499,16 +497,16 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    /* Hook for processing message before forwarding */
-   protected ServerMessage beforeForward(final ServerMessage message) {
+   protected Message beforeForward(final Message message) {
       if (useDuplicateDetection) {
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
-         message.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, bytes);
+         message.putBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
       }
 
       if (transformer != null) {
-         final ServerMessage transformedMessage = transformer.transform(message);
+         final Message transformedMessage = transformer.transform(message);
          if (transformedMessage != message) {
             if (logger.isDebugEnabled()) {
                logger.debug("The transformer " + transformer +
@@ -556,7 +554,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             refs.put(ref.getMessage().getMessageID(), ref);
          }
 
-         final ServerMessage message = beforeForward(ref.getMessage());
+         final Message message = beforeForward(ref.getMessage());
 
          final SimpleString dest;
 
@@ -564,7 +562,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             dest = forwardingAddress;
          } else {
             // Preserve the original address
-            dest = message.getAddress();
+            dest = message.getAddressSimpleString();
          }
 
          pendingAcks.countUp();
@@ -686,7 +684,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     * @param message
     * @return
     */
-   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, ServerMessage message) {
+   private HandleStatus deliverStandardMessage(SimpleString dest, final MessageReference ref, Message message) {
       // if we failover during send then there is a chance that the
       // that this will throw a disconnect, we need to remove the message
       // from the acks so it will get resent, duplicate detection will cope

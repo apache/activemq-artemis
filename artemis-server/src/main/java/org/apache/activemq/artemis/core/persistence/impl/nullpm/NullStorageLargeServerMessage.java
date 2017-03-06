@@ -17,12 +17,12 @@
 package org.apache.activemq.artemis.core.persistence.impl.nullpm;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
-class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage {
+class NullStorageLargeServerMessage extends CoreMessage implements LargeServerMessage {
 
    NullStorageLargeServerMessage() {
       super();
@@ -39,7 +39,7 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    @Override
    public synchronized void addBytes(final byte[] bytes) {
       if (buffer == null) {
-         buffer = ActiveMQBuffers.dynamicBuffer(bytes.length);
+         buffer = ActiveMQBuffers.dynamicBuffer(bytes.length).byteBuf();
       }
 
       // expand the buffer
@@ -67,6 +67,12 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    }
 
    @Override
+   public boolean isServerMessage() {
+      return true;
+   }
+
+
+   @Override
    public synchronized int getEncodeSize() {
       return getHeadersAndPropertiesEncodeSize();
    }
@@ -77,7 +83,7 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    }
 
    @Override
-   public ServerMessage copy() {
+   public Message copy() {
       // This is a simple copy, used only to avoid changing original properties
       return new NullStorageLargeServerMessage(this);
    }

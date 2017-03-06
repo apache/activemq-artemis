@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class FakeFilter implements Filter {
 
@@ -36,9 +37,9 @@ public class FakeFilter implements Filter {
    }
 
    @Override
-   public boolean match(final ServerMessage message) {
+   public boolean match(final Message message) {
       if (headerName != null) {
-         Object value = message.getObjectProperty(new SimpleString(headerName));
+         Object value = message.getObjectProperty(headerName);
 
          if (value instanceof SimpleString) {
             value = ((SimpleString) value).toString();

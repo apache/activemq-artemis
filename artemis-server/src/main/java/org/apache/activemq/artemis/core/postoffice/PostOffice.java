@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -28,7 +29,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -96,33 +96,33 @@ public interface PostOffice extends ActiveMQComponent {
 
    SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception;
 
-   RoutingStatus route(ServerMessage message, boolean direct) throws Exception;
+   RoutingStatus route(Message message, boolean direct) throws Exception;
 
-   RoutingStatus route(ServerMessage message,
+   RoutingStatus route(Message message,
                        Transaction tx,
                        boolean direct) throws Exception;
 
-   RoutingStatus route(ServerMessage message,
+   RoutingStatus route(Message message,
                        Transaction tx,
                        boolean direct,
                        boolean rejectDuplicates) throws Exception;
 
-   RoutingStatus route(ServerMessage message,
+   RoutingStatus route(Message message,
                        RoutingContext context,
                        boolean direct) throws Exception;
 
-   RoutingStatus route(ServerMessage message,
+   RoutingStatus route(Message message,
                        RoutingContext context,
                        boolean direct,
                        boolean rejectDuplicates) throws Exception;
 
-   MessageReference reroute(ServerMessage message, Queue queue, Transaction tx) throws Exception;
+   MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception;
 
-   Pair<RoutingContext, ServerMessage> redistribute(ServerMessage message,
+   Pair<RoutingContext, Message> redistribute(Message message,
                                                     final Queue originatingQueue,
                                                     Transaction tx) throws Exception;
 
-   void processRoute(final ServerMessage message, final RoutingContext context, final boolean direct) throws Exception;
+   void processRoute(final Message message, final RoutingContext context, final boolean direct) throws Exception;
 
    DuplicateIDCache getDuplicateIDCache(SimpleString address);
 

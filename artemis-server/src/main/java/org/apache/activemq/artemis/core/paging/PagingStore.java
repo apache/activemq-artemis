@@ -20,13 +20,14 @@ import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -41,7 +42,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  *
  * @see PagingManager
  */
-public interface PagingStore extends ActiveMQComponent {
+public interface PagingStore extends ActiveMQComponent, RefCountMessageListener {
 
    SimpleString getAddress();
 
@@ -90,7 +91,7 @@ public interface PagingStore extends ActiveMQComponent {
     * needs to be sent to the journal
     * @throws NullPointerException if {@code readLock} is null
     */
-   boolean page(ServerMessage message, Transaction tx, RouteContextList listCtx, ReadLock readLock) throws Exception;
+   boolean page(Message message, Transaction tx, RouteContextList listCtx, ReadLock readLock) throws Exception;
 
    Page createPage(final int page) throws Exception;
 

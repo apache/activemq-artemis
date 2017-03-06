@@ -49,7 +49,6 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.QueueStatus;
@@ -71,7 +70,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -440,12 +438,12 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+   public void route(final Message message, final RoutingContext context) throws Exception {
       context.addQueue(address, this);
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) {
+   public void routeWithAck(Message message, RoutingContext context) {
       context.addQueueWithAck(address, this);
    }
 
@@ -922,7 +920,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public boolean hasMatchingConsumer(final ServerMessage message) {
+   public boolean hasMatchingConsumer(final Message message) {
       for (ConsumerHolder holder : consumerList) {
          Consumer consumer = holder.consumer;
 
@@ -1055,7 +1053,7 @@ public class QueueImpl implements Queue {
          pageSubscription.ack((PagedReference) ref);
          postAcknowledge(ref);
       } else {
-         ServerMessage message = ref.getMessage();
+         Message message = ref.getMessage();
 
          boolean durableRef = message.isDurable() && durable;
 
@@ -1087,7 +1085,7 @@ public class QueueImpl implements Queue {
 
          getRefsOperation(tx).addAck(ref);
       } else {
-         ServerMessage message = ref.getMessage();
+         Message message = ref.getMessage();
 
          boolean durableRef = message.isDurable() && durable;
 
@@ -1111,7 +1109,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
-      ServerMessage message = ref.getMessage();
+      Message message = ref.getMessage();
 
       if (message.isDurable() && durable) {
          tx.setContainsPersistent();
@@ -1216,11 +1214,11 @@ public class QueueImpl implements Queue {
       return expiryAddress;
    }
 
-   private SimpleString extractAddress(ServerMessage message) {
-      if (message.containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
-         return message.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS);
+   private SimpleString extractAddress(Message message) {
+      if (message.containsProperty(Message.HDR_ORIG_MESSAGE_ID.toString())) {
+         return message.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString());
       } else {
-         return message.getAddress();
+         return message.getAddressSimpleString();
       }
    }
 
@@ -1244,7 +1242,7 @@ public class QueueImpl implements Queue {
       List<MessageReference> scheduledMessages = scheduledDeliveryHandler.cancel(null);
       if (scheduledMessages != null && scheduledMessages.size() > 0) {
          for (MessageReference ref : scheduledMessages) {
-            ref.getMessage().putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, ref.getScheduledDeliveryTime());
+            ref.getMessage().setScheduledDeliveryTime(ref.getScheduledDeliveryTime());
             ref.setScheduledDeliveryTime(0);
          }
          this.addHead(scheduledMessages, true);
@@ -2274,7 +2272,7 @@ public class QueueImpl implements Queue {
    public boolean checkRedelivery(final MessageReference reference,
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
-      ServerMessage message = reference.getMessage();
+      Message message = reference.getMessage();
 
       if (internalQueue) {
          if (logger.isTraceEnabled()) {
@@ -2337,7 +2335,7 @@ public class QueueImpl implements Queue {
                      final boolean expiry,
                      final boolean rejectDuplicate,
                      final long... queueIDs) throws Exception {
-      ServerMessage copyMessage = makeCopy(ref, expiry);
+      Message copyMessage = makeCopy(ref, expiry);
 
       copyMessage.setAddress(toAddress);
 
@@ -2346,7 +2344,7 @@ public class QueueImpl implements Queue {
          for (long id : queueIDs) {
             buffer.putLong(id);
          }
-         copyMessage.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+         copyMessage.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
       }
 
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
@@ -2358,7 +2356,7 @@ public class QueueImpl implements Queue {
    private void moveBetweenSnFQueues(final SimpleString queueSuffix,
                                      final Transaction tx,
                                      final MessageReference ref) throws Exception {
-      ServerMessage copyMessage = makeCopy(ref, false, false);
+      Message copyMessage = makeCopy(ref, false, false);
 
       byte[] oldRouteToIDs = null;
       String targetNodeID;
@@ -2366,8 +2364,8 @@ public class QueueImpl implements Queue {
 
       // remove the old route
       for (SimpleString propName : copyMessage.getPropertyNames()) {
-         if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS)) {
-            oldRouteToIDs = (byte[]) copyMessage.removeProperty(propName);
+         if (propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
+            oldRouteToIDs = (byte[]) copyMessage.removeProperty(propName.toString());
             final String hashcodeToString = oldRouteToIDs.toString(); // don't use Arrays.toString(..) here
             logger.debug("Removed property from message: " + propName + " = " + hashcodeToString + " (" + ByteBuffer.wrap(oldRouteToIDs).getLong() + ")");
 
@@ -2420,7 +2418,7 @@ public class QueueImpl implements Queue {
    }
 
    private Pair<String, Binding> locateTargetBinding(SimpleString queueSuffix,
-                                                     ServerMessage copyMessage,
+                                                     Message copyMessage,
                                                      long oldQueueID) {
       String targetNodeID = null;
       Binding targetBinding = null;
@@ -2440,7 +2438,7 @@ public class QueueImpl implements Queue {
                // parse the queue name of the remote queue binding to determine the node ID
                String temp = remoteQueueBinding.getQueue().getName().toString();
                targetNodeID = temp.substring(temp.lastIndexOf(".") + 1);
-               logger.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
+               logger.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddressSimpleString() + " on node " + targetNodeID);
 
                // now that we have the name of the queue we need to look through all the bindings again to find the new remote queue binding
                for (Map.Entry<SimpleString, Binding> entry2 : postOffice.getAllBindings().entrySet()) {
@@ -2468,14 +2466,14 @@ public class QueueImpl implements Queue {
       return new Pair<>(targetNodeID, targetBinding);
    }
 
-   private ServerMessage makeCopy(final MessageReference ref, final boolean expiry) throws Exception {
+   private Message makeCopy(final MessageReference ref, final boolean expiry) throws Exception {
       return makeCopy(ref, expiry, true);
    }
 
-   private ServerMessage makeCopy(final MessageReference ref,
+   private Message makeCopy(final MessageReference ref,
                                   final boolean expiry,
                                   final boolean copyOriginalHeaders) throws Exception {
-      ServerMessage message = ref.getMessage();
+      Message message = ref.getMessage();
       /*
        We copy the message and send that to the dla/expiry queue - this is
        because otherwise we may end up with a ref with the same message id in the
@@ -2487,7 +2485,15 @@ public class QueueImpl implements Queue {
 
       long newID = storageManager.generateID();
 
-      ServerMessage copy = message.makeCopyForExpiryOrDLA(newID, ref, expiry, copyOriginalHeaders);
+      Message copy = message.copy(newID);
+
+      if (copyOriginalHeaders) {
+         copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getName().toString() : null);
+      }
+
+      if (expiry) {
+         copy.putLongProperty(Message.HDR_ACTUAL_EXPIRY_TIME.toString(), System.currentTimeMillis());
+      }
 
       return copy;
    }
@@ -2549,7 +2555,7 @@ public class QueueImpl implements Queue {
          tx = new TransactionImpl(storageManager);
       }
 
-      ServerMessage copyMessage = makeCopy(ref, reason == AckReason.EXPIRED);
+      Message copyMessage = makeCopy(ref, reason == AckReason.EXPIRED);
 
       copyMessage.setAddress(address);
 
@@ -2719,7 +2725,7 @@ public class QueueImpl implements Queue {
          return;
       }
 
-      ServerMessage message;
+      Message message;
 
       try {
          message = ref.getMessage();

@@ -26,7 +26,6 @@ import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -151,7 +150,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWaySSLTest.QUEUE);
       session.start();
 
-      Message m = consumer.receive(1000);
+      ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
       Assert.assertEquals(text, m.getBodyBuffer().readString());
    }
@@ -189,7 +188,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWaySSLTest.QUEUE);
       session.start();
 
-      Message m = consumer.receive(1000);
+      ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
       Assert.assertEquals(text, m.getBodyBuffer().readString());
    }

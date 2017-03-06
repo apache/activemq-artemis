@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
@@ -90,10 +91,11 @@ public final class FileWrapperJournal extends JournalBase {
    @Override
    public void appendAddRecord(long id,
                                byte recordType,
-                               EncodingSupport record,
+                               Persister persister,
+                               Object record,
                                boolean sync,
                                IOCompletion callback) throws Exception {
-      JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, record);
+      JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, persister, record);
 
       writeRecord(addRecord, sync, callback);
    }
@@ -144,19 +146,21 @@ public final class FileWrapperJournal extends JournalBase {
    public void appendAddRecordTransactional(long txID,
                                             long id,
                                             byte recordType,
-                                            EncodingSupport record) throws Exception {
+                                            Persister persister,
+                                            Object record) throws Exception {
       count(txID);
-      JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, record);
+      JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
       writeRecord(addRecord, false, null);
    }
 
    @Override
    public void appendUpdateRecord(long id,
                                   byte recordType,
-                                  EncodingSupport record,
+                                  Persister persister,
+                                  Object record,
                                   boolean sync,
                                   IOCompletion callback) throws Exception {
-      JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, record);
+      JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, persister, record);
       writeRecord(updateRecord, sync, callback);
    }
 
@@ -164,9 +168,10 @@ public final class FileWrapperJournal extends JournalBase {
    public void appendUpdateRecordTransactional(long txID,
                                                long id,
                                                byte recordType,
-                                               EncodingSupport record) throws Exception {
+                                               Persister persister,
+                                               Object record) throws Exception {
       count(txID);
-      JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, record);
+      JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, persister, record);
       writeRecord(updateRecordTX, false, null);
    }
 
@@ -257,11 +262,6 @@ public final class FileWrapperJournal extends JournalBase {
 
    @Override
    public int getUserVersion() {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public void perfBlast(int pages) {
       throw new UnsupportedOperationException();
    }
 

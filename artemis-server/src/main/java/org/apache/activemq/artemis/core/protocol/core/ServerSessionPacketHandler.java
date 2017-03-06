@@ -25,9 +25,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
@@ -81,9 +84,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
@@ -137,12 +139,22 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private volatile CoreRemotingConnection remotingConnection;
 
+   private final CoreProtocolManager manager;
+
+   // The current currentLargeMessage being processed
+   private volatile LargeServerMessage currentLargeMessage;
+
    private final boolean direct;
 
-   public ServerSessionPacketHandler(final ServerSession session,
+   public ServerSessionPacketHandler(final CoreProtocolManager manager,
+                                     final ServerSession session,
                                      final StorageManager storageManager,
                                      final Channel channel) {
+      this.manager = manager;
+
       this.session = session;
+
+      session.addCloseable((boolean failed) -> clearLargeMessage());
 
       this.storageManager = storageManager;
 
@@ -156,6 +168,16 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          direct = ((NettyConnection) conn).isDirectDeliver();
       } else {
          direct = false;
+      }
+   }
+
+   private void clearLargeMessage() {
+      if (currentLargeMessage != null) {
+         try {
+            currentLargeMessage.deleteFile();
+         } catch (Throwable error) {
+            ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+         }
       }
    }
 
@@ -469,7 +491,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_SEND: {
                   SessionSendMessage message = (SessionSendMessage) packet;
                   requiresResponse = message.isRequiresResponse();
-                  session.send((ServerMessage) message.getMessage(), direct);
+                  session.send(message.getMessage(), direct);
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -477,13 +499,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                }
                case SESS_SEND_LARGE: {
                   SessionSendLargeMessage message = (SessionSendLargeMessage) packet;
-                  session.sendLarge(message.getLargeMessage());
+                  sendLarge(message.getLargeMessage());
                   break;
                }
                case SESS_SEND_CONTINUATION: {
                   SessionSendContinuationMessage message = (SessionSendContinuationMessage) packet;
                   requiresResponse = message.isRequiresResponse();
-                  session.sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues());
+                  sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues());
                   if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
@@ -681,4 +703,53 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       return serverLastReceivedCommandID;
    }
+
+   // Large Message is part of the core protocol, we have these functions here as part of Packet handler
+   private void sendLarge(final Message message) throws Exception {
+      // need to create the LargeMessage before continue
+      long id = storageManager.generateID();
+
+      LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("sendLarge::" + largeMsg);
+      }
+
+      if (currentLargeMessage != null) {
+         ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
+      }
+
+      currentLargeMessage = largeMsg;
+   }
+
+
+
+   private void sendContinuations(final int packetSize,
+                                 final long messageBodySize,
+                                 final byte[] body,
+                                 final boolean continues) throws Exception {
+      if (currentLargeMessage == null) {
+         throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
+      }
+
+      // Immediately release the credits for the continuations- these don't contribute to the in-memory size
+      // of the message
+
+      currentLargeMessage.addBytes(body);
+
+      if (!continues) {
+         currentLargeMessage.releaseResources();
+
+         if (messageBodySize >= 0) {
+            currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
+         }
+
+
+         session.doSend(session.getCurrentTransaction(), currentLargeMessage, null, false, false);
+
+         currentLargeMessage = null;
+      }
+   }
+
+
 }

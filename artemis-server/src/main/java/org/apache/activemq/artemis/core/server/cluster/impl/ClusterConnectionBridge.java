@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -36,12 +37,10 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
@@ -113,7 +112,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       this.discoveryLocator = discoveryLocator;
 
-      idsHeaderName = MessageImpl.HDR_ROUTE_TO_IDS.concat(name);
+      idsHeaderName = Message.HDR_ROUTE_TO_IDS.concat(name);
 
       this.clusterConnection = clusterConnection;
 
@@ -150,13 +149,13 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    @Override
-   protected ServerMessage beforeForward(final ServerMessage message) {
+   protected Message beforeForward(final Message message) {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
       // nodes could have same queue ids
       // Note we must copy since same message may get routed to other nodes which require different headers
-      ServerMessage messageCopy = message.copy();
+      Message messageCopy = message.copy();
 
       if (logger.isTraceEnabled()) {
          logger.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
@@ -175,12 +174,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
 
       for (SimpleString propName : propNames) {
-         if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS)) {
+         if (propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
             messageCopy.removeProperty(propName);
          }
       }
 
-      messageCopy.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, queueIds);
+      messageCopy.putBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
       messageCopy = super.beforeForward(messageCopy);
 

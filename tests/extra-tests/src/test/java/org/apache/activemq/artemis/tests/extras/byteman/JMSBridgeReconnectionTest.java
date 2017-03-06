@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.extras.byteman;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
@@ -111,7 +111,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
    static int count = 20;
    static CountDownLatch stopLatch = new CountDownLatch(1);
 
-   public static void pause2(MessageInternal msgI, boolean sendBlocking, final ClientProducerCredits theCredits) {
+   public static void pause2(Message msgI, boolean sendBlocking, final ClientProducerCredits theCredits) {
       if (msgI.containsProperty("__AMQ_CID")) {
          count--;
       }

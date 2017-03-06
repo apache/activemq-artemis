@@ -47,27 +47,27 @@ public class ExportFormatTest extends ActiveMQTestBase {
 
    // Case the format was changed, and the change was agreed, use _testCreateFormat to recreate this field
    String journalFile = "#File,JournalFileImpl: (activemq-data-1.amq id = 1, recordID = 1)\n" +
-      "operation@AddRecordTX,txID@0,id@5,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAABQEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZufQEAQAAAAEAAAAGawBlAHkABgAAAAA=\n" +
-      "operation@UpdateTX,txID@0,id@5,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@6,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAABgEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZufcEAQAAAAEAAAAGawBlAHkABgAAAAE=\n" +
-      "operation@UpdateTX,txID@0,id@6,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@7,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAABwEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZufcEAQAAAAEAAAAGawBlAHkABgAAAAI=\n" +
+      "operation@AddRecordTX,txID@0,id@7,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAHAQAAAARBADEAAAAAPQAAAA0AAAAAAAAABwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WFoEAQAAAAEAAAAGawBlAHkABgAAAAA=\n" +
       "operation@UpdateTX,txID@0,id@7,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@8,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAACAEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZufgEAQAAAAEAAAAGawBlAHkABgAAAAM=\n" +
+      "operation@AddRecordTX,txID@0,id@8,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAIAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAE=\n" +
       "operation@UpdateTX,txID@0,id@8,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@9,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAACQEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZufgEAQAAAAEAAAAGawBlAHkABgAAAAQ=\n" +
+      "operation@AddRecordTX,txID@0,id@9,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAJAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAI=\n" +
       "operation@UpdateTX,txID@0,id@9,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
+      "operation@AddRecordTX,txID@0,id@10,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAKAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAM=\n" +
+      "operation@UpdateTX,txID@0,id@10,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
+      "operation@AddRecordTX,txID@0,id@11,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAALAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAQ=\n" +
+      "operation@UpdateTX,txID@0,id@11,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
       "operation@Commit,txID@0,numberOfRecords@10\n" +
-      "operation@AddRecord,id@13,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAADQEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZuhQEAQAAAAEAAAAGawBlAHkABgAAAAU=\n" +
-      "operation@Update,id@13,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@14,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAADgEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZuhcEAQAAAAEAAAAGawBlAHkABgAAAAY=\n" +
-      "operation@Update,id@14,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@15,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAADwEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZuhsEAQAAAAEAAAAGawBlAHkABgAAAAc=\n" +
+      "operation@AddRecord,id@15,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAPAQAAAARBADEAAAAAPQAAAA0AAAAAAAAADwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLAEAQAAAAEAAAAGawBlAHkABgAAAAU=\n" +
       "operation@Update,id@15,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@16,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAAEAEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2Zuh4EAQAAAAEAAAAGawBlAHkABgAAAAg=\n" +
+      "operation@AddRecord,id@16,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAQAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLIEAQAAAAEAAAAGawBlAHkABgAAAAY=\n" +
       "operation@Update,id@16,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@17,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAAEQEAAAAEQQAxAAAA_wAAAAAAAAAAAAABTh2ZuiIEAQAAAAEAAAAGawBlAHkABgAAAAk=\n" +
+      "operation@AddRecord,id@17,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAARAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLgEAQAAAAEAAAAGawBlAHkABgAAAAc=\n" +
       "operation@Update,id@17,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
+      "operation@AddRecord,id@18,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAASAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLwEAQAAAAEAAAAGawBlAHkABgAAAAg=\n" +
+      "operation@Update,id@18,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
+      "operation@AddRecord,id@19,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAATAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WL4EAQAAAAEAAAAGawBlAHkABgAAAAk=\n" +
+      "operation@Update,id@19,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
       "#File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)";
 
    @Test

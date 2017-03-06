@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
@@ -47,7 +47,6 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
  * This implementation follows section 3.5.4 of the <i>Java Message Service</i> specification
  * (Version 1.1 April 12, 2002).
  * <p>
- * TODO - should have typed property getters and do conversions herein
  */
 public final class TypedProperties {
 
@@ -60,6 +59,13 @@ public final class TypedProperties {
    private boolean internalProperties;
 
    public TypedProperties() {
+   }
+
+   /**
+    *  Return the number of properites
+    * */
+   public int size() {
+      return properties.size();
    }
 
    public int getMemoryOffset() {
@@ -321,7 +327,7 @@ public final class TypedProperties {
       }
    }
 
-   public synchronized void decode(final ActiveMQBuffer buffer) {
+   public synchronized void decode(final ByteBuf buffer) {
       byte b = buffer.readByte();
 
       if (b == DataConstants.NULL) {
@@ -406,7 +412,7 @@ public final class TypedProperties {
       }
    }
 
-   public synchronized void encode(final ActiveMQBuffer buffer) {
+   public synchronized void encode(final ByteBuf buffer) {
       if (properties == null) {
          buffer.writeByte(DataConstants.NULL);
       } else {
@@ -547,7 +553,7 @@ public final class TypedProperties {
 
       abstract Object getValue();
 
-      abstract void write(ActiveMQBuffer buffer);
+      abstract void write(ByteBuf buffer);
 
       abstract int encodeSize();
 
@@ -568,7 +574,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.NULL);
       }
 
@@ -587,7 +593,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private BooleanValue(final ActiveMQBuffer buffer) {
+      private BooleanValue(final ByteBuf buffer) {
          val = buffer.readBoolean();
       }
 
@@ -597,7 +603,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.BOOLEAN);
          buffer.writeBoolean(val);
       }
@@ -617,7 +623,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private ByteValue(final ActiveMQBuffer buffer) {
+      private ByteValue(final ByteBuf buffer) {
          val = buffer.readByte();
       }
 
@@ -627,7 +633,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.BYTE);
          buffer.writeByte(val);
       }
@@ -646,7 +652,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private BytesValue(final ActiveMQBuffer buffer) {
+      private BytesValue(final ByteBuf buffer) {
          int len = buffer.readInt();
          val = new byte[len];
          buffer.readBytes(val);
@@ -658,7 +664,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.BYTES);
          buffer.writeInt(val.length);
          buffer.writeBytes(val);
@@ -679,7 +685,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private ShortValue(final ActiveMQBuffer buffer) {
+      private ShortValue(final ByteBuf buffer) {
          val = buffer.readShort();
       }
 
@@ -689,7 +695,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.SHORT);
          buffer.writeShort(val);
       }
@@ -708,7 +714,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private IntValue(final ActiveMQBuffer buffer) {
+      private IntValue(final ByteBuf buffer) {
          val = buffer.readInt();
       }
 
@@ -718,7 +724,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.INT);
          buffer.writeInt(val);
       }
@@ -737,7 +743,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private LongValue(final ActiveMQBuffer buffer) {
+      private LongValue(final ByteBuf buffer) {
          val = buffer.readLong();
       }
 
@@ -747,7 +753,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.LONG);
          buffer.writeLong(val);
       }
@@ -766,7 +772,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private FloatValue(final ActiveMQBuffer buffer) {
+      private FloatValue(final ByteBuf buffer) {
          val = Float.intBitsToFloat(buffer.readInt());
       }
 
@@ -776,7 +782,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.FLOAT);
          buffer.writeInt(Float.floatToIntBits(val));
       }
@@ -796,7 +802,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private DoubleValue(final ActiveMQBuffer buffer) {
+      private DoubleValue(final ByteBuf buffer) {
          val = Double.longBitsToDouble(buffer.readLong());
       }
 
@@ -806,7 +812,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.DOUBLE);
          buffer.writeLong(Double.doubleToLongBits(val));
       }
@@ -825,7 +831,7 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private CharValue(final ActiveMQBuffer buffer) {
+      private CharValue(final ByteBuf buffer) {
          val = (char) buffer.readShort();
       }
 
@@ -835,7 +841,7 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.CHAR);
          buffer.writeShort((short) val);
       }
@@ -854,8 +860,8 @@ public final class TypedProperties {
          this.val = val;
       }
 
-      private StringValue(final ActiveMQBuffer buffer) {
-         val = buffer.readSimpleString();
+      private StringValue(final ByteBuf buffer) {
+         val = SimpleString.readSimpleString(buffer);
       }
 
       @Override
@@ -864,9 +870,9 @@ public final class TypedProperties {
       }
 
       @Override
-      public void write(final ActiveMQBuffer buffer) {
+      public void write(final ByteBuf buffer) {
          buffer.writeByte(DataConstants.STRING);
-         buffer.writeSimpleString(val);
+         SimpleString.writeSimpleString(buffer, val);
       }
 
       @Override

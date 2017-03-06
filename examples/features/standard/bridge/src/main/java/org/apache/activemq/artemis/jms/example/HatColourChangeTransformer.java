@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class HatColourChangeTransformer implements Transformer {
 
    @Override
-   public ServerMessage transform(final ServerMessage message) {
+   public Message transform(final Message message) {
       SimpleString propName = new SimpleString("hat");
 
       SimpleString oldProp = message.getSimpleStringProperty(propName);
