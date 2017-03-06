@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -289,7 +288,7 @@ public class PagingSendTest extends ActiveMQTestBase {
       List<String> messageIds = new ArrayList<>();
       ClientProducer producer = session.createProducer(queueAddr);
       for (int i = 0; i < batchSize; i++) {
-         Message message = session.createMessage(true);
+         ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(new byte[1024]);
          String id = UUID.randomUUID().toString();
          message.putStringProperty("id", id);

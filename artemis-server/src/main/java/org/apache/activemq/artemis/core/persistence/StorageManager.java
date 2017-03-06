@@ -23,13 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -172,7 +171,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     */
    void confirmPendingLargeMessage(long recordID) throws Exception;
 
-   void storeMessage(ServerMessage message) throws Exception;
+   void storeMessage(Message message) throws Exception;
 
    void storeReference(long queueID, long messageID, boolean last) throws Exception;
 
@@ -190,7 +189,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void deleteDuplicateID(long recordID) throws Exception;
 
-   void storeMessageTransactional(long txID, ServerMessage message) throws Exception;
+   void storeMessageTransactional(long txID, Message message) throws Exception;
 
    void storeReferenceTransactional(long txID, long queueID, long messageID) throws Exception;
 
@@ -225,7 +224,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @return a large message object
     * @throws Exception
     */
-   LargeServerMessage createLargeMessage(long id, MessageInternal message) throws Exception;
+   LargeServerMessage createLargeMessage(long id, Message message) throws Exception;
 
    enum LargeMessageExtension {
       DURABLE(".msg"), TEMPORARY(".tmp"), SYNC(".sync");
@@ -264,11 +263,6 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    void storePageTransaction(long txID, PageTransactionInfo pageTransaction) throws Exception;
 
    void updatePageTransaction(long txID, PageTransactionInfo pageTransaction, int depage) throws Exception;
-
-   /**
-    * FIXME Unused
-    */
-   void updatePageTransaction(PageTransactionInfo pageTransaction, int depage) throws Exception;
 
    void deletePageTransactional(long recordID) throws Exception;
 
@@ -383,7 +377,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * needs to be sent to the journal
     * @throws Exception
     */
-   boolean addToPage(PagingStore store, ServerMessage msg, Transaction tx, RouteContextList listCtx) throws Exception;
+   boolean addToPage(PagingStore store, Message msg, Transaction tx, RouteContextList listCtx) throws Exception;
 
    /**
     * Stops the replication of data from the live to the backup.

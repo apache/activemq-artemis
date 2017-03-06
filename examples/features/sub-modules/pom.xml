@@ -49,9 +49,7 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
-            <module>aerogear</module>
             <module>artemis-ra-rar</module>
-            <module>vertx</module>
          </modules>
       </profile>
    </profiles>

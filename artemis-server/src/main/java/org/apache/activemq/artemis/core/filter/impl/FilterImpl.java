@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.core.filter.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
@@ -103,7 +103,7 @@ public class FilterImpl implements Filter {
    }
 
    @Override
-   public synchronized boolean match(final ServerMessage message) {
+   public synchronized boolean match(final Message message) {
       try {
          boolean result = booleanExpression.matches(new FilterableServerMessage(message));
          return result;
@@ -148,7 +148,7 @@ public class FilterImpl implements Filter {
 
    // Private --------------------------------------------------------------------------
 
-   private static Object getHeaderFieldValue(final ServerMessage msg, final SimpleString fieldName) {
+   private static Object getHeaderFieldValue(final Message msg, final SimpleString fieldName) {
       if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
          if (msg.getUserID() == null) {
             // Proton stores JMSMessageID as NATIVE_MESSAGE_ID that is an arbitrary string
@@ -158,7 +158,12 @@ public class FilterImpl implements Filter {
             }
          }
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
-         return new SimpleString("ID:" + msg.getUserID());
+         String userID = msg.getUserID().toString();
+         if (userID.startsWith("ID:")) {
+            return SimpleString.toSimpleString(userID);
+         } else {
+            return new SimpleString("ID:" + msg.getUserID());
+         }
       } else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return Integer.valueOf(msg.getPriority());
       } else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
@@ -178,9 +183,9 @@ public class FilterImpl implements Filter {
 
    private static class FilterableServerMessage implements Filterable {
 
-      private final ServerMessage message;
+      private final Message message;
 
-      private FilterableServerMessage(ServerMessage message) {
+      private FilterableServerMessage(Message message) {
          this.message = message;
       }
 
@@ -191,7 +196,7 @@ public class FilterImpl implements Filter {
             result = getHeaderFieldValue(message, new SimpleString(id));
          }
          if (result == null) {
-            result = message.getObjectProperty(new SimpleString(id));
+            result = message.getObjectProperty(id);
          }
          if (result != null) {
             if (result.getClass() == SimpleString.class) {

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -23,7 +24,6 @@ import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class DivertBinding implements Binding {
 
@@ -98,12 +98,12 @@ public class DivertBinding implements Binding {
    }
 
    @Override
-   public boolean isHighAcceptPriority(final ServerMessage message) {
+   public boolean isHighAcceptPriority(final Message message) {
       return true;
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+   public void route(final Message message, final RoutingContext context) throws Exception {
       divert.route(message, context);
    }
 
@@ -150,7 +150,7 @@ public class DivertBinding implements Binding {
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) {
+   public void routeWithAck(Message message, RoutingContext context) {
       //noop
    }
 

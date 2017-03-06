@@ -26,7 +26,7 @@ public class MapMessageUtil extends MessageUtil {
     */
    public static void writeBodyMap(ActiveMQBuffer message, TypedProperties properties) {
       message.resetWriterIndex();
-      properties.encode(message);
+      properties.encode(message.byteBuf());
    }
 
    /**
@@ -43,7 +43,7 @@ public class MapMessageUtil extends MessageUtil {
     */
    public static void readBodyMap(ActiveMQBuffer message, TypedProperties map) {
       message.resetReaderIndex();
-      map.decode(message);
+      map.decode(message.byteBuf());
    }
 
 }

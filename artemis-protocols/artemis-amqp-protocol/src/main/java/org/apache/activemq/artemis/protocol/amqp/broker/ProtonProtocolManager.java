@@ -26,19 +26,17 @@ import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.protocol.amqp.converter.ProtonMessageConverter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -53,8 +51,6 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
    private final ActiveMQServer server;
-
-   private MessageConverter protonConverter;
 
    private final ProtonProtocolManagerFactory factory;
 
@@ -72,16 +68,10 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
       this.server = server;
-      this.protonConverter = new ProtonMessageConverter(server.getStorageManager());
    }
 
    public ActiveMQServer getServer() {
       return server;
-   }
-
-   @Override
-   public MessageConverter getConverter() {
-      return protonConverter;
    }
 
    @Override

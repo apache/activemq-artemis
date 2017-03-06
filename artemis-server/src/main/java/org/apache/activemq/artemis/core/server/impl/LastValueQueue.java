@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -74,7 +73,7 @@ public class LastValueQueue extends QueueImpl {
          return;
       }
 
-      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME.toString());
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -98,7 +97,7 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addHead(final MessageReference ref, boolean scheduling) {
-      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      SimpleString prop = ref.getMessage().getDeliveryAnnotationPropertyString(Message.HDR_LAST_VALUE_NAME);
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -148,7 +147,7 @@ public class LastValueQueue extends QueueImpl {
    @Override
    protected void refRemoved(MessageReference ref) {
       synchronized (this) {
-         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME.toString());
 
          if (prop != null) {
             map.remove(prop);
@@ -223,7 +222,7 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
-      public ServerMessage getMessage() {
+      public Message getMessage() {
          return ref.getMessage();
       }
 

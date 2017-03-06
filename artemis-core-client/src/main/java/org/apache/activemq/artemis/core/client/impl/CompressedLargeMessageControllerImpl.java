@@ -513,6 +513,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
    @Override
+   public void writeBytes(ByteBuf src, int srcIndex, int length) {
+      throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
+   }
+
+
+   @Override
    public ByteBuffer toByteBuffer() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }

@@ -22,12 +22,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -122,7 +122,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          try {
             Transaction ackedTX = new TransactionImpl(storageManager);
             for (MessageReference ref : ackedRefs) {
-               ServerMessage message = ref.getMessage();
+               Message message = ref.getMessage();
                if (message.isDurable()) {
                   int durableRefCount = message.incrementDurableRefCount();
 

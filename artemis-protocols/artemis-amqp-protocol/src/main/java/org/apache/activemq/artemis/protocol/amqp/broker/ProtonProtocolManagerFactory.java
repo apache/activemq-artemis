@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -32,11 +34,23 @@ import org.osgi.service.component.annotations.Component;
 @Component(service = ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
+   public static final byte ID = 2;
+
    private static final String AMQP_PROTOCOL_NAME = "AMQP";
 
    private static final String MODULE_NAME = "artemis-amqp-protocol";
 
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
+
+   @Override
+   public byte getStoreID() {
+      return ID;
+   }
+
+   @Override
+   public Persister<Message> getPersister() {
+      return AMQPMessagePersister.getInstance();
+   }
 
    @Override
    public ProtocolManager createProtocolManager(ActiveMQServer server,

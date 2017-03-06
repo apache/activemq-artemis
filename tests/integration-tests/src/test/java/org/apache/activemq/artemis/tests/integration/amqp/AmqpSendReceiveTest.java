@@ -243,27 +243,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
    }
 
-   @Test
-   public void testAmbiguousMessageRouting() throws Exception {
-      final String addressA = "addressA";
-      final String queueA = "queueA";
-      final String queueB = "queueB";
-      final String queueC = "queueC";
-      final String queueD = "queueD";
-
-      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
-      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueD, RoutingType.MULTICAST.toString());
-
-      sendMessages(addressA, 1);
-
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueD)).getMessageCount());
-   }
-
    @Test(timeout = 60000)
    public void testMessageDurableFalse() throws Exception {
       sendMessages(getTestName(), 1, false);

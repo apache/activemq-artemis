@@ -21,21 +21,21 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
 
 public class LargeMessageTXFailureCallback implements TransactionFailureCallback {
 
    private AbstractJournalStorageManager journalStorageManager;
-   private final Map<Long, ServerMessage> messages;
+   private final Map<Long, Message> messages;
 
    public LargeMessageTXFailureCallback(AbstractJournalStorageManager journalStorageManager,
-                                        final Map<Long, ServerMessage> messages) {
+                                        final Map<Long, Message> messages) {
       super();
       this.journalStorageManager = journalStorageManager;
       this.messages = messages;

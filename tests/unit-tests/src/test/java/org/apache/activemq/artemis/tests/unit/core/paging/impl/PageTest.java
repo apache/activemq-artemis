@@ -17,23 +17,26 @@
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
+import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PageTest extends ActiveMQTestBase {
@@ -46,6 +49,12 @@ public class PageTest extends ActiveMQTestBase {
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
+
+   @Before
+   public void registerProtocols() {
+      MessagePersister.registerPersister(CoreProtocolManagerFactory.ID, CoreMessagePersister.getInstance());
+      MessagePersister.registerPersister((byte)2, AMQPMessagePersister.getInstance());
+   }
 
    @Test
    public void testPageWithNIO() throws Exception {
@@ -62,6 +71,11 @@ public class PageTest extends ActiveMQTestBase {
    @Test
    public void testPageFakeWithoutCallbacks() throws Exception {
       testAdd(new FakeSequentialFileFactory(1, false), 10);
+   }
+
+   @Test
+   public void testAddCore() throws Exception {
+      testAdd(new NIOSequentialFileFactory(getTestDirfile(), 1), 1);
    }
 
    /**
@@ -89,7 +103,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SimpleString simpleDestination = new SimpleString("Test");
 
-      ArrayList<ActiveMQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
+      addPageElements(simpleDestination, impl, numberOfElements);
 
       impl.sync();
       impl.close();
@@ -105,9 +119,7 @@ public class PageTest extends ActiveMQTestBase {
       Assert.assertEquals(numberOfElements, impl.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
-         Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddress());
-
-         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i).getMessage().getBodyBuffer().toByteBuffer().array());
+         Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddressSimpleString());
       }
 
       impl.delete(null);
@@ -130,7 +142,7 @@ public class PageTest extends ActiveMQTestBase {
 
       SimpleString simpleDestination = new SimpleString("Test");
 
-      ArrayList<ActiveMQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
+      addPageElements(simpleDestination, impl, numberOfElements);
 
       impl.sync();
 
@@ -170,9 +182,7 @@ public class PageTest extends ActiveMQTestBase {
       Assert.assertEquals(numberOfElements, impl.getNumberOfMessages());
 
       for (int i = 0; i < msgs.size(); i++) {
-         Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddress());
-
-         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i).getMessage().getBodyBuffer().toByteBuffer().array());
+         Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddressSimpleString());
       }
 
       impl.delete(null);
@@ -190,21 +200,18 @@ public class PageTest extends ActiveMQTestBase {
     * @return
     * @throws Exception
     */
-   protected ArrayList<ActiveMQBuffer> addPageElements(final SimpleString simpleDestination,
+   protected void addPageElements(final SimpleString simpleDestination,
                                                        final Page page,
                                                        final int numberOfElements) throws Exception {
-      ArrayList<ActiveMQBuffer> buffers = new ArrayList<>();
 
       int initialNumberOfMessages = page.getNumberOfMessages();
 
       for (int i = 0; i < numberOfElements; i++) {
-         ServerMessage msg = new ServerMessageImpl(i, 100);
+         ICoreMessage msg = new CoreMessage().initBuffer(100);
 
          for (int j = 0; j < 10; j++) {
             msg.getBodyBuffer().writeByte((byte) 'b');
          }
-
-         buffers.add(msg.getBodyBuffer());
 
          msg.setAddress(simpleDestination);
 
@@ -212,7 +219,6 @@ public class PageTest extends ActiveMQTestBase {
 
          Assert.assertEquals(initialNumberOfMessages + i + 1, page.getNumberOfMessages());
       }
-      return buffers;
    }
 
    // Package protected ---------------------------------------------

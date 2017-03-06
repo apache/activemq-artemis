@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
@@ -24,7 +25,6 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class LocalQueueBinding implements QueueBinding {
 
@@ -104,7 +104,7 @@ public class LocalQueueBinding implements QueueBinding {
    }
 
    @Override
-   public boolean isHighAcceptPriority(final ServerMessage message) {
+   public boolean isHighAcceptPriority(final Message message) {
       // It's a high accept priority if the queue has at least one matching consumer
 
       return queue.hasMatchingConsumer(message);
@@ -116,14 +116,14 @@ public class LocalQueueBinding implements QueueBinding {
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+   public void route(final Message message, final RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
          queue.route(message, context);
       }
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
+   public void routeWithAck(Message message, RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
          queue.routeWithAck(message, context);
       }

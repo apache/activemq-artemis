@@ -2426,7 +2426,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    }
 
    @Test
-   public void testTransactionChangesNotVisibleOutsideTX() throws Exception {
+   public void testTransactionChangesNotVisibleOutsideTXtestTransactionChangesNotVisibleOutsideTX() throws Exception {
       setup(10, 10 * 1024, true);
       createJournal();
       startJournal();

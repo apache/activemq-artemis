@@ -37,6 +37,11 @@ public class PartialPooledByteBufAllocator implements ByteBufAllocator {
    }
 
    @Override
+   public int calculateNewCapacity(int minNewCapacity, int maxCapacity) {
+      return POOLED.calculateNewCapacity(minNewCapacity, maxCapacity);
+   }
+
+   @Override
    public ByteBuf buffer() {
       return UNPOOLED.heapBuffer();
    }

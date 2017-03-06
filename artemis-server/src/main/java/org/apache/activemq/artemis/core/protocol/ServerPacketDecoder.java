@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
@@ -47,7 +48,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
@@ -87,11 +87,11 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
       switch (packetType) {
 
          case SESS_SEND: {
-            packet = new SessionSendMessage(new ServerMessageImpl());
+            packet = new SessionSendMessage(new CoreMessage());
             break;
          }
          case SESS_SEND_LARGE: {
-            packet = new SessionSendLargeMessage(new ServerMessageImpl());
+            packet = new SessionSendLargeMessage(new CoreMessage());
             break;
          }
          case REPLICATION_APPEND: {

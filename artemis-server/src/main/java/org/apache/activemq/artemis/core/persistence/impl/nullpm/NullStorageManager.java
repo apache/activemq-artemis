@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -32,7 +33,6 @@ import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -53,7 +53,6 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -214,11 +213,11 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void storeMessage(final ServerMessage message) throws Exception {
+   public void storeMessage(final Message message) throws Exception {
    }
 
    @Override
-   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
+   public void storeMessageTransactional(final long txID, final Message message) throws Exception {
    }
 
    @Override
@@ -274,7 +273,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public LargeServerMessage createLargeMessage(final long id, final MessageInternal message) {
+   public LargeServerMessage createLargeMessage(final long id, final Message message) {
       NullStorageLargeServerMessage largeMessage = new NullStorageLargeServerMessage();
 
       largeMessage.copyHeadersAndProperties(message);
@@ -464,10 +463,6 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depage) throws Exception {
-   }
-
-   @Override
    public long storePageCounter(final long txID, final long queueID, final long value) throws Exception {
       return 0;
    }
@@ -543,7 +538,7 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public boolean addToPage(PagingStore store,
-                            ServerMessage msg,
+                            Message msg,
                             Transaction tx,
                             RouteContextList listCtx) throws Exception {
       /**

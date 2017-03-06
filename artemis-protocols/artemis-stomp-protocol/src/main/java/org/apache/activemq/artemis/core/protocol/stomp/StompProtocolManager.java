@@ -33,15 +33,14 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -107,13 +106,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       this.outgoingInterceptors.clear();
       this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
-
-   @Override
-   public MessageConverter getConverter() {
-      return null;
-   }
-
-   // ProtocolManager implementation --------------------------------
 
    @Override
    public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {
@@ -345,8 +337,8 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       return validated;
    }
 
-   public ServerMessageImpl createServerMessage() {
-      return new ServerMessageImpl(server.getStorageManager().generateID(), 512);
+   public CoreMessage createServerMessage() {
+      return new CoreMessage(server.getStorageManager().generateID(), 512);
    }
 
    public void commitTransaction(StompConnection connection, String txID) throws Exception {

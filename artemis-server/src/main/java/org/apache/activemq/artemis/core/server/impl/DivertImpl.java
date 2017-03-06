@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.logging.Logger;
 
@@ -83,7 +82,7 @@ public class DivertImpl implements Divert {
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
+   public void route(final Message message, final RoutingContext context) throws Exception {
       // We must make a copy of the message, otherwise things like returning credits to the page won't work
       // properly on ack, since the original address will be overwritten
 
@@ -91,7 +90,7 @@ public class DivertImpl implements Divert {
          logger.trace("Diverting message " + message + " into " + this);
       }
 
-      ServerMessage copy = null;
+      Message copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
       if (!forwardAddress.equals(context.getAddress())) {
@@ -99,7 +98,7 @@ public class DivertImpl implements Divert {
          copy = message.copy(id);
 
          // This will set the original MessageId, and the original address
-         copy.setOriginalHeaders(message, null, false);
+         copy.referenceOriginalMessage(message, null);
 
          copy.setAddress(forwardAddress);
 
@@ -130,7 +129,7 @@ public class DivertImpl implements Divert {
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
+   public void routeWithAck(Message message, RoutingContext context) throws Exception {
       route(message, context);
    }
 

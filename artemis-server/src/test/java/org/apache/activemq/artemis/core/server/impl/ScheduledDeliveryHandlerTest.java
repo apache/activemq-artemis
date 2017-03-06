@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -31,27 +30,26 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.message.BodyEncoder;
-import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
-import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
@@ -283,9 +281,68 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   class FakeMessage implements ServerMessage {
+   class FakeMessage extends RefCountMessage {
 
+      @Override
+      public RoutingType getRouteType() {
+         return null;
+      }
+
+      @Override
+      public SimpleString getReplyTo() {
+         return null;
+      }
+
+      @Override
+      public Message setReplyTo(SimpleString address) {
+         return null;
+      }
+
+      @Override
+      public boolean containsDeliveryAnnotationProperty(SimpleString property) {
+         return false;
+      }
+
+      @Override
+      public Object removeDeliveryAnnoationProperty(SimpleString key) {
+         return null;
+      }
+
+      @Override
+      public Object getDeliveryAnnotationProperty(SimpleString key) {
+         return null;
+      }
+
+      @Override
+      public void persist(ActiveMQBuffer targetRecord) {
+
+      }
+
+      @Override
+      public Long getScheduledDeliveryTime() {
+         return null;
+      }
+
+      @Override
+      public void reloadPersistence(ActiveMQBuffer record) {
+
+      }
+
+      @Override
+      public Persister<Message> getPersister() {
+         return null;
+      }
+
+      @Override
+      public int getPersistSize() {
+         return 0;
+      }
       final long id;
+
+      @Override
+      public CoreMessage toCore() {
+         return null;
+      }
 
       FakeMessage(final long id) {
          this.id = id;
@@ -299,16 +356,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public long getMessageID() {
          return id;
-      }
-
-      @Override
-      public MessageReference createReference(Queue queue) {
-         return null;
-      }
-
-      @Override
-      public void forceAddress(SimpleString address) {
-
       }
 
       @Override
@@ -332,12 +379,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public ServerMessage copy(long newID) {
+      public Message copy(long newID) {
          return null;
       }
 
       @Override
-      public ServerMessage copy() {
+      public Message copy() {
          return null;
       }
 
@@ -352,44 +399,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public ServerMessage makeCopyForExpiryOrDLA(long newID,
-                                                  MessageReference originalReference,
-                                                  boolean expiry,
-                                                  boolean copyOriginalHeaders) throws Exception {
-         return null;
-      }
-
-      @Override
-      public void setOriginalHeaders(ServerMessage other, MessageReference originalReference, boolean expiry) {
-
-      }
-
-      @Override
-      public void setPagingStore(PagingStore store) {
-
-      }
-
-      @Override
-      public PagingStore getPagingStore() {
-         return null;
-      }
-
-      @Override
-      public boolean hasInternalProperties() {
-         return false;
-      }
-
-      @Override
-      public boolean storeIsPaging() {
-         return false;
-      }
-
-      @Override
-      public void encodeMessageIDToBuffer() {
-
-      }
-
-      @Override
       public byte[] getDuplicateIDBytes() {
          return new byte[0];
       }
@@ -400,83 +409,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void encode(ActiveMQBuffer buffer) {
+      public void messageChanged() {
 
-      }
-
-      @Override
-      public void decode(ActiveMQBuffer buffer) {
-
-      }
-
-      @Override
-      public void decodeFromBuffer(ActiveMQBuffer buffer) {
-
-      }
-
-      @Override
-      public int getEndOfMessagePosition() {
-         return 0;
-      }
-
-      @Override
-      public int getEndOfBodyPosition() {
-         return 0;
-      }
-
-      @Override
-      public void bodyChanged() {
-
-      }
-
-      @Override
-      public boolean isServerMessage() {
-         return false;
-      }
-
-      @Override
-      public ActiveMQBuffer getEncodedBuffer() {
-         return null;
-      }
-
-      @Override
-      public int getHeadersAndPropertiesEncodeSize() {
-         return 0;
-      }
-
-      @Override
-      public ActiveMQBuffer getWholeBuffer() {
-         return null;
-      }
-
-      @Override
-      public void encodeHeadersAndProperties(ActiveMQBuffer buffer) {
-
-      }
-
-      @Override
-      public void decodeHeadersAndProperties(ActiveMQBuffer buffer) {
-
-      }
-
-      @Override
-      public BodyEncoder getBodyEncoder() throws ActiveMQException {
-         return null;
-      }
-
-      @Override
-      public InputStream getBodyInputStream() {
-         return null;
-      }
-
-      @Override
-      public void setAddressTransient(SimpleString address) {
-
-      }
-
-      @Override
-      public TypedProperties getTypedProperties() {
-         return null;
       }
 
       @Override
@@ -485,23 +419,32 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public FakeMessage setUserID(UUID userID) {
-         return this;
+      public String getAddress() {
+         return null;
       }
 
       @Override
-      public SimpleString getAddress() {
+      public SimpleString getAddressSimpleString() {
+         return null;
+      }
+
+      @Override
+      public Message setBuffer(ByteBuf buffer) {
+         return null;
+      }
+
+      @Override
+      public ByteBuf getBuffer() {
+         return null;
+      }
+      @Override
+      public Message setAddress(String address) {
          return null;
       }
 
       @Override
       public Message setAddress(SimpleString address) {
          return null;
-      }
-
-      @Override
-      public byte getType() {
-         return 0;
       }
 
       @Override
@@ -557,16 +500,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       @Override
       public boolean isLargeMessage() {
          return false;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBuffer() {
-         return null;
-      }
-
-      @Override
-      public ActiveMQBuffer getBodyBufferDuplicate() {
-         return null;
       }
 
       @Override
@@ -825,13 +758,18 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public FakeMessage writeBodyBufferBytes(byte[] bytes) {
-         return this;
+      public Message setUserID(Object userID) {
+         return null;
       }
 
       @Override
-      public FakeMessage writeBodyBufferString(String string) {
-         return this;
+      public void receiveBuffer(ByteBuf buffer) {
+
+      }
+
+      @Override
+      public void sendBuffer(ByteBuf buffer, int count) {
+
       }
    }
 
@@ -1221,7 +1159,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public boolean hasMatchingConsumer(ServerMessage message) {
+      public boolean hasMatchingConsumer(Message message) {
          return false;
       }
 
@@ -1338,12 +1276,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void route(ServerMessage message, RoutingContext context) throws Exception {
+      public void route(Message message, RoutingContext context) throws Exception {
 
       }
 
       @Override
-      public void routeWithAck(ServerMessage message, RoutingContext context) {
+      public void routeWithAck(Message message, RoutingContext context) {
 
       }
 
@@ -1366,5 +1304,9 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public void decDelivering(int size) {
 
       }
+
+
+
+
    }
 }

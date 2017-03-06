@@ -16,33 +16,20 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_DATA;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_NULL;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_SEQUENCE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_UNKNOWN;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.AMQP_VALUE_BINARY;
-import static org.apache.activemq.artemis.protocol.amqp.converter.message.AMQPMessageSupport.JMS_AMQP_ORIGINAL_ENCODING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import javax.jms.JMSException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.jms.JMSException;
-
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
@@ -50,9 +37,6 @@ import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
-import org.apache.activemq.artemis.utils.IDGenerator;
-import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -64,16 +48,18 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class JMSMappingOutboundTransformerTest {
 
    private final UUID TEST_OBJECT_VALUE = UUID.fromString("fee14b62-09e0-4ac6-a4c3-4206c630d844");
    private final String TEST_ADDRESS = "queue://testAddress";
 
-   private IDGenerator idGenerator;
-   private JMSMappingOutboundTransformer transformer;
 
    public static final byte QUEUE_TYPE = 0x00;
    public static final byte TOPIC_TYPE = 0x01;
@@ -82,79 +68,9 @@ public class JMSMappingOutboundTransformerTest {
 
    @Before
    public void setUp() {
-      idGenerator = new SimpleIDGenerator(0);
-      transformer = new JMSMappingOutboundTransformer(idGenerator);
    }
 
    // ----- no-body Message type tests ---------------------------------------//
-
-   @Test
-   public void testConvertMessageToAmqpMessageWithNoBody() throws Exception {
-      ServerJMSMessage outbound = createMessage();
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNull(amqp.getBody());
-   }
-
-   @Test
-   public void testConvertTextMessageToAmqpMessageWithNoBodyOriginalEncodingWasNull() throws Exception {
-      ServerJMSTextMessage outbound = createTextMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNull(amqp.getBody());
-   }
-
-   // ----- BytesMessage type tests ---------------------------------------//
-
-   @Test
-   public void testConvertEmptyBytesMessageToAmqpMessageWithDataBody() throws Exception {
-      ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(0, ((Data) amqp.getBody()).getValue().getLength());
-   }
-
-   @Test
-   public void testConvertUncompressedBytesMessageToAmqpMessageWithDataBody() throws Exception {
-      byte[] expectedPayload = new byte[] {8, 16, 24, 32};
-      ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.writeBytes(expectedPayload);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(4, ((Data) amqp.getBody()).getValue().getLength());
-
-      Binary amqpData = ((Data) amqp.getBody()).getValue();
-      Binary inputData = new Binary(expectedPayload);
-
-      assertTrue(inputData.equals(amqpData));
-   }
 
    @Ignore("Compressed message body support not yet implemented.")
    @Test
@@ -164,10 +80,7 @@ public class JMSMappingOutboundTransformerTest {
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -183,13 +96,9 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertEmptyBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -201,14 +110,10 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertUncompressedBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       byte[] expectedPayload = new byte[] {8, 16, 24, 32};
       ServerJMSBytesMessage outbound = createBytesMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -226,14 +131,10 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertCompressedBytesMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       byte[] expectedPayload = new byte[] {8, 16, 24, 32};
       ServerJMSBytesMessage outbound = createBytesMessage(true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.writeBytes(expectedPayload);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -253,10 +154,7 @@ public class JMSMappingOutboundTransformerTest {
       ServerJMSMapMessage outbound = createMapMessage();
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -271,10 +169,7 @@ public class JMSMappingOutboundTransformerTest {
       outbound.setBytes("bytes", byteArray);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -296,10 +191,7 @@ public class JMSMappingOutboundTransformerTest {
       outbound.setBoolean("property-3", true);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -320,10 +212,7 @@ public class JMSMappingOutboundTransformerTest {
       outbound.setBoolean("property-3", true);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -336,33 +225,12 @@ public class JMSMappingOutboundTransformerTest {
       assertTrue("string".equals(amqpMap.get("property-1")));
    }
 
-   // ----- StreamMessage type tests -----------------------------------------//
-
-   @Test
-   public void testConvertStreamMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSStreamMessage outbound = createStreamMessage();
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof List);
-   }
-
    @Test
    public void testConvertStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
       ServerJMSStreamMessage outbound = createStreamMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpSequence);
@@ -376,17 +244,15 @@ public class JMSMappingOutboundTransformerTest {
       outbound.writeString("test");
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof List);
+      assertTrue(amqp.getBody() instanceof AmqpSequence);
+
+      AmqpSequence list = (AmqpSequence)amqp.getBody();
 
       @SuppressWarnings("unchecked")
-      List<Object> amqpList = (List<Object>) ((AmqpValue) amqp.getBody()).getValue();
+      List<Object> amqpList = list.getValue();
 
       assertEquals(2, amqpList.size());
    }
@@ -394,15 +260,11 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedStreamMessageToAmqpMessageWithAmqpSequencey() throws Exception {
       ServerJMSStreamMessage outbound = createStreamMessage(true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
       outbound.writeBoolean(false);
       outbound.writeString("test");
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpSequence);
@@ -421,10 +283,7 @@ public class JMSMappingOutboundTransformerTest {
       ServerJMSObjectMessage outbound = createObjectMessage();
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -434,45 +293,20 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertEmptyObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
       assertEquals(5, ((Data) amqp.getBody()).getValue().getLength());
    }
-
-   @Test
-   public void testConvertEmptyObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage();
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertEquals(5, ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
-   }
-
    @Test
    public void testConvertObjectMessageToAmqpMessageWithDataBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -486,13 +320,9 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -504,35 +334,11 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    @Test
-   public void testConvertObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
-      ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertFalse(0 == ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
-
-      Object value = deserialize(((Binary) ((AmqpValue) amqp.getBody()).getValue()).getArray());
-      assertNotNull(value);
-      assertTrue(value instanceof UUID);
-   }
-
-   @Test
    public void testConvertCompressedObjectMessageToAmqpMessageWithDataBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE, true);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -546,13 +352,9 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedObjectMessageToAmqpMessageUnknownEncodingGetsDataSection() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_UNKNOWN);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof Data);
@@ -566,20 +368,16 @@ public class JMSMappingOutboundTransformerTest {
    @Test
    public void testConvertCompressedObjectMessageToAmqpMessageWithAmqpValueBody() throws Exception {
       ServerJMSObjectMessage outbound = createObjectMessage(TEST_OBJECT_VALUE, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) amqp.getBody()).getValue() instanceof Binary);
-      assertFalse(0 == ((Binary) ((AmqpValue) amqp.getBody()).getValue()).getLength());
+      assertTrue(amqp.getBody() instanceof Data);
+      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
+      assertFalse(0 == ((Binary) ((Data) amqp.getBody()).getValue()).getLength());
 
-      Object value = deserialize(((Binary) ((AmqpValue) amqp.getBody()).getValue()).getArray());
+      Object value = deserialize((((Data) amqp.getBody()).getValue()).getArray());
       assertNotNull(value);
       assertTrue(value instanceof UUID);
    }
@@ -591,56 +389,11 @@ public class JMSMappingOutboundTransformerTest {
       ServerJMSTextMessage outbound = createTextMessage();
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
       assertNull(((AmqpValue) amqp.getBody()).getValue());
-   }
-
-   @Test
-   public void testConvertTextMessageCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
-      String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
-   }
-
-   @Test
-   public void testConvertTextMessageContentNotStoredCreatesBodyUsingOriginalEncodingWithDataSection() throws Exception {
-      String contentString = "myTextMessageContent";
-      ServerJMSTextMessage outbound = createTextMessage(contentString);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
-      outbound.encode();
-
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
-
-      assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
-
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
    }
 
    @Test
@@ -649,10 +402,7 @@ public class JMSMappingOutboundTransformerTest {
       ServerJMSTextMessage outbound = createTextMessage(contentString);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -665,10 +415,7 @@ public class JMSMappingOutboundTransformerTest {
       ServerJMSTextMessage outbound = createTextMessage(contentString);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
       assertTrue(amqp.getBody() instanceof AmqpValue);
@@ -679,21 +426,16 @@ public class JMSMappingOutboundTransformerTest {
    public void testConvertCompressedTextMessageCreatesDataSectionBody() throws Exception {
       String contentString = "myTextMessageContent";
       ServerJMSTextMessage outbound = createTextMessage(contentString, true);
-      outbound.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
       outbound.encode();
 
-      EncodedMessage encoded = transform(outbound);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(outbound.getInnerMessage()).getProtonMessage();
 
       assertNotNull(amqp.getBody());
-      assertTrue(amqp.getBody() instanceof Data);
-      assertTrue(((Data) amqp.getBody()).getValue() instanceof Binary);
+      assertTrue(amqp.getBody() instanceof AmqpValue);
 
-      Binary data = ((Data) amqp.getBody()).getValue();
-      String contents = new String(data.getArray(), data.getArrayOffset(), data.getLength(), StandardCharsets.UTF_8);
-      assertEquals(contentString, contents);
+      AmqpValue value = (AmqpValue)amqp.getBody();
+
+      assertEquals(contentString, value.getValue());
    }
 
    // ----- Test JMSDestination Handling -------------------------------------//
@@ -731,15 +473,12 @@ public class JMSMappingOutboundTransformerTest {
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSDestination(jmsDestination);
 
-      EncodedMessage encoded = transform(textMessage);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(textMessage.getInnerMessage()).getProtonMessage();
 
       MessageAnnotations ma = amqp.getMessageAnnotations();
       Map<Symbol, Object> maMap = ma == null ? null : ma.getValue();
       if (maMap != null) {
-         Object actualValue = maMap.get(JMSMappingOutboundTransformer.JMS_DEST_TYPE_MSG_ANNOTATION);
+         Object actualValue = maMap.get(AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
          assertEquals("Unexpected annotation value", expectedAnnotationValue, actualValue);
       } else if (expectedAnnotationValue != null) {
          fail("Expected annotation value, but there were no annotations");
@@ -785,15 +524,12 @@ public class JMSMappingOutboundTransformerTest {
       textMessage.setText("myTextMessageContent");
       textMessage.setJMSReplyTo(jmsReplyTo);
 
-      EncodedMessage encoded = transform(textMessage);
-      assertNotNull(encoded);
-
-      Message amqp = encoded.decode();
+      Message amqp = AMQPConverter.getInstance().fromCore(textMessage.getInnerMessage()).getProtonMessage();
 
       MessageAnnotations ma = amqp.getMessageAnnotations();
       Map<Symbol, Object> maMap = ma == null ? null : ma.getValue();
       if (maMap != null) {
-         Object actualValue = maMap.get(JMSMappingOutboundTransformer.JMS_REPLY_TO_TYPE_MSG_ANNOTATION);
+         Object actualValue = maMap.get(AMQPMessageSupport.JMS_REPLY_TO_TYPE_MSG_ANNOTATION);
          assertEquals("Unexpected annotation value", expectedAnnotationValue, actualValue);
       } else if (expectedAnnotationValue != null) {
          fail("Expected annotation value, but there were no annotations");
@@ -806,17 +542,6 @@ public class JMSMappingOutboundTransformerTest {
 
    // ----- Utility Methods used for this Test -------------------------------//
 
-   public EncodedMessage transform(ServerJMSMessage message) throws Exception {
-      // Useful for testing but not recommended for real life use.
-      ByteBuf nettyBuffer = Unpooled.buffer(1024);
-      NettyWritable buffer = new NettyWritable(nettyBuffer);
-
-      long messageFormat = transformer.transform(message, buffer);
-
-      EncodedMessage encoded = new EncodedMessage(messageFormat, nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
-
-      return encoded;
-   }
 
    private ServerDestination createDestination(byte destType) {
       ServerDestination destination = null;
@@ -841,7 +566,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSMessage createMessage() {
-      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE), 0);
+      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE));
    }
 
    private ServerJMSBytesMessage createBytesMessage() {
@@ -849,7 +574,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSBytesMessage createBytesMessage(boolean compression) {
-      ServerJMSBytesMessage message = new ServerJMSBytesMessage(newMessage(org.apache.activemq.artemis.api.core.Message.BYTES_TYPE), 0);
+      ServerJMSBytesMessage message = new ServerJMSBytesMessage(newMessage(org.apache.activemq.artemis.api.core.Message.BYTES_TYPE));
 
       if (compression) {
          // TODO
@@ -863,7 +588,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSMapMessage createMapMessage(boolean compression) {
-      ServerJMSMapMessage message = new ServerJMSMapMessage(newMessage(org.apache.activemq.artemis.api.core.Message.MAP_TYPE), 0);
+      ServerJMSMapMessage message = new ServerJMSMapMessage(newMessage(org.apache.activemq.artemis.api.core.Message.MAP_TYPE));
 
       if (compression) {
          // TODO
@@ -877,7 +602,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSStreamMessage createStreamMessage(boolean compression) {
-      ServerJMSStreamMessage message = new ServerJMSStreamMessage(newMessage(org.apache.activemq.artemis.api.core.Message.STREAM_TYPE), 0);
+      ServerJMSStreamMessage message = new ServerJMSStreamMessage(newMessage(org.apache.activemq.artemis.api.core.Message.STREAM_TYPE));
 
       if (compression) {
          // TODO
@@ -895,7 +620,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSObjectMessage createObjectMessage(Serializable payload, boolean compression) {
-      ServerJMSObjectMessage result = AMQPMessageSupport.createObjectMessage(idGenerator);
+      ServerJMSObjectMessage result = AMQPMessageSupport.createObjectMessage(0);
 
       if (compression) {
          // TODO
@@ -922,7 +647,7 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private ServerJMSTextMessage createTextMessage(String text, boolean compression) {
-      ServerJMSTextMessage result = AMQPMessageSupport.createTextMessage(idGenerator);
+      ServerJMSTextMessage result = AMQPMessageSupport.createTextMessage(0);
 
       if (compression) {
          // TODO
@@ -943,8 +668,8 @@ public class JMSMappingOutboundTransformerTest {
       }
    }
 
-   private ServerMessageImpl newMessage(byte messageType) {
-      ServerMessageImpl message = new ServerMessageImpl(idGenerator.generateID(), 512);
+   private CoreMessage newMessage(byte messageType) {
+      CoreMessage message = new CoreMessage(0, 512);
       message.setType(messageType);
       ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;

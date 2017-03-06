@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -41,12 +42,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -66,14 +65,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -90,7 +88,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
-import org.apache.activemq.artemis.utils.UUID;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
@@ -155,9 +152,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private final SimpleString managementAddress;
 
-   // The current currentLargeMessage being processed
-   private volatile LargeServerMessage currentLargeMessage;
-
    protected final RoutingContext routingContext = new RoutingContextImpl(null);
 
    protected final SessionCallback callback;
@@ -171,7 +165,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private final OperationContext context;
 
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<>();
+   protected final Map<SimpleString, Pair<Object, AtomicLong>> targetAddressInfos = new HashMap<>();
 
    private final long creationTime = System.currentTimeMillis();
 
@@ -186,6 +180,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private boolean prefixEnabled = false;
 
    private Map<SimpleString, RoutingType> prefixes;
+
+   private Set<Closeable> closeables;
 
    public ServerSessionImpl(final String name,
                             final String username,
@@ -270,6 +266,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public void enableSecurity() {
       this.securityEnabled = true;
+   }
+
+   @Override
+   public void addCloseable(Closeable closeable) {
+      if (closeables == null) {
+         closeables = new HashSet<>();
+      }
+      this.closeables.add(closeable);
    }
 
    @Override
@@ -376,11 +380,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       consumers.clear();
 
-      if (currentLargeMessage != null) {
-         try {
-            currentLargeMessage.deleteFile();
-         } catch (Throwable error) {
-            ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+      if (closeables != null) {
+         for (Closeable closeable : closeables) {
+            closeable.close(failed);
          }
       }
 
@@ -1272,30 +1274,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void sendLarge(final MessageInternal message) throws Exception {
-      // need to create the LargeMessage before continue
-      long id = storageManager.generateID();
-
-      LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("sendLarge::" + largeMsg);
-      }
-
-      if (currentLargeMessage != null) {
-         ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
-      }
-
-      currentLargeMessage = largeMsg;
-   }
-
-   @Override
-   public RoutingStatus send(final ServerMessage message, final boolean direct) throws Exception {
+   public RoutingStatus send(final Message message, final boolean direct) throws Exception {
       return send(message, direct, false);
    }
 
    @Override
-   public RoutingStatus send(final ServerMessage message,
+   public RoutingStatus send(final Message message,
                              final boolean direct,
                              boolean noAutoCreateQueue) throws Exception {
       return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
@@ -1303,7 +1287,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public RoutingStatus send(Transaction tx,
-                             final ServerMessage message,
+                             final Message message,
                              final boolean direct,
                              boolean noAutoCreateQueue) throws Exception {
 
@@ -1319,19 +1303,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       //case the id header already generated.
       if (!message.isLargeMessage()) {
          long id = storageManager.generateID();
-
+         // This will re-encode the message
          message.setMessageID(id);
-         message.encodeMessageIDToBuffer();
       }
 
       if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
          message.putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
       }
 
-      SimpleString address = removePrefix(message.getAddress());
+      SimpleString originalAddress = message.getAddressSimpleString();
+
+      SimpleString address = removePrefix(message.getAddressSimpleString());
 
       // In case the prefix was removed, we also need to update the message
-      if (address != message.getAddress()) {
+      if (address != message.getAddressSimpleString()) {
          message.setAddress(address);
       }
 
@@ -1340,14 +1325,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (address == null) {
-         if (message.isDurable()) {
-            // We need to force a re-encode when the message gets persisted or when it gets reloaded
-            // it will have no address
-            message.setAddress(defaultAddress);
-         } else {
-            // We don't want to force a re-encode when the message gets sent to the consumer
-            message.setAddressTransient(defaultAddress);
-         }
+         // We don't want to force a re-encode when the message gets sent to the consumer
+         message.setAddress(defaultAddress);
       }
 
       if (logger.isTraceEnabled()) {
@@ -1359,42 +1338,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.noAddress();
       }
 
-      if (message.getAddress().equals(managementAddress)) {
+      if (message.getAddressSimpleString().equals(managementAddress)) {
          // It's a management message
 
          handleManagementMessage(tx, message, direct);
       } else {
-         result = doSend(tx, message, direct, noAutoCreateQueue);
+         result = doSend(tx, message, originalAddress, direct, noAutoCreateQueue);
       }
       return result;
    }
 
-   @Override
-   public void sendContinuations(final int packetSize,
-                                 final long messageBodySize,
-                                 final byte[] body,
-                                 final boolean continues) throws Exception {
-      if (currentLargeMessage == null) {
-         throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
-      }
-
-      // Immediately release the credits for the continuations- these don't contribute to the in-memory size
-      // of the message
-
-      currentLargeMessage.addBytes(body);
-
-      if (!continues) {
-         currentLargeMessage.releaseResources();
-
-         if (messageBodySize >= 0) {
-            currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
-         }
-
-         doSend(tx, currentLargeMessage, false, false);
-
-         currentLargeMessage = null;
-      }
-   }
 
    @Override
    public void requestProducerCredits(SimpleString address, final int credits) throws Exception {
@@ -1456,7 +1409,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String[] getTargetAddresses() {
-      Map<SimpleString, Pair<UUID, AtomicLong>> copy = cloneTargetAddresses();
+      Map<SimpleString, Pair<Object, AtomicLong>> copy = cloneTargetAddresses();
       Iterator<SimpleString> iter = copy.keySet().iterator();
       int num = copy.keySet().size();
       String[] addresses = new String[num];
@@ -1470,7 +1423,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String getLastSentMessageID(String address) {
-      Pair<UUID, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
+      Pair<Object, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
       if (value != null) {
          return value.getA().toString();
       } else {
@@ -1489,9 +1442,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void describeProducersInfo(JsonArrayBuilder array) throws Exception {
-      Map<SimpleString, Pair<UUID, AtomicLong>> targetCopy = cloneTargetAddresses();
+      Map<SimpleString, Pair<Object, AtomicLong>> targetCopy = cloneTargetAddresses();
 
-      for (Map.Entry<SimpleString, Pair<UUID, AtomicLong>> entry : targetCopy.entrySet()) {
+      for (Map.Entry<SimpleString, Pair<Object, AtomicLong>> entry : targetCopy.entrySet()) {
          String uuid = null;
          if (entry.getValue().getA() != null) {
             uuid = entry.getValue().getA().toString();
@@ -1566,14 +1519,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       connectionFailed(me, failedOver);
    }
 
-   public void clearLargeMessage() {
-      currentLargeMessage = null;
-   }
-
    private void installJMSHooks() {
    }
 
-   private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses() {
+   private Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
       return new HashMap<>(targetAddressInfos);
    }
 
@@ -1588,10 +1537,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private RoutingStatus handleManagementMessage(final Transaction tx,
-                                                 final ServerMessage message,
+                                                 final Message message,
                                                  final boolean direct) throws Exception {
       try {
-         securityCheck(removePrefix(message.getAddress()), CheckType.MANAGE, this);
+         securityCheck(removePrefix(message.getAddressSimpleString()), CheckType.MANAGE, this);
       } catch (ActiveMQException e) {
          if (!autoCommitSends) {
             tx.markAsRollbackOnly(e);
@@ -1599,9 +1548,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw e;
       }
 
-      ServerMessage reply = managementService.handleMessage(message);
+      Message reply = managementService.handleMessage(message);
 
-      SimpleString replyTo = message.getSimpleStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME);
+      SimpleString replyTo = message.getReplyTo();
 
       if (replyTo != null) {
          // TODO: move this check somewhere else? this is a JMS-specific bit of logic in the core impl
@@ -1612,7 +1561,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
          reply.setAddress(replyTo);
 
-         doSend(tx, reply, direct, false);
+         doSend(tx, reply, null, direct, false);
       }
 
       return RoutingStatus.OK;
@@ -1669,21 +1618,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       theTx.rollback();
    }
 
+   @Override
    public RoutingStatus doSend(final Transaction tx,
-                               final ServerMessage msg,
+                               final Message msg,
+                               final SimpleString originalAddress,
                                final boolean direct,
                                final boolean noAutoCreateQueue) throws Exception {
       RoutingStatus result = RoutingStatus.OK;
 
-      /**
-       *  TODO Checking message properties on each message is expensive.  Instead we should update the API and Core Packets
-       *  to add the RoutingType information directly.
-       */
-      RoutingType routingType = null;
-      if (msg.containsProperty(Message.HDR_ROUTING_TYPE)) {
-         routingType = RoutingType.getType(msg.getByteProperty(Message.HDR_ROUTING_TYPE));
-      }
-      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddress(), routingType);
+      RoutingType routingType = msg.getRouteType();
+
+      /* TODO-now: How to address here with AMQP?
+      if (originalAddress != null) {
+         if (originalAddress.toString().startsWith("anycast:")) {
+            routingType = RoutingType.ANYCAST;
+         } else if (originalAddress.toString().startsWith("multicast:")) {
+            routingType = RoutingType.MULTICAST;
+         }
+      } */
+
+      Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddressSimpleString(), routingType);
 
       // Consumer
       // check the user has write access to this address.
@@ -1707,10 +1661,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          result = postOffice.route(msg, routingContext, direct);
 
-         Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
+         Pair<Object, AtomicLong> value = targetAddressInfos.get(msg.getAddressSimpleString());
 
          if (value == null) {
-            targetAddressInfos.put(msg.getAddress(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
+            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
          } else {
             value.setA(msg.getUserID());
             value.getB().incrementAndGet();

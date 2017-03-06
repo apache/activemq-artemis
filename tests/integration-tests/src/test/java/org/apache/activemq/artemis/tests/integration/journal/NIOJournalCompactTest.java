@@ -43,9 +43,9 @@ import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFileImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -1656,13 +1656,13 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                         long id = seqGenerator.incrementAndGet();
                         values[i] = id;
 
-                        ServerMessageImpl message = new ServerMessageImpl(id, 100);
+                        CoreMessage message = new CoreMessage(id, 100);
 
                         message.getBodyBuffer().writeBytes(new byte[1024]);
 
                         storage.storeMessageTransactional(tx, message);
                      }
-                     ServerMessageImpl message = new ServerMessageImpl(seqGenerator.incrementAndGet(), 100);
+                     CoreMessage message = new CoreMessage(seqGenerator.incrementAndGet(), 100);
 
                      survivingMsgs.add(message.getMessageID());
 

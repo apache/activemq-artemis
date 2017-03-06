@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class FakeStorageManager extends NullStorageManager {
 
@@ -29,12 +29,12 @@ public class FakeStorageManager extends NullStorageManager {
    List<Long> ackIds = new ArrayList<>();
 
    @Override
-   public void storeMessage(final ServerMessage message) throws Exception {
+   public void storeMessage(final Message message) throws Exception {
       messageIds.add(message.getMessageID());
    }
 
    @Override
-   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
+   public void storeMessageTransactional(final long txID, final Message message) throws Exception {
       messageIds.add(message.getMessageID());
    }
 

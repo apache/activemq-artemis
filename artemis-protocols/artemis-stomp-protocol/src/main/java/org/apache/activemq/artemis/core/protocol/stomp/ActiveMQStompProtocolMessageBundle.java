@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -71,7 +70,7 @@ public interface ActiveMQStompProtocolMessageBundle {
    ActiveMQStompException invalidConnection();
 
    @Message(id = 339011, value = "Error sending message {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorSendMessage(ServerMessageImpl message, @Cause Exception e);
+   ActiveMQStompException errorSendMessage(org.apache.activemq.artemis.api.core.Message message, @Cause Exception e);
 
    @Message(id = 339012, value = "Error beginning a transaction {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException errorBeginTx(String txID, @Cause Exception e);

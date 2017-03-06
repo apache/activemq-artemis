@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.jboss.logging.Logger;
 
@@ -88,7 +87,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
       queueFilter = FilterImpl.createFilter(filterString);
 
-      idsHeaderName = MessageImpl.HDR_ROUTE_TO_IDS.concat(bridgeName);
+      idsHeaderName = Message.HDR_ROUTE_TO_IDS.concat(bridgeName);
 
       this.distance = distance;
    }
@@ -149,7 +148,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    @Override
-   public synchronized boolean isHighAcceptPriority(final ServerMessage message) {
+   public synchronized boolean isHighAcceptPriority(final Message message) {
       if (consumerCount == 0) {
          return false;
       }
@@ -172,7 +171,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) {
+   public void route(final Message message, final RoutingContext context) {
       addRouteContextToMessage(message);
 
       List<Queue> durableQueuesOnContext = context.getDurableQueues(storeAndForwardQueue.getAddress());
@@ -185,7 +184,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) {
+   public void routeWithAck(Message message, RoutingContext context) {
       addRouteContextToMessage(message);
 
       List<Queue> durableQueuesOnContext = context.getDurableQueues(storeAndForwardQueue.getAddress());
@@ -315,7 +314,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
     *
     * @param message
     */
-   private void addRouteContextToMessage(final ServerMessage message) {
+   private void addRouteContextToMessage(final Message message) {
       byte[] ids = message.getBytesProperty(idsHeaderName);
 
       if (ids == null) {

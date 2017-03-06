@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -34,9 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -231,16 +230,17 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public int sendMessage(MessageReference reference,
-                          ServerMessage message,
+                          org.apache.activemq.artemis.api.core.Message message,
                           ServerConsumer consumer,
                           int deliveryCount) {
       AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
-      return theConsumer.handleDeliver(reference, message, deliveryCount);
+      // TODO: use encoders and proper conversions here
+      return theConsumer.handleDeliver(reference, message.toCore(), deliveryCount);
    }
 
    @Override
    public int sendLargeMessage(MessageReference reference,
-                               ServerMessage message,
+                               org.apache.activemq.artemis.api.core.Message message,
                                ServerConsumer consumerID,
                                long bodySize,
                                int deliveryCount) {
@@ -296,7 +296,7 @@ public class AMQSession implements SessionCallback {
          actualDestinations = new ActiveMQDestination[]{destination};
       }
 
-      ServerMessage originalCoreMsg = getConverter().inbound(messageSend);
+      org.apache.activemq.artemis.api.core.Message originalCoreMsg = getConverter().inbound(messageSend);
 
       if (connection.isNoLocal()) {
          //Note: advisory messages are dealt with in
@@ -324,7 +324,7 @@ public class AMQSession implements SessionCallback {
       for (int i = 0; i < actualDestinations.length; i++) {
          ActiveMQDestination dest = actualDestinations[i];
          SimpleString address = new SimpleString(dest.getPhysicalName());
-         ServerMessage coreMsg = originalCoreMsg.copy();
+         org.apache.activemq.artemis.api.core.Message coreMsg = originalCoreMsg.copy();
          coreMsg.setAddress(address);
 
          if (actualDestinations[i].isQueue()) {

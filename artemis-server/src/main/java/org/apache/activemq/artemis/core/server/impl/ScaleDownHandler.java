@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -54,7 +53,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -193,7 +191,7 @@ public class ScaleDownHandler {
                      buffer.putLong(queueID);
                   }
 
-                  message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+                  message.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
 
                   if (logger.isDebugEnabled()) {
                      if (messageReference.isPaged()) {
@@ -264,11 +262,11 @@ public class ScaleDownHandler {
                byte[] oldRouteToIDs = null;
 
                List<SimpleString> propertiesToRemove = new ArrayList<>();
-               message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
+               message.removeProperty(Message.HDR_ROUTE_TO_IDS.toString());
                for (SimpleString propName : message.getPropertyNames()) {
-                  if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS)) {
+                  if (propName.startsWith(Message.HDR_ROUTE_TO_IDS)) {
                      if (propName.toString().endsWith(propertyEnd)) {
-                        oldRouteToIDs = message.getBytesProperty(propName);
+                        oldRouteToIDs = message.getBytesProperty(propName.toString());
                      }
                      propertiesToRemove.add(propName);
                   }
@@ -277,16 +275,17 @@ public class ScaleDownHandler {
                // TODO: what if oldRouteToIDs == null ??
 
                for (SimpleString propertyToRemove : propertiesToRemove) {
-                  message.removeProperty(propertyToRemove);
+                  message.removeProperty(propertyToRemove.toString());
                }
 
                if (queueOnTarget) {
-                  message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, oldRouteToIDs);
+                  message.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), oldRouteToIDs);
                } else {
-                  message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
+                  message.putBytesProperty(Message.HDR_SCALEDOWN_TO_IDS.toString(), oldRouteToIDs);
                }
 
                logger.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
+
                producer.send(message.getAddress(), message);
 
                messageCount++;
@@ -322,13 +321,13 @@ public class ScaleDownHandler {
          List<TransactionOperation> allOperations = transaction.getAllOperations();
 
          // Get the information of the Prepared TXs so it could replay the TXs
-         Map<ServerMessage, Pair<List<Long>, List<Long>>> queuesToSendTo = new HashMap<>();
+         Map<Message, Pair<List<Long>, List<Long>>> queuesToSendTo = new HashMap<>();
          for (TransactionOperation operation : allOperations) {
             if (operation instanceof PostOfficeImpl.AddOperation) {
                PostOfficeImpl.AddOperation addOperation = (PostOfficeImpl.AddOperation) operation;
                List<MessageReference> refs = addOperation.getRelatedMessageReferences();
                for (MessageReference ref : refs) {
-                  ServerMessage message = ref.getMessage();
+                  Message message = ref.getMessage();
                   Queue queue = ref.getQueue();
                   long queueID;
                   String queueName = queue.getName().toString();
@@ -336,7 +335,7 @@ public class ScaleDownHandler {
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
                   } else {
-                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddress());
+                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
@@ -350,7 +349,7 @@ public class ScaleDownHandler {
                RefsOperation refsOperation = (RefsOperation) operation;
                List<MessageReference> refs = refsOperation.getReferencesToAcknowledge();
                for (MessageReference ref : refs) {
-                  ServerMessage message = ref.getMessage();
+                  Message message = ref.getMessage();
                   Queue queue = ref.getQueue();
                   long queueID;
                   String queueName = queue.getName().toString();
@@ -358,7 +357,7 @@ public class ScaleDownHandler {
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
                   } else {
-                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddress());
+                     queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddressSimpleString());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
                   Pair<List<Long>, List<Long>> queueIds = queuesToSendTo.get(message);
@@ -373,23 +372,23 @@ public class ScaleDownHandler {
          }
 
          ClientProducer producer = session.createProducer();
-         for (Map.Entry<ServerMessage, Pair<List<Long>, List<Long>>> entry : queuesToSendTo.entrySet()) {
+         for (Map.Entry<Message, Pair<List<Long>, List<Long>>> entry : queuesToSendTo.entrySet()) {
             List<Long> ids = entry.getValue().getA();
             ByteBuffer buffer = ByteBuffer.allocate(ids.size() * 8);
             for (Long id : ids) {
                buffer.putLong(id);
             }
-            ServerMessage message = entry.getKey();
-            message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+            Message message = entry.getKey();
+            message.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
             ids = entry.getValue().getB();
             if (ids.size() > 0) {
                buffer = ByteBuffer.allocate(ids.size() * 8);
                for (Long id : ids) {
                   buffer.putLong(id);
                }
-               message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_ACK_IDS, buffer.array());
+               message.putBytesProperty(Message.HDR_ROUTE_TO_ACK_IDS.toString(), buffer.array());
             }
-            producer.send(message.getAddress(), message);
+            producer.send(message.getAddressSimpleString().toString(), message);
          }
          session.end(xid, XAResource.TMSUCCESS);
          session.prepare(xid);

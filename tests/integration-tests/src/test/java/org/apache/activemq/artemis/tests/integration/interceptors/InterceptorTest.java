@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerMessage;
+
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -88,7 +88,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
 
-            ServerMessage sm = (ServerMessage) p.getMessage();
+            Message sm = p.getMessage();
 
             sm.putStringProperty(InterceptorTest.key, "orange");
          }
@@ -165,7 +165,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
 
-            ServerMessage sm = (ServerMessage) p.getMessage();
+            Message sm = p.getMessage();
 
             sm.putStringProperty(InterceptorTest.key, "orange");
          }
@@ -319,7 +319,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
 
-            ServerMessage sm = (ServerMessage) p.getMessage();
+            Message sm = p.getMessage();
 
             sm.putIntProperty(key, num);
 

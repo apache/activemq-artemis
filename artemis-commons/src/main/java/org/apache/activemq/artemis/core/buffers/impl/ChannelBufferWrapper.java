@@ -66,11 +66,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public SimpleString readNullableSimpleString() {
-      int b = buffer.readByte();
-      if (b == DataConstants.NULL) {
-         return null;
-      }
-      return readSimpleStringInternal();
+      return SimpleString.readNullableSimpleString(buffer);
    }
 
    @Override
@@ -84,14 +80,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public SimpleString readSimpleString() {
-      return readSimpleStringInternal();
-   }
-
-   private SimpleString readSimpleStringInternal() {
-      int len = buffer.readInt();
-      byte[] data = new byte[len];
-      buffer.readBytes(data);
-      return new SimpleString(data);
+      return SimpleString.readSimpleString(buffer);
    }
 
    @Override
@@ -111,8 +100,19 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       } else if (len < 0xfff) {
          return readUTF();
       } else {
-         return readSimpleStringInternal().toString();
+         return SimpleString.readSimpleString(buffer).toString();
+
       }
+   }
+
+   @Override
+   public void writeNullableString(String val) {
+      UTF8Util.writeNullableString(buffer, val);
+   }
+
+   @Override
+   public void writeUTF(String utf) {
+      UTF8Util.saveUTF(buffer, utf);
    }
 
    @Override
@@ -127,62 +127,17 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    @Override
    public void writeNullableSimpleString(final SimpleString val) {
-      if (val == null) {
-         buffer.writeByte(DataConstants.NULL);
-      } else {
-         buffer.writeByte(DataConstants.NOT_NULL);
-         writeSimpleStringInternal(val);
-      }
-   }
-
-   @Override
-   public void writeNullableString(final String val) {
-      if (val == null) {
-         buffer.writeByte(DataConstants.NULL);
-      } else {
-         buffer.writeByte(DataConstants.NOT_NULL);
-         writeStringInternal(val);
-      }
+      SimpleString.writeNullableSimpleString(buffer, val);
    }
 
    @Override
    public void writeSimpleString(final SimpleString val) {
-      writeSimpleStringInternal(val);
-   }
-
-   private void writeSimpleStringInternal(final SimpleString val) {
-      byte[] data = val.getData();
-      buffer.writeInt(data.length);
-      buffer.writeBytes(data);
+      SimpleString.writeSimpleString(buffer, val);
    }
 
    @Override
    public void writeString(final String val) {
-      writeStringInternal(val);
-   }
-
-   private void writeStringInternal(final String val) {
-      int length = val.length();
-
-      buffer.writeInt(length);
-
-      if (length < 9) {
-         // If very small it's more performant to store char by char
-         for (int i = 0; i < val.length(); i++) {
-            buffer.writeShort((short) val.charAt(i));
-         }
-      } else if (length < 0xfff) {
-         // Store as UTF - this is quicker than char by char for most strings
-         writeUTF(val);
-      } else {
-         // Store as SimpleString, since can't store utf > 0xffff in length
-         writeSimpleStringInternal(new SimpleString(val));
-      }
-   }
-
-   @Override
-   public void writeUTF(final String utf) {
-      UTF8Util.saveUTF(this, utf);
+      UTF8Util.writeString(buffer, val);
    }
 
    @Override
@@ -573,6 +528,11 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    @Override
    public void writeBytes(final ByteBuffer src) {
       buffer.writeBytes(src);
+   }
+
+   @Override
+   public void writeBytes(ByteBuf src, int srcIndex, int length) {
+      buffer.writeBytes(src, srcIndex, length);
    }
 
    @Override

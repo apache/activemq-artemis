@@ -53,10 +53,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
-import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -125,10 +123,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       producer.send(clientFile);
 
       Thread.sleep(500);
-
-      for (ServerSession srvSession : server.getSessions()) {
-         ((ServerSessionImpl) srvSession).clearLargeMessage();
-      }
+//
+//      for (ServerSession srvSession : server.getSessions()) {
+//         ((ServerSessionImpl) srvSession).clearLargeMessage();
+//      }
 
       server.stop(false);
 

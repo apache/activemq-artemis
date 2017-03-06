@@ -26,13 +26,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -53,7 +53,6 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.RouteContextList;
-import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -323,7 +322,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void storeMessage(ServerMessage message) throws Exception {
+      public void storeMessage(Message message) throws Exception {
 
       }
 
@@ -368,7 +367,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void storeMessageTransactional(long txID, ServerMessage message) throws Exception {
+      public void storeMessageTransactional(long txID, Message message) throws Exception {
 
       }
 
@@ -439,7 +438,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public LargeServerMessage createLargeMessage(long id, MessageInternal message) throws Exception {
+      public LargeServerMessage createLargeMessage(long id, Message message) throws Exception {
          return null;
       }
 
@@ -485,11 +484,6 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public void updatePageTransaction(long txID, PageTransactionInfo pageTransaction, int depage) throws Exception {
-
-      }
-
-      @Override
-      public void updatePageTransaction(PageTransactionInfo pageTransaction, int depage) throws Exception {
 
       }
 
@@ -643,7 +637,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public boolean addToPage(PagingStore store,
-                               ServerMessage msg,
+                               Message msg,
                                Transaction tx,
                                RouteContextList listCtx) throws Exception {
          return false;
