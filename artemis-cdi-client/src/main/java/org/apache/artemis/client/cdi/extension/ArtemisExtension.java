@@ -22,7 +22,7 @@ package org.apache.artemis.client.cdi.extension;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.enterprise.inject.spi.ProcessBean;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
@@ -33,14 +33,18 @@ public class ArtemisExtension implements Extension {
    private boolean foundEmbeddedConfig = false;
    private boolean foundConfiguration = false;
 
-   <T extends ArtemisClientConfiguration> void foundClientConfig(@Observes ProcessAnnotatedType<T> pat) {
-      ActiveMQCDILogger.LOGGER.discoveredConfiguration(pat);
-      foundConfiguration = true;
+   void foundClientConfig(@Observes ProcessBean<?> processBean) {
+      if (processBean.getBean().getTypes().contains(ArtemisClientConfiguration.class)) {
+         ActiveMQCDILogger.LOGGER.discoveredConfiguration(processBean);
+         foundConfiguration = true;
+      }
    }
 
-   <T extends Configuration> void foundEmbeddedConfig(@Observes ProcessAnnotatedType<T> pat) {
-      ActiveMQCDILogger.LOGGER.discoveredClientConfiguration(pat);
-      foundEmbeddedConfig = true;
+   void foundEmbeddedConfig(@Observes ProcessBean<?> processBean) {
+      if (processBean.getBean().getTypes().contains(Configuration.class)) {
+         ActiveMQCDILogger.LOGGER.discoveredClientConfiguration(processBean);
+         foundEmbeddedConfig = true;
+      }
    }
 
    void afterBeanDiscovery(@Observes AfterBeanDiscovery afterBeanDiscovery) {
