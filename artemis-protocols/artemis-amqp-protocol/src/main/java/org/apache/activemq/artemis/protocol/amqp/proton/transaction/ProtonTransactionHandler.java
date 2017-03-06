@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.proton;
+package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonDeliveryHandler;
 import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.qpid.proton.amqp.Binary;
@@ -75,11 +76,11 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Declared declared = new Declared();
             declared.setTxnId(txID);
             delivery.disposition(declared);
-            delivery.settle();
          } else if (action instanceof Discharge) {
             Discharge discharge = (Discharge) action;
 
             Binary txID = discharge.getTxnId();
+            sessionSPI.dischargeTx(txID);
             if (discharge.getFail()) {
                try {
                   sessionSPI.rollbackTX(txID, true);
