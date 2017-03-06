@@ -19,7 +19,7 @@
 
 package org.apache.artemis.client.cdi.logger;
 
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.enterprise.inject.spi.ProcessBean;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
@@ -48,11 +48,11 @@ public interface ActiveMQCDILogger extends BasicLogger {
 
    @LogMessage
    @Message(id = 571000, value = "Discovered configuration class {0}", format = Message.Format.MESSAGE_FORMAT)
-   void discoveredConfiguration(ProcessAnnotatedType<?> pat);
+   void discoveredConfiguration(ProcessBean<?> pb);
 
    @LogMessage
    @Message(id = 571001, value = "Discovered client configuration class {0}", format = Message.Format.MESSAGE_FORMAT)
-   void discoveredClientConfiguration(ProcessAnnotatedType<?> pat);
+   void discoveredClientConfiguration(ProcessBean<?> pb);
 
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 573000, value = "Configuration found, not using built in configuration")
