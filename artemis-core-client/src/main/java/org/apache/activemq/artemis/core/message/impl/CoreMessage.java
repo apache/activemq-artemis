@@ -514,7 +514,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          // so we always need to take the BUFFER_HEADER_SPACE from packet impl into consideration
          endOfBodyPosition = writableBuffer.writerIndex() + BUFFER_HEADER_SPACE - 4;
       } else if (endOfBodyPosition <= 0) {
-         endOfBodyPosition = BUFFER_HEADER_SPACE;
+         endOfBodyPosition = BUFFER_HEADER_SPACE + DataConstants.SIZE_INT;
       }
 
       buffer.setIndex(0, 0);

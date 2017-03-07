@@ -190,6 +190,8 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       Assert.assertEquals("hi", message2.getReadOnlyBodyBuffer().readString());
 
+      Assert.assertNull(consumer.receiveImmediate());
+
       session.close();
    }
 
