@@ -31,7 +31,8 @@ Developers are encouraged also to use the Dev profile, which will activate check
 
 ## Commit Messages
 
-Please ensure the commit messages follow the 50/72 format as described [here](code.md#commitMessageDetails).
+Please ensure the commit messages follow the 50/72 format as described [here](code.md#commitMessageDetails). This
+format follows the recommendation from the [official Git book](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).
 
 ## Configuring git repositories
 
