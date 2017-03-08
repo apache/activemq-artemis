@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
@@ -1063,6 +1064,49 @@ public class MQTTTest extends MQTTTestSupport {
       assertNotNull(m);
       m.ack();
       assertEquals("test message", new String(m.getPayload()));
+   }
+
+
+   @Test(timeout = 60 * 1000)
+   public void testWillMessageIsReceivedWithNonRetain() throws Exception {
+      getServer().createQueue(SimpleString.toSimpleString("will"), RoutingType.MULTICAST, SimpleString.toSimpleString("will"), null, true, false);
+
+      MQTT mqtt = createMQTTConnection("1", false);
+      mqtt.setKeepAlive((short) 1);
+      mqtt.setWillMessage("test message with non-retain");
+      mqtt.setWillTopic("will");
+      mqtt.setWillQos(QoS.AT_LEAST_ONCE);
+      mqtt.setWillRetain(false);
+
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return connection.isConnected();
+         }
+      });
+
+      // kill transport
+      final CountDownLatch latch = new CountDownLatch(1);
+      server.getRemotingService().getConnections().iterator().next().addCloseListener(new CloseListener() {
+         @Override
+         public void connectionClosed() {
+            latch.countDown();
+         }
+      });
+      connection.kill();
+      latch.await(10, TimeUnit.SECONDS);
+
+      MQTT mqtt2 = createMQTTConnection("2", false);
+      BlockingConnection connection2 = mqtt2.blockingConnection();
+      connection2.connect();
+      connection2.subscribe(new Topic[]{new Topic("will", QoS.AT_LEAST_ONCE)});
+
+      Message m = connection2.receive(1000, TimeUnit.MILLISECONDS);
+      assertNotNull(m);
+      m.ack();
+      assertEquals("test message with non-retain", new String(m.getPayload()));
    }
 
 
