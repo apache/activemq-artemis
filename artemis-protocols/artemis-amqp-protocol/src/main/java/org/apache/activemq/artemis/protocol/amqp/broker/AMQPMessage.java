@@ -398,8 +398,8 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public Object getUserID() {
       Properties properties = getProperties();
-      if (properties != null && properties.getUserId() != null) {
-         return properties.getUserId();
+      if (properties != null && properties.getMessageId() != null) {
+         return properties.getMessageId();
       } else {
          return this;
       }
