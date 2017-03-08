@@ -19,7 +19,7 @@ In Artemis, the same thing is achieved by defining `<jaas-security>` configurati
 <jaas-security domain="activemq"/>
 ```
     
-From this point on, you can go and define your users and their roles in appropriate files, like `conf/users.properties` and `conf/groups.properties` in ActiveMQ. Similarly, `etc/artemis-users.properties` and `etc/artemis-roles.properties` files are used in Artemis. These files are intechangable, so you should be able to just copy your existing configuration over to the new broker. 
+From this point on, you can go and define your users and their roles in appropriate files, like `conf/users.properties` and `conf/groups.properties` in ActiveMQ. Similarly, `etc/artemis-users.properties` and `etc/artemis-roles.properties` files are used in Artemis. These files are interchangeable, so you should be able to just copy your existing configuration over to the new broker. 
 
 If your deployment is more complicated that this and requires some advanced JAAS configuration, you'll need go and change the `etc/login.config` file. It's important to say that all custom JAAS modules and configuration you were using in ActiveMQ should be compatible with Artemis.
 
