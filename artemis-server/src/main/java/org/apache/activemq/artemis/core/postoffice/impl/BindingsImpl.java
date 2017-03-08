@@ -238,19 +238,17 @@ public final class BindingsImpl implements Bindings {
       /* This is a special treatment for scaled-down messages involving SnF queues.
        * See org.apache.activemq.artemis.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
        */
-      if (message.containsProperty(Message.HDR_SCALEDOWN_TO_IDS)) {
-         byte[] ids = (byte[]) message.removeProperty(Message.HDR_SCALEDOWN_TO_IDS);
+      byte[] ids = (byte[]) message.removeDeliveryAnnotationProperty(Message.HDR_SCALEDOWN_TO_IDS);
 
-         if (ids != null) {
-            ByteBuffer buffer = ByteBuffer.wrap(ids);
-            while (buffer.hasRemaining()) {
-               long id = buffer.getLong();
-               for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet()) {
-                  if (entry.getValue() instanceof RemoteQueueBinding) {
-                     RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
-                     if (remoteQueueBinding.getRemoteQueueID() == id) {
-                        message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
-                     }
+      if (ids != null) {
+         ByteBuffer buffer = ByteBuffer.wrap(ids);
+         while (buffer.hasRemaining()) {
+            long id = buffer.getLong();
+            for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet()) {
+               if (entry.getValue() instanceof RemoteQueueBinding) {
+                  RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
+                  if (remoteQueueBinding.getRemoteQueueID() == id) {
+                     message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
                   }
                }
             }
@@ -270,10 +268,10 @@ public final class BindingsImpl implements Bindings {
 
       if (!routed) {
          // Remove the ids now, in order to avoid double check
-         byte[] ids = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_IDS);
+         ids = (byte[]) message.removeDeliveryAnnotationProperty(Message.HDR_ROUTE_TO_IDS);
 
          // Fetch the groupId now, in order to avoid double checking
-         SimpleString groupId = message.getSimpleStringProperty(Message.HDR_GROUP_ID);
+         SimpleString groupId = message.getGroupID();
 
          if (ids != null) {
             routeFromCluster(message, context, ids);

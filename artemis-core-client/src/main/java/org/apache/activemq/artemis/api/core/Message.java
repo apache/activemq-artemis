@@ -167,7 +167,9 @@ public interface Message {
 
    default SimpleString getDeliveryAnnotationPropertyString(SimpleString property) {
       Object obj = getDeliveryAnnotationProperty(property);
-      if (obj instanceof SimpleString) {
+      if (obj == null) {
+         return null;
+      } else if (obj instanceof SimpleString) {
          return (SimpleString)obj;
       } else {
          return SimpleString.toSimpleString(obj.toString());
@@ -232,6 +234,10 @@ public interface Message {
     * */
    RefCountMessageListener getContext();
 
+   default SimpleString getGroupID() {
+      return null;
+   }
+
    SimpleString getReplyTo();
 
    Message setReplyTo(SimpleString address);
@@ -255,6 +261,15 @@ public interface Message {
     * The messageID is set when the message is handled by the server.
     */
    long getMessageID();
+
+   // used for NO-LOCAL: mainly for AMQP
+   default Message setConnectionID(String connectionID) {
+      return this;
+   }
+
+   default String getConnectionID() {
+      return null;
+   }
 
    Message setMessageID(long id);
 
@@ -503,7 +518,7 @@ public interface Message {
 
    Object getObjectProperty(SimpleString key);
 
-   Object removeDeliveryAnnoationProperty(SimpleString key);
+   Object removeDeliveryAnnotationProperty(SimpleString key);
 
    Object getDeliveryAnnotationProperty(SimpleString key);
 

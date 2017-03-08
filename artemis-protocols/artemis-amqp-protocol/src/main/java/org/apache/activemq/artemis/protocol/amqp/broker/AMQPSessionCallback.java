@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
@@ -394,10 +393,10 @@ public class AMQPSessionCallback implements SessionCallback {
                            final Receiver receiver) throws Exception {
       try {
 
-//         message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
+         message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
+
          serverSession.send(transaction, message, false, false);
 
-         // FIXME Potential race here...
          manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
             @Override
             public void done() {
@@ -419,10 +418,6 @@ public class AMQPSessionCallback implements SessionCallback {
       } finally {
          resetContext();
       }
-   }
-
-   public String getPubSubPrefix() {
-      return manager.getPubSubPrefix();
    }
 
    public void offerProducerCredit(final String address,
@@ -481,8 +476,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
    @Override
    public int sendMessage(MessageReference ref, Message message, ServerConsumer consumer, int deliveryCount) {
-
-      message.removeProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString());
 
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 

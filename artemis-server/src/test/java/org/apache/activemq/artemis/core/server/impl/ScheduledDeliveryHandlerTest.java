@@ -304,7 +304,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public Object removeDeliveryAnnoationProperty(SimpleString key) {
+      public Object removeDeliveryAnnotationProperty(SimpleString key) {
          return null;
       }
 
