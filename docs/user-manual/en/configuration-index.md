@@ -42,7 +42,7 @@ Name | Description
 :--- | :---
 [acceptors](configuring-transports.md "Understanding Acceptors") | a list of remoting acceptors
 [acceptors.acceptor](configuring-transports.md "Understanding Acceptors") | Each acceptor is composed for just an URL
-[address-settings](queue-attributes.md "Configuring Queues Via Address Settings")                                                    |  [a list of address-setting](#address-setting-type)
+[address-settings](address-model.md "Configuring Addresses and Queues Via Address Settings")                                                    |  [a list of address-setting](#address-setting-type)
 [allow-failback](ha.md "Failing Back to live Server")                                                                              |  Should stop backup on live restart. default true
 [async-connection-execution-enabled](connection-ttl.md "Configuring Asynchronous Connection Execution")  | If False delivery would be always asynchronous. default true
 [bindings-directory](persistence.md "Configuring the bindings journal")  | The folder in use for the bindings folder
@@ -99,7 +99,7 @@ Name | Description
 [persist-delivery-count-before-delivery](undelivered-messages.md "Delivery Count Persistence")  |  True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. Default=false
 [persistence-enabled](persistence.md "Configuring ActiveMQ Artemis for Zero Persistence")               |  true means that the server will use the file based journal for persistence. Default=true
 [persist-id-cache](duplicate-detection.md "Configuring the Duplicate ID Cache")                 |  true means that ID's are persisted to the journal. Default=true
-[queues](queue-attributes.md "Predefined Queues")       |  [a list of queue to be created](#queue-type)
+[queues](address-model.md "Predefined Queues")       |  [a list of queue to be created](#queue-type)
 [remoting-incoming-interceptors](intercepting-operations.md "Intercepting Operations")                                                   |  A list of interceptor
 [resolveProtocols]()  |  Use [ServiceLoader](http://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
 [scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
@@ -122,22 +122,22 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 
 Name | Description
 :--- | :---
-[match ](queue-attributes.md "Configuring Queues Via Address Settings")         | The filter to apply to the setting
+[match ](address-model.md "Configuring Queues Via Address Settings")         | The filter to apply to the setting
 [dead-letter-address](undelivered-messages.md "Configuring Dead Letter Addresses")                |  dead letter address
 [expiry-address](message-expiry.md "Configuring Expiry Addresses")                                  |  expired messages address
-[expiry-delay](queue-attributes.md "Configuring Queues Via Address Settings")                       |  expiration time override, -1 don't override with default=-1
+[expiry-delay](address-model.md "Configuring Queues Via Address Settings")                       |  expiration time override, -1 don't override with default=-1
 [redelivery-delay](undelivered-messages.md "Configuring Delayed Redelivery")                      |  time to redeliver a message (in ms) with default=0
-[redelivery-delay-multiplier](queue-attributes.md "Configuring Queues Via Address Settings")        |  multiplier to apply to the "redelivery-delay"
-[max-redelivery-delay](queue-attributes.md "Configuring Queues Via Address Settings")               |  Max value for the redelivery-delay
+[redelivery-delay-multiplier](address-model.md "Configuring Queues Via Address Settings")        |  multiplier to apply to the "redelivery-delay"
+[max-redelivery-delay](address-model.md "Configuring Queues Via Address Settings")               |  Max value for the redelivery-delay
 [max-delivery-attempts](undelivered-messages.md "Configuring Dead Letter Addresses")              |  Number of retries before dead letter address, default=10
 [max-size-bytes](paging.md "Paging")                                                          |  Limit before paging. -1 = infinite
 [page-size-bytes](paging.md "Paging")                                                         |  Size of each file on page, default=10485760
 [page-max-cache-size](paging.md "Paging")                                                     |  Maximum number of files cached from paging default=5
-[address-full-policy](queue-attributes.md "Configuring Queues Via Address Settings")                |  Model to chose after queue full
-[message-counter-history-day-limit](queue-attributes.md "Configuring Queues Via Address Settings")  |  Days to keep in history
+[address-full-policy](address-model.md "Configuring Queues Via Address Settings")                |  Model to chose after queue full
+[message-counter-history-day-limit](address-model.md "Configuring Queues Via Address Settings")  |  Days to keep in history
 [last-value-queue](last-value-queues.md "Last-Value Queues")                                  |  Queue is a last value queue, default=false
 [redistribution-delay](clusters.md "Clusters")                                                |  Timeout before redistributing values after no consumers. default=-1
-[send-to-dla-on-no-route](queue-attributes.md "Configuring Queues Via Address Settings")            |  Forward messages to DLA when no queues subscribing. default=false
+[send-to-dla-on-no-route](address-model.md "Configuring Queues Via Address Settings")            |  Forward messages to DLA when no queues subscribing. default=false
 
 
 #bridge type
@@ -235,10 +235,10 @@ Name | Description
 
 Name | Description
 :--- | :---
-[name ](queue-attributes.md "Predefined Queues")                                                              |  unique name
-[address](queue-attributes.md "Predefined Queues")                                                                                |  address for the queue
-[filter](queue-attributes.md "Predefined Queues")                                                                                 | optional core filter expression
-[durable](queue-attributes.md "Predefined Queues")                                                                                |  whether the queue is durable (persistent). Default=true
+[name ](address-model.md "Predefined Queues")                                                              |  unique name
+[address](address-model.md "Predefined Queues")                                                                                |  address for the queue
+[filter](address-model.md "Predefined Queues")                                                                                 | optional core filter expression
+[durable](address-model.md "Predefined Queues")                                                                                |  whether the queue is durable (persistent). Default=true
 
 
 #security-setting type
