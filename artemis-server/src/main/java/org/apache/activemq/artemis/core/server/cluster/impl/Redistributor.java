@@ -131,7 +131,7 @@ public class Redistributor implements Consumer {
    public synchronized HandleStatus handle(final MessageReference reference) throws Exception {
       if (!active) {
          return HandleStatus.BUSY;
-      } else if (reference.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID) != null) {
+      } else if (reference.getMessage().getGroupID() != null) {
          //we shouldn't redistribute with message groups return NO_MATCH so other messages can be delivered
          return HandleStatus.NO_MATCH;
       }

@@ -104,7 +104,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    /** On core there's no delivery annotation */
    @Override
-   public Object removeDeliveryAnnoationProperty(SimpleString key) {
+   public Object removeDeliveryAnnotationProperty(SimpleString key) {
       return removeProperty(key);
    }
 
@@ -192,6 +192,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       checkEncode();
       internalWritableBuffer();
       return new ChannelBufferWrapper(buffer.slice(BODY_OFFSET, endOfBodyPosition - BUFFER_HEADER_SPACE).setIndex(0, endOfBodyPosition - BUFFER_HEADER_SPACE).asReadOnly());
+   }
+
+   @Override
+   public SimpleString getGroupID() {
+      return this.getSimpleStringProperty(Message.HDR_GROUP_ID);
    }
 
    /**
