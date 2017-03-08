@@ -7,6 +7,7 @@
 * [Messaging Concepts](messaging-concepts.md)
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
+* [Address Model](address-model.md)
 * [Using JMS](using-jms.md)
 * [Using Core](using-core.md)
 * [Using AMQP](using-amqp.md)
