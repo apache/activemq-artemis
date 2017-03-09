@@ -72,7 +72,7 @@ server classpath to be properly instantiated and called.
 
 ## Interceptors on the Client Side
 
-The interceptors can also be run on the client side to intercept packets
+The interceptors can also be run on the Apache ActiveMQ Artemit client side to intercept packets
 either sent by the client to the server or by the server to the client.
 This is done by adding the interceptor to the `ServerLocator` with the
 `addIncomingInterceptor(Interceptor)` or

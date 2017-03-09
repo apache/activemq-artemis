@@ -28,7 +28,8 @@ Large messages are stored on a disk directory on the server side, as
 configured on the main configuration file.
 
 The configuration property `large-messages-directory` specifies where
-large messages are stored.
+large messages are stored.  For JDBC persistence the `large-message-table`
+should be configured.
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -38,11 +39,11 @@ large messages are stored.
     ...
     </configuration
 
-By default the large message directory is `data/largemessages`
+By default the large message directory is `data/largemessages` and `large-message-table` is
+configured as "LARGE_MESSAGE_TABLE".
 
-For the best performance we recommend large messages directory is stored
-on a different physical volume to the message journal or paging
-directory.
+For the best performance we recommend using file store with large messages directory stored
+on a different physical volume to the message journal or paging directory.
 
 ## Configuring Parameters
 
