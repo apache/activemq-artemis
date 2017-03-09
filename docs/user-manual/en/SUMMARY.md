@@ -9,6 +9,7 @@
 * [Using the Server](using-server.md)
 * [Using JMS](using-jms.md)
 * [Using Core](using-core.md)
+* [Using AMQP](using-amqp.md)
 * [Mapping JMS Concepts to the Core API](jms-core-mapping.md)
 * [The Client Classpath](client-classpath.md)
 * [Examples](examples.md)
