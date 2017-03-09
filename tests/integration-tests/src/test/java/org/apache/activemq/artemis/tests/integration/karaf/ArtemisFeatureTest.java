@@ -42,7 +42,6 @@ import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.log4j.Logger;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -72,7 +71,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
  * Useful docs about this test: https://ops4j1.jira.com/wiki/display/paxexam/FAQ
  */
 @RunWith(PaxExam.class)
-@Ignore // need to fix OSGI with Netty
 public class ArtemisFeatureTest extends Assert {
 
    private static Logger LOG = Logger.getLogger(ArtemisFeatureTest.class.getName());
