@@ -726,23 +726,12 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public long getJMSDeliveryTime() throws JMSException {
-      Long value;
-      try {
-         value = message.getLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME);
-      } catch (Exception e) {
-         return 0;
-      }
-
-      if (value == null) {
-         return 0;
-      } else {
-         return value.longValue();
-      }
+      return message.getScheduledDeliveryTime();
    }
 
    @Override
    public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
-      message.putLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, deliveryTime);
+      message.setScheduledDeliveryTime(deliveryTime);
    }
 
    @Override
