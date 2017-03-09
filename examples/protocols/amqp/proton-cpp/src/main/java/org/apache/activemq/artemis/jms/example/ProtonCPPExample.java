@@ -18,24 +18,19 @@ package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueRequestor;
-import javax.jms.QueueSession;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
- *
+ * <p>
  * Please see the readme.html for more details.
  */
 public class ProtonCPPExample {
@@ -45,24 +40,26 @@ public class ProtonCPPExample {
 
       InitialContext initialContext = null;
       try {
-         // Step 1. Create an initial context to perform the JNDI lookup.
+         // Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
-         // Step 2. Perform the look-ups
-         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         // if you wanted to use Core JMS, use this line instead.
+         // ConnectionFactory cf = new ActiveMQConnectionFactory();
+         ConnectionFactory cf = new JmsConnectionFactory("amqp://localhost:61616");
 
-         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
-
-         // Step 3. Create a the JMS objects
+         // Create a the JMS objects
          connection = cf.createConnection();
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         // Perform the look-ups
+         Queue queue = session.createQueue("exampleQueue");
 
          MessageConsumer messageConsumer = session.createConsumer(queue);
 
          MessageProducer producerAnswer = session.createProducer(queue);
 
-         // Step 4. Start the connection
+         // Start the connection
          connection.start();
 
          System.out.println("On a shell script, execute the following:");
@@ -71,18 +68,25 @@ public class ProtonCPPExample {
 
          System.out.println("./hello");
 
-         // Step 5. Finally, receive the message
-         Message messageReceived = messageConsumer.receive(5000);
+         for (int i = 0; i < 10; i++) {
+            try {
+               // Step 5. Finally, receive the message
+               TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
-         if (messageReceived == null) {
-            // We are not going to issue this as an error because
-            // we also use this example as part of our tests on artemis
-            // this is not considered an error, just that no messages arrived (i.e. hello wasn't called)
-         } else {
-            System.out.println("message received: " + messageReceived);
+               if (messageReceived == null) {
+                  System.out.println("No messages");
+                  // We are not going to issue this as an error because
+                  // we also use this example as part of our tests on artemis
+                  // this is not considered an error, just that no messages arrived (i.e. hello wasn't called)
+               } else {
+                  System.out.println("message received: " + messageReceived.getText());
 
-            // Sending message back to client
-            producerAnswer.send(session.createTextMessage("HELLO from Apache ActiveMQ Artemis"));
+                  // Sending message back to client
+                  producerAnswer.send(session.createTextMessage("HELLO from Apache ActiveMQ Artemis " + i + "!!"));
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+            }
          }
       } finally {
          // Step 9. Be sure to close our resources!
@@ -94,27 +98,4 @@ public class ProtonCPPExample {
          }
       }
    }
-
-   // To do this we send a management message to get the message count.
-   // In real life you wouldn't create a new session every time you send a management message
-   private int getMessageCount(final Connection connection) throws Exception {
-      QueueSession session = ((QueueConnection) connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-
-      Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
-
-      QueueRequestor requestor = new QueueRequestor(session, managementQueue);
-
-      connection.start();
-
-      Message m = session.createMessage();
-
-      JMSManagementHelper.putAttribute(m, ResourceNames.QUEUE + "exampleQueue", "messageCount");
-
-      Message response = requestor.request(m);
-
-      int messageCount = (Integer) JMSManagementHelper.getResult(response);
-
-      return messageCount;
-   }
-
 }
