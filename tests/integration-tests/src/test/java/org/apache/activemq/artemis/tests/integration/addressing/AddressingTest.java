@@ -227,13 +227,28 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString address = new SimpleString("test.address");
       SimpleString queueName = SimpleString.toSimpleString(UUID.randomUUID().toString());
       server.createQueue(address, RoutingType.ANYCAST, queueName, null, null, true, false, false, false, false, 1, true, true);
-      assertNotNull(server.locateQueue(queueName));
+      Queue queue = server.locateQueue(queueName);
+      assertNotNull(queue);
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(address);
+
+      // there are no consumers so no messages should be routed to the queue
       producer.send(session.createMessage(true));
-      session.createConsumer(queueName).close();
+      assertEquals(0, queue.getMessageCount());
+
+      ClientConsumer consumer = session.createConsumer(queueName);
+      // there is a consumer now so the message should be routed
+      producer.send(session.createMessage(true));
+      assertEquals(1, queue.getMessageCount());
+
+      consumer.close();
+      // the last consumer was closed so the queue should exist but be purged
       assertNotNull(server.locateQueue(queueName));
-      assertEquals(0, server.locateQueue(queueName).getMessageCount());
+      assertEquals(0, queue.getMessageCount());
+
+      // there are no consumers so no messages should be routed to the queue
+      producer.send(session.createMessage(true));
+      assertEquals(0, queue.getMessageCount());
    }
 
    @Test
