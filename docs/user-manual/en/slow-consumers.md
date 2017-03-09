@@ -18,8 +18,23 @@ By default the server will not detect slow consumers. If slow consumer
 detection is desired then see [queue attributes chapter](queue-attributes.md)
 for more details.
 
-The calculation to determine whether or not a consumer is slow only
-inspects the number of messages a particular consumer has
+The calculation to determine whether or not a consumer is slow inspects two notable
+metrics:
+
+1. The queue's message count.
+
+2. The number of messages a consumer has acknowledged.
+
+The queue's message count is inspected to ensure that the queue actually has had enough
+messages to actually satisfy the consumer's threshold. For example, it would not be
+fair to mark a consumer as "slow" if the queue received no messages. This is also notable
+because in order to get an accurate message count the queue must be locked which can
+negatively impact performance in high-throughput use-cases. Therefore slow-consumer
+detection is only recommended on queues where it is absolutely necessary and in those
+cases it may be worth tuning the `slow-consumer-check-period` to ensure it's not
+running so often as to negatively impact performance.
+
+Finally, the algorithm inspects the number of messages a particular consumer has
 *acknowledged*. It doesn't take into account whether or not flow control
 has been enabled on the consumer, whether or not the consumer is
 streaming a large message, etc. Keep this in mind when configuring slow
