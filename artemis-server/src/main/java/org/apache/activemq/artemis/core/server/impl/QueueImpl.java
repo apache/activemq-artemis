@@ -439,6 +439,9 @@ public class QueueImpl implements Queue {
 
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
+      if (purgeOnNoConsumers && getConsumerCount() == 0) {
+         return;
+      }
       context.addQueue(address, this);
    }
 
