@@ -246,7 +246,7 @@ Browser
 The `browser` example shows you how to use a JMS `QueueBrowser` with
 Apache ActiveMQ Artemis.
 
-Queues are a standard part of JMS, please consult the JMS 1.1
+Queues are a standard part of JMS, please consult the JMS 2.0
 specification for full details.
 
 A `QueueBrowser` is used to look at messages on the queue without
@@ -897,14 +897,3 @@ XA Send
 
 The `xa-send` example shows you how message sending behaves in an XA
 transaction in Apache ActiveMQ Artemis.
-Core API Examples
-=================
-
-To run a core example, simply `cd` into the appropriate example
-directory and type `ant`
-
-Embedded
---------
-
-The `embedded` example shows how to embed the Apache ActiveMQ Artemis server within
-your own code.
