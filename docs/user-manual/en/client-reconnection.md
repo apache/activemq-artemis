@@ -27,7 +27,7 @@ from that client.
 
 If the client has sent more commands than were received before failover
 it can replay any sent commands from its buffer so that the client and
-server can reconcile their states.
+server can reconcile their states.Ac
 
 The size of this buffer is configured by the `ConfirmationWindowSize`
 parameter, when the server has received `ConfirmationWindowSize` bytes

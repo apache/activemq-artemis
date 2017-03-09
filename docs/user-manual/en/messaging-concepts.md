@@ -218,16 +218,6 @@ fact the internet is already tuned to deal with HTTP optimally.
 
 Please see [Rest Interface](rest.md) for using Apache ActiveMQ Artemis's RESTful interface.
 
-### STOMP
-
-[Stomp](http://stomp.github.io/) is a very simple text protocol for
-interoperating with messaging systems. It defines a wire format, so
-theoretically any Stomp client can work with any messaging system that
-supports Stomp. Stomp clients are available in many different
-programming languages.
-
-Please see [Stomp](interoperability.md) for using STOMP with Apache ActiveMQ Artemis.
-
 ### AMQP
 
 [AMQP](http://en.wikipedia.org/wiki/AMQP) is a specification for
@@ -239,6 +229,28 @@ Apache ActiveMQ Artemis implements the [AMQP
 1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
 specification. Any client that supports the 1.0 specification will be
 able to interact with Apache ActiveMQ Artemis.
+
+### MQTT
+[MQTT](http://mqtt.org/) is a lightweight connectivity protocol.  It is designed
+to run in environments where device and networks are constrained.  Out of the box
+Apache ActiveMQ Artemis supports version MQTT 3.1.1.  Any client supporting this
+version of the protocol will work against Apache ActiveMQ Artemis.
+
+### STOMP
+
+[Stomp](http://stomp.github.io/) is a very simple text protocol for
+interoperating with messaging systems. It defines a wire format, so
+theoretically any Stomp client can work with any messaging system that
+supports Stomp. Stomp clients are available in many different
+programming languages.
+
+Please see [Stomp](interoperability.md) for using STOMP with Apache ActiveMQ Artemis.
+
+### OPENWIRE
+
+ActiveMQ 5.x defines it's own wire Protocol "OPENWIRE".  In order to support 
+ActiveMQ 5.x clients, Apache ActiveMQ Artemis supports OPENWIRE.  Any ActiveMQ 5.12.x
+or higher can be used with Apache ActiveMQ Artemis.
 
 ## High Availability
 
