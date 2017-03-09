@@ -86,18 +86,14 @@ does not exist then an exception will be sent
 > For the next version we will add a flag to aut create durable queue
 > but for now you will have to add them via the configuration
 
-### AMQP and Topics
+### AMQP and Multicast Queues (Topics)
  
 Although amqp has no notion of topics it is still possible to treat amqp consumers or receivers as subscriptions rather 
-than just consumers on a queue. By default any receiving link that attaches to an address with the prefix `jms.topic.` 
+than just consumers on a queue. By default any receiving link that attaches to an address that has only multicast enabled
 will be treated as a subscription and a subscription queue will be created. If the Terminus Durability is either UNSETTLED_STATE
 or CONFIGURATION then the queue will be made durable, similar to a JMS durable subscription and given a name made up from 
 the container id and the link name, something like `my-container-id:my-link-name`. if the Terminus Durability is configured 
-as NONE then a volatile queue will be created.
-
-The prefix can be changed by configuring the Acceptor and setting the `pubSubPrefix` like so
-  
-> <acceptor name="amqp">tcp://0.0.0.0:5672?protocols=AMQP;pubSubPrefix=foo.bar.</acceptor>
+as NONE then a volatile multicast queue will be created.
 
 Artemis also supports the qpid-jms client and will respect its use of topics regardless of the prefix used for the address. 
 
@@ -378,36 +374,6 @@ expression syntax follows the *core filter syntax* described in the
 
 ### Stomp and JMS interoperability
 
-#### Using JMS destinations
-
-As explained in [Mapping JMS Concepts to the Core API](jms-core-mapping.md),
-JMS destinations are also mapped to Apache ActiveMQ Artemis
-addresses and queues. If you want to use Stomp to send messages to JMS
-destinations, the Stomp destinations must follow the same convention:
-
--   send or subscribe to a JMS *Queue* by prepending the queue name by
-    `jms.queue.`.
-
-    For example, to send a message to the `orders` JMS Queue, the Stomp
-    client must send the frame:
-
-        SEND
-        destination:jms.queue.orders
-
-        hello queue orders
-        ^@
-
--   send or subscribe to a JMS *Topic* by prepending the topic name by
-    `jms.topic.`.
-
-    For example to subscribe to the `stocks` JMS Topic, the Stomp client
-    must send the frame:
-
-        SUBSCRIBE
-        destination:jms.topic.stocks
-
-        ^@
-
 #### Sending and consuming Stomp message from JMS or Apache ActiveMQ Artemis Core API
 
 Stomp is mainly a text-orientated protocol. To make it simpler to
@@ -445,26 +411,18 @@ It is possible to pre-configure durable subscriptions since the Stomp implementa
 the queue used for the durable subscription in a deterministic way (i.e. using the format of 
 `client-id`.`subscription-name`). For example, if you wanted to configure a durable 
 subscription on the JMS topic `myTopic` with a client-id of `myclientid` and a subscription 
-name of `mysubscriptionname` then first you'd configure the topic:
-
-~~~
-   <jms xmlns="urn:activemq:jms">
-      ...
-      <topic name="myTopic"/>
-      ...
-   </jms>
-~~~
-
-Then configure the durable subscription:
+name of `mysubscriptionname` then configure the durable subscription:
 
 ~~~
    <core xmlns="urn:activemq:core">
       ...
-      <queues>
-         <queue name="myclientid.mysubscription">
-            <address>jms.topic.myTopic</address>
-         </queue>
-      </queues>
+     <addresses>
+         <address name="myTopic">
+            <multicast>
+               <queue name="myclientid.mysubscription"/>
+            </multicast>
+         </address>
+      </addresses>
       ...
    </core>
 ~~~

@@ -117,8 +117,7 @@ etc
 ```
 
 Similarly, if you're using JMS, you can configure the JMS connection
-factory directly on the client side without having to define a connector
-on the server side or define a connection factory in `activemq-jms.xml`:
+factory directly on the client side:
 
 ``` java
 Map<String, Object> connectionParams = new HashMap<String, Object>();
