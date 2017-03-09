@@ -58,11 +58,6 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
-   public boolean containsDeliveryAnnotationProperty(SimpleString property) {
-      return false;
-   }
-
-   @Override
    public Object removeDeliveryAnnotationProperty(SimpleString key) {
       return null;
    }
