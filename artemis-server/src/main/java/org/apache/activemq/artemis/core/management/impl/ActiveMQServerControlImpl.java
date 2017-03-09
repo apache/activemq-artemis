@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
@@ -669,6 +670,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.removeAddressInfo(new SimpleString(name), null);
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
       }
@@ -738,6 +741,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              int maxConsumers,
                              boolean purgeOnNoConsumers,
                              boolean autoCreateAddress) throws Exception {
+      System.out.println("Target===================================called!");
       checkStarted();
 
       clearIO();
@@ -750,6 +754,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          final Queue queue = server.createQueue(SimpleString.toSimpleString(address), RoutingType.valueOf(routingType.toUpperCase()), new SimpleString(name), filter, durable, false, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       } finally {
          blockOnIO();
       }

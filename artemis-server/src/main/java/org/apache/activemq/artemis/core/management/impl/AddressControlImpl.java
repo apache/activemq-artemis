@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
@@ -266,35 +267,39 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
-      securityStore.check(addressInfo.getName(), CheckType.SEND, new SecurityAuth() {
-         @Override
-         public String getUsername() {
-            return user;
-         }
+      try {
+         securityStore.check(addressInfo.getName(), CheckType.SEND, new SecurityAuth() {
+            @Override
+            public String getUsername() {
+               return user;
+            }
 
-         @Override
-         public String getPassword() {
-            return password;
-         }
+            @Override
+            public String getPassword() {
+               return password;
+            }
 
-         @Override
-         public RemotingConnection getRemotingConnection() {
-            return null;
+            @Override
+            public RemotingConnection getRemotingConnection() {
+               return null;
+            }
+         });
+         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
+         for (String header : headers.keySet()) {
+            message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
          }
-      });
-      CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-      for (String header : headers.keySet()) {
-         message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+         message.setType((byte) type);
+         message.setDurable(durable);
+         message.setTimestamp(System.currentTimeMillis());
+         if (body != null) {
+            message.getBodyBuffer().writeBytes(Base64.decode(body));
+         }
+         message.setAddress(addressInfo.getName());
+         postOffice.route(message, true);
+         return "" + message.getMessageID();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       }
-      message.setType((byte) type);
-      message.setDurable(durable);
-      message.setTimestamp(System.currentTimeMillis());
-      if (body != null) {
-         message.getBodyBuffer().writeBytes(Base64.decode(body));
-      }
-      message.setAddress(addressInfo.getName());
-      postOffice.route(message, true);
-      return "" + message.getMessageID();
    }
 
    @Override
