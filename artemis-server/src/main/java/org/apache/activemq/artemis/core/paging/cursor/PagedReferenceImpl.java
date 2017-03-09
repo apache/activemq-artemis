@@ -134,11 +134,7 @@ public class PagedReferenceImpl implements PagedReference {
       if (deliveryTime == null) {
          try {
             Message msg = getMessage();
-            if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
-               deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
-            } else {
-               deliveryTime = 0L;
-            }
+            return msg.getScheduledDeliveryTime();
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             return 0L;

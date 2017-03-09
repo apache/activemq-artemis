@@ -213,11 +213,11 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
             if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
                scheduledDeliveryTime = 0;
-               record.getMessage().removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+               record.getMessage().setScheduledDeliveryTime(0L);
             }
 
             if (scheduledDeliveryTime != 0) {
-               record.getMessage().putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, scheduledDeliveryTime);
+               record.getMessage().setScheduledDeliveryTime(scheduledDeliveryTime);
             }
 
             MessageReference ref = postOffice.reroute(record.getMessage(), queue, null);
@@ -225,7 +225,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             ref.setDeliveryCount(record.getDeliveryCount());
 
             if (scheduledDeliveryTime != 0) {
-               record.getMessage().removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+               record.getMessage().setScheduledDeliveryTime(0L);
             }
          }
       }
