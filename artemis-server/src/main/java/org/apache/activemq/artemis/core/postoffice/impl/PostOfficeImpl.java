@@ -1121,7 +1121,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   storageManager.storeReference(queue.getID(), message.getMessageID(), !iter.hasNext());
                }
 
-               if (message.containsDeliveryAnnotationProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
+
+               if (deliveryTime > 0) {
                   if (tx != null) {
                      storageManager.updateScheduledDeliveryTimeTransactional(tx.getID(), reference);
                   } else {

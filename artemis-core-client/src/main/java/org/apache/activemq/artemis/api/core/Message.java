@@ -164,25 +164,15 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
-
-   default SimpleString getDeliveryAnnotationPropertyString(SimpleString property) {
-      Object obj = getDeliveryAnnotationProperty(property);
-      if (obj == null) {
-         return null;
-      } else if (obj instanceof SimpleString) {
-         return (SimpleString)obj;
-      } else {
-         return SimpleString.toSimpleString(obj.toString());
-      }
-   }
-
    default void cleanupInternalProperties() {
       // only on core
    }
 
    RoutingType getRouteType();
 
-   boolean containsDeliveryAnnotationProperty(SimpleString property);
+   default SimpleString getLastValueProperty() {
+      return null;
+   }
 
    /**
     * @deprecated do not use this, use through ICoreMessage or ClientMessage
@@ -417,14 +407,9 @@ public interface Message {
       }
    }
 
-   /**
-    * it will translate a property named HDR_DUPLICATE_DETECTION_ID.
-    * @return
-    */
    default Object getDuplicateProperty() {
-      return getDeliveryAnnotationProperty(Message.HDR_DUPLICATE_DETECTION_ID);
+      return null;
    }
-
 
    Message putBooleanProperty(String key, boolean value);
 

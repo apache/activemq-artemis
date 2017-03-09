@@ -133,12 +133,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public boolean containsDeliveryAnnotationProperty(SimpleString property) {
-      checkProperties();
-      return properties.containsProperty(property);
-   }
-
-   @Override
    public Persister<Message> getPersister() {
       return CoreMessagePersister.getInstance();
    }
@@ -225,13 +219,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          return ((Number) property).longValue();
       }
 
-      return null;
+      return 0L;
    }
 
    @Override
    public CoreMessage setScheduledDeliveryTime(Long time) {
       checkProperties();
-      putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
+      if (time == null || time == 0) {
+         removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+      } else {
+         putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
+      }
       return this;
    }
 
@@ -568,6 +566,15 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
              /* PropertySize and Properties */checkProperties().getEncodeSize();
    }
 
+   @Override
+   public Object getDuplicateProperty() {
+      return getObjectProperty(Message.HDR_DUPLICATE_DETECTION_ID);
+   }
+
+   @Override
+   public SimpleString getLastValueProperty() {
+      return getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+   }
 
    @Override
    public int getEncodeSize() {

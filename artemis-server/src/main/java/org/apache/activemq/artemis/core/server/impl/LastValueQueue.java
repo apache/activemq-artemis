@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * A queue that will discard messages if a newer message with the same
- * {@link org.apache.activemq.artemis.core.message.impl.MessageImpl#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
+ * {@link org.apache.activemq.artemis.core.message.impl.CoreMessage#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
  * value
  * <p>
  * This is useful for example, for stock prices, where you're only interested in the latest value
@@ -73,7 +73,7 @@ public class LastValueQueue extends QueueImpl {
          return;
       }
 
-      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME.toString());
+      SimpleString prop = ref.getMessage().getLastValueProperty();
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -97,10 +97,11 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addHead(final MessageReference ref, boolean scheduling) {
-      SimpleString prop = ref.getMessage().getDeliveryAnnotationPropertyString(Message.HDR_LAST_VALUE_NAME);
 
-      if (prop != null) {
-         HolderReference hr = map.get(prop);
+      SimpleString lastValueProp = ref.getMessage().getLastValueProperty();
+
+      if (lastValueProp != null) {
+         HolderReference hr = map.get(lastValueProp);
 
          if (hr != null) {
             if (scheduling) {
@@ -119,9 +120,9 @@ public class LastValueQueue extends QueueImpl {
                }
             }
          } else {
-            hr = new HolderReference(prop, ref);
+            hr = new HolderReference(lastValueProp, ref);
 
-            map.put(prop, hr);
+            map.put(lastValueProp, hr);
 
             super.addHead(hr, scheduling);
          }
@@ -147,7 +148,7 @@ public class LastValueQueue extends QueueImpl {
    @Override
    protected void refRemoved(MessageReference ref) {
       synchronized (this) {
-         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME.toString());
+         SimpleString prop = ref.getMessage().getLastValueProperty();
 
          if (prop != null) {
             map.remove(prop);

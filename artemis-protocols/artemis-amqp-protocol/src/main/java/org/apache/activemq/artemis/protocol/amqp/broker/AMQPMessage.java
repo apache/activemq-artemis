@@ -262,7 +262,7 @@ public class AMQPMessage extends RefCountMessage {
          }
       }
 
-      return scheduledTime == 0 ? null : scheduledTime;
+      return scheduledTime;
    }
 
    @Override
@@ -441,6 +441,13 @@ public class AMQPMessage extends RefCountMessage {
          return false;
       }
    }
+
+
+   @Override
+   public Object getDuplicateProperty() {
+      return null;
+   }
+
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setDurable(boolean durable) {
@@ -718,15 +725,6 @@ public class AMQPMessage extends RefCountMessage {
       } else {
          return (String)getApplicationPropertiesMap().get(key);
       }
-   }
-
-   @Override
-   public boolean containsDeliveryAnnotationProperty(SimpleString key) {
-      parseHeaders();
-      if (_deliveryAnnotations == null || _deliveryAnnotations.getValue() == null) {
-         return false;
-      }
-      return _deliveryAnnotations.getValue().containsKey(key.toString());
    }
 
    @Override
