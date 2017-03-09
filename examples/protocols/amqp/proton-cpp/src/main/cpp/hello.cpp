@@ -33,7 +33,7 @@ using namespace qpid::messaging;
 
 int main(int argc, char** argv) {
     std::string broker = argc > 1 ? argv[1] : "localhost:61616";
-    std::string address = argc > 2 ? argv[2] : "jms.queue.exampleQueue";
+    std::string address = argc > 2 ? argv[2] : "exampleQueue";
 
     // Connection options documented at http://qpid.apache.org/releases/qpid-0.30/programming/book/connections.html#connection-options
     std::string connectionOptions = argc > 3 ? argv[3] : "{protocol:amqp1.0}";
@@ -49,20 +49,28 @@ int main(int argc, char** argv) {
          // Step 5. Create a sender
         Sender sender = session.createSender(address);
 
-         // Step 6. send a simple message
-        sender.send(Message("Hello world!"));
-
-         // Step 7. create a receiver
+        //create a receiver
         Receiver receiver = session.createReceiver(address);
 
-         // Step 8. receive the simple message
-        Message message = receiver.fetch(Duration::SECOND * 1);
-        std::cout << "Received a message with this following content \"" << message.getContent() << "\"" << std::endl;
 
-         // Step 9. acknowledge the message
-        session.acknowledge();
+        for (int i = 0; i < 10; i++) {
+            Message message;
+            message.getContentObject() = "Hello world!";
 
-        // Step 10. close the connection
+            message.getContentObject().setEncoding("utf8");
+            message.setContentType("text/plain");
+
+            sender.send(message);
+
+            // receive the simple message
+            message = receiver.fetch(Duration::SECOND * 1);
+            std::cout << "Received a message with this following content \"" << message.getContent() << "\"" << std::endl;
+
+            // acknowledge the message
+            session.acknowledge();
+        }
+
+        // close the connection
         connection.close();
         return 0;
     } catch(const std::exception& error) {
