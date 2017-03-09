@@ -4,19 +4,7 @@ Apache ActiveMQ Artemis provides a simple bootstrap class,
 `org.apache.activemq.integration.spring.SpringJmsBootstrap`, for
 integration with Spring. To use it, you configure Apache ActiveMQ Artemis as you always
 would, through its various configuration files like
-`broker.xml`, `activemq-jms.xml`, and
-`activemq-users.xml`. The Spring helper class starts the Apache ActiveMQ Artemis server
-and adds any factories or destinations configured within
-`activemq-jms.xml` directly into the namespace of the Spring context.
-Let's take this `activemq-jms.xml` file for instance:
-
-    <configuration xmlns="urn:activemq"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/artemis-jms.xsd">
-
-       <!--the queue used by the example-->
-       <queue name="exampleQueue"/>
-    </configuration>
+`broker.xml`.
 
 Here we've specified a `javax.jms.ConnectionFactory` we want bound to a
 `ConnectionFactory` entry as well as a queue destination bound to a
