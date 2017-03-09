@@ -1,9 +1,9 @@
 # Using Core
 
 Apache ActiveMQ Artemis core is a completely JMS-agnostic messaging system with its own
-non-JMS API. We call this the *core API*.
+API. We call this the *core API*.
 
-If you don't want to use JMS you can use the core API directly. The core
+If you don't want to use JMS or other protocols you can use the core API directly. The core
 API provides all the functionality of JMS but without much of the
 complexity. It also provides features that are not available using JMS.
 

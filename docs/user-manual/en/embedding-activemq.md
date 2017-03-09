@@ -23,9 +23,9 @@ classes and configure Apache ActiveMQ Artemis through its configuration files. T
 are two different helper classes for this depending on whether your
 using the Apache ActiveMQ Artemis Core API or JMS.
 
-## Core API Only
+## Embeddeing Apache ActiveMQ Artemis Server
 
-For instantiating a core Apache ActiveMQ Artemis Server only, the steps are pretty
+For instantiating a core Apache ActiveMQ Artemis Server, the steps are pretty
 simple. The example requires that you have defined a configuration file
 `broker.xml` in your classpath:
 
@@ -68,35 +68,6 @@ session.close();
 The `EmbeddedActiveMQ` class has a few additional setter methods that
 allow you to specify a different config file name as well as other
 properties. See the javadocs for this class for more details.
-
-## JMS API
-
-JMS embedding is simple as well. This example requires that you have
-defined the config file `broker.xml`. Let's also assume that a queue
-and connection factory has been defined in the `broker.xml` 
-config file as well.
-
-``` java
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-
-...
-
-EmbeddedJMS jms = new EmbeddedJMS();
-jms.start();
-
-// This assumes we have configured broker.xml with the appropriate config information
-ConnectionFactory connectionFactory = jms.lookup("ConnectionFactory");
-Destination destination = jms.lookup("/example/queue");
-
-... regular JMS code ...
-```
-
-By default, the `EmbeddedJMS` class will store the "entries" defined for
-your JMS components within `broker.xml` in an internal concurrent hash
-map. The `EmbeddedJMS.lookup()` method returns components stored in
-this map. If you want to use JNDI, call the `EmbeddedJMS.setContext()` 
-method with the root JNDI context you want your components bound into. 
-See the JavaDocs for this class for more details on other config options.
 
 ## POJO instantiation - Embedding Programmatically
 
@@ -149,47 +120,6 @@ You also have the option of instantiating `ActiveMQServerImpl` directly:
 ActiveMQServer server = new ActiveMQServerImpl(config);
 server.start();
 ```
-
-For JMS POJO instantiation, you work with the EmbeddedJMS class instead
-as described earlier. First you define the configuration
-programmatically for your ConnectionFactory and Destination objects,
-then set the JmsConfiguration property of the EmbeddedJMS class. Here is
-an example of this:
-
-``` java
-// Step 1. Create Apache ActiveMQ Artemis core configuration, and set the properties accordingly
-Configuration configuration = new ConfigurationImpl()
-   .setPersistenceEnabled(false)
-   .setSecurityEnabled(false)
-   .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-   .addConnectorConfiguration("myConnector", new TransportConfiguration(NettyConnectorFactory.class.getName()));
-
-// Step 2. Create the JMS configuration
-JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-
-// Step 3. Configure the JMS ConnectionFactory
-ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-   .setName("cf")
-   .setConnectorNames(Arrays.asList("myConnector"))
-   .setBindings("/cf");
-jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
-
-// Step 4. Configure the JMS Queue
-JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
-   .setName("queue1")
-   .setDurable(false)
-   .setBindings("/queue/queue1");
-jmsConfig.getQueueConfigurations().add(queueConfig);
-
-// Step 5. Start the JMS Server using the Apache ActiveMQ Artemis core server and the JMS configuration
-jmsServer = new EmbeddedJMS()
-   .setConfiguration(configuration)
-   .setJmsConfiguration(jmsConfig)
-   .start();
-```
-
-Please see the examples for an example which shows how to setup and run Apache ActiveMQ Artemis
-embedded with JMS.
 
 ## Dependency Frameworks
 
