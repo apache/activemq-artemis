@@ -5,6 +5,11 @@ performance.
 
 ## Tuning persistence
 
+-   To get the best performance from Apache ActiveMQ Artemis whilst
+    using perisistent messages it is recommended that the file store
+    is used.  Apache ActiveMQ Artemis also supports JDBC persistence,
+    but there is a performance cost when persisting to a database vs 
+    local disk.
 -   Put the message journal on its own physical volume. If the disk is
     shared with other processes e.g. transaction co-ordinator, database
     or other journals which are also reading and writing from it, then

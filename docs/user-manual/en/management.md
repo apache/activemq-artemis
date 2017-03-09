@@ -25,12 +25,8 @@ This choice depends on your requirements, your application settings and
 your environment to decide which way suits you best.
 
 
-
-## Object name changes in version 2
-
 In version 2 of Apache ActiveMQ Artemis the syntax used for MBean Object names has changed significantly due to changes
 in the addressing scheme. See the documentation for each individual resource for details on the new sytanx.
-
 
 ## The Management API
 
@@ -52,12 +48,12 @@ messages, or JMS messages are used.
 > empty string means that the management operation will be performed on
 > *all messages*.
 
-### Core Management API
+### Apache ActiveMQ Artemis Management API
 
 Apache ActiveMQ Artemis defines a core management API to manage core resources. For
 full details of the API please consult the javadoc. In summary:
 
-#### Core Server Management
+#### Apache ActiveMQ Artemis Server Management
 
 -   Listing, creating, deploying and destroying queues
 
@@ -360,12 +356,12 @@ This would give you back something like the following:
 
     {"request":{"mbean":"org.apache.activemq.artemis:broker=\"0.0.0.0\"","attribute":"Version","type":"read"},"value":"2.0.0-SNAPSHOT","timestamp":1487017918,"status":200}
 
-## Using Management Via Core API
+## Using Management Via Apache ActiveMQ Artemis API
 
-The core management API in ActiveMQ Artemis is called by sending Core messages
+The management API in ActiveMQ Artemis is called by sending Core Client messages
 to a special address, the *management address*.
 
-*Management messages* are regular Core messages with well-known
+*Management messages* are regular Core Client messages with well-known
 properties that the server needs to understand to interact with the
 management API:
 
@@ -428,7 +424,7 @@ Names of the resources are built using the helper class
 straightforward (e.g. `queue.exampleQueue` for the Core Queue
 `exampleQueue`.
 
-### Configuring Core Management
+### Configuring Management
 
 The management address to send management messages is configured in
 `broker.xml`:
@@ -446,48 +442,6 @@ configured in broker.xml:
     <security-setting match="activemq.management">
        <permission type="manage" roles="admin" />
     </security-setting>
-
-## Using Management Via JMS
-
-Using JMS messages to manage ActiveMQ Artemis is very similar to using core API.
-
-The *management queue* is a special queue and needs to be instantiated
-directly by the client:
-
-    Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
-
-All the other steps are the same than for the Core API but they use JMS
-API instead:
-
-1.  create a `QueueRequestor` to send messages to the management address
-    and receive replies
-
-2.  create a `Message`
-
-3.  use the helper class
-    `org.apache.activemq.artemis.api.jms.management.JMSManagementHelper` to fill
-    the message with the management properties
-
-4.  send the message using the `QueueRequestor`
-
-5.  use the helper class
-    `org.apache.activemq.artemis.api.jms.management.JMSManagementHelper` to
-    retrieve the operation result from the management reply
-
-For example, to know the number of messages in the JMS queue
-`exampleQueue`:
-``` java
-Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
-
-QueueSession session = ...
-QueueRequestor requestor = new QueueRequestor(session, managementQueue);
-connection.start();
-Message message = session.createMessage();
-JMSManagementHelper.putAttribute(message, "exampleQueue", "messageCount");
-Message reply = requestor.request(message);
-int count = (Integer)JMSManagementHelper.getResult(reply);
-System.out.println("There are " + count + " messages in exampleQueue");
-```
 
 ### Example
 

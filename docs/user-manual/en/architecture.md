@@ -8,15 +8,6 @@ architecture.
 Apache ActiveMQ Artemis core is designed simply as set of Plain Old Java Objects
 (POJOs) - we hope you like its clean-cut design.
 
-We've also designed it to have as few dependencies on external jars as
-possible. In fact, Apache ActiveMQ Artemis core has only one jar dependency, netty.jar,
-other than the standard JDK classes! This is because we use some of the
-netty buffer classes internally.
-
-This allows Apache ActiveMQ Artemis to be easily embedded in your own project, or
-instantiated in any dependency injection framework such as Spring or
-Google Guice.
-
 Each Apache ActiveMQ Artemis server has its own ultra high performance persistent
 journal, which it uses for message and other persistence.
 
@@ -28,18 +19,20 @@ Apache ActiveMQ Artemis clients, potentially on different physical machines inte
 with the Apache ActiveMQ Artemis server. Apache ActiveMQ Artemis currently provides two APIs for
 messaging at the client side:
 
-1. Core client API. This is a simple intuitive Java API that allows the
-    full set of messaging functionality without some of the complexities
-    of JMS.
+1. Core client API. This is a simple intuitive Java API that is aligned with the Artemis internal Core.  Allowing more
+    control of broker objects, like for example, direct creation of addresses and queues.  The Core API also offers a
+    full set of messaging functionality without some of the complexities of JMS.
 
-2. JMS client API. The standard JMS API is available at the client
-    side.
+2. JMS client API. The standard JMS API is available at the client side.
 
 Apache ActiveMQ Artemis also provides different protocol implementations on the server so you can use respective clients for these protocols:
 
-1. Stomp
+1. AMQP
 2. OpenWire
-3. AMQP
+3. MQTT
+4. STOMP
+5. HornetQ (for use with HornetQ clients).
+6. CORE (Artemis CORE protocol)
 
 
 JMS semantics are implemented by a JMS facade layer on the client
@@ -65,6 +58,32 @@ server. User Application 1 is using the JMS API, while User Application
 
 You can see from the diagram that the JMS API is implemented by a thin
 facade layer on the client side.
+
+## Apache ActiveMQ Artemis stand-alone server
+
+The standard stand-alone messaging server configuration comprises a core
+messaging server and a number of protocol managers that provide support for
+the various protocol mentioned earlier.  Protocol managers are plugable
+if you 
+
+The role of the JMS Service is to deploy any JMS Queue, Topic and
+ConnectionFactory instances from any server side JMS
+configuration. It also provides a simple management API for
+creating and destroying Queues and Topics
+which can be accessed via JMX or the connection. It is a separate
+service to the ActiveMQ Artemis core server, since the core server is JMS
+agnostic. If you don't want to deploy any JMS Queue or Topic via
+server side XML configuration and don't require a JMS management
+API on the server side then you can disable this service.
+
+The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
+for bootstrapping the Broker.
+
+The stand-alone server architecture is shown in figure 3.3 below:
+
+![ActiveMQ Artemis architecture3](images/architecture3.jpg)
+
+For more information on server configuration files see [Server Configuration](configuration-index.md)
 
 ## Apache ActiveMQ Artemis embedded in your own application
 
@@ -122,31 +141,3 @@ time you want to interact from the EJB, which is an anti-pattern.
 ![ActiveMQ Artemis architecture2](images/architecture2.jpg)
 
 For more information on using the JCA adaptor, please see [Application Server Integration and Java EE](appserver-integration.md).
-
-## Apache ActiveMQ Artemis stand-alone server
-
-Apache ActiveMQ Artemis can also be deployed as a stand-alone server. This means a
-fully independent messaging server not dependent on a Java EE application
-server.
-
-The standard stand-alone messaging server configuration comprises a core
-messaging server and a JMS service.
-
-The role of the JMS Service is to deploy any JMS Queue, Topic and
-ConnectionFactory instances from any server side JMS
-configuration. It also provides a simple management API for
-creating and destroying Queues and Topics
-which can be accessed via JMX or the connection. It is a separate
-service to the ActiveMQ Artemis core server, since the core server is JMS
-agnostic. If you don't want to deploy any JMS Queue or Topic via
-server side XML configuration and don't require a JMS management
-API on the server side then you can disable this service.
-
-The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
-for bootstrapping the Broker.
-
-The stand-alone server architecture is shown in figure 3.3 below:
-
-![ActiveMQ Artemis architecture3](images/architecture3.jpg)
-
-For more information on server configuration files see [Server Configuration](configuration-index.md)
