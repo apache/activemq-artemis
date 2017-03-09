@@ -820,8 +820,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
 
-      if (message.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
-         Long scheduledDeliveryTime = message.getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+      Long scheduledDeliveryTime = message.getScheduledDeliveryTime();
+      if (scheduledDeliveryTime != null) {
          reference.setScheduledDeliveryTime(scheduledDeliveryTime);
       }
 
@@ -1220,7 +1220,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                                     AtomicBoolean startedTX) throws Exception {
       // Check the DuplicateCache for the Bridge first
 
-      Object bridgeDup = message.removeDeliveryAnnoationProperty(Message.HDR_BRIDGE_DUPLICATE_ID);
+      Object bridgeDup = message.removeDeliveryAnnotationProperty(Message.HDR_BRIDGE_DUPLICATE_ID);
       if (bridgeDup != null) {
          // if the message is being sent from the bridge, we just ignore the duplicate id, and use the internal one
          byte[] bridgeDupBytes = (byte[]) bridgeDup;

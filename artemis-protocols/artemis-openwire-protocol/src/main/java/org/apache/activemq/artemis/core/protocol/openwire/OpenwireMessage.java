@@ -63,7 +63,7 @@ public class OpenwireMessage implements Message {
    }
 
    @Override
-   public Object removeDeliveryAnnoationProperty(SimpleString key) {
+   public Object removeDeliveryAnnotationProperty(SimpleString key) {
       return null;
    }
 

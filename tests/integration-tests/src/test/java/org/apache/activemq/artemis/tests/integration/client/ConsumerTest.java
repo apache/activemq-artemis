@@ -203,7 +203,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(true, true);
+      internalSend(2, 2);
    }
 
    @Test
@@ -214,7 +214,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(false, false);
+      internalSend(1, 1);
    }
 
    @Test
@@ -225,7 +225,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(true, false);
+      internalSend(2, 1);
    }
 
    @Test
@@ -236,7 +236,51 @@ public class ConsumerTest extends ActiveMQTestBase {
          return;
       }
 
-      internalSend(false, true);
+      internalSend(1, 2);
+   }
+
+   @Test
+   public void testSendOpenWireReceiveAMQP() throws Throwable {
+
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      internalSend(3, 2);
+   }
+
+   @Test
+   public void testSendAMQPReceiveOpenWire() throws Throwable {
+
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      internalSend(2, 3);
+   }
+
+   @Test
+   public void testOpenWireReceiveCore() throws Throwable {
+
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      internalSend(3, 1);
+   }
+
+   @Test
+   public void testCoreReceiveOpenwire() throws Throwable {
+
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      internalSend(1, 3);
    }
 
 
@@ -254,14 +298,23 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
    }
 
+   private ConnectionFactory createFactory(int protocol) {
+      switch (protocol) {
+         case 1: return new ActiveMQConnectionFactory();// core protocol
+         case 2: return new JmsConnectionFactory("amqp://localhost:61616"); // amqp
+         case 3: return new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
+         default: return null;
+      }
+   }
 
-   public void internalSend(boolean amqpSender, boolean amqpConsumer) throws Throwable {
 
-      ConnectionFactory factoryAMQP = new JmsConnectionFactory("amqp://localhost:61616");
-      ConnectionFactory factoryCore = new ActiveMQConnectionFactory();
+   public void internalSend(int protocolSender, int protocolConsumer) throws Throwable {
+
+      ConnectionFactory factorySend = createFactory(protocolSender);
+      ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
 
 
-      Connection connection = (amqpSender ? factoryAMQP : factoryCore).createConnection();
+      Connection connection = factorySend.createConnection();
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -323,7 +376,7 @@ public class ConsumerTest extends ActiveMQTestBase {
             server.start();
          }
 
-         connection = (amqpConsumer ? factoryAMQP : factoryCore).createConnection();
+         connection = factoryConsume.createConnection();
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          queue = session.createQueue(QUEUE.toString());
 

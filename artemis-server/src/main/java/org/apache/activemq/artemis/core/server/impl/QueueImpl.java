@@ -2162,7 +2162,7 @@ public class QueueImpl implements Queue {
       } else {
          try {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
-            return ref.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID);
+            return ref.getMessage().getGroupID();
          } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             return null;
