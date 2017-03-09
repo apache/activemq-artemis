@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
@@ -240,6 +241,49 @@ public class SlowConsumerTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          assertNotNull(consumer.receive(500));
+      }
+   }
+
+   @Test
+   public void testSlowConsumerWithBurst() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(true, true));
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      final int numMessages = 20;
+
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(createTextMessage(session, "m" + i));
+      }
+
+      assertPaging();
+
+      final Queue queue = server.locateQueue(QUEUE);
+
+      queue.getRate();
+
+      logger.info("Creating consumer...");
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            forceGC();
+            return queue.getConsumerCount() == 0;
+         }
+      }, 3000, 100);
+
+      try {
+         consumer.receive(500);
+         fail("Consumer should have been killed since it's slow!");
+      } catch (ActiveMQObjectClosedException e) {
+         // ignore
+      } catch (Exception e) {
+         fail("Wrong exception thrown");
       }
    }
 
