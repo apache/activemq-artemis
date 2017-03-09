@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -28,8 +30,7 @@ import org.apache.qpid.proton.engine.Session;
  */
 public class AmqpValidator {
 
-   private boolean valid = true;
-   private String errorMessage;
+   private AtomicReference<String> errorMessage = new AtomicReference<>();
 
    public void inspectOpenedResource(Connection connection) {
 
@@ -76,32 +77,29 @@ public class AmqpValidator {
    }
 
    public boolean isValid() {
-      return valid;
+      return this.errorMessage.get() == null;
    }
 
-   protected void setValid(boolean valid) {
-      this.valid = valid;
+   public final void clearErrorMessage() {
+      errorMessage.set(null);
    }
 
-   public String getErrorMessage() {
-      return errorMessage;
+   public final String getErrorMessage() {
+      return errorMessage.get();
    }
 
-   protected void setErrorMessage(String errorMessage) {
-      this.errorMessage = errorMessage;
+   protected final boolean markAsInvalid(String message) {
+      if (message == null) {
+         throw new NullPointerException("Provided error message cannot be null!");
+      }
+
+      return errorMessage.compareAndSet(null, message);
    }
 
-   protected void markAsInvalid(String errorMessage) {
-      if (valid) {
-         setValid(false);
-         setErrorMessage(errorMessage);
+   public final void assertValid() {
+      final String assertionErrorMessage = errorMessage.get();
+      if (assertionErrorMessage != null) {
+         throw new AssertionError(assertionErrorMessage);
       }
    }
-
-   public void assertValid() {
-      if (!isValid()) {
-         throw new AssertionError(errorMessage);
-      }
-   }
-
 }
