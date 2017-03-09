@@ -94,8 +94,6 @@ or
 
 ### Data Replication
 
-Support for network-based data replication was added in version 2.3.
-
 When using replication, the live and the backup servers do not share the
 same data directories, all data synchronization is done over the
 network. Therefore all (persistent) data received by the live server
