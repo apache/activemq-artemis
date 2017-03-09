@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.protocol.amqp.converter.AMQPConverter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
@@ -72,6 +73,7 @@ public class AMQPMessage extends RefCountMessage {
    private Properties _properties;
    private ApplicationProperties applicationProperties;
    private long scheduledTime = -1;
+   private String connectionID;
 
    public AMQPMessage(long messageFormat, byte[] data) {
       this.data = Unpooled.wrappedBuffer(data);
@@ -128,7 +130,6 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    private Map getApplicationPropertiesMap() {
-
       ApplicationProperties appMap = getApplicationProperties();
       Map map = null;
 
@@ -158,6 +159,17 @@ public class AMQPMessage extends RefCountMessage {
          parsedHeaders = true;
       }
    }
+   @Override
+   public org.apache.activemq.artemis.api.core.Message setConnectionID(String connectionID) {
+      this.connectionID = connectionID;
+      return this;
+   }
+
+   @Override
+   public String getConnectionID() {
+      return connectionID;
+   }
+
 
    public MessageAnnotations getMessageAnnotations() {
       parseHeaders();
@@ -221,6 +233,17 @@ public class AMQPMessage extends RefCountMessage {
       return null;
    }
 
+
+   @Override
+   public SimpleString getGroupID() {
+      parseHeaders();
+
+      if (_properties != null && _properties.getGroupId() != null) {
+         return SimpleString.toSimpleString(_properties.getGroupId());
+      } else {
+         return null;
+      }
+   }
 
 
    @Override
@@ -667,11 +690,13 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Object getObjectProperty(String key) {
-      if (key.equals("JMSType")) {
+      if (key.equals(MessageUtil.TYPE_HEADER_NAME.toString())) {
          return getProperties().getSubject();
+      } else if (key.equals(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString())) {
+         return getConnectionID();
+      } else {
+         return getApplicationPropertiesMap().get(key);
       }
-
-      return getApplicationPropertiesMap().get(key);
    }
 
    @Override
@@ -686,10 +711,13 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public String getStringProperty(String key) throws ActiveMQPropertyConversionException {
-      if (key.equals("JMSType")) {
+      if (key.equals(MessageUtil.TYPE_HEADER_NAME.toString())) {
          return getProperties().getSubject();
+      } else if (key.equals(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString())) {
+         return getConnectionID();
+      } else {
+         return (String)getApplicationPropertiesMap().get(key);
       }
-      return (String)getApplicationPropertiesMap().get(key);
    }
 
    @Override
@@ -702,7 +730,7 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public Object removeDeliveryAnnoationProperty(SimpleString key) {
+   public Object removeDeliveryAnnotationProperty(SimpleString key) {
       parseHeaders();
       if (_deliveryAnnotations == null || _deliveryAnnotations.getValue() == null) {
          return null;

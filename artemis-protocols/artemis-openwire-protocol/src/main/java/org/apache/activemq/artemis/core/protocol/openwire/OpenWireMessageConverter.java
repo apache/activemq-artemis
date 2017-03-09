@@ -55,7 +55,6 @@ import org.apache.activemq.command.ActiveMQStreamMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.activemq.command.BrokerId;
 import org.apache.activemq.command.CommandTypes;
-import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.DataStructure;
 import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
@@ -373,8 +372,6 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
          replyToBytes.compact();
          coreMessage.putBytesProperty(AMQ_MSG_REPLY_TO, replyToBytes.data);
       }
-
-      ConsumerId consumerId = messageSend.getTargetConsumerId();
 
       String userId = messageSend.getUserID();
       if (userId != null) {
