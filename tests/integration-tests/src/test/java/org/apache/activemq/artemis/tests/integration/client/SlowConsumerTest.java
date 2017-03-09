@@ -269,13 +269,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
       session.start();
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            forceGC();
-            return queue.getConsumerCount() == 0;
-         }
-      }, 3000, 100);
+      Wait.waitFor(consumer::isClosed, 3000, 100);
+
+      Assert.assertTrue(consumer.isClosed());
 
       try {
          consumer.receive(500);
