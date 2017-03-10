@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -434,12 +435,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-            while (iterator.hasNext()) {
-               MessageReference ref = iterator.next();
-               if (filter == null || filter.match(ref.getMessage())) {
-                  Message message = ref.getMessage();
-                  messages.add(message.toMap());
+            try {
+               while (iterator.hasNext()) {
+                  MessageReference ref = iterator.next();
+                  if (filter == null || filter.match(ref.getMessage())) {
+                     Message message = ref.getMessage();
+                     messages.add(message.toMap());
+                  }
                }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
             }
             return messages.toArray(new Map[messages.size()]);
          }
@@ -524,11 +529,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          } else {
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
                int count = 0;
-               while (iterator.hasNext()) {
-                  MessageReference ref = iterator.next();
-                  if (filter.match(ref.getMessage())) {
-                     count++;
+
+               try {
+                  while (iterator.hasNext()) {
+                     MessageReference ref = iterator.next();
+                     if (filter.match(ref.getMessage())) {
+                        count++;
+                     }
                   }
+               } catch (NoSuchElementException ignored) {
+                  // this could happen through paging browsing
                }
                return count;
             }
@@ -928,13 +938,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter thefilter = FilterImpl.createFilter(filter);
          queue.flushExecutor();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-            while (iterator.hasNext() && currentPageSize++ < pageSize) {
-               MessageReference ref = iterator.next();
-               if (thefilter == null || thefilter.match(ref.getMessage())) {
-                  c.add(OpenTypeSupport.convert(ref));
+            try {
+               while (iterator.hasNext() && currentPageSize++ < pageSize) {
+                  MessageReference ref = iterator.next();
+                  if (thefilter == null || thefilter.match(ref.getMessage())) {
+                     c.add(OpenTypeSupport.convert(ref));
 
+                  }
                }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
             }
+
             CompositeData[] rc = new CompositeData[c.size()];
             c.toArray(rc);
             return rc;
