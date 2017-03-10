@@ -1845,7 +1845,7 @@ public class MQTTTest extends MQTTTestSupport {
       connection2.connect();
       connection2.subscribe(mqttTopic);
 
-      Message message = connection2.receive();
+      Message message = connection2.receive(5000, TimeUnit.MILLISECONDS);
       assertEquals(payload, new String(message.getPayload()));
    }
 
