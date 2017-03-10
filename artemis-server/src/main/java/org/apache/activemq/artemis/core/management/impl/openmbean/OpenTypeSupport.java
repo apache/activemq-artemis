@@ -145,11 +145,6 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
 
-         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-         byte[] bytes = new byte[bodyCopy.readableBytes()];
-         bodyCopy.readBytes(bytes);
-         rc.put(CompositeDataConstants.BODY, bytes);
-
          Map<String, Object> propertyMap = m.toPropertyMap();
 
          rc.put(CompositeDataConstants.PROPERTIES, "" + propertyMap);

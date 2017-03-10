@@ -2109,7 +2109,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
       Assert.assertEquals(1, getMessageCount(queueControl));
 
@@ -2118,36 +2118,11 @@ public class QueueControlTest extends ManagementTestBase {
 
       Assert.assertEquals(1, browse.length);
 
-      byte[] body = (byte[]) browse[0].get("body");
+      byte[] body = (byte[]) browse[0].get("BodyPreview");
 
       Assert.assertNotNull(body);
 
       Assert.assertEquals(new String(body), "theBody");
-   }
-
-   @Test
-   public void testSendNullMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-
-      session.createQueue(address, queue, null, false);
-
-      QueueControl queueControl = createManagementControl(address, queue);
-
-      queueControl.sendMessage(new HashMap<String, String>(), Message.TEXT_TYPE, null, true, "myUser", "myPassword");
-
-      Assert.assertEquals(1, getMessageCount(queueControl));
-
-      // the message IDs are set on the server
-      CompositeData[] browse = queueControl.browse(null);
-
-      Assert.assertEquals(1, browse.length);
-
-      byte[] body = (byte[]) browse[0].get("body");
-
-      Assert.assertNotNull(body);
-
-      Assert.assertEquals(new String(body), "");
    }
 
    // Package protected ---------------------------------------------
