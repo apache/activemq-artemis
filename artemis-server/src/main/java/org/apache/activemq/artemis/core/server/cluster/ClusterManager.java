@@ -247,9 +247,7 @@ public final class ClusterManager implements ActiveMQComponent {
       /*
       * only start if we are actually in a cluster
       * */
-      if (clusterConnections.size() > 0) {
-         clusterController.start();
-      }
+      clusterController.start();
    }
 
    @Override

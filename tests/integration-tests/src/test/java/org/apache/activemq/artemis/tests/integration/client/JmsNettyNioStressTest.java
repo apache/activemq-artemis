@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -111,9 +112,9 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       final int numberOfMessages = 100;
 
       // these must all be the same
-      final int numProducers = 30;
-      final int numConsumerProducers = 30;
-      final int numConsumers = 30;
+      final int numProducers = 5;
+      final int numConsumerProducers = 5;
+      final int numConsumers = 5;
 
       // each produce, consume+produce and consume increments this counter
       final AtomicInteger totalCount = new AtomicInteger(0);
@@ -261,15 +262,8 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
          }.start();
       }
 
-      // check that the overall transaction count reaches the expected number,
-      // which would indicate that the system didn't stall
-      int timeoutCounter = 0;
-      int maxSecondsToWait = 60;
-      while (timeoutCounter < maxSecondsToWait && totalCount.get() < totalExpectedCount) {
-         timeoutCounter++;
-         Thread.sleep(1000);
-         System.out.println("Not done yet.. " + (maxSecondsToWait - timeoutCounter) + "; " + totalCount.get());
-      }
+      Wait.waitFor(() -> totalExpectedCount == totalCount.get(), 60000, 100);
+
       System.out.println("Done.." + totalCount.get() + ", expected " + totalExpectedCount);
       Assert.assertEquals("Possible deadlock", totalExpectedCount, totalCount.get());
       System.out.println("After assert");

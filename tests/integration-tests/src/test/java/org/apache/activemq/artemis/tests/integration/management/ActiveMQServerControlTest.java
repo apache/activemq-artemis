@@ -267,7 +267,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
-      serverControl.createAddress(address.toString(), "ANYCAST");
       serverControl.createQueue(address.toString(), RoutingType.ANYCAST.toString(), name.toString(), null, durable, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
@@ -404,11 +403,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // management operations
 
       Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
-      serverControl.createAddress(address.toString(), "ANYCAST");
-      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, false);
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, true, -1, false, true);
       Assert.assertTrue(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
 
-      serverControl.destroyQueue(name.toString());
+      serverControl.destroyQueue(name.toString(), true, true);
       Assert.assertFalse(ActiveMQServerControlTest.contains(address.toString(), serverControl.getAddressNames()));
    }
 
@@ -1427,7 +1425,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       SimpleString address = new SimpleString("testQueue");
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
-      Configuration config = createDefaultInVMConfig(2).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
+      Configuration config = createDefaultInVMConfig(2).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setSecurityEnabled(false);
       ActiveMQServer server2 = addServer(ActiveMQServers.newActiveMQServer(config, null, true));
 
       this.conf.clearConnectorConfigurations().addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
