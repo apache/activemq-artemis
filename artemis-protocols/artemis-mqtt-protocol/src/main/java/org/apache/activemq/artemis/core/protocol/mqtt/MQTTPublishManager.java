@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -64,10 +65,6 @@ public class MQTTPublishManager {
    synchronized void start() throws Exception {
       this.state = session.getSessionState();
       this.outboundStore = state.getOutboundStore();
-
-      createManagementAddress();
-      createManagementQueue();
-      createManagementConsumer();
    }
 
    synchronized void stop() throws Exception {
@@ -79,7 +76,7 @@ public class MQTTPublishManager {
    }
 
    void clean() throws Exception {
-      createManagementAddress();
+      SimpleString managementAddress = createManagementAddress();
       Queue queue = session.getServer().locateQueue(managementAddress);
       if (queue != null) {
          queue.deleteQueue();
@@ -92,14 +89,14 @@ public class MQTTPublishManager {
       managementConsumer.setStarted(true);
    }
 
-   private void createManagementAddress() {
-      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
+   private SimpleString createManagementAddress() {
+      return new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
    }
 
    private void createManagementQueue() throws Exception {
       Queue q = session.getServer().locateQueue(managementAddress);
       if (q == null) {
-         session.getServerSession().createQueue(managementAddress, managementAddress, null, false, MQTTUtil.DURABLE_MESSAGES);
+         session.getServer().createQueue(managementAddress, RoutingType.ANYCAST, managementAddress, null, MQTTUtil.DURABLE_MESSAGES, false);
       }
    }
 
@@ -189,11 +186,20 @@ public class MQTTPublishManager {
       session.getProtocolHandler().sendPubRel(messageId);
    }
 
+   private SimpleString getManagementAddress() throws Exception {
+      if (managementAddress == null) {
+         managementAddress = createManagementAddress();
+         createManagementQueue();
+         createManagementConsumer();
+      }
+      return managementAddress;
+   }
+
    void handlePubRec(int messageId) throws Exception {
       try {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
-            Message m = MQTTUtil.createPubRelMessage(session, managementAddress, messageId);
+            Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
             session.getServerSession().send(m, true);
             session.getServerSession().acknowledge(ref.getB(), ref.getA());
          } else {
