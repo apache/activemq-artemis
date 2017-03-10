@@ -49,7 +49,7 @@ public class MQTTRetainMessageManager {
 
       Queue queue = session.getServer().locateQueue(retainAddress);
       if (queue == null) {
-         queue = session.getServerSession().createQueue(retainAddress, retainAddress, null, false, true);
+         queue = session.getServer().createQueue(retainAddress, retainAddress, null, true, false);
       }
 
       try (LinkedListIterator<MessageReference> iterator = queue.iterator()) {

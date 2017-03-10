@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.MQTTException;
@@ -53,7 +54,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.impl.ConcurrentHashSet;
 
 /**
  * QT
@@ -1711,7 +1711,7 @@ public class MQTTTest extends MQTTTestSupport {
       connection2.connect();
       connection2.subscribe(mqttTopic);
 
-      Message message = connection2.receive();
+      Message message = connection2.receive(5000, TimeUnit.MILLISECONDS);
       assertEquals(payload, new String(message.getPayload()));
    }
 

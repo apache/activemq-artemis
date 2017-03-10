@@ -62,10 +62,6 @@ public class MQTTPublishManager {
    synchronized void start() throws Exception {
       this.state = session.getSessionState();
       this.outboundStore = state.getOutboundStore();
-
-      createManagementAddress();
-      createManagementQueue();
-      createManagementConsumer();
    }
 
    synchronized void stop() throws Exception {
@@ -77,7 +73,7 @@ public class MQTTPublishManager {
    }
 
    void clean() throws Exception {
-      createManagementAddress();
+      SimpleString managementAddress = createManagementAddress();
       Queue queue = session.getServer().locateQueue(managementAddress);
       if (queue != null) {
          queue.deleteQueue();
@@ -90,14 +86,14 @@ public class MQTTPublishManager {
       managementConsumer.setStarted(true);
    }
 
-   private void createManagementAddress() {
-      managementAddress = new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
+   private SimpleString createManagementAddress() {
+      return new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
    }
 
    private void createManagementQueue() throws Exception {
       Queue q = session.getServer().locateQueue(managementAddress);
       if (q == null) {
-         session.getServerSession().createQueue(managementAddress, managementAddress, null, false, MQTTUtil.DURABLE_MESSAGES);
+         session.getServer().createQueue(managementAddress, managementAddress, null, MQTTUtil.DURABLE_MESSAGES, false);
       }
    }
 
@@ -183,11 +179,20 @@ public class MQTTPublishManager {
       session.getProtocolHandler().sendPubRel(messageId);
    }
 
+   private SimpleString getManagementAddress() throws Exception {
+      if (managementAddress == null) {
+         managementAddress = createManagementAddress();
+         createManagementQueue();
+         createManagementConsumer();
+      }
+      return managementAddress;
+   }
+
    void handlePubRec(int messageId) throws Exception {
       try {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
-            ServerMessage m = MQTTUtil.createPubRelMessage(session, managementAddress, messageId);
+            ServerMessage m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
             session.getServerSession().send(m, true);
             session.getServerSession().acknowledge(ref.getB(), ref.getA());
          } else {
