@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -69,9 +70,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -1311,14 +1310,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          message.putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
       }
 
-      SimpleString originalAddress = message.getAddressSimpleString();
-
-      SimpleString address = removePrefix(message.getAddressSimpleString());
-
-      // In case the prefix was removed, we also need to update the message
-      if (address != message.getAddressSimpleString()) {
-         message.setAddress(address);
-      }
+      SimpleString address = message.getAddressSimpleString();
 
       if (defaultAddress == null && address != null) {
          defaultAddress = address;
@@ -1343,7 +1335,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          handleManagementMessage(tx, message, direct);
       } else {
-         result = doSend(tx, message, originalAddress, direct, noAutoCreateQueue);
+         result = doSend(tx, message, address, direct, noAutoCreateQueue);
       }
       return result;
    }
