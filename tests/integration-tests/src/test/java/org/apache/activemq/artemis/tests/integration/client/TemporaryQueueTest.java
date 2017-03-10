@@ -135,12 +135,13 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       assertTrue(Arrays.asList(storeNames).contains(address));
 
       consumer.close();
+
       session.deleteQueue(queue);
+      session.close();
 
       storeNames = server.getPagingManager().getStoreNames();
       assertFalse(Arrays.asList(storeNames).contains(address));
 
-      session.close();
    }
 
    @Test

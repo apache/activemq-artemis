@@ -2420,6 +2420,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       long txID = storageManager.generateID();
       storageManager.deleteAddressBinding(txID, addressInfo.getId());
       storageManager.commitBindings(txID);
+      pagingManager.deletePageStore(address);
    }
 
    @Override

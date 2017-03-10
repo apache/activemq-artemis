@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.QueueStatus;
@@ -2968,6 +2969,7 @@ public class QueueImpl implements Queue {
       Iterator lastIterator = null;
 
       MessageReference cachedNext = null;
+      HashSet<PagePosition> previouslyBrowsed = new HashSet();
 
       private QueueBrowserIterator() {
          messagesIterator = new SynchronizedIterator(messageReferences.iterator());
@@ -3003,15 +3005,21 @@ public class QueueImpl implements Queue {
          while (true) {
             if (messagesIterator != null && messagesIterator.hasNext()) {
                MessageReference msg = messagesIterator.next();
+               if (msg.isPaged()) {
+                  previouslyBrowsed.add(((PagedReference)msg).getPosition());
+               }
                return msg;
             } else {
                break;
             }
          }
          if (getPagingIterator() != null) {
-            if (getPagingIterator().hasNext()) {
+            while (getPagingIterator().hasNext()) {
                lastIterator = getPagingIterator();
-               MessageReference ref = getPagingIterator().next();
+               PagedReference ref = getPagingIterator().next();
+               if (previouslyBrowsed.contains(ref.getPosition())) {
+                  continue;
+               }
                return ref;
             }
          }
