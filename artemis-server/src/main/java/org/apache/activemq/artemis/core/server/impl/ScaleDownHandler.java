@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -210,8 +211,9 @@ public class ScaleDownHandler {
                   for (QueuesXRefInnerManager queueFound : queuesFound) {
                      ackMessageOnQueue(tx, queueFound.getQueue(), messageReference);
                   }
-
                }
+            } catch (NoSuchElementException ignored) {
+               // this could happen through paging browsing
             }
          }
 
@@ -294,6 +296,8 @@ public class ScaleDownHandler {
 
                ackMessageOnQueue(tx, queue, messageRef);
             }
+         } catch (NoSuchElementException ignored) {
+            // this could happen through paging browsing
          }
       }
 
