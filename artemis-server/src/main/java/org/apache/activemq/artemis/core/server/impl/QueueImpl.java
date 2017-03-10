@@ -233,6 +233,8 @@ public class QueueImpl implements Queue {
 
    private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
+   private final AtomicLong messagesAddedSnapshot = new AtomicLong(0);
+
    private ScheduledFuture slowConsumerReaperFuture;
 
    private SlowConsumerReaperRunnable slowConsumerReaperRunnable;
@@ -2815,11 +2817,13 @@ public class QueueImpl implements Queue {
 
    @Override
    public float getRate() {
+      long locaMessageAdded = getMessagesAdded();
       float timeSlice = ((System.currentTimeMillis() - queueRateCheckTime.getAndSet(System.currentTimeMillis())) / 1000.0f);
       if (timeSlice == 0) {
+         messagesAddedSnapshot.getAndSet(locaMessageAdded);
          return 0.0f;
       }
-      return BigDecimal.valueOf(getMessageCount() / timeSlice).setScale(2, BigDecimal.ROUND_UP).floatValue();
+      return BigDecimal.valueOf((locaMessageAdded - messagesAddedSnapshot.getAndSet(locaMessageAdded)) / timeSlice).setScale(2, BigDecimal.ROUND_UP).floatValue();
    }
 
    // Inner classes
@@ -3135,19 +3139,17 @@ public class QueueImpl implements Queue {
 
       @Override
       public void run() {
-         Set<Consumer> consumersSet = getConsumers();
-
-         if (consumersSet.size() == 0) {
-            logger.debug("There are no consumers, no need to check slow consumer's rate");
-            return;
-         }
-
          float queueRate = getRate();
          if (logger.isDebugEnabled()) {
             logger.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
 
-         if (queueRate < (threshold * consumersSet.size())) {
+         Set<Consumer> consumersSet = getConsumers();
+
+         if (consumersSet.size() == 0) {
+            logger.debug("There are no consumers, no need to check slow consumer's rate");
+            return;
+         } else if (queueRate  < (threshold * consumersSet.size())) {
             if (logger.isDebugEnabled()) {
                logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
             }
