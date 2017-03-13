@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
@@ -104,6 +105,19 @@ public class ProtonPubSubTest extends ProtonTestBase {
          Assert.assertNotNull(receive);
          Assert.assertEquals(receive.getText(), "message:" + i);
       }
+   }
+
+   @Test
+   public void testNonDurablePubSubQueueDeleted() throws Exception {
+      int numMessages = 100;
+      Topic topic = createTopic(pubAddress);
+      TopicSession session = ((TopicConnection) connection).createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer sub = session.createSubscriber(topic);
+      Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString(pubAddress));
+      assertEquals(2, bindingsForAddress.getBindings().size());
+      sub.close();
+      Thread.sleep(1000);
+      assertEquals(1, bindingsForAddress.getBindings().size());
    }
 
    @Test
