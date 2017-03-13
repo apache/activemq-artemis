@@ -1557,4 +1557,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224072, value = "Message Counter Sample Period too short: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidMessageCounterPeriod(long value);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224075, value = "Cannot find pageTX id = {0}", format = Message.Format.MESSAGE_FORMAT)
+   void journalCannotFindPageTX(Long id);
+
+
+
 }
