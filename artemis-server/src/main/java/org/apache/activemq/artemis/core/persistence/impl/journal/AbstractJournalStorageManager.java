@@ -960,7 +960,11 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                      PageTransactionInfo pageTX = pagingManager.getTransaction(pageUpdate.pageTX);
 
-                     pageTX.onUpdate(pageUpdate.recods, null, null);
+                     if (pageTX == null) {
+                        ActiveMQServerLogger.LOGGER.journalCannotFindPageTX(pageUpdate.pageTX);
+                     } else {
+                        pageTX.onUpdate(pageUpdate.recods, null, null);
+                     }
                   } else {
                      PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 

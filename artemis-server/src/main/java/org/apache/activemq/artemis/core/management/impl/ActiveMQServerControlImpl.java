@@ -741,7 +741,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              int maxConsumers,
                              boolean purgeOnNoConsumers,
                              boolean autoCreateAddress) throws Exception {
-      System.out.println("Target===================================called!");
       checkStarted();
 
       clearIO();
