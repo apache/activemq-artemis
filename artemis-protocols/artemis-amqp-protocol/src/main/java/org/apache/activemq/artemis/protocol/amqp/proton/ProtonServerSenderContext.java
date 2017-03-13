@@ -94,6 +94,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private boolean shared = false;
    private boolean global = false;
    private boolean isVolatile = false;
+   private String tempQueueName;
 
    public ProtonServerSenderContext(AMQPConnectionContext connection, Sender sender, AMQPSessionContext protonSession, AMQPSessionCallback server) {
       super();
@@ -223,6 +224,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // if dynamic we have to create the node (queue) and set the address on the target, the
          // node is temporary and  will be deleted on closing of the session
          queue = java.util.UUID.randomUUID().toString();
+         tempQueueName = queue;
          try {
             sessionSPI.createTemporaryQueue(queue, RoutingType.ANYCAST);
             // protonSession.getServerSession().createQueue(queue, queue, null, true, false);
@@ -342,6 +344,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   }
                } else {
                   queue = java.util.UUID.randomUUID().toString();
+                  tempQueueName = queue;
                   try {
                      sessionSPI.createTemporaryQueue(source.getAddress(), queue, RoutingType.MULTICAST, selector);
                   } catch (Exception e) {
@@ -445,16 +448,20 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                if (result.isExists() && source.getDynamic()) {
                   sessionSPI.deleteQueue(queueName);
                } else {
-                  String clientId = getClientId();
-                  String pubId = sender.getName();
-                  if (pubId.contains("|")) {
-                     pubId = pubId.split("\\|")[0];
-                  }
-                  String queue = createQueueName(clientId, pubId, shared, global, isVolatile);
-                  result = sessionSPI.queueQuery(queue, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, false);
-                  //only delete if it isn't volatile and has no consumers
-                  if (result.isExists() && !isVolatile && result.getConsumerCount() == 0) {
-                     sessionSPI.deleteQueue(queue);
+                  if (source.getDurable() == TerminusDurability.NONE && tempQueueName != null && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
+                     sessionSPI.removeTemporaryQueue(tempQueueName);
+                  } else {
+                     String clientId = getClientId();
+                     String pubId = sender.getName();
+                     if (pubId.contains("|")) {
+                        pubId = pubId.split("\\|")[0];
+                     }
+                     String queue = createQueueName(clientId, pubId, shared, global, isVolatile);
+                     result = sessionSPI.queueQuery(queue, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, false);
+                     //only delete if it isn't volatile and has no consumers
+                     if (result.isExists() && !isVolatile && result.getConsumerCount() == 0) {
+                        sessionSPI.deleteQueue(queue);
+                     }
                   }
                }
             } else if (source != null && source.getDynamic() && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
