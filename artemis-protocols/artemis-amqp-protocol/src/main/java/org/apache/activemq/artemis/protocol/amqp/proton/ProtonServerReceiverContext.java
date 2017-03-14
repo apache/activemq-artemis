@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.util.Arrays;
 import java.util.List;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -28,7 +26,6 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
-import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -134,7 +131,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Receiver receiver;
-      ByteBuf buffer = null;
       try {
          receiver = ((Receiver) delivery.getLink());
 
@@ -145,19 +141,16 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (delivery.isPartial()) {
             return;
          }
-         // This should be used if getDataLength was avilable
-//         byte[] data = new byte[delivery.getDataLength()];
 
-         buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(10 * 1024);
          Transaction tx = null;
 
+         byte[] data;
+
          synchronized (connection.getLock()) {
-            DeliveryUtil.readDelivery(receiver, buffer);
+            data = new byte[delivery.available()];
+            receiver.recv(data, 0, data.length);
             receiver.advance();
          }
-
-         byte[] data = new byte[buffer.writerIndex()];
-         buffer.readBytes(data);
 
          if (delivery.getRemoteState() instanceof TransactionalState) {
 
@@ -179,10 +172,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          rejected.setError(condition);
          delivery.disposition(rejected);
          delivery.settle();
-      } finally {
-         if (buffer != null) {
-            buffer.release();
-         }
       }
    }
 
