@@ -74,6 +74,22 @@ implementations. Apache ActiveMQ Artemis ships with two implementations:
     For more information on libaio please see [lib AIO](libaio.md).
 
     libaio is part of the kernel project.
+    
+-   [Memory mapped](https://en.wikipedia.org/wiki/Memory-mapped_file).
+
+    The third implementation uses a file-backed [READ_WRITE](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.MapMode.html#READ_WRITE)
+    memory mapping against the OS page cache to interface with the file system.
+    
+    This provides extremely good performance (especially under strictly process failure durability requirements), 
+    almost zero copy (actually *is* the kernel page cache) and zero garbage (from the Java HEAP perspective) operations and runs 
+    on any platform where there's a Java 4+ runtime.
+    
+    Under power failure durability requirements it will perform at least on par with the NIO journal with the only 
+    exception of Linux OS with kernel less or equals 2.6, in which the [*msync*](https://docs.oracle.com/javase/6/docs/api/java/nio/MappedByteBuffer.html#force()) implementation necessary to ensure 
+    durable writes was different (and slower) from the [*fsync*](https://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.html#force(boolean)) used is case of NIO journal.
+    
+    It benefits by the configuration of OS [huge pages](https://en.wikipedia.org/wiki/Page_(computer_memory)#Huge_pages),
+    in particular when is used a big number of journal files and sizing them as multiple of the OS page size in bytes.    
 
 The standard Apache ActiveMQ Artemis core server uses two instances of the journal:
 
@@ -180,12 +196,13 @@ The message journal is configured using the following attributes in
 
 -   `journal-type`
 
-    Valid values are `NIO` or `ASYNCIO`.
+    Valid values are `NIO`, `ASYNCIO` or `MAPPED`.
 
     Choosing `NIO` chooses the Java NIO journal. Choosing `ASYNCIO` chooses
     the Linux asynchronous IO journal. If you choose `ASYNCIO` but are not
     running Linux or you do not have libaio installed then Apache ActiveMQ Artemis will
     detect this and automatically fall back to using `NIO`.
+    Choosing `MAPPED` chooses the Java Memory Mapped journal.
 
 -   `journal-sync-transactional`
 
@@ -302,6 +319,22 @@ The message journal is configured using the following attributes in
 -   `journal-datasync` (default: true)
     
     This will disable the use of fdatasync on journal writes.
+    When enabled it ensures full power failure durability, otherwise 
+    process failure durability on journal writes (OS guaranteed).
+    This is particular effective for `NIO` and `MAPPED` journals, which rely on 
+     *fsync*/*msync* to force write changes to disk.
+
+### An important note on disabling `journal-datasync`.
+
+> Any modern OS guarantees that on process failures (i.e. crash) all the uncommitted changes
+> to the page cache will be flushed to the file system, maintaining coherence between 
+> subsequent operations against the same pages and ensuring that no data will be lost.
+> The predictability of the timing of such flushes, in case of a disabled *journal-datasync*,
+> depends on the OS configuration, but without compromising (or relaxing) the process 
+> failure durability semantics as described above.
+> Rely on the OS page cache sacrifice the power failure protection, while increasing the 
+> effectiveness of the journal operations, capable of exploiting 
+> the read caching and write combining features provided by the OS's kernel page cache subsystem.
 
 ### An important note on disabling disk write cache.
 
