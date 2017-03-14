@@ -280,18 +280,53 @@ set).
 Apache ActiveMQ Artemis currently doesn't support virtual hosting, which means the
 'host' header in CONNECT fram will be ignored.
 
-### Mapping Stomp destinations to Apache ActiveMQ Artemis addresses and queues
+### Mapping Stomp destinations to addresses and queues
 
 Stomp clients deals with *destinations* when sending messages and
 subscribing. Destination names are simply strings which are mapped to
 some form of destination on the server - how the server translates these
 is left to the server implementation.
 
-In Apache ActiveMQ Artemis, these destinations are mapped to *addresses* and *queues*.
-When a Stomp client sends a message (using a `SEND` frame), the
-specified destination is mapped to an address. When a Stomp client
-subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
-`UNSUBSCRIBE` frame), the destination is mapped to an Apache ActiveMQ Artemis queue.
+In Apache ActiveMQ Artemis, these destinations are mapped to *addresses* and *queues*
+depending on the operation being done and the desired semantics (e.g. anycast or
+multicast).
+
+#### Sending
+
+When a Stomp client sends a message (using a `SEND` frame), the protocol manager looks
+at the message to determine where to route it and potentially how to create the address
+and/or queue to which it is being sent. The protocol manager uses either of the following
+bits of information from the frame to determine the routing type:
+
+1. The value of the `destination-type` header. Valid values are `ANYCAST` and
+`MULTICAST` (case sensitive).
+
+2. The "prefix" on the `destination` header. See [additional info](address-model.md) on
+prefixes.
+
+If no indication of routing type is supplied then anycast semantics are used.
+
+The `destination` header maps to an address of the same name. If the `destination` header
+used a prefix then the prefix is stripped.
+
+#### Subscribing
+
+When a Stomp client subscribes to a destination (using a `SUBSCRIBE` frame), the protocol
+manager looks at the frame to determine what subscription semantics to use and potentially how
+to create the address and/or queue for the subscription. The protocol manager uses either of
+the following bits of information from the frame to determine the routing type:
+
+1. The value of the `subscription-type` header. Valid values are `ANYCAST` and
+`MULTICAST` (case sensitive).
+
+2. The "prefix" on the `destination` header. See [additional info](address-model.md) on
+prefixes.
+
+If no indication of routing type is supplied then anycast semantics are used.
+
+The `destination` header maps to an address of the same name if multicast is used or to a queue
+of the same name if anycast is used. If the `destination` header used a prefix then the prefix
+is stripped.
 
 ### STOMP heart-beating and connection-ttl
 
@@ -393,40 +428,6 @@ The same logic applies when mapping a JMS message or a Core message to
 Stomp. A Stomp 1.0 client can check the presence of the `content-length`
 header to determine the type of the message body (String or bytes).
 
-#### Durable Subscriptions
-
-The `SUBSCRIBE` and `UNSUBSCRIBE` frames can be augmented with special headers to create
-and destroy durable subscriptions respectively.
-
-To create a durable subscription the `client-id` header must be set on the `CONNECT` frame
-and the `durable-subscription-name` must be set on the `SUBSCRIBE` frame. The combination
-of these two headers will form the identity of the durable subscription.
-
-To delete a durable subscription the `client-id` header must be set on the `CONNECT` frame
-and the `durable-subscription-name` must be set on the `UNSUBSCRIBE` frame. The values for
-these headers should match what was set on the `SUBSCRIBE` frame to delete the corresponding
-durable subscription.
-
-It is possible to pre-configure durable subscriptions since the Stomp implementation creates
-the queue used for the durable subscription in a deterministic way (i.e. using the format of 
-`client-id`.`subscription-name`). For example, if you wanted to configure a durable 
-subscription on the JMS topic `myTopic` with a client-id of `myclientid` and a subscription 
-name of `mysubscriptionname` then configure the durable subscription:
-
-~~~
-   <core xmlns="urn:activemq:core">
-      ...
-     <addresses>
-         <address name="myTopic">
-            <multicast>
-               <queue name="myclientid.mysubscription"/>
-            </multicast>
-         </address>
-      </addresses>
-      ...
-   </core>
-~~~
-
 #### Message IDs for Stomp messages
 
 When receiving Stomp messages via a JMS consumer or a QueueBrowser, the
@@ -449,9 +450,43 @@ long type internal message id prefixed with "`STOMP`", like:
 If `stomp-enable-message-id` is not specified in the configuration,
 default is `false`.
 
-#### Handling of Large Messages with Stomp
+### Durable Subscriptions
 
-Stomp clients may send very large bodys of frames which can exceed the
+The `SUBSCRIBE` and `UNSUBSCRIBE` frames can be augmented with special headers to create
+and destroy durable subscriptions respectively.
+
+To create a durable subscription the `client-id` header must be set on the `CONNECT` frame
+and the `durable-subscription-name` must be set on the `SUBSCRIBE` frame. The combination
+of these two headers will form the identity of the durable subscription.
+
+To delete a durable subscription the `client-id` header must be set on the `CONNECT` frame
+and the `durable-subscription-name` must be set on the `UNSUBSCRIBE` frame. The values for
+these headers should match what was set on the `SUBSCRIBE` frame to delete the corresponding
+durable subscription.
+
+It is possible to pre-configure durable subscriptions since the Stomp implementation creates
+the queue used for the durable subscription in a deterministic way (i.e. using the format of
+`client-id`.`subscription-name`). For example, if you wanted to configure a durable
+subscription on the address `myAddress` with a client-id of `myclientid` and a subscription
+name of `mysubscription` then configure the durable subscription:
+
+~~~
+   <core xmlns="urn:activemq:core">
+      ...
+      <addresses>
+         <address name="myAddress">
+            <multicast>
+               <queue name="myclientid.mysubscription"/>
+            </multicast>
+         </address>
+      </addresses>
+      ...
+   </core>
+~~~
+
+### Handling of Large Messages with Stomp
+
+Stomp clients may send very large frame bodies which can exceed the
 size of Apache ActiveMQ Artemis server's internal buffer, causing unexpected errors. To
 prevent this situation from happening, Apache ActiveMQ Artemis provides a stomp
 configuration attribute `stompMinLargeMessageSize`. This attribute
@@ -465,7 +500,7 @@ Stomp frame arrived from connections established with this acceptor. If
 the size of the body is equal or greater than the value of
 `stompMinLargeMessageSize`, the message will be persisted as a large
 message. When a large message is delievered to a stomp consumer, the
-HorentQ server will automatically handle the conversion from a large
+broker will automatically handle the conversion from a large
 message to a normal message, before sending it to the client.
 
 If a large message is compressed, the server will uncompressed it before
