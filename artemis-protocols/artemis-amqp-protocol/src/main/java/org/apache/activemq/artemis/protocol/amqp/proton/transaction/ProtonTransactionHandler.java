@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
@@ -38,12 +36,17 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.jboss.logging.Logger;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+
 /**
  * handles an amqp Coordinator to deal with transaction boundaries etc
  */
 public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    private static final Logger log = Logger.getLogger(ProtonTransactionHandler.class);
+
+   public static final int DEFAULT_COORDINATOR_CREDIT = 100;
 
    final AMQPSessionCallback sessionSPI;
 
@@ -97,6 +100,12 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                } catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
                }
+            }
+
+            // Replenish coordinator receiver credit on exhaustion so sender can continue
+            // transaction declare and discahrge operations.
+            if (receiver.getCredit() == 0) {
+               receiver.flow(DEFAULT_COORDINATOR_CREDIT);
             }
          }
       } catch (ActiveMQAMQPException amqpE) {
