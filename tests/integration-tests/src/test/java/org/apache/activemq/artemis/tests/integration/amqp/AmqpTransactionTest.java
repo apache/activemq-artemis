@@ -49,6 +49,22 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 30000)
+   public void testCoordinatorReplenishesCredit() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+      assertNotNull(session);
+
+      for (int i = 0; i < 1000; ++i) {
+         session.begin();
+         assertTrue(session.isInTransaction());
+         session.commit();
+      }
+
+      connection.close();
+   }
+
+   @Test(timeout = 30000)
    public void testBeginAndRollbackTransaction() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
