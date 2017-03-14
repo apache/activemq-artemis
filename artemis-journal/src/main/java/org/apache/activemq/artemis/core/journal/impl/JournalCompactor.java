@@ -40,8 +40,11 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider {
+
+   private static final Logger logger = Logger.getLogger(JournalCompactor.class);
 
    // We try to separate old record from new ones when doing the compacting
    // this is a split line
@@ -241,6 +244,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          try {
             command.execute();
          } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
             ActiveMQJournalLogger.LOGGER.errorReplayingCommands(e);
          }
       }
