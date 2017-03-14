@@ -47,6 +47,11 @@ performance.
 -   If you're running AIO you might be able to get some better
     performance by increasing `journal-max-io`. DO NOT change this
     parameter if you are running NIO.
+    
+-   If you are 100% sure you don't need power failure durability guarantees, 
+    disable `journal-data-sync` and use `NIO` or `MAPPED` journal: 
+    you'll benefit a huge performance boost on writes 
+    with process failure durability guarantees.    
 
 ## Tuning JMS
 
