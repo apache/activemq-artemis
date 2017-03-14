@@ -148,7 +148,7 @@ public class AMQPSessionContext extends ProtonInitializable {
 
       receiver.setContext(transactionHandler);
       receiver.open();
-      receiver.flow(100);
+      receiver.flow(ProtonTransactionHandler.DEFAULT_COORDINATOR_CREDIT);
    }
 
    public void addSender(Sender sender) throws Exception {
