@@ -52,7 +52,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getTestName());
       receiver.flow(1);
-      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
       assertEquals(1, queueView.getMessagesExpired());
@@ -116,7 +116,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getTestName());
       receiver.flow(1);
-      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
       assertEquals(1, queueView.getMessagesExpired());
@@ -215,7 +215,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       // Now try and get the message
       AmqpReceiver receiver = session.createReceiver(getTestName());
       receiver.flow(1);
-      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
       assertEquals(1, queueView.getMessagesExpired());
