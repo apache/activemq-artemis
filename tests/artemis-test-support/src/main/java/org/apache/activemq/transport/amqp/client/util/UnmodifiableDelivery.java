@@ -58,6 +58,11 @@ public class UnmodifiableDelivery implements Delivery {
    } */
 
    @Override
+   public int available() {
+      return delivery.available();
+   }
+
+   @Override
    public DeliveryState getLocalState() {
       return delivery.getLocalState();
    }
