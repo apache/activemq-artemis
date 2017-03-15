@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
+import java.util.concurrent.TimeUnit;
+
 import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -40,6 +42,21 @@ public interface Connection {
    void setProtocolConnection(RemotingConnection connection);
 
    boolean isWritable(ReadyListener listener);
+
+   /**
+    * Causes the current thread to wait until the connection can enqueue the required capacity unless the specified waiting time elapses.
+    * The available capacity of the connection could change concurrently hence this method is suitable to perform precise flow-control
+    * only in a single writer case, while its precision decrease inversely proportional with the rate and the number of concurrent writers.
+    * If the current thread is not allowed to block the timeout will be ignored dependently on the connection type.
+    *
+    * @param requiredCapacity the capacity in bytes to be enqueued
+    * @param timeout          the maximum time to wait
+    * @param timeUnit         the time unit of the timeout argument
+    * @return {@code true} if the connection can enqueue {@code requiredCapacity} bytes, {@code false} otherwise
+    */
+   default boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
+      return true;
+   }
 
    void fireReady(boolean ready);
 
