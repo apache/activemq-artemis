@@ -18,8 +18,11 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public abstract class SessionContinuationMessage extends PacketImpl {
@@ -59,6 +62,30 @@ public abstract class SessionContinuationMessage extends PacketImpl {
     */
    public boolean isContinues() {
       return continues;
+   }
+
+   /**
+    * Returns the exact expected encoded size of {@code this} packet.
+    * It will be used to allocate the proper encoding buffer in {@link #createPacket}, hence any
+    * wrong value will result in a thrown exception or a resize of the encoding
+    * buffer during the encoding process, depending to the implementation of {@link #createPacket}.
+    * Any child of {@code this} class are required to override this method if their encoded size is changed
+    * from the base class.
+    *
+    * @return the size in bytes of the expected encoded packet
+    */
+   protected int expectedEncodedSize() {
+      return SESSION_CONTINUATION_BASE_SIZE + (body == null ? 0 : body.length);
+   }
+
+   @Override
+   protected final ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+      final int expectedEncodedSize = expectedEncodedSize();
+      if (connection == null) {
+         return new ChannelBufferWrapper(Unpooled.buffer(expectedEncodedSize));
+      } else {
+         return connection.createTransportBuffer(expectedEncodedSize, usePooled);
+      }
    }
 
    @Override
