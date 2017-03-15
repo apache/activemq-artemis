@@ -80,6 +80,7 @@ public class AMQPMessage extends RefCountMessage {
       this.data = Unpooled.wrappedBuffer(data);
       this.messageFormat = messageFormat;
       this.bufferValid = true;
+      parseHeaders();
 
    }
 
@@ -897,5 +898,6 @@ public class AMQPMessage extends RefCountMessage {
       record.readBytes(recordArray);
       this.data = Unpooled.wrappedBuffer(recordArray);
       this.bufferValid = true;
+      parseHeaders();
    }
 }
