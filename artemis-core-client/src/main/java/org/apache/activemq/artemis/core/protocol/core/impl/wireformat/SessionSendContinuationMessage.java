@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * A SessionSendContinuationMessage<br>
@@ -89,6 +90,11 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
     */
    public Message getMessage() {
       return message;
+   }
+
+   @Override
+   protected final int expectedEncodedSize() {
+      return super.expectedEncodedSize() + (!continues ? DataConstants.SIZE_LONG : 0) + DataConstants.SIZE_BOOLEAN;
    }
 
    @Override
