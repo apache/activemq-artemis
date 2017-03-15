@@ -44,6 +44,9 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -117,6 +120,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean useInvm;
 
+   private final boolean useEpoll;
+
    private final ProtocolHandler protocolHandler;
 
    private final String host;
@@ -153,6 +158,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final int tcpReceiveBufferSize;
 
    private final int nioRemotingThreads;
+
+   private final int epollRemotingThreads;
 
    private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<>();
 
@@ -202,6 +209,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
 
       nioRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+
+      epollRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.EPOLL_REMOTING_THREADS_PROPNAME, -1, configuration);
+      useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
+
+
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
 
@@ -270,22 +282,48 @@ public class NettyAcceptor extends AbstractAcceptor {
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new LocalEventLoopGroup();
       } else {
-         int threadsToUse;
+         // Default to number of cores * 3
+         int defaultThreadsToUse = Runtime.getRuntime().availableProcessors() * 3;
 
-         if (nioRemotingThreads == -1) {
-            // Default to number of cores * 3
+         if (useEpoll) {
+            if (Epoll.isAvailable()) {
+               int epollThreadsToUse;
+               if (epollRemotingThreads == -1) {
+                  epollThreadsToUse = defaultThreadsToUse;
+               } else {
+                  epollThreadsToUse = this.epollRemotingThreads;
+               }
 
-            threadsToUse = Runtime.getRuntime().availableProcessors() * 3;
-         } else {
-            threadsToUse = this.nioRemotingThreads;
-         }
-         channelClazz = NioServerSocketChannel.class;
-         eventLoopGroup = new NioEventLoopGroup(threadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
-            @Override
-            public ActiveMQThreadFactory run() {
-               return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+               channelClazz = EpollServerSocketChannel.class;
+               eventLoopGroup = new EpollEventLoopGroup(epollThreadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+                  @Override
+                  public ActiveMQThreadFactory run() {
+                     return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+                  }
+               }));
+               logger.info("Acceptor using native epoll");
+            } else {
+               logger.warn("Acceptor unable to load native epoll, will continue and load nio");
             }
-         }));
+         }
+
+         if (channelClazz == null || eventLoopGroup == null) {
+            int nioThreadsToUse;
+            if (nioRemotingThreads == -1) {
+               nioThreadsToUse = defaultThreadsToUse;
+            } else {
+               nioThreadsToUse = nioRemotingThreads;
+            }
+
+            channelClazz = NioServerSocketChannel.class;
+            eventLoopGroup = new NioEventLoopGroup(nioThreadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+               @Override
+               public ActiveMQThreadFactory run() {
+                  return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+               }
+            }));
+            logger.info("Acceptor using nio");
+         }
       }
 
       bootstrap = new ServerBootstrap();

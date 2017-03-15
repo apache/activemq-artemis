@@ -23,8 +23,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
@@ -32,41 +33,41 @@ import io.netty.util.concurrent.Promise;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
-public class SharedNioEventLoopGroup extends NioEventLoopGroup {
+public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
-   private static SharedNioEventLoopGroup instance;
+   private static SharedEventLoopGroup instance;
 
    private final AtomicReference<ScheduledFuture<?>> shutdown = new AtomicReference<>();
-   private final AtomicLong nioChannelFactoryCount = new AtomicLong();
+   private final AtomicLong channelFactoryCount = new AtomicLong();
    private final Promise<?> terminationPromise = ImmediateEventExecutor.INSTANCE.newPromise();
 
-   private SharedNioEventLoopGroup(int numThreads, ThreadFactory factory) {
-      super(numThreads, factory);
+   private SharedEventLoopGroup(EventLoopGroup eventLoopGroup) {
+      super(eventLoopGroup);
    }
 
    public static synchronized void forceShutdown() {
       if (instance != null) {
          instance.shutdown();
-         instance.nioChannelFactoryCount.set(0);
+         instance.channelFactoryCount.set(0);
          instance = null;
       }
    }
 
-   public static synchronized SharedNioEventLoopGroup getInstance(int numThreads) {
+   public static synchronized SharedEventLoopGroup getInstance(Function<ThreadFactory, EventLoopGroup> eventLoopGroupSupplier) {
       if (instance != null) {
          ScheduledFuture f = instance.shutdown.getAndSet(null);
          if (f != null) {
             f.cancel(false);
          }
       } else {
-         instance = new SharedNioEventLoopGroup(numThreads, AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply(AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
             @Override
             public ThreadFactory run() {
                return new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
             }
-         }));
+         })));
       }
-      instance.nioChannelFactoryCount.incrementAndGet();
+      instance.channelFactoryCount.incrementAndGet();
       return instance;
    }
 
@@ -82,13 +83,13 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
 
    @Override
    public Future<?> shutdownGracefully(final long l, final long l2, final TimeUnit timeUnit) {
-      if (nioChannelFactoryCount.decrementAndGet() == 0) {
+      if (channelFactoryCount.decrementAndGet() == 0) {
          shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-               synchronized (SharedNioEventLoopGroup.class) {
+               synchronized (SharedEventLoopGroup.class) {
                   if (shutdown.get() != null) {
-                     Future<?> future = SharedNioEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
+                     Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
                      future.addListener(new FutureListener<Object>() {
                         @Override
                         public void operationComplete(Future future) throws Exception {
