@@ -23,9 +23,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -51,6 +48,10 @@ import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
@@ -320,7 +321,6 @@ public class AMQPMessage extends RefCountMessage {
             } else {
                section = null;
             }
-
          }
          if (section instanceof MessageAnnotations) {
             _messageAnnotations = (MessageAnnotations) section;
@@ -330,10 +330,13 @@ public class AMQPMessage extends RefCountMessage {
             } else {
                section = null;
             }
-
          }
          if (section instanceof Properties) {
             _properties = (Properties) section;
+
+            if (_properties.getAbsoluteExpiryTime() != null) {
+               this.expiration = _properties.getAbsoluteExpiryTime().getTime();
+            }
 
             if (buffer.hasRemaining()) {
                section = (Section) decoder.readObject();
