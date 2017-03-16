@@ -404,7 +404,7 @@ public class AMQPSessionCallback implements SessionCallback {
                   delivery.disposition(Accepted.getInstance());
                   delivery.settle();
                }
-               connection.flush(true);
+               connection.flush();
             }
 
             @Override
