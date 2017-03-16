@@ -74,13 +74,13 @@ Name | Description
 [journal-compact-percentage](persistence.md)                                        |  The percentage of live data on which we consider compacting the journal. Default=30
 [journal-directory](persistence.md)                                                 |  the directory to store the journal files in. Default=data/journal
 [journal-file-size](persistence.md)                                                 |  the size (in bytes) of each journal file. Default=10485760 (10 MB)
-[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO and 1 for NIO.
+[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO and 1 for NIO, ignored for MAPPED.
 [journal-min-files](persistence.md#configuring.message.journal.journal-min-files)     |  how many journal files to pre-create. Default=2
 [journal-pool-files](persistence.md#configuring.message.journal.journal-pool-files)     |  The upper theshold of the journal file pool,-1 (default) means no Limit. The system will create as many files as needed however when reclaiming files it will shrink back to the `journal-pool-files`
 [journal-sync-non-transactional](persistence.md)                                      |  if true wait for non transaction data to be synced to the journal before returning response to client. Default=true
 [journal-sync-transactional](persistence.md)                                          |  if true wait for transaction data to be synchronized to the journal before returning response to client. Default=true
 [journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
-[journal-datasync](persistence.md)                                                        |  It will use fsync on journal operations. Default=true.
+[journal-datasync](persistence.md)                                                        |  It will use msync/fsync on journal operations. Default=true.
 [large-messages-directory](large-messages.md "Configuring the server")          |  the directory to store large messages. Default=data/largemessages
 [management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it. Default=jms.queue.activemq.management
 [management-notification-address](management.md "Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications
