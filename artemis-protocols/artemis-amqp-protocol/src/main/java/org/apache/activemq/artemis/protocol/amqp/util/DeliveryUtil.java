@@ -16,28 +16,14 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.util;
 
-import io.netty.buffer.ByteBuf;
-import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 
 public class DeliveryUtil {
 
-   public static int readDelivery(Receiver receiver, ByteBuf buffer) {
-      int initial = buffer.writerIndex();
-      // optimization by norman
-      int count;
-      while ((count = receiver.recv(buffer.array(), buffer.arrayOffset() + buffer.writerIndex(), buffer.writableBytes())) > 0) {
-         // Increment the writer index by the number of bytes written into it while calling recv.
-         buffer.writerIndex(buffer.writerIndex() + count);
-         buffer.ensureWritable(count);
-      }
-      return buffer.writerIndex() - initial;
-   }
-
-   public static MessageImpl decodeMessageImpl(ByteBuf buffer) {
+   public static MessageImpl decodeMessageImpl(byte[] data) {
       MessageImpl message = (MessageImpl) Message.Factory.create();
-      message.decode(buffer.array(), buffer.arrayOffset() + buffer.readerIndex(), buffer.readableBytes());
+      message.decode(data, 0, data.length);
       return message;
    }
 
