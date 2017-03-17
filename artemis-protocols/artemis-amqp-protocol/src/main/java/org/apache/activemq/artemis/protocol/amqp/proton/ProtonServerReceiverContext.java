@@ -155,7 +155,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (delivery.getRemoteState() instanceof TransactionalState) {
 
             TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-            tx = this.sessionSPI.getTransaction(txState.getTxnId());
+            tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
          }
 
          sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), data);
@@ -201,8 +201,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       } else {
          synchronized (connection.getLock()) {
             receiver.flow(credits);
-            connection.flush();
          }
+         connection.flush();
       }
 
    }
