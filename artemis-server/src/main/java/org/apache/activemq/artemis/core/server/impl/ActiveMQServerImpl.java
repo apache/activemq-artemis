@@ -1531,6 +1531,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public Queue createQueue(final SimpleString address,
                             final RoutingType routingType,
                             final SimpleString queueName,
+                            final SimpleString user,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary) throws Exception {
+      AddressSettings as = getAddressSettingsRepository().getMatch(address.toString());
+      return createQueue(address, routingType, queueName, filterString, user, durable, temporary, false, as.getDefaultMaxConsumers(), as.isDefaultPurgeOnNoConsumers(), as.isAutoCreateAddresses());
+   }
+
+   @Override
+   public Queue createQueue(final SimpleString address,
+                            final RoutingType routingType,
+                            final SimpleString queueName,
                             final SimpleString filter,
                             final boolean durable,
                             final boolean temporary,
