@@ -42,7 +42,6 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
-import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
@@ -89,7 +88,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private boolean multicast;
    //todo get this from somewhere
    private RoutingType defaultRoutingType = RoutingType.ANYCAST;
-   protected CreditsSemaphore creditsSemaphore = new CreditsSemaphore(0);
    private RoutingType routingTypeToUse = defaultRoutingType;
    private boolean shared = false;
    private boolean global = false;
@@ -110,7 +108,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
    @Override
    public void onFlow(int currentCredits, boolean drain) {
-      this.creditsSemaphore.setCredits(currentCredits);
       sessionSPI.onFlowConsumer(brokerConsumer, currentCredits, drain);
    }
 
@@ -588,16 +585,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       if (closed) {
          return 0;
-      }
-
-      if (!creditsSemaphore.tryAcquire()) {
-         try {
-            creditsSemaphore.acquire();
-         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // nothing to be done here.. we just keep going
-            throw new IllegalStateException(e.getMessage(), e);
-         }
       }
 
       // presettle means we can settle the message on the dealer side before we send it, i.e.
