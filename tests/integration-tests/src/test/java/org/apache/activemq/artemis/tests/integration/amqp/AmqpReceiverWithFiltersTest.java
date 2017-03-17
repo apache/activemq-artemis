@@ -18,21 +18,28 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpUnknownFilterType;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.engine.Receiver;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -114,4 +121,46 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       connection.getStateInspector().assertValid();
       connection.close();
    }
+
+
+   @Test(timeout = 60000)
+   public void testReceivedUnsignedFilter() throws Exception {
+      final int NUM_MESSAGES = 100;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = client.connect();
+
+      try {
+
+         // Normal Session which won't create an TXN itself
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+
+         for (int i = 0; i < NUM_MESSAGES + 1; ++i) {
+            AmqpMessage message = new AmqpMessage();
+            message.setText("Test-Message");
+            message.setApplicationProperty("myNewID", new UnsignedInteger(i));
+            sender.send(message);
+         }
+
+         // Read all messages from the Queue, do not accept them yet.
+         AmqpReceiver receiver = session.createReceiver(getTestName(), "myNewID < " + (NUM_MESSAGES / 2));
+         ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
+         receiver.flow((NUM_MESSAGES + 2) * 2);
+         for (int i = 0; i < NUM_MESSAGES  / 2; ++i) {
+            AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+            Assert.assertNotNull(message);
+            System.out.println("Read message: " + message.getApplicationProperty("myNewID"));
+            assertNotNull(message);
+            messages.add(message);
+         }
+
+         Assert.assertNull(receiver.receiveNoWait());
+
+      } finally {
+         connection.close();
+      }
+   }
+
+
 }
