@@ -287,6 +287,9 @@ public interface ActiveMQServer extends ServiceComponent {
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      boolean durable, boolean temporary) throws Exception;
 
+   Queue createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString user,
+                               final SimpleString filterString,  final boolean durable, final boolean temporary) throws Exception;
+
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      boolean durable, boolean temporary, int maxConsumers, boolean purgeOnNoConsumers,
                      boolean autoCreateAddress) throws Exception;
