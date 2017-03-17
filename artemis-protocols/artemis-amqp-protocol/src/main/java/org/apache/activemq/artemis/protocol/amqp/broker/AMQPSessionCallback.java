@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
-import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -91,6 +90,10 @@ public class AMQPSessionCallback implements SessionCallback {
    private final Executor closeExecutor;
 
    private final AtomicBoolean draining = new AtomicBoolean(false);
+
+   public Object getProtonLock() {
+      return connection.getLock();
+   }
 
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
@@ -382,8 +385,10 @@ public class AMQPSessionCallback implements SessionCallback {
       condition.setDescription(errorMessage);
       Rejected rejected = new Rejected();
       rejected.setError(condition);
-      delivery.disposition(rejected);
-      delivery.settle();
+      synchronized (connection.getLock()) {
+         delivery.disposition(rejected);
+         delivery.settle();
+      }
       connection.flush();
    }
 
@@ -536,29 +541,14 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
-      return protonSPI.getTransaction(txid);
+   public Transaction getTransaction(Binary txid, boolean remove) throws ActiveMQAMQPException {
+      return protonSPI.getTransaction(txid, remove);
    }
 
    public Binary newTransaction() {
       return protonSPI.newTransaction();
    }
 
-   public void commitTX(Binary txid) throws Exception {
-      Transaction tx = protonSPI.getTransaction(txid);
-      tx.commit(true);
-      protonSPI.removeTransaction(txid);
-   }
-
-   public void rollbackTX(Binary txid, boolean lastMessageReceived) throws Exception {
-      Transaction tx = protonSPI.getTransaction(txid);
-      tx.rollback();
-      protonSPI.removeTransaction(txid);
-   }
-
-   public void dischargeTx(Binary txid) throws ActiveMQAMQPException {
-      ((ProtonTransactionImpl) protonSPI.getTransaction(txid)).discharge();
-   }
 
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {
       return serverSession.getMatchingQueue(address, routingType);

@@ -493,7 +493,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          if (remoteState instanceof TransactionalState) {
 
             TransactionalState txState = (TransactionalState) remoteState;
-            ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId());
+            ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId(), false);
 
             if (txState.getOutcome() != null) {
                settleImmediate = false;
