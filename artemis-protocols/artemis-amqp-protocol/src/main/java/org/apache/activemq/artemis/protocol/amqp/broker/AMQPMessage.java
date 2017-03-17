@@ -72,6 +72,7 @@ public class AMQPMessage extends RefCountMessage {
    private DeliveryAnnotations _deliveryAnnotations;
    private MessageAnnotations _messageAnnotations;
    private Properties _properties;
+   private int appLocation = -1;
    private ApplicationProperties applicationProperties;
    private long scheduledTime = -1;
    private String connectionID;
@@ -93,7 +94,7 @@ public class AMQPMessage extends RefCountMessage {
 
    public AMQPMessage(long messageFormat, Message message) {
       this.messageFormat = messageFormat;
-      this.protonMessage = (MessageImpl)message;
+      this.protonMessage = (MessageImpl) message;
 
    }
 
@@ -124,7 +125,7 @@ public class AMQPMessage extends RefCountMessage {
             _deliveryAnnotations = new DeliveryAnnotations(new HashMap<>());
             _properties = new Properties();
             this.applicationProperties = new ApplicationProperties(new HashMap<>());
-            this.protonMessage = (MessageImpl)Message.Factory.create();
+            this.protonMessage = (MessageImpl) Message.Factory.create();
             this.protonMessage.setApplicationProperties(applicationProperties);
             this.protonMessage.setDeliveryAnnotations(_deliveryAnnotations);
          }
@@ -148,6 +149,20 @@ public class AMQPMessage extends RefCountMessage {
 
    private ApplicationProperties getApplicationProperties() {
       parseHeaders();
+
+      if (applicationProperties == null && appLocation >= 0) {
+         ByteBuffer buffer = getBuffer().nioBuffer();
+         buffer.position(appLocation);
+         TLSEncode.getDecoder().setByteBuffer(buffer);
+         Object section = TLSEncode.getDecoder().readObject();
+         if (section instanceof ApplicationProperties) {
+            this.applicationProperties = (ApplicationProperties) section;
+         }
+         this.appLocation = -1;
+         TLSEncode.getDecoder().setByteBuffer(null);
+
+      }
+
       return applicationProperties;
    }
 
@@ -161,6 +176,7 @@ public class AMQPMessage extends RefCountMessage {
          parsedHeaders = true;
       }
    }
+
    @Override
    public org.apache.activemq.artemis.api.core.Message setConnectionID(String connectionID) {
       this.connectionID = connectionID;
@@ -171,7 +187,6 @@ public class AMQPMessage extends RefCountMessage {
    public String getConnectionID() {
       return connectionID;
    }
-
 
    public MessageAnnotations getMessageAnnotations() {
       parseHeaders();
@@ -202,7 +217,6 @@ public class AMQPMessage extends RefCountMessage {
       return null;
    }
 
-
    private void setSymbol(String symbol, Object value) {
       setSymbol(Symbol.getSymbol(symbol), value);
    }
@@ -231,10 +245,8 @@ public class AMQPMessage extends RefCountMessage {
             return null;
       } */
 
-
       return null;
    }
-
 
    @Override
    public SimpleString getGroupID() {
@@ -246,7 +258,6 @@ public class AMQPMessage extends RefCountMessage {
          return null;
       }
    }
-
 
    @Override
    public Long getScheduledDeliveryTime() {
@@ -339,15 +350,19 @@ public class AMQPMessage extends RefCountMessage {
                this.expiration = _properties.getAbsoluteExpiryTime().getTime();
             }
 
-            if (buffer.hasRemaining()) {
-               section = (Section) decoder.readObject();
-            } else {
-               section = null;
-            }
+            // We don't read the next section on purpose, as we will parse ApplicationProperties
+            // lazily
+            section = null;
          }
 
          if (section instanceof ApplicationProperties) {
             applicationProperties = (ApplicationProperties) section;
+         } else {
+            if (buffer.hasRemaining()) {
+               this.appLocation = buffer.position();
+            } else {
+               this.appLocation = -1;
+            }
          }
       } finally {
          decoder.setByteBuffer(null);
@@ -446,12 +461,10 @@ public class AMQPMessage extends RefCountMessage {
       }
    }
 
-
    @Override
    public Object getDuplicateProperty() {
       return null;
    }
-
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setDurable(boolean durable) {
@@ -463,7 +476,7 @@ public class AMQPMessage extends RefCountMessage {
       if (address == null) {
          Properties properties = getProtonMessage().getProperties();
          if (properties != null) {
-            return  properties.getTo();
+            return properties.getTo();
          } else {
             return null;
          }
@@ -539,7 +552,7 @@ public class AMQPMessage extends RefCountMessage {
             header.setDeliveryCount(UnsignedInteger.valueOf(deliveryCount - 1));
             TLSEncode.getEncoder().setByteBuffer(new NettyWritable(buffer));
             TLSEncode.getEncoder().writeObject(header);
-            TLSEncode.getEncoder().setByteBuffer((WritableBuffer)null);
+            TLSEncode.getEncoder().setByteBuffer((WritableBuffer) null);
          }
       }
       buffer.writeBytes(data, sendFrom, data.writerIndex() - sendFrom);
@@ -676,27 +689,27 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Boolean)getApplicationPropertiesMap().get(key);
+      return (Boolean) getApplicationPropertiesMap().get(key);
    }
 
    @Override
    public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Byte)getApplicationPropertiesMap().get(key);
+      return (Byte) getApplicationPropertiesMap().get(key);
    }
 
    @Override
    public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Double)getApplicationPropertiesMap().get(key);
+      return (Double) getApplicationPropertiesMap().get(key);
    }
 
    @Override
    public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Integer)getApplicationPropertiesMap().get(key);
+      return (Integer) getApplicationPropertiesMap().get(key);
    }
 
    @Override
    public Long getLongProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Long)getApplicationPropertiesMap().get(key);
+      return (Long) getApplicationPropertiesMap().get(key);
    }
 
    @Override
@@ -712,12 +725,12 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Short getShortProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Short)getApplicationPropertiesMap().get(key);
+      return (Short) getApplicationPropertiesMap().get(key);
    }
 
    @Override
    public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException {
-      return (Float)getApplicationPropertiesMap().get(key);
+      return (Float) getApplicationPropertiesMap().get(key);
    }
 
    @Override
@@ -727,7 +740,7 @@ public class AMQPMessage extends RefCountMessage {
       } else if (key.equals(MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString())) {
          return getConnectionID();
       } else {
-         return (String)getApplicationPropertiesMap().get(key);
+         return (String) getApplicationPropertiesMap().get(key);
       }
    }
 
@@ -747,7 +760,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
-      return SimpleString.toSimpleString((String)getApplicationPropertiesMap().get(key));
+      return SimpleString.toSimpleString((String) getApplicationPropertiesMap().get(key));
    }
 
    @Override
@@ -842,8 +855,7 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public int getMemoryEstimate() {
       if (memoryEstimate == -1) {
-         memoryEstimate = memoryOffset +
-            (data != null ? data.capacity() : 0);
+         memoryEstimate = memoryOffset + (data != null ? data.capacity() : 0);
       }
 
       return memoryEstimate;
@@ -857,7 +869,6 @@ public class AMQPMessage extends RefCountMessage {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
-
 
    @Override
    public SimpleString getReplyTo() {
@@ -876,7 +887,6 @@ public class AMQPMessage extends RefCountMessage {
       }
       return this;
    }
-
 
    @Override
    public int getPersistSize() {
