@@ -364,23 +364,30 @@ public interface Message {
       }
       setBuffer(null);
    }
+
+   default void reencode() {
+      // only valid probably on AMQP
+   }
+
    default void referenceOriginalMessage(final Message original, String originalQueue) {
-      String queueOnMessage = original.getStringProperty(Message.HDR_ORIGINAL_QUEUE.toString());
+      String queueOnMessage = original.getAnnotationString(Message.HDR_ORIGINAL_QUEUE);
 
       if (queueOnMessage != null) {
-         putStringProperty(Message.HDR_ORIGINAL_QUEUE.toString(), queueOnMessage);
+         setAnnotation(Message.HDR_ORIGINAL_QUEUE, queueOnMessage);
       } else if (originalQueue != null) {
-         putStringProperty(Message.HDR_ORIGINAL_QUEUE.toString(), originalQueue);
+         setAnnotation(Message.HDR_ORIGINAL_QUEUE, originalQueue);
       }
 
-      if (original.containsProperty(Message.HDR_ORIG_MESSAGE_ID.toString())) {
-         putStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString(), original.getStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString()));
+      Object originalID = original.getAnnotation(Message.HDR_ORIG_MESSAGE_ID);
 
-         putLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString(), original.getLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString()));
+      if (originalID != null) {
+         setAnnotation(Message.HDR_ORIGINAL_ADDRESS, original.getAnnotationString(Message.HDR_ORIGINAL_ADDRESS));
+
+         setAnnotation(Message.HDR_ORIG_MESSAGE_ID, originalID);
       } else {
-         putStringProperty(Message.HDR_ORIGINAL_ADDRESS.toString(), original.getAddress());
+         setAnnotation(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
 
-         putLongProperty(Message.HDR_ORIG_MESSAGE_ID.toString(), original.getMessageID());
+         setAnnotation(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
       }
 
       // reset expiry
@@ -503,9 +510,26 @@ public interface Message {
 
    Object getObjectProperty(SimpleString key);
 
-   Object removeDeliveryAnnotationProperty(SimpleString key);
+   default Object removeAnnotation(SimpleString key) {
+      return removeProperty(key);
+   }
 
-   Object getDeliveryAnnotationProperty(SimpleString key);
+   default String getAnnotationString(SimpleString key) {
+      Object value = getAnnotation(key);
+      if (value != null) {
+         return value.toString();
+      } else {
+         return null;
+      }
+   }
+
+   Object getAnnotation(SimpleString key);
+
+   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   default Message setAnnotation(SimpleString key, Object value) {
+      putObjectProperty(key, value);
+      return this;
+   }
 
    Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 

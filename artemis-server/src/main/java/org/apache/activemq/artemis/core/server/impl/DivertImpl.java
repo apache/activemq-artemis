@@ -104,6 +104,8 @@ public class DivertImpl implements Divert {
 
          copy.setExpiration(message.getExpiration());
 
+         copy.reencode();
+
          switch (routingType) {
             case ANYCAST:
                copy.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());

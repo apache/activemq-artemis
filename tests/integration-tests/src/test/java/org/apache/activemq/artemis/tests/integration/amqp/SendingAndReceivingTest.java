@@ -26,20 +26,28 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SendingAndReceivingTest extends ActiveMQTestBase {
+public class SendingAndReceivingTest extends AmqpTestSupport {
 
    private ActiveMQServer server;
 
@@ -55,7 +63,15 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
             tc.getExtraParams().put("multicastPrefix", "multicast://");
          }
       }
+      server.getConfiguration().setMessageExpiryScanPeriod(1);
       server.start();
+      server.createQueue(SimpleString.toSimpleString("exampleQueue"), RoutingType.ANYCAST, SimpleString.toSimpleString("exampleQueue"), null, true, false, -1, false, true);
+      server.createQueue(SimpleString.toSimpleString("DLQ"), RoutingType.ANYCAST, SimpleString.toSimpleString("DLQ"), null, true, false, -1, false, true);
+
+      AddressSettings as = new AddressSettings();
+      as.setExpiryAddress(SimpleString.toSimpleString("DLQ"));
+      HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
+      repos.addMatch("#", as);
    }
 
    @After
@@ -112,27 +128,87 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
          Queue queue = session.createQueue(address);
 
          MessageProducer sender = session.createProducer(queue);
-         sender.setTimeToLive(10);
+         sender.setTimeToLive(1);
 
          Message message = session.createMessage();
          sender.send(message);
          connection.start();
 
-         MessageConsumer consumer = session.createConsumer(queue);
-         Message m = consumer.receive(5000);
+         MessageConsumer consumer = session.createConsumer(session.createQueue("DLQ"));
+         Message m = consumer.receive(10000);
+         Assert.assertNotNull(m);
+         consumer.close();
+
+
+         consumer = session.createConsumer(queue);
+         m = consumer.receiveNoWait();
          Assert.assertNull(m);
          consumer.close();
 
-         consumer = session.createConsumer(session.createQueue("DLQ"));
-         m = consumer.receive(5000);
-         Assert.assertNotNull(m);
-         consumer.close();
+
       } finally {
          if (connection != null) {
             connection.close();
          }
       }
    }
+
+   @Test(timeout = 60000)
+   public void testSendExpiry() throws Throwable {
+      internalSendExpiry(false);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendExpiryRestartServer() throws Throwable {
+      internalSendExpiry(true);
+   }
+
+   public void internalSendExpiry(boolean restartServer) throws Throwable {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = client.connect();
+
+      try {
+
+         // Normal Session which won't create an TXN itself
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender("exampleQueue");
+
+         AmqpMessage message = new AmqpMessage();
+         message.setDurable(true);
+         message.setText("Test-Message");
+         message.setDeliveryAnnotation("shouldDisappear", 1);
+         message.setAbsoluteExpiryTime(System.currentTimeMillis() + 1000);
+         sender.send(message);
+
+         org.apache.activemq.artemis.core.server.Queue dlq = server.locateQueue(SimpleString.toSimpleString("DLQ"));
+
+         Wait.waitFor(() -> dlq.getMessageCount() > 0, 5000, 500);
+
+         connection.close();
+
+         if (restartServer) {
+            server.stop();
+            server.start();
+         }
+
+         connection = client.connect();
+         session = connection.createSession();
+
+         // Read all messages from the Queue, do not accept them yet.
+         AmqpReceiver receiver = session.createReceiver("DLQ");
+         receiver.flow(20);
+         message = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("exampleQueue", message.getMessageAnnotation(org.apache.activemq.artemis.api.core.Message.HDR_ORIGINAL_ADDRESS.toString()));
+         Assert.assertNull(message.getDeliveryAnnotation("shouldDisappear"));
+         Assert.assertNull(receiver.receiveNoWait());
+
+      } finally {
+         connection.close();
+      }
+   }
+
+
 
    private static String createMessage(int messageSize) {
       final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

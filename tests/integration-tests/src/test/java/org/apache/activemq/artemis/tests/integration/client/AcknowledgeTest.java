@@ -357,12 +357,12 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Object removeDeliveryAnnotationProperty(SimpleString key) {
+      public Object removeAnnotation(SimpleString key) {
          return null;
       }
 
       @Override
-      public Object getDeliveryAnnotationProperty(SimpleString key) {
+      public Object getAnnotation(SimpleString key) {
          return null;
       }
 
