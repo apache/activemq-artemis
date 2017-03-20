@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -26,8 +27,11 @@ import javax.jms.TextMessage;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
@@ -84,6 +88,45 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
          TextMessage m = (TextMessage) consumer.receive(5000);
 
          Assert.assertEquals(body, m.getText());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendMessageThenAllowToExpireUsingTimeToLive() throws Exception {
+      AddressSettings as = new AddressSettings();
+      as.setExpiryAddress(SimpleString.toSimpleString("DLQ"));
+      HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
+      repos.addMatch("exampleQueue", as);
+
+      Connection connection = null;
+      ConnectionFactory connectionFactory = new JmsConnectionFactory("amqp://localhost:61616");
+
+      try {
+         connection = connectionFactory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         String address = "exampleQueue";
+         Queue queue = session.createQueue(address);
+
+         MessageProducer sender = session.createProducer(queue);
+         sender.setTimeToLive(10);
+
+         Message message = session.createMessage();
+         sender.send(message);
+         connection.start();
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         Message m = consumer.receive(5000);
+         Assert.assertNull(m);
+         consumer.close();
+
+         consumer = session.createConsumer(session.createQueue("DLQ"));
+         m = consumer.receive(5000);
+         Assert.assertNotNull(m);
+         consumer.close();
       } finally {
          if (connection != null) {
             connection.close();
