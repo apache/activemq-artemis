@@ -1285,7 +1285,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public RoutingStatus send(Transaction tx,
+   public synchronized RoutingStatus send(Transaction tx,
                              final Message message,
                              final boolean direct,
                              boolean noAutoCreateQueue) throws Exception {
@@ -1616,6 +1616,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                final SimpleString originalAddress,
                                final boolean direct,
                                final boolean noAutoCreateQueue) throws Exception {
+
       RoutingStatus result = RoutingStatus.OK;
 
       RoutingType routingType = msg.getRouteType();
