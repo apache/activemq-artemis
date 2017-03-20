@@ -43,7 +43,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
    protected void beforeWaitForRemoteBackupSynchronization() {
    }
 
-   @Test
+   @Test(timeout = 120000)
    /*
    * default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
    * it is stopped permanently
