@@ -98,13 +98,13 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    /** On core there's no delivery annotation */
    @Override
-   public Object getDeliveryAnnotationProperty(SimpleString key) {
+   public Object getAnnotation(SimpleString key) {
       return getObjectProperty(key);
    }
 
    /** On core there's no delivery annotation */
    @Override
-   public Object removeDeliveryAnnotationProperty(SimpleString key) {
+   public Object removeAnnotation(SimpleString key) {
       return removeProperty(key);
    }
 

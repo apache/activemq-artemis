@@ -1718,14 +1718,14 @@ public class QueueImpl implements Queue {
    @Override
    public int retryMessages(Filter filter) throws Exception {
 
-      final HashMap<SimpleString, Long> queues = new HashMap<>();
+      final HashMap<String, Long> queues = new HashMap<>();
 
       return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
 
-            SimpleString originalMessageAddress = ref.getMessage().getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS);
-            SimpleString originalMessageQueue = ref.getMessage().getSimpleStringProperty(Message.HDR_ORIGINAL_QUEUE);
+            String originalMessageAddress = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_ADDRESS);
+            String originalMessageQueue = ref.getMessage().getAnnotationString(Message.HDR_ORIGINAL_QUEUE);
 
             if (originalMessageAddress != null) {
 
@@ -1735,7 +1735,7 @@ public class QueueImpl implements Queue {
                if (originalMessageQueue != null && !originalMessageQueue.equals(originalMessageAddress)) {
                   targetQueue = queues.get(originalMessageQueue);
                   if (targetQueue == null) {
-                     Binding binding = postOffice.getBinding(originalMessageQueue);
+                     Binding binding = postOffice.getBinding(SimpleString.toSimpleString(originalMessageQueue));
 
                      if (binding != null && binding instanceof LocalQueueBinding) {
                         targetQueue = ((LocalQueueBinding) binding).getID();
@@ -1745,9 +1745,9 @@ public class QueueImpl implements Queue {
                }
 
                if (targetQueue != null) {
-                  move(originalMessageAddress, tx, ref, false, false, targetQueue.longValue());
+                  move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue.longValue());
                } else {
-                  move(originalMessageAddress, tx, ref, false, false);
+                  move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false);
 
                }
 
@@ -2495,9 +2495,13 @@ public class QueueImpl implements Queue {
          copy.referenceOriginalMessage(message, ref != null ? ref.getQueue().getName().toString() : null);
       }
 
+      copy.setExpiration(0);
+
       if (expiry) {
-         copy.putLongProperty(Message.HDR_ACTUAL_EXPIRY_TIME.toString(), System.currentTimeMillis());
+         copy.setAnnotation(Message.HDR_ACTUAL_EXPIRY_TIME, System.currentTimeMillis());
       }
+
+      copy.reencode();
 
       return copy;
    }

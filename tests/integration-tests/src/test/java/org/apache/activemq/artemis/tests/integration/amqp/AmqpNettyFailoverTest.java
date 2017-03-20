@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTest;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;

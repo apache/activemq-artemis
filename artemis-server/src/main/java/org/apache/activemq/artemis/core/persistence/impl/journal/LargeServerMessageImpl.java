@@ -242,7 +242,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
          LargeServerMessageImpl otherLM = (LargeServerMessageImpl) original;
          this.paged = otherLM.paged;
          if (this.paged) {
-            this.removeProperty(Message.HDR_ORIG_MESSAGE_ID);
+            this.removeAnnotation(Message.HDR_ORIG_MESSAGE_ID);
          }
       }
    }

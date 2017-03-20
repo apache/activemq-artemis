@@ -594,7 +594,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       // we only need a tag if we are going to settle later
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
 
-      ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
+      ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(message.getEncodeSize());
       try {
          message.sendBuffer(nettyBuffer, deliveryCount);
 
