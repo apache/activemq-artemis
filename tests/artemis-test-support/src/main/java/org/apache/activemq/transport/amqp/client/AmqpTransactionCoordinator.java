@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
-import javax.jms.IllegalStateException;
-import javax.jms.JMSException;
-import javax.jms.TransactionRolledBackException;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.util.HashMap;
@@ -26,6 +23,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.jms.IllegalStateException;
+import javax.jms.JMSException;
+import javax.jms.TransactionRolledBackException;
 
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.IOExceptionSupport;
@@ -67,7 +68,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
    }
 
    @Override
-   public void processDeliveryUpdates(AmqpConnection connection) throws IOException {
+   public void processDeliveryUpdates(AmqpConnection connection, Delivery delivery) throws IOException {
       try {
          Iterator<Delivery> deliveries = pendingDeliveries.iterator();
          while (deliveries.hasNext()) {
@@ -112,7 +113,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
             deliveries.remove();
          }
 
-         super.processDeliveryUpdates(connection);
+         super.processDeliveryUpdates(connection, delivery);
       } catch (Exception e) {
          throw IOExceptionSupport.create(e);
       }

@@ -242,7 +242,8 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
    }
 
    @Override
-   public void processDeliveryUpdates(AmqpConnection connection) throws IOException {
+   public void processDeliveryUpdates(AmqpConnection connection, Delivery delivery) throws IOException {
+      doDeliveryUpdate(delivery);
    }
 
    @Override
@@ -305,7 +306,14 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
    }
 
    protected void doDeliveryUpdate(Delivery delivery) {
-
+      AmqpValidator validator = getStateInspector();
+      if (validator != null) {
+         try {
+            validator.inspectDeliveryUpdate(delivery);
+         } catch (Throwable error) {
+            validator.markAsInvalid(error.getMessage());
+         }
+      }
    }
 
    //----- Private implementation utility methods ---------------------------//

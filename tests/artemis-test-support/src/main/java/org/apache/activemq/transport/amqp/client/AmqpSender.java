@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
-import javax.jms.InvalidDestinationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jms.InvalidDestinationException;
 
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.ClientFuture;
@@ -419,7 +420,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    @Override
-   public void processDeliveryUpdates(AmqpConnection connection) throws IOException {
+   public void processDeliveryUpdates(AmqpConnection connection, Delivery updated) throws IOException {
       List<Delivery> toRemove = new ArrayList<>();
 
       for (Delivery delivery : pending) {
@@ -484,14 +485,5 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    @Override
    public String toString() {
       return getClass().getSimpleName() + "{ address = " + address + "}";
-   }
-
-   @Override
-   protected void doDeliveryUpdate(Delivery delivery) {
-      try {
-         getStateInspector().inspectDeliveryUpdate(delivery);
-      } catch (Throwable error) {
-         getStateInspector().markAsInvalid(error.getMessage());
-      }
    }
 }
