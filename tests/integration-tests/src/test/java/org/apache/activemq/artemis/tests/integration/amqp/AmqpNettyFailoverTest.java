@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTest;
+import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(Parameterized.class)
-public class AmqpNettyFailoverTest extends FailoverTest {
+public class AmqpNettyFailoverTest extends FailoverTestBase {
 
 
    // this will ensure that all tests in this class are run twice,
@@ -66,7 +67,7 @@ public class AmqpNettyFailoverTest extends FailoverTest {
    }
 
 
-   @Test
+   @Test(timeout = 120000)
    public void testFailoverListWithAMQP() throws Exception {
       JmsConnectionFactory factory = getJmsConnectionFactory();
       try (Connection connection = factory.createConnection()) {
