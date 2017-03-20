@@ -471,7 +471,7 @@ public class AmqpMessage {
    /**
     * Sets the creation time property on the message.
     *
-    * @param absoluteExpiryTime the expiration time value to set.
+    * @param creationTime the time value to set.
     */
    public void setCreationTime(long creationTime) {
       checkReadOnly();
