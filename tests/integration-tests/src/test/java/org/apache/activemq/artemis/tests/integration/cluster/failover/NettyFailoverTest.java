@@ -42,7 +42,7 @@ public class NettyFailoverTest extends FailoverTest {
       return getNettyConnectorTransportConfiguration(live);
    }
 
-   @Test
+   @Test(timeout = 120000)
    public void testFailoverWithHostAlias() throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
