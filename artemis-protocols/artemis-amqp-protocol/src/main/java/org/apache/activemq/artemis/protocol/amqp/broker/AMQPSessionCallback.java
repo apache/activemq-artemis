@@ -60,6 +60,7 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
@@ -406,7 +407,15 @@ public class AMQPSessionCallback implements SessionCallback {
             @Override
             public void done() {
                synchronized (connection.getLock()) {
-                  delivery.disposition(Accepted.getInstance());
+                  if (delivery.getRemoteState() instanceof TransactionalState) {
+                     TransactionalState txAccepted = new TransactionalState();
+                     txAccepted.setOutcome(Accepted.getInstance());
+                     txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
+
+                     delivery.disposition(txAccepted);
+                  } else {
+                     delivery.disposition(Accepted.getInstance());
+                  }
                   delivery.settle();
                }
                connection.flush();
