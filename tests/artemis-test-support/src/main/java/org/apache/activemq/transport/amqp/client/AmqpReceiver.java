@@ -794,7 +794,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    @Override
-   public void processDeliveryUpdates(AmqpConnection connection) throws IOException {
+   public void processDeliveryUpdates(AmqpConnection connection, Delivery delivery) throws IOException {
       Delivery incoming = null;
       do {
          incoming = getEndpoint().current();
@@ -823,7 +823,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          }
       } while (incoming != null);
 
-      super.processDeliveryUpdates(connection);
+      super.processDeliveryUpdates(connection, delivery);
    }
 
    private void processDelivery(Delivery incoming) throws Exception {

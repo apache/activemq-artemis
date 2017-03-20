@@ -41,6 +41,7 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.engine.Delivery;
@@ -920,6 +921,72 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          sendConnection.close();
          consumerConnection.close();
       }
+   }
 
+   @Test(timeout = 30000)
+   public void testUnsettledTXMessageGetTransactedDispostion() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+      assertNotNull(session);
+
+      AmqpSender sender = session.createSender(getTestName());
+      AmqpMessage message = new AmqpMessage();
+      message.setText("Test-Message");
+      sender.send(message);
+
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.setStateInspector(new AmqpValidator() {
+
+         @Override
+         public void inspectDeliveryUpdate(Delivery delivery) {
+            if (delivery.remotelySettled()) {
+               LOG.info("Receiver got delivery update for: {}", delivery);
+               if (!(delivery.getRemoteState() instanceof TransactionalState)) {
+                  markAsInvalid("Transactionally acquire work no tagged as being in a transaction.");
+               } else {
+                  TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+                  if (!(txState.getOutcome() instanceof Accepted)) {
+                     markAsInvalid("Transaction state lacks any outcome");
+                  } else if (txState.getTxnId() == null) {
+                     markAsInvalid("Transaction state lacks any TX Id");
+                  }
+               }
+
+               if (!(delivery.getLocalState() instanceof TransactionalState)) {
+                  markAsInvalid("Transactionally acquire work no tagged as being in a transaction.");
+               } else {
+                  TransactionalState txState = (TransactionalState) delivery.getLocalState();
+                  if (!(txState.getOutcome() instanceof Accepted)) {
+                     markAsInvalid("Transaction state lacks any outcome");
+                  } else if (txState.getTxnId() == null) {
+                     markAsInvalid("Transaction state lacks any TX Id");
+                  }
+               }
+
+               TransactionalState localTxState = (TransactionalState) delivery.getLocalState();
+               TransactionalState remoteTxState = (TransactionalState) delivery.getRemoteState();
+
+               if (!localTxState.getTxnId().equals(remoteTxState)) {
+                  markAsInvalid("Message not enrolled in expected transaction");
+               }
+            }
+         }
+      });
+
+      session.begin();
+
+      assertTrue(session.isInTransaction());
+
+      receiver.flow(1);
+      AmqpMessage received = receiver.receive(2, TimeUnit.SECONDS);
+      assertNotNull(received);
+      received.accept(false);
+
+      session.commit();
+
+      sender.getStateInspector().assertValid();
+
+      connection.close();
    }
 }
