@@ -43,6 +43,7 @@ import org.apache.activemq.transport.amqp.client.util.UnmodifiableConnection;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Collector;
 import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Event.Type;
@@ -697,7 +698,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                   break;
                case DELIVERY:
                   amqpEventSink = (AmqpEventSink) protonEvent.getLink().getContext();
-                  amqpEventSink.processDeliveryUpdates(this);
+                  amqpEventSink.processDeliveryUpdates(this, (Delivery) protonEvent.getContext());
                   break;
                default:
                   break;
