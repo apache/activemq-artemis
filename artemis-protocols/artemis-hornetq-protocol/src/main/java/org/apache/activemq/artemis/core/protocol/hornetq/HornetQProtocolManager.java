@@ -49,7 +49,7 @@ class HornetQProtocolManager extends CoreProtocolManager {
          buffer.getByte(5) == 'T' &&
          buffer.getByte(6) == 'Q') {
          //todo add some handshaking
-         buffer.readBytes(7);
+         buffer.skipBytes(7);
       }
    }
 
