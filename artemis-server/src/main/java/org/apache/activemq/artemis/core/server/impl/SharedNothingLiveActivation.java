@@ -317,7 +317,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(activeMQServer.getConfiguration(), replicatedPolicy.getClusterName());
 
-      NodeIdListener listener = new NodeIdListener(nodeId0);
+      NodeIdListener listener = new NodeIdListener(nodeId0, activeMQServer.getConfiguration().getClusterUser(), activeMQServer.getConfiguration().getClusterPassword());
 
       try (ServerLocatorInternal locator = getLocator(config)) {
          locator.addClusterTopologyListener(listener);
@@ -396,10 +396,14 @@ public class SharedNothingLiveActivation extends LiveActivation {
       volatile boolean isNodePresent = false;
 
       private final SimpleString nodeId;
+      private final String user;
+      private final String password;
       private final CountDownLatch latch = new CountDownLatch(1);
 
-      NodeIdListener(SimpleString nodeId) {
+      NodeIdListener(SimpleString nodeId, String user, String password) {
          this.nodeId = nodeId;
+         this.user = user;
+         this.password = password;
       }
 
       @Override
@@ -427,11 +431,13 @@ public class SharedNothingLiveActivation extends LiveActivation {
          boolean result = false;
 
          try (ServerLocator serverLocator = ActiveMQClient.createServerLocator(false, transportConfiguration);
-            ClientSessionFactory clientSessionFactory = serverLocator.createSessionFactory();
-            ClientSession clientSession = clientSessionFactory.createSession();) {
+              ClientSessionFactory clientSessionFactory = serverLocator.createSessionFactory();
+              ClientSession clientSession = clientSessionFactory.createSession(user, password, false, false, false, false, 0)) {
             result = true;
          } catch (Exception e) {
-            // ignore
+            if (logger.isDebugEnabled()) {
+               logger.debug("isActive check failed", e);
+            }
          }
 
          return result;
