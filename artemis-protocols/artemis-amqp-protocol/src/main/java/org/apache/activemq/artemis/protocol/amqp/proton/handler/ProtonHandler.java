@@ -240,7 +240,7 @@ public class ProtonHandler extends ProtonInitializable {
          }
 
          // For returning PooledBytes
-         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(size);
+         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(size);
          ByteBuffer head = transport.head();
          head.position(offset);
          head.limit(offset + size);
