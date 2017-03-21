@@ -63,7 +63,7 @@ public class AMQPMessage extends RefCountMessage {
    final long messageFormat;
    ByteBuf data;
    boolean bufferValid;
-   boolean durable;
+   Boolean durable;
    long messageID;
    String address;
    MessageImpl protonMessage;
@@ -491,10 +491,15 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public boolean isDurable() {
-      if (getHeader() != null && getHeader().getDurable() != null) {
-         return getHeader().getDurable().booleanValue();
-      } else {
+      if (durable != null) {
          return durable;
+      }
+
+      if (getHeader() != null && getHeader().getDurable() != null) {
+         durable =  getHeader().getDurable().booleanValue();
+         return durable;
+      } else {
+         return durable != null ? durable : false;
       }
    }
 

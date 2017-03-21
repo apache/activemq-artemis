@@ -481,89 +481,100 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          return;
       }
 
-      Message message = ((MessageReference) delivery.getContext()).getMessage();
+      try {
+         Message message = ((MessageReference) delivery.getContext()).getMessage();
 
-      boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
+         boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
-      DeliveryState remoteState = delivery.getRemoteState();
+         DeliveryState remoteState;
 
-      boolean settleImmediate = true;
-      if (remoteState != null) {
-         // If we are transactional then we need ack if the msg has been accepted
-         if (remoteState instanceof TransactionalState) {
+         synchronized (connection.getLock()) {
+            remoteState = delivery.getRemoteState();
+         }
 
-            TransactionalState txState = (TransactionalState) remoteState;
-            ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId(), false);
+         boolean settleImmediate = true;
+         if (remoteState != null) {
+            // If we are transactional then we need ack if the msg has been accepted
+            if (remoteState instanceof TransactionalState) {
 
-            if (txState.getOutcome() != null) {
-               settleImmediate = false;
-               Outcome outcome = txState.getOutcome();
-               if (outcome instanceof Accepted) {
-                  if (!delivery.remotelySettled()) {
-                     TransactionalState txAccepted = new TransactionalState();
-                     txAccepted.setOutcome(Accepted.getInstance());
-                     txAccepted.setTxnId(txState.getTxnId());
-                     delivery.disposition(txAccepted);
-                  }
-                  // we have to individual ack as we can't guarantee we will get the delivery
-                  // updates (including acks) in order
-                  // from dealer, a perf hit but a must
-                  try {
-                     sessionSPI.ack(tx, brokerConsumer, message);
-                     tx.addDelivery(delivery, this);
-                  } catch (Exception e) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
+               TransactionalState txState = (TransactionalState) remoteState;
+               ProtonTransactionImpl tx = (ProtonTransactionImpl) this.sessionSPI.getTransaction(txState.getTxnId(), false);
+
+               if (txState.getOutcome() != null) {
+                  settleImmediate = false;
+                  Outcome outcome = txState.getOutcome();
+                  if (outcome instanceof Accepted) {
+                     if (!delivery.remotelySettled()) {
+                        TransactionalState txAccepted = new TransactionalState();
+                        txAccepted.setOutcome(Accepted.getInstance());
+                        txAccepted.setTxnId(txState.getTxnId());
+                        synchronized (connection.getLock()) {
+                           delivery.disposition(txAccepted);
+                        }
+                     }
+                     // we have to individual ack as we can't guarantee we will get the delivery
+                     // updates (including acks) in order
+                     // from dealer, a perf hit but a must
+                     try {
+                        sessionSPI.ack(tx, brokerConsumer, message);
+                        tx.addDelivery(delivery, this);
+                     } catch (Exception e) {
+                        throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
+                     }
                   }
                }
-            }
-         } else if (remoteState instanceof Accepted) {
-            //this can happen in the twice ack mode, that is the receiver accepts and settles separately
-            //acking again would show an exception but would have no negative effect but best to handle anyway.
-            if (delivery.isSettled()) {
-               return;
-            }
-            // we have to individual ack as we can't guarantee we will get the delivery updates
-            // (including acks) in order
-            // from dealer, a perf hit but a must
-            try {
-               sessionSPI.ack(null, brokerConsumer, message);
-            } catch (Exception e) {
-               log.warn(e.toString(), e);
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
-            }
-         } else if (remoteState instanceof Released) {
-            try {
-               sessionSPI.cancel(brokerConsumer, message, false);
-            } catch (Exception e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
-            }
-         } else if (remoteState instanceof Rejected) {
-            try {
-               sessionSPI.cancel(brokerConsumer, message, true);
-            } catch (Exception e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
-            }
-         } else if (remoteState instanceof Modified) {
-            try {
-               Modified modification = (Modified) remoteState;
-               if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
-                  sessionSPI.cancel(brokerConsumer, message, true);
-               } else {
+            } else if (remoteState instanceof Accepted) {
+               //this can happen in the twice ack mode, that is the receiver accepts and settles separately
+               //acking again would show an exception but would have no negative effect but best to handle anyway.
+               if (delivery.isSettled()) {
+                  return;
+               }
+               // we have to individual ack as we can't guarantee we will get the delivery updates
+               // (including acks) in order
+               // from dealer, a perf hit but a must
+               try {
+                  sessionSPI.ack(null, brokerConsumer, message);
+               } catch (Exception e) {
+                  log.warn(e.toString(), e);
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
+               }
+            } else if (remoteState instanceof Released) {
+               try {
                   sessionSPI.cancel(brokerConsumer, message, false);
+               } catch (Exception e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
                }
-            } catch (Exception e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+            } else if (remoteState instanceof Rejected) {
+               try {
+                  sessionSPI.cancel(brokerConsumer, message, true);
+               } catch (Exception e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+               }
+            } else if (remoteState instanceof Modified) {
+               try {
+                  Modified modification = (Modified) remoteState;
+                  if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
+                     sessionSPI.cancel(brokerConsumer, message, true);
+                  } else {
+                     sessionSPI.cancel(brokerConsumer, message, false);
+                  }
+               } catch (Exception e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+               }
             }
-         }
-         // todo add tag caching
-         if (!preSettle) {
-            protonSession.replaceTag(delivery.getTag());
-         }
+            // todo add tag caching
+            if (!preSettle) {
+               protonSession.replaceTag(delivery.getTag());
+            }
 
-         if (settleImmediate) settle(delivery);
+            if (settleImmediate)
+               settle(delivery);
 
-      } else {
-         // todo not sure if we need to do anything here
+         } else {
+            // todo not sure if we need to do anything here
+         }
+      } finally {
+         connection.flush();
       }
    }
 

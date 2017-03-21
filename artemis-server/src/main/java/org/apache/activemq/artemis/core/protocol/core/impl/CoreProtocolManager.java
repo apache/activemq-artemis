@@ -174,7 +174,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
       //if we are not an old client then handshake
       if (isArtemis(buffer)) {
-         buffer.readBytes(7);
+         buffer.skipBytes(7);
       }
    }
 
