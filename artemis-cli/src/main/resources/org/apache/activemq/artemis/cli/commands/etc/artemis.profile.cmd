@@ -29,5 +29,12 @@ rem There might be options that you only want to enable on specifc commands, lik
 rem See https://issues.apache.org/jira/browse/ARTEMIS-318
 rem if "%1"=="run" set JAVA_ARGS=%JAVA_ARGS% -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
 
+rem Logs Safepoints JVM pauses: Uncomment to enable them
+rem In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause that could
+rem affect the latencies of the services delivered by the broker, including those that are not reported by the classic GC logs
+rem and dependent by JVM background work (eg method deoptimizations, lock unbiasing, JNI, counted loops and obviously GC activity).
+rem Replace "all_pauses.log" with the file name you want to log to.
+rem set JAVA_ARGS=%JAVA_ARGS% -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+LogVMOutput -XX:LogFile=all_pauses.log
+
 rem Debug args: Uncomment to enable debug
 rem set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
