@@ -38,8 +38,11 @@ import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -62,7 +65,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
@@ -603,7 +605,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void fail(ActiveMQException me, String message) {
 
       if (me != null) {
-         ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         //filter it like the other protocols
+         if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+            ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+         }
       }
       try {
          protocolManager.removeConnection(this.getConnectionInfo(), me);
