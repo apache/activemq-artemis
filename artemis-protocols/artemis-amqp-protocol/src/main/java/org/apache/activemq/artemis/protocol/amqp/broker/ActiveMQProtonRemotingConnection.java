@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
@@ -67,7 +68,10 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
       destroyed = true;
 
-      ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      //filter it like the other protocols
+      if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      }
 
       // Then call the listeners
       callFailureListeners(me, scaleDownTargetNodeID);
