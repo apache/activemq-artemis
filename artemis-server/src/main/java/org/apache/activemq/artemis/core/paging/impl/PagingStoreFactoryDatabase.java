@@ -79,6 +79,16 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
    private JDBCSequentialFile directoryList;
 
+   @Override
+   public ScheduledExecutorService getScheduledExecutor() {
+      return scheduledExecutor;
+   }
+
+   @Override
+   public Executor newExecutor() {
+      return executorFactory.getExecutor();
+   }
+
    private boolean started = false;
 
    public PagingStoreFactoryDatabase(final DatabaseStorageConfiguration dbConf,

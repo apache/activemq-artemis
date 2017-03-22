@@ -308,7 +308,50 @@ public class ConsumerTest extends ActiveMQTestBase {
    }
 
 
+   public void internalSimpleSend(int protocolSender, int protocolConsumer) throws Throwable {
+
+      ConnectionFactory factorySend = createFactory(protocolSender);
+      ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
+
+
+      Connection connection = factorySend.createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(QUEUE.toString());
+         MessageProducer producer = session.createProducer(queue);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+         TextMessage msg = session.createTextMessage("hello");
+         msg.setIntProperty("mycount", 0);
+         producer.send(msg);
+         connection.close();
+
+         connection = factoryConsume.createConnection();
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         queue = session.createQueue(QUEUE.toString());
+
+         connection.start();
+
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         TextMessage message = (TextMessage) consumer.receive(1000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals(0, message.getIntProperty("mycount"));
+         Assert.assertEquals("hello", message.getText());
+
+         Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
+         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
+
+      } finally {
+         connection.close();
+      }
+   }
+
+
    public void internalSend(int protocolSender, int protocolConsumer) throws Throwable {
+
+      internalSimpleSend(protocolSender, protocolConsumer);
 
       ConnectionFactory factorySend = createFactory(protocolSender);
       ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
@@ -413,6 +456,19 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          TextMessage msg = (TextMessage) consumer.receive(1000);
          Assert.assertEquals("testSelectorExampleFromSpecs:2", msg.getText());
+
+         consumer.close();
+
+         consumer = session.createConsumer(queue);
+         msg = (TextMessage)consumer.receive(5000);
+         Assert.assertNotNull(msg);
+
+         Assert.assertNull(consumer.receiveNoWait());
+
+         Wait.waitFor(() -> server.getPagingManager().getGlobalSize() == 0, 5000, 100);
+
+
+         Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
 
       } finally {
          connection.close();
