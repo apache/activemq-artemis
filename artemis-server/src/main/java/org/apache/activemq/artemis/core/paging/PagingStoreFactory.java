@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -48,5 +49,15 @@ public interface PagingStoreFactory {
    SequentialFileFactory newFileFactory(SimpleString address) throws Exception;
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
+
+   default ScheduledExecutorService getScheduledExecutor() {
+      return null;
+   }
+
+   default Executor newExecutor() {
+      return null;
+   }
+
+
 
 }
