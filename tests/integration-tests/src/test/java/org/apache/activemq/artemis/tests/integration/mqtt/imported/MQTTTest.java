@@ -41,6 +41,8 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
@@ -185,6 +187,29 @@ public class MQTTTest extends MQTTTestSupport {
          assertNotNull("Should get a message", message);
          assertEquals(payload, new String(message));
       }
+      provider.disconnect();
+   }
+
+   @Test(timeout = 2 * 60 * 1000)
+   public void testManagementQueueMessagesAreAckd() throws Exception {
+      String clientId = "test.client.id";
+      final MQTTClientProvider provider = getMQTTClientProvider();
+      provider.setClientId(clientId);
+      initializeConnection(provider);
+      provider.subscribe("foo", EXACTLY_ONCE);
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         String payload = "Test Message: " + i;
+         provider.publish("foo", payload.getBytes(), EXACTLY_ONCE);
+         byte[] message = provider.receive(5000);
+         assertNotNull("Should get a message", message);
+         assertEquals(payload, new String(message));
+      }
+
+      final Queue queue = server.locateQueue(new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
+
+      Wait.waitFor(() -> queue.getMessageCount() == 0, 1000, 100);
+
+      assertEquals(0, queue.getMessageCount());
       provider.disconnect();
    }
 
@@ -1064,7 +1089,6 @@ public class MQTTTest extends MQTTTestSupport {
       m.ack();
       assertEquals("test message", new String(m.getPayload()));
    }
-
 
    @Test(timeout = 60 * 1000)
    public void testCleanSession() throws Exception {

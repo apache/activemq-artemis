@@ -168,6 +168,12 @@ public class MQTTSessionState {
          return publishAckd(mqtt);
       }
 
+      public void publishReleasedSent(int mqttId, long serverMessageId) {
+         synchronized (dataStoreLock) {
+            mqttToServerIds.put(mqttId, new Pair<>(serverMessageId, 0L));
+         }
+      }
+
       public Pair<Long, Long> publishComplete(int mqtt) {
          return publishAckd(mqtt);
       }
