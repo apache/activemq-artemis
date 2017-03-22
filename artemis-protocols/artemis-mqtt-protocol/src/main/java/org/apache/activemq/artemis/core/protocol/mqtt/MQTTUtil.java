@@ -63,6 +63,8 @@ public class MQTTUtil {
 
    public static final String MQTT_MESSAGE_RETAIN_KEY = "mqtt.message.retain";
 
+   public static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
+
    public static final int DEFAULT_KEEP_ALIVE_FREQUENCY = 5000;
 
    public static String convertMQTTAddressFilterToCore(String filter, WildcardConfiguration wildcardConfiguration) {
