@@ -403,7 +403,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 214022, value = "Invalid protocol specified. Supported protocols are: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidProtocol(String validProtocols);
 
-   @LogMessage(level = Logger.Level.ERROR)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 214023, value = "HTTP Handshake failed, received %s")
    void httpHandshakeFailed(Object msg);
 
