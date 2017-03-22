@@ -97,10 +97,10 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void onChange() {
-      reaplySettings();
+      reapplySettings();
    }
 
-   private void reaplySettings() {
+   private void reapplySettings() {
       for (PagingStore store : stores.values()) {
          AddressSettings settings = this.addressSettingsRepository.getMatch(store.getAddress().toString());
          store.applySetting(settings);
