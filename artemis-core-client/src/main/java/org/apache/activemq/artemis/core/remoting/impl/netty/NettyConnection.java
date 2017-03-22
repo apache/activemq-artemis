@@ -215,7 +215,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public ActiveMQBuffer createTransportBuffer(final int size, boolean pooled) {
-      return new ChannelBufferWrapper(PartialPooledByteBufAllocator.INSTANCE.directBuffer(size), true);
+      return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
    }
 
    @Override
