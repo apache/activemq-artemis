@@ -731,7 +731,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * This will be useful for other protocols that will need this such as openWire or MQTT.
     */
    @Override
-   public List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
+   public synchronized List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
                                                                         Object protocolDataStart,
                                                                         Object protocolDataEnd) {
       LinkedList<MessageReference> retReferences = new LinkedList<>();
@@ -766,7 +766,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void acknowledge(Transaction tx, final long messageID) throws Exception {
+   public synchronized void acknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -830,7 +830,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void individualAcknowledge(Transaction tx, final long messageID) throws Exception {
+   public synchronized void individualAcknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -892,7 +892,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void individualCancel(final long messageID, boolean failed) throws Exception {
+   public synchronized void individualCancel(final long messageID, boolean failed) throws Exception {
       if (browseOnly) {
          return;
       }
@@ -911,12 +911,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void backToDelivering(MessageReference reference) {
+   public synchronized void backToDelivering(MessageReference reference) {
       deliveringRefs.addFirst(reference);
    }
 
    @Override
-   public MessageReference removeReferenceByID(final long messageID) throws Exception {
+   public synchronized MessageReference removeReferenceByID(final long messageID) throws Exception {
       if (browseOnly) {
          return null;
       }
