@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
@@ -175,7 +176,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
          protocolManager.addSessionHandler(request.getName(), handler);
 
          response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
-      } catch (ActiveMQSecurityException e) {
+      } catch (ActiveMQClusterSecurityException | ActiveMQSecurityException e) {
          ActiveMQServerLogger.LOGGER.securityProblemWhileCreatingSession(e.getMessage());
          response = new ActiveMQExceptionMessage(e);
       } catch (ActiveMQException e) {
