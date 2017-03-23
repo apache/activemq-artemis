@@ -93,6 +93,16 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    // Public --------------------------------------------------------
 
    @Override
+   public ScheduledExecutorService getScheduledExecutor() {
+      return scheduledExecutor;
+   }
+
+   @Override
+   public Executor newExecutor() {
+      return executorFactory.getExecutor();
+   }
+
+   @Override
    public void stop() {
    }
 
