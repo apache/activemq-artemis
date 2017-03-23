@@ -169,8 +169,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void journalUnreferencedMessage(Long messageID);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221020, value = "Started Acceptor at {0}:{1,number,#} for protocols [{2}]", format = Message.Format.MESSAGE_FORMAT)
-   void startedAcceptor(String host, Integer port, String enabledProtocols);
+   @Message(id = 221020, value = "Started {0} Acceptor at {1}:{2,number,#} for protocols [{3}]", format = Message.Format.MESSAGE_FORMAT)
+   void startedAcceptor(String acceptorType, String host, Integer port, String enabledProtocols);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221021, value = "failed to remove connection", format = Message.Format.MESSAGE_FORMAT)

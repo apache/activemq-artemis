@@ -61,9 +61,10 @@ ${ping-config.settings}${journal-buffer.settings}${connector-config.settings}
       <global-max-size>100Mb</global-max-size>
 
       <acceptors>
-         <!-- Acceptor for every supported protocol -->
-         <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE</acceptor>
+         <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
 
+         <!-- Acceptor for every supported protocol -->
+         <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true</acceptor>
 ${amqp-acceptor}${stomp-acceptor}${hornetq-acceptor}${mqtt-acceptor}
       </acceptors>
 
