@@ -42,8 +42,6 @@ public class MQTTPublishManager {
 
    private static final Logger logger = Logger.getLogger(MQTTPublishManager.class);
 
-   private static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
-
    private SimpleString managementAddress;
 
    private ServerConsumer managementConsumer;
@@ -90,7 +88,7 @@ public class MQTTPublishManager {
    }
 
    private SimpleString createManagementAddress() {
-      return new SimpleString(MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
+      return new SimpleString(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + session.getSessionState().getClientId());
    }
 
    private void createManagementQueue() throws Exception {
@@ -183,6 +181,7 @@ public class MQTTPublishManager {
 
    void sendPubRelMessage(Message message) {
       int messageId = message.getIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY);
+      session.getSessionState().getOutboundStore().publishReleasedSent(messageId, message.getMessageID());
       session.getProtocolHandler().sendPubRel(messageId);
    }
 
@@ -213,7 +212,7 @@ public class MQTTPublishManager {
    void handlePubComp(int messageId) throws Exception {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
-         session.getServerSession().acknowledge(ref.getB(), ref.getA());
+         session.getServerSession().acknowledge(managementConsumer.getID(), ref.getA());
       }
    }
 
