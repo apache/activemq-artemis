@@ -410,7 +410,7 @@ policy.
 ActiveMQ Artemis currently has support for a limited number of database vendors (older versions may work but mileage may
 vary):
 
-1. PostGres 9.4.x
+1. PostgreSQL 9.4.x
 2. MySQL 5.7.x
 3. Apache Derby 10.11.1.1
 
