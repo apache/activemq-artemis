@@ -49,11 +49,15 @@ public class TransportConstants {
 
    public static final String USE_NIO_PROP_NAME = "useNio";
 
-   public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "useNioGlobalWorkerPool";
-
    public static final String USE_EPOLL_PROP_NAME = "useEpoll";
 
-   public static final String USE_EPOLL_GLOBAL_WORKER_POOL_PROP_NAME = "useEpollGlobalWorkerPool";
+   @Deprecated
+   /**
+    * @deprecated Use USE_GLOBAL_WORKER_POOL_PROP_NAME
+    */
+   public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "useNioGlobalWorkerPool";
+
+   public static final String USE_GLOBAL_WORKER_POOL_PROP_NAME = "useGlobalWorkerPool";
 
    public static final String USE_INVM_PROP_NAME = "useInvm";
 
@@ -115,9 +119,13 @@ public class TransportConstants {
 
    public static final String TCP_RECEIVEBUFFER_SIZE_PROPNAME = "tcpReceiveBufferSize";
 
+   @Deprecated
+   /**
+    * @deprecated Use REMOTING_THREADS_PROPNAME
+    */
    public static final String NIO_REMOTING_THREADS_PROPNAME = "nioRemotingThreads";
 
-   public static final String EPOLL_REMOTING_THREADS_PROPNAME = "epollRemotingThreads";
+   public static final String REMOTING_THREADS_PROPNAME = "RemotingThreads";
 
    public static final String BATCH_DELAY = "batchDelay";
 
@@ -131,9 +139,7 @@ public class TransportConstants {
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
 
-   public static final boolean DEFAULT_USE_NIO_GLOBAL_WORKER_POOL = true;
-
-   public static final boolean DEFAULT_USE_EPOLL_GLOBAL_WORKER_POOL = true;
+   public static final boolean DEFAULT_USE_GLOBAL_WORKER_POOL = true;
 
    public static final boolean DEFAULT_USE_EPOLL = true;
 
@@ -248,7 +254,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
-      allowableAcceptorKeys.add(TransportConstants.EPOLL_REMOTING_THREADS_PROPNAME);
+      allowableAcceptorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.BATCH_DELAY);
       allowableAcceptorKeys.add(TransportConstants.DIRECT_DELIVER);
       allowableAcceptorKeys.add(TransportConstants.CLUSTER_CONNECTION);
@@ -280,7 +286,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.USE_NIO_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.USE_EPOLL_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.USE_EPOLL_GLOBAL_WORKER_POOL_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.USE_GLOBAL_WORKER_POOL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.PORT_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.LOCAL_ADDRESS_PROP_NAME);
@@ -298,7 +304,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
-      allowableConnectorKeys.add(TransportConstants.EPOLL_REMOTING_THREADS_PROPNAME);
+      allowableConnectorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());

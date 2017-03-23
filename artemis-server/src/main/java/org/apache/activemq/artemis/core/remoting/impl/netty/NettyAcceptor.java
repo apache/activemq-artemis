@@ -89,9 +89,13 @@ import org.jboss.logging.Logger;
  */
 public class NettyAcceptor extends AbstractAcceptor {
 
+   public static String INVM_ACCEPTOR_TYPE = "IN-VM";
+   public static String NIO_ACCEPTOR_TYPE = "NIO";
+   public static String EPOLL_ACCEPTOR_TYPE = "EPOLL";
+
    static {
       // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
-      if ( System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
+      if (System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
          ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
       }
    }
@@ -157,9 +161,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final int tcpReceiveBufferSize;
 
-   private final int nioRemotingThreads;
-
-   private final int epollRemotingThreads;
+   private int remotingThreads;
 
    private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<>();
 
@@ -208,11 +210,10 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
 
-      nioRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
 
-      epollRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.EPOLL_REMOTING_THREADS_PROPNAME, -1, configuration);
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
-
 
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
@@ -278,51 +279,40 @@ public class NettyAcceptor extends AbstractAcceptor {
          return;
       }
 
+      String acceptorType;
+
       if (useInvm) {
+         acceptorType = INVM_ACCEPTOR_TYPE;
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new LocalEventLoopGroup();
       } else {
-         // Default to number of cores * 3
-         int defaultThreadsToUse = Runtime.getRuntime().availableProcessors() * 3;
 
-         if (useEpoll) {
-            if (Epoll.isAvailable()) {
-               int epollThreadsToUse;
-               if (epollRemotingThreads == -1) {
-                  epollThreadsToUse = defaultThreadsToUse;
-               } else {
-                  epollThreadsToUse = this.epollRemotingThreads;
-               }
-
-               channelClazz = EpollServerSocketChannel.class;
-               eventLoopGroup = new EpollEventLoopGroup(epollThreadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
-                  @Override
-                  public ActiveMQThreadFactory run() {
-                     return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
-                  }
-               }));
-               logger.info("Acceptor using native epoll");
-            } else {
-               logger.warn("Acceptor unable to load native epoll, will continue and load nio");
-            }
+         if (remotingThreads == -1) {
+            // Default to number of cores * 3
+            remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
          }
 
-         if (channelClazz == null || eventLoopGroup == null) {
-            int nioThreadsToUse;
-            if (nioRemotingThreads == -1) {
-               nioThreadsToUse = defaultThreadsToUse;
-            } else {
-               nioThreadsToUse = nioRemotingThreads;
-            }
-
-            channelClazz = NioServerSocketChannel.class;
-            eventLoopGroup = new NioEventLoopGroup(nioThreadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+         if (useEpoll && Epoll.isAvailable()) {
+            channelClazz = EpollServerSocketChannel.class;
+            eventLoopGroup = new EpollEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
                @Override
                public ActiveMQThreadFactory run() {
                   return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
                }
             }));
-            logger.info("Acceptor using nio");
+            acceptorType = EPOLL_ACCEPTOR_TYPE;
+
+            logger.debug("Acceptor using native epoll");
+         } else {
+            channelClazz = NioServerSocketChannel.class;
+            eventLoopGroup = new NioEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+               @Override
+               public ActiveMQThreadFactory run() {
+                  return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+               }
+            }));
+            acceptorType = NIO_ACCEPTOR_TYPE;
+            logger.debug("Acceptor using nio");
          }
       }
 
@@ -384,7 +374,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
          }
 
-         ActiveMQServerLogger.LOGGER.startedAcceptor(host, port, protocolsString);
+         ActiveMQServerLogger.LOGGER.startedAcceptor(acceptorType, host, port, protocolsString);
       }
    }
 
