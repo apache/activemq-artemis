@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -352,15 +353,8 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       }
       Assert.assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
       config.setClusterPassword(config.getClusterPassword() + "-1-2-3-");
-      startServers(0, 1, 2, 4, 3);
-      int n = 0;
-      while (n++ < 10) {
-         if (!servers[4].getClusterManager().isStarted()) {
-            break;
-         }
-         Thread.sleep(100);
-      }
-      Assert.assertFalse("cluster manager should stop", servers[4].getClusterManager().isStarted());
+      startServers(0, 4);
+      Assert.assertTrue("one or the other cluster managers should stop", Wait.waitFor(() -> !servers[4].getClusterManager().isStarted() || !servers[0].getClusterManager().isStarted(), 5000));
       final String address = "foo1235";
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
