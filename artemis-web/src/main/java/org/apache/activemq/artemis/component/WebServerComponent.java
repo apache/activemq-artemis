@@ -143,6 +143,11 @@ public class WebServerComponent implements ExternalComponent {
       if (webContexts != null) {
          File tmpdir = null;
          for (WebAppContext context : webContexts) {
+            if (context.getClassLoader() instanceof CustomizedWebAppClassloader) {
+               CustomizedWebAppClassloader loader = (CustomizedWebAppClassloader) context.getClassLoader();
+               loader.close();
+            }
+
             tmpdir = context.getTempDirectory();
 
             if (tmpdir != null && !context.isPersistTempDirectory()) {
@@ -174,6 +179,7 @@ public class WebServerComponent implements ExternalComponent {
 
    private WebAppContext deployWar(String url, String warFile, Path warDirectory) throws IOException {
       WebAppContext webapp = new WebAppContext();
+      webapp.setClassLoader(new CustomizedWebAppClassloader(webapp));
       if (url.startsWith("/")) {
          webapp.setContextPath(url);
       } else {
