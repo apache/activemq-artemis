@@ -319,7 +319,6 @@ public class NettyAcceptor extends AbstractAcceptor {
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
       bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
       bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-      bootstrap.childOption(ChannelOption.ALLOCATOR, PartialPooledByteBufAllocator.INSTANCE);
       channelGroup = new DefaultChannelGroup("activemq-accepted-channels", GlobalEventExecutor.INSTANCE);
 
       serverChannelGroup = new DefaultChannelGroup("activemq-acceptor-channels", GlobalEventExecutor.INSTANCE);

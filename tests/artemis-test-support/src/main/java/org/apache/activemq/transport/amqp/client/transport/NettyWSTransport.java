@@ -285,7 +285,6 @@ public class NettyWSTransport implements NettyTransport {
       bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, options.getConnectTimeout());
       bootstrap.option(ChannelOption.SO_KEEPALIVE, options.isTcpKeepAlive());
       bootstrap.option(ChannelOption.SO_LINGER, options.getSoLinger());
-      bootstrap.option(ChannelOption.ALLOCATOR, PartialPooledByteBufAllocator.INSTANCE);
 
       if (options.getSendBufferSize() != -1) {
          bootstrap.option(ChannelOption.SO_SNDBUF, options.getSendBufferSize());
