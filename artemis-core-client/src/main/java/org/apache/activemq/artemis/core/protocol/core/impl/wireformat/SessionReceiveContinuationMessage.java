@@ -67,6 +67,13 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       return consumerID;
    }
 
+   // Protected -----------------------------------------------------
+
+   @Override
+   protected final int expectedEncodedSize() {
+      return super.expectedEncodedSize() + DataConstants.SIZE_LONG;
+   }
+
    // Public --------------------------------------------------------
 
    @Override
