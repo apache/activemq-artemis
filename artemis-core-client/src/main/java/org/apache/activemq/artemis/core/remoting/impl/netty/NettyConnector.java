@@ -217,15 +217,11 @@ public class NettyConnector extends AbstractConnector {
 
    private String servletPath;
 
-   private int nioRemotingThreads;
-
-   private boolean useNioGlobalWorkerPool;
-
    private boolean useEpoll;
 
-   private int epollRemotingThreads;
+   private int remotingThreads;
 
-   private boolean useEpollGlobalWorkerPool;
+   private boolean useGlobalWorkerPool;
 
    private ScheduledExecutorService scheduledThreadPool;
 
@@ -293,16 +289,13 @@ public class NettyConnector extends AbstractConnector {
 
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
 
-      nioRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
 
-      useNioGlobalWorkerPool = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME, TransportConstants.DEFAULT_USE_NIO_GLOBAL_WORKER_POOL, configuration);
+      useGlobalWorkerPool = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME, TransportConstants.DEFAULT_USE_GLOBAL_WORKER_POOL, configuration);
+      useGlobalWorkerPool = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_GLOBAL_WORKER_POOL_PROP_NAME, useGlobalWorkerPool, configuration);
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
-
-      epollRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.EPOLL_REMOTING_THREADS_PROPNAME, -1, configuration);
-
-      useEpollGlobalWorkerPool = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_GLOBAL_WORKER_POOL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL_GLOBAL_WORKER_POOL, configuration);
-
 
       useServlet = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_SERVLET_PROP_NAME, TransportConstants.DEFAULT_USE_SERVLET, configuration);
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
@@ -387,46 +380,31 @@ public class NettyConnector extends AbstractConnector {
          return;
       }
 
-      // Default to number of cores * 3
-      int defaultThreadsToUse = Runtime.getRuntime().availableProcessors() * 3;
-
-      if (useEpoll) {
-         if (Epoll.isAvailable()) {
-            int epollThreadsToUse;
-            if (epollRemotingThreads == -1) {
-               epollThreadsToUse = defaultThreadsToUse;
-            } else {
-               epollThreadsToUse = this.epollRemotingThreads;
-            }
-            if (useEpollGlobalWorkerPool) {
-               channelClazz = EpollSocketChannel.class;
-               group = SharedEventLoopGroup.getInstance((threadFactory -> new EpollEventLoopGroup(epollThreadsToUse, threadFactory)));
-            } else {
-               channelClazz = EpollSocketChannel.class;
-               group = new EpollEventLoopGroup(epollThreadsToUse);
-            }
-            logger.info("Connector using native epoll");
-
-         } else {
-            logger.warn("Connector unable to load native epoll, will continue and load nio");
-         }
+      if (remotingThreads == -1) {
+         // Default to number of cores * 3
+         remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
       }
 
-      if (channelClazz == null || group == null) {
-         int nioThreadsToUse;
-         if (nioRemotingThreads == -1) {
-            nioThreadsToUse = defaultThreadsToUse;
+      if (useEpoll && Epoll.isAvailable()) {
+         if (useGlobalWorkerPool) {
+            group = SharedEventLoopGroup.getInstance((threadFactory -> new EpollEventLoopGroup(remotingThreads, threadFactory)));
          } else {
-            nioThreadsToUse = this.nioRemotingThreads;
+            group = new EpollEventLoopGroup(remotingThreads);
          }
-         if (useNioGlobalWorkerPool) {
+
+         channelClazz = EpollSocketChannel.class;
+         logger.info("Connector " + this + " using native epoll");
+      } else {
+         if (useGlobalWorkerPool) {
             channelClazz = NioSocketChannel.class;
-            group = SharedEventLoopGroup.getInstance((threadFactory -> new NioEventLoopGroup(nioThreadsToUse, threadFactory)));
+            group = SharedEventLoopGroup.getInstance((threadFactory -> new NioEventLoopGroup(remotingThreads, threadFactory)));
          } else {
             channelClazz = NioSocketChannel.class;
-            group = new NioEventLoopGroup(nioThreadsToUse);
+            group = new NioEventLoopGroup(remotingThreads);
          }
-         logger.info("Connector using nio");
+
+         channelClazz = NioSocketChannel.class;
+         logger.info("Connector + " + this + " using nio");
       }
       // if we are a servlet wrap the socketChannelFactory
 
