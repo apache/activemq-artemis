@@ -40,19 +40,19 @@ public abstract class AbstractActiveMQClientResource extends ExternalResource {
 
    public AbstractActiveMQClientResource(String url) {
       if (url == null) {
-         throw new IllegalArgumentException(String.format("Error creating {} - url cannot be null", this.getClass().getSimpleName()));
+         throw new IllegalArgumentException(String.format("Error creating %s - url cannot be null", this.getClass().getSimpleName()));
       }
 
       try {
          this.serverLocator = ActiveMQClient.createServerLocator(url);
       } catch (Exception ex) {
-         throw new RuntimeException(String.format("Error creating {} - createServerLocator( {} ) failed", this.getClass().getSimpleName(), url.toString()), ex);
+         throw new RuntimeException(String.format("Error creating %s - createServerLocator( %s ) failed", this.getClass().getSimpleName(), url), ex);
       }
    }
 
    public AbstractActiveMQClientResource(ServerLocator serverLocator) {
       if (serverLocator == null) {
-         throw new IllegalArgumentException(String.format("Error creating {} - ServerLocator cannot be null", this.getClass().getSimpleName()));
+         throw new IllegalArgumentException(String.format("Error creating %s - ServerLocator cannot be null", this.getClass().getSimpleName()));
       }
 
       this.serverLocator = serverLocator;
