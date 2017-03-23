@@ -65,7 +65,11 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       ByteBuf buffer = (ByteBuf) msg;
 
-      handler.bufferReceived(channelId(ctx.channel()), new ChannelBufferWrapper(buffer));
+      try {
+         handler.bufferReceived(channelId(ctx.channel()), new ChannelBufferWrapper(buffer));
+      } finally {
+         buffer.release();
+      }
    }
 
    @Override
