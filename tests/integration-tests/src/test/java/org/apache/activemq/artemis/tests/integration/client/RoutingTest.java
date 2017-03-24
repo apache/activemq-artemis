@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
