@@ -97,67 +97,6 @@ public class BrokerTest extends BrokerTestSupport {
       assertNoMessagesLeft(connection2);
    }
 
-   public void initCombosForTestQueueBrowserWith2Consumers() {
-      addCombinationValues("deliveryMode", new Object[]{Integer.valueOf(DeliveryMode.NON_PERSISTENT), Integer.valueOf(DeliveryMode.PERSISTENT)});
-   }
-
-   //https://issues.apache.org/jira/browse/ARTEMIS-384
-   public void testQueueBrowserWith2Consumers() throws Exception {
-
-      ActiveMQDestination destination = new ActiveMQQueue("TEST");
-
-      // Setup a first connection
-      StubConnection connection1 = createConnection();
-      ConnectionInfo connectionInfo1 = createConnectionInfo();
-      SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
-      ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
-      connection1.send(connectionInfo1);
-      connection1.send(sessionInfo1);
-      connection1.send(producerInfo);
-
-      ConsumerInfo consumerInfo1 = createConsumerInfo(sessionInfo1, destination);
-      consumerInfo1.setPrefetchSize(10);
-      connection1.request(consumerInfo1);
-
-      // Send the messages
-      connection1.send(createMessage(producerInfo, destination, deliveryMode));
-      connection1.send(createMessage(producerInfo, destination, deliveryMode));
-      connection1.send(createMessage(producerInfo, destination, deliveryMode));
-      //as the messages are sent async - need to synchronize the last
-      //one to ensure they arrive in the order we want
-      connection1.request(createMessage(producerInfo, destination, deliveryMode));
-
-      // Setup a second connection with a queue browser.
-      StubConnection connection2 = createConnection();
-      ConnectionInfo connectionInfo2 = createConnectionInfo();
-      SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
-      ConsumerInfo consumerInfo2 = createConsumerInfo(sessionInfo2, destination);
-      consumerInfo2.setPrefetchSize(1);
-      consumerInfo2.setBrowser(true);
-      connection2.send(connectionInfo2);
-      connection2.send(sessionInfo2);
-      connection2.request(consumerInfo2);
-
-      List<Message> messages = new ArrayList<>();
-
-      for (int i = 0; i < 4; i++) {
-         Message m1 = receiveMessage(connection1);
-         assertNotNull("m1 is null for index: " + i, m1);
-         messages.add(m1);
-      }
-
-      for (int i = 0; i < 4; i++) {
-         Message m1 = messages.get(i);
-         Message m2 = receiveMessage(connection2);
-         assertNotNull("m2 is null for index: " + i, m2);
-         assertEquals(m1.getMessageId(), m2.getMessageId());
-         connection2.send(createAck(consumerInfo2, m2, 1, MessageAck.DELIVERED_ACK_TYPE));
-      }
-
-      assertNoMessagesLeft(connection1);
-      assertNoMessagesLeft(connection2);
-   }
-
    /*
     * change the order of the above test
     */
@@ -212,73 +151,9 @@ public class BrokerTest extends BrokerTestSupport {
       assertNoMessagesLeft(connection2);
    }
 
-   public void testQueueBrowserWith2ConsumersInterleaved() throws Exception {
-
-      ActiveMQDestination destination = new ActiveMQQueue("TEST");
-      deliveryMode = DeliveryMode.NON_PERSISTENT;
-
-      // Setup a first connection
-      StubConnection connection1 = createConnection();
-      ConnectionInfo connectionInfo1 = createConnectionInfo();
-      SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
-      ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
-      connection1.send(connectionInfo1);
-      connection1.send(sessionInfo1);
-      connection1.send(producerInfo);
-
-      ConsumerInfo consumerInfo1 = createConsumerInfo(sessionInfo1, destination);
-      consumerInfo1.setPrefetchSize(10);
-      connection1.request(consumerInfo1);
-
-      // Send the messages
-      connection1.request(createMessage(producerInfo, destination, deliveryMode));
-
-      // Setup a second connection with a queue browser.
-      StubConnection connection2 = createConnection();
-      ConnectionInfo connectionInfo2 = createConnectionInfo();
-      SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
-      ConsumerInfo consumerInfo2 = createConsumerInfo(sessionInfo2, destination);
-      consumerInfo2.setPrefetchSize(1);
-      consumerInfo2.setBrowser(true);
-      connection2.send(connectionInfo2);
-      connection2.send(sessionInfo2);
-      connection2.request(consumerInfo2);
-
-      connection1.send(createMessage(producerInfo, destination, deliveryMode));
-      connection1.send(createMessage(producerInfo, destination, deliveryMode));
-      //as the messages are sent async - need to synchronize the last
-      //one to ensure they arrive in the order we want
-      connection1.request(createMessage(producerInfo, destination, deliveryMode));
-
-      List<Message> messages = new ArrayList<>();
-
-      for (int i = 0; i < 4; i++) {
-         Message m1 = receiveMessage(connection1);
-         assertNotNull("m1 is null for index: " + i, m1);
-         messages.add(m1);
-      }
-
-      for (int i = 0; i < 4; i++) {
-         Message m1 = messages.get(i);
-         Message m2 = receiveMessage(connection2);
-         assertNotNull("m2 is null for index: " + i, m2);
-         assertEquals(m1.getMessageId(), m2.getMessageId());
-         connection2.send(createAck(consumerInfo2, m2, 1, MessageAck.DELIVERED_ACK_TYPE));
-      }
-
-      assertNoMessagesLeft(connection1);
-      assertNoMessagesLeft(connection2);
-   }
-
-   public void initCombosForTestConsumerPrefetchAndStandardAck() {
-      addCombinationValues("deliveryMode", new Object[]{
-         // Integer.valueOf(DeliveryMode.NON_PERSISTENT),
-         Integer.valueOf(DeliveryMode.PERSISTENT)});
-      addCombinationValues("destinationType", new Object[]{Byte.valueOf(ActiveMQDestination.QUEUE_TYPE), Byte.valueOf(ActiveMQDestination.TOPIC_TYPE), Byte.valueOf(ActiveMQDestination.TEMP_QUEUE_TYPE), Byte.valueOf(ActiveMQDestination.TEMP_TOPIC_TYPE)});
-   }
-
    public void testConsumerPrefetchAndStandardAck() throws Exception {
 
+      destinationType = (byte)1;
       // Start a producer and consumer
       StubConnection connection = createConnection();
       ConnectionInfo connectionInfo = createConnectionInfo();
