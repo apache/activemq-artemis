@@ -165,7 +165,7 @@ public class DivertTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
-         message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+         message.setRoutingType(RoutingType.MULTICAST);
 
          message.putIntProperty(propKey, i);
 
@@ -238,7 +238,7 @@ public class DivertTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
-         message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+         message.setRoutingType(RoutingType.MULTICAST);
 
          message.putIntProperty(propKey, i);
 

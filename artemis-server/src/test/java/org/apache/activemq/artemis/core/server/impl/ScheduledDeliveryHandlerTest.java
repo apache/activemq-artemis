@@ -284,11 +284,6 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    class FakeMessage extends RefCountMessage {
 
       @Override
-      public RoutingType getRouteType() {
-         return null;
-      }
-
-      @Override
       public SimpleString getReplyTo() {
          return null;
       }

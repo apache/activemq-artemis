@@ -168,7 +168,13 @@ public interface Message {
       // only on core
    }
 
-   RoutingType getRouteType();
+   default RoutingType getRoutingType() {
+      return null;
+   }
+
+   default Message setRoutingType(RoutingType routingType) {
+      return this;
+   }
 
    default SimpleString getLastValueProperty() {
       return null;

@@ -1619,7 +1619,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       RoutingStatus result = RoutingStatus.OK;
 
-      RoutingType routingType = msg.getRouteType();
+      RoutingType routingType = msg.getRoutingType();
 
          /* TODO-now: How to address here with AMQP?
          if (originalAddress != null) {
