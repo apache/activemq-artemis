@@ -147,8 +147,10 @@ public class AMQPSessionContext extends ProtonInitializable {
       coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"), Symbol.getSymbol("amqp:multi-txns-per-ssn"), Symbol.getSymbol("amqp:multi-ssns-per-txn"));
 
       receiver.setContext(transactionHandler);
-      receiver.open();
-      receiver.flow(ProtonTransactionHandler.DEFAULT_COORDINATOR_CREDIT);
+      synchronized (connection.getLock()) {
+         receiver.open();
+         receiver.flow(ProtonTransactionHandler.DEFAULT_COORDINATOR_CREDIT);
+      }
    }
 
    public void addSender(Sender sender) throws Exception {
@@ -161,13 +163,17 @@ public class AMQPSessionContext extends ProtonInitializable {
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
-         sender.open();
+         synchronized (connection.getLock()) {
+            sender.open();
+         }
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         sender.close();
+         synchronized (connection.getLock()) {
+            sender.close();
+         }
       }
    }
 
@@ -185,12 +191,16 @@ public class AMQPSessionContext extends ProtonInitializable {
          protonReceiver.initialise();
          receivers.put(receiver, protonReceiver);
          receiver.setContext(protonReceiver);
-         receiver.open();
+         synchronized (connection.getLock()) {
+            receiver.open();
+         }
       } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
          receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         receiver.close();
+         synchronized (connection.getLock()) {
+            receiver.close();
+         }
       }
    }
 }

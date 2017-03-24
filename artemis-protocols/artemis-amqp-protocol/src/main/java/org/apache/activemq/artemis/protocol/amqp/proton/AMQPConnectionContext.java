@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,12 +55,6 @@ import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
 
 import io.netty.buffer.ByteBuf;
-
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
 
 public class AMQPConnectionContext extends ProtonInitializable {
 
@@ -210,7 +210,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
       } else {
          Sender sender = (Sender) link;
          protonSession.addSender(sender);
-         sender.offer(1);
       }
    }
 
@@ -421,8 +420,10 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
       @Override
       public void onRemoteClose(Link link) throws Exception {
-         link.close();
-         link.free();
+         synchronized (getLock()) {
+            link.close();
+            link.free();
+         }
          ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
          if (linkContext != null) {
             linkContext.close(true);
@@ -431,8 +432,12 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
       @Override
       public void onRemoteDetach(Link link) throws Exception {
-         link.detach();
-         link.free();
+         synchronized (getLock()) {
+            link.detach();
+            link.free();
+         }
+
+         flush();
       }
 
       @Override
