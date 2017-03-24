@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.Persister;
 
@@ -40,11 +39,6 @@ public class OpenwireMessage implements Message {
    @Override
    public void messageChanged() {
 
-   }
-
-   @Override
-   public RoutingType getRouteType() {
-      return null;
    }
 
    @Override

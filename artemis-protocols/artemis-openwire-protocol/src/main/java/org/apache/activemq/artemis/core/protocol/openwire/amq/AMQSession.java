@@ -329,9 +329,9 @@ public class AMQSession implements SessionCallback {
 
          if (actualDestinations[i].isQueue()) {
             checkAutoCreateQueue(new SimpleString(actualDestinations[i].getPhysicalName()), actualDestinations[i].isTemporary());
-            coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+            coreMsg.setRoutingType(RoutingType.ANYCAST);
          } else {
-            coreMsg.putByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+            coreMsg.setRoutingType(RoutingType.MULTICAST);
          }
          PagingStore store = server.getPagingManager().getPageStore(address);
 

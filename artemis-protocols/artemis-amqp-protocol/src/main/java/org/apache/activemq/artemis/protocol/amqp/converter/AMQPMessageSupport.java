@@ -65,6 +65,11 @@ public final class AMQPMessageSupport {
    public static final Symbol JMS_DELIVERY_TIME = Symbol.getSymbol("x-opt-delivery-time");
 
    /**
+    * Attribute used to mark the Application defined delivery time assigned to the message
+    */
+   public static final Symbol ROUTING_TYPE = Symbol.getSymbol("x-opt-routing-type");
+
+   /**
     * Value mapping for JMS_MSG_TYPE which indicates the message is a generic JMS Message
     * which has no body.
     */

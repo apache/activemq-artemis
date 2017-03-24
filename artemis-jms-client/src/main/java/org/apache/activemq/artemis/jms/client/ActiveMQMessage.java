@@ -399,13 +399,10 @@ public class ActiveMQMessage implements javax.jms.Message {
       if (dest == null) {
          SimpleString address = message.getAddressSimpleString();
          String prefix = "";
-         if (message.containsProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE)) {
-            RoutingType routingType = RoutingType.getType(message.getByteProperty(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE));
-            if (routingType.equals(RoutingType.ANYCAST)) {
-               prefix = QUEUE_QUALIFIED_PREFIX;
-            } else if (routingType.equals(RoutingType.MULTICAST)) {
-               prefix = TOPIC_QUALIFIED_PREFIX;
-            }
+         if (RoutingType.ANYCAST.equals(message.getRoutingType())) {
+            prefix = QUEUE_QUALIFIED_PREFIX;
+         } else if (RoutingType.MULTICAST.equals(message.getRoutingType())) {
+            prefix = TOPIC_QUALIFIED_PREFIX;
          }
 
          dest = address == null ? null : ActiveMQDestination.fromPrefixedName(prefix + address.toString());
