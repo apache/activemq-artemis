@@ -236,7 +236,7 @@ public class RoutingTest extends ActiveMQTestBase {
       sendSession.createQueue(addressA, RoutingType.MULTICAST, queueC);
       ClientProducer p = sendSession.createProducer(addressA);
       ClientMessage message = sendSession.createMessage(false);
-      message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+      message.setRoutingType(RoutingType.ANYCAST);
       p.send(message);
       sendSession.close();
       assertEquals(1, server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount());
@@ -255,7 +255,7 @@ public class RoutingTest extends ActiveMQTestBase {
       sendSession.createQueue(addressA, RoutingType.MULTICAST, queueC);
       ClientProducer p = sendSession.createProducer(addressA);
       ClientMessage message = sendSession.createMessage(false);
-      message.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+      message.setRoutingType(RoutingType.MULTICAST);
       p.send(message);
       sendSession.close();
       assertEquals(0, server.locateQueue(queueA).getMessageCount());

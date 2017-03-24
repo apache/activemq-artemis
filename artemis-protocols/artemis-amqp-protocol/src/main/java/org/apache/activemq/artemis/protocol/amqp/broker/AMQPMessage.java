@@ -250,22 +250,24 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    @Override
-   public RoutingType getRouteType() {
+   public RoutingType getRoutingType() {
+      Object routingType = getSymbol(AMQPMessageSupport.ROUTING_TYPE);
 
-      /* TODO-now How to use this properly
-      switch (((Byte)type).byteValue()) {
-         case AMQPMessageSupport.QUEUE_TYPE:
-         case AMQPMessageSupport.TEMP_QUEUE_TYPE:
-            return RoutingType.ANYCAST;
+      if (routingType != null) {
+         return RoutingType.getType((byte) routingType);
+      } else {
+         return null;
+      }
+   }
 
-         case AMQPMessageSupport.TOPIC_TYPE:
-         case AMQPMessageSupport.TEMP_TOPIC_TYPE:
-            return RoutingType.MULTICAST;
-         default:
-            return null;
-      } */
-
-      return null;
+   @Override
+   public org.apache.activemq.artemis.api.core.Message setRoutingType(RoutingType routingType) {
+      parseHeaders();
+      if (routingType == null) {
+         removeSymbol(AMQPMessageSupport.ROUTING_TYPE);
+      }
+      setSymbol(AMQPMessageSupport.ROUTING_TYPE, routingType.getType());
+      return this;
    }
 
    @Override

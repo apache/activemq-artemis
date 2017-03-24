@@ -154,11 +154,21 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public RoutingType getRouteType() {
+   public RoutingType getRoutingType() {
       if (containsProperty(Message.HDR_ROUTING_TYPE)) {
          return RoutingType.getType(getByteProperty(Message.HDR_ROUTING_TYPE));
       }
       return null;
+   }
+
+   @Override
+   public Message setRoutingType(RoutingType routingType) {
+      if (routingType == null) {
+         removeProperty(Message.HDR_ROUTING_TYPE);
+      } else {
+         putByteProperty(Message.HDR_ROUTING_TYPE, routingType.getType());
+      }
+      return this;
    }
 
    @Override

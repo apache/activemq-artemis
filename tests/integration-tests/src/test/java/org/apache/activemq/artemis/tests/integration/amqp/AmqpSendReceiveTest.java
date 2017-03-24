@@ -35,7 +35,9 @@ import javax.jms.JMSException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -208,7 +210,33 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
-   public void testAnycastMessageRoutingExclusivity() throws Exception {
+   public void testQueueReceiverReadMessageWithDivert() throws Exception {
+      final String forwardingAddress = getTestName() + "Divert";
+      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
+      server.createQueue(simpleForwardingAddress, RoutingType.ANYCAST, simpleForwardingAddress, null, true, false);
+      server.getActiveMQServerControl().createDivert("name", "routingName", getTestName(), forwardingAddress, true, null, null, DivertConfigurationRoutingType.ANYCAST.toString());
+      sendMessages(getTestName(), 1);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(forwardingAddress);
+
+      Queue queueView = getProxyToQueue(forwardingAddress);
+      assertEquals(1, queueView.getMessageCount());
+
+      receiver.flow(1);
+      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
+      receiver.close();
+
+      assertEquals(1, queueView.getMessageCount());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testAnycastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
       final String queueB = "queueB";
@@ -226,8 +254,27 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
    }
 
+   @Test(timeout = 60000)
+   public void testAnycastMessageRoutingExclusivityUsingProperty() throws Exception {
+      final String addressA = "addressA";
+      final String queueA = "queueA";
+      final String queueB = "queueB";
+      final String queueC = "queueC";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
+
+      sendMessages(addressA, 1, RoutingType.ANYCAST);
+
+      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+   }
+
    @Test
-   public void testMulticastMessageRoutingExclusivity() throws Exception {
+   public void testMulticastMessageRoutingExclusivityUsingPrefix() throws Exception {
       final String addressA = "addressA";
       final String queueA = "queueA";
       final String queueB = "queueB";
@@ -240,6 +287,25 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
 
       sendMessages("multicast://" + addressA, 1);
+
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
+      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+   }
+
+   @Test
+   public void testMulticastMessageRoutingExclusivityUsingProperty() throws Exception {
+      final String addressA = "addressA";
+      final String queueA = "queueA";
+      final String queueB = "queueB";
+      final String queueC = "queueC";
+
+      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
+      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
+      serverControl.createQueue(addressA, queueB, RoutingType.MULTICAST.toString());
+      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
+
+      sendMessages(addressA, 1, RoutingType.MULTICAST);
 
       assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
       assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
@@ -1107,6 +1173,10 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    public void sendMessages(String destinationName, int count) throws Exception {
+      sendMessages(destinationName, count, null);
+   }
+
+   public void sendMessages(String destinationName, int count, RoutingType routingType) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       try {
@@ -1116,6 +1186,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          for (int i = 0; i < count; ++i) {
             AmqpMessage message = new AmqpMessage();
             message.setMessageId("MessageID:" + i);
+            if (routingType != null) {
+               message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
+            }
             sender.send(message);
          }
       } finally {

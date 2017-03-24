@@ -108,13 +108,13 @@ public class DivertImpl implements Divert {
 
          switch (routingType) {
             case ANYCAST:
-               copy.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.ANYCAST.getType());
+               copy.setRoutingType(RoutingType.ANYCAST);
                break;
             case MULTICAST:
-               copy.putByteProperty(Message.HDR_ROUTING_TYPE, RoutingType.MULTICAST.getType());
+               copy.setRoutingType(RoutingType.MULTICAST);
                break;
             case STRIP:
-               copy.removeProperty(Message.HDR_ROUTING_TYPE);
+               copy.setRoutingType(null);
                break;
             case PASS:
                break;
