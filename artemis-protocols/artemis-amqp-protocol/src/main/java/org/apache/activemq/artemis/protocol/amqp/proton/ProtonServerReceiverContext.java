@@ -52,7 +52,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    /*
     The maximum number of credits we will allocate to clients.
     This number is also used by the broker when refresh client credits.
-     */
+    */
    private static int maxCreditAllocation = 100;
 
    // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
@@ -170,8 +170,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          condition.setCondition(Symbol.valueOf("failed"));
          condition.setDescription(e.getMessage());
          rejected.setError(condition);
-         delivery.disposition(rejected);
-         delivery.settle();
+         synchronized (connection.getLock()) {
+            delivery.disposition(rejected);
+            delivery.settle();
+         }
       }
    }
 
@@ -204,7 +206,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
          connection.flush();
       }
-
    }
 
    public void drain(int credits) {
@@ -221,5 +222,4 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    public boolean isDraining() {
       return receiver.draining();
    }
-
 }
