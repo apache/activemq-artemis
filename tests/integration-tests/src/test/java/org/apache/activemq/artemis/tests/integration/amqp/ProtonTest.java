@@ -30,6 +30,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.QueueBrowser;
+import javax.jms.QueueReceiver;
 import javax.jms.ResourceAllocationException;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
@@ -65,6 +66,7 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -79,6 +81,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -1852,6 +1855,51 @@ public class ProtonTest extends ProtonTestBase {
 
       public int getCount() {
          return count;
+      }
+   }
+
+   /**
+    * If we have an address configured with both ANYCAST and MULTICAST routing types enabled, we must ensure that any
+    * messages sent specifically to MULTICAST (e.g. JMS TopicProducer) are only delivered to MULTICAST queues (e.g.
+    * i.e. subscription queues) and **NOT** to ANYCAST queues (e.g. JMS Queue).
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testRoutingExclusivity() throws Exception {
+
+      // Create Address with both ANYCAST and MULTICAST enabled
+      String testAddress = "testRoutingExclusivity";
+      SimpleString ssTestAddress = new SimpleString(testAddress);
+
+      AddressInfo addressInfo = new AddressInfo(ssTestAddress);
+      addressInfo.addRoutingType(RoutingType.MULTICAST);
+      addressInfo.addRoutingType(RoutingType.ANYCAST);
+
+      server.addAddressInfo(addressInfo);
+      server.createQueue(ssTestAddress, RoutingType.ANYCAST, ssTestAddress, null, true, false);
+
+      Connection connection = createConnection(UUIDGenerator.getInstance().generateStringUUID());
+
+      try {
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Topic topic = session.createTopic(testAddress);
+         javax.jms.Queue queue = session.createQueue(testAddress);
+
+         MessageProducer producer = session.createProducer(topic);
+
+         MessageConsumer queueConsumer = session.createConsumer(queue);
+         MessageConsumer topicConsumer = session.createConsumer(topic);
+
+         producer.send(session.createTextMessage("testMessage"));
+
+         assertNotNull(topicConsumer.receive(1000));
+         assertNull(queueConsumer.receive(1000));
+      }
+      finally {
+         connection.close();
       }
    }
 
