@@ -342,11 +342,6 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       final long id;
 
       @Override
-      public RoutingType getRouteType() {
-         return null;
-      }
-
-      @Override
       public SimpleString getReplyTo() {
          return null;
       }
