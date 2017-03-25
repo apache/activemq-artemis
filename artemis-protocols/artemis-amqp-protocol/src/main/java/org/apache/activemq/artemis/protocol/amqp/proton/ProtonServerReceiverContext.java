@@ -86,7 +86,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             address = sessionSPI.tempQueueName();
 
             try {
-               sessionSPI.createTemporaryQueue(address, RoutingType.ANYCAST);
+               sessionSPI.createTemporaryQueue(address, getRoutingType(target.getCapabilities()));
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
@@ -120,6 +120,18 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
       }
       flow(maxCreditAllocation, minCreditRefresh);
+   }
+
+   private RoutingType getRoutingType(Symbol[] symbols) {
+      for (Symbol symbol : symbols) {
+         if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+            return RoutingType.MULTICAST;
+         } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+            return RoutingType.ANYCAST;
+         }
+      }
+
+      return sessionSPI.getDefaultRoutingType(address);
    }
 
    /*
