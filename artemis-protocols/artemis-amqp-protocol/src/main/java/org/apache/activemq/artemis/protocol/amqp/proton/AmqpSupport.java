@@ -39,6 +39,8 @@ public class AmqpSupport {
    // Capabilities used to identify destination type in some requests.
    public static final Symbol TEMP_QUEUE_CAPABILITY = Symbol.valueOf("temporary-queue");
    public static final Symbol TEMP_TOPIC_CAPABILITY = Symbol.valueOf("temporary-topic");
+   public static final Symbol QUEUE_CAPABILITY = Symbol.valueOf("queue");
+   public static final Symbol TOPIC_CAPABILITY = Symbol.valueOf("topic");
 
    // Symbols used to announce connection information to remote peer.
    public static final Symbol INVALID_FIELD = Symbol.valueOf("invalid-field");
