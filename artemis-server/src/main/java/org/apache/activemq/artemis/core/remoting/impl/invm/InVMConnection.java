@@ -146,16 +146,7 @@ public class InVMConnection implements Connection {
 
    @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
-      return createTransportBuffer(size, false);
-   }
-
-   @Override
-   public ActiveMQBuffer createTransportBuffer(final int size, boolean pooled) {
-      if ( pooled ) {
-         return ActiveMQBuffers.pooledBuffer( size );
-      } else {
-         return ActiveMQBuffers.dynamicBuffer( size );
-      }
+      return ActiveMQBuffers.pooledBuffer(size);
    }
 
    @Override
@@ -183,26 +174,18 @@ public class InVMConnection implements Connection {
                      final boolean batch,
                      final ChannelFutureListener futureListener) {
 
-      final ActiveMQBuffer copied = ActiveMQBuffers.pooledBuffer(buffer.capacity());
-      int read = buffer.readerIndex();
-      int writ = buffer.writerIndex();
-      copied.writeBytes(buffer,read,writ - read);
-      copied.setIndex(read,writ);
-      buffer.setIndex(read,writ);
-
       try {
          executor.execute(new Runnable() {
             @Override
             public void run() {
                try {
                   if (!closed) {
-                     copied.readInt(); // read and discard
+                     buffer.readInt(); // read and discard
                      if (logger.isTraceEnabled()) {
                         logger.trace(InVMConnection.this + "::Sending inVM packet");
                      }
-                     handler.bufferReceived(id, copied);
+                     handler.bufferReceived(id, buffer);
                      if (futureListener != null) {
-                        // TODO BEFORE MERGE: (is null a good option here?)
                         futureListener.operationComplete(null);
                      }
                   }
@@ -211,13 +194,10 @@ public class InVMConnection implements Connection {
                   ActiveMQServerLogger.LOGGER.errorWritingToInvmConnector(e, this);
                   throw new IllegalStateException(msg, e);
                } finally {
+                  buffer.release();
                   if (logger.isTraceEnabled()) {
                      logger.trace(InVMConnection.this + "::packet sent done");
                   }
-                  copied.release();
-//                  if ( copied.byteBuf().refCnt() > 0 ) {
-//                     copied.release();
-//                  }
                }
             }
          });

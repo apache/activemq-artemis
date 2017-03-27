@@ -308,13 +308,7 @@ public class PacketImpl implements Packet {
 
    @Override
    public ActiveMQBuffer encode(final RemotingConnection connection) {
-      return encode(connection,true);
-   }
-
-
-   @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection, boolean usePooled) {
-      ActiveMQBuffer buffer = createPacket(connection, usePooled);
+      ActiveMQBuffer buffer =  createPacket(connection);
 
       // The standard header fields
 
@@ -334,11 +328,11 @@ public class PacketImpl implements Packet {
       return buffer;
    }
 
-   protected ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
       if (connection == null) {
          return new ChannelBufferWrapper(Unpooled.buffer(INITIAL_PACKET_SIZE));
       } else {
-         return connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE, usePooled);
+         return connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
       }
    }
 
