@@ -105,7 +105,7 @@ if [ -z "$LOG_MANAGER" ] ; then
   LOG_MANAGER="$ARTEMIS_HOME/lib/${logmanager}"
 fi
 
-exec "$JAVACMD" ${java-opts} \
+exec "$JAVACMD" \
     $JAVA_ARGS \
     -Xbootclasspath/a:"$LOG_MANAGER" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
