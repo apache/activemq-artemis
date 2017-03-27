@@ -575,4 +575,8 @@ public class AMQPSessionCallback implements SessionCallback {
    public void removeTemporaryQueue(String address) throws Exception {
       serverSession.deleteQueue(SimpleString.toSimpleString(address));
    }
+
+   public RoutingType getDefaultRoutingType(String address) {
+      return manager.getServer().getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType();
+   }
 }
