@@ -164,7 +164,7 @@ public class ProtonHandler extends ProtonInitializable {
                      capacity = transport.capacity();
                   }
                } catch (Throwable e) {
-                  log.debug(e.getMessage(), e);
+                  log.warn(e.getMessage(), e);
                }
 
                receivedFirstPacket = true;
@@ -296,20 +296,6 @@ public class ProtonHandler extends ProtonInitializable {
       }
    }
 
-   private Event popEvent() {
-      synchronized (lock) {
-         Event ev = collector.peek();
-         if (ev != null) {
-            // pop will invalidate the event
-            // for that reason we make a new one
-            // Events are reused inside the collector, so we need to make a new one here
-            ev = ev.copy();
-            collector.pop();
-         }
-         return ev;
-      }
-   }
-
    private void dispatchAuth(boolean sasl) {
       for (EventHandler h : handlers) {
          h.onAuthInit(this, getConnection(), sasl);
@@ -322,17 +308,22 @@ public class ProtonHandler extends ProtonInitializable {
       // because we could have a distributed deadlock
       // while processing events (for instance onTransport)
       // while a client is also trying to write here
-      while ((ev = popEvent()) != null) {
-         for (EventHandler h : handlers) {
-            if (log.isTraceEnabled()) {
-               log.trace("Handling " + ev + " towards " + h);
+
+      synchronized (lock) {
+         while ((ev = collector.peek()) != null) {
+            for (EventHandler h : handlers) {
+               if (log.isTraceEnabled()) {
+                  log.trace("Handling " + ev + " towards " + h);
+               }
+               try {
+                  Events.dispatch(ev, h);
+               } catch (Exception e) {
+                  log.warn(e.getMessage(), e);
+                  connection.setCondition(new ErrorCondition());
+               }
             }
-            try {
-               Events.dispatch(ev, h);
-            } catch (Exception e) {
-               log.warn(e.getMessage(), e);
-               connection.setCondition(new ErrorCondition());
-            }
+
+            collector.pop();
          }
       }
 
