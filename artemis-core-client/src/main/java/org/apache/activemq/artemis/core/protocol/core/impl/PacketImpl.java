@@ -274,13 +274,7 @@ public class PacketImpl implements Packet {
 
    @Override
    public ActiveMQBuffer encode(final RemotingConnection connection) {
-      return encode(connection,true);
-   }
-
-
-   @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection, boolean usePooled) {
-      ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE, usePooled);
+      ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
 
       // The standard header fields
 
