@@ -143,10 +143,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
       handler.flush();
    }
 
-   public void flush(boolean wait) {
-      handler.flush(wait);
-   }
-
    public void close(ErrorCondition errorCondition) {
       handler.close(errorCondition);
    }
