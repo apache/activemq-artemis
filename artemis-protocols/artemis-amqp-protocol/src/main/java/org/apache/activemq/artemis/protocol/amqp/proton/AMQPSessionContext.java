@@ -149,7 +149,7 @@ public class AMQPSessionContext extends ProtonInitializable {
       receiver.setContext(transactionHandler);
       synchronized (connection.getLock()) {
          receiver.open();
-         receiver.flow(ProtonTransactionHandler.DEFAULT_COORDINATOR_CREDIT);
+         receiver.flow(connection.getAmqpCredits());
       }
    }
 

@@ -42,8 +42,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    private static final Logger log = Logger.getLogger(ProtonTransactionHandler.class);
 
-   public static final int DEFAULT_COORDINATOR_CREDIT = 100;
-   public static final int CREDIT_LOW_WATERMARK = 30;
+   private final int amqpCredit;
+   private final int amqpLowMark;
 
    final AMQPSessionCallback sessionSPI;
    final AMQPConnectionContext connection;
@@ -51,6 +51,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    public ProtonTransactionHandler(AMQPSessionCallback sessionSPI, AMQPConnectionContext connection) {
       this.sessionSPI = sessionSPI;
       this.connection = connection;
+      this.amqpCredit = connection.getAmqpCredits();
+      this.amqpLowMark = connection.getAmqpLowCredits();
    }
 
    @Override
@@ -68,8 +70,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          synchronized (connection.getLock()) {
             // Replenish coordinator receiver credit on exhaustion so sender can continue
             // transaction declare and discahrge operations.
-            if (receiver.getCredit() < CREDIT_LOW_WATERMARK) {
-               receiver.flow(DEFAULT_COORDINATOR_CREDIT);
+            if (receiver.getCredit() < amqpLowMark) {
+               receiver.flow(amqpCredit);
             }
 
             buffer = new byte[delivery.available()];

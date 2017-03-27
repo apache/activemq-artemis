@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
@@ -74,13 +75,18 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
    protected LocalListener listener = new LocalListener();
 
-   public AMQPConnectionContext(AMQPConnectionCallback connectionSP,
+   private final ProtonProtocolManager protocolManager;
+
+   public AMQPConnectionContext(ProtonProtocolManager protocolManager,
+                                AMQPConnectionCallback connectionSP,
                                 String containerId,
                                 int idleTimeout,
                                 int maxFrameSize,
                                 int channelMax,
                                 Executor dispatchExecutor,
                                 ScheduledExecutorService scheduledPool) {
+
+      this.protocolManager = protocolManager;
       this.connectionCallback = connectionSP;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
 
@@ -238,6 +244,28 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
    public void addEventHandler(EventHandler eventHandler) {
       handler.addEventHandler(eventHandler);
+   }
+
+   public ProtonProtocolManager getProtocolManager() {
+      return protocolManager;
+   }
+
+   public int getAmqpLowCredits() {
+      if (protocolManager != null) {
+         return protocolManager.getAmqpLowCredits();
+      } else {
+         // this is for tests only...
+         return 30;
+      }
+   }
+
+   public int getAmqpCredits() {
+      if (protocolManager != null) {
+         return protocolManager.getAmqpCredits();
+      } else {
+         // this is for tests only...
+         return 100;
+      }
    }
 
    // This listener will perform a bunch of things here
