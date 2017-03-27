@@ -79,8 +79,8 @@ public abstract class SessionContinuationMessage extends PacketImpl {
    }
 
    @Override
-   public final ActiveMQBuffer encode(final RemotingConnection connection, boolean usePooled) {
-      final ActiveMQBuffer buffer = createPacket(connection, usePooled);
+   public final ActiveMQBuffer encode(final RemotingConnection connection) {
+      final ActiveMQBuffer buffer = createPacket(connection);
 
       // The standard header fields
 
@@ -100,12 +100,12 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       return buffer;
    }
 
-   protected final ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+   protected final ActiveMQBuffer createPacket(RemotingConnection connection) {
       final int expectedEncodedSize = expectedEncodedSize();
       if (connection == null) {
          return new ChannelBufferWrapper(Unpooled.buffer(expectedEncodedSize));
       } else {
-         return connection.createTransportBuffer(expectedEncodedSize, usePooled);
+         return connection.createTransportBuffer(expectedEncodedSize);
       }
    }
 

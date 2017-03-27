@@ -300,9 +300,6 @@ public final class ChannelImpl implements Channel {
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
          connection.getTransportConnection().write(buffer, flush, batch);
-
-         buffer.release();
-
          return true;
       }
    }
@@ -410,7 +407,6 @@ public final class ChannelImpl implements Channel {
             }
          } finally {
             lock.unlock();
-            buffer.release();
          }
 
          return response;
@@ -633,8 +629,6 @@ public final class ChannelImpl implements Channel {
       final ActiveMQBuffer buffer = packet.encode(connection);
 
       connection.getTransportConnection().write(buffer, false, false);
-
-      buffer.release();
 
    }
 

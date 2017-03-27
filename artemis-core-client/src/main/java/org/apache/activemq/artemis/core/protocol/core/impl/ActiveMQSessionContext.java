@@ -877,8 +877,6 @@ public class ActiveMQSessionContext extends SessionContext {
       ActiveMQBuffer buffer = packet.encode(this.getCoreConnection());
 
       conn.write(buffer, false, false);
-
-      buffer.release();
    }
 
 }

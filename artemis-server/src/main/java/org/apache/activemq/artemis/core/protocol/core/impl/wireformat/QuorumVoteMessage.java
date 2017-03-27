@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class QuorumVoteMessage extends PacketImpl {
 
@@ -42,11 +42,6 @@ public class QuorumVoteMessage extends PacketImpl {
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection) {
-      return encode(connection,false);
-   }
-
-   @Override
    public void encodeRest(ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeSimpleString(handler);
@@ -57,7 +52,8 @@ public class QuorumVoteMessage extends PacketImpl {
    public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       handler = buffer.readSimpleString();
-      voteBuffer = buffer.readSlice(buffer.readableBytes());
+      voteBuffer = ActiveMQBuffers.fixedBuffer(buffer.readableBytes());
+      buffer.readBytes(voteBuffer);
    }
 
    public SimpleString getHandler() {
