@@ -53,10 +53,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
     The maximum number of credits we will allocate to clients.
     This number is also used by the broker when refresh client credits.
     */
-   private static int maxCreditAllocation = 100;
+   private final int amqpCredits;
 
    // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
-   private static int minCreditRefresh = 30;
+   private final int minCreditRefresh;
    private TerminusExpiryPolicy expiryPolicy;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
@@ -67,11 +67,13 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       this.protonSession = protonSession;
       this.receiver = receiver;
       this.sessionSPI = sessionSPI;
+      this.amqpCredits = connection.getAmqpCredits();
+      this.minCreditRefresh = connection.getAmqpLowCredits();
    }
 
    @Override
    public void onFlow(int credits, boolean drain) {
-      flow(Math.min(credits, maxCreditAllocation), maxCreditAllocation);
+      flow(Math.min(credits, amqpCredits), amqpCredits);
    }
 
    @Override
@@ -119,7 +121,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             }
          }
       }
-      flow(maxCreditAllocation, minCreditRefresh);
+      flow(amqpCredits, minCreditRefresh);
    }
 
    private RoutingType getRoutingType(Symbol[] symbols) {
@@ -173,7 +175,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), data);
 
          synchronized (connection.getLock()) {
-            flow(maxCreditAllocation, minCreditRefresh);
+            flow(amqpCredits, minCreditRefresh);
          }
       } catch (Exception e) {
          log.warn(e.getMessage(), e);

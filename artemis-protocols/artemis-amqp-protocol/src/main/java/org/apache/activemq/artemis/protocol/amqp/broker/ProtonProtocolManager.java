@@ -56,6 +56,10 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
+   private int amqpCredits = 100;
+
+   private int amqpLowCredits = 30;
+
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
    * the address. This can be changed on the acceptor.
@@ -105,7 +109,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
       }
 
       String id = server.getConfiguration().getName();
-      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
+      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
@@ -135,6 +139,24 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    @Override
    public void addChannelHandlers(ChannelPipeline pipeline) {
 
+   }
+
+   public int getAmqpCredits() {
+      return amqpCredits;
+   }
+
+   public ProtonProtocolManager setAmqpCredits(int amqpCredits) {
+      this.amqpCredits = amqpCredits;
+      return this;
+   }
+
+   public int getAmqpLowCredits() {
+      return amqpLowCredits;
+   }
+
+   public ProtonProtocolManager setAmqpLowCredits(int amqpLowCredits) {
+      this.amqpLowCredits = amqpLowCredits;
+      return this;
    }
 
    @Override
