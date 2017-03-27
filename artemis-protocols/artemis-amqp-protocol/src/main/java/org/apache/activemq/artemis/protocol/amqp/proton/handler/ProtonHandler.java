@@ -56,12 +56,7 @@ public class ProtonHandler extends ProtonInitializable {
 
    private final Executor dispatchExecutor;
 
-   private final Runnable dispatchRunnable = new Runnable() {
-      @Override
-      public void run() {
-         dispatch();
-      }
-   };
+   private final Runnable dispatchRunnable = () -> dispatch();
 
    private ArrayList<EventHandler> handlers = new ArrayList<>();
 
@@ -251,22 +246,12 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void flush() {
-      flush(false);
-   }
-
-   public void flush(boolean wait) {
       synchronized (lock) {
          transport.process();
-
          checkServerSASL();
-
       }
 
-      if (wait) {
-         dispatch();
-      } else {
-         dispatchExecutor.execute(dispatchRunnable);
-      }
+      dispatchExecutor.execute(dispatchRunnable);
    }
 
    public void close(ErrorCondition errorCondition) {
@@ -276,7 +261,8 @@ public class ProtonHandler extends ProtonInitializable {
          }
          connection.close();
       }
-      flush(true);
+
+      flush();
    }
 
    protected void checkServerSASL() {
