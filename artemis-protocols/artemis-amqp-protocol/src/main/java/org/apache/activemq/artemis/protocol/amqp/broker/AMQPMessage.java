@@ -256,6 +256,17 @@ public class AMQPMessage extends RefCountMessage {
       if (routingType != null) {
          return RoutingType.getType((byte) routingType);
       } else {
+         routingType = getSymbol(AMQPMessageSupport.JMS_DEST_TYPE_MSG_ANNOTATION);
+         if (routingType != null) {
+            if (AMQPMessageSupport.QUEUE_TYPE == (byte) routingType || AMQPMessageSupport.TEMP_QUEUE_TYPE == (byte) routingType) {
+               return RoutingType.ANYCAST;
+            } else if (AMQPMessageSupport.TOPIC_TYPE == (byte) routingType || AMQPMessageSupport.TEMP_TOPIC_TYPE == (byte) routingType) {
+               return RoutingType.MULTICAST;
+            }
+         } else {
+            return null;
+         }
+
          return null;
       }
    }
