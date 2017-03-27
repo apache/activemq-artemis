@@ -393,7 +393,7 @@ public class NettyConnector extends AbstractConnector {
          }
 
          channelClazz = EpollSocketChannel.class;
-         logger.info("Connector " + this + " using native epoll");
+         logger.debug("Connector " + this + " using native epoll");
       } else {
          if (useGlobalWorkerPool) {
             channelClazz = NioSocketChannel.class;
@@ -404,7 +404,7 @@ public class NettyConnector extends AbstractConnector {
          }
 
          channelClazz = NioSocketChannel.class;
-         logger.info("Connector + " + this + " using nio");
+         logger.debug("Connector + " + this + " using nio");
       }
       // if we are a servlet wrap the socketChannelFactory
 

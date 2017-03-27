@@ -43,11 +43,11 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
       return super.getParentString() + ", message=" + message;
    }
 
-   protected ActiveMQBuffer internalCreatePacket(int size, RemotingConnection connection, boolean usePooled) {
+   protected ActiveMQBuffer internalCreatePacket(int size, RemotingConnection connection) {
       if (connection == null) {
          return new ChannelBufferWrapper(Unpooled.buffer(size));
       } else {
-         return connection.createTransportBuffer(size, usePooled);
+         return connection.createTransportBuffer(size);
       }
    }
 
