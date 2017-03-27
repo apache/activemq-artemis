@@ -79,12 +79,12 @@ public abstract class SessionContinuationMessage extends PacketImpl {
    }
 
    @Override
-   protected final ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
+   protected final ActiveMQBuffer createPacket(RemotingConnection connection) {
       final int expectedEncodedSize = expectedEncodedSize();
       if (connection == null) {
          return new ChannelBufferWrapper(Unpooled.buffer(expectedEncodedSize));
       } else {
-         return connection.createTransportBuffer(expectedEncodedSize, usePooled);
+         return connection.createTransportBuffer(expectedEncodedSize);
       }
    }
 

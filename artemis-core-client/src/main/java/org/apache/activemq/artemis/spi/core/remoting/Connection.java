@@ -35,8 +35,6 @@ public interface Connection {
     */
    ActiveMQBuffer createTransportBuffer(int size);
 
-   ActiveMQBuffer createTransportBuffer(int size, boolean pooled);
-
    RemotingConnection getProtocolConnection();
 
    void setProtocolConnection(RemotingConnection connection);
