@@ -336,6 +336,15 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   public void reject(Object brokerConsumer, Message message) throws Exception {
+      recoverContext();
+      try {
+         ((ServerConsumer) brokerConsumer).reject(message.getMessageID());
+      } finally {
+         resetContext();
+      }
+   }
+
    public void resumeDelivery(Object consumer) {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }

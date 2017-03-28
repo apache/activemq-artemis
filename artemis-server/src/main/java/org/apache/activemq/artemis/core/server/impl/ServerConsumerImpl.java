@@ -910,6 +910,22 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       ref.getQueue().cancel(ref, System.currentTimeMillis());
    }
 
+
+   @Override
+   public synchronized void reject(final long messageID) throws Exception {
+      if (browseOnly) {
+         return;
+      }
+
+      MessageReference ref = removeReferenceByID(messageID);
+
+      if (ref == null) {
+         return; // nothing to be done
+      }
+
+      ref.getQueue().sendToDeadLetterAddress(null, ref);
+   }
+
    @Override
    public synchronized void backToDelivering(MessageReference reference) {
       deliveringRefs.addFirst(reference);
