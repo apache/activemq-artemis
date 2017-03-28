@@ -64,15 +64,6 @@ public interface Packet {
    ActiveMQBuffer encode(RemotingConnection connection);
 
    /**
-    * Encodes the packet and returns a {@link ActiveMQBuffer} containing the data
-    *
-    * @param connection the connection
-    * @param usePooled if the returned buffer should be pooled or unpooled
-    * @return the buffer to encode to
-    */
-   ActiveMQBuffer encode(RemotingConnection connection, boolean usePooled);
-
-   /**
     * decodes the buffer into this packet
     *
     * @param buffer the buffer to decode from

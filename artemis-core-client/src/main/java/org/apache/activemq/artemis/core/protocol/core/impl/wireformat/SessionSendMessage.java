@@ -62,16 +62,14 @@ public class SessionSendMessage extends MessagePacket {
    }
 
    @Override
-   protected ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
-      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + 1, connection, usePooled);
+   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + 1, connection);
    }
 
    @Override
    public void encodeRest(ActiveMQBuffer buffer) {
       message.sendBuffer(buffer.byteBuf(), 0);
       buffer.writeBoolean(requiresResponse);
-
-
    }
 
    @Override
