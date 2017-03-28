@@ -188,6 +188,12 @@ public class Create extends InputAbstract {
    @Option(name = "--require-login", description = "This will configure security to require user / password, opposite of --allow-anonymous")
    Boolean requireLogin = null;
 
+   @Option(name = "--paging", description = "Page messages to disk when address becomes full, opposite of --blocking (Default: input)")
+   Boolean paging = null;
+
+   @Option(name = "--blocking", description = "Block producers when address becomes full, opposite of --paging (Default: input)")
+   Boolean blocking = null;
+
    @Option(name = "--no-autotune", description = "Disable auto tuning on the journal.")
    boolean noAutoTune;
 
@@ -244,6 +250,9 @@ public class Create extends InputAbstract {
 
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
    boolean noJournalSync;
+
+   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: input)")
+   String globalMaxSize;
 
    boolean IS_WINDOWS;
 
@@ -452,14 +461,20 @@ public class Create extends InputAbstract {
 
    public boolean isAllowAnonymous() {
       if (allowAnonymous == null) {
-         String value = input("--allow-anonymous | --require-login", "Allow anonymous access? (Y/N):", "Y");
-         allowAnonymous = Boolean.valueOf(value.toLowerCase().equals("y"));
+         allowAnonymous = inputBoolean("--allow-anonymous | --require-login", "Allow anonymous access?", true);
       }
-      return allowAnonymous.booleanValue();
+      return allowAnonymous;
    }
 
-   public void setAllowAnonymous(boolean allowGuest) {
-      this.allowAnonymous = Boolean.valueOf(allowGuest);
+   public boolean isPaging() {
+      if (paging == null) {
+         paging = inputBoolean("--paging | --blocking", "Page messages to disk when an address becomes full?", true);
+      }
+      return paging;
+   }
+
+   public void setAllowAnonymous(boolean allowAnonymous) {
+      this.allowAnonymous = Boolean.valueOf(allowAnonymous);
    }
 
    public Boolean getRequireLogin() {
@@ -508,6 +523,16 @@ public class Create extends InputAbstract {
 
    public void setRole(String role) {
       this.role = role;
+   }
+
+   public String getGlobalMaxSize() {
+      if (globalMaxSize == null) {
+         globalMaxSize = input("--global-max-size", "Maximum amount of memory which message data may consume (typically 50% of your JVM's maximum heap size, e.g. 100Mb):", "100Mb");
+      }
+      return globalMaxSize;
+   }
+   public void setGlobalMaxSize(String globalMaxSize) {
+      this.globalMaxSize = globalMaxSize;
    }
 
    public boolean isSlave() {
@@ -577,9 +602,14 @@ public class Create extends InputAbstract {
 
       setupJournalType();
 
-      // requireLogin should set alloAnonymous=false, to avoid user's questions
+      // requireLogin should set allowAnonymous=false, to avoid user's questions
       if (requireLogin != null && requireLogin.booleanValue()) {
          allowAnonymous = Boolean.FALSE;
+      }
+
+      // blocking should set paging=false, to avoid user's questions
+      if (blocking != null && blocking.booleanValue()) {
+         paging = Boolean.FALSE;
       }
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
@@ -645,6 +675,7 @@ public class Create extends InputAbstract {
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
+      filters.put("${global-max-size}", getGlobalMaxSize());
 
       if (clustered) {
          filters.put("${host}", getHostForClustered());
@@ -755,10 +786,10 @@ public class Create extends InputAbstract {
          filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
       }
 
-      if (disablePersistence) {
-         filters.put("${full-policy}", "BLOCK");
-      } else {
+      if (isPaging()) {
          filters.put("${full-policy}", "PAGE");
+      } else {
+         filters.put("${full-policy}", "BLOCK");
       }
 
 
