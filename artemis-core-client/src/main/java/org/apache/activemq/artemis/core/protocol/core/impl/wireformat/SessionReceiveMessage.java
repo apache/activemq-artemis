@@ -54,8 +54,8 @@ public class SessionReceiveMessage extends MessagePacket {
    }
 
    @Override
-   protected ActiveMQBuffer createPacket(RemotingConnection connection, boolean usePooled) {
-      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + DataConstants.SIZE_INT, connection, usePooled);
+   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + DataConstants.SIZE_INT, connection);
    }
 
    @Override

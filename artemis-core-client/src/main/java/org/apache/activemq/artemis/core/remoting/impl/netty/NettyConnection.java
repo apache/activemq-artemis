@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -210,12 +211,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
-      return createTransportBuffer(size, false);
-   }
-
-   @Override
-   public ActiveMQBuffer createTransportBuffer(final int size, boolean pooled) {
-      return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
+      return new ChannelBufferWrapper(PooledByteBufAllocator.DEFAULT.directBuffer(size), true);
    }
 
    @Override
