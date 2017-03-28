@@ -57,6 +57,12 @@ public interface QueueControl {
    boolean isDurable();
 
    /**
+    * The routing type of this queue.
+    */
+   @Attribute(desc = "The routing type of this queue")
+   byte getRoutingType() throws Exception;
+
+   /**
     * Returns the filter associated with this queue.
     */
    @Attribute(desc = "filter associated with this queue")
