@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -78,7 +79,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private static final Symbol SHARED = Symbol.valueOf("shared");
    private static final Symbol GLOBAL = Symbol.valueOf("global");
 
-   private Object brokerConsumer;
+   private Consumer brokerConsumer;
 
    protected final AMQPSessionContext protonSession;
    protected final Sender sender;
@@ -391,7 +392,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       boolean browseOnly = !multicast && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
       try {
-         brokerConsumer = sessionSPI.createSender(this, queue, multicast ? null : selector, browseOnly);
+         brokerConsumer = (Consumer)sessionSPI.createSender(this, queue, multicast ? null : selector, browseOnly);
       } catch (ActiveMQAMQPResourceLimitExceededException e1) {
          throw new ActiveMQAMQPResourceLimitExceededException(e1.getMessage());
       } catch (Exception e) {
@@ -553,6 +554,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             } else if (remoteState instanceof Modified) {
                try {
                   Modified modification = (Modified) remoteState;
+
+                  if (Boolean.TRUE.equals(modification.getUndeliverableHere())) {
+                     message.rejectConsumer(((Consumer)brokerConsumer).sequentialID());
+                  }
+
                   if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
                      sessionSPI.cancel(brokerConsumer, message, true);
                   } else {

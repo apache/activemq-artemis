@@ -68,4 +68,7 @@ public interface Consumer {
     * disconnect the consumer
     */
    void disconnect();
+
+   /** an unique sequential ID for this consumer */
+   long sequentialID();
 }
