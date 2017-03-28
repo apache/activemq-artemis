@@ -22,12 +22,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
@@ -35,7 +32,6 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -51,7 +47,6 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -71,8 +66,6 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    protected ActiveMQProtonRemotingConnection protonConnectionDelegate;
 
    protected AMQPConnectionContext amqpConnection;
-
-   private final ReusableLatch latch = new ReusableLatch(0);
 
    private final Executor closeExecutor;
 
@@ -160,25 +153,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    }
 
    public void onTransport(ByteBuf byteBuf, AMQPConnectionContext amqpConnection) {
-      final int size = byteBuf.writerIndex();
-
-      latch.countUp();
-      connection.write(new ChannelBufferWrapper(byteBuf, true), false, false, new ChannelFutureListener() {
-         @Override
-         public void operationComplete(ChannelFuture future) throws Exception {
-            latch.countDown();
-         }
-      });
-
-      if (amqpConnection.isSyncOnFlush()) {
-         try {
-            latch.await(5, TimeUnit.SECONDS);
-         } catch (InterruptedException e) {
-            ActiveMQServerLogger.LOGGER.warn("Error during await invocation", e);
-         }
-      }
-
-      amqpConnection.outputDone(size);
+      connection.write(new ChannelBufferWrapper(byteBuf, true));
    }
 
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
