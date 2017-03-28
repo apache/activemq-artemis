@@ -28,6 +28,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -303,10 +304,16 @@ public final class JsonUtil {
          }
       } else if (jsonValue instanceof Object[]) {
          Object[] array = (Object[]) jsonValue;
-         for (int i = 0; i < array.length; i++) {
-            array[i] = convertJsonValue(array[i], desiredType);
+         Object[] result;
+         if (desiredType != null) {
+            result = (Object[]) Array.newInstance(desiredType, array.length);
+         } else {
+            result = array;
          }
-         return array;
+         for (int i = 0; i < array.length; i++) {
+            result[i] = convertJsonValue(array[i], desiredType);
+         }
+         return result;
       } else {
          return jsonValue;
       }
