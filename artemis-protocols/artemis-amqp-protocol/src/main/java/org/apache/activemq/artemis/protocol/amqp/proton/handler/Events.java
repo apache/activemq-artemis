@@ -17,13 +17,8 @@
 package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
 import org.apache.qpid.proton.engine.Event;
-import org.apache.qpid.proton.engine.Transport;
 
 public final class Events {
-
-   public static void dispatchTransport(Transport transport, EventHandler handler) throws Exception {
-      handler.onTransport(transport);
-   }
 
    public static void dispatch(Event event, EventHandler handler) throws Exception {
       switch (event.getType()) {
