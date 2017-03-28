@@ -81,6 +81,8 @@ public class AMQPMessage extends RefCountMessage {
    private long scheduledTime = -1;
    private String connectionID;
 
+   Set<Object> rejectedConsumers;
+
    public AMQPMessage(long messageFormat, byte[] data) {
       this.data = Unpooled.wrappedBuffer(data);
       this.messageFormat = messageFormat;
@@ -322,6 +324,26 @@ public class AMQPMessage extends RefCountMessage {
    public Persister<org.apache.activemq.artemis.api.core.Message> getPersister() {
       return AMQPMessagePersister.getInstance();
    }
+
+   @Override
+   public synchronized boolean acceptsConsumer(long consumer) {
+
+      if (rejectedConsumers == null) {
+         return true;
+      } else {
+         return !rejectedConsumers.contains(consumer);
+      }
+   }
+
+   @Override
+   public synchronized void rejectConsumer(long consumer) {
+      if (rejectedConsumers == null) {
+         rejectedConsumers = new HashSet<>();
+      }
+
+      rejectedConsumers.add(consumer);
+   }
+
 
    private synchronized void partialDecode(ByteBuffer buffer) {
       DecoderImpl decoder = TLSEncode.getDecoder();
