@@ -451,7 +451,7 @@ public class AMQPSessionCallback implements SessionCallback {
             @Override
             public void run() {
                synchronized (connection.getLock()) {
-                  if (receiver.getRemoteCredit() < threshold) {
+                  if (receiver.getRemoteCredit() <= threshold) {
                      receiver.flow(credits);
                      connection.flush();
                   }

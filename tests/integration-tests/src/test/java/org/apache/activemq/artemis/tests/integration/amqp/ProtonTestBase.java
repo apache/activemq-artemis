@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,9 +53,12 @@ public class ProtonTestBase extends ActiveMQTestBase {
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
       HashMap<String, Object> amqpParams = new HashMap<>();
       configureAmqp(amqpParams);
+
+      amqpServer.getConfiguration().getAcceptorConfigurations().clear();
+
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "amqp-acceptor", amqpParams);
 
-      amqpServer.getConfiguration().setAcceptorConfigurations(Collections.singleton(transportConfiguration));
+      amqpServer.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
       amqpServer.getConfiguration().setName(brokerName);
       amqpServer.getConfiguration().setJournalDirectory(amqpServer.getConfiguration().getJournalDirectory() + port);
       amqpServer.getConfiguration().setBindingsDirectory(amqpServer.getConfiguration().getBindingsDirectory() + port);
