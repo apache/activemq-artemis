@@ -98,19 +98,25 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public Set<RoutingType> getDeliveryModes() {
-      return addressInfo.getRoutingTypes();
+   public String[] getRoutingTypes() {
+      Set<RoutingType> routingTypes = addressInfo.getRoutingTypes();
+      String[] result = new String[routingTypes.size()];
+      int i = 0;
+      for (RoutingType routingType : routingTypes) {
+         result[i++] = routingType.toString();
+      }
+      return result;
    }
 
    @Override
-   public String getDeliveryModesAsJSON() throws Exception {
+   public String getRoutingTypesAsJSON() throws Exception {
       clearIO();
       try {
          JsonArrayBuilder json = JsonLoader.createArrayBuilder();
-         Set<RoutingType> routingTypes = getDeliveryModes();
+         String[] routingTypes = getRoutingTypes();
 
-         for (RoutingType routingType : routingTypes) {
-            json.add(routingType.toString());
+         for (String routingType : routingTypes) {
+            json.add(routingType);
          }
          return json.build().toString();
       } finally {
