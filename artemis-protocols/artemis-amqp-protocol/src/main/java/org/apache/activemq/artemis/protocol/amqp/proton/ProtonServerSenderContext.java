@@ -546,7 +546,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                }
             } else if (remoteState instanceof Rejected) {
                try {
-                  sessionSPI.cancel(brokerConsumer, message, true);
+                  sessionSPI.reject(brokerConsumer, message);
                } catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
                }

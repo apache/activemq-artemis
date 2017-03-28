@@ -123,6 +123,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public void reject(long messageID) throws Exception {
+
+   }
+
+   @Override
    public void acknowledge(Transaction tx, long messageID) throws Exception {
 
    }
