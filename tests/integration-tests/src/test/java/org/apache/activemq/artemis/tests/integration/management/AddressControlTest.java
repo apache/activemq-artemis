@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.json.JsonArray;
+import javax.json.JsonString;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -47,6 +52,10 @@ public class AddressControlTest extends ManagementTestBase {
    protected ClientSession session;
    private ServerLocator locator;
    private ClientSessionFactory sf;
+
+   public boolean usingCore() {
+      return false;
+   }
 
    @Test
    public void testGetAddress() throws Exception {
@@ -263,6 +272,42 @@ public class AddressControlTest extends ManagementTestBase {
       session = sf2.createSession(false, true, false);
       session.createQueue(address, address, true);
       Assert.assertEquals(1024, addressControl.getNumberOfBytesPerPage());
+   }
+
+   @Test
+   public void testGetRoutingTypes() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      String[] routingTypes = addressControl.getRoutingTypes();
+      Assert.assertEquals(1, routingTypes.length);
+      Assert.assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
+
+      address = RandomUtil.randomSimpleString();
+      Set<RoutingType> types = new HashSet<>();
+      types.add(RoutingType.ANYCAST);
+      types.add(RoutingType.MULTICAST);
+      session.createAddress(address, types, false);
+
+      addressControl = createManagementControl(address);
+      routingTypes = addressControl.getRoutingTypes();
+      Set<String> strings = new HashSet<>(Arrays.asList(routingTypes));
+      Assert.assertEquals(2, strings.size());
+      Assert.assertTrue(strings.contains(RoutingType.ANYCAST.toString()));
+      Assert.assertTrue(strings.contains(RoutingType.MULTICAST.toString()));
+   }
+
+   @Test
+   public void testGetRoutingTypesAsJSON() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      JsonArray jsonArray = JsonUtil.readJsonArray(addressControl.getRoutingTypesAsJSON());
+
+      assertEquals(1, jsonArray.size());
+      assertEquals(RoutingType.ANYCAST.toString(), ((JsonString) jsonArray.get(0)).getString());
    }
 
    // Package protected ---------------------------------------------
