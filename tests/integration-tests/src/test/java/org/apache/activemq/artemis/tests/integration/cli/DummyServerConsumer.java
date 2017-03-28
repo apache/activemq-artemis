@@ -59,6 +59,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public long sequentialID() {
+      return 0;
+   }
+
+   @Override
    public Object getProtocolContext() {
       return null;
    }
