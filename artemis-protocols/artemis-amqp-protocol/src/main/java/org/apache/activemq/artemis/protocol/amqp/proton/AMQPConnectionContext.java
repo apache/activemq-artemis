@@ -16,22 +16,16 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -55,9 +49,13 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.jboss.logging.Logger;
 
-import io.netty.buffer.ByteBuf;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
 
-public class AMQPConnectionContext extends ProtonInitializable {
+public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
    private static final Logger log = Logger.getLogger(AMQPConnectionContext.class);
 
@@ -73,8 +71,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
    private final Map<Session, AMQPSessionContext> sessions = new ConcurrentHashMap<>();
 
-   protected LocalListener listener = new LocalListener();
-
    private final ProtonProtocolManager protocolManager;
 
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
@@ -83,7 +79,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
                                 int idleTimeout,
                                 int maxFrameSize,
                                 int channelMax,
-                                Executor dispatchExecutor,
                                 ScheduledExecutorService scheduledPool) {
 
       this.protocolManager = protocolManager;
@@ -95,7 +90,8 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      this.handler = new ProtonHandler(dispatchExecutor);
+      this.handler = new ProtonHandler();
+      handler.addEventHandler(this);
       Transport transport = handler.getTransport();
       transport.setEmitFlowEventOnSend(false);
       if (idleTimeout > 0) {
@@ -103,7 +99,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
       }
       transport.setChannelMax(channelMax);
       transport.setMaxFrameSize(maxFrameSize);
-      handler.addEventHandler(listener);
    }
 
    protected AMQPSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
@@ -141,10 +136,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
       return handler.capacity();
    }
 
-   public void outputDone(int bytes) {
-      handler.outputDone(bytes);
-   }
-
    public void flush() {
       handler.flush();
    }
@@ -174,14 +165,6 @@ public class AMQPConnectionContext extends ProtonInitializable {
 
    public long getCreationTime() {
       return handler.getCreationTime();
-   }
-
-   protected void flushBytes() {
-      ByteBuf bytes;
-      // handler.outputBuffer has the lock
-      while ((bytes = handler.outputBuffer()) != null) {
-         connectionCallback.onTransport(bytes, this);
-      }
    }
 
    public String getRemoteContainer() {
@@ -218,7 +201,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
    public Symbol[] getConnectionCapabilitiesOffered() {
       URI tc = connectionCallback.getFailoverList();
       if (tc != null) {
-         Map<Symbol,Object> hostDetails = new HashMap<>();
+         Map<Symbol, Object> hostDetails = new HashMap<>();
          hostDetails.put(NETWORK_HOST, tc.getHost());
          boolean isSSL = tc.getQuery().contains(TransportConstants.SSL_ENABLED_PROP_NAME + "=true");
          if (isSSL) {
@@ -229,7 +212,7 @@ public class AMQPConnectionContext extends ProtonInitializable {
          hostDetails.put(HOSTNAME, tc.getHost());
          hostDetails.put(PORT, tc.getPort());
 
-         connectionProperties.put(FAILOVER_SERVER_LIST,  Arrays.asList(hostDetails));
+         connectionProperties.put(FAILOVER_SERVER_LIST, Arrays.asList(hostDetails));
       }
       return ExtCapability.getCapabilities();
    }
@@ -268,220 +251,218 @@ public class AMQPConnectionContext extends ProtonInitializable {
       }
    }
 
-   // This listener will perform a bunch of things here
-   class LocalListener implements EventHandler {
+   @Override
+   public void onInit(Connection connection) throws Exception {
 
-      @Override
-      public void onInit(Connection connection) throws Exception {
+   }
 
+   @Override
+   public void onLocalOpen(Connection connection) throws Exception {
+
+   }
+
+   @Override
+   public void onLocalClose(Connection connection) throws Exception {
+
+   }
+
+   @Override
+   public void onFinal(Connection connection) throws Exception {
+
+   }
+
+   @Override
+   public void onInit(Session session) throws Exception {
+
+   }
+
+   @Override
+   public void onFinal(Session session) throws Exception {
+
+   }
+
+   @Override
+   public void onInit(Link link) throws Exception {
+
+   }
+
+   @Override
+   public void onLocalOpen(Link link) throws Exception {
+
+   }
+
+   @Override
+   public void onLocalClose(Link link) throws Exception {
+
+   }
+
+   @Override
+   public void onFinal(Link link) throws Exception {
+
+   }
+
+   @Override
+   public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
+      if (sasl) {
+         handler.createServerSASL(connectionCallback.getSASLMechnisms());
+      } else {
+         if (!connectionCallback.isSupportsAnonymous()) {
+            connectionCallback.sendSASLSupported();
+            connectionCallback.close();
+            handler.close(null);
+         }
       }
+   }
 
-      @Override
-      public void onLocalOpen(Connection connection) throws Exception {
+   @Override
+   public void onTransport(Transport transport) {
+      handler.flushBytes();
+   }
 
-      }
 
-      @Override
-      public void onLocalClose(Connection connection) throws Exception {
+   @Override
+   public void pushBytes(ByteBuf bytes) {
+      connectionCallback.onTransport(bytes, this);
+   }
 
-      }
-
-      @Override
-      public void onFinal(Connection connection) throws Exception {
-
-      }
-
-      @Override
-      public void onInit(Session session) throws Exception {
-
-      }
-
-      @Override
-      public void onFinal(Session session) throws Exception {
-
-      }
-
-      @Override
-      public void onInit(Link link) throws Exception {
-
-      }
-
-      @Override
-      public void onLocalOpen(Link link) throws Exception {
-
-      }
-
-      @Override
-      public void onLocalClose(Link link) throws Exception {
-
-      }
-
-      @Override
-      public void onFinal(Link link) throws Exception {
-
-      }
-
-      @Override
-      public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
-         if (sasl) {
-            handler.createServerSASL(connectionCallback.getSASLMechnisms());
+   @Override
+   public void onRemoteOpen(Connection connection) throws Exception {
+      synchronized (getLock()) {
+         try {
+            initInternal();
+         } catch (Exception e) {
+            log.error("Error init connection", e);
+         }
+         if (!validateConnection(connection)) {
+            connection.close();
          } else {
-            if (!connectionCallback.isSupportsAnonymous()) {
-               connectionCallback.sendSASLSupported();
-               connectionCallback.close();
-               handler.close(null);
-            }
+            connection.setContext(AMQPConnectionContext.this);
+            connection.setContainer(containerId);
+            connection.setProperties(connectionProperties);
+            connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
+            connection.open();
          }
       }
-
-      @Override
-      public void onTransport(Transport transport) {
-         flushBytes();
-      }
-
-      @Override
-      public void onRemoteOpen(Connection connection) throws Exception {
-         synchronized (getLock()) {
-            try {
-               initInternal();
-            } catch (Exception e) {
-               log.error("Error init connection", e);
-            }
-            if (!validateConnection(connection)) {
-               connection.close();
-            } else {
-               connection.setContext(AMQPConnectionContext.this);
-               connection.setContainer(containerId);
-               connection.setProperties(connectionProperties);
-               connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
-               connection.open();
-            }
-         }
-         initialise();
+      initialise();
 
          /*
          * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
          * but its here in case we add support for outbound connections.
          * */
-         if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
-            long nextKeepAliveTime = handler.tick(true);
-            flushBytes();
-            if (nextKeepAliveTime > 0 && scheduledPool != null) {
-               scheduledPool.schedule(new Runnable() {
-                  @Override
-                  public void run() {
-                     long rescheduleAt = (handler.tick(false) - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-                     flushBytes();
-                     if (rescheduleAt > 0) {
-                        scheduledPool.schedule(this, rescheduleAt, TimeUnit.MILLISECONDS);
-                     }
+      if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
+         long nextKeepAliveTime = handler.tick(true);
+         if (nextKeepAliveTime > 0 && scheduledPool != null) {
+            scheduledPool.schedule(new Runnable() {
+               @Override
+               public void run() {
+                  long rescheduleAt = (handler.tick(false) - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+                  if (rescheduleAt > 0) {
+                     scheduledPool.schedule(this, rescheduleAt, TimeUnit.MILLISECONDS);
                   }
-               }, (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
-            }
+               }
+            }, (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
          }
       }
+   }
 
-      @Override
-      public void onRemoteClose(Connection connection) {
-         synchronized (getLock()) {
-            connection.close();
-            connection.free();
-         }
-
-         for (AMQPSessionContext protonSession : sessions.values()) {
-            protonSession.close();
-         }
-         sessions.clear();
-
-         // We must force write the channel before we actually destroy the connection
-         onTransport(handler.getTransport());
-         destroy();
+   @Override
+   public void onRemoteClose(Connection connection) {
+      synchronized (getLock()) {
+         connection.close();
+         connection.free();
       }
 
-      @Override
-      public void onLocalOpen(Session session) throws Exception {
-         getSessionExtension(session);
+      for (AMQPSessionContext protonSession : sessions.values()) {
+         protonSession.close();
+      }
+      sessions.clear();
+
+      // We must force write the channel before we actually destroy the connection
+      handler.flushBytes();
+      destroy();
+   }
+
+   @Override
+   public void onLocalOpen(Session session) throws Exception {
+      getSessionExtension(session);
+   }
+
+   @Override
+   public void onRemoteOpen(Session session) throws Exception {
+      getSessionExtension(session).initialise();
+      synchronized (getLock()) {
+         session.open();
+      }
+   }
+
+   @Override
+   public void onLocalClose(Session session) throws Exception {
+   }
+
+   @Override
+   public void onRemoteClose(Session session) throws Exception {
+      synchronized (getLock()) {
+         session.close();
+         session.free();
       }
 
-      @Override
-      public void onRemoteOpen(Session session) throws Exception {
-         getSessionExtension(session).initialise();
-         synchronized (getLock()) {
-            session.open();
-         }
+      AMQPSessionContext sessionContext = (AMQPSessionContext) session.getContext();
+      if (sessionContext != null) {
+         sessionContext.close();
+         sessions.remove(session);
+         session.setContext(null);
+      }
+   }
+
+   @Override
+   public void onRemoteOpen(Link link) throws Exception {
+      remoteLinkOpened(link);
+   }
+
+   @Override
+   public void onFlow(Link link) throws Exception {
+      if (link.getContext() != null) {
+         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
+      }
+   }
+
+   @Override
+   public void onRemoteClose(Link link) throws Exception {
+      synchronized (getLock()) {
+         link.close();
+         link.free();
+      }
+      ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
+      if (linkContext != null) {
+         linkContext.close(true);
+      }
+   }
+
+   @Override
+   public void onRemoteDetach(Link link) throws Exception {
+      synchronized (getLock()) {
+         link.detach();
+         link.free();
       }
 
-      @Override
-      public void onLocalClose(Session session) throws Exception {
+   }
+
+   @Override
+   public void onLocalDetach(Link link) throws Exception {
+      Object context = link.getContext();
+      if (context instanceof ProtonServerSenderContext) {
+         ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
+         senderContext.close(false);
       }
+   }
 
-      @Override
-      public void onRemoteClose(Session session) throws Exception {
-         synchronized (getLock()) {
-            session.close();
-            session.free();
-         }
-
-         AMQPSessionContext sessionContext = (AMQPSessionContext) session.getContext();
-         if (sessionContext != null) {
-            sessionContext.close();
-            sessions.remove(session);
-            session.setContext(null);
-         }
-      }
-
-      @Override
-      public void onRemoteOpen(Link link) throws Exception {
-         remoteLinkOpened(link);
-      }
-
-      @Override
-      public void onFlow(Link link) throws Exception {
-         if (link.getContext() != null) {
-            ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
-         }
-      }
-
-      @Override
-      public void onRemoteClose(Link link) throws Exception {
-         synchronized (getLock()) {
-            link.close();
-            link.free();
-         }
-         ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
-         if (linkContext != null) {
-            linkContext.close(true);
-         }
-      }
-
-      @Override
-      public void onRemoteDetach(Link link) throws Exception {
-         synchronized (getLock()) {
-            link.detach();
-            link.free();
-         }
-
-         flush();
-      }
-
-      @Override
-      public void onLocalDetach(Link link) throws Exception {
-         Object context = link.getContext();
-         if (context instanceof ProtonServerSenderContext) {
-            ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
-            senderContext.close(false);
-         }
-      }
-
-      @Override
-      public void onDelivery(Delivery delivery) throws Exception {
-         ProtonDeliveryHandler handler = (ProtonDeliveryHandler) delivery.getLink().getContext();
-         if (handler != null) {
-            handler.onMessage(delivery);
-         } else {
-            // TODO: logs
-            System.err.println("Handler is null, can't delivery " + delivery);
-         }
+   @Override
+   public void onDelivery(Delivery delivery) throws Exception {
+      ProtonDeliveryHandler handler = (ProtonDeliveryHandler) delivery.getLink().getContext();
+      if (handler != null) {
+         handler.onMessage(delivery);
+      } else {
+         log.warn("Handler is null, can't delivery " + delivery, new Exception("tracing location"));
       }
    }
 }
