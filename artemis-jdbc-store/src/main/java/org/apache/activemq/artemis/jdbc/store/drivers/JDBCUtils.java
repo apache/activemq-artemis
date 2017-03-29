@@ -51,7 +51,7 @@ public class JDBCUtils {
       return factory;
    }
 
-   public static SQLProvider getSQLProvider(String driverClass, String tableName) {
+   public static SQLProvider getSQLProvider(String driverClass, String tableName, SQLProvider.DatabaseStoreType storeType) {
       SQLProvider.Factory factory;
       if (driverClass.contains("derby")) {
          logger.tracef("getSQLProvider Returning Derby SQL provider for driver::%s, tableName::%s", driverClass, tableName);
@@ -69,7 +69,7 @@ public class JDBCUtils {
          logger.tracef("getSQLProvider Returning generic SQL provider for driver::%s, tableName::%s", driverClass, tableName);
          factory = new GenericSQLProvider.Factory();
       }
-      return factory.create(tableName);
+      return factory.create(tableName, storeType);
    }
 
    /**

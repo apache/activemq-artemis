@@ -26,8 +26,8 @@ public class DerbySQLProvider extends GenericSQLProvider {
 
    private final String createFileTableSQL;
 
-   private DerbySQLProvider(String tableName) {
-      super(tableName.toUpperCase());
+   private DerbySQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
+      super(tableName.toUpperCase(), databaseStoreType);
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
@@ -52,8 +52,8 @@ public class DerbySQLProvider extends GenericSQLProvider {
    public static class Factory implements SQLProvider.Factory {
 
       @Override
-      public SQLProvider create(String tableName) {
-         return new DerbySQLProvider(tableName);
+      public SQLProvider create(String tableName, DatabaseStoreType databaseStoreType) {
+         return new DerbySQLProvider(tableName, databaseStoreType);
       }
    }
 }

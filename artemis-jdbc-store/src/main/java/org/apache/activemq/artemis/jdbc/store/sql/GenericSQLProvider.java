@@ -57,8 +57,12 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String countJournalRecordsSQL;
 
-   protected GenericSQLProvider(String tableName) {
+   protected final DatabaseStoreType databaseStoreType;
+
+   protected GenericSQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
       this.tableName = tableName;
+
+      this.databaseStoreType = databaseStoreType;
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID BIGINT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
@@ -205,8 +209,8 @@ public class GenericSQLProvider implements SQLProvider {
    public static class Factory implements SQLProvider.Factory {
 
       @Override
-      public SQLProvider create(String tableName) {
-         return new GenericSQLProvider(tableName);
+      public SQLProvider create(String tableName, DatabaseStoreType storeType) {
+         return new GenericSQLProvider(tableName, storeType);
       }
    }
 }

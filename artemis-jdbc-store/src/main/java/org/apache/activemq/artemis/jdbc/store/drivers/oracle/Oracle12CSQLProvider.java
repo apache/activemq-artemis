@@ -32,8 +32,11 @@ public class Oracle12CSQLProvider extends GenericSQLProvider {
 
    private static final long MAX_BLOB_SIZE = 4294967296L; //4GB
 
-   protected Oracle12CSQLProvider(String tableName) {
-      super(tableName);
+   protected Oracle12CSQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
+      super(tableName.toUpperCase(), databaseStoreType);
+      if (tableName.length() > 10 && databaseStoreType == DatabaseStoreType.PAGE) {
+         throw new RuntimeException("The maximum name size for the paging store table, when using Oracle12C is 10 characters.");
+      }
    }
 
    @Override
@@ -54,8 +57,8 @@ public class Oracle12CSQLProvider extends GenericSQLProvider {
    public static class Factory implements SQLProvider.Factory {
 
       @Override
-      public SQLProvider create(String tableName) {
-         return new Oracle12CSQLProvider(tableName);
+      public SQLProvider create(String tableName, DatabaseStoreType databaseStoreType) {
+         return new Oracle12CSQLProvider(tableName, databaseStoreType);
       }
    }
 }
