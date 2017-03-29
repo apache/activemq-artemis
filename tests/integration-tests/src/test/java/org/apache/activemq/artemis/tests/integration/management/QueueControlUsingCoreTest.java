@@ -172,8 +172,8 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
-         public byte getRoutingType() throws Exception {
-            return  (byte) proxy.retrieveAttributeValue("routingType");
+         public String getRoutingType() {
+            return (String) proxy.retrieveAttributeValue("routingType");
          }
 
          @Override
