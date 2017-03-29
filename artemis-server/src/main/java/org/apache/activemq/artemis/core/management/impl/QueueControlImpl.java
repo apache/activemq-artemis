@@ -176,12 +176,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
-   public byte getRoutingType() throws Exception {
+   public String getRoutingType() {
       checkStarted();
 
       clearIO();
       try {
-         return queue.getRoutingType().getType();
+         return queue.getRoutingType().toString();
       } finally {
          blockOnIO();
       }
