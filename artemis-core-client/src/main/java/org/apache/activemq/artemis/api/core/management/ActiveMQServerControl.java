@@ -396,6 +396,12 @@ public interface ActiveMQServerControl {
    String[] getQueueNames();
 
    /**
+    * Returns the names of the queues created on this server with the given routing-type.
+    */
+   @Attribute(desc = "names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)")
+   String[] getQueueNames(String routingType);
+
+   /**
     * Returns the uptime of this server.
     */
    @Attribute(desc = "uptime of this server")

@@ -59,8 +59,8 @@ public interface QueueControl {
    /**
     * The routing type of this queue.
     */
-   @Attribute(desc = "The routing type of this queue")
-   byte getRoutingType() throws Exception;
+   @Attribute(desc = "routing type of this queue")
+   String getRoutingType();
 
    /**
     * Returns the filter associated with this queue.
