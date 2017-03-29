@@ -59,6 +59,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public long sequentialID() {
+      return 0;
+   }
+
+   @Override
    public Object getProtocolContext() {
       return null;
    }
@@ -120,6 +125,11 @@ public class DummyServerConsumer implements ServerConsumer {
                                                                         Object protocolDataStart,
                                                                         Object protocolDataEnd) {
       return null;
+   }
+
+   @Override
+   public void reject(long messageID) throws Exception {
+
    }
 
    @Override

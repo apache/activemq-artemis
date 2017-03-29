@@ -86,6 +86,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final UUID nodeUUID;
 
+   private final long sequentialID;
+
    private final SimpleString name;
 
    private final Queue queue;
@@ -170,6 +172,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                      final String password,
                      final StorageManager storageManager) {
 
+      this.sequentialID = storageManager.generateID();
+
       this.reconnectAttempts = reconnectAttempts;
 
       this.reconnectAttemptsInUse = initialConnectAttempts;
@@ -242,6 +246,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
+   }
+
+   @Override
+   public long sequentialID() {
+      return sequentialID;
    }
 
    @Override
