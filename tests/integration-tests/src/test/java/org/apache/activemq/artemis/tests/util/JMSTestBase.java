@@ -59,6 +59,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    protected MBeanServer mbeanServer;
 
    protected ConnectionFactory cf;
+   protected ConnectionFactory nettyCf;
    protected Connection conn;
    private final Set<JMSContext> contextSet = new HashSet<>();
    private final Random random = new Random();
@@ -130,7 +131,7 @@ public class JMSTestBase extends ActiveMQTestBase {
       Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).
          addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY)).
          setTransactionTimeoutScanPeriod(100);
-
+      config.getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, usePersistence()));
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
@@ -197,21 +198,34 @@ public class JMSTestBase extends ActiveMQTestBase {
       List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
+      List<TransportConfiguration> connectorConfigs1 = new ArrayList<>();
+      connectorConfigs1.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+
       createCF(connectorConfigs, "/cf");
+      createCF("NettyCF", connectorConfigs1, "/nettyCf");
 
       cf = (ConnectionFactory) namingContext.lookup("/cf");
+      nettyCf = (ConnectionFactory)namingContext.lookup("/nettyCf");
    }
 
+   protected void createCF(final List<TransportConfiguration> connectorConfigs,
+                           final String... jndiBindings) throws Exception {
+      createCF(name.getMethodName(), connectorConfigs, jndiBindings);
+   }
+
+
    /**
-    * @param connectorConfigs
-    * @param jndiBindings
+    * @param cfName the unique ConnectionFactory's name
+    * @param connectorConfigs initial static connectors' config
+    * @param jndiBindings JNDI binding names for the CF
     * @throws Exception
     */
-   protected void createCF(final List<TransportConfiguration> connectorConfigs,
+   protected void createCF(final String cfName,
+                           final List<TransportConfiguration> connectorConfigs,
                            final String... jndiBindings) throws Exception {
       List<String> connectorNames = registerConnectors(server, connectorConfigs);
 
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(name.getMethodName()).setConnectorNames(connectorNames).setRetryInterval(1000).setReconnectAttempts(-1);
+      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(cfName).setConnectorNames(connectorNames).setRetryInterval(1000).setReconnectAttempts(-1);
       testCaseCfExtraConfig(configuration);
       jmsServer.createConnectionFactory(false, configuration, jndiBindings);
    }

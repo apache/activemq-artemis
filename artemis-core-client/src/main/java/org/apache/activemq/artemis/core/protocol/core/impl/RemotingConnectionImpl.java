@@ -359,6 +359,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          super.bufferReceived(connectionID, buffer);
       } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorDecodingPacket(e);
+         throw new IllegalStateException(e);
       }
    }
 
