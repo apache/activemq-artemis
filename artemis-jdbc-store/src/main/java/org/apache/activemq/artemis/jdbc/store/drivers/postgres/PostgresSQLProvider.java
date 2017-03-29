@@ -28,8 +28,8 @@ public class PostgresSQLProvider extends GenericSQLProvider {
 
    private final String[] createJournalTableSQL;
 
-   private PostgresSQLProvider(String tName) {
-      super(tName.toLowerCase());
+   private PostgresSQLProvider(String tName, DatabaseStoreType databaseStoreType) {
+      super(tName.toLowerCase(), databaseStoreType);
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID BIGSERIAL, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA OID, PRIMARY KEY(ID))";
 
@@ -57,8 +57,8 @@ public class PostgresSQLProvider extends GenericSQLProvider {
    public static class Factory implements SQLProvider.Factory {
 
       @Override
-      public SQLProvider create(String tableName) {
-         return new PostgresSQLProvider(tableName);
+      public SQLProvider create(String tableName, DatabaseStoreType databaseStoreType) {
+         return new PostgresSQLProvider(tableName, databaseStoreType);
       }
    }
 }
