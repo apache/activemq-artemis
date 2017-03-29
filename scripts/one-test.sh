@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 
-mvn -Ptests -DfailIfNoTests=false -Pextra-tests -DskipPerformanceTests=false -Dtest=$1 test
+mvn -Ptests -DfailIfNoTests=false -Pextra-tests -DskipStyleCheck=true -DskipPerformanceTests=false -Dtest=$1 test
