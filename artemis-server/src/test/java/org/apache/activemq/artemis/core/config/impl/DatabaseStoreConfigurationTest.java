@@ -20,6 +20,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.jdbc.store.drivers.oracle.Oracle12CSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
@@ -30,6 +32,19 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
       Configuration configuration = createConfiguration("database-store-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       assertEquals(StoreConfiguration.StoreType.DATABASE, server.getConfiguration().getStoreConfiguration().getStoreType());
+   }
+
+   @Test
+   public void testOracle12TableSize() {
+      Throwable rte = null;
+      try {
+         new Oracle12CSQLProvider.Factory().create("A_TABLE_NAME_THAT_IS_TOO_LONG", SQLProvider.DatabaseStoreType.PAGE);
+      } catch (Throwable t) {
+         rte = t;
+      }
+
+      assertNotNull(rte);
+      assertTrue(rte.getMessage().contains("The maximum name size for the paging store table, when using Oracle12C is 10 characters."));
    }
 
    protected Configuration createConfiguration(String fileName) throws Exception {

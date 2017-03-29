@@ -29,8 +29,8 @@ public class MySQLSQLProvider extends GenericSQLProvider {
 
    private final String copyFileRecordByIdSQL;
 
-   private MySQLSQLProvider(String tName) {
-      super(tName.toLowerCase());
+   private MySQLSQLProvider(String tName, DatabaseStoreType databaseStoreType) {
+      super(tName.toLowerCase(), databaseStoreType);
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID BIGINT NOT NULL AUTO_INCREMENT," +
@@ -68,8 +68,8 @@ public class MySQLSQLProvider extends GenericSQLProvider {
    public static class Factory implements SQLProvider.Factory {
 
       @Override
-      public SQLProvider create(String tableName) {
-         return new MySQLSQLProvider(tableName);
+      public SQLProvider create(String tableName, DatabaseStoreType databaseStoreType) {
+         return new MySQLSQLProvider(tableName, databaseStoreType);
       }
    }
 }

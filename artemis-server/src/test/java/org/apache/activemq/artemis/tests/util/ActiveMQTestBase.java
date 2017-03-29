@@ -474,7 +474,7 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          for (String tableName : tableNames) {
             connection.setAutoCommit(false);
-            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName);
+            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName, SQLProvider.DatabaseStoreType.LARGE_MESSAGE);
             try (ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null)) {
                if (rs.next()) {
                   statement.execute("DROP TABLE " + sqlProvider.getTableName());

@@ -77,7 +77,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       executorService = Executors.newSingleThreadExecutor();
       jdbcUrl = "jdbc:derby:target/data;create=true";
       SQLProvider.Factory factory = new DerbySQLProvider.Factory();
-      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME), scheduledExecutorService, executorService);
+      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME, SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL), scheduledExecutorService, executorService);
       journal.start();
    }
 
