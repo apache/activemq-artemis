@@ -626,7 +626,12 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          ConnectionEntry conn = connections.get(connectionID);
 
          if (conn != null) {
-            conn.connection.bufferReceived(connectionID, buffer);
+            try {
+               conn.connection.bufferReceived(connectionID, buffer);
+            } catch (RuntimeException e) {
+               ActiveMQServerLogger.LOGGER.disconnectCritical("Error decoding buffer", e);
+               conn.connection.fail(new ActiveMQException(e.getMessage()));
+            }
          } else {
             if (logger.isTraceEnabled()) {
                logger.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
