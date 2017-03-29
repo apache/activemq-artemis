@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -63,7 +64,7 @@ public class JDBCSequentialFileFactoryTest {
 
       String connectionUrl = "jdbc:derby:target/data;create=true";
       String tableName = "FILES";
-      factory = new JDBCSequentialFileFactory(connectionUrl, className, JDBCUtils.getSQLProvider(className, tableName), executor);
+      factory = new JDBCSequentialFileFactory(connectionUrl, className, JDBCUtils.getSQLProvider(className, tableName, SQLProvider.DatabaseStoreType.PAGE), executor);
       factory.start();
    }
 
