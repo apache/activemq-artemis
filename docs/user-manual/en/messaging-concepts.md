@@ -244,7 +244,7 @@ theoretically any Stomp client can work with any messaging system that
 supports Stomp. Stomp clients are available in many different
 programming languages.
 
-Please see [Stomp](interoperability.md) for using STOMP with Apache ActiveMQ Artemis.
+Please see [Stomp](protocols-interoperability.md) for using STOMP with Apache ActiveMQ Artemis.
 
 ### OPENWIRE
 
