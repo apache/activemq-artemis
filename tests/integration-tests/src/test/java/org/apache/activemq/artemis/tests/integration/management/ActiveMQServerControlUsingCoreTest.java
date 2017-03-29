@@ -32,14 +32,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    // Static --------------------------------------------------------
 
-   private static String[] toStringArray(final Object[] res) {
-      String[] names = new String[res.length];
-      for (int i = 0; i < res.length; i++) {
-         names[i] = res[i].toString();
-      }
-      return names;
-   }
-
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
@@ -252,12 +244,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String[] getAddressNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("addressNames"));
+            return (String[]) proxy.retrieveAttributeValue("addressNames", String.class);
          }
 
          @Override
          public String[] getQueueNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames", String.class));
+            return (String[]) proxy.retrieveAttributeValue("queueNames", String.class);
          }
 
          @Override
@@ -292,17 +284,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          public String[] getInterceptorClassNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
+            return (String[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames", String.class);
          }
 
          @Override
          public String[] getIncomingInterceptorClassNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
+            return (String[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames", String.class);
          }
 
          @Override
          public String[] getOutgoingInterceptorClassNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("outgoingInterceptorClassNames"));
+            return (String[]) proxy.retrieveAttributeValue("outgoingInterceptorClassNames", String.class);
          }
 
          @Override
@@ -769,7 +761,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String[] getBridgeNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("bridgeNames"));
+            return (String[]) proxy.retrieveAttributeValue("bridgeNames", String.class);
          }
 
          @Override
@@ -790,7 +782,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String[] getConnectorServices() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("connectorServices"));
+            return (String[]) proxy.retrieveAttributeValue("connectorServices", String.class);
          }
 
          @Override
@@ -809,7 +801,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String[] getDivertNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("divertNames"));
+            return (String[]) proxy.retrieveAttributeValue("divertNames", String.class);
          }
 
          @Override
