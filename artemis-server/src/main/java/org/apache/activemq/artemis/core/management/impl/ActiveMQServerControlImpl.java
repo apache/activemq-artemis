@@ -782,18 +782,28 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String[] getQueueNames() {
+      return getQueueNames(null);
+   }
+
+   @Override
+   public String[] getQueueNames(String routingType) {
       checkStarted();
 
       clearIO();
       try {
-         Object[] queues = server.getManagementService().getResources(QueueControl.class);
-         String[] names = new String[queues.length];
-         for (int i = 0; i < queues.length; i++) {
-            QueueControl queue = (QueueControl) queues[i];
-            names[i] = queue.getName();
+         Object[] queueControls = server.getManagementService().getResources(QueueControl.class);
+         List<String> names = new ArrayList<>();
+         for (int i = 0; i < queueControls.length; i++) {
+            QueueControl queueControl = (QueueControl) queueControls[i];
+            if (routingType != null && queueControl.getRoutingType().equals(routingType.toUpperCase())) {
+               names.add(queueControl.getName());
+            } else if (routingType == null) {
+               names.add(queueControl.getName());
+            }
          }
 
-         return names;
+         String[] result = new String[names.size()];
+         return names.toArray(result);
       } finally {
          blockOnIO();
       }
