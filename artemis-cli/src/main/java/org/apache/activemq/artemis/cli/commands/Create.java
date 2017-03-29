@@ -188,11 +188,11 @@ public class Create extends InputAbstract {
    @Option(name = "--require-login", description = "This will configure security to require user / password, opposite of --allow-anonymous")
    Boolean requireLogin = null;
 
-   @Option(name = "--paging", description = "Page messages to disk when address becomes full, opposite of --blocking (Default: input)")
-   Boolean paging = null;
+   @Option(name = "--paging", description = "Page messages to disk when address becomes full, opposite of --blocking (Default: true)")
+   Boolean paging;
 
-   @Option(name = "--blocking", description = "Block producers when address becomes full, opposite of --paging (Default: input)")
-   Boolean blocking = null;
+   @Option(name = "--blocking", description = "Block producers when address becomes full, opposite of --paging (Default: false)")
+   Boolean blocking;
 
    @Option(name = "--no-autotune", description = "Disable auto tuning on the journal.")
    boolean noAutoTune;
@@ -209,10 +209,10 @@ public class Create extends InputAbstract {
    @Option(name = "--password", description = "The user's password (Default: input)")
    String password;
 
-   @Option(name = "--role", description = "The name for the role created (Default: input)")
-   String role;
+   @Option(name = "--role", description = "The name for the role created (Default: amq)")
+   String role = "amq";
 
-   @Option(name = "--no-web", description = "This will remove the web server definition from bootstrap.xml")
+   @Option(name = "--no-web", description = "remove the web-server definition from bootstrap.xml")
    boolean noWeb;
 
    @Option(name = "--queues", description = "comma separated list of queues.")
@@ -251,8 +251,8 @@ public class Create extends InputAbstract {
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
    boolean noJournalSync;
 
-   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: input)")
-   String globalMaxSize;
+   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: 100Mb)")
+   String globalMaxSize = "100Mb";
 
    boolean IS_WINDOWS;
 
@@ -467,9 +467,6 @@ public class Create extends InputAbstract {
    }
 
    public boolean isPaging() {
-      if (paging == null) {
-         paging = inputBoolean("--paging | --blocking", "Page messages to disk when an address becomes full?", true);
-      }
       return paging;
    }
 
@@ -515,9 +512,6 @@ public class Create extends InputAbstract {
    }
 
    public String getRole() {
-      if (role == null) {
-         role = input("--role", "Please provide the default role:", "amq");
-      }
       return role;
    }
 
@@ -526,9 +520,6 @@ public class Create extends InputAbstract {
    }
 
    public String getGlobalMaxSize() {
-      if (globalMaxSize == null) {
-         globalMaxSize = input("--global-max-size", "Maximum amount of memory which message data may consume (typically 50% of your JVM's maximum heap size, e.g. 100Mb):", "100Mb");
-      }
       return globalMaxSize;
    }
    public void setGlobalMaxSize(String globalMaxSize) {
@@ -607,11 +598,6 @@ public class Create extends InputAbstract {
          allowAnonymous = Boolean.FALSE;
       }
 
-      // blocking should set paging=false, to avoid user's questions
-      if (blocking != null && blocking.booleanValue()) {
-         paging = Boolean.FALSE;
-      }
-
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
       HashMap<String, String> filters = new HashMap<>();
@@ -674,8 +660,8 @@ public class Create extends InputAbstract {
       filters.put("${message-load-balancing}", messageLoadBalancing.toString());
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
-      filters.put("${role}", getRole());
-      filters.put("${global-max-size}", getGlobalMaxSize());
+      filters.put("${role}", role);
+      filters.put("${global-max-size}", globalMaxSize);
 
       if (clustered) {
          filters.put("${host}", getHostForClustered());
@@ -786,10 +772,14 @@ public class Create extends InputAbstract {
          filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
       }
 
-      if (isPaging()) {
+      if (paging == null && blocking == null) {
          filters.put("${full-policy}", "PAGE");
-      } else {
+      } else if (paging != null && paging) {
+         filters.put("${full-policy}", "PAGE");
+      } else if (blocking != null && blocking) {
          filters.put("${full-policy}", "BLOCK");
+      } else {
+         filters.put("${full-policy}", "PAGE");
       }
 
 
