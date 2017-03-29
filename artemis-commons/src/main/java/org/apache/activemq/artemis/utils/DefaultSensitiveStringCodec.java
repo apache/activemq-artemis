@@ -20,6 +20,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -28,6 +29,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.jboss.logging.Logger;
 
 /**
  * A DefaultSensitiveDataCodec
@@ -42,6 +45,8 @@ import java.util.Properties;
  * The one-way uses "PBKDF2" hash algorithm
  */
 public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
+
+   private static final Logger logger = Logger.getLogger(DefaultSensitiveStringCodec.class);
 
    public static final String ALGORITHM = "algorithm";
    public static final String BLOWFISH_KEY = "key";
@@ -139,8 +144,15 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       public String decode(String secret) throws Exception {
          SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
 
-         BigInteger n = new BigInteger((String) secret, 16);
-         byte[] encoding = n.toByteArray();
+         byte[] encoding;
+         try {
+            encoding = new BigInteger(secret, 16).toByteArray();
+         } catch (Exception ex) {
+            if (logger.isDebugEnabled()) {
+               logger.debug(ex.getMessage(), ex);
+            }
+            throw new IllegalArgumentException("Password must be encrypted.");
+         }
 
          if (encoding.length % 8 != 0) {
             int length = encoding.length;
