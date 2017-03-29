@@ -82,6 +82,11 @@ public class FakeConsumer implements Consumer {
       delayCountdown = numReferences;
    }
 
+   @Override
+   public long sequentialID() {
+      return 0;
+   }
+
    public synchronized List<MessageReference> getReferences() {
       return references;
    }

@@ -77,6 +77,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final long id;
 
+   private final long sequentialID;
+
    protected final Queue messageQueue;
 
    private final Filter filter;
@@ -180,6 +182,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                              final ActiveMQServer server) throws Exception {
       this.id = id;
 
+      this.sequentialID = server.getStorageManager().generateID();
+
       this.filter = filter;
 
       this.session = session;
@@ -231,6 +235,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    // ServerConsumer implementation
    // ----------------------------------------------------------------------
+
+
+   @Override
+   public long sequentialID() {
+      return sequentialID;
+   }
 
    @Override
    public Object getProtocolData() {
@@ -342,6 +352,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             return HandleStatus.BUSY;
          }
          final Message message = ref.getMessage();
+
+         if (!message.acceptsConsumer(sequentialID())) {
+            return HandleStatus.NO_MATCH;
+         }
 
          if (filter != null && !filter.match(message)) {
             if (logger.isTraceEnabled()) {
@@ -908,6 +922,22 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       ref.getQueue().cancel(ref, System.currentTimeMillis());
+   }
+
+
+   @Override
+   public synchronized void reject(final long messageID) throws Exception {
+      if (browseOnly) {
+         return;
+      }
+
+      MessageReference ref = removeReferenceByID(messageID);
+
+      if (ref == null) {
+         return; // nothing to be done
+      }
+
+      ref.getQueue().sendToDeadLetterAddress(null, ref);
    }
 
    @Override

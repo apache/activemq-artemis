@@ -52,6 +52,8 @@ public class Redistributor implements Consumer {
 
    private int count;
 
+   private final long sequentialID;
+
    // a Flush executor here is happening inside another executor.
    // what may cause issues under load. Say you are running out of executors for cases where you don't need to wait at all.
    // So, instead of using a future we will use a plain ReusableLatch here
@@ -64,6 +66,8 @@ public class Redistributor implements Consumer {
                         final int batchSize) {
       this.queue = queue;
 
+      this.sequentialID = storageManager.generateID();
+
       this.storageManager = storageManager;
 
       this.postOffice = postOffice;
@@ -71,6 +75,11 @@ public class Redistributor implements Consumer {
       this.executor = executor;
 
       this.batchSize = batchSize;
+   }
+
+   @Override
+   public long sequentialID() {
+      return sequentialID;
    }
 
    @Override

@@ -97,13 +97,13 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       // Reject is a terminal outcome and should not be redelivered to the rejecting receiver
       // or any other as it should move to the archived state.
       receiver1.flow(1);
-      message = receiver1.receive(1, TimeUnit.SECONDS);
+      message = receiver1.receiveNoWait();
       assertNull("Should not receive message again", message);
 
       // Attempt to Read the message again with another receiver to validate it is archived.
       AmqpReceiver receiver2 = session.createReceiver(getTestName());
       receiver2.flow(1);
-      assertNull(receiver2.receive(3, TimeUnit.SECONDS));
+      assertNull(receiver2.receiveNoWait());
 
       connection.close();
    }

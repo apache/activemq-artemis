@@ -336,6 +336,15 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   public void reject(Object brokerConsumer, Message message) throws Exception {
+      recoverContext();
+      try {
+         ((ServerConsumer) brokerConsumer).reject(message.getMessageID());
+      } finally {
+         resetContext();
+      }
+   }
+
    public void resumeDelivery(Object consumer) {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
@@ -451,7 +460,7 @@ public class AMQPSessionCallback implements SessionCallback {
             @Override
             public void run() {
                synchronized (connection.getLock()) {
-                  if (receiver.getRemoteCredit() < threshold) {
+                  if (receiver.getRemoteCredit() <= threshold) {
                      receiver.flow(credits);
                      connection.flush();
                   }
