@@ -139,5 +139,3 @@ you'll most likely end up creating a new connection and session every
 time you want to interact from the EJB, which is an anti-pattern.
 
 ![ActiveMQ Artemis architecture2](images/architecture2.jpg)
-
-For more information on using the JCA adaptor, please see [Application Server Integration and Java EE](appserver-integration.md).
