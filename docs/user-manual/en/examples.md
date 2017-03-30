@@ -19,7 +19,7 @@ The examples are available in both the binary and source distribution under the 
 
 A set of Java EE examples are also provided which need WildFly installed to be able to run.
 
-Runnning the Examples
+Running the Examples
 =====================
 
 To run any example, simply `cd` into the appropriate example directory and type `mvn verify` or `mvn install` (For 
