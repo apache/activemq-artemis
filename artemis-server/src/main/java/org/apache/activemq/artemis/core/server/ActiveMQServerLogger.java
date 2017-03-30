@@ -1574,4 +1574,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224075, value = "Cannot find pageTX id = {0}", format = Message.Format.MESSAGE_FORMAT)
    void journalCannotFindPageTX(Long id);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224076, value = "No cluster locator found. This server will not participate in a cluster. Ensure a valid cluster-connection is configured.", format = Message.Format.MESSAGE_FORMAT)
+   void noClusterLocatorFound();
 }
