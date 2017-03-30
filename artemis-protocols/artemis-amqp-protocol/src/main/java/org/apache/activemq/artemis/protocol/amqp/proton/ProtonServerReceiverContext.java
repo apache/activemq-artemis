@@ -146,11 +146,14 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Receiver receiver;
       try {
-         receiver = ((Receiver) delivery.getLink());
 
          if (!delivery.isReadable()) {
             return;
          }
+         if (delivery.isPartial()) {
+            return;
+         }
+         receiver = ((Receiver) delivery.getLink());
 
          if (delivery.isPartial()) {
             return;
@@ -160,11 +163,9 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          byte[] data;
 
-         synchronized (connection.getLock()) {
-            data = new byte[delivery.available()];
-            receiver.recv(data, 0, data.length);
-            receiver.advance();
-         }
+         data = new byte[delivery.available()];
+         receiver.recv(data, 0, data.length);
+         receiver.advance();
 
          if (delivery.getRemoteState() instanceof TransactionalState) {
 
@@ -174,9 +175,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
          sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), data);
 
-         synchronized (connection.getLock()) {
-            flow(amqpCredits, minCreditRefresh);
-         }
+         flow(amqpCredits, minCreditRefresh);
       } catch (Exception e) {
          log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
