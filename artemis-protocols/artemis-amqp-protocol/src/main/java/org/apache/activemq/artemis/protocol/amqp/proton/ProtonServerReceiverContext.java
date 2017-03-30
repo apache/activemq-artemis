@@ -155,10 +155,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
          receiver = ((Receiver) delivery.getLink());
 
-         if (delivery.isPartial()) {
-            return;
-         }
-
          Transaction tx = null;
 
          byte[] data;
