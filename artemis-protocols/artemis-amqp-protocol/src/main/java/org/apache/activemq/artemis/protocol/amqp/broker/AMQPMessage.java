@@ -139,9 +139,10 @@ public class AMQPMessage extends RefCountMessage {
       }
    }
 
-   private Map getApplicationPropertiesMap() {
+   @SuppressWarnings("unchecked")
+   private Map<String, Object> getApplicationPropertiesMap() {
       ApplicationProperties appMap = getApplicationProperties();
-      Map map = null;
+      Map<String, Object> map = null;
 
       if (appMap != null) {
          map = appMap.getValue();
@@ -216,7 +217,7 @@ public class AMQPMessage extends RefCountMessage {
 
    private Object getSymbol(Symbol symbol) {
       MessageAnnotations annotations = getMessageAnnotations();
-      Map mapAnnotations = annotations != null ? annotations.getValue() : null;
+      Map<Symbol, Object> mapAnnotations = annotations != null ? annotations.getValue() : null;
       if (mapAnnotations != null) {
          return mapAnnotations.get(symbol);
       }
@@ -226,7 +227,7 @@ public class AMQPMessage extends RefCountMessage {
 
    private Object removeSymbol(Symbol symbol) {
       MessageAnnotations annotations = getMessageAnnotations();
-      Map mapAnnotations = annotations != null ? annotations.getValue() : null;
+      Map<Symbol, Object> mapAnnotations = annotations != null ? annotations.getValue() : null;
       if (mapAnnotations != null) {
          return mapAnnotations.remove(symbol);
       }
@@ -245,7 +246,7 @@ public class AMQPMessage extends RefCountMessage {
          _messageAnnotations = new MessageAnnotations(new HashMap<>());
          annotations = _messageAnnotations;
       }
-      Map mapAnnotations = annotations != null ? annotations.getValue() : null;
+      Map<Symbol, Object> mapAnnotations = annotations != null ? annotations.getValue() : null;
       if (mapAnnotations != null) {
          mapAnnotations.put(symbol, value);
       }
@@ -700,7 +701,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putBooleanProperty(SimpleString key, boolean value) {
-      getApplicationPropertiesMap().put(key, Boolean.valueOf(value));
+      getApplicationPropertiesMap().put(key.toString(), Boolean.valueOf(value));
       return this;
    }
 
