@@ -179,9 +179,9 @@ public class TransportConstants {
 
    public static final boolean DEFAULT_TCP_NODELAY = true;
 
-   public static final int DEFAULT_TCP_SENDBUFFER_SIZE = 32768;
+   public static final int DEFAULT_TCP_SENDBUFFER_SIZE = 1024 * 1024;
 
-   public static final int DEFAULT_TCP_RECEIVEBUFFER_SIZE = 32768;
+   public static final int DEFAULT_TCP_RECEIVEBUFFER_SIZE = 1024 * 1024;
 
    public static final boolean DEFAULT_HTTP_ENABLED = false;
 
