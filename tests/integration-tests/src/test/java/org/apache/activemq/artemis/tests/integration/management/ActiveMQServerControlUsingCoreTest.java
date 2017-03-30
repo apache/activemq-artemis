@@ -255,7 +255,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String[] getQueueNames(String routingType) {
             try {
-               return (String[]) proxy.invokeOperation("getQueueNames", routingType);
+               return (String[]) proxy.invokeOperation(String.class, "getQueueNames", routingType);
             } catch (Exception e) {
                e.printStackTrace();
             }
