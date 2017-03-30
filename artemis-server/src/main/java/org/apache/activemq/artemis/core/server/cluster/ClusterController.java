@@ -106,6 +106,9 @@ public class ClusterController implements ActiveMQComponent {
       } else {
          replicationLocator = defaultLocator;
       }
+      if (replicationLocator == null) {
+         ActiveMQServerLogger.LOGGER.noClusterLocatorFound();
+      }
       //latch so we know once we are connected
       replicationClusterConnectedLatch = new CountDownLatch(1);
       //and add the quorum manager as a topology listener
@@ -198,7 +201,9 @@ public class ClusterController implements ActiveMQComponent {
     * @param listener
     */
    public void addClusterTopologyListenerForReplication(ClusterTopologyListener listener) {
-      replicationLocator.addClusterTopologyListener(listener);
+      if (replicationLocator != null) {
+         replicationLocator.addClusterTopologyListener(listener);
+      }
    }
 
    /**
