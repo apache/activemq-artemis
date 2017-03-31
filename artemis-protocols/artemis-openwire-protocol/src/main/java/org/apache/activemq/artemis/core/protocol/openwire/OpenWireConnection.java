@@ -1371,6 +1371,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          session.getCoreSession().resetTX(tx);
          try {
             session.send(producerInfo, messageSend, sendProducerAck);
+         } catch (Exception e) {
+            if (tx != null) {
+               tx.markAsRollbackOnly(new ActiveMQException(e.getMessage()));
+            }
+            throw e;
          } finally {
             session.getCoreSession().resetTX(null);
          }
@@ -1387,6 +1392,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          try {
             AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
             consumerBrokerExchange.acknowledge(ack);
+         } catch (Exception e) {
+            if (tx != null) {
+               tx.markAsRollbackOnly(new ActiveMQException(e.getMessage()));
+            }
          } finally {
             session.getCoreSession().resetTX(null);
          }
