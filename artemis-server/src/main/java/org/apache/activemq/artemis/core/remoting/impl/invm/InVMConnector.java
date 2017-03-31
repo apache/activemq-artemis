@@ -95,6 +95,8 @@ public class InVMConnector extends AbstractConnector {
 
    private final Executor closeExecutor;
 
+   private final boolean bufferPoolingEnabled;
+
    private static ExecutorService threadPoolExecutor;
 
    public static synchronized void resetThreadPool() {
@@ -125,6 +127,8 @@ public class InVMConnector extends AbstractConnector {
       this.listener = listener;
 
       id = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME, 0, configuration);
+
+      bufferPoolingEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.BUFFER_POOLING, TransportConstants.DEFAULT_BUFFER_POOLING, configuration);
 
       this.handler = handler;
 
@@ -215,6 +219,8 @@ public class InVMConnector extends AbstractConnector {
                                                  final Executor serverExecutor) {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
+      inVMConnection.setEnableBufferPooling(bufferPoolingEnabled);
+
       listener.connectionCreated(null, inVMConnection, protocolManager);
       return inVMConnection;
    }
