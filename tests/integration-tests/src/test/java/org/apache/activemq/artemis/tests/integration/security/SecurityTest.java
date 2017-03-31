@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -46,7 +47,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -102,6 +102,37 @@ public class SecurityTest extends ActiveMQTestBase {
 
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+         session.close();
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception");
+      }
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithValidateUser() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.getConfiguration().setPopulateValidatedUser(true);
+      server.start();
+      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try {
+         ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+         server.createQueue(SimpleString.toSimpleString("address"), RoutingType.ANYCAST, SimpleString.toSimpleString("queue"), null, true, false);
+         ClientProducer producer = session.createProducer("address");
+         producer.send(session.createMessage(true));
+         session.commit();
+         producer.close();
+         ClientConsumer consumer = session.createConsumer("queue");
+         session.start();
+         ClientMessage message = consumer.receive(1000);
+         assertNotNull(message);
+         assertEquals("first", message.getValidatedUserID());
          session.close();
       } catch (ActiveMQException e) {
          e.printStackTrace();
