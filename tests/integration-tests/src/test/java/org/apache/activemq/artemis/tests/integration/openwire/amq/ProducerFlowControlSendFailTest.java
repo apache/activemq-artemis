@@ -34,13 +34,14 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlSendFailTest
  */
-public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
+public class ProducerFlowControlSendFailTest extends ProducerFlowControlBaseTest {
 
    @Override
    @Before
@@ -61,20 +62,8 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
       asMap.get(match).setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
    }
 
-   @Override
-   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
-      // with sendFailIfNoSpace set, there is no blocking of the connection
-   }
-
-   @Override
-   public void testAsyncPublisherRecoverAfterBlock() throws Exception {
-      // sendFail means no flowControllwindow as there is no producer ack, just
-      // an exception
-   }
-
-   @Override
    @Test
-   public void testPublisherRecoverAfterBlock() throws Exception {
+   public void testPublishWithTX() throws Exception {
       ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) getConnectionFactory();
       // with sendFail, there must be no flowControllwindow
       // sendFail is an alternative flow control mechanism that does not block
@@ -82,45 +71,38 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
       this.flowControlConnection = (ActiveMQConnection) factory.createConnection();
       this.flowControlConnection.start();
 
-      final Session session = this.flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final Session session = this.flowControlConnection.createSession(true, Session.SESSION_TRANSACTED);
       final MessageProducer producer = session.createProducer(queueA);
 
-      final AtomicBoolean keepGoing = new AtomicBoolean(true);
-
-      Thread thread = new Thread("Filler") {
-         @Override
-         public void run() {
-            while (keepGoing.get()) {
-               try {
-                  producer.send(session.createTextMessage("Test message"));
-                  if (gotResourceException.get()) {
-                     System.out.println("got exception");
-                     // do not flood the broker with requests when full as we
-                     // are sending async and they
-                     // will be limited by the network buffers
-                     Thread.sleep(200);
-                  }
-               } catch (Exception e) {
-                  // with async send, there will be no exceptions
-                  e.printStackTrace();
-               }
-            }
+      int successSent = 0;
+      boolean exception = false;
+      try {
+         for (int i = 0; i < 5000; i++) {
+            producer.send(session.createTextMessage("Test message"));
+            session.commit();
+            successSent++;
          }
-      };
-      thread.start();
-      waitForBlockedOrResourceLimit(new AtomicBoolean(false));
+      } catch (Exception e) {
+         exception = true;
+         // with async send, there will be no exceptions
+         e.printStackTrace();
+      }
+
+      Assert.assertTrue(exception);
 
       // resourceException on second message, resumption if we
       // can receive 10
       MessageConsumer consumer = session.createConsumer(queueA);
       TextMessage msg;
-      for (int idx = 0; idx < 10; ++idx) {
+      for (int idx = 0; idx < successSent; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
+         Assert.assertNotNull(msg);
+         System.out.println("Received " + msg);
          if (msg != null) {
             msg.acknowledge();
          }
+         session.commit();
       }
-      keepGoing.set(false);
       consumer.close();
    }
 
