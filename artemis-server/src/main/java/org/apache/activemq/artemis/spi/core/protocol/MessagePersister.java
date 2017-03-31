@@ -49,7 +49,7 @@ public class MessagePersister implements Persister<Message> {
    public static void registerProtocol(ProtocolManagerFactory manager) {
       Persister<Message> messagePersister = manager.getPersister();
       if (messagePersister == null) {
-         logger.warn("Cannot find persister for " + manager);
+         logger.debug("Cannot find persister for " + manager);
       } else {
          registerPersister(manager.getStoreID(), manager.getPersister());
       }
