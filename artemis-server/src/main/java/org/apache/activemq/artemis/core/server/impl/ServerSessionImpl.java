@@ -1307,7 +1307,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
-         message.putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
+         message.setValidatedUserID(validatedUser);
       }
 
       SimpleString address = message.getAddressSimpleString();

@@ -314,6 +314,14 @@ public interface Message {
 
    Message setUserID(Object userID);
 
+   default  String getValidatedUserID() {
+      return null;
+   }
+
+   default Message setValidatedUserID(String validatedUserID) {
+      return this;
+   }
+
    /**
     * Returns whether this message is durable or not.
     */
