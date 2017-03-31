@@ -161,7 +161,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
                try {
                   session = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
                   MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue"));
-                  messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
+                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
                   for (int i = 0; i < numberOfMessages; i++) {
                      BytesMessage message = session.createBytesMessage();
@@ -199,7 +199,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
                   session = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
                   MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue"));
                   MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue2"));
-                  messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
+                  messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
                   for (int i = 0; i < numberOfMessages; i++) {
                      BytesMessage message = (BytesMessage) consumer.receive(5000);
                      if (message == null) {
