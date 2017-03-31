@@ -45,7 +45,8 @@ public class AmqpNettyFailoverTest extends FailoverTestBase {
    public static Collection getParameters() {
 
       // these 3 are for comparison
-      return Arrays.asList(new Object[][]{{"NON_SSL", 0}, {"SSL", 1}});
+      return Arrays.asList(new Object[][]{{"NON_SSL", 0}
+         /*, {"SSL", 1} */ });
    }
 
 
