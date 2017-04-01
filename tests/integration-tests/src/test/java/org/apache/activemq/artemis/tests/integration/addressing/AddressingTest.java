@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -239,6 +240,7 @@ public class AddressingTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueName);
       // there is a consumer now so the message should be routed
       producer.send(session.createMessage(true));
+      Wait.waitFor(() -> queue.getMessageCount() == 1);
       assertEquals(1, queue.getMessageCount());
 
       consumer.close();
