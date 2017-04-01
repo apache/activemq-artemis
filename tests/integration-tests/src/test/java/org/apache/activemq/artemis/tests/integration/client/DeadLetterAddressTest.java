@@ -121,7 +121,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          Assert.assertNull(m);
          clientConsumer.close();
       }
-      assertEquals("File descriptors are leaking", 0, ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount() - fdBaseline);
+      assertTrue("File descriptors are leaking", ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount() - fdBaseline <= 0);
    }
 
    // HORNETQ- 1084
