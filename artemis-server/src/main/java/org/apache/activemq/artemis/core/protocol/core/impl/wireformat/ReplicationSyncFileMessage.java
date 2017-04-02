@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
@@ -42,7 +42,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
     */
    private long fileId;
    private int dataSize;
-   private ByteBuffer byteBuffer;
+   private ByteBuf byteBuffer;
    private byte[] byteArray;
    private SimpleString pageStoreName;
    private FileType fileType;
@@ -78,7 +78,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
                                      SimpleString storeName,
                                      long id,
                                      int size,
-                                     ByteBuffer buffer) {
+                                     ByteBuf buffer) {
       this();
       this.byteBuffer = buffer;
       this.pageStoreName = storeName;
@@ -124,7 +124,12 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
        * (which might receive appends)
        */
       if (dataSize > 0) {
-         buffer.writeBytes(byteBuffer);
+         buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
+      }
+
+      if (byteBuffer != null) {
+         byteBuffer.release();
+         byteBuffer = null;
       }
    }
 

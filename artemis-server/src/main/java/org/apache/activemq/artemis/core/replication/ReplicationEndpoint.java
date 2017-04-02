@@ -411,7 +411,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (!channel1.isOpen()) {
          channel1.open();
       }
-      channel1.writeDirect(ByteBuffer.wrap(data), true);
+      channel1.writeDirect(ByteBuffer.wrap(data), false);
    }
 
    /**
