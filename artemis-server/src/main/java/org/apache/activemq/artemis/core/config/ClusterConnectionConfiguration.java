@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.uri.ClusterConnectionConfigurationParser;
-import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
 public final class ClusterConnectionConfiguration implements Serializable {
@@ -375,14 +374,12 @@ public final class ClusterConnectionConfiguration implements Serializable {
    public TransportConfiguration[] getTransportConfigurations(Configuration configuration) throws Exception {
 
       if (getCompositeMembers() != null) {
-         ConnectorTransportConfigurationParser connectorTransportConfigurationParser = new ConnectorTransportConfigurationParser();
-
          URI[] members = getCompositeMembers().getComponents();
 
          List<TransportConfiguration> list = new LinkedList<>();
 
          for (URI member : members) {
-            list.addAll(connectorTransportConfigurationParser.newObject(member, null));
+            list.addAll(ConfigurationUtils.parseConnectorURI(null, member));
          }
 
          return list.toArray(new TransportConfiguration[list.size()]);

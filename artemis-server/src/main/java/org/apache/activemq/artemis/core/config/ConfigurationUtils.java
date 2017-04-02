@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import java.net.URI;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -35,6 +39,8 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
+import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 
 public final class ConfigurationUtils {
 
@@ -53,7 +59,8 @@ public final class ConfigurationUtils {
       throw new ActiveMQIllegalStateException("Missing cluster-configuration for replication-clustername '" + replicationCluster + "'.");
    }
 
-   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf, ActiveMQServer server) throws ActiveMQIllegalStateException {
+   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf,
+                                      ActiveMQServer server) throws ActiveMQIllegalStateException {
       if (conf == null) {
          return new LiveOnlyPolicy();
       }
@@ -129,6 +136,57 @@ public final class ConfigurationUtils {
    public static void validateConfiguration(Configuration configuration) {
       // Warn if connection-ttl-override/connection-ttl == check-period
       compareTTLWithCheckPeriod(configuration);
+   }
+
+   public static List<TransportConfiguration> parseAcceptorURI(String name, String uri) {
+      try {
+         AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
+
+         List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+         return configurations;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
+   public static List<TransportConfiguration> parseAcceptorURI(String name, URI uri)  {
+      try {
+         AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
+
+         List<TransportConfiguration> configurations = parser.newObject(uri, name);
+
+         return configurations;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+
+   }
+
+   public static List<TransportConfiguration> parseConnectorURI(String name, String uri) {
+
+      try {
+         ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
+
+         List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+         return configurations;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
+   public static List<TransportConfiguration> parseConnectorURI(String name, URI uri) {
+      try {
+         ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
+
+         List<TransportConfiguration> configurations = parser.newObject(uri, name);
+
+         return configurations;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+
    }
 
    private static void compareTTLWithCheckPeriod(Configuration configuration) {

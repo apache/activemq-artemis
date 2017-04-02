@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -64,8 +65,6 @@ import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
-import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
-import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.jboss.logging.Logger;
@@ -493,10 +492,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public ConfigurationImpl addAcceptorConfiguration(final String name, final String uri) throws Exception {
-
-      AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
-
-      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+      List<TransportConfiguration> configurations = ConfigurationUtils.parseAcceptorURI(name, uri);
 
       for (TransportConfiguration config : configurations) {
          addAcceptorConfiguration(config);
@@ -531,9 +527,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl addConnectorConfiguration(final String name, final String uri) throws Exception {
 
-      ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
-
-      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+      List<TransportConfiguration> configurations = ConfigurationUtils.parseConnectorURI(name, uri);
 
       for (TransportConfiguration config : configurations) {
          addConnectorConfiguration(name, config);
