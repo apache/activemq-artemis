@@ -263,6 +263,14 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
       super.writeBytes(src);
    }
 
+
+   @Override
+   public void writeBytes(final ByteBuf src, final int srcIndex, final int length) {
+      changed();
+
+      super.writeBytes(src, srcIndex, length);
+   }
+
    @Override
    public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       changed();

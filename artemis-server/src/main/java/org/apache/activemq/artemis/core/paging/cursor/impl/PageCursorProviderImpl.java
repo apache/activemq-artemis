@@ -332,6 +332,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public void resumeCleanup() {
       this.cleanupEnabled = true;
+      scheduleCleanup();
    }
 
    @Override
