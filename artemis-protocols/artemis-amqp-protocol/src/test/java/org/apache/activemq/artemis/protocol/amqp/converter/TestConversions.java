@@ -719,6 +719,11 @@ public class TestConversions extends Assert {
       }
 
       @Override
+      public void writeBytes(ByteBuf src, int srcIndex, int length) {
+
+      }
+
+      @Override
       public void readFully(byte[] b) throws IOException {
       }
 

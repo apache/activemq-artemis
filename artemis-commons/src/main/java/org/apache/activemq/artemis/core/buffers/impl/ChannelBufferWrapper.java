@@ -576,6 +576,11 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    }
 
    @Override
+   public void writeBytes(ByteBuf src, int srcIndex, int length) {
+      buffer.writeBytes(src, srcIndex, length);
+   }
+
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       buffer.writeBytes(src.byteBuf(), srcIndex, length);
    }

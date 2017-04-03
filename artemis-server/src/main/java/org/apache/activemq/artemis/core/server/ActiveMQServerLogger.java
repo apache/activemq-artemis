@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -189,8 +188,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void backupServerSynched(ActiveMQServerImpl server);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221025, value = "Replication: sending {0} (size={1}) to backup. {2}", format = Message.Format.MESSAGE_FORMAT)
-   void journalSynch(JournalFile jf, Long size, SequentialFile file);
+   @Message(id = 221025, value = "Replication: sending {0} (size={1}) to replica.", format = Message.Format.MESSAGE_FORMAT)
+   void replicaSyncFile(SequentialFile jf, Long size);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(

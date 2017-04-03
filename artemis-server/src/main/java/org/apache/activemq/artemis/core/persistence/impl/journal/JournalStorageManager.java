@@ -587,10 +587,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          stopReplication();
          throw e;
       } finally {
-         pagingManager.resumeCleanup();
          // Re-enable compact and reclaim of journal files
          originalBindingsJournal.replicationSyncFinished();
          originalMessageJournal.replicationSyncFinished();
+         pagingManager.resumeCleanup();
       }
    }
 
