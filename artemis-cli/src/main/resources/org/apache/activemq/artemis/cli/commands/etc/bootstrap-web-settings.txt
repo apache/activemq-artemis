@@ -1,4 +1,4 @@
    <!-- The web server is only bound to loalhost by default -->
    <web bind="${web.protocol}://${http.host}:${http.port}" path="web"${extra.web.attributes}>
-       <app url="jolokia" war="jolokia-war-1.3.5.war"/>
+       <app url="jolokia" war="jolokia.war"/>
    </web>
