@@ -139,6 +139,7 @@
          </includes>
          <outputDirectory>web</outputDirectory>
          <unpack>false</unpack>
+         <outputFileNameMapping>jolokia.war</outputFileNameMapping>
       </dependencySet>
    </dependencySets>
    <fileSets>
