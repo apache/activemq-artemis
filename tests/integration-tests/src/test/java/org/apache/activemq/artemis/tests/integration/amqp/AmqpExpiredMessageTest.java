@@ -125,6 +125,41 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testSendMessageThatIsExpiredUsingTTLWhenAbsoluteIsZero() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getTestName());
+
+      // Get the Queue View early to avoid racing the delivery.
+      final Queue queueView = getProxyToQueue(getTestName());
+      assertNotNull(queueView);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setAbsoluteExpiryTime(0);
+      // AET should override any TTL set
+      message.setTimeToLive(1000);
+      message.setText("Test-Message");
+      sender.send(message);
+      sender.close();
+
+      assertEquals(1, queueView.getMessageCount());
+
+      Thread.sleep(1000);
+
+      // Now try and get the message
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(1);
+      AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
+      assertNull(received);
+
+      assertEquals(1, queueView.getMessagesExpired());
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
    public void testSendMessageThatIsNotExpiredUsingAbsoluteTimeWithElspsedTTL() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
