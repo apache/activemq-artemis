@@ -46,6 +46,7 @@ cd expiry; mvn verify; cd ..
 cd http-transport; mvn verify; cd ..
 cd interceptor; mvn verify; cd ..
 cd interceptor-client; mvn verify; cd ..
+cd interceptor-client-mqtt; mvn verify; cd ..
 cd jms-auto-closeable; mvn verify; cd ..
 cd instantiate-connection-factory; mvn verify; cd ..
 cd jms-bridge; mvn verify; cd ..
@@ -130,6 +131,11 @@ cd replicated-multiple-failover; mvn verify; cd ..
 cd replicated-transaction-failover; mvn verify; cd ..
 cd scale-down; mvn verify; cd ..
 cd transaction-failover; mvn verify; cd ..
+
+
+
+cd $ARTEMIS_HOME/examples/smoke/ha
+cd replicated-flowcontrol; mvn verify; cd ..
 
 
 cd $CURRENT_DIR

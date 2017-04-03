@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -68,7 +69,6 @@ import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
-import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -227,9 +227,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    @Override
    public Acceptor createAcceptor(String name, String uri) throws Exception {
-      AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
-
-      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+      List<TransportConfiguration> configurations = ConfigurationUtils.parseAcceptorURI(name, uri);
 
       return createAcceptor(configurations.get(0));
    }
