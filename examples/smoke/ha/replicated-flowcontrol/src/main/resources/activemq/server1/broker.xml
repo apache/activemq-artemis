@@ -30,15 +30,23 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
+      <cluster-user>exampleUser</cluster-user>
+
+      <cluster-password>secret</cluster-password>
+
       <ha-policy>
          <replication>
-            <slave/>
+            <slave>
+               <allow-failback>true</allow-failback>
+               <!-- not needed but tells the backup not to restart after failback as there will be > 0 backups saved -->
+               <max-saved-replicated-journals-size>0</max-saved-replicated-journals-size>
+            </slave>
          </replication>
       </ha-policy>
 
       <!-- Connectors -->
-
       <connectors>
+         <connector name="netty-live-connector">tcp://localhost:61616</connector>
          <connector name="netty-connector">tcp://localhost:61617</connector>
       </connectors>
 
@@ -47,30 +55,14 @@ under the License.
          <acceptor name="netty-acceptor">tcp://localhost:61617</acceptor>
       </acceptors>
 
-      <broadcast-groups>
-         <broadcast-group name="bg-group1">
-            <group-address>${udp-address:231.7.7.7}</group-address>
-            <group-port>9876</group-port>
-            <broadcast-period>1000</broadcast-period>
-            <connector-ref>netty-connector</connector-ref>
-         </broadcast-group>
-      </broadcast-groups>
-
-      <discovery-groups>
-         <discovery-group name="dg-group1">
-            <group-address>${udp-address:231.7.7.7}</group-address>
-            <group-port>9876</group-port>
-            <refresh-timeout>60000</refresh-timeout>
-         </discovery-group>
-      </discovery-groups>
-
       <cluster-connections>
          <cluster-connection name="my-cluster">
             <connector-ref>netty-connector</connector-ref>
-            <discovery-group-ref discovery-group-name="dg-group1"/>
+            <static-connectors>
+               <connector-ref>netty-live-connector</connector-ref>
+            </static-connectors>
          </cluster-connection>
       </cluster-connections>
-
       <!-- Other config -->
 
       <security-settings>
@@ -84,6 +76,39 @@ under the License.
             <permission roles="guest" type="send"/>
          </security-setting>
       </security-settings>
+
+      <address-settings>
+         <!-- if you define auto-create on certain queues, management has to be auto-create -->
+         <address-setting match="activemq.management#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>PAGE</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+         </address-setting>
+         <!--default for catch all-->
+         <address-setting match="#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>200MB</max-size-bytes>
+            <page-size-bytes>100MB</page-size-bytes>
+
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>PAGE</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+         </address-setting>
+      </address-settings>
 
    <addresses>
          <address name="exampleQueue">

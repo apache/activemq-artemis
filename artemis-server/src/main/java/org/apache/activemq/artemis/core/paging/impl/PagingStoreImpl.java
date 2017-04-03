@@ -1123,28 +1123,29 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public Collection<Integer> getCurrentIds() throws Exception {
-      List<Integer> ids = new ArrayList<>();
-      if (fileFactory != null) {
-         for (String fileName : fileFactory.listFiles("page")) {
-            ids.add(getPageIdFromFileName(fileName));
+      lock.writeLock().lock();
+      try {
+         List<Integer> ids = new ArrayList<>();
+         if (fileFactory != null) {
+            for (String fileName : fileFactory.listFiles("page")) {
+               ids.add(getPageIdFromFileName(fileName));
+            }
          }
+         return ids;
+      } finally {
+         lock.writeLock().unlock();
       }
-      return ids;
    }
 
    @Override
    public void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception {
-      lock.writeLock().lock();
-      try {
-         for (Integer id : pageIds) {
-            SequentialFile sFile = fileFactory.createSequentialFile(createFileName(id));
-            if (!sFile.exists()) {
-               continue;
-            }
-            replicator.syncPages(sFile, id, getAddress());
+      for (Integer id : pageIds) {
+         SequentialFile sFile = fileFactory.createSequentialFile(createFileName(id));
+         if (!sFile.exists()) {
+            continue;
          }
-      } finally {
-         lock.writeLock().unlock();
+         ActiveMQServerLogger.LOGGER.replicaSyncFile(sFile, sFile.size());
+         replicator.syncPages(sFile, id, getAddress());
       }
    }
 
