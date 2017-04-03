@@ -402,7 +402,7 @@ public class AMQPMessage extends RefCountMessage {
          if (section instanceof Properties) {
             _properties = (Properties) section;
 
-            if (_properties.getAbsoluteExpiryTime() != null) {
+            if (_properties.getAbsoluteExpiryTime() != null && _properties.getAbsoluteExpiryTime().getTime() > 0) {
                this.expiration = _properties.getAbsoluteExpiryTime().getTime();
             }
 
