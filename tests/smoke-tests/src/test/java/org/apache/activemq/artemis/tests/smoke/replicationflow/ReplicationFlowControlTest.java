@@ -23,14 +23,13 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -39,13 +38,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ReplicatedFailbackSmokeTest extends ActiveMQTestBase {
+public class ReplicationFlowControlTest extends SmokeTestBase {
+
+
+   public static final String SERVER_NAME_0 = "replicated-static0";
+   public static final String SERVER_NAME_1 = "replicated-static1";
 
    ArrayList<Consumer> consumers = new ArrayList<>();
-
-   String server0Location = System.getProperty("basedir") + "/target/server0";
-   String server1Location = System.getProperty("basedir") + "/target/server1";
-
    private static Process server0;
 
    private static Process server1;
@@ -60,17 +59,20 @@ public class ReplicatedFailbackSmokeTest extends ActiveMQTestBase {
    static AtomicInteger totalConsumed = new AtomicInteger(0);
 
 
+
    @Before
-   public void cleanupTests() throws Exception {
-      deleteDirectory(new File(server0Location, "data"));
-      deleteDirectory(new File(server1Location, "data"));
+   public void before() throws Exception {
+      cleanupData(SERVER_NAME_0);
+      cleanupData(SERVER_NAME_1);
       disableCheckThread();
    }
 
    @After
+   @Override
    public void after() throws Exception {
-      ServerUtil.killServer(server0);
-      ServerUtil.killServer(server1);
+      super.after();
+      cleanupData(SERVER_NAME_0);
+      cleanupData(SERVER_NAME_1);
    }
 
    @Test
@@ -91,7 +93,7 @@ public class ReplicatedFailbackSmokeTest extends ActiveMQTestBase {
       Connection connection = null;
 
       try {
-         server0 = ServerUtil.startServer(server0Location, ReplicatedFailbackSmokeTest.class.getSimpleName() + "0", 0, 30000);
+         server0 = startServer(SERVER_NAME_0, 0, 30000);
 
          ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
 
@@ -137,7 +139,7 @@ public class ReplicatedFailbackSmokeTest extends ActiveMQTestBase {
 
             if (i == START_SERVER) {
                System.out.println("Starting extra server");
-               server1 = ServerUtil.startServer(server1Location, ReplicatedFailbackSmokeTest.class.getSimpleName() + "1", 1, 10000);
+               server1 = startServer(SERVER_NAME_1, 0, 30000);
             }
 
          }
