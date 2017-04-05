@@ -384,6 +384,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
+   public String getValidatedUserID() {
+      return getStringProperty(Message.HDR_VALIDATED_USER);
+   }
+
+   @Override
+   public CoreMessage setValidatedUserID(String validatedUserID) {
+      putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUserID));
+      return this;
+   }
+
+   @Override
    public CoreMessage setMessageID(long messageID) {
       this.messageID = messageID;
       if (messageIDPosition >= 0 && validBuffer) {
