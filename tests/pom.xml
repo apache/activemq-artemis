@@ -130,5 +130,6 @@
       <module>stress-tests</module>
       <module>performance-tests</module>
       <module>artemis-test-support</module>
+      <module>smoke-tests</module>
    </modules>
 </project>

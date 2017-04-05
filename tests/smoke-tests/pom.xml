@@ -22,13 +22,12 @@ under the License.
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.examples</groupId>
-      <artifactId>artemis-examples</artifactId>
+      <groupId>org.apache.activemq.tests</groupId>
+      <artifactId>artemis-tests-pom</artifactId>
       <version>2.1.0-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.apache.activemq.examples.smoke</groupId>
-   <artifactId>smoke</artifactId>
+   <artifactId>smoke-tests</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ Artemis Smoke Tests</name>
 
@@ -43,18 +42,7 @@ under the License.
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
-   <profiles>
-      <profile>
-         <id>examples</id>
-         <modules>
-            <module>ha</module>
-         </modules>
-      </profile>
-      <profile>
-         <id>release</id>
-         <modules>
-            <module>ha</module>
-         </modules>
-      </profile>
-   </profiles>
+   <modules>
+      <module>replicated-flowcontrol</module>
+   </modules>
 </project>
