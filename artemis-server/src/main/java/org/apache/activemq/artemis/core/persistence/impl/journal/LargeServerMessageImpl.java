@@ -321,7 +321,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
    public String toString() {
       return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() +
          ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-         ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
+         ", durable=" + durable + ", address=" + getAddress() + ",properties=" + (properties != null ? properties.toString() : "") + "]@" + System.identityHashCode(this);
    }
 
    @Override
