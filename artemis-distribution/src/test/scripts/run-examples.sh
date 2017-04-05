@@ -133,10 +133,5 @@ cd scale-down; mvn verify; cd ..
 cd transaction-failover; mvn verify; cd ..
 
 
-
-cd $ARTEMIS_HOME/examples/smoke/ha
-cd replicated-flowcontrol; mvn verify; cd ..
-
-
 cd $CURRENT_DIR
 rm -rf target
