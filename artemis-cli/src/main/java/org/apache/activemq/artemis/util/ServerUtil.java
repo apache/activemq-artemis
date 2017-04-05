@@ -39,6 +39,15 @@ public class ServerUtil {
       return startServer(artemisInstance, serverName, 0, 0);
    }
 
+   /**
+    *
+    * @param artemisInstance
+    * @param serverName it will be used on logs
+    * @param id it will be used to add on the port
+    * @param timeout
+    * @return
+    * @throws Exception
+    */
    public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception {
       boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
