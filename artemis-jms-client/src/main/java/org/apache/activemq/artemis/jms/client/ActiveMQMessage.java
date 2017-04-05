@@ -588,7 +588,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          if (MessageUtil.JMSXGROUPID.equals(name)) {
             return message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID);
          } else if (MessageUtil.JMSXUSERID.equals(name)) {
-            return message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER);
+            return message.getValidatedUserID();
          } else {
             return message.getStringProperty(new SimpleString(name));
          }

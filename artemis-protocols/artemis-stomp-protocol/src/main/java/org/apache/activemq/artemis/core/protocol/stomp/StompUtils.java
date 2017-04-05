@@ -101,8 +101,8 @@ public class StompUtils {
       if (message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()) != null) {
          command.addHeader(Stomp.Headers.CONTENT_TYPE, message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()));
       }
-      if (message.getStringProperty(Message.HDR_VALIDATED_USER.toString()) != null) {
-         command.addHeader(Stomp.Headers.Message.VALIDATED_USER, message.getStringProperty(Message.HDR_VALIDATED_USER.toString()));
+      if (message.getValidatedUserID() != null) {
+         command.addHeader(Stomp.Headers.Message.VALIDATED_USER, message.getValidatedUserID());
       }
 
       // now let's add all the rest of the message headers
