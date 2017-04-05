@@ -116,6 +116,7 @@
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
+      <skipSmokeTests>true</skipSmokeTests>
       <skipJoramTests>true</skipJoramTests>
       <skipTimingTests>true</skipTimingTests>
       <skipStressTests>true</skipStressTests>
@@ -150,7 +151,7 @@
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
-         -Djava.net.preferIPv4Stack=true
+         -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
@@ -831,6 +832,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipIntegrationTests>false</skipIntegrationTests>
+            <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
             <skipConcurrentTests>false</skipConcurrentTests>
             <skipRestTests>false</skipRestTests>

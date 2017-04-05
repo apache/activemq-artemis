@@ -96,7 +96,6 @@ under the License.
    <modules>
       <module>features</module>
       <module>protocols</module>
-      <module>smoke</module>
    </modules>
 
 </project>
