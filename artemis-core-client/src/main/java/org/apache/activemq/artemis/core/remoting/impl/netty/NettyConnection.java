@@ -295,7 +295,7 @@ public class NettyConnection implements Connection {
    public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
-         if (!logger.isDebugEnabled()) {
+         if (logger.isDebugEnabled()) {
             logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }
          return canWrite(requiredCapacity);
@@ -347,14 +347,12 @@ public class NettyConnection implements Connection {
                            final boolean batched,
                            final ChannelFutureListener futureListener) {
       final int readableBytes = buffer.readableBytes();
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
+      if (logger.isDebugEnabled()) {
          final int remainingBytes = this.writeBufferHighWaterMark - readableBytes;
          if (remainingBytes < 0) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("a write request is exceeding by " + (-remainingBytes) +
-                               " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark +
-                               " ] : consider to set it at least of " + readableBytes + " bytes");
-            }
+            logger.debug("a write request is exceeding by " + (-remainingBytes) +
+                            " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark +
+                            " ] : consider to set it at least of " + readableBytes + " bytes");
          }
       }
       //no need to lock because the Netty's channel is thread-safe
