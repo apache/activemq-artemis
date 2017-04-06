@@ -74,6 +74,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
 
+   // We want to turn of a few log.infos from the testsuite as they would be too verbose for tests
+   // Only the testsuite should set this one up
+   public static boolean TEST_MODE = false;
+
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
    private static final long serialVersionUID = 4077088945050267843L;
@@ -353,7 +357,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public long getGlobalMaxSize() {
       if (globalMaxSize == null) {
          this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
-         ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
+         if (!TEST_MODE) {
+            ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
+         }
       }
       return globalMaxSize;
    }
