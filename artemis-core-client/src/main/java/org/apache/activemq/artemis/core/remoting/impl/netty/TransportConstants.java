@@ -125,6 +125,10 @@ public class TransportConstants {
     */
    public static final String NIO_REMOTING_THREADS_PROPNAME = "nioRemotingThreads";
 
+   public static final String WRITE_BUFFER_LOW_WATER_MARK_PROPNAME = "writeBufferLowWaterMark";
+
+   public static final String WRITE_BUFFER_HIGH_WATER_MARK_PROPNAME = "writeBufferHighWaterMark";
+
    public static final String REMOTING_THREADS_PROPNAME = "RemotingThreads";
 
    public static final String BATCH_DELAY = "batchDelay";
@@ -182,6 +186,10 @@ public class TransportConstants {
    public static final int DEFAULT_TCP_SENDBUFFER_SIZE = 1024 * 1024;
 
    public static final int DEFAULT_TCP_RECEIVEBUFFER_SIZE = 1024 * 1024;
+
+   public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 32 * 1024;
+
+   public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 128 * 1024;
 
    public static final boolean DEFAULT_HTTP_ENABLED = false;
 
@@ -253,6 +261,8 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
+      allowableAcceptorKeys.add(TransportConstants.WRITE_BUFFER_HIGH_WATER_MARK_PROPNAME);
+      allowableAcceptorKeys.add(TransportConstants.WRITE_BUFFER_LOW_WATER_MARK_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.BATCH_DELAY);
@@ -303,6 +313,8 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
+      allowableConnectorKeys.add(TransportConstants.WRITE_BUFFER_HIGH_WATER_MARK_PROPNAME);
+      allowableConnectorKeys.add(TransportConstants.WRITE_BUFFER_LOW_WATER_MARK_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);

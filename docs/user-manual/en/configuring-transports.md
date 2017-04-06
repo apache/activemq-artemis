@@ -239,6 +239,17 @@ Netty for simple TCP:
 -   `tcpReceiveBufferSize`. This parameter determines the size of the
     TCP receive buffer in bytes. The default value for this property is
     `32768` bytes (32KiB).
+    
+-   `writeBufferLowWaterMark`. This parameter determines the low water mark of 
+    the Netty write buffer. Once the number of bytes queued in the write buffer exceeded 
+    the high water mark and then dropped down below this value, Netty's channel 
+    will start to be writable again. The default value for this property is 
+    `32768` bytes (32KiB).
+ 
+-   `writeBufferHighWaterMark`. This parameter determines the high water mark of 
+    the Netty write buffer. If the number of bytes queued in the write buffer exceeds 
+    this value, Netty's channel will start to be not writable. The default value for 
+    this property is `131072` bytes (128KiB).
 
 -   `batchDelay`. Before writing packets to the transport, Apache ActiveMQ Artemis can
     be configured to batch up writes for a maximum of `batchDelay`
