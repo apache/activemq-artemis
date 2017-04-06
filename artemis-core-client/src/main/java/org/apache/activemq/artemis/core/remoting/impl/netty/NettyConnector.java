@@ -107,6 +107,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
@@ -686,7 +687,7 @@ public class NettyConnector extends AbstractConnector {
                if (sslEnabled) {
                   scheme = "https";
                }
-               URI uri = new URI(scheme, null, host, port, null, null, null);
+               URI uri = new URI(scheme, null, IPV6Util.encloseHost(host), port, null, null, null);
                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
                request.headers().set(HttpHeaders.Names.HOST, host);
                request.headers().set(HttpHeaders.Names.UPGRADE, ACTIVEMQ_REMOTING);
