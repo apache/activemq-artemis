@@ -42,8 +42,11 @@ import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleList
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.jboss.logging.Logger;
 
 public class NettyConnection implements Connection {
+
+   private static final Logger logger = Logger.getLogger(NettyConnection.class);
 
    private static final int DEFAULT_BATCH_BYTES = Integer.getInteger("io.netty.batch.bytes", 8192);
    private static final int DEFAULT_WAIT_MILLIS = 10_000;
@@ -254,7 +257,8 @@ public class NettyConnection implements Connection {
          return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
       } catch (OutOfMemoryError oom) {
          final long totalPendingWriteBytes = batchBufferSize(this.channel, this.writeBufferHighWaterMark);
-         ActiveMQClientLogger.LOGGER.warn("Trying to allocate " + size + " bytes, System is throwing OutOfMemoryError on NettyConnection " + this + ", there are currently " + "pendingWrites: [NETTY] -> " + totalPendingWriteBytes + "[EVENT LOOP] -> " + pendingWritesOnEventLoopView.get() + " causes: " + oom.getMessage(), oom);
+         // I'm not using the ActiveMQLogger framework here, as I wanted the class name to be very specific here
+         logger.warn("Trying to allocate " + size + " bytes, System is throwing OutOfMemoryError on NettyConnection " + this + ", there are currently " + "pendingWrites: [NETTY] -> " + totalPendingWriteBytes + "[EVENT LOOP] -> " + pendingWritesOnEventLoopView.get() + " causes: " + oom.getMessage(), oom);
          throw oom;
       }
    }
@@ -291,8 +295,8 @@ public class NettyConnection implements Connection {
    public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
-         if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQClientLogger.LOGGER.debug("Calling blockUntilWritable using a thread where it's not allowed");
+         if (!logger.isDebugEnabled()) {
+            logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }
          return canWrite(requiredCapacity);
       } else {
@@ -346,7 +350,11 @@ public class NettyConnection implements Connection {
       if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
          final int remainingBytes = this.writeBufferHighWaterMark - readableBytes;
          if (remainingBytes < 0) {
-            ActiveMQClientLogger.LOGGER.debug("a write request is exceeding by " + (-remainingBytes) + " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark + " ] : consider to set it at least of " + readableBytes + " bytes");
+            if (logger.isDebugEnabled()) {
+               logger.debug("a write request is exceeding by " + (-remainingBytes) +
+                               " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark +
+                               " ] : consider to set it at least of " + readableBytes + " bytes");
+            }
          }
       }
       //no need to lock because the Netty's channel is thread-safe
