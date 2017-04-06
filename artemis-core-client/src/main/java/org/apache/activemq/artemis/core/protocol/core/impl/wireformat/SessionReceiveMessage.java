@@ -52,6 +52,7 @@ public class SessionReceiveMessage extends MessagePacket {
       return deliveryCount;
    }
 
+
    @Override
    public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = message.getEncodedBuffer();

@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The {@link FileType} controls
@@ -99,6 +100,38 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    }
 
    @Override
+   public int expectedEncodeSize() {
+      int size = PACKET_HEADERS_SIZE +
+                 DataConstants.SIZE_LONG; // buffer.writeLong(fileId);
+
+      if (fileId == -1)
+         return size;
+
+      size += DataConstants.SIZE_BYTE; // buffer.writeByte(fileType.code);
+      switch (fileType) {
+         case JOURNAL: {
+            size += DataConstants.SIZE_BYTE; // buffer.writeByte(journalType.typeByte);
+            break;
+         }
+         case PAGE: {
+            size += SimpleString.sizeofString(pageStoreName);
+            break;
+         }
+         case LARGE_MESSAGE:
+         default:
+            // no-op
+      }
+
+      size += DataConstants.SIZE_INT; // buffer.writeInt(dataSize);
+
+      if (dataSize > 0) {
+         size += byteBuffer.writerIndex(); // buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
+      }
+
+      return size;
+   }
+
+   @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(fileId);
       if (fileId == -1)
@@ -125,11 +158,6 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
        */
       if (dataSize > 0) {
          buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
-      }
-
-      if (byteBuffer != null) {
-         byteBuffer.release();
-         byteBuffer = null;
       }
    }
 

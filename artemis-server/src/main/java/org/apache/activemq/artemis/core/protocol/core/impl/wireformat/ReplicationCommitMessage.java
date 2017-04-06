@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class ReplicationCommitMessage extends PacketImpl {
 
@@ -39,6 +40,14 @@ public final class ReplicationCommitMessage extends PacketImpl {
       this.journalID = journalID;
       this.rollback = rollback;
       this.txId = txId;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+             DataConstants.SIZE_BYTE + // buffer.writeByte(journalID);
+             DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(rollback);
+             DataConstants.SIZE_LONG; // buffer.writeLong(txId);
    }
 
    @Override

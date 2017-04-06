@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -28,8 +30,6 @@ public class PacketImpl implements Packet {
    // PacketImpl.encode)
    public static final int PACKET_HEADERS_SIZE = DataConstants.SIZE_INT + DataConstants.SIZE_BYTE +
       DataConstants.SIZE_LONG;
-
-   private static final int INITIAL_PACKET_SIZE = 1500;
 
    protected long channelID;
 
@@ -292,6 +292,17 @@ public class PacketImpl implements Packet {
       buffer.setInt(0, len);
 
       return buffer;
+   }
+
+   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+
+      int size = expectedEncodeSize();
+
+      if (connection == null) {
+         return new ChannelBufferWrapper(Unpooled.buffer(size));
+      } else {
+         return connection.createTransportBuffer(size);
+      }
    }
 
    @Override

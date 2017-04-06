@@ -100,15 +100,6 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       return buffer;
    }
 
-   protected final ActiveMQBuffer createPacket(RemotingConnection connection) {
-      final int expectedEncodedSize = expectedEncodedSize();
-      if (connection == null) {
-         return new ChannelBufferWrapper(Unpooled.buffer(expectedEncodedSize));
-      } else {
-         return connection.createTransportBuffer(expectedEncodedSize);
-      }
-   }
-
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(body.length);

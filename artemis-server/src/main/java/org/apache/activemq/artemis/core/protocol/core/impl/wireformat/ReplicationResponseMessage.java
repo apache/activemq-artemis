@@ -27,4 +27,11 @@ public class ReplicationResponseMessage extends PacketImpl {
    public ReplicationResponseMessage(byte replicationResponseV2) {
       super(replicationResponseV2);
    }
+
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE;
+   }
+
 }
