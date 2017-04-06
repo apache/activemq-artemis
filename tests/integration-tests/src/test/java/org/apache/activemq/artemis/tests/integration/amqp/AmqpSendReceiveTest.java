@@ -360,78 +360,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
-   public void testMessageDefaultPriority() throws Exception {
-      sendMessages(getTestName(), 1, (short) 4);
-
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-
-      Queue queueView = getProxyToQueue(getTestName());
-      assertEquals(1, queueView.getMessageCount());
-
-      receiver.flow(1);
-      AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull(receive);
-      assertEquals((short) 4, receive.getPriority());
-      receiver.close();
-
-      assertEquals(1, queueView.getMessageCount());
-
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testMessageNonDefaultPriority() throws Exception {
-      sendMessages(getTestName(), 1, (short) 0);
-
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-
-      Queue queueView = getProxyToQueue(getTestName());
-      assertEquals(1, queueView.getMessageCount());
-
-      receiver.flow(1);
-      AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull(receive);
-      assertEquals((short) 0, receive.getPriority());
-      receiver.close();
-
-      assertEquals(1, queueView.getMessageCount());
-
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testMessageNoPriority() throws Exception {
-      sendMessages(getTestName(), 1);
-
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-
-      Queue queueView = getProxyToQueue(getTestName());
-      assertEquals(1, queueView.getMessageCount());
-
-      receiver.flow(1);
-      AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
-      assertNotNull(receive);
-      assertEquals((short) 4, receive.getPriority());
-      receiver.close();
-
-      assertEquals(1, queueView.getMessageCount());
-
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
    public void testTwoQueueReceiversOnSameConnectionReadMessagesNoDispositions() throws Exception {
       int MSG_COUNT = 4;
       sendMessages(getTestName(), MSG_COUNT);
@@ -1207,24 +1135,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
             AmqpMessage message = new AmqpMessage();
             message.setMessageId("MessageID:" + i);
             message.setDurable(durable);
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
-      }
-   }
-
-   public void sendMessages(String destinationName, int count, short priority) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            message.setPriority(priority);
             sender.send(message);
          }
       } finally {
