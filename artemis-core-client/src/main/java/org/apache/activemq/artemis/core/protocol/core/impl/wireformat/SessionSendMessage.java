@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class SessionSendMessage extends MessagePacket {
 
@@ -62,8 +61,8 @@ public class SessionSendMessage extends MessagePacket {
    }
 
    @Override
-   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
-      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + 1, connection);
+   public int expectedEncodeSize() {
+      return message.getEncodeSize() + PACKET_HEADERS_SIZE + 1;
    }
 
    @Override

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionReceiveMessage extends MessagePacket {
@@ -53,9 +52,10 @@ public class SessionReceiveMessage extends MessagePacket {
       return deliveryCount;
    }
 
+
    @Override
-   protected ActiveMQBuffer createPacket(RemotingConnection connection) {
-      return internalCreatePacket(message.getEncodeSize() + PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + DataConstants.SIZE_INT, connection);
+   public int expectedEncodeSize() {
+      return message.getEncodeSize() + PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
    }
 
    @Override

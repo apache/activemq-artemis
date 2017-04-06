@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * Message indicating that the live is stopping (a scheduled stop).
@@ -57,6 +58,12 @@ public final class ReplicationLiveIsStoppingMessage extends PacketImpl {
    public ReplicationLiveIsStoppingMessage(LiveStopping b) {
       this();
       this.liveStopping = b;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_INT; // buffer.writeInt(liveStopping.code);
    }
 
    @Override

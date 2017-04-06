@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationAddTXMessage extends PacketImpl {
 
@@ -66,6 +67,18 @@ public class ReplicationAddTXMessage extends PacketImpl {
    }
 
    // Public --------------------------------------------------------
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+            DataConstants.SIZE_BYTE + // buffer.writeByte(journalID);
+            DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(operation.toBoolean());
+            DataConstants.SIZE_LONG + // buffer.writeLong(txId);
+            DataConstants.SIZE_LONG + // buffer.writeLong(id);
+            DataConstants.SIZE_BYTE + // buffer.writeByte(recordType);
+            DataConstants.SIZE_INT + // buffer.writeInt(persister.getEncodeSize(encodingData));
+            persister.getEncodeSize(encodingData); // persister.encode(buffer, encodingData);
+   }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {

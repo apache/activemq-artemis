@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -228,6 +229,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       internalClose();
 
       callClosingListeners();
+   }
+
+   @Override
+   public boolean blockUntilWritable(int size, long timeout) {
+      return transportConnection.blockUntilWritable(size, timeout, TimeUnit.MILLISECONDS);
    }
 
    @Override

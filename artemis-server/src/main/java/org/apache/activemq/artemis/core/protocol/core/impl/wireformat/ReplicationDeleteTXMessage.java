@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationDeleteTXMessage extends PacketImpl {
 
@@ -50,6 +51,16 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
       this.txId = txId;
       this.id = id;
       this.encodingData = encodingData;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_BYTE + // buffer.writeByte(journalID);
+         DataConstants.SIZE_LONG + // buffer.writeLong(txId);
+         DataConstants.SIZE_LONG +  // buffer.writeLong(id);
+         DataConstants.SIZE_INT +  // buffer.writeInt(encodingData.getEncodeSize());
+         encodingData.getEncodeSize(); // encodingData.encode(buffer);
    }
 
    @Override

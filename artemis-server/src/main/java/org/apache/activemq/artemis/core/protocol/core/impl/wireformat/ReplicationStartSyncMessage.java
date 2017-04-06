@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * This message may signal start or end of the replication synchronization.
@@ -108,6 +109,26 @@ public class ReplicationStartSyncMessage extends PacketImpl {
             throw new IllegalArgumentException();
       }
    }
+
+
+   @Override
+   public int expectedEncodeSize() {
+      int size = PACKET_HEADERS_SIZE +
+             DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(synchronizationIsFinished);
+             DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(allowsAutoFailBack);
+             nodeID.length() * 3; //  buffer.writeString(nodeID); -- an estimate
+
+
+      if (synchronizationIsFinished) {
+         return size;
+      }
+      size += DataConstants.SIZE_BYTE + // buffer.writeByte(dataType.code);
+              DataConstants.SIZE_INT +  // buffer.writeInt(ids.length);
+              DataConstants.SIZE_LONG * ids.length; // the write loop
+
+      return size;
+   }
+
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {

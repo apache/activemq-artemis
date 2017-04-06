@@ -111,4 +111,12 @@ public interface CoreRemotingConnection extends RemotingConnection {
     * @return the principal
     */
    ActiveMQPrincipal getDefaultActiveMQPrincipal();
+
+   /**
+    *
+    * @param size size we are trying to write
+    * @param timeout
+    * @return
+    */
+   boolean blockUntilWritable(int size, long timeout);
 }

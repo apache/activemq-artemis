@@ -70,8 +70,8 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
    // Protected -----------------------------------------------------
 
    @Override
-   protected final int expectedEncodedSize() {
-      return super.expectedEncodedSize() + DataConstants.SIZE_LONG;
+   public int expectedEncodeSize() {
+      return super.expectedEncodeSize() + DataConstants.SIZE_LONG;
    }
 
    // Public --------------------------------------------------------
