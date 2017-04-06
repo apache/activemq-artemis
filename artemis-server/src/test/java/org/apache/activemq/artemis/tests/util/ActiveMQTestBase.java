@@ -157,6 +157,10 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
+   static {
+      ConfigurationImpl.TEST_MODE = true;
+   }
+
    private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
    @Rule
