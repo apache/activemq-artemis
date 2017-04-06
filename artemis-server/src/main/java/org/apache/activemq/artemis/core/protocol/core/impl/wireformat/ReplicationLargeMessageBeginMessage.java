@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationLargeMessageBeginMessage extends PacketImpl {
 
@@ -31,6 +32,14 @@ public class ReplicationLargeMessageBeginMessage extends PacketImpl {
    public ReplicationLargeMessageBeginMessage() {
       super(PacketImpl.REPLICATION_LARGE_MESSAGE_BEGIN);
    }
+
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_LONG; // buffer.writeLong(messageId);
+   }
+
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
