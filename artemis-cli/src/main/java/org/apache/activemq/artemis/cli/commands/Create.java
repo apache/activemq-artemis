@@ -101,6 +101,9 @@ public class Create extends InputAbstract {
    public static final String ETC_PING_TXT = "etc/ping-settings.txt";
    public static final String ETC_COMMENTED_PING_TXT = "etc/commented-ping-settings.txt";
 
+   public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
+   public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
+
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    File directory;
 
@@ -251,8 +254,8 @@ public class Create extends InputAbstract {
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
    boolean noJournalSync;
 
-   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: 100Mb)")
-   String globalMaxSize = "100Mb";
+   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
+   String globalMaxSize;
 
    boolean IS_WINDOWS;
 
@@ -661,7 +664,15 @@ public class Create extends InputAbstract {
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", role);
-      filters.put("${global-max-size}", globalMaxSize);
+
+
+      if (globalMaxSize == null || globalMaxSize.trim().equals("")) {
+         filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT));
+      } else {
+         filters.put("${global-max-size}", globalMaxSize);
+         filters.put("${global-max-section}", applyFilters(readTextFile(ETC_GLOBAL_MAX_SPECIFIED_TXT), filters));
+      }
+
 
       if (clustered) {
          filters.put("${host}", getHostForClustered());

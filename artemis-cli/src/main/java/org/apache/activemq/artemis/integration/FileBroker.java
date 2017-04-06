@@ -67,6 +67,8 @@ public class FileBroker implements Broker {
       fileDeploymentManager.addDeployable(configuration).addDeployable(jmsConfiguration);
       fileDeploymentManager.readConfiguration();
 
+      createDirectories(configuration);
+
       /**
        * This is a bit of a hack for backwards config compatibility since we no longer want to start the broker
        * using the JMSServerManager which would normally deploy JMS destinations. Here we take the JMS destination
@@ -110,6 +112,14 @@ public class FileBroker implements Broker {
       }
       started = true;
 
+   }
+
+
+   private void createDirectories(FileConfiguration fileConfiguration) {
+      fileConfiguration.getPagingLocation().mkdirs();
+      fileConfiguration.getJournalLocation().mkdirs();
+      fileConfiguration.getBindingsLocation().mkdirs();
+      fileConfiguration.getLargeMessagesLocation().mkdirs();
    }
 
    @Override

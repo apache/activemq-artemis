@@ -56,10 +56,7 @@ ${ping-config.settings}${journal-buffer.settings}${connector-config.settings}
            that won't support flow control. -->
       <max-disk-usage>90</max-disk-usage>
 
-      <!-- the system will enter into page mode once you hit this limit.
-           This is an estimate in bytes of how much the messages are using in memory -->
-      <global-max-size>${global-max-size}</global-max-size>
-
+${global-max-section}
       <acceptors>
 
          <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->

@@ -61,7 +61,7 @@ Name | Description
 [discovery-groups](clusters.md "Clusters")                           |  [a list of discovery-group](#discovery-group-type)
 [disk-scan-period](paging.md#max-disk-usage) | The interval where the disk is scanned for percentual usage. Default=5000 ms.
 [diverts](diverts.md "Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert-type)
-[global-max-size](paging.md#global-max-size) | The amount in bytes before all addresses are considered full
+[global-max-size](paging.md#global-max-size) | The amount in bytes before all addresses are considered full. Default is half of the memory used by the JVM (-Xmx argument).
 [graceful-shutdown-enabled](graceful-shutdown.md "Graceful Server Shutdown")      |  true means that graceful shutdown is enabled. Default=true
 [graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waitin for clients to disconnect before server shutdown. Default=-1
 [grouping-handler](message-grouping.md "Message Grouping")             |  Message Group configuration
