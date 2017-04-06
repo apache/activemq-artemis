@@ -1,0 +1,4 @@
+      <!-- the system will enter into page mode once you hit this limit.
+           This is an estimate in bytes of how much the messages are using in memory -->
+      <!--
+      <global-max-size>${global-max-size}</global-max-size>

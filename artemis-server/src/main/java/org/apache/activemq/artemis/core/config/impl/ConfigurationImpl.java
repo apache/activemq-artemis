@@ -253,7 +253,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long configurationFileRefreshPeriod = ActiveMQDefaultConfiguration.getDefaultConfigurationFileRefreshPeriod();
 
-   private long globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+   private Long globalMaxSize;
 
    private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
 
@@ -351,6 +351,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public long getGlobalMaxSize() {
+      if (globalMaxSize == null) {
+         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+         ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
+      }
       return globalMaxSize;
    }
 
@@ -1792,7 +1796,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (journalDatasync != other.journalDatasync) {
          return false;
       }
-      if (globalMaxSize != other.globalMaxSize) {
+      if (globalMaxSize != null && !globalMaxSize.equals(other.globalMaxSize)) {
          return false;
       }
       if (maxDiskUsage != other.maxDiskUsage) {
