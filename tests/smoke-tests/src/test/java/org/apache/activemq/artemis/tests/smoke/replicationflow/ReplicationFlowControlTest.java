@@ -147,8 +147,17 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
          session.commit();
 
          System.out.println("Awaiting all consumers to finish");
-         while (!latch.await(5, TimeUnit.SECONDS)) {
-            System.out.println("Missing " + latch.getCount() + ", totalConsumed = " + totalConsumed);
+         while (!latch.await(10, TimeUnit.SECONDS)) {
+            fail("couldn't receive all messages");
+         }
+
+         running.set(false);
+
+         for (Consumer consumer: consumers) {
+            consumer.join(10000);
+            if (consumer.isAlive()) {
+               consumer.interrupt();
+            }
          }
 
       } finally {
@@ -257,6 +266,7 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
             }
          } finally {
             try {
+               session.commit();
                connection.close();
             } catch (Throwable ignored) {
             }
