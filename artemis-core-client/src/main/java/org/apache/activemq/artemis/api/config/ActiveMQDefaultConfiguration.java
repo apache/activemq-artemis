@@ -435,7 +435,7 @@ public final class ActiveMQDefaultConfiguration {
    // Default period to wait between configuration file checks
    public static final long DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD = 5000;
 
-   public static final long DEFAULT_GLOBAL_MAX_SIZE = -1;
+   public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
    public static final int DEFAULT_MAX_DISK_USAGE = 100;
 

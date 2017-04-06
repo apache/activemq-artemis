@@ -126,6 +126,8 @@ Beyond the max-size-bytes on the address you can also set the global-max-size on
 
 When you have more messages than what is configured global-max-size any new produced message will make that destination to go through its paging policy. 
 
+global-max-size is calculated as half of the max memory available to the Java Virtual Machine, unless specified on the broker.xml configuration.
+
 ## Dropping messages
 
 Instead of paging messages when the max size is reached, an address can
