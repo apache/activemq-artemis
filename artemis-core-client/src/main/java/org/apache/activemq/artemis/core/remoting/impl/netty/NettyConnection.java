@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
 
@@ -295,6 +296,14 @@ public class NettyConnection implements Connection {
    public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
+
+         if (Env.isTestEnv()) {
+            // this will only show when inside the testsuite.
+            // we may great the log for FAILURE
+            logger.warn("FAILURE! The code is using blockUntilWritable inside a Netty worker, which would block. " +
+                           "The code will probably need fixing!", new Exception("trace"));
+         }
+
          if (logger.isDebugEnabled()) {
             logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }

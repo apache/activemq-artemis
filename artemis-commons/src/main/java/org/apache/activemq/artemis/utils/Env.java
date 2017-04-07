@@ -23,12 +23,27 @@ package org.apache.activemq.artemis.utils;
  */
 public final class Env {
 
+   /** The system will change a few logs and semantics to be suitable to
+    *  run a long testsuite.
+    *  Like a few log entries that are only valid during a production system.
+    *  or a few cases we need to know as warn on the testsuite and as log in production. */
+   private static boolean testEnv = false;
+
+
    private static final String OS = System.getProperty("os.name").toLowerCase();
    private static final boolean IS_LINUX = OS.startsWith("linux");
    private static final boolean IS_64BIT = checkIs64bit();
 
    private Env() {
 
+   }
+
+   public static boolean isTestEnv() {
+      return testEnv;
+   }
+
+   public static void setTestEnv(boolean testEnv) {
+      Env.testEnv = testEnv;
    }
 
    public static boolean isLinuxOs() {
