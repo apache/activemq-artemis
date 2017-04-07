@@ -136,6 +136,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -158,7 +159,7 @@ import org.junit.runner.Description;
 public abstract class ActiveMQTestBase extends Assert {
 
    static {
-      ConfigurationImpl.TEST_MODE = true;
+      Env.setTestEnv(true);
    }
 
    private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
