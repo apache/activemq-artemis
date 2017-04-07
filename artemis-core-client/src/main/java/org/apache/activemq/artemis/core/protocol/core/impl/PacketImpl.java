@@ -39,8 +39,6 @@ public class PacketImpl implements Packet {
    public static final int PACKET_HEADERS_SIZE = DataConstants.SIZE_INT + DataConstants.SIZE_BYTE +
       DataConstants.SIZE_LONG;
 
-   private static final int INITIAL_PACKET_SIZE = 1500;
-
    protected long channelID;
 
    private final byte type;
@@ -329,10 +327,13 @@ public class PacketImpl implements Packet {
    }
 
    protected ActiveMQBuffer createPacket(RemotingConnection connection) {
+
+      int size = expectedEncodeSize();
+
       if (connection == null) {
-         return new ChannelBufferWrapper(Unpooled.buffer(INITIAL_PACKET_SIZE));
+         return new ChannelBufferWrapper(Unpooled.buffer(size));
       } else {
-         return connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
+         return connection.createTransportBuffer(size);
       }
    }
 

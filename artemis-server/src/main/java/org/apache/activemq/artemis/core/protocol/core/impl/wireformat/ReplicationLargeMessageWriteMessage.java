@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
 
@@ -40,6 +41,15 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
 
       this.messageId = messageId;
       this.body = body;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_LONG +  // buffer.writeLong(messageId);
+         DataConstants.SIZE_LONG +  // buffer.writeLong(messageId);
+         DataConstants.SIZE_INT +   // buffer.writeInt(body.length);
+         body.length;               // buffer.writeBytes(body);
    }
 
    @Override

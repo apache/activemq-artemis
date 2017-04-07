@@ -16,12 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import io.netty.buffer.Unpooled;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public abstract class MessagePacket extends PacketImpl implements MessagePacketI {
 
@@ -41,14 +37,6 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
    @Override
    public String getParentString() {
       return super.getParentString() + ", message=" + message;
-   }
-
-   protected ActiveMQBuffer internalCreatePacket(int size, RemotingConnection connection) {
-      if (connection == null) {
-         return new ChannelBufferWrapper(Unpooled.buffer(size));
-      } else {
-         return connection.createTransportBuffer(size);
-      }
    }
 
 }

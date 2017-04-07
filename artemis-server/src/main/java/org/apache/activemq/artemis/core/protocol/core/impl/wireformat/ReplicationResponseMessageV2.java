@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class ReplicationResponseMessageV2 extends ReplicationResponseMessage {
 
@@ -39,6 +40,12 @@ public final class ReplicationResponseMessageV2 extends ReplicationResponseMessa
 
    public void setSynchronizationIsFinishedAcknowledgement(boolean synchronizationIsFinishedAcknowledgement) {
       this.synchronizationIsFinishedAcknowledgement = synchronizationIsFinishedAcknowledgement;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(synchronizationIsFinishedAcknowledgement);
    }
 
    @Override

@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 import java.util.Map;
 
 import io.netty.channel.Channel;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 
 public class NettyServerConnection extends NettyConnection {
@@ -33,8 +31,4 @@ public class NettyServerConnection extends NettyConnection {
       super(configuration, channel, listener, batchingEnabled, directDeliver);
    }
 
-   @Override
-   public ActiveMQBuffer createTransportBuffer(int size) {
-      return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
-   }
 }

@@ -93,8 +93,8 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    }
 
    @Override
-   protected final int expectedEncodedSize() {
-      return super.expectedEncodedSize() + (!continues ? DataConstants.SIZE_LONG : 0) + DataConstants.SIZE_BOOLEAN;
+   public int expectedEncodeSize() {
+      return super.expectedEncodeSize() + (!continues ? DataConstants.SIZE_LONG : 0) + DataConstants.SIZE_BOOLEAN;
    }
 
    @Override

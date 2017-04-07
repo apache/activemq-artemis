@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class ReplicationDeleteMessage extends PacketImpl {
 
@@ -37,6 +38,14 @@ public final class ReplicationDeleteMessage extends PacketImpl {
       this.journalID = journalID;
       this.id = id;
    }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+         DataConstants.SIZE_BYTE + // buffer.writeByte(journalID);
+         DataConstants.SIZE_LONG; // buffer.writeLong(id);
+   }
+
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
