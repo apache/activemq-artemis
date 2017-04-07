@@ -1013,14 +1013,14 @@ public class AMQPMessage extends RefCountMessage {
    }
 
    private int internalPersistSize() {
-      return data.array().length - sendFrom;
+      return data.array().length;
    }
 
    @Override
    public void persist(ActiveMQBuffer targetRecord) {
       checkBuffer();
       targetRecord.writeInt(internalPersistSize());
-      targetRecord.writeBytes(data.array(), sendFrom, data.array().length - sendFrom);
+      targetRecord.writeBytes(data.array(), 0, data.array().length );
    }
 
    @Override
