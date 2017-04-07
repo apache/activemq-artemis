@@ -67,9 +67,8 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-
    @Test(timeout = 60000)
-   public void testRestartServer() throws Exception {
+   public void testMessagePriorityPreservedAfterServerRestart() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
@@ -80,7 +79,6 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       message.setDurable(true);
       message.setMessageId("MessageID:1");
       message.setPriority((short) 7);
-
 
       sender.send(message);
       sender.close();
