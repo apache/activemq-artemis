@@ -25,7 +25,6 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.components.ExternalComponent;
-import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.factory.BrokerFactory;
@@ -61,11 +60,7 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      FileConfiguration fileConfiguration = getFileConfiguration();
-
       Artemis.printBanner();
-
-      createDirectories(getFileConfiguration());
 
       BrokerDTO broker = getBrokerDTO();
 
@@ -89,13 +84,6 @@ public class Run extends LockAbstract {
          server.getServer().addExternalComponent(component);
       }
       return null;
-   }
-
-   private void createDirectories(FileConfiguration fileConfiguration) {
-      fileConfiguration.getPagingLocation().mkdirs();
-      fileConfiguration.getJournalLocation().mkdirs();
-      fileConfiguration.getBindingsLocation().mkdirs();
-      fileConfiguration.getLargeMessagesLocation().mkdirs();
    }
 
    /**

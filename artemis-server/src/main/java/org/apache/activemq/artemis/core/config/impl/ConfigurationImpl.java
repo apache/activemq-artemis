@@ -74,6 +74,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
 
+   // We want to turn of a few log.infos from the testsuite as they would be too verbose for tests
+   // Only the testsuite should set this one up
+   public static boolean TEST_MODE = false;
+
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
    private static final long serialVersionUID = 4077088945050267843L;
@@ -253,7 +257,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long configurationFileRefreshPeriod = ActiveMQDefaultConfiguration.getDefaultConfigurationFileRefreshPeriod();
 
-   private long globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+   private Long globalMaxSize;
 
    private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
 
@@ -351,6 +355,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public long getGlobalMaxSize() {
+      if (globalMaxSize == null) {
+         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+         if (!TEST_MODE) {
+            ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
+         }
+      }
       return globalMaxSize;
    }
 
@@ -1792,7 +1802,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (journalDatasync != other.journalDatasync) {
          return false;
       }
-      if (globalMaxSize != other.globalMaxSize) {
+      if (globalMaxSize != null && !globalMaxSize.equals(other.globalMaxSize)) {
          return false;
       }
       if (maxDiskUsage != other.maxDiskUsage) {
