@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.jboss.logging.Logger;
@@ -73,10 +74,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    // Constants ------------------------------------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
-
-   // We want to turn of a few log.infos from the testsuite as they would be too verbose for tests
-   // Only the testsuite should set this one up
-   public static boolean TEST_MODE = false;
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
@@ -357,7 +354,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public long getGlobalMaxSize() {
       if (globalMaxSize == null) {
          this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
-         if (!TEST_MODE) {
+         if (!Env.isTestEnv()) {
             ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
          }
       }
