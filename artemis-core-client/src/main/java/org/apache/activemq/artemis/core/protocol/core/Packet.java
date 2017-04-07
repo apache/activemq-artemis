@@ -24,6 +24,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
  */
 public interface Packet {
 
+   int INITIAL_PACKET_SIZE = 1500;
+
    /**
     * Sets the channel id that should be used once the packet has been successfully decoded it is
     * sent to the correct channel.
@@ -31,6 +33,14 @@ public interface Packet {
     * @param channelID the id of the channel to handle the packet
     */
    void setChannelID(long channelID);
+
+   /**
+    * This will return the expected packet size for the encoding
+    * @return
+    */
+   default int expectedEncodeSize() {
+      return INITIAL_PACKET_SIZE;
+   }
 
    /**
     * Returns the channel id of the channel that should handle this packet.

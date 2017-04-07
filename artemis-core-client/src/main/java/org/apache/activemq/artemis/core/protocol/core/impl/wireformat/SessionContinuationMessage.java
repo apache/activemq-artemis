@@ -18,11 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 
-import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public abstract class SessionContinuationMessage extends PacketImpl {
@@ -74,18 +71,9 @@ public abstract class SessionContinuationMessage extends PacketImpl {
     *
     * @return the size in bytes of the expected encoded packet
     */
-   protected int expectedEncodedSize() {
-      return SESSION_CONTINUATION_BASE_SIZE + (body == null ? 0 : body.length);
-   }
-
    @Override
-   protected final ActiveMQBuffer createPacket(RemotingConnection connection) {
-      final int expectedEncodedSize = expectedEncodedSize();
-      if (connection == null) {
-         return new ChannelBufferWrapper(Unpooled.buffer(expectedEncodedSize));
-      } else {
-         return connection.createTransportBuffer(expectedEncodedSize);
-      }
+   public int expectedEncodeSize() {
+      return SESSION_CONTINUATION_BASE_SIZE + (body == null ? 0 : body.length);
    }
 
    @Override

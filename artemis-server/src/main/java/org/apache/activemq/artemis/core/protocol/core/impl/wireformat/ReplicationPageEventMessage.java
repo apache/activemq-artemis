@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationPageEventMessage extends PacketImpl {
 
@@ -40,6 +41,14 @@ public class ReplicationPageEventMessage extends PacketImpl {
       this.pageNumber = pageNumber;
       this.isDelete = isDelete;
       this.storeName = storeName;
+   }
+
+   @Override
+   public int expectedEncodeSize() {
+      return PACKET_HEADERS_SIZE +
+             SimpleString.sizeofString(storeName) + // buffer.writeSimpleString(storeName);
+             DataConstants.SIZE_INT + //  buffer.writeInt(pageNumber);
+             DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(isDelete);
    }
 
    @Override
