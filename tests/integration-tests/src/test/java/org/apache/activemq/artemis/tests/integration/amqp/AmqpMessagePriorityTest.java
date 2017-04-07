@@ -67,6 +67,48 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       connection.close();
    }
 
+
+   @Test(timeout = 60000)
+   public void testRestartServer() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getTestName());
+
+      AmqpMessage message = new AmqpMessage();
+      message.setDurable(true);
+      message.setMessageId("MessageID:1");
+      message.setPriority((short) 7);
+
+
+      sender.send(message);
+      sender.close();
+      connection.close();
+
+      server.stop();
+      server.start();
+
+      client = createAmqpClient();
+      connection = addConnection(client.connect());
+      session = connection.createSession();
+
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+
+      Queue queueView = getProxyToQueue(getTestName());
+      assertEquals(1, queueView.getMessageCount());
+
+      receiver.flow(1);
+      AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(receive);
+      assertEquals((short) 7, receive.getPriority());
+      receiver.close();
+
+      assertEquals(1, queueView.getMessageCount());
+
+      connection.close();
+   }
+
    @Test(timeout = 60000)
    public void testMessageNonDefaultPriority() throws Exception {
 
