@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
@@ -60,8 +62,8 @@ import io.netty.buffer.Unpooled;
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
 
-   private static final int DEFAULT_MESSAGE_PRIORITY = 4;
-   private static final int MAX_MESSAGE_PRIORITY = 9;
+   public static final int DEFAULT_MESSAGE_PRIORITY = 4;
+   public static final int MAX_MESSAGE_PRIORITY = 9;
 
    final long messageFormat;
    ByteBuf data;
@@ -91,21 +93,18 @@ public class AMQPMessage extends RefCountMessage {
       this.messageFormat = messageFormat;
       this.bufferValid = true;
       parseHeaders();
-
    }
 
    /** for persistence reload */
    public AMQPMessage(long messageFormat) {
       this.messageFormat = messageFormat;
       this.bufferValid = false;
-
    }
 
    public AMQPMessage(long messageFormat, Message message) {
       this.messageFormat = messageFormat;
       this.protonMessage = (MessageImpl) message;
       this.bufferValid = false;
-
    }
 
    public AMQPMessage(Message message) {
@@ -171,7 +170,6 @@ public class AMQPMessage extends RefCountMessage {
          }
          this.appLocation = -1;
          TLSEncode.getDecoder().setByteBuffer(null);
-
       }
 
       return applicationProperties;
@@ -237,7 +235,6 @@ public class AMQPMessage extends RefCountMessage {
 
       return null;
    }
-
 
    private void setSymbol(String symbol, Object value) {
       setSymbol(Symbol.getSymbol(symbol), value);
@@ -331,7 +328,6 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public synchronized boolean acceptsConsumer(long consumer) {
-
       if (rejectedConsumers == null) {
          return true;
       } else {
@@ -347,7 +343,6 @@ public class AMQPMessage extends RefCountMessage {
 
       rejectedConsumers.add(consumer);
    }
-
 
    private synchronized void partialDecode(ByteBuffer buffer) {
       DecoderImpl decoder = TLSEncode.getDecoder();
@@ -516,10 +511,11 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public Object getUserID() {
       Properties properties = getProperties();
-      if (properties != null && properties.getMessageId() != null) {
-         return properties.getMessageId();
+      if (properties != null && properties.getUserId() != null) {
+         Binary binary = properties.getUserId();
+         return new String(binary.getArray(), binary.getArrayOffset(), binary.getLength(), StandardCharsets.UTF_8);
       } else {
-         return this;
+         return null;
       }
    }
 
@@ -585,8 +581,8 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public long getTimestamp() {
-      if (getHeader() != null && getHeader().getTtl() != null) {
-         return getHeader().getTtl().longValue();
+      if (getProperties() != null && getProperties().getCreationTime() != null) {
+         return getProperties().getCreationTime().getTime();
       } else {
          return 0L;
       }
@@ -594,7 +590,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setTimestamp(long timestamp) {
-      getHeader().setTtl(UnsignedInteger.valueOf(timestamp));
+      getProperties().setCreationTime(new Date(timestamp));
       return this;
    }
 
@@ -868,7 +864,6 @@ public class AMQPMessage extends RefCountMessage {
       return this;
    }
 
-
    @Override
    public void reencode() {
       if (_deliveryAnnotations != null) getProtonMessage().setDeliveryAnnotations(_deliveryAnnotations);
@@ -878,8 +873,6 @@ public class AMQPMessage extends RefCountMessage {
       bufferValid = false;
       checkBuffer();
    }
-
-
 
    @Override
    public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
@@ -995,7 +988,6 @@ public class AMQPMessage extends RefCountMessage {
       } else {
          return null;
       }
-
    }
 
    @Override
