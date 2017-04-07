@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
@@ -3121,11 +3122,13 @@ public class QueueImpl implements Queue {
    }
 
    private void checkDeadLetterAddressAndExpiryAddress(final AddressSettings settings) {
-      if (settings.getDeadLetterAddress() == null) {
-         ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
-      }
-      if (settings.getExpiryAddress() == null) {
-         ActiveMQServerLogger.LOGGER.AddressSettingsNoExpiryAddress(name);
+      if (!ConfigurationImpl.TEST_MODE) {
+         if (settings.getDeadLetterAddress() == null) {
+            ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
+         }
+         if (settings.getExpiryAddress() == null) {
+            ActiveMQServerLogger.LOGGER.AddressSettingsNoExpiryAddress(name);
+         }
       }
    }
 
