@@ -73,8 +73,8 @@ public class PagedMessageImpl implements PagedMessage {
          LargeServerMessage lgMessage = storage.createLargeMessage();
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(largeMessageLazyData);
-         LargeMessagePersister.getInstance().decode(buffer, lgMessage);
-         ((LargeServerMessage) message).incrementDelayDeletionCount();
+         lgMessage = LargeMessagePersister.getInstance().decode(buffer, lgMessage);
+         lgMessage.incrementDelayDeletionCount();
          this.message = lgMessage;
          largeMessageLazyData = null;
       }
