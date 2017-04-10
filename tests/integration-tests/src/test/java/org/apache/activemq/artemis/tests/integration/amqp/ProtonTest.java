@@ -39,6 +39,8 @@ import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -57,6 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -74,8 +77,11 @@ import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientConnectionMa
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
@@ -109,11 +115,13 @@ public class ProtonTest extends ProtonTestBase {
    private static final String amqpConnectionUri = "amqp://localhost:5672";
 
    private static final String tcpAmqpConnectionUri = "tcp://localhost:5672";
-   private static final String brokerName = "my-broker";
+   private static final String brokerName = "localhost";
 
    private static final long maxSizeBytes = 1 * 1024 * 1024;
 
    private static final long maxSizeBytesRejectThreshold = 2 * 1024 * 1024;
+
+   private MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
 
    private int messagesSent = 0;
 
@@ -150,6 +158,8 @@ public class ProtonTest extends ProtonTestBase {
    protected ActiveMQServer createAMQPServer(int port) throws Exception {
       ActiveMQServer server = super.createAMQPServer(port);
       server.getConfiguration().addAcceptorConfiguration("flow", "tcp://localhost:" + (8 + port) + "?protocols=AMQP;useEpoll=false;amqpCredits=1;amqpMinCredits=1");
+      server.setMBeanServer(mBeanServer);
+      server.getConfiguration().setJMXManagementEnabled(true);
       return server;
    }
 
@@ -238,6 +248,36 @@ public class ProtonTest extends ProtonTestBase {
          message = (TextMessage) consumer.receive(1000);
          assertNotNull(message);
          assertNotNull(message.getText());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testAddressControlSendMessage() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+
+      Assert.assertEquals(1, addressControl.getMessageCount());
+
+      Connection connection = createConnection("myClientId");
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(address.toString());
+         MessageConsumer consumer = session.createConsumer(queue);
+         Message message = consumer.receive(500);
+         assertNotNull(message);
+         byte[] buffer = new byte[(int)((BytesMessage)message).getBodyLength()];
+         ((BytesMessage)message).readBytes(buffer);
+         assertEquals("test", new String(buffer));
+         session.close();
+         connection.close();
       } finally {
          if (connection != null) {
             connection.close();
