@@ -68,7 +68,7 @@ public final class ReplicationAddMessage extends PacketImpl {
          DataConstants.SIZE_LONG + // buffer.writeLong(id);
          DataConstants.SIZE_BYTE + // buffer.writeByte(journalRecordType);
          DataConstants.SIZE_INT + // buffer.writeInt(persister.getEncodeSize(encodingData));
-         persister.getEncodeSize(encodingData);// persister.encode(buffer, encodingData);
+         encodingData.getEncodeSize(); // encodingData.encode(buffer);
    }
 
    @Override

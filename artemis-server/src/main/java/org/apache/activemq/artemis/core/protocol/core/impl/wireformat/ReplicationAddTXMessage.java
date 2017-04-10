@@ -73,7 +73,7 @@ public class ReplicationAddTXMessage extends PacketImpl {
             DataConstants.SIZE_LONG + // buffer.writeLong(id);
             DataConstants.SIZE_BYTE + // buffer.writeByte(recordType);
             DataConstants.SIZE_INT + // buffer.writeInt(persister.getEncodeSize(encodingData));
-            persister.getEncodeSize(encodingData); // persister.encode(buffer, encodingData);
+            encodingData.getEncodeSize(); // persister.encode(buffer, encodingData);
    }
 
    @Override
