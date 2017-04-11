@@ -147,7 +147,7 @@ public class AMQPMessageTest {
 
       AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
 
-      assertEquals(USER_NAME, decoded.getUserID());
+      assertEquals(USER_NAME, decoded.getAMQPUserID());
    }
 
    @Test
