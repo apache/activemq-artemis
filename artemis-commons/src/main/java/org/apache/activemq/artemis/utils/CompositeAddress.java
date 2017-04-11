@@ -14,13 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.postoffice.impl;
+package org.apache.activemq.artemis.utils;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class CompositeAddress {
 
    public static String SEPARATOR = "::";
    private final String address;
    private final String queueName;
+   private final boolean fqqn;
 
    public String getAddress() {
       return address;
@@ -34,17 +37,52 @@ public class CompositeAddress {
 
       this.address = address;
       this.queueName = queueName;
+      this.fqqn = address != null;
+   }
+
+   public CompositeAddress(String singleName) {
+      String[] split = singleName.split(SEPARATOR);
+      if (split.length == 1) {
+         this.fqqn = false;
+         this.address = null;
+         this.queueName = split[0];
+      } else {
+         this.fqqn = true;
+         this.address = split[0];
+         this.queueName = split[1];
+      }
+   }
+
+   public boolean isFqqn() {
+      return fqqn;
    }
 
    public static boolean isFullyQualified(String address) {
-      return address.toString().contains(SEPARATOR);
+      return address.contains(SEPARATOR);
    }
 
    public static CompositeAddress getQueueName(String address) {
       String[] split = address.split(SEPARATOR);
       if (split.length <= 0) {
-         throw new IllegalStateException("Nott A Fully Qualified Name");
+         throw new IllegalStateException("Not A Fully Qualified Name");
+      }
+      if (split.length == 1) {
+         return new CompositeAddress(null, split[0]);
       }
       return new CompositeAddress(split[0], split[1]);
+   }
+
+   public static String extractQueueName(String name) {
+      String[] split = name.split(SEPARATOR);
+      return split[split.length - 1];
+   }
+
+   public static SimpleString extractQueueName(SimpleString name) {
+      return new SimpleString(extractQueueName(name.toString()));
+   }
+
+   public static String extractAddressName(String address) {
+      String[] split = address.split(SEPARATOR);
+      return split[0];
    }
 }
