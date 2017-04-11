@@ -310,6 +310,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void broadcastGroupBindError(String hostAndPort);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212057, value = "Large Message Streaming is taking too long to flush on back pressure.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void timeoutStreamingLargeMessage();
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
