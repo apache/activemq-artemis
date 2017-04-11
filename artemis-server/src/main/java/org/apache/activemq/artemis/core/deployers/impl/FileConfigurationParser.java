@@ -316,7 +316,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.GT_ZERO));
 
-      config.setGlobalMaxSize(getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, config.getGlobalMaxSize(), Validators.MINUS_ONE_OR_GT_ZERO));
+      long globalMaxSize = getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, -1, Validators.MINUS_ONE_OR_GT_ZERO);
+
+      if (globalMaxSize > 0) {
+         // We only set it if it's not set on the XML, otherwise getGlobalMaxSize will calculate it.
+         // We do it this way because it will be valid also on the case of embedded
+         config.setGlobalMaxSize(globalMaxSize);
+      }
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE));
 
