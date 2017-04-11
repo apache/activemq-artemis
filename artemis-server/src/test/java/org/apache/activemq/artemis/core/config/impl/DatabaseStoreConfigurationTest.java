@@ -36,15 +36,17 @@ public class DatabaseStoreConfigurationTest extends ActiveMQTestBase {
 
    @Test
    public void testOracle12TableSize() {
-      Throwable rte = null;
-      try {
-         new Oracle12CSQLProvider.Factory().create("A_TABLE_NAME_THAT_IS_TOO_LONG", SQLProvider.DatabaseStoreType.PAGE);
-      } catch (Throwable t) {
-         rte = t;
-      }
+      for (SQLProvider.DatabaseStoreType storeType : SQLProvider.DatabaseStoreType.values()) {
+         Throwable rte = null;
+         try {
+            new Oracle12CSQLProvider.Factory().create("_A_TABLE_NAME_THAT_IS_TOO_LONG_", storeType);
+         } catch (Throwable t) {
+            rte = t;
+         }
 
-      assertNotNull(rte);
-      assertTrue(rte.getMessage().contains("The maximum name size for the paging store table, when using Oracle12C is 10 characters."));
+         assertNotNull(rte);
+         assertTrue(rte.getMessage().contains("The maximum name size for the " + storeType.name().toLowerCase() + " store table, when using Oracle12C is 30 characters."));
+      }
    }
 
    protected Configuration createConfiguration(String fileName) throws Exception {
