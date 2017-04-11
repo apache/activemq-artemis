@@ -316,7 +316,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.GT_ZERO));
 
-      config.setGlobalMaxSize(getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, config.getGlobalMaxSize(), Validators.MINUS_ONE_OR_GT_ZERO));
+      config.setGlobalMaxSize(getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize(), Validators.MINUS_ONE_OR_GT_ZERO));
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE));
 
