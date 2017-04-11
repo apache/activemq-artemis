@@ -291,8 +291,10 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             }
          });
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-         for (String header : headers.keySet()) {
-            message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+         if (headers != null) {
+            for (String header : headers.keySet()) {
+               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+            }
          }
          message.setType((byte) type);
          message.setDurable(durable);
@@ -341,7 +343,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queue);
 
             // Ignore the "special" subscription
-            if (coreQueueControl != null && !coreQueueControl.getName().equals(getAddress())) {
+            if (coreQueueControl != null) {
                if (durability == DurabilityType.ALL || durability == DurabilityType.DURABLE && coreQueueControl.isDurable() ||
                      durability == DurabilityType.NON_DURABLE && !coreQueueControl.isDurable()) {
                   matchingQueues.add(coreQueueControl);

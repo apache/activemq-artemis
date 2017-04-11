@@ -30,7 +30,7 @@ import org.junit.Before;
 
 public class ProtonTestBase extends ActiveMQTestBase {
 
-   protected String brokerName = "my-broker";
+   protected String brokerName = "localhost";
    protected ActiveMQServer server;
 
    protected String tcpAmqpConnectionUri = "tcp://localhost:5672";
