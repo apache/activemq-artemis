@@ -16,11 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 
+import java.nio.ByteBuffer;
+
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonDeliveryHandler;
-import org.apache.activemq.artemis.protocol.amqp.util.DeliveryUtil;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
@@ -32,6 +33,7 @@ import org.apache.qpid.proton.amqp.transaction.Discharge;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
+import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.jboss.logging.Logger;
 
@@ -47,6 +49,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    final AMQPSessionCallback sessionSPI;
    final AMQPConnectionContext connection;
+
+   private final ByteBuffer DECODE_BUFFER = ByteBuffer.allocate(64);
 
    public ProtonTransactionHandler(AMQPSessionCallback sessionSPI, AMQPConnectionContext connection) {
       this.sessionSPI = sessionSPI;
@@ -65,7 +69,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             return;
          }
 
-         byte[] buffer;
+         ByteBuffer buffer;
+         MessageImpl msg;
 
          synchronized (connection.getLock()) {
             // Replenish coordinator receiver credit on exhaustion so sender can continue
@@ -74,14 +79,22 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                receiver.flow(amqpCredit);
             }
 
-            buffer = new byte[delivery.available()];
-            receiver.recv(buffer, 0, buffer.length);
+            // Declare is generally 7 bytes and discharge is around 48 depending on the
+            // encoded size of the TXN ID.  Decode buffer has a bit of extra space but if
+            // the incoming request is to big just use a scratch buffer.
+            if (delivery.available() > DECODE_BUFFER.capacity()) {
+               buffer = ByteBuffer.allocate(delivery.available());
+            } else {
+               buffer = (ByteBuffer) DECODE_BUFFER.clear();
+            }
+
+            // Update Buffer for the next incoming command.
+            buffer.limit(receiver.recv(buffer.array(), buffer.arrayOffset(), buffer.capacity()));
+
             receiver.advance();
+
+            msg = decodeMessage(buffer);
          }
-
-
-
-         MessageImpl msg = DeliveryUtil.decodeMessageImpl(buffer);
 
          Object action = ((AmqpValue) msg.getBody()).getValue();
 
@@ -133,6 +146,18 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       }
    }
 
+   @Override
+   public void onFlow(int credits, boolean drain) {
+   }
+
+   @Override
+   public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
+   }
+
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+   }
+
    private Rejected createRejected(Symbol amqpError, String message) {
       Rejected rejected = new Rejected();
       ErrorCondition condition = new ErrorCondition();
@@ -142,17 +167,9 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       return rejected;
    }
 
-   @Override
-   public void onFlow(int credits, boolean drain) {
-   }
-
-   @Override
-   public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
-      // no op
-   }
-
-   @Override
-   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
-      // no op
+   private MessageImpl decodeMessage(ByteBuffer encoded) {
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.decode(encoded);
+      return message;
    }
 }
