@@ -511,6 +511,22 @@ public class AMQPMessage extends RefCountMessage {
    @Override
    public Object getUserID() {
       Properties properties = getProperties();
+      if (properties != null && properties.getMessageId() != null) {
+         return properties.getMessageId();
+      } else {
+         return null;
+      }
+   }
+
+   /**
+    * Before we added AMQP into Artemis / Hornetq, the name getUserID was already taken by JMSMessageID.
+    * We cannot simply change the names now as it would break the API for existing clients.
+    *
+    * This is to return and read the proper AMQP userID.
+    * @return
+    */
+   public Object getAMQPUserID() {
+      Properties properties = getProperties();
       if (properties != null && properties.getUserId() != null) {
          Binary binary = properties.getUserId();
          return new String(binary.getArray(), binary.getArrayOffset(), binary.getLength(), StandardCharsets.UTF_8);
@@ -518,6 +534,7 @@ public class AMQPMessage extends RefCountMessage {
          return null;
       }
    }
+
 
    @Override
    public org.apache.activemq.artemis.api.core.Message setUserID(Object userID) {

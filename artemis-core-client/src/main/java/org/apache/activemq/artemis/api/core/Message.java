@@ -305,8 +305,11 @@ public interface Message {
 
 
    /**
-    * Returns the userID - this is an optional user specified UUID that can be set to identify the message
-    * and will be passed around with the message
+    *
+    * This represents historically the JMSMessageID.
+    * We had in the past used this for the MessageID that was sent on core messages...
+    *
+    * later on when we added AMQP this name clashed with AMQPMessage.getUserID();
     *
     * @return the user id
     */
