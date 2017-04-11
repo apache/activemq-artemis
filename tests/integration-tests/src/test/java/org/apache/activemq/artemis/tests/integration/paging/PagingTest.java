@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -148,6 +149,28 @@ public class PagingTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
+   }
+
+   @Test
+   public void testTooLongPageStoreTableNamePrefix() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         final Configuration config = createDefaultInVMConfig();
+         final DatabaseStorageConfiguration storageConfiguration = (DatabaseStorageConfiguration) config.getStoreConfiguration();
+         //set the page store table to be longer than 10 chars -> the paging manager initialization will fail
+         storageConfiguration.setPageStoreTableName("PAGE_STORE_");
+
+         final int PAGE_MAX = 20 * 1024;
+
+         final int PAGE_SIZE = 10 * 1024;
+
+         final ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+         server.start();
+
+         //due to a failed initialisation of the paging manager, it must be null
+         Assert.assertNull(server.getPagingManager());
+
+         server.stop();
+      }
    }
 
    @Test
