@@ -262,7 +262,7 @@ public class ProtonTest extends ProtonTestBase {
 
       AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
       Assert.assertEquals(1, addressControl.getQueueNames().length);
-      addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
+      addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, userName, password);
 
       Assert.assertEquals(1, addressControl.getMessageCount());
 
@@ -276,6 +276,35 @@ public class ProtonTest extends ProtonTestBase {
          byte[] buffer = new byte[(int)((BytesMessage)message).getBodyLength()];
          ((BytesMessage)message).readBytes(buffer);
          assertEquals("test", new String(buffer));
+         session.close();
+         connection.close();
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testAddressControlSendMessageWithText() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
+
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(address, mBeanServer);
+      Assert.assertEquals(1, addressControl.getQueueNames().length);
+      addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.TEXT_TYPE, "test", false, userName, password);
+
+      Assert.assertEquals(1, addressControl.getMessageCount());
+
+      Connection connection = createConnection("myClientId");
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(address.toString());
+         MessageConsumer consumer = session.createConsumer(queue);
+         Message message = consumer.receive(500);
+         assertNotNull(message);
+         String text = ((TextMessage) message).getText();
+         assertEquals("test", text);
          session.close();
          connection.close();
       } finally {

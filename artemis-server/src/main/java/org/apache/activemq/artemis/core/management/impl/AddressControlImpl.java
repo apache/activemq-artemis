@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
@@ -300,7 +301,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          message.setDurable(durable);
          message.setTimestamp(System.currentTimeMillis());
          if (body != null) {
-            message.getBodyBuffer().writeBytes(Base64.decode(body));
+            if (type == Message.TEXT_TYPE) {
+               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+            } else {
+               message.getBodyBuffer().writeBytes(Base64.decode(body));
+            }
          }
          message.setAddress(addressInfo.getName());
          postOffice.route(message, true);
