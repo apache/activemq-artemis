@@ -72,7 +72,8 @@ public abstract class SessionContinuationMessage extends PacketImpl {
     *
     * @return the size in bytes of the expected encoded packet
     */
-   protected int expectedEncodedSize() {
+   @Override
+   public int expectedEncodeSize() {
       return SESSION_CONTINUATION_BASE_SIZE + (body == null ? 0 : body.length);
    }
 
