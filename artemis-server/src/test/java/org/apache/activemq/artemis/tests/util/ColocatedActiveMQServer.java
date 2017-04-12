@@ -22,12 +22,9 @@ import java.io.File;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public class ColocatedActiveMQServer extends ActiveMQServerImpl {
@@ -68,11 +65,7 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl {
    @Override
    protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
       if (replicatingBackup) {
-         if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
-            return new AIOFileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
-         } else {
-            return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
-         }
+         return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
       } else {
          if (backup) {
             return nodeManagerBackup;
