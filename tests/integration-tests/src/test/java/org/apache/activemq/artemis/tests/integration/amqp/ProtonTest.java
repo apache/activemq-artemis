@@ -296,6 +296,8 @@ public class ProtonTest extends ProtonTestBase {
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.TEXT_TYPE, "test", false, userName, password);
 
+      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
+
       Assert.assertEquals(1, addressControl.getMessageCount());
 
       Connection connection = createConnection("myClientId");
