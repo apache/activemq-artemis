@@ -36,7 +36,7 @@ public class FQQNStompTest extends StompTestBase {
       conn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
       QueueQueryResult result = server.getActiveMQServer().queueQuery(new SimpleString(getQueueName()));
       assertTrue(result.isExists());
-      System.out.println("address: " + result.getAddress() + " queu " + result.getName());
+      System.out.println("address: " + result.getAddress() + " queue " + result.getName());
    }
 
    @Override
@@ -68,6 +68,36 @@ public class FQQNStompTest extends StompTestBase {
       assertEquals("Hello World!", frame.getBody());
       System.out.println("frame: " + frame);
       unsubscribe(conn, "sub-01");
+   }
+
+   @Test
+   public void testReceiveFQQNSpecial() throws Exception {
+      conn.connect(defUser, defPass);
+      //::queue
+      subscribeQueue(conn, "sub-01", "\\c\\c" + getQueueName());
+      sendJmsMessage("Hello World!");
+      ClientStompFrame frame = conn.receiveFrame(2000);
+      assertNotNull(frame);
+      assertEquals("Hello World!", frame.getBody());
+      System.out.println("frame: " + frame);
+      unsubscribe(conn, "sub-01");
+
+      //queue::
+      subscribeQueue(conn, "sub-01", getQueueName() + "\\c\\c");
+      sendJmsMessage("Hello World!");
+      frame = conn.receiveFrame(2000);
+      assertNotNull(frame);
+      assertEquals("ERROR", frame.getCommand());
+      assertTrue(frame.getBody().contains(getQueueName()));
+      assertTrue(frame.getBody().contains("not exist"));
+
+      //need reconnect because stomp disconnect on error
+      conn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
+      //:: will subscribe to no queue so no message received.
+      subscribeQueue(conn, "sub-01", "\\c\\c");
+      sendJmsMessage("Hello World!");
+      frame = conn.receiveFrame(2000);
+      assertNull(frame);
    }
 
 }

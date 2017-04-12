@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -27,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -210,7 +212,46 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testSpecialCase() throws Exception {
+      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession();
+      session.start();
+
+      ClientProducer producer = session.createProducer(anycastAddress);
+      sendMessages(session, producer, 1);
+
+      //::queue
+      ClientConsumer consumer1 = session.createConsumer(toFullQN(new SimpleString(""), anycastQ1));
+      session.start();
+
+      ClientMessage m = consumer1.receive(2000);
+      assertNotNull(m);
+      m.acknowledge();
+
+      session.commit();
+      consumer1.close();
+
+      try {
+         //queue::
+         session.createConsumer(toFullQN(anycastQ1, new SimpleString("")));
+         fail("should get exception");
+      } catch (ActiveMQNonExistentQueueException e) {
+         //expected.
+      }
+
+      try {
+         //::
+         session.createConsumer(toFullQN(new SimpleString(""), new SimpleString("")));
+         fail("should get exception");
+      } catch (ActiveMQNonExistentQueueException e) {
+         //expected.
+      }
+   }
+
    private SimpleString toFullQN(SimpleString address, SimpleString qName) {
-      return address.concat("::").concat(qName);
+      return address.concat(CompositeAddress.SEPARATOR).concat(qName);
    }
 }

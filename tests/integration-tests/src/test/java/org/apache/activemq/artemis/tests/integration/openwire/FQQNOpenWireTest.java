@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.InvalidDestinationException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.util.FQQN;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -214,6 +216,54 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          assertEquals("This is a text message", messageReceived.getText());
+      } finally {
+         if (exConn != null) {
+            exConn.close();
+         }
+      }
+   }
+
+   @Test
+   public void testSpecialFQQNCase() throws Exception {
+      Connection exConn = null;
+
+      SimpleString durableQueue = new SimpleString("myqueue");
+      this.server.createQueue(durableQueue, RoutingType.ANYCAST, durableQueue, null, true, false, -1, false, true);
+
+      try {
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
+         exConn = exFact.createConnection();
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createQueue(durableQueue.toString());
+
+         MessageProducer producer = session.createProducer(destination);
+         TextMessage message = session.createTextMessage("This is a text message");
+         producer.send(message);
+
+         //this should work as if only queue names is given
+         Destination destinationFQN = session.createQueue(CompositeAddress.SEPARATOR + durableQueue);
+         MessageConsumer messageConsumer = session.createConsumer(destinationFQN);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+         assertEquals("This is a text message", messageReceived.getText());
+         messageConsumer.close();
+
+         destinationFQN = session.createQueue(durableQueue + CompositeAddress.SEPARATOR);
+         try {
+            session.createConsumer(destinationFQN);
+            fail("should get exception");
+         } catch (InvalidDestinationException e) {
+            //expected.
+         }
+         destinationFQN = session.createQueue(CompositeAddress.SEPARATOR);
+         try {
+            session.createConsumer(destinationFQN);
+            fail("should get exception");
+         } catch (InvalidDestinationException e) {
+            //expected.
+         }
+
       } finally {
          if (exConn != null) {
             exConn.close();

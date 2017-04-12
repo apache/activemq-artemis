@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -78,6 +80,103 @@ public class MQTTFQQNTest extends MQTTTestSupport {
          assertTrue(result.isExists());
          assertEquals(new SimpleString("foo.bah"), result.getAddress());
          assertEquals(new SimpleString("foo.bah::" + b.getUniqueName()), result.getName());
+      } finally {
+         subscriptionProvider.disconnect();
+      }
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testSendAndReceiveMQTTSpecial1() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      subscriptionProvider.subscribe("foo/bah::", AT_MOST_ONCE);
+
+      final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES);
+
+      Thread thread = new Thread(new Runnable() {
+         @Override
+         public void run() {
+            for (int i = 0; i < NUM_MESSAGES; i++) {
+               try {
+                  byte[] payload = subscriptionProvider.receive(10000);
+                  assertNotNull("Should get a message", payload);
+                  latch.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  break;
+               }
+
+            }
+         }
+      });
+      thread.start();
+
+      final MQTTClientProvider publishProvider = getMQTTClientProvider();
+      initializeConnection(publishProvider);
+
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         String payload = "Message " + i;
+         publishProvider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
+      }
+
+      latch.await(10, TimeUnit.SECONDS);
+      assertEquals(0, latch.getCount());
+      subscriptionProvider.disconnect();
+      publishProvider.disconnect();
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testSendAndReceiveMQTTSpecial2() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      try {
+         subscriptionProvider.subscribe("::foo/bah", AT_MOST_ONCE);
+         fail("should get exception!");
+      } catch (Exception e) {
+         //expected
+      } finally {
+         subscriptionProvider.disconnect();
+      }
+
+      //::
+      initializeConnection(subscriptionProvider);
+      try {
+         subscriptionProvider.subscribe("::", AT_MOST_ONCE);
+         fail("should get exception!");
+      } catch (Exception e) {
+         //expected
+      } finally {
+         subscriptionProvider.disconnect();
+      }
+   }
+
+   @Test
+   public void testMQTTSubNamesSpecial() throws Exception {
+      final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
+      initializeConnection(subscriptionProvider);
+
+      try {
+         subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
+
+         Map<SimpleString, Binding> allBindings = server.getPostOffice().getAllBindings();
+         assertEquals(1, allBindings.size());
+         Binding b = allBindings.values().iterator().next();
+
+         //check ::queue
+         QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));
+         assertTrue(result.isExists());
+         assertEquals(new SimpleString("foo.bah"), result.getAddress());
+         assertEquals(new SimpleString("::" + b.getUniqueName()), result.getName());
+
+         //check queue::
+         result = server.queueQuery(new SimpleString(b.getUniqueName() + "::"));
+         assertFalse(result.isExists());
+
+         //check ::
+         result = server.queueQuery(new SimpleString("::"));
+         assertFalse(result.isExists());
       } finally {
          subscriptionProvider.disconnect();
       }
