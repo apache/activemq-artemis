@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -69,11 +68,7 @@ public class ProtonTestBase extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       amqpServer.getConfiguration().getAddressesSettings().put("#", addressSettings);
-      configureServer(amqpServer.getConfiguration());
       return amqpServer;
-   }
-
-   protected void configureServer(Configuration serverConfig) {
    }
 
    protected void configureAmqp(Map<String, Object> params) {
