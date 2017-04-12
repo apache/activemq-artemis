@@ -154,7 +154,7 @@ public class SimpleAddressManager implements AddressManager {
    public SimpleString getMatchingQueue(final SimpleString address, final SimpleString queueName, RoutingType routingType) throws Exception {
       Binding binding = getBinding(queueName);
 
-      if (binding != null && !binding.getAddress().equals(address)) {
+      if (binding != null && !binding.getAddress().equals(address) && !address.toString().isEmpty()) {
          throw new IllegalStateException("queue belongs to address" + binding.getAddress());
       }
       return binding != null ? binding.getUniqueName() : null;

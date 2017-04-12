@@ -31,5 +31,9 @@ public class CompositeAddressTest {
       assertEquals(name, qname);
       qname = CompositeAddress.extractQueueName(name2);
       assertEquals(name, qname);
+      assertEquals("", CompositeAddress.extractQueueName("address::"));
+      assertEquals("", CompositeAddress.extractQueueName("::"));
+      assertEquals("queue", CompositeAddress.extractQueueName("::queue"));
+      assertEquals("address", CompositeAddress.extractAddressName("address::"));
    }
 }

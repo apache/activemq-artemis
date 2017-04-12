@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.jms.Connection;
+import javax.jms.InvalidDestinationException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -179,6 +180,55 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
             query = server.queueQuery(q);
             assertEquals(q, query.getName());
          }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testQueueSpecial() throws Exception {
+      server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
+
+      Connection connection = factory.createConnection();
+      try {
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         //::queue ok!
+         String specialName = FQQN.toFullQN(new SimpleString(""), anycastQ1).toString();
+         Queue q1 = session.createQueue(specialName);
+
+         ClientSessionFactory cf = createSessionFactory(locator);
+         ClientSession coreSession = cf.createSession();
+
+         ClientProducer coreProducer = coreSession.createProducer(anycastAddress);
+         sendMessages(coreSession, coreProducer, 1);
+
+         System.out.println("create consumer: " + q1);
+         MessageConsumer consumer1 = session.createConsumer(q1);
+
+         assertNotNull(consumer1.receive(2000));
+
+         //queue::
+         specialName = FQQN.toFullQN(anycastQ1, new SimpleString("")).toString();
+         q1 = session.createQueue(specialName);
+         try {
+            session.createConsumer(q1);
+            fail("should get exception");
+         } catch (InvalidDestinationException e) {
+            //expected
+         }
+
+         //::
+         specialName = FQQN.toFullQN(new SimpleString(""), new SimpleString("")).toString();
+         q1 = session.createQueue(specialName);
+         try {
+            session.createConsumer(q1);
+            fail("should get exception");
+         } catch (InvalidDestinationException e) {
+            //expected
+         }
+
       } finally {
          connection.close();
       }

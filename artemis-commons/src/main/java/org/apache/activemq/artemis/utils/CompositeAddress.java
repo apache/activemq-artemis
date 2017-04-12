@@ -37,19 +37,19 @@ public class CompositeAddress {
 
       this.address = address;
       this.queueName = queueName;
-      this.fqqn = address != null;
+      this.fqqn = address != null && !address.isEmpty();
    }
 
    public CompositeAddress(String singleName) {
-      String[] split = singleName.split(SEPARATOR);
-      if (split.length == 1) {
+      int index = singleName.indexOf(SEPARATOR);
+      if (index == -1) {
          this.fqqn = false;
          this.address = null;
-         this.queueName = split[0];
+         this.queueName = singleName;
       } else {
          this.fqqn = true;
-         this.address = split[0];
-         this.queueName = split[1];
+         this.address = singleName.substring(0, index);
+         this.queueName = singleName.substring(index + 2);
       }
    }
 
@@ -62,19 +62,20 @@ public class CompositeAddress {
    }
 
    public static CompositeAddress getQueueName(String address) {
-      String[] split = address.split(SEPARATOR);
-      if (split.length <= 0) {
+
+      int index = address.indexOf(SEPARATOR);
+      if (index == -1) {
          throw new IllegalStateException("Not A Fully Qualified Name");
       }
-      if (split.length == 1) {
-         return new CompositeAddress(null, split[0]);
-      }
-      return new CompositeAddress(split[0], split[1]);
+      return new CompositeAddress(address.substring(0, index), address.substring(index + 2));
    }
 
    public static String extractQueueName(String name) {
-      String[] split = name.split(SEPARATOR);
-      return split[split.length - 1];
+      int index = name.indexOf(SEPARATOR);
+      if (index != -1) {
+         return name.substring(index + 2);
+      }
+      return name;
    }
 
    public static SimpleString extractQueueName(SimpleString name) {
