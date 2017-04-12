@@ -117,7 +117,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (remoteDesiredCapabilities != null) {
             List<Symbol> list = Arrays.asList(remoteDesiredCapabilities);
             if (list.contains(AmqpSupport.DELAYED_DELIVERY)) {
-               receiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.DELAYED_DELIVERY});
+               receiver.setOfferedCapabilities(new Symbol[]{AmqpSupport.DELAYED_DELIVERY});
             }
          }
       }
@@ -179,9 +179,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          condition.setCondition(Symbol.valueOf("failed"));
          condition.setDescription(e.getMessage());
          rejected.setError(condition);
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             delivery.disposition(rejected);
             delivery.settle();
+         } finally {
+            connection.unlock();
          }
       }
    }
@@ -210,16 +213,22 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       if (sessionSPI != null) {
          sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
       } else {
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             receiver.flow(credits);
+         } finally {
+            connection.unlock();
          }
          connection.flush();
       }
    }
 
    public void drain(int credits) {
-      synchronized (connection.getLock()) {
+      connection.lock();
+      try {
          receiver.drain(credits);
+      } finally {
+         connection.unlock();
       }
       connection.flush();
    }

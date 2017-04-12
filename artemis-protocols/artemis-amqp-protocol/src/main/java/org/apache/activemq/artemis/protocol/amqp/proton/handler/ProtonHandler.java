@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -58,7 +59,7 @@ public class ProtonHandler extends ProtonInitializable {
 
    private Sasl serverSasl;
 
-   private final Object lock = new Object();
+   private final ReentrantLock lock = new ReentrantLock();
 
    private final long creationTime;
 
@@ -79,38 +80,41 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public long tick(boolean firstTick) {
+      lock.lock();
       try {
-         synchronized (lock) {
-            if (!firstTick) {
-               try {
-                  if (connection.getLocalState() != EndpointState.CLOSED) {
-                     long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-                     if (transport.isClosed()) {
-                        throw new IllegalStateException("Channel was inactive for to long");
-                     }
-                     return rescheduleAt;
+         if (!firstTick) {
+            try {
+               if (connection.getLocalState() != EndpointState.CLOSED) {
+                  long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+                  if (transport.isClosed()) {
+                     throw new IllegalStateException("Channel was inactive for to long");
                   }
-               } catch (Exception e) {
-                  log.warn(e.getMessage(), e);
-                  transport.close();
-                  connection.setCondition(new ErrorCondition());
+                  return rescheduleAt;
                }
-               return 0;
+            } catch (Exception e) {
+               log.warn(e.getMessage(), e);
+               transport.close();
+               connection.setCondition(new ErrorCondition());
             }
-            return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+            return 0;
          }
+         return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
       } finally {
+         lock.unlock();
          flushBytes();
       }
    }
 
    public int capacity() {
-      synchronized (lock) {
+      lock.lock();
+      try {
          return transport.capacity();
+      } finally {
+         lock.unlock();
       }
    }
 
-   public Object getLock() {
+   public ReentrantLock getLock() {
       return lock;
    }
 
@@ -142,7 +146,8 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void flushBytes() {
-      synchronized (lock) {
+      lock.lock();
+      try {
          while (true) {
             int pending = transport.pending();
 
@@ -161,9 +166,10 @@ public class ProtonHandler extends ProtonInitializable {
 
             transport.pop(pending);
          }
+      } finally {
+         lock.unlock();
       }
    }
-
 
    public SASLResult getSASLResult() {
       return saslResult;
@@ -171,7 +177,8 @@ public class ProtonHandler extends ProtonInitializable {
 
    public void inputBuffer(ByteBuf buffer) {
       dataReceived = true;
-      synchronized (lock) {
+      lock.lock();
+      try {
          while (buffer.readableBytes() > 0) {
             int capacity = transport.capacity();
 
@@ -208,6 +215,8 @@ public class ProtonHandler extends ProtonInitializable {
                break;
             }
          }
+      } finally {
+         lock.unlock();
       }
    }
 
@@ -224,20 +233,26 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void flush() {
-      synchronized (lock) {
+      lock.lock();
+      try {
          transport.process();
          checkServerSASL();
+      } finally {
+         lock.unlock();
       }
 
       dispatch();
    }
 
    public void close(ErrorCondition errorCondition) {
-      synchronized (lock) {
+      lock.lock();
+      try {
          if (errorCondition != null) {
             connection.setCondition(errorCondition);
          }
          connection.close();
+      } finally {
+         lock.unlock();
       }
 
       flush();
@@ -283,7 +298,8 @@ public class ProtonHandler extends ProtonInitializable {
    private void dispatch() {
       Event ev;
 
-      synchronized (lock) {
+      lock.lock();
+      try {
          if (inDispatch) {
             // Avoid recursion from events
             return;
@@ -309,6 +325,8 @@ public class ProtonHandler extends ProtonInitializable {
          } finally {
             inDispatch = false;
          }
+      } finally {
+         lock.unlock();
       }
 
       flushBytes();

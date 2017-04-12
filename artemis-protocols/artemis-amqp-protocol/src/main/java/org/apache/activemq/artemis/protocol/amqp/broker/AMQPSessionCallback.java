@@ -92,10 +92,6 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final AtomicBoolean draining = new AtomicBoolean(false);
 
-   public Object getProtonLock() {
-      return connection.getLock();
-   }
-
    public AMQPSessionCallback(AMQPConnectionCallback protonSPI,
                               ProtonProtocolManager manager,
                               AMQPConnectionContext connection,
@@ -203,19 +199,31 @@ public class AMQPSessionCallback implements SessionCallback {
       serverSession.createQueue(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(queueName), routingType, null, true, false);
    }
 
-   public void createTemporaryQueue(String address, String queueName, RoutingType routingType, String filter) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName),  routingType, SimpleString.toSimpleString(filter), true, false);
+   public void createTemporaryQueue(String address,
+                                    String queueName,
+                                    RoutingType routingType,
+                                    String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), true, false);
    }
 
-   public void createUnsharedDurableQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+   public void createUnsharedDurableQueue(String address,
+                                          RoutingType routingType,
+                                          String queueName,
+                                          String filter) throws Exception {
       serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, true, 1, false, false);
    }
 
-   public void createSharedDurableQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+   public void createSharedDurableQueue(String address,
+                                        RoutingType routingType,
+                                        String queueName,
+                                        String filter) throws Exception {
       serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, true, -1, false, false);
    }
 
-   public void createSharedVolatileQueue(String address, RoutingType routingType, String queueName, String filter) throws Exception {
+   public void createSharedVolatileQueue(String address,
+                                         RoutingType routingType,
+                                         String queueName,
+                                         String filter) throws Exception {
       serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType, SimpleString.toSimpleString(filter), false, false, -1, true, true);
    }
 
@@ -250,7 +258,9 @@ public class AMQPSessionCallback implements SessionCallback {
       return bindingQueryResult.isExists();
    }
 
-   public AddressQueryResult addressQuery(String addressName, RoutingType routingType, boolean autoCreate) throws Exception {
+   public AddressQueryResult addressQuery(String addressName,
+                                          RoutingType routingType,
+                                          boolean autoCreate) throws Exception {
       AddressQueryResult addressQueryResult = serverSession.executeAddressQuery(SimpleString.toSimpleString(addressName));
 
       if (!addressQueryResult.isExists() && addressQueryResult.isAutoCreateAddresses() && autoCreate) {
@@ -395,9 +405,13 @@ public class AMQPSessionCallback implements SessionCallback {
       condition.setDescription(errorMessage);
       Rejected rejected = new Rejected();
       rejected.setError(condition);
-      synchronized (connection.getLock()) {
+
+      connection.lock();
+      try {
          delivery.disposition(rejected);
          delivery.settle();
+      } finally {
+         connection.unlock();
       }
       connection.flush();
    }
@@ -415,7 +429,8 @@ public class AMQPSessionCallback implements SessionCallback {
          manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
             @Override
             public void done() {
-               synchronized (connection.getLock()) {
+               connection.lock();
+               try {
                   if (delivery.getRemoteState() instanceof TransactionalState) {
                      TransactionalState txAccepted = new TransactionalState();
                      txAccepted.setOutcome(Accepted.getInstance());
@@ -426,15 +441,20 @@ public class AMQPSessionCallback implements SessionCallback {
                      delivery.disposition(Accepted.getInstance());
                   }
                   delivery.settle();
+               } finally {
+                  connection.unlock();
                }
                connection.flush();
             }
 
             @Override
             public void onError(int errorCode, String errorMessage) {
-               synchronized (connection.getLock()) {
+               connection.lock();
+               try {
                   receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
                   connection.flush();
+               } finally {
+                  connection.unlock();
                }
             }
          });
@@ -449,9 +469,12 @@ public class AMQPSessionCallback implements SessionCallback {
                                    final Receiver receiver) {
       try {
          if (address == null) {
-            synchronized (connection.getLock()) {
+            connection.lock();
+            try {
                receiver.flow(credits);
                connection.flush();
+            } finally {
+               connection.unlock();
             }
             return;
          }
@@ -505,9 +528,12 @@ public class AMQPSessionCallback implements SessionCallback {
       try {
          return plugSender.deliverMessage(ref, deliveryCount);
       } catch (Exception e) {
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             plugSender.getSender().setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage()));
             connection.flush();
+         } finally {
+            connection.unlock();
          }
          throw new IllegalStateException("Can't deliver message " + e, e);
       }
@@ -538,13 +564,14 @@ public class AMQPSessionCallback implements SessionCallback {
    @Override
    public void disconnect(ServerConsumer consumer, String queueName) {
       ErrorCondition ec = new ErrorCondition(AmqpSupport.RESOURCE_DELETED, "Queue was deleted: " + queueName);
+      connection.lock();
       try {
-         synchronized (connection.getLock()) {
-            ((ProtonServerSenderContext) consumer.getProtocolContext()).close(ec);
-            connection.flush();
-         }
+         ((ProtonServerSenderContext) consumer.getProtocolContext()).close(ec);
+         connection.flush();
       } catch (ActiveMQAMQPException e) {
          logger.error("Error closing link for " + consumer.getQueue().getAddress());
+      } finally {
+         connection.unlock();
       }
    }
 
@@ -567,18 +594,18 @@ public class AMQPSessionCallback implements SessionCallback {
       return protonSPI.newTransaction();
    }
 
-
    public SimpleString getMatchingQueue(SimpleString address, RoutingType routingType) throws Exception {
       return serverSession.getMatchingQueue(address, routingType);
    }
 
-
-   public SimpleString getMatchingQueue(SimpleString address, SimpleString queueName, RoutingType routingType) throws Exception {
+   public SimpleString getMatchingQueue(SimpleString address,
+                                        SimpleString queueName,
+                                        RoutingType routingType) throws Exception {
       return serverSession.getMatchingQueue(address, queueName, routingType);
    }
 
    public AddressInfo getAddress(SimpleString address) {
-      return  serverSession.getAddress(address);
+      return serverSession.getAddress(address);
    }
 
    public void removeTemporaryQueue(String address) throws Exception {
