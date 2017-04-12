@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -95,7 +96,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private boolean isVolatile = false;
    private String tempQueueName;
 
-   public ProtonServerSenderContext(AMQPConnectionContext connection, Sender sender, AMQPSessionContext protonSession, AMQPSessionCallback server) {
+   public ProtonServerSenderContext(AMQPConnectionContext connection,
+                                    Sender sender,
+                                    AMQPSessionContext protonSession,
+                                    AMQPSessionCallback server) {
       super();
       this.connection = connection;
       this.sender = sender;
@@ -246,7 +250,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
          //check to see if the client has defined how we act
          boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
-         if (clientDefined)  {
+         if (clientDefined) {
             multicast = hasCapabilities(TOPIC, source);
             AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
             if (!addressQueryResult.isExists()) {
@@ -293,9 +297,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                supportedFilters.put(filter.getKey(), filter.getValue());
             }
 
-
             if (queueNameToUse != null) {
-               SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.MULTICAST  );
+               SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.MULTICAST);
                queue = matchingAnycastQueue.toString();
             }
             //if the address specifies a broker configured queue then we always use this, treat it as a queue
@@ -313,8 +316,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                if (result.isExists()) {
                   // If a client reattaches to a durable subscription with a different no-local
                   // filter value, selector or address then we must recreate the queue (JMS semantics).
-                  if (!Objects.equals(result.getFilterString(), SimpleString.toSimpleString(selector)) ||
-                     (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
+                  if (!Objects.equals(result.getFilterString(), SimpleString.toSimpleString(selector)) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
 
                      if (result.getConsumerCount() == 0) {
                         sessionSPI.deleteQueue(queue);
@@ -392,7 +394,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       boolean browseOnly = !multicast && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
       try {
-         brokerConsumer = (Consumer)sessionSPI.createSender(this, queue, multicast ? null : selector, browseOnly);
+         brokerConsumer = (Consumer) sessionSPI.createSender(this, queue, multicast ? null : selector, browseOnly);
       } catch (ActiveMQAMQPResourceLimitExceededException e1) {
          throw new ActiveMQAMQPResourceLimitExceededException(e1.getMessage());
       } catch (Exception e) {
@@ -404,7 +406,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       return connection.getRemoteContainer();
    }
 
-
    /*
     * close the session
     */
@@ -415,8 +416,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          sender.setCondition(condition);
       }
       protonSession.removeSender(sender);
-      synchronized (connection.getLock()) {
+      connection.lock();
+      try {
          sender.close();
+      } finally {
+         connection.unlock();
       }
       connection.flush();
 
@@ -442,7 +446,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             Source source = (Source) sender.getSource();
             if (source != null && source.getAddress() != null && multicast) {
                String queueName = source.getAddress();
-               QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse,  false);
+               QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);
                if (result.isExists() && source.getDynamic()) {
                   sessionSPI.deleteQueue(queueName);
                } else {
@@ -489,8 +493,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          DeliveryState remoteState;
 
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             remoteState = delivery.getRemoteState();
+         } finally {
+            connection.unlock();
          }
 
          boolean settleImmediate = true;
@@ -509,8 +516,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                         TransactionalState txAccepted = new TransactionalState();
                         txAccepted.setOutcome(Accepted.getInstance());
                         txAccepted.setTxnId(txState.getTxnId());
-                        synchronized (connection.getLock()) {
+                        connection.lock();
+                        try {
                            delivery.disposition(txAccepted);
+                        } finally {
+                           connection.unlock();
                         }
                      }
                      // we have to individual ack as we can't guarantee we will get the delivery
@@ -556,7 +566,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   Modified modification = (Modified) remoteState;
 
                   if (Boolean.TRUE.equals(modification.getUndeliverableHere())) {
-                     message.rejectConsumer(((Consumer)brokerConsumer).sequentialID());
+                     message.rejectConsumer(((Consumer) brokerConsumer).sequentialID());
                   }
 
                   if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
@@ -585,8 +595,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    }
 
    public void settle(Delivery delivery) {
-      synchronized (connection.getLock()) {
+      connection.lock();
+      try {
          delivery.settle();
+      } finally {
+         connection.unlock();
       }
    }
 
@@ -617,10 +630,19 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          int size = nettyBuffer.writerIndex();
 
-         synchronized (connection.getLock()) {
-            if (sender.getLocalState() == EndpointState.CLOSED) {
+         while (!connection.getLock().tryLock(1, TimeUnit.SECONDS)) {
+            if (closed || sender.getLocalState() == EndpointState.CLOSED) {
+               // If we're waiting on the connection lock, the link might be in the process of closing.  If this happens
+               // we return.
                return 0;
+            } else {
+               if (log.isDebugEnabled()) {
+                  log.debug("Couldn't get lock on deliverMessage " + this);
+               }
             }
+         }
+
+         try {
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
             delivery.setMessageFormat((int) message.getMessageFormat());
@@ -636,9 +658,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             } else {
                sender.advance();
             }
+            connection.flush();
+         } finally {
+            connection.unlock();
          }
-
-         connection.flush();
 
          return size;
       } finally {
@@ -659,7 +682,11 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       return false;
    }
 
-   private static String createQueueName(String clientId, String pubId, boolean shared, boolean global, boolean isVolatile) {
+   private static String createQueueName(String clientId,
+                                         String pubId,
+                                         boolean shared,
+                                         boolean global,
+                                         boolean isVolatile) {
       String queue = clientId == null || clientId.isEmpty() ? pubId : clientId + "." + pubId;
       if (shared) {
          if (queue.contains("|")) {
