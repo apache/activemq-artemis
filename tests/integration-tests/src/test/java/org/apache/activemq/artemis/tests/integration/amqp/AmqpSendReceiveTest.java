@@ -22,6 +22,8 @@ import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.tests.util.FQQN;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
@@ -53,15 +56,29 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.jgroups.util.UUID;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
  */
+@RunWith(Parameterized.class)
 public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(AmqpSendReceiveTest.class);
+
+   @Parameterized.Parameters(name = "useFQQN={0}")
+   public static Collection<Object[]> params() {
+      return Arrays.asList(new Object[][]{{false}, {true}});
+   }
+
+   private boolean useFQQN;
+
+   public AmqpSendReceiveTest(boolean useFQQN) {
+      this.useFQQN = useFQQN;
+   }
 
    @Test(timeout = 60000)
    public void testCreateQueueReceiver() throws Exception {
@@ -69,13 +86,21 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getDestName(getTestName()));
       assertNotNull(queue);
 
       receiver.close();
       connection.close();
+   }
+
+   private String getDestName(String bareName) {
+      String destName = bareName;
+      if (useFQQN) {
+         destName = FQQN.toFullQN(bareName, bareName);
+      }
+      return destName;
    }
 
    @Test(timeout = 60000)
@@ -84,7 +109,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
 
       sendMessages(getTestName(), 10);
 
@@ -98,7 +123,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       receiver.close();
       connection.close();
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getDestName(getTestName()));
       assertNotNull(queue);
       assertEquals(0, queue.getMessageCount());
    }
@@ -130,7 +155,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      session.createReceiver(getTestName(), "JMSPriority > 8");
+      session.createReceiver(getDestName(getTestName()), "JMSPriority > 8");
 
       connection.getStateInspector().assertValid();
       connection.close();
@@ -163,7 +188,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      session.createReceiver(getTestName(), null, true);
+      session.createReceiver(getDestName(getTestName()), null, true);
 
       connection.getStateInspector().assertValid();
       connection.close();
@@ -177,7 +202,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
 
       try {
-         session.createReceiver(getTestName(), "null = 'f''", true);
+         session.createReceiver(getDestName(getTestName()), "null = 'f''", true);
          fail("should throw exception");
       } catch (Exception e) {
          assertTrue(e.getCause() instanceof JMSException);
@@ -195,9 +220,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -221,9 +246,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(forwardingAddress);
+      AmqpReceiver receiver = session.createReceiver(getDestName(forwardingAddress));
 
-      Queue queueView = getProxyToQueue(forwardingAddress);
+      Queue queueView = getProxyToQueue(getDestName(forwardingAddress));
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -250,8 +275,16 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sendMessages("anycast://" + addressA, 1);
 
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueA))).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueC))).getMessageCount());
+   }
+
+   private String getDestName(String address, String qName) {
+      String dest = qName;
+      if (useFQQN) {
+         dest = FQQN.toFullQN(address, qName);
+      }
+      return dest;
    }
 
    @Test(timeout = 60000)
@@ -269,8 +302,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.ANYCAST);
 
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
+      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueA))).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueB))).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueC))).getMessageCount());
    }
 
    @Test
@@ -288,8 +321,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sendMessages("multicast://" + addressA, 1);
 
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueA))).getMessageCount());
+      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueC))).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueB))).getMessageCount());
    }
 
    @Test
@@ -307,8 +340,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sendMessages(addressA, 1, RoutingType.MULTICAST);
 
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueA))).getMessageCount());
+      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueC))).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(getDestName(addressA, queueB))).getMessageCount());
    }
 
    @Test(timeout = 60000)
@@ -319,9 +352,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -343,9 +376,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -368,16 +401,16 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver1.flow(2);
       assertNotNull(receiver1.receive(5, TimeUnit.SECONDS));
       assertNotNull(receiver1.receive(5, TimeUnit.SECONDS));
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
 
       assertEquals(2, server.getTotalConsumerCount());
 
@@ -404,9 +437,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
 
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver1.flow(2);
@@ -425,7 +458,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          }
       }, TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS.toMillis(50)));
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
 
       assertEquals(2, server.getTotalConsumerCount());
 
@@ -462,9 +495,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
 
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getDestName(getTestName()));
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver1.flow(20);
@@ -479,7 +512,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       receiver1.close();
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
 
       assertEquals(1, server.getTotalConsumerCount());
 
@@ -525,7 +558,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.close();
 
       LOG.info("Attempting to read message with receiver");
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()));
       receiver.flow(2);
       AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
       assertNotNull("Should have read message", received);
@@ -560,17 +593,17 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getDestName(getTestName()));
       assertEquals(MSG_COUNT, queue.getMessageCount());
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
       receiver1.flow(MSG_COUNT);
       AmqpMessage received = receiver1.receive(5, TimeUnit.SECONDS);
       assertNotNull("Should have got a message", received);
       assertEquals("msg0", received.getMessageId());
       receiver1.close();
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
       receiver2.flow(200);
       for (int i = 0; i < MSG_COUNT; ++i) {
          received = receiver2.receive(5, TimeUnit.SECONDS);
@@ -602,7 +635,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.send(message2);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName(), "sn = 100");
+      AmqpReceiver receiver = session.createReceiver(getDestName(getTestName()), "sn = 100");
       receiver.flow(2);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull("Should have read a message", received);
@@ -639,7 +672,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.close();
 
       LOG.info("Attempting to read first two messages with receiver #1");
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
       receiver1.flow(2);
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver1.receive(10, TimeUnit.SECONDS);
@@ -651,7 +684,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message2.accept();
 
       LOG.info("Attempting to read next two messages with receiver #2");
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
       receiver2.flow(2);
       AmqpMessage message3 = receiver2.receive(10, TimeUnit.SECONDS);
       AmqpMessage message4 = receiver2.receive(10, TimeUnit.SECONDS);
@@ -699,10 +732,10 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
       receiver1.flow(1);
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(getTestName()));
       receiver2.flow(1);
 
       AmqpMessage message1 = receiver1.receive(10, TimeUnit.SECONDS);
@@ -761,7 +794,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       final String address = getTestName();
 
-      AmqpReceiver receiver = session.createReceiver(address);
+      AmqpReceiver receiver = session.createReceiver(getDestName(address));
       AmqpSender sender = session.createSender(address);
 
       for (int i = 0; i < 2; i++) {
@@ -802,7 +835,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
                LOG.info("Starting consumer connection");
                AmqpConnection connection = addConnection(client.connect());
                AmqpSession session = connection.createSession();
-               AmqpReceiver receiver = session.createReceiver(address);
+               AmqpReceiver receiver = session.createReceiver(getDestName(address));
                receiver.flow(1);
                receiverReady.countDown();
                AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
@@ -859,9 +892,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
 
       AmqpSender sender = session.createSender(getTestName());
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(getTestName()));
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getDestName(getTestName()));
 
       // Create default message that should be sent as non-durable
       AmqpMessage message1 = new AmqpMessage();
@@ -906,10 +939,10 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       final String address = getTestName();
 
-      AmqpReceiver receiver = session.createReceiver(address);
+      AmqpReceiver receiver = session.createReceiver(getDestName(address));
       AmqpSender sender = session.createSender(address);
 
-      final Queue destinationView = getProxyToQueue(address);
+      final Queue destinationView = getProxyToQueue(getDestName(address));
 
       for (int i = 0; i < MSG_COUNT; i++) {
          AmqpMessage message = new AmqpMessage();
@@ -960,8 +993,8 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       final String address = getTestName();
 
       AmqpSender sender = session.createSender(address);
-      AmqpReceiver receiver1 = session.createReceiver(address, null, false, true);
-      AmqpReceiver receiver2 = session.createReceiver(address, null, false, true);
+      AmqpReceiver receiver1 = session.createReceiver(getDestName(address), null, false, true);
+      AmqpReceiver receiver2 = session.createReceiver(getDestName(address), null, false, true);
 
       for (int i = 0; i < MSG_COUNT; i++) {
          AmqpMessage message = new AmqpMessage();
@@ -1084,9 +1117,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message.setMessageId("msg:1");
       sender.send(message);
 
-      AmqpReceiver receiver = session.createReceiver(address);
+      AmqpReceiver receiver = session.createReceiver(getDestName(address));
 
-      Queue queueView = getProxyToQueue(address);
+      Queue queueView = getProxyToQueue(getDestName(address));
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);

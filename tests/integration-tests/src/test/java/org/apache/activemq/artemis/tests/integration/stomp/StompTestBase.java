@@ -355,6 +355,10 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       return subscribe(conn, subscriptionId, ack, durableId, selector, getQueuePrefix() + getQueueName(), receipt);
    }
 
+   public void subscribeQueue(StompClientConnection conn, String subId, String destination) throws IOException, InterruptedException {
+      subscribe(conn, subId, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, destination, false);
+   }
+
    public ClientStompFrame subscribe(StompClientConnection conn,
                                      String subscriptionId,
                                      String ack,
