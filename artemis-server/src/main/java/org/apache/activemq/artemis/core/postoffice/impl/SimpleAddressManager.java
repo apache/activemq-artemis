@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
 
 /**
@@ -104,7 +103,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public Binding getBinding(final SimpleString bindableName) {
-      return nameMap.get(CompositeAddress.extractQueueName(bindableName));
+      return nameMap.get(bindableName);
    }
 
    @Override
@@ -132,7 +131,7 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public SimpleString getMatchingQueue(final SimpleString address, RoutingType routingType) throws Exception {
 
-      Binding binding = getBinding(address);
+      Binding binding = nameMap.get(address);
 
       if (binding == null || !(binding instanceof  LocalQueueBinding)
             || !binding.getAddress().equals(address)) {
@@ -152,7 +151,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public SimpleString getMatchingQueue(final SimpleString address, final SimpleString queueName, RoutingType routingType) throws Exception {
-      Binding binding = getBinding(queueName);
+      Binding binding = nameMap.get(queueName);
 
       if (binding != null && !binding.getAddress().equals(address)) {
          throw new IllegalStateException("queue belongs to address" + binding.getAddress());
@@ -189,8 +188,9 @@ public class SimpleAddressManager implements AddressManager {
       Binding theBinding = null;
 
       for (Binding binding : bindings.getBindings()) {
-         if (binding.getUniqueName().equals(CompositeAddress.extractQueueName(bindableName))) {
+         if (binding.getUniqueName().equals(bindableName)) {
             theBinding = binding;
+
             break;
          }
       }

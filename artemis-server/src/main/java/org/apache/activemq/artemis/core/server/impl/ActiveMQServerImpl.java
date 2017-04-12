@@ -161,7 +161,6 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CertificateUtil;
-import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
@@ -700,9 +699,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
-      CompositeAddress addressKey = new CompositeAddress(address.toString());
-      String realAddress = addressKey.isFqqn() ? addressKey.getAddress() : addressKey.getQueueName();
-      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(realAddress);
+      AddressSettings addressSettings = getAddressSettingsRepository().getMatch(address.toString());
 
       boolean autoCreateQeueus = addressSettings.isAutoCreateQueues();
       boolean autoCreateAddresses = addressSettings.isAutoCreateAddresses();
@@ -714,25 +711,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // make an exception for the management address (see HORNETQ-29)
       ManagementService managementService = getManagementService();
       if (managementService != null) {
-         if (realAddress.equals(managementService.getManagementAddress())) {
+         if (address.equals(managementService.getManagementAddress())) {
             return new BindingQueryResult(true, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
          }
       }
 
-      SimpleString bindAddress = new SimpleString(realAddress);
-      Bindings bindings = getPostOffice().getMatchingBindings(bindAddress);
+      Bindings bindings = getPostOffice().getMatchingBindings(address);
 
       for (Binding binding : bindings.getBindings()) {
          if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
-            if (addressKey.isFqqn()) {
-               names.add(new SimpleString(addressKey.getAddress()).concat(CompositeAddress.SEPARATOR).concat(binding.getUniqueName()));
-            } else {
-               names.add(binding.getUniqueName());
-            }
+            names.add(binding.getUniqueName());
          }
       }
 
-      return new BindingQueryResult(getAddressInfo(bindAddress) != null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+      return new BindingQueryResult(getAddressInfo(address) != null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override

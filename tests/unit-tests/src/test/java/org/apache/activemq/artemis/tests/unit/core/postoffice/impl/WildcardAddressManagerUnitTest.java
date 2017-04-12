@@ -69,36 +69,6 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       assertEquals("Exception happened during the process", 0, errors);
    }
 
-   @Test
-   public void testUnitOnWildCardFailingScenarioFQQN() throws Exception {
-      int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake());
-      ad.addBinding(new BindingFake("Topic1", "Topic1"));
-      ad.addBinding(new BindingFake("Topic1", "one"));
-      ad.addBinding(new BindingFake("*", "two"));
-      ad.removeBinding(SimpleString.toSimpleString("Topic1::one"), null);
-      try {
-         ad.removeBinding(SimpleString.toSimpleString("*::two"), null);
-      } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
-         errors++;
-         e.printStackTrace();
-      }
-      try {
-         ad.addBinding(new BindingFake("Topic1", "three"));
-      } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
-         errors++;
-         e.printStackTrace();
-      }
-
-      assertEquals("Exception happened during the process", 0, errors);
-   }
-
    class BindingFactoryFake implements BindingsFactory {
 
       @Override
