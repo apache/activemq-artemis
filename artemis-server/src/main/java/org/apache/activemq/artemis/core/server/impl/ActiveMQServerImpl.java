@@ -714,7 +714,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // make an exception for the management address (see HORNETQ-29)
       ManagementService managementService = getManagementService();
       if (managementService != null) {
-         if (realAddress.equals(managementService.getManagementAddress())) {
+         if (realAddress.equals(managementService.getManagementAddress().toString())) {
             return new BindingQueryResult(true, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
          }
       }
