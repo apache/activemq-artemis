@@ -72,7 +72,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          ByteBuffer buffer;
          MessageImpl msg;
 
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             // Replenish coordinator receiver credit on exhaustion so sender can continue
             // transaction declare and discahrge operations.
             if (receiver.getCredit() < amqpLowMark) {
@@ -94,6 +95,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             receiver.advance();
 
             msg = decodeMessage(buffer);
+         } finally {
+            connection.unlock();
          }
 
          Object action = ((AmqpValue) msg.getBody()).getValue();
@@ -102,45 +105,63 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Binary txID = sessionSPI.newTransaction();
             Declared declared = new Declared();
             declared.setTxnId(txID);
-            synchronized (connection.getLock()) {
+            connection.lock();
+            try {
                delivery.disposition(declared);
+            } finally {
+               connection.unlock();
             }
          } else if (action instanceof Discharge) {
             Discharge discharge = (Discharge) action;
 
             Binary txID = discharge.getTxnId();
-            ProtonTransactionImpl tx = (ProtonTransactionImpl)sessionSPI.getTransaction(txID, true);
+            ProtonTransactionImpl tx = (ProtonTransactionImpl) sessionSPI.getTransaction(txID, true);
             tx.discharge();
 
             if (discharge.getFail()) {
                tx.rollback();
-               synchronized (connection.getLock()) {
+               connection.lock();
+               try {
                   delivery.disposition(new Accepted());
+               } finally {
+                  connection.unlock();
                }
                connection.flush();
             } else {
                tx.commit();
-               synchronized (connection.getLock()) {
+               connection.lock();
+               try {
                   delivery.disposition(new Accepted());
+               } finally {
+                  connection.unlock();
                }
                connection.flush();
             }
          }
       } catch (ActiveMQAMQPException amqpE) {
          log.warn(amqpE.getMessage(), amqpE);
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
+         } finally {
+            connection.unlock();
          }
          connection.flush();
       } catch (Throwable e) {
          log.warn(e.getMessage(), e);
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
+         } finally {
+            connection.unlock();
          }
          connection.flush();
       } finally {
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             delivery.settle();
+         } finally {
+            connection.unlock();
          }
          connection.flush();
       }

@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -128,8 +129,16 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return false;
    }
 
-   public Object getLock() {
+   public ReentrantLock getLock() {
       return handler.getLock();
+   }
+
+   public void lock() {
+      handler.getLock().lock();
+   }
+
+   public void unlock() {
+      handler.getLock().unlock();
    }
 
    public int capacity() {
@@ -319,7 +328,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       handler.flushBytes();
    }
 
-
    @Override
    public void pushBytes(ByteBuf bytes) {
       connectionCallback.onTransport(bytes, this);
@@ -327,7 +335,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteOpen(Connection connection) throws Exception {
-      synchronized (getLock()) {
+      lock();
+      try {
          try {
             initInternal();
          } catch (Exception e) {
@@ -342,6 +351,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
             connection.open();
          }
+      } finally {
+         unlock();
       }
       initialise();
 
@@ -367,9 +378,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteClose(Connection connection) {
-      synchronized (getLock()) {
+      lock();
+      try {
          connection.close();
          connection.free();
+      } finally {
+         unlock();
       }
 
       for (AMQPSessionContext protonSession : sessions.values()) {
@@ -390,8 +404,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    @Override
    public void onRemoteOpen(Session session) throws Exception {
       getSessionExtension(session).initialise();
-      synchronized (getLock()) {
+      lock();
+      try {
          session.open();
+      } finally {
+         unlock();
       }
    }
 
@@ -401,9 +418,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteClose(Session session) throws Exception {
-      synchronized (getLock()) {
+      lock();
+      try {
          session.close();
          session.free();
+      } finally {
+         unlock();
       }
 
       AMQPSessionContext sessionContext = (AMQPSessionContext) session.getContext();
@@ -428,10 +448,14 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteClose(Link link) throws Exception {
-      synchronized (getLock()) {
+      lock();
+      try {
          link.close();
          link.free();
+      } finally {
+         unlock();
       }
+
       ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
       if (linkContext != null) {
          linkContext.close(true);
@@ -440,11 +464,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteDetach(Link link) throws Exception {
-      synchronized (getLock()) {
+      lock();
+      try {
          link.detach();
          link.free();
+      } finally {
+         unlock();
       }
-
    }
 
    @Override
