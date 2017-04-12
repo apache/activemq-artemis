@@ -147,9 +147,12 @@ public class AMQPSessionContext extends ProtonInitializable {
       coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"), Symbol.getSymbol("amqp:multi-txns-per-ssn"), Symbol.getSymbol("amqp:multi-ssns-per-txn"));
 
       receiver.setContext(transactionHandler);
-      synchronized (connection.getLock()) {
+      connection.lock();
+      try {
          receiver.open();
          receiver.flow(connection.getAmqpCredits());
+      } finally {
+         connection.unlock();
       }
    }
 
@@ -163,16 +166,23 @@ public class AMQPSessionContext extends ProtonInitializable {
          senders.put(sender, protonSender);
          serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             sender.open();
+         } finally {
+            connection.unlock();
          }
+
          protonSender.start();
       } catch (ActiveMQAMQPException e) {
          senders.remove(sender);
          sender.setSource(null);
          sender.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             sender.close();
+         } finally {
+            connection.unlock();
          }
       }
    }
@@ -191,15 +201,21 @@ public class AMQPSessionContext extends ProtonInitializable {
          protonReceiver.initialise();
          receivers.put(receiver, protonReceiver);
          receiver.setContext(protonReceiver);
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             receiver.open();
+         } finally {
+            connection.unlock();
          }
       } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
          receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         synchronized (connection.getLock()) {
+         connection.lock();
+         try {
             receiver.close();
+         } finally {
+            connection.unlock();
          }
       }
    }

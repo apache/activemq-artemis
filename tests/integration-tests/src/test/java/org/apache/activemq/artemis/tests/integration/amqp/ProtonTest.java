@@ -1585,6 +1585,45 @@ public class ProtonTest extends ProtonTestBase {
    }
 
    @Test
+   public void testTimedOutWaitingForWriteLogOnConsumer() throws Throwable {
+      String name = "exampleQueue1";
+
+      int numMessages = 50;
+
+      System.out.println("1. Send messages into queue");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = session.createQueue(name);
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message temporary");
+         p.send(message);
+      }
+      p.close();
+      session.close();
+
+      System.out.println("2. Receive one by one, each in its own session");
+      for (int i = 0; i < numMessages; i++) {
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         queue = session.createQueue(name);
+         MessageConsumer c = session.createConsumer(queue);
+         Message m = c.receive(1000);
+         p.close();
+         session.close();
+      }
+
+      System.out.println("3. Try to receive 10 in the same session");
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      queue = session.createQueue(name);
+      MessageConsumer c = session.createConsumer(queue);
+      for (int i = 0; i < numMessages; i++) {
+         Message m = c.receive(1000);
+      }
+      p.close();
+      session.close();
+   }
+
+   @Test
    public void testSimpleObject() throws Throwable {
       final int numMessages = 1;
       long time = System.currentTimeMillis();
