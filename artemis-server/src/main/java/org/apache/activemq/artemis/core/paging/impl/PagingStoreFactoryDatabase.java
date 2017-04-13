@@ -109,15 +109,20 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
 
    public synchronized void start() throws Exception {
       if (!started) {
+         //fix to prevent page table names to be longer than 30 chars (upper limit for Oracle12c identifiers length)
+         final String pageStoreTableNamePrefix = dbConf.getPageStoreTableName();
+         if (pageStoreTableNamePrefix.length() > 10) {
+            throw new IllegalStateException("The maximum name size for the page store table prefix is 10 characters: THE PAGING STORE CAN'T START");
+         }
          if (dbConf.getDataSource() != null) {
             SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
             if (sqlProviderFactory == null) {
                sqlProviderFactory = new GenericSQLProvider.Factory();
             }
-            pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getPageStoreTableName(), SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor());
+            pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor());
          } else {
             String driverClassName = dbConf.getJdbcDriverClassName();
-            pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getPageStoreTableName(), SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor());
+            pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor());
          }
          pagingFactoryFileFactory.start();
          started = true;
