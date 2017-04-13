@@ -17,63 +17,55 @@
 
 package org.apache.activemq.artemis.utils;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SimpleFuture<V> implements Future<V> {
+public interface SimpleFuture<V> extends Future<V> {
 
-   public SimpleFuture() {
-   }
+   SimpleFuture dumb = new SimpleFuture() {
+      @Override
+      public void fail(Throwable e) {
 
-   V value;
-   Exception exception;
-
-   private final CountDownLatch latch = new CountDownLatch(1);
-
-   boolean canceled = false;
-
-   @Override
-   public boolean cancel(boolean mayInterruptIfRunning) {
-      canceled = true;
-      latch.countDown();
-      return true;
-   }
-
-   @Override
-   public boolean isCancelled() {
-      return canceled;
-   }
-
-   @Override
-   public boolean isDone() {
-      return latch.getCount() <= 0;
-   }
-
-   public void fail(Exception e) {
-      this.exception = e;
-      latch.countDown();
-   }
-
-   @Override
-   public V get() throws InterruptedException, ExecutionException {
-      latch.await();
-      if (this.exception != null) {
-         throw new ExecutionException(this.exception);
       }
-      return value;
+
+      @Override
+      public void set(Object o) {
+
+      }
+
+      @Override
+      public boolean cancel(boolean mayInterruptIfRunning) {
+         return false;
+      }
+
+      @Override
+      public boolean isCancelled() {
+         return false;
+      }
+
+      @Override
+      public boolean isDone() {
+         return false;
+      }
+
+      @Override
+      public Object get() throws InterruptedException, ExecutionException {
+         return null;
+      }
+
+      @Override
+      public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+         return null;
+      }
+   };
+
+   static SimpleFuture dumb() {
+      return dumb;
    }
 
-   public void set(V v) {
-      this.value = v;
-      latch.countDown();
-   }
+   void fail(Throwable e);
 
-   @Override
-   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-      latch.await(timeout, unit);
-      return value;
-   }
+   void set(V v);
 }
