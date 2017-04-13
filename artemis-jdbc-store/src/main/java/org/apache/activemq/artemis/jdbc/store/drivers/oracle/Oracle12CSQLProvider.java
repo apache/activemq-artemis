@@ -29,8 +29,8 @@ public class Oracle12CSQLProvider extends GenericSQLProvider {
 
    protected Oracle12CSQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
       super(tableName.toUpperCase(), databaseStoreType);
-      if (tableName.length() > 10 && databaseStoreType == DatabaseStoreType.PAGE) {
-         throw new RuntimeException("The maximum name size for the paging store table, when using Oracle12C is 10 characters.");
+      if (tableName.length() > 30) {
+         throw new RuntimeException("The maximum name size for the " + databaseStoreType.name().toLowerCase() + " store table, when using Oracle12C is 30 characters.");
       }
    }
 
