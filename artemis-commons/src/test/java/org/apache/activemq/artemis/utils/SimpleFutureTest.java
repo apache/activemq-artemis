@@ -29,7 +29,7 @@ public class SimpleFutureTest {
    @Test
    public void testFuture() throws Exception {
       final long randomStart = System.currentTimeMillis();
-      final SimpleFuture<Long> simpleFuture = new SimpleFuture<>();
+      final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
       Thread t = new Thread() {
          @Override
          public void run() {
@@ -44,7 +44,7 @@ public class SimpleFutureTest {
 
    @Test
    public void testException() throws Exception {
-      final SimpleFuture<Long> simpleFuture = new SimpleFuture<>();
+      final SimpleFuture<Long> simpleFuture = new SimpleFutureImpl<>();
       Thread t = new Thread() {
          @Override
          public void run() {
