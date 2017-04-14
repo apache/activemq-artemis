@@ -164,7 +164,7 @@ public class AMQPSessionContext extends ProtonInitializable {
       try {
          protonSender.initialise();
          senders.put(sender, protonSender);
-         serverSenders.put(protonSender.getBrokerConsumer(), protonSender);
+         ser\nverSenders.put(protonSender.getBrokerConsumer(), protonSender);
          sender.setContext(protonSender);
          connection.lock();
          try {
