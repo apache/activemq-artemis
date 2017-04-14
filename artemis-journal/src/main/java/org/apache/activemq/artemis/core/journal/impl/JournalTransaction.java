@@ -232,7 +232,10 @@ public class JournalTransaction {
    public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
 
-      // The race lies here....
+      // https://issues.apache.org/jira/browse/ARTEMIS-1114
+      //   There was a race once where compacting was not set
+      //   because the Journal was missing a readLock and compacting was starting
+      //   without setting this properly...
       if (compacting && compactor != null) {
          if (logger.isTraceEnabled()) {
             logger.trace("adding tx " + this.id + " into compacting");
