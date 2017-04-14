@@ -28,8 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
+import org.jboss.logging.Logger;
 
 public class JournalTransaction {
+
+   private static final Logger logger = Logger.getLogger(JournalTransaction.class);
 
    private JournalRecordProvider journal;
 
@@ -229,10 +232,17 @@ public class JournalTransaction {
    public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
 
+      // The race lies here....
       if (compacting && compactor != null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("adding tx " + this.id + " into compacting");
+         }
          compactor.addCommandCommit(this, file);
       } else {
 
+         if (logger.isTraceEnabled()) {
+            logger.trace("no compact commit " + this.id);
+         }
          if (pos != null) {
             for (JournalUpdate trUpdate : pos) {
                JournalRecord posFiles = journal.getRecords().get(trUpdate.id);

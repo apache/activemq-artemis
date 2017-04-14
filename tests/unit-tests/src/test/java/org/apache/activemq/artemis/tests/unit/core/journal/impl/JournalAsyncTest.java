@@ -138,6 +138,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
       try {
          journalImpl.appendAddRecordTransactional(1L, 2, (byte) 1, new SimpleEncoding(1, (byte) 0));
+         journalImpl.appendCommitRecord(1L, true);
          Assert.fail("Exception expected");
          // An exception already happened in one of the elements on this transaction.
          // We can't accept any more elements on the transaction
