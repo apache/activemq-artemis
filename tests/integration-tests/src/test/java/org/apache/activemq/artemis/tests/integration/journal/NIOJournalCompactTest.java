@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -53,11 +54,14 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class NIOJournalCompactTest extends JournalImplTestBase {
+
+   private static final Logger logger = Logger.getLogger(NIOJournalCompactTest.class);
 
    private static final int NUMBER_OF_RECORDS = 1000;
 
@@ -783,6 +787,97 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
    }
 
    @Test
+   public void testLoopStressAppends() throws Exception {
+      for (int i = 0; i < 10; i++) {
+         logger.info("repetition " + i);
+         testStressAppends();
+         tearDown();
+         setUp();
+      }
+   }
+
+   @Test
+   public void testStressAppends() throws Exception {
+      setup(2, 60 * 1024, true);
+
+      final int NUMBER_OF_RECORDS = 200;
+
+      SimpleIDGenerator idGen = new SimpleIDGenerator(1000);
+
+      createJournal();
+      journal.setAutoReclaim(false);
+
+      startJournal();
+      load();
+
+      AtomicBoolean running = new AtomicBoolean(true);
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            while (running.get()) {
+               journal.testCompact();
+            }
+         }
+      };
+      t.start();
+
+
+      for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
+         long tx = idGen.generateID();
+         addTx(tx, idGen.generateID());
+         LockSupport.parkNanos(1000);
+         commit(tx);
+      }
+
+
+      running.set(false);
+
+      t.join(50000);
+      if (t.isAlive()) {
+         t.interrupt();
+         Assert.fail("supposed to join thread");
+      }
+
+      stopJournal();
+      createJournal();
+      startJournal();
+      loadAndCheck();
+   }
+
+   @Test
+   public void testSimpleCommitCompactInBetween() throws Exception {
+      setup(2, 60 * 1024, false);
+
+      final int NUMBER_OF_RECORDS = 1;
+
+      SimpleIDGenerator idGen = new SimpleIDGenerator(1000);
+
+      createJournal();
+      journal.setAutoReclaim(false);
+
+      startJournal();
+      load();
+
+
+      for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
+         long tx = idGen.generateID();
+         addTx(tx, idGen.generateID());
+         journal.testCompact();
+         journal.testCompact();
+         journal.testCompact();
+         journal.testCompact();
+         logger.info("going to commit");
+         commit(tx);
+      }
+
+
+      stopJournal();
+      createJournal();
+      startJournal();
+      loadAndCheck();
+   }
+
+   @Test
    public void testCompactAddAndUpdateFollowedByADelete2() throws Exception {
 
       setup(2, 60 * 1024, false);
@@ -916,8 +1011,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       update(newRecord);
 
       journal.testCompact();
-
-      System.out.println("Debug after compact\n" + journal.debug());
 
       stopJournal();
       createJournal();
@@ -1666,10 +1759,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
                      survivingMsgs.add(message.getMessageID());
 
+                     logger.info("Going to store " + message);
                      // This one will stay here forever
                      storage.storeMessage(message);
+                     logger.info("message storeed " + message);
 
+                     logger.info("Going to commit " + tx);
                      storage.commit(tx);
+                     logger.info("Commited " + tx);
 
                      ctx.executeOnCompletion(new IOCallback() {
                         @Override
@@ -1748,6 +1845,8 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          ioexecutor.shutdown();
 
          assertTrue("ioexecutor failed to terminate", ioexecutor.awaitTermination(30, TimeUnit.SECONDS));
+
+         Assert.assertEquals(0, errors.get());
 
       } catch (Throwable e) {
          e.printStackTrace();

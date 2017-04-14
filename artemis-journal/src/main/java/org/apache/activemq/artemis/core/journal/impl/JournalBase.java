@@ -162,13 +162,10 @@ abstract class JournalBase implements Journal {
    abstract void scheduleReclaim();
 
    protected SyncIOCompletion getSyncCallback(final boolean sync) {
-      if (supportsCallback) {
-         if (sync) {
-            return new SimpleWaitIOCallback();
-         }
-         return DummyCallback.getInstance();
+      if (sync) {
+         return new SimpleWaitIOCallback();
       }
-      return null;
+      return DummyCallback.getInstance();
    }
 
    private static final class NullEncoding implements EncodingSupport {

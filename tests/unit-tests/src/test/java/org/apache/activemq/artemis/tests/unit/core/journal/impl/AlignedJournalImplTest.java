@@ -371,7 +371,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       Assert.assertEquals(0, transactions.size());
 
       try {
-         journalImpl.appendCommitRecord(1L, false);
+         journalImpl.appendCommitRecord(1L, true);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
@@ -419,7 +419,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       Assert.assertEquals((Long) 78L, incompleteTransactions.get(1));
 
       try {
-         journalImpl.appendCommitRecord(77L, false);
+         journalImpl.appendCommitRecord(77L, true);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
