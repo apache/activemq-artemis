@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -289,9 +290,14 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void checkRoutingSemantics(String destination, RoutingType routingType) throws ActiveMQStompException {
-      Set<RoutingType> actualDeliveryModesOfAddress = manager.getServer().getAddressInfo(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination))).getRoutingTypes();
-      if (routingType != null && !actualDeliveryModesOfAddress.contains(routingType)) {
-         throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddress.toString());
+      AddressInfo addressInfo = manager.getServer().getAddressInfo(getSession().getCoreSession().removePrefix(SimpleString.toSimpleString(destination)));
+
+      // may be null here if, for example, the management address is being checked
+      if (addressInfo != null) {
+         Set<RoutingType> actualDeliveryModesOfAddress = addressInfo.getRoutingTypes();
+         if (routingType != null && !actualDeliveryModesOfAddress.contains(routingType)) {
+            throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddress.toString());
+         }
       }
    }
 
