@@ -30,6 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
@@ -82,26 +84,32 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    // Sequence ID for journal records
    private final AtomicLong seq = new AtomicLong(0);
 
+   private final IOCriticalErrorListener criticalIOErrorListener;
+
    public JDBCJournalImpl(DataSource dataSource,
                           SQLProvider provider,
                           String tableName,
                           ScheduledExecutorService scheduledExecutorService,
-                          Executor completeExecutor) {
+                          Executor completeExecutor,
+                          IOCriticalErrorListener criticalIOErrorListener) {
       super(dataSource, provider);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
+      this.criticalIOErrorListener = criticalIOErrorListener;
    }
 
    public JDBCJournalImpl(String jdbcUrl,
                           String jdbcDriverClass,
                           SQLProvider sqlProvider,
                           ScheduledExecutorService scheduledExecutorService,
-                          Executor completeExecutor) {
+                          Executor completeExecutor,
+                          IOCriticalErrorListener criticalIOErrorListener) {
       super(sqlProvider, jdbcUrl, jdbcDriverClass);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
+      this.criticalIOErrorListener = criticalIOErrorListener;
    }
 
    @Override
@@ -131,9 +139,14 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public synchronized void stop() throws SQLException {
+   public void stop() throws SQLException {
+      stop(true);
+   }
+
+   public synchronized void stop(boolean sync) throws SQLException {
       if (started) {
-         sync();
+         if (sync)
+            sync();
          started = false;
          super.stop();
       }
@@ -164,8 +177,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
       TransactionHolder holder;
 
-      boolean success = false;
       try {
+         connection.setAutoCommit(false);
+
          for (JDBCJournalRecord record : recordRef) {
             switch (record.getRecordType()) {
                case JDBCJournalRecord.DELETE_RECORD:
@@ -195,36 +209,25 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                   break;
             }
          }
-      } catch (SQLException e) {
-         logger.warn(e.getMessage(), e);
-         executeCallbacks(recordRef, success);
-         return 0;
-      }
-
-      try {
-         connection.setAutoCommit(false);
 
          insertJournalRecords.executeBatch();
          deleteJournalRecords.executeBatch();
          deleteJournalTxRecords.executeBatch();
 
          connection.commit();
-         success = true;
-      } catch (SQLException e) {
-         logger.warn(e.getMessage(), e);
+
+         cleanupTxRecords(deletedRecords, committedTransactions);
+         executeCallbacks(recordRef, true);
+
+         return recordRef.size();
+
+      } catch (Exception e) {
+         criticalIOErrorListener.onIOException(e, "Critical IO Error.  Failed to process JDBC Record statements", null);
+         started = false;
+         executeCallbacks(recordRef, false);
          performRollback(recordRef);
+         return 0;
       }
-
-      try {
-         if (success)
-            cleanupTxRecords(deletedRecords, committedTransactions);
-      } catch (SQLException e) {
-         logger.warn("Failed to remove the Tx Records", e.getMessage(), e);
-      } finally {
-         executeCallbacks(recordRef, success);
-      }
-
-      return recordRef.size();
    }
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
@@ -260,8 +263,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    private void performRollback(List<JDBCJournalRecord> records) {
       try {
-         connection.rollback();
-
          for (JDBCJournalRecord record : records) {
             if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
                removeTxRecord(record);
@@ -277,13 +278,14 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                transactions.remove(txH.transactionID);
             }
          }
+         connection.rollback();
       } catch (Exception sqlE) {
-         logger.warn(sqlE.getMessage(), sqlE);
+         logger.error(sqlE.getMessage(), sqlE);
+         criticalIOErrorListener.onIOException(sqlE, sqlE.getMessage(), null);
          ActiveMQJournalLogger.LOGGER.error("Error performing rollback", sqlE);
       }
    }
 
-   // TODO Use an executor.
    private void executeCallbacks(final List<JDBCJournalRecord> records, final boolean result) {
       Runnable r = new Runnable() {
          @Override
@@ -297,7 +299,13 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    private void appendRecord(JDBCJournalRecord record) throws Exception {
+
       record.storeLineUp();
+      if (!started) {
+         if (record.getIoCompletion() != null) {
+            record.getIoCompletion().onError(ActiveMQExceptionType.IO_ERROR.getCode(), "JDBC Journal not started");
+         }
+      }
 
       SimpleWaitIOCallback callback = null;
       if (record.isSync() && record.getIoCompletion() == null) {
@@ -316,10 +324,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
 
       syncTimer.delay();
-
-      if (callback != null) {
-         callback.waitCompletion();
-      }
+      if (callback != null) callback.waitCompletion();
    }
 
    private synchronized void addTxRecord(JDBCJournalRecord record) {
