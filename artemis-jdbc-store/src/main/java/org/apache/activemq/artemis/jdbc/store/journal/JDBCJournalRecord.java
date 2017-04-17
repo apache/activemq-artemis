@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -116,7 +117,7 @@ class JDBCJournalRecord {
          if (success) {
             ioCompletion.done();
          } else {
-            ioCompletion.onError(1, "DATABASE TRANSACTION FAILED");
+            ioCompletion.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "JDBC Transaction failed.");
          }
       }
    }
@@ -127,7 +128,7 @@ class JDBCJournalRecord {
       }
    }
 
-   void writeRecord(PreparedStatement statement) throws SQLException {
+   void writeRecord(PreparedStatement statement) throws Exception {
 
       byte[] recordBytes = new byte[variableSize];
       byte[] txDataBytes = new byte[txDataSize];
@@ -137,6 +138,7 @@ class JDBCJournalRecord {
          txData.read(txDataBytes);
       } catch (IOException e) {
          ActiveMQJournalLogger.LOGGER.error("Error occurred whilst reading Journal Record", e);
+         throw e;
       }
 
       statement.setLong(1, id);

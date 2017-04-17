@@ -93,18 +93,23 @@ public class JDBCSequentialFile implements SequentialFile {
          return fileFactory.listFiles(extension).contains(filename);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
+         fileFactory.onIOError(e, "Error checking JDBC file exists.", this);
          return false;
       }
    }
 
    @Override
    public synchronized void open() throws Exception {
-      if (!isOpen) {
-         synchronized (writeLock) {
-            dbDriver.openFile(this);
-            isCreated = true;
-            isOpen = true;
+      try {
+         if (!isOpen) {
+            synchronized (writeLock) {
+               dbDriver.openFile(this);
+               isCreated = true;
+               isOpen = true;
+            }
          }
+      } catch (SQLException e) {
+         fileFactory.onIOError(e, "Error attempting to open JDBC file.", this);
       }
    }
 
@@ -142,34 +147,35 @@ public class JDBCSequentialFile implements SequentialFile {
             }
          }
       } catch (SQLException e) {
-         throw new ActiveMQException(ActiveMQExceptionType.IO_ERROR, e.getMessage(), e);
+         fileFactory.onIOError(e, "Error deleting JDBC file.", this);
       }
    }
 
-   private synchronized int internalWrite(byte[] data, IOCallback callback) {
+   private synchronized int internalWrite(byte[] data, IOCallback callback) throws Exception {
       try {
          synchronized (writeLock) {
             int noBytes = dbDriver.writeToFile(this, data);
             seek(noBytes);
+            System.out.println("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
             if (callback != null)
                callback.done();
             return noBytes;
          }
       } catch (Exception e) {
-         logger.warn("Failed to write to file", e.getMessage(), e);
          if (callback != null)
-            callback.onError(-1, e.getMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+         fileFactory.onIOError(e, "Error writing to JDBC file.", this);
       }
-      return -1;
+      return 0;
    }
 
-   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) {
+   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) throws Exception {
       byte[] data = new byte[buffer.readableBytes()];
       buffer.readBytes(data);
       return internalWrite(data, callback);
    }
 
-   private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) {
+   private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) throws Exception {
       return internalWrite(buffer.array(), callback);
    }
 
@@ -177,16 +183,27 @@ public class JDBCSequentialFile implements SequentialFile {
       executor.execute(new Runnable() {
          @Override
          public void run() {
-            internalWrite(bytes, callback);
+            try {
+               internalWrite(bytes, callback);
+            } catch (Exception e) {
+               logger.error(e);
+               // internalWrite will notify the CriticalIOErrorListener
+            }
          }
       });
    }
 
    private void scheduleWrite(final ByteBuffer bytes, final IOCallback callback) {
+      final SequentialFile file = this;
       executor.execute(new Runnable() {
          @Override
          public void run() {
-            internalWrite(bytes, callback);
+            try {
+               internalWrite(bytes, callback);
+            } catch (Exception e) {
+               logger.error(e);
+               fileFactory.onIOError(e, "Error on JDBC file sync", file);
+            }
          }
       });
    }
@@ -226,7 +243,8 @@ public class JDBCSequentialFile implements SequentialFile {
             scheduleWrite(bytes, waitIOCallback);
             waitIOCallback.waitCompletion();
          } catch (Exception e) {
-            waitIOCallback.onError(-1, e.getMessage());
+            waitIOCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error writing to JDBC file.");
+            fileFactory.onIOError(e, "Failed to write to file.", this);
          }
       } else {
          scheduleWrite(bytes, callback);
@@ -249,12 +267,12 @@ public class JDBCSequentialFile implements SequentialFile {
             if (callback != null)
                callback.done();
             return read;
-         } catch (Exception e) {
+         } catch (SQLException e) {
             if (callback != null)
-               callback.onError(-1, e.getMessage());
-            logger.warn("Failed to read from file", e.getMessage(), e);
-            return 0;
+               callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            fileFactory.onIOError(e, "Error reading from JDBC file.", this);
          }
+         return 0;
       }
    }
 
@@ -291,7 +309,8 @@ public class JDBCSequentialFile implements SequentialFile {
       try {
          callback.waitCompletion();
       } catch (Exception e) {
-         throw new IOException(e);
+         callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "Error during JDBC file sync.");
+         fileFactory.onIOError(e, "Error during JDBC file sync.", this);
       }
    }
 
@@ -303,7 +322,11 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void renameTo(String newFileName) throws Exception {
       synchronized (writeLock) {
-         dbDriver.renameFile(this, newFileName);
+         try {
+            dbDriver.renameFile(this, newFileName);
+         } catch (SQLException e) {
+            fileFactory.onIOError(e, "Error renaming JDBC file.", this);
+         }
       }
    }
 
@@ -313,18 +336,21 @@ public class JDBCSequentialFile implements SequentialFile {
          JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, dbDriver, writeLock);
          return clone;
       } catch (Exception e) {
-         logger.error("Error cloning file: " + filename, e);
-         return null;
+         fileFactory.onIOError(e, "Error cloning JDBC file.", this);
       }
+      return null;
    }
 
    @Override
    public void copyTo(SequentialFile cloneFile) throws Exception {
       JDBCSequentialFile clone = (JDBCSequentialFile) cloneFile;
-      clone.open();
-
-      synchronized (writeLock) {
-         dbDriver.copyFileData(this, clone);
+      try {
+         synchronized (writeLock) {
+            clone.open();
+            dbDriver.copyFileData(this, clone);
+         }
+      } catch (Exception e) {
+         fileFactory.onIOError(e, "Error copying JDBC file.", this);
       }
    }
 
