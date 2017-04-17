@@ -114,8 +114,23 @@ public class ProtonHandler extends ProtonInitializable {
       }
    }
 
-   public ReentrantLock getLock() {
-      return lock;
+   public void lock() {
+      lock.lock();
+   }
+
+   public void unlock() {
+      lock.unlock();
+   }
+
+   public boolean tryLock(long time, TimeUnit timeUnit) {
+      try {
+         return lock.tryLock(time, timeUnit);
+      } catch (InterruptedException e) {
+
+         Thread.currentThread().interrupt();
+         return false;
+      }
+
    }
 
    public Transport getTransport() {
