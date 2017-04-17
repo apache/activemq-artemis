@@ -29,9 +29,12 @@ import java.util.List;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.jboss.logging.Logger;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
+
+   private static final Logger logger = Logger.getLogger(JDBCSequentialFileFactoryDriver.class);
 
    protected PreparedStatement deleteFile;
 
@@ -157,6 +160,8 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
                Blob blob = rs.getBlob(1);
                if (blob != null) {
                   file.setWritePosition((int) blob.length());
+               } else {
+                  logger.warn("ERROR NO BLOB FOR FILE" + "File: " + file.getFileName() + " " + file.getId());
                }
             }
             connection.commit();
@@ -293,8 +298,9 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             connection.commit();
             return readLength;
          } catch (Throwable e) {
-            connection.rollback();
             throw e;
+         } finally {
+            connection.rollback();
          }
       }
    }
