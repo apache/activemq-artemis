@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -129,16 +128,16 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return false;
    }
 
-   public ReentrantLock getLock() {
-      return handler.getLock();
+   public boolean tryLock(long time, TimeUnit timeUnit) {
+      return handler.tryLock(time, timeUnit);
    }
 
    public void lock() {
-      handler.getLock().lock();
+      handler.lock();
    }
 
    public void unlock() {
-      handler.getLock().unlock();
+      handler.unlock();
    }
 
    public int capacity() {

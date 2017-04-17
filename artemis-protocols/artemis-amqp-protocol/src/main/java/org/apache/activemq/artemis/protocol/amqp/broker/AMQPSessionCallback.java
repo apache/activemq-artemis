@@ -472,22 +472,25 @@ public class AMQPSessionCallback implements SessionCallback {
             connection.lock();
             try {
                receiver.flow(credits);
-               connection.flush();
             } finally {
                connection.unlock();
             }
+            connection.flush();
             return;
          }
          final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
          store.checkMemory(new Runnable() {
             @Override
             public void run() {
-               synchronized (connection.getLock()) {
+               connection.lock();
+               try {
                   if (receiver.getRemoteCredit() <= threshold) {
                      receiver.flow(credits);
-                     connection.flush();
                   }
+               } finally {
+                  connection.unlock();
                }
+               connection.flush();
             }
          });
       } catch (Exception e) {

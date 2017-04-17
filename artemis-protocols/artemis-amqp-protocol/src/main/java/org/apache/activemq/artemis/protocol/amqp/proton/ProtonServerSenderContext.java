@@ -630,7 +630,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          int size = nettyBuffer.writerIndex();
 
-         while (!connection.getLock().tryLock(1, TimeUnit.SECONDS)) {
+         while (!connection.tryLock(1, TimeUnit.SECONDS)) {
             if (closed || sender.getLocalState() == EndpointState.CLOSED) {
                // If we're waiting on the connection lock, the link might be in the process of closing.  If this happens
                // we return.
