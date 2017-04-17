@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -90,7 +91,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      this.handler = new ProtonHandler();
+      this.handler = new ProtonHandler(protocolManager.getServer().getExecutorFactory().getExecutor());
       handler.addEventHandler(this);
       Transport transport = handler.getTransport();
       transport.setEmitFlowEventOnSend(false);
@@ -330,6 +331,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    @Override
    public void pushBytes(ByteBuf bytes) {
       connectionCallback.onTransport(bytes, this);
+   }
+
+   @Override
+   public boolean flowControl(ReadyListener readyListener) {
+      return connectionCallback.isWritable(readyListener);
    }
 
    @Override
