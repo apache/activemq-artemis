@@ -90,6 +90,7 @@ public class JournalFilesRepository {
             pushOpenedFile();
          } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
+            fileFactory.onIOError(e, "unable to open ", null);
          }
       }
    };
@@ -412,26 +413,48 @@ public class JournalFilesRepository {
          logger.trace("enqueueOpenFile with openedFiles.size=" + openedFiles.size());
       }
 
-      if (openFilesExecutor == null) {
-         pushOpenRunnable.run();
-      } else {
-         openFilesExecutor.execute(pushOpenRunnable);
-      }
+      // First try to get an open file, that's prepared and already open
+      JournalFile nextFile = openedFiles.poll();
 
-      JournalFile nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
       if (nextFile == null) {
-         fileFactory.onIOError(ActiveMQJournalBundle.BUNDLE.fileNotOpened(), "unable to open ", null);
-         // We need to reconnect the current file with the timed buffer as we were not able to roll the file forward
-         // If you don't do this you will get a NPE in TimedBuffer::checkSize where it uses the bufferobserver
-         fileFactory.activateBuffer(journal.getCurrentFile().getFile());
-         throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
+         // if there's none, push to open
+
+         pushOpen();
+
+         nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
       }
 
+      if (openedFiles.isEmpty()) {
+         // if empty, push to open one.
+         pushOpen();
+      }
+
+      if (nextFile == null) {
+
+         logger.debug("Could not get a file in 5 seconds, it will retry directly, without an executor");
+         try {
+            nextFile = takeFile(true, true, true, false);
+         } catch (Exception e) {
+            fileFactory.onIOError(e, "unable to open ", null);
+            // We need to reconnect the current file with the timed buffer as we were not able to roll the file forward
+            // If you don't do this you will get a NPE in TimedBuffer::checkSize where it uses the bufferobserver
+            fileFactory.activateBuffer(journal.getCurrentFile().getFile());
+            throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
+         }
+      }
       if (logger.isTraceEnabled()) {
          logger.trace("Returning file " + nextFile);
       }
 
       return nextFile;
+   }
+
+   private void pushOpen() {
+      if (openFilesExecutor == null) {
+         pushOpenRunnable.run();
+      } else {
+         openFilesExecutor.execute(pushOpenRunnable);
+      }
    }
 
    /**

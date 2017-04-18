@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,6 +30,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -71,13 +73,22 @@ public class ProtonHandler extends ProtonInitializable {
 
    protected boolean receivedFirstPacket = false;
 
+   private final Executor flushExecutor;
+
+   protected final ReadyListener readyListener;
+
    boolean inDispatch = false;
 
-   public ProtonHandler() {
+   public ProtonHandler(Executor flushExecutor) {
+      this.flushExecutor = flushExecutor;
+      this.readyListener = () -> flushExecutor.execute(() -> {
+         flush();
+      });
       this.creationTime = System.currentTimeMillis();
       transport.bind(connection);
       connection.collect(collector);
    }
+
 
    public long tick(boolean firstTick) {
       lock.lock();
@@ -161,6 +172,13 @@ public class ProtonHandler extends ProtonInitializable {
    }
 
    public void flushBytes() {
+
+      for (EventHandler handler : handlers) {
+         if (!handler.flowControl(readyListener)) {
+            return;
+         }
+      }
+
       lock.lock();
       try {
          while (true) {

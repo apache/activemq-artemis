@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton.transaction;
 
 import java.nio.ByteBuffer;
 
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
@@ -118,24 +119,29 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             ProtonTransactionImpl tx = (ProtonTransactionImpl) sessionSPI.getTransaction(txID, true);
             tx.discharge();
 
+            IOCallback ioAction = new IOCallback() {
+               @Override
+               public void done() {
+                  connection.lock();
+                  try {
+                     delivery.disposition(new Accepted());
+                  } finally {
+                     connection.unlock();
+                  }
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+
+               }
+            };
+
             if (discharge.getFail()) {
-               tx.rollback();
-               connection.lock();
-               try {
-                  delivery.disposition(new Accepted());
-               } finally {
-                  connection.unlock();
-               }
-               connection.flush();
+               sessionSPI.withinContext(() -> tx.rollback());
+               sessionSPI.afterIO(ioAction);
             } else {
-               tx.commit();
-               connection.lock();
-               try {
-                  delivery.disposition(new Accepted());
-               } finally {
-                  connection.unlock();
-               }
-               connection.flush();
+               sessionSPI.withinContext(() -> tx.commit());
+               sessionSPI.afterIO(ioAction);
             }
          }
       } catch (ActiveMQAMQPException amqpE) {
@@ -157,13 +163,23 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          }
          connection.flush();
       } finally {
-         connection.lock();
-         try {
-            delivery.settle();
-         } finally {
-            connection.unlock();
-         }
-         connection.flush();
+         sessionSPI.afterIO(new IOCallback() {
+            @Override
+            public void done() {
+               connection.lock();
+               try {
+                  delivery.settle();
+               } finally {
+                  connection.unlock();
+               }
+               connection.flush();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+
+            }
+         });
       }
    }
 

@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -155,6 +156,11 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public void onTransport(ByteBuf byteBuf, AMQPConnectionContext amqpConnection) {
       connection.write(new ChannelBufferWrapper(byteBuf, true));
    }
+
+   public boolean isWritable(ReadyListener readyListener) {
+      return connection.isWritable(readyListener);
+   }
+
 
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return new AMQPSessionCallback(this, manager, connection, this.connection, closeExecutor, server.newOperationContext());

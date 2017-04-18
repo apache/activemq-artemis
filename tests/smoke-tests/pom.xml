@@ -172,6 +172,23 @@
                      <configuration>${basedir}/target/classes/servers/replicated-static1</configuration>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-expire</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/expire</configuration>
+                     <javaOptions>-Dartemis.debug.paging.interval=1</javaOptions>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/expire</instance>
+                  </configuration>
+               </execution>
+
             </executions>
             <dependencies>
                <dependency>
