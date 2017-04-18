@@ -177,13 +177,24 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
                                            final String password,
                                            final X509Certificate[] certificates) throws LoginException {
       LoginContext lc;
-      if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && certificates != null) {
-         lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, certificates), certificateConfiguration);
-      } else {
-         lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
+      ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
+      ClassLoader thisLoader = this.getClass().getClassLoader();
+      try {
+         if (thisLoader != currentLoader) {
+            Thread.currentThread().setContextClassLoader(thisLoader);
+         }
+         if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && certificates != null) {
+            lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, certificates), certificateConfiguration);
+         } else {
+            lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
+         }
+         lc.login();
+         return lc.getSubject();
+      } finally {
+         if (thisLoader != currentLoader) {
+            Thread.currentThread().setContextClassLoader(currentLoader);
+         }
       }
-      lc.login();
-      return lc.getSubject();
    }
 
    private Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles) {
