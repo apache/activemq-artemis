@@ -206,6 +206,8 @@ public class NettyConnector extends AbstractConnector {
 
    private boolean verifyHost;
 
+   private boolean useDefaultSslContext;
+
    private boolean tcpNoDelay;
 
    private int tcpSendBufferSize;
@@ -326,6 +328,8 @@ public class NettyConnector extends AbstractConnector {
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+
+         useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
       } else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -336,6 +340,7 @@ public class NettyConnector extends AbstractConnector {
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
+         useDefaultSslContext = TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -440,47 +445,51 @@ public class NettyConnector extends AbstractConnector {
       final SSLContext context;
       if (sslEnabled) {
          try {
-            // HORNETQ-680 - override the server-side config if client-side system properties are set
-            String realKeyStorePath = keyStorePath;
-            String realKeyStoreProvider = keyStoreProvider;
-            String realKeyStorePassword = keyStorePassword;
-            if (System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME) != null) {
-               realKeyStorePath = System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME);
-            }
-            if (System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME) != null) {
-               realKeyStorePassword = System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME);
-            }
+            if (useDefaultSslContext) {
+               context = SSLContext.getDefault();
+            } else {
+               // HORNETQ-680 - override the server-side config if client-side system properties are set
+               String realKeyStorePath = keyStorePath;
+               String realKeyStoreProvider = keyStoreProvider;
+               String realKeyStorePassword = keyStorePassword;
+               if (System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME) != null) {
+                  realKeyStorePath = System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME);
+               }
+               if (System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME) != null) {
+                  realKeyStorePassword = System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME);
+               }
 
-            if (System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME) != null) {
-               realKeyStoreProvider = System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME);
-            }
-            if (System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME) != null) {
-               realKeyStorePath = System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME);
-            }
-            if (System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME) != null) {
-               realKeyStorePassword = System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME);
-            }
+               if (System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME) != null) {
+                  realKeyStoreProvider = System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME);
+               }
+               if (System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME) != null) {
+                  realKeyStorePath = System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME);
+               }
+               if (System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME) != null) {
+                  realKeyStorePassword = System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME);
+               }
 
-            String realTrustStorePath = trustStorePath;
-            String realTrustStoreProvider = trustStoreProvider;
-            String realTrustStorePassword = trustStorePassword;
-            if (System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME) != null) {
-               realTrustStorePath = System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME);
-            }
-            if (System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
-               realTrustStorePassword = System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME);
-            }
+               String realTrustStorePath = trustStorePath;
+               String realTrustStoreProvider = trustStoreProvider;
+               String realTrustStorePassword = trustStorePassword;
+               if (System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME) != null) {
+                  realTrustStorePath = System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME);
+               }
+               if (System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
+                  realTrustStorePassword = System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME);
+               }
 
-            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME) != null) {
-               realTrustStoreProvider = System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME);
+               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME) != null) {
+                  realTrustStoreProvider = System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME);
+               }
+               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME) != null) {
+                  realTrustStorePath = System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME);
+               }
+               if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
+                  realTrustStorePassword = System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME);
+               }
+               context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
             }
-            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME) != null) {
-               realTrustStorePath = System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME);
-            }
-            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME) != null) {
-               realTrustStorePassword = System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME);
-            }
-            context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
          } catch (Exception e) {
             close();
             IllegalStateException ise = new IllegalStateException("Unable to create NettyConnector for " + host + ":" + port);
