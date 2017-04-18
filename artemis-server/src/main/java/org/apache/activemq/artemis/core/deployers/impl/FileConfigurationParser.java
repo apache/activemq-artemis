@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,6 +95,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    public static final String SECURITY_PLUGIN_ELEMENT_NAME = "security-setting-plugin";
 
+   public static final String SECURITY_ROLE_MAPPING_NAME = "role-mapping";
+
    private static final String PERMISSION_ELEMENT_NAME = "permission";
 
    private static final String SETTING_ELEMENT_NAME = "setting";
@@ -105,6 +108,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String NAME_ATTR_NAME = "name";
 
    private static final String VALUE_ATTR_NAME = "value";
+
+   private static final String ROLE_FROM_ATTR_NAME = "from";
+
+   private static final String ROLE_TO_ATTR_NAME = "to";
 
    static final String CREATEDURABLEQUEUE_NAME = "createDurableQueue";
 
@@ -618,12 +625,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     */
    private void parseSecurity(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("security-settings");
-
       if (elements.getLength() != 0) {
          Element node = (Element) elements.item(0);
-         NodeList list = node.getElementsByTagName(SECURITY_ELEMENT_NAME);
+         NodeList list = node.getElementsByTagName(SECURITY_ROLE_MAPPING_NAME);
          for (int i = 0; i < list.getLength(); i++) {
-            Pair<String, Set<Role>> securityItem = parseSecurityRoles(list.item(i));
+            Map<String, Set<String>> roleMappings = parseSecurityRoleMapping(list.item(i));
+            for (Map.Entry<String, Set<String>> roleMapping : roleMappings.entrySet()) {
+               config.addSecurityRoleNameMapping(roleMapping.getKey(), roleMapping.getValue());
+            }
+         }
+         list = node.getElementsByTagName(SECURITY_ELEMENT_NAME);
+         for (int i = 0; i < list.getLength(); i++) {
+            Pair<String, Set<Role>> securityItem = parseSecurityRoles(list.item(i), config.getSecurityRoleNameMappings());
             config.putSecurityRoles(securityItem.getA(), securityItem.getB());
          }
          list = node.getElementsByTagName(SECURITY_PLUGIN_ELEMENT_NAME);
@@ -711,7 +724,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     * @param node
     * @return
     */
-   protected Pair<String, Set<Role>> parseSecurityRoles(final Node node) {
+   protected Pair<String, Set<Role>> parseSecurityRoles(final Node node, final Map<String, Set<String>> roleMappings) {
       final String match = node.getAttributes().getNamedItem("match").getNodeValue();
 
       Set<Role> securityRoles = new HashSet<>();
@@ -737,7 +750,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             final String type = getAttributeValue(child, TYPE_ATTR_NAME);
             final String roleString = getAttributeValue(child, ROLES_ATTR_NAME);
             String[] roles = roleString.split(",");
-            for (String role : roles) {
+            String[] mappedRoles = getMappedRoleNames(roles, roleMappings);
+
+            for (String role : mappedRoles) {
                if (SEND_NAME.equals(type)) {
                   send.add(role.trim());
                } else if (CONSUME_NAME.equals(type)) {
@@ -770,7 +785,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                }
             }
          }
-
       }
 
       for (String role : allRoles) {
@@ -778,6 +792,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       return securityMatch;
+   }
+
+   /**
+    * Translate and expand a set of role names to a set of mapped role names, also includes the original role names
+    * @param roles the original set of role names
+    * @param roleMappings a one-to-many mapping of original role names to mapped role names
+    * @return the final set of mapped role names
+    */
+   private String[] getMappedRoleNames(String[] roles, Map<String, Set<String>> roleMappings) {
+      Set<String> mappedRoles = new HashSet<>();
+      for (String role : roles) {
+         if (roleMappings.containsKey(role)) {
+            mappedRoles.addAll(roleMappings.get(role));
+         }
+         mappedRoles.add(role);
+      }
+      return mappedRoles.toArray(new String[mappedRoles.size()]);
    }
 
    private Pair<SecuritySettingPlugin, Map<String, String>> parseSecuritySettingPlugins(Node item) {
@@ -802,6 +833,38 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       });
 
       return new Pair<>(securitySettingPlugin, settings);
+   }
+
+   /**
+    * Computes the map of internal ActiveMQ role names to sets of external (e.g. LDAP) role names.  For example, given a role
+    * "myrole" with a DN of "cn=myrole,dc=local,dc=com":
+    *      from="cn=myrole,dc=local,dc=com", to="amq,admin,guest"
+    *      from="cn=myOtherRole,dc=local,dc=com", to="amq"
+    * The resulting map will consist of:
+    *      amq => {"cn=myrole,dc=local,dc=com","cn=myOtherRole",dc=local,dc=com"}
+    *      admin => {"cn=myrole,dc=local,dc=com"}
+    *      guest => {"cn=myrole,dc=local,dc=com"}
+    * @param item the role-mapping node
+    * @return the map of local ActiveMQ role names to the set of mapped role names
+    */
+   private Map<String, Set<String>> parseSecurityRoleMapping(Node item) {
+      Map<String, Set<String>> mappedRoleNames = new HashMap<>();
+      String externalRoleName = getAttributeValue(item, ROLE_FROM_ATTR_NAME).trim();
+      Set<String> internalRoleNames = new HashSet<>();
+      Collections.addAll(internalRoleNames, getAttributeValue(item, ROLE_TO_ATTR_NAME).split(","));
+      for (String internalRoleName : internalRoleNames) {
+         internalRoleName = internalRoleName.trim();
+         if (mappedRoleNames.containsKey(internalRoleName)) {
+            mappedRoleNames.get(internalRoleName).add(externalRoleName);
+         } else {
+            Set<String> externalRoleNames = new HashSet<>();
+            externalRoleNames.add(externalRoleName);
+            if ((internalRoleName.length() > 0) && (externalRoleName.length() > 0)) {
+               mappedRoleNames.put(internalRoleName, externalRoleNames);
+            }
+         }
+      }
+      return mappedRoleNames;
    }
 
    /**
