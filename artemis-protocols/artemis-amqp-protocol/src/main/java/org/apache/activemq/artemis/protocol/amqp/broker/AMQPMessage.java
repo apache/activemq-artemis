@@ -633,7 +633,8 @@ public class AMQPMessage extends RefCountMessage {
 
    private synchronized void checkBuffer() {
       if (!bufferValid) {
-         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1500);
+         int estimated = Math.max(1500, data != null ? data.capacity() + 1000 : 0);
+         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(estimated);
          try {
             getProtonMessage().encode(new NettyWritable(buffer));
             byte[] bytes = new byte[buffer.writerIndex()];

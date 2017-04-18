@@ -146,6 +146,8 @@ public class QueueImpl implements Queue {
 
    private final LinkedListIterator<PagedReference> pageIterator;
 
+   private volatile boolean printErrorExpiring = false;
+
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
@@ -1567,27 +1569,52 @@ public class QueueImpl implements Queue {
             if (queueDestroyed) {
                return;
             }
+            logger.debug("Scanning for expires on " + QueueImpl.this.getName());
 
             LinkedListIterator<MessageReference> iter = iterator();
 
+            boolean expired = false;
+            boolean hasElements = false;
+
+            int elementsExpired = 0;
             try {
-               boolean expired = false;
-               boolean hasElements = false;
+               Transaction tx = null;
+
                while (postOffice.isStarted() && iter.hasNext()) {
                   hasElements = true;
                   MessageReference ref = iter.next();
                   try {
                      if (ref.getMessage().isExpired()) {
+                        if (tx == null) {
+                           tx = new TransactionImpl(storageManager);
+                        }
                         incDelivering();
                         expired = true;
-                        expire(ref);
+                        expire(tx, ref);
                         iter.remove();
                         refRemoved(ref);
+
+                        if (++elementsExpired >= MAX_DELIVERIES_IN_LOOP) {
+                           logger.debug("Breaking loop of expiring");
+                           scannerRunning.incrementAndGet();
+                           getExecutor().execute(this);
+                           break;
+                        }
                      }
+
                   } catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
                   }
+               }
 
+               logger.debug("Expired " + elementsExpired + " references");
+
+               try {
+                  if (tx != null) {
+                     tx.commit();
+                  }
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
                }
 
                // If empty we need to schedule depaging to make sure we would depage expired messages as well
@@ -1600,6 +1627,8 @@ public class QueueImpl implements Queue {
                } catch (Throwable ignored) {
                }
                scannerRunning.decrementAndGet();
+               logger.debug("Scanning for expires on " + QueueImpl.this.getName() + " done");
+
             }
          }
       }
@@ -1911,7 +1940,6 @@ public class QueueImpl implements Queue {
    public String toString() {
       return "QueueImpl[name=" + name.toString() + ", postOffice=" + this.postOffice + ", temp=" + this.temporary + "]@" + Integer.toHexString(System.identityHashCode(this));
    }
-
 
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
@@ -2519,7 +2547,11 @@ public class QueueImpl implements Queue {
             move(expiryAddress, tx, ref, true, true);
          }
       } else {
-         ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
+         if (!printErrorExpiring) {
+            printErrorExpiring = true;
+            // print this only once
+            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
+         }
 
          acknowledge(tx, ref);
       }
@@ -3015,7 +3047,7 @@ public class QueueImpl implements Queue {
             if (messagesIterator != null && messagesIterator.hasNext()) {
                MessageReference msg = messagesIterator.next();
                if (msg.isPaged()) {
-                  previouslyBrowsed.add(((PagedReference)msg).getPosition());
+                  previouslyBrowsed.add(((PagedReference) msg).getPosition());
                }
                return msg;
             } else {
@@ -3156,7 +3188,7 @@ public class QueueImpl implements Queue {
          if (consumersSet.size() == 0) {
             logger.debug("There are no consumers, no need to check slow consumer's rate");
             return;
-         } else if (queueRate  < (threshold * consumersSet.size())) {
+         } else if (queueRate < (threshold * consumersSet.size())) {
             if (logger.isDebugEnabled()) {
                logger.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
             }
