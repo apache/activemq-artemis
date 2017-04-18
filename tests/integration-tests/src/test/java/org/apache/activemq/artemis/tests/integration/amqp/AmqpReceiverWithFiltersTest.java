@@ -74,7 +74,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       filters.put(AmqpUnknownFilterType.UNKNOWN_FILTER_NAME, AmqpUnknownFilterType.UNKNOWN_FILTER);
 
       Source source = new Source();
-      source.setAddress(getTestName());
+      source.setAddress(getQueueName());
       source.setFilter(filters);
       source.setDurable(TerminusDurability.NONE);
       source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
@@ -116,12 +116,11 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      session.createReceiver(getTestName(), "color = red");
+      session.createReceiver(getQueueName(), "color = red");
 
       connection.getStateInspector().assertValid();
       connection.close();
    }
-
 
    @Test(timeout = 60000)
    public void testReceivedUnsignedFilter() throws Exception {
@@ -131,10 +130,9 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
       AmqpConnection connection = client.connect();
 
       try {
-
          // Normal Session which won't create an TXN itself
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(getTestName());
+         AmqpSender sender = session.createSender(getQueueName());
 
          for (int i = 0; i < NUM_MESSAGES + 1; ++i) {
             AmqpMessage message = new AmqpMessage();
@@ -144,7 +142,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
          }
 
          // Read all messages from the Queue, do not accept them yet.
-         AmqpReceiver receiver = session.createReceiver(getTestName(), "myNewID < " + (NUM_MESSAGES / 2));
+         AmqpReceiver receiver = session.createReceiver(getQueueName(), "myNewID < " + (NUM_MESSAGES / 2));
          ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES  / 2; ++i) {
@@ -161,6 +159,4 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
          connection.close();
       }
    }
-
-
 }

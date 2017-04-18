@@ -40,18 +40,18 @@ public class AmqpDeliveryAnnotationsTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
 
       message.setText("Test-Message");
-      message.setDeliveryAnnotation(DELIVERY_ANNOTATION_NAME, getTestName());
+      message.setDeliveryAnnotation(DELIVERY_ANNOTATION_NAME, getQueueName());
 
       sender.send(message);
       receiver.flow(1);
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getQueueName());
       assertEquals(1, queue.getMessageCount());
 
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);

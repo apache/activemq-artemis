@@ -87,6 +87,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private final String password;
    private final URI remoteURI;
    private final String connectionId;
+   private List<Symbol> desiredCapabilities = Collections.emptyList();
    private List<Symbol> offeredCapabilities = Collections.emptyList();
    private Map<Symbol, Object> offeredProperties = Collections.emptyMap();
 
@@ -146,6 +147,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                   getEndpoint().setContainer(safeGetContainerId());
                }
                getEndpoint().setHostname(remoteURI.getHost());
+               if (!getDesiredCapabilities().isEmpty()) {
+                  getEndpoint().setDesiredCapabilities(getDesiredCapabilities().toArray(new Symbol[0]));
+               }
                if (!getOfferedCapabilities().isEmpty()) {
                   getEndpoint().setOfferedCapabilities(getOfferedCapabilities().toArray(new Symbol[0]));
                }
@@ -393,12 +397,24 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       this.drainTimeout = drainTimeout;
    }
 
+   public List<Symbol> getDesiredCapabilities() {
+      return desiredCapabilities;
+   }
+
+   public void setDesiredCapabilities(List<Symbol> desiredCapabilities) {
+      if (desiredCapabilities == null) {
+         desiredCapabilities = Collections.emptyList();
+      }
+
+      this.desiredCapabilities = desiredCapabilities;
+   }
+
    public List<Symbol> getOfferedCapabilities() {
       return offeredCapabilities;
    }
 
    public void setOfferedCapabilities(List<Symbol> offeredCapabilities) {
-      if (offeredCapabilities != null) {
+      if (offeredCapabilities == null) {
          offeredCapabilities = Collections.emptyList();
       }
 
@@ -410,7 +426,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    public void setOfferedProperties(Map<Symbol, Object> offeredProperties) {
-      if (offeredProperties != null) {
+      if (offeredProperties == null) {
          offeredProperties = Collections.emptyMap();
       }
 

@@ -35,15 +35,15 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testReceiverCanDrainMessages() throws Exception {
       int MSG_COUNT = 20;
-      sendMessages(getTestName(), MSG_COUNT);
+      sendMessages(getQueueName(), MSG_COUNT);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = client.connect();
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver.drain(MSG_COUNT);
@@ -66,11 +66,11 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       AmqpConnection connection = client.connect();
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(10);
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(0, queueView.getMessageCount());
       assertEquals(0, queueView.getDeliveringCount());
 
@@ -86,15 +86,15 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testPullOneFromRemote() throws Exception {
       int MSG_COUNT = 20;
-      sendMessages(getTestName(), MSG_COUNT);
+      sendMessages(getQueueName(), MSG_COUNT);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = client.connect();
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       assertEquals(0, receiver.getReceiver().getRemoteCredit());
@@ -119,11 +119,11 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       AmqpConnection connection = client.connect();
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       receiver.flow(10);
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(0, queueView.getMessageCount());
 
       assertEquals(10, receiver.getReceiver().getRemoteCredit());

@@ -51,16 +51,16 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       AmqpMessage message = new AmqpMessage();
       message.setDescribedType(new AmqpNoLocalFilter());
       sender.send(message);
       sender.close();
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getQueueName());
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
@@ -77,14 +77,14 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       AmqpMessage message = new AmqpMessage();
       message.setDescribedType(new AmqpNoLocalFilter());
       sender.send(message);
       sender.close();
       connection.close();
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getQueueName());
       assertEquals(1, queue.getMessageCount());
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -111,13 +111,13 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
 
       // Send with AMQP client.
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       AmqpMessage message = new AmqpMessage();
       message.setDescribedType(new AmqpNoLocalFilter());
       sender.send(message);
       sender.close();
 
-      Queue queue = getProxyToQueue(getTestName());
+      Queue queue = getProxyToQueue(getQueueName());
       assertEquals(1, queue.getMessageCount());
 
       // Receive and resend with OpenWire JMS client
@@ -142,7 +142,7 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       assertEquals(1, queue.getMessageCount());
 
       // Now lets receive it with AMQP and see that we get back what we expected.
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage returned = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(returned);

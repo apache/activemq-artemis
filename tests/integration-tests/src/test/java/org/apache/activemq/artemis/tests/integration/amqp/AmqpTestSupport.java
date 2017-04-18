@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.net.URI;
@@ -25,8 +24,12 @@ import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.junit.After;
 
-/** This will only add methods to support AMQP Testing without creating servers or anything */
+/**
+ * Base test support class providing client support methods to aid in
+ * creating and configuration the AMQP test client.
+ */
 public class AmqpTestSupport extends ActiveMQTestBase {
+
    protected LinkedList<AmqpConnection> connections = new LinkedList<>();
 
    protected boolean useSSL;
@@ -121,7 +124,4 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    public AmqpClient createAmqpClient(URI brokerURI, String username, String password) throws Exception {
       return new AmqpClient(brokerURI, username, password);
    }
-
-
-
 }
