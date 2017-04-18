@@ -927,6 +927,10 @@ public interface Configuration {
     */
    Map<String, Set<Role>> getSecurityRoles();
 
+   Configuration addSecurityRoleNameMapping(String internalRole, Set<String> externalRoles);
+
+   Map<String, Set<String>> getSecurityRoleNameMappings();
+
    Configuration putSecurityRoles(String match, Set<Role> roles);
 
    Configuration setConnectorServiceConfigurations(List<ConnectorServiceConfiguration> configs);
