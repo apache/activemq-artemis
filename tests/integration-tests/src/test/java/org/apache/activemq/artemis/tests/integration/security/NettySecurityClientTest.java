@@ -66,14 +66,13 @@ public class NettySecurityClientTest extends ActiveMQTestBase {
 
       // spawn a JVM that creates a client with a security manager which sends and receives a
       // test message
-      Process p = SpawnedVMSupport.spawnVM(SimpleClient.class.getName(), "-Xms512m", "-Xmx512m", vmargs, false, true, new String[]{NETTY_CONNECTOR_FACTORY});
+      Process p = SpawnedVMSupport.spawnVM(SimpleClient.class.getName(), "-Xms512m", "-Xmx512m", vmargs, true, true, false, new String[]{NETTY_CONNECTOR_FACTORY});
 
       InputStreamReader isr = new InputStreamReader(p.getInputStream());
 
       BufferedReader br = new BufferedReader(isr);
       String line = null;
       while ((line = br.readLine()) != null) {
-         //System.out.println(line);
          line = line.replace('|', '\n');
          if (line.startsWith("Listening")) {
             continue;

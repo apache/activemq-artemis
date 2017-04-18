@@ -18,20 +18,28 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import org.apache.activemq.artemis.utils.Env;
+import org.jboss.logging.Logger;
 
 /**
  * Tells if <a href="http://netty.io/wiki/native-transports.html">{@code netty-transport-native-epoll}</a> is supported.
  */
 public final class Epoll {
 
-   private static final boolean IS_AVAILABLE_EPOLL;
+   private static final Logger logger = Logger.getLogger(Epoll.class);
+   private static final boolean IS_AVAILABLE_EPOLL = isIsAvailableEpoll();
 
-   static {
-      if (Env.is64BitJvm() && Env.isLinuxOs()) {
-         IS_AVAILABLE_EPOLL = io.netty.channel.epoll.Epoll.isAvailable();
-      } else {
-         IS_AVAILABLE_EPOLL = false;
+   private static boolean isIsAvailableEpoll() {
+      try {
+         if (Env.is64BitJvm() && Env.isLinuxOs()) {
+            return io.netty.channel.epoll.Epoll.isAvailable();
+         } else {
+            return false;
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+         return false;
       }
+
    }
 
    private Epoll() {
