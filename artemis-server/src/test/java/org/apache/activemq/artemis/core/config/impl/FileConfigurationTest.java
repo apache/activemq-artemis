@@ -477,6 +477,90 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    }
 
    @Test
+   public void testSecurityRoleMapping() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("securityRoleMappings.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      Map<String, Set<Role>> securityRoles = fc.getSecurityRoles();
+      Set<Role> roles = securityRoles.get("#");
+
+      //N.B. - FileConfigurationParser uses the constructor without createAddress and deleteAddress
+      //cn=mygroup,dc=local,dc=com = amq1
+      Role testRole1 = new Role("cn=mygroup,dc=local,dc=com",false, false, false,
+                               false, true, false, false,
+                               false);
+
+      //myrole1 = amq1 + amq2
+      Role testRole2 = new Role("myrole1",false, false, false,
+                                false, true, true, false,
+                                false);
+
+      //myrole3 = amq3 + amq4
+      Role testRole3 = new Role("myrole3",false, false, true,
+                                true, false, false, false,
+                                false);
+
+      //myrole4 = amq5 + amq!@#$%^&*() + amq6
+      Role testRole4 = new Role("myrole4",true, true, false,
+                                false, false, false, false,
+                                true);
+
+      //myrole5 = amq4 = amq3 + amq4
+      Role testRole5 = new Role("myrole5",false, false, true,
+                                true, false, false, false,
+                                false);
+
+      Role testRole6 = new Role("amq1",false, false, false,
+                                false, true, false, false,
+                                false);
+
+      Role testRole7 = new Role("amq2",false, false, false,
+                                false, false, true, false,
+                                false);
+
+      Role testRole8 = new Role("amq3",false, false, true,
+                                false, false, false, false,
+                                false);
+
+      Role testRole9 = new Role("amq4",false, false, true,
+                                true, false, false, false,
+                                false);
+
+      Role testRole10 = new Role("amq5",false, false, false,
+                                false, false, false, false,
+                                false);
+
+      Role testRole11 = new Role("amq6",false, true, false,
+                                false, false, false, false,
+                                true);
+
+      Role testRole12 = new Role("amq7",false, false, false,
+                                false, false, false, true,
+                                false);
+
+      Role testRole13 = new Role("amq!@#$%^&*()",true, false, false,
+                                false, false, false, false,
+                                false);
+
+      assertEquals(13, roles.size());
+      assertTrue(roles.contains(testRole1));
+      assertTrue(roles.contains(testRole2));
+      assertTrue(roles.contains(testRole3));
+      assertTrue(roles.contains(testRole4));
+      assertTrue(roles.contains(testRole5));
+      assertTrue(roles.contains(testRole6));
+      assertTrue(roles.contains(testRole7));
+      assertTrue(roles.contains(testRole8));
+      assertTrue(roles.contains(testRole9));
+      assertTrue(roles.contains(testRole10));
+      assertTrue(roles.contains(testRole11));
+      assertTrue(roles.contains(testRole12));
+      assertTrue(roles.contains(testRole13));
+   }
+
+   @Test
    public void testContextClassLoaderUsage() throws Exception {
 
       final File customConfiguration = File.createTempFile("hornetq-unittest", ".xml");
