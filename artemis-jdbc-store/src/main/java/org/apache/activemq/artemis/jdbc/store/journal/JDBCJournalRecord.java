@@ -306,4 +306,23 @@ class JDBCJournalRecord {
    long getSeq() {
       return seq;
    }
+
+   @Override
+   public String toString() {
+      return "JDBCJournalRecord{" +
+         "compactCount=" + compactCount +
+         ", id=" + id +
+         ", isTransactional=" + isTransactional +
+         ", isUpdate=" + isUpdate +
+         ", recordType=" + recordType +
+         ", seq=" + seq +
+         ", storeLineUp=" + storeLineUp +
+         ", sync=" + sync +
+         ", txCheckNoRecords=" + txCheckNoRecords +
+         ", txDataSize=" + txDataSize +
+         ", txId=" + txId +
+         ", userRecordType=" + userRecordType +
+         ", variableSize=" + variableSize +
+         '}';
+   }
 }
