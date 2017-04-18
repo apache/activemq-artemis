@@ -614,13 +614,17 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
 
             if (logger.isTraceEnabled()) {
-               logger.trace("ServerSessionPacketHandler::response sent::" + response);
+               logger.trace("ServerSessionPacketHandler::exception response sent::" + exceptionMessage);
             }
 
          }
 
          @Override
          public void done() {
+            if (logger.isTraceEnabled()) {
+               logger.trace("ServerSessionPacketHandler::regular response sent::" + response);
+            }
+
             doConfirmAndResponse(confirmPacket, response, flush, closeChannel);
          }
       });
