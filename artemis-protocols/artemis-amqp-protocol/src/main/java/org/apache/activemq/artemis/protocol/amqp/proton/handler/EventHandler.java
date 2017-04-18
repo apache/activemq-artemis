@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
@@ -77,5 +78,7 @@ public interface EventHandler {
    void onTransport(Transport transport) throws Exception;
 
    void pushBytes(ByteBuf bytes);
+
+   boolean flowControl(ReadyListener readyListener);
 
 }
