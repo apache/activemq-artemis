@@ -36,101 +36,170 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
    public void testSendWithDeliveryTimeIsScheduled() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      try {
+         AmqpSession session = connection.createSession();
 
-      // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
-      assertNotNull(queueView);
+         AmqpSender sender = session.createSender(getQueueName());
 
-      AmqpMessage message = new AmqpMessage();
-      long deliveryTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(2);
-      message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
-      message.setText("Test-Message");
-      sender.send(message);
-      sender.close();
+         // Get the Queue View early to avoid racing the delivery.
+         final Queue queueView = getProxyToQueue(getQueueName());
+         assertNotNull(queueView);
 
-      assertEquals(1, queueView.getScheduledCount());
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(2);
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+         sender.close();
 
-      // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-      receiver.flow(1);
-      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
-      assertNull(received);
+         assertEquals(1, queueView.getScheduledCount());
 
-      connection.close();
+         // Now try and get the message
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+         receiver.flow(1);
+         AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+         assertNull(received);
+      } finally {
+         connection.close();
+      }
    }
 
    @Test(timeout = 60000)
    public void testSendRecvWithDeliveryTime() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      try {
+         AmqpSession session = connection.createSession();
 
-      // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
-      assertNotNull(queueView);
+         AmqpSender sender = session.createSender(getQueueName());
 
-      AmqpMessage message = new AmqpMessage();
-      long deliveryTime = System.currentTimeMillis() + 6000;
-      message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
-      message.setText("Test-Message");
-      sender.send(message);
-      sender.close();
+         // Get the Queue View early to avoid racing the delivery.
+         final Queue queueView = getProxyToQueue(getQueueName());
+         assertNotNull(queueView);
 
-      assertEquals(1, queueView.getScheduledCount());
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + 6000;
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+         sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-      receiver.flow(1);
+         assertEquals(1, queueView.getScheduledCount());
 
-      // Now try and get the message, should not due to being scheduled.
-      AmqpMessage received = receiver.receive(2, TimeUnit.SECONDS);
-      assertNull(received);
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+         receiver.flow(1);
 
-      // Now try and get the message, should get it now
-      received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull(received);
-      received.accept();
+         // Now try and get the message, should not due to being scheduled.
+         AmqpMessage received = receiver.receive(2, TimeUnit.SECONDS);
+         assertNull(received);
 
-      connection.close();
+         // Now try and get the message, should get it now
+         received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull(received);
+         received.accept();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test
    public void testScheduleWithDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      try {
+         AmqpSession session = connection.createSession();
 
-      // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
-      assertNotNull(queueView);
+         AmqpSender sender = session.createSender(getQueueName());
 
-      AmqpMessage message = new AmqpMessage();
-      long delay = 6000;
-      message.setMessageAnnotation("x-opt-delivery-delay", delay);
-      message.setText("Test-Message");
-      sender.send(message);
-      sender.close();
+         // Get the Queue View early to avoid racing the delivery.
+         final Queue queueView = getProxyToQueue(getQueueName());
+         assertNotNull(queueView);
 
-      assertEquals(1, queueView.getScheduledCount());
+         AmqpMessage message = new AmqpMessage();
+         long delay = 6000;
+         message.setMessageAnnotation("x-opt-delivery-delay", delay);
+         message.setText("Test-Message");
+         sender.send(message);
+         sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
-      receiver.flow(1);
+         assertEquals(1, queueView.getScheduledCount());
 
-      // Now try and get the message, should not due to being scheduled.
-      AmqpMessage received = receiver.receive(2, TimeUnit.SECONDS);
-      assertNull(received);
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+         receiver.flow(1);
 
-      // Now try and get the message, should get it now
-      received = receiver.receive(10, TimeUnit.SECONDS);
-      assertNotNull(received);
-      received.accept();
+         // Now try and get the message, should not due to being scheduled.
+         AmqpMessage received = receiver.receive(2, TimeUnit.SECONDS);
+         assertNull(received);
 
-      connection.close();
+         // Now try and get the message, should get it now
+         received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull(received);
+         received.accept();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendWithDeliveryTimeHoldsMessage() throws Exception {
+      AmqpClient client = createAmqpClient();
+      assertNotNull(client);
+
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(getQueueName());
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+
+         // Now try and get the message
+         receiver.flow(1);
+
+         // Shouldn't get this since we delayed the message.
+         assertNull(receiver.receive(1, TimeUnit.SECONDS));
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendWithDeliveryTimeDeliversMessageAfterDelay() throws Exception {
+      AmqpClient client = createAmqpClient();
+      assertNotNull(client);
+
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(getQueueName());
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
+
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + 2000;
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+
+         // Now try and get the message
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull(received);
+         received.accept();
+         Long msgDeliveryTime = (Long) received.getMessageAnnotation("x-opt-delivery-time");
+         assertNotNull(msgDeliveryTime);
+         assertEquals(deliveryTime, msgDeliveryTime.longValue());
+      } finally {
+         connection.close();
+      }
    }
 }

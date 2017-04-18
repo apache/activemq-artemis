@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
@@ -25,34 +36,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.jms.Connection;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 @RunWith(Parameterized.class)
-public class AmqpNettyFailoverTest extends FailoverTestBase {
-
+public class AmqpFailoverEndpointDiscoveryTest extends FailoverTestBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "{0}")
-   public static Collection getParameters() {
+   public static Collection<?> getParameters() {
 
       // these 3 are for comparison
       return Arrays.asList(new Object[][]{{"NON_SSL", 0}
          /*, {"SSL", 1} */ });
    }
 
-
    private final int protocol;
 
-   public AmqpNettyFailoverTest(String name, int protocol) {
+   public AmqpFailoverEndpointDiscoveryTest(String name, int protocol) {
       this.protocol = protocol;
    }
 
@@ -65,7 +64,6 @@ public class AmqpNettyFailoverTest extends FailoverTestBase {
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfig(live);
    }
-
 
    @Test(timeout = 120000)
    public void testFailoverListWithAMQP() throws Exception {
@@ -94,7 +92,6 @@ public class AmqpNettyFailoverTest extends FailoverTestBase {
       } else {
          String keystore = this.getClass().getClassLoader().getResource("client-side-keystore.jks").getFile();
          String truststore = this.getClass().getClassLoader().getResource("client-side-truststore.jks").getFile();
-         // return new JmsConnectionFactory("amqps://localhost:61616?transport.keyStoreLocation=" + keystore + "&transport.keyStorePassword=secureexample&transport.trustStoreLocation=" + truststore + "&transport.trustStorePassword=secureexample&transport.verifyHost=false");
          return new JmsConnectionFactory("failover:(amqps://localhost:61616?transport.keyStoreLocation=" + keystore + "&transport.keyStorePassword=secureexample&transport.trustStoreLocation=" + truststore + "&transport.trustStorePassword=secureexample&transport.verifyHost=false)");
       }
    }
@@ -108,13 +105,11 @@ public class AmqpNettyFailoverTest extends FailoverTestBase {
          server1Params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
          server1Params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
          server1Params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
-         //server1Params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
-
       }
+
       if (live) {
          return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
       }
-
 
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
 
@@ -137,5 +132,4 @@ public class AmqpNettyFailoverTest extends FailoverTestBase {
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
-
 }

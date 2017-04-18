@@ -94,7 +94,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
       assertNotNull(session);
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       sender.setStateInspector(new AmqpValidator() {
 
          @Override
@@ -148,8 +148,8 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       session.begin();
 
@@ -173,8 +173,8 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       session.begin();
 
@@ -198,8 +198,8 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
@@ -207,7 +207,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       session.begin();
 
@@ -230,8 +230,8 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
@@ -239,7 +239,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       session.begin();
 
@@ -253,7 +253,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       connection = addConnection(client.connect());
       session = connection.createSession();
-      receiver = session.createReceiver(getTestName());
+      receiver = session.createReceiver(getQueueName());
       session.begin();
       receiver.flow(1);
 
@@ -274,8 +274,8 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
@@ -283,7 +283,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       session.begin();
 
@@ -308,7 +308,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       // Load up the Queue with some messages
       {
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(getTestName());
+         AmqpSender sender = session.createSender(getQueueName());
          AmqpMessage message = new AmqpMessage();
          message.setText("Test-Message");
          sender.send(message);
@@ -326,11 +326,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session3 = connection.createSession();
 
       // Sender linked to each session
-      AmqpReceiver receiver1 = session1.createReceiver(getTestName());
-      AmqpReceiver receiver2 = session2.createReceiver(getTestName());
-      AmqpReceiver receiver3 = session3.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session1.createReceiver(getQueueName());
+      AmqpReceiver receiver2 = session2.createReceiver(getQueueName());
+      AmqpReceiver receiver3 = session3.createReceiver(getQueueName());
 
-      final Queue queue = getProxyToQueue(getTestName());
+      final Queue queue = getProxyToQueue(getQueueName());
       assertEquals(3, queue.getMessageCount());
 
       // Begin the transaction that all senders will operate in.
@@ -365,7 +365,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       // Load up the Queue with some messages
       {
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(getTestName());
+         AmqpSender sender = session.createSender(getQueueName());
          AmqpMessage message = new AmqpMessage();
          message.setText("Test-Message");
          sender.send(message);
@@ -383,11 +383,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session3 = connection.createSession();
 
       // Sender linked to each session
-      AmqpReceiver receiver1 = session1.createReceiver(getTestName());
-      AmqpReceiver receiver2 = session2.createReceiver(getTestName());
-      AmqpReceiver receiver3 = session3.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session1.createReceiver(getQueueName());
+      AmqpReceiver receiver2 = session2.createReceiver(getQueueName());
+      AmqpReceiver receiver3 = session3.createReceiver(getQueueName());
 
-      final Queue queue = getProxyToQueue(getTestName());
+      final Queue queue = getProxyToQueue(getQueueName());
       assertEquals(3, queue.getMessageCount());
 
       // Begin the transaction that all senders will operate in.
@@ -428,11 +428,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session3 = connection.createSession();
 
       // Sender linked to each session
-      AmqpSender sender1 = session1.createSender(getTestName());
-      AmqpSender sender2 = session2.createSender(getTestName());
-      AmqpSender sender3 = session3.createSender(getTestName());
+      AmqpSender sender1 = session1.createSender(getQueueName());
+      AmqpSender sender2 = session2.createSender(getQueueName());
+      AmqpSender sender3 = session3.createSender(getQueueName());
 
-      final Queue queue = getProxyToQueue(getTestName());
+      final Queue queue = getProxyToQueue(getQueueName());
       assertEquals(0, queue.getMessageCount());
 
       // Begin the transaction that all senders will operate in.
@@ -468,11 +468,11 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session3 = connection.createSession();
 
       // Sender linked to each session
-      AmqpSender sender1 = session1.createSender(getTestName());
-      AmqpSender sender2 = session2.createSender(getTestName());
-      AmqpSender sender3 = session3.createSender(getTestName());
+      AmqpSender sender1 = session1.createSender(getQueueName());
+      AmqpSender sender2 = session2.createSender(getQueueName());
+      AmqpSender sender3 = session3.createSender(getQueueName());
 
-      final Queue queue = getProxyToQueue(getTestName());
+      final Queue queue = getProxyToQueue(getQueueName());
       assertEquals(0, queue.getMessageCount());
 
       // Begin the transaction that all senders will operate in.
@@ -509,7 +509,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       // Normal Session which won't create an TXN itself
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Commit TXN work from a sender.
       txnSession.begin();
@@ -538,7 +538,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       }
       txnSession.commit();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(NUM_MESSAGES * 2);
       for (int i = 0; i < NUM_MESSAGES * 2; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
@@ -563,7 +563,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
          // Normal Session which won't create an TXN itself
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(getTestName());
+         AmqpSender sender = session.createSender(getQueueName());
 
          for (int i = 0; i < NUM_MESSAGES + 1; ++i) {
             AmqpMessage message = new AmqpMessage();
@@ -573,7 +573,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          }
 
          // Read all messages from the Queue, do not accept them yet.
-         AmqpReceiver receiver = session.createReceiver(getTestName());
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
          ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES; ++i) {
@@ -629,7 +629,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       // Normal Session which won't create an TXN itself
       AmqpSession session = connection.createSession();
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       for (int i = 0; i < NUM_MESSAGES; ++i) {
          AmqpMessage message = new AmqpMessage();
@@ -639,7 +639,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       }
 
       // Read all messages from the Queue, do not accept them yet.
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage message1 = receiver.receive(5, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver.receive(5, TimeUnit.SECONDS);
@@ -700,7 +700,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
          // Normal Session which won't create an TXN itself
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(getTestName());
+         AmqpSender sender = session.createSender(getQueueName());
 
          for (int i = 0; i < NUM_MESSAGES + 1; ++i) {
             AmqpMessage message = new AmqpMessage();
@@ -710,7 +710,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          }
 
          // Read all messages from the Queue, do not accept them yet.
-         AmqpReceiver receiver = session.createReceiver(getTestName());
+         AmqpReceiver receiver = session.createReceiver(getQueueName());
          ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES; ++i) {
@@ -787,7 +787,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       // Normal Session which won't create an TXN itself
       AmqpSession session = connection.createSession();
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       for (int i = 0; i < NUM_MESSAGES; ++i) {
          AmqpMessage message = new AmqpMessage();
@@ -797,7 +797,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       }
 
       // Read all messages from the Queue, do not accept them yet.
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(2);
       AmqpMessage message1 = receiver.receive(5, TimeUnit.SECONDS);
       AmqpMessage message2 = receiver.receive(5, TimeUnit.SECONDS);
@@ -930,12 +930,12 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
       assertNotNull(session);
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
       sender.send(message);
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.setStateInspector(new AmqpValidator() {
 
          @Override
