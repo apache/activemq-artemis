@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -22,11 +22,11 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -57,7 +57,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       HashSet<Role> value = new HashSet<>();
       value.add(new Role("none", false, true, true, true, true, true, true, true));
-      securityRepository.addMatch(getTestName(), value);
+      securityRepository.addMatch(getQueueName(), value);
 
       serverManager = new JMSServerManagerImpl(server);
       Configuration serverConfig = server.getConfiguration();
@@ -135,7 +135,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
       AmqpMessage message = new AmqpMessage();
 
       message.setMessageId("msg" + 1);
@@ -154,8 +154,8 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTestName()), RoutingType.ANYCAST));
-      server.createQueue(new SimpleString(getTestName()), RoutingType.ANYCAST, new SimpleString(getTestName()), null, true, false);
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
+      server.createQueue(new SimpleString(getQueueName()), RoutingType.ANYCAST, new SimpleString(getQueueName()), null, true, false);
 
       AmqpClient client = createAmqpClient(user1, password1);
       AmqpConnection connection = client.connect();
@@ -165,7 +165,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createAnonymousSender();
          AmqpMessage message = new AmqpMessage();
 
-         message.setAddress(getTestName());
+         message.setAddress(getQueueName());
          message.setMessageId("msg" + 1);
          message.setText("Test-Message");
 
