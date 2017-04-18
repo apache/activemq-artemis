@@ -29,6 +29,9 @@ grant {
         permission java.util.PropertyPermission "activemq.artemis.client.global.thread.pool.max.size", "read";
         permission java.util.PropertyPermission "activemq.artemis.client.global.scheduled.thread.pool.core.size", "read";
         permission java.util.PropertyPermission "io.netty.eventLoopThreads", "read";
+        permission java.util.PropertyPermission "io.netty.maxThreadLocalCharBufferSize", "read";
+        permission java.util.PropertyPermission "io.netty.batch.bytes", "read";
+        permission java.util.PropertyPermission "com.ibm.vm.bitmode", "read";
         permission java.util.PropertyPermission "io.netty.noUnsafe", "read";
         permission java.util.PropertyPermission "io.netty.tryUnsafe", "read";
         permission java.util.PropertyPermission "org.jboss.netty.tryUnsafe", "read";
