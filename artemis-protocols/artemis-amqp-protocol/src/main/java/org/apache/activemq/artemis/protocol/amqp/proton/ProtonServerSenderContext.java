@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.impl.CompositeAddress;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -486,6 +488,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          return;
       }
 
+      OperationContext oldContext = sessionSPI.recoverContext();
+
       try {
          Message message = ((MessageReference) delivery.getContext()).getMessage();
 
@@ -590,7 +594,19 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             // todo not sure if we need to do anything here
          }
       } finally {
-         connection.flush();
+         sessionSPI.afterIO(new IOCallback() {
+            @Override
+            public void done() {
+               connection.flush();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+               connection.flush();
+            }
+         });
+
+         sessionSPI.resetContext(oldContext);
       }
    }
 

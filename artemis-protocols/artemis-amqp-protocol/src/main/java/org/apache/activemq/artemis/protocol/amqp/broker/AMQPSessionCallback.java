@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -53,6 +54,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -78,6 +80,8 @@ public class AMQPSessionCallback implements SessionCallback {
 
    private final ProtonProtocolManager manager;
 
+   private final StorageManager storageManager;
+
    private final AMQPConnectionContext connection;
 
    private final Connection transportConnection;
@@ -100,6 +104,7 @@ public class AMQPSessionCallback implements SessionCallback {
                               OperationContext operationContext) {
       this.protonSPI = protonSPI;
       this.manager = manager;
+      this.storageManager = manager.getServer().getStorageManager();
       this.connection = connection;
       this.transportConnection = transportConnection;
       this.closeExecutor = executor;
@@ -131,6 +136,24 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       } else {
          serverConsumer.receiveCredits(-1);
+      }
+   }
+
+   public void withinContext(RunnableEx run) throws Exception {
+      OperationContext context = recoverContext();
+      try {
+         run.run();
+      } finally {
+         resetContext(context);
+      }
+   }
+
+   public void afterIO(IOCallback ioCallback) {
+      OperationContext context = recoverContext();
+      try {
+         manager.getServer().getStorageManager().afterCompleteOperations(ioCallback);
+      } finally {
+         resetContext(context);
       }
    }
 
@@ -315,11 +338,11 @@ public class AMQPSessionCallback implements SessionCallback {
    public void close() throws Exception {
       //need to check here as this can be called if init fails
       if (serverSession != null) {
-         recoverContext();
+         OperationContext context = recoverContext();
          try {
             serverSession.close(false);
          } finally {
-            resetContext();
+            resetContext(context);
          }
       }
    }
@@ -328,30 +351,30 @@ public class AMQPSessionCallback implements SessionCallback {
       if (transaction == null) {
          transaction = serverSession.getCurrentTransaction();
       }
-      recoverContext();
+      OperationContext oldContext = recoverContext();
       try {
          ((ServerConsumer) brokerConsumer).individualAcknowledge(transaction, message.getMessageID());
       } finally {
-         resetContext();
+         resetContext(oldContext);
       }
    }
 
    public void cancel(Object brokerConsumer, Message message, boolean updateCounts) throws Exception {
-      recoverContext();
+      OperationContext oldContext = recoverContext();
       try {
          ((ServerConsumer) brokerConsumer).individualCancel(message.getMessageID(), updateCounts);
          ((ServerConsumer) brokerConsumer).getQueue().forceDelivery();
       } finally {
-         resetContext();
+         resetContext(oldContext);
       }
    }
 
    public void reject(Object brokerConsumer, Message message) throws Exception {
-      recoverContext();
+      OperationContext oldContext = recoverContext();
       try {
          ((ServerConsumer) brokerConsumer).reject(message.getMessageID());
       } finally {
-         resetContext();
+         resetContext(oldContext);
       }
    }
 
@@ -380,22 +403,26 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       }
 
-      recoverContext();
+      OperationContext oldcontext = recoverContext();
 
-      PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
-      if (store.isRejectingMessages()) {
-         // We drop pre-settled messages (and abort any associated Tx)
-         if (delivery.remotelySettled()) {
-            if (transaction != null) {
-               String amqpAddress = delivery.getLink().getTarget().getAddress();
-               ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
-               transaction.markAsRollbackOnly(e);
+      try {
+         PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
+         if (store.isRejectingMessages()) {
+            // We drop pre-settled messages (and abort any associated Tx)
+            if (delivery.remotelySettled()) {
+               if (transaction != null) {
+                  String amqpAddress = delivery.getLink().getTarget().getAddress();
+                  ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
+                  transaction.markAsRollbackOnly(e);
+               }
+            } else {
+               rejectMessage(delivery, AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
             }
          } else {
-            rejectMessage(delivery, AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
+            serverSend(transaction, message, delivery, receiver);
          }
-      } else {
-         serverSend(transaction, message, delivery, receiver);
+      } finally {
+         resetContext(oldcontext);
       }
    }
 
@@ -406,61 +433,67 @@ public class AMQPSessionCallback implements SessionCallback {
       Rejected rejected = new Rejected();
       rejected.setError(condition);
 
-      connection.lock();
-      try {
-         delivery.disposition(rejected);
-         delivery.settle();
-      } finally {
-         connection.unlock();
-      }
-      connection.flush();
+      afterIO(new IOCallback() {
+         @Override
+         public void done() {
+            connection.lock();
+            try {
+               delivery.disposition(rejected);
+               delivery.settle();
+            } finally {
+               connection.unlock();
+            }
+            connection.flush();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
+
    }
 
    private void serverSend(final Transaction transaction,
                            final Message message,
                            final Delivery delivery,
                            final Receiver receiver) throws Exception {
-      try {
+      message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
 
-         message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
+      serverSession.send(transaction, message, false, false);
 
-         serverSession.send(transaction, message, false, false);
+      afterIO(new IOCallback() {
+         @Override
+         public void done() {
+            connection.lock();
+            try {
+               if (delivery.getRemoteState() instanceof TransactionalState) {
+                  TransactionalState txAccepted = new TransactionalState();
+                  txAccepted.setOutcome(Accepted.getInstance());
+                  txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
 
-         manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
-            @Override
-            public void done() {
-               connection.lock();
-               try {
-                  if (delivery.getRemoteState() instanceof TransactionalState) {
-                     TransactionalState txAccepted = new TransactionalState();
-                     txAccepted.setOutcome(Accepted.getInstance());
-                     txAccepted.setTxnId(((TransactionalState) delivery.getRemoteState()).getTxnId());
-
-                     delivery.disposition(txAccepted);
-                  } else {
-                     delivery.disposition(Accepted.getInstance());
-                  }
-                  delivery.settle();
-               } finally {
-                  connection.unlock();
+                  delivery.disposition(txAccepted);
+               } else {
+                  delivery.disposition(Accepted.getInstance());
                }
+               delivery.settle();
+            } finally {
+               connection.unlock();
+            }
+            connection.flush();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+            connection.lock();
+            try {
+               receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
                connection.flush();
+            } finally {
+               connection.unlock();
             }
-
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-               connection.lock();
-               try {
-                  receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
-                  connection.flush();
-               } finally {
-                  connection.unlock();
-               }
-            }
-         });
-      } finally {
-         resetContext();
-      }
+         }
+      });
    }
 
    public void offerProducerCredit(final String address,
@@ -502,12 +535,15 @@ public class AMQPSessionCallback implements SessionCallback {
       manager.getServer().destroyQueue(new SimpleString(queueName));
    }
 
-   private void resetContext() {
-      manager.getServer().getStorageManager().setContext(null);
+   public void resetContext(OperationContext oldContext) {
+      storageManager.setContext(oldContext);
    }
 
-   private void recoverContext() {
+   public OperationContext recoverContext() {
+
+      OperationContext oldContext = storageManager.getContext();
       manager.getServer().getStorageManager().setContext(serverSession.getSessionContext());
+      return oldContext;
    }
 
    @Override
