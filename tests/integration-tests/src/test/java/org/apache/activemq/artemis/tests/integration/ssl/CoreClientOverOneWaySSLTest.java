@@ -133,6 +133,33 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testOneWaySSLUsingDefaultSslContext() throws Exception {
+      createCustomSslServer();
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, true);
+
+      SSLContext.setDefault(SSLSupport.createContext(TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_PATH, TransportConstants.DEFAULT_KEYSTORE_PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD));
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
    public void testOneWaySSLVerifyHost() throws Exception {
       createCustomSslServer(null, null, true);
       String text = RandomUtil.randomString();
