@@ -35,16 +35,16 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testPresettledReceiverAndNonPresettledReceiverOnSameQueue() throws Exception {
       final int MSG_COUNT = 2;
-      sendMessages(getTestName(), MSG_COUNT);
+      sendMessages(getQueueName(), MSG_COUNT);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName(), null, false, true);
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getQueueName(), null, false, true);
+      AmqpReceiver receiver2 = session.createReceiver(getQueueName());
 
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver1.flow(1);
@@ -68,7 +68,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       System.out.println("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Should be nothing left on the Queue
-      AmqpReceiver receiver3 = session.createReceiver(getTestName());
+      AmqpReceiver receiver3 = session.createReceiver(getQueueName());
       receiver3.flow(1);
 
       AmqpMessage received = receiver3.receive(5, TimeUnit.SECONDS);
@@ -85,15 +85,15 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testPresettledReceiverReadsAllMessages() throws Exception {
       final int MSG_COUNT = 100;
-      sendMessages(getTestName(), MSG_COUNT);
+      sendMessages(getQueueName(), MSG_COUNT);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName(), null, false, true);
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       receiver.flow(MSG_COUNT);
@@ -105,7 +105,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       System.out.println("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
-      receiver = session.createReceiver(getTestName());
+      receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
@@ -121,15 +121,15 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testPresettledReceiverReadsAllMessagesInWhenReadInBatches() throws Exception {
       final int MSG_COUNT = 100;
-      sendMessages(getTestName(), MSG_COUNT);
+      sendMessages(getQueueName(), MSG_COUNT);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName(), null, false, true);
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       // Consume all 100 but do so in batches by flowing only limited credit.
@@ -157,7 +157,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       System.out.println("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
-      receiver = session.createReceiver(getTestName());
+      receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
@@ -185,8 +185,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
@@ -194,7 +194,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName(), null, false, true);
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
       session.begin();
 
@@ -221,8 +221,8 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
-      final Queue queue = getProxyToQueue(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
+      final Queue queue = getProxyToQueue(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setText("Test-Message");
@@ -230,7 +230,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       assertEquals(1, queue.getMessageCount());
 
-      AmqpReceiver receiver = session.createReceiver(getTestName(), null, false, true);
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
       session.begin();
 

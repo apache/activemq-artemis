@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
@@ -48,9 +47,9 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    protected static Symbol SHARED = Symbol.getSymbol("shared");
    protected static Symbol GLOBAL = Symbol.getSymbol("global");
 
-
    protected JMSServerManager serverManager;
    protected ActiveMQServer server;
+
    @Before
    @Override
    public void setUp() throws Exception {
@@ -84,6 +83,22 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       super.tearDown();
    }
 
+   protected boolean isAutoCreateQueues() {
+      return true;
+   }
+
+   protected boolean isAutoCreateAddresses() {
+      return true;
+   }
+
+   protected String getDeadLetterAddress() {
+      return "ActiveMQ.DLQ";
+   }
+
+   protected int getPrecreatedQueueSize() {
+      return 10;
+   }
+
    protected ActiveMQServer createServer() throws Exception {
       ActiveMQServer server = createServer(true, true);
       serverManager = new JMSServerManagerImpl(server);
@@ -91,21 +106,30 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
       // Address 1
       CoreAddressConfiguration address = new CoreAddressConfiguration();
-      address.setName(getTestName()).getRoutingTypes().add(RoutingType.ANYCAST);
+      address.setName(getQueueName()).getRoutingTypes().add(RoutingType.ANYCAST);
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration();
-      queueConfig.setName(getTestName()).setAddress(getTestName()).setRoutingType(RoutingType.ANYCAST);
+      queueConfig.setName(getQueueName()).setAddress(getQueueName()).setRoutingType(RoutingType.ANYCAST);
       address.getQueueConfigurations().add(queueConfig);
       serverConfig.addAddressConfiguration(address);
 
-      // Address 2
-      CoreAddressConfiguration address2 = new CoreAddressConfiguration();
-      address2.setName(getTestName2()).getRoutingTypes().add(RoutingType.ANYCAST);
-      CoreQueueConfiguration queueConfig2 = new CoreQueueConfiguration();
-      queueConfig2.setName(getTestName2()).setAddress(getTestName2()).setRoutingType(RoutingType.ANYCAST);
-      address2.getQueueConfigurations().add(queueConfig2);
-      serverConfig.addAddressConfiguration(address2);
+      // Address 1....N
+      for (int i = 0; i < getPrecreatedQueueSize(); ++i) {
+         CoreAddressConfiguration address2 = new CoreAddressConfiguration();
+         address2.setName(getQueueName(i)).getRoutingTypes().add(RoutingType.ANYCAST);
+         CoreQueueConfiguration queueConfig2 = new CoreQueueConfiguration();
+         queueConfig2.setName(getQueueName(i)).setAddress(getQueueName(i)).setRoutingType(RoutingType.ANYCAST);
+         address2.getQueueConfigurations().add(queueConfig2);
+         serverConfig.addAddressConfiguration(address2);
+      }
 
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
+      // Address configuration
+      AddressSettings addressSettings = new AddressSettings();
+
+      addressSettings.setAutoCreateQueues(isAutoCreateQueues());
+      addressSettings.setAutoCreateAddresses(isAutoCreateQueues());
+      addressSettings.setDeadLetterAddress(new SimpleString(getDeadLetterAddress()));
+
+      serverConfig.getAddressesSettings().put("#", addressSettings);
       serverConfig.setSecurityEnabled(false);
       Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
       for (TransportConfiguration tc : acceptors) {
@@ -127,8 +151,12 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       return getName();
    }
 
-   public String getTestName2() {
-      return getName() + "2";
+   public String getQueueName() {
+      return getName();
+   }
+
+   public String getQueueName(int index) {
+      return getName() + "-" + index;
    }
 
    public AmqpClientTestSupport() {

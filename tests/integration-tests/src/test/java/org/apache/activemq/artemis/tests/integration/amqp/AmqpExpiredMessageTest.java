@@ -35,10 +35,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -50,7 +50,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
@@ -66,10 +66,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -81,7 +81,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
@@ -97,10 +97,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -114,7 +114,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
@@ -130,10 +130,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -149,7 +149,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       Thread.sleep(1000);
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
@@ -165,10 +165,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -184,7 +184,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
@@ -200,10 +200,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -215,7 +215,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(received);
@@ -231,10 +231,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       // Get the Queue View early to avoid racing the delivery.
-      final Queue queueView = getProxyToQueue(getTestName());
+      final Queue queueView = getProxyToQueue(getQueueName());
       assertNotNull(queueView);
 
       AmqpMessage message = new AmqpMessage();
@@ -248,7 +248,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       // Now try and get the message
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
