@@ -95,7 +95,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          configuration = createDefaultNettyConfig();
       }
 
-      messagingService = createServer(false, configuration, -1, -1, addressSettings);
+      messagingService = createServer(true, configuration, -1, -1, addressSettings);
 
       // start the server
       messagingService.start();
