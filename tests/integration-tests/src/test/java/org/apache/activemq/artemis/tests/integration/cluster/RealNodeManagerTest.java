@@ -45,7 +45,7 @@ public class RealNodeManagerTest extends NodeManagerTest {
    public void performWork(NodeManagerAction... actions) throws Exception {
       List<Process> processes = new ArrayList<>();
       for (NodeManagerAction action : actions) {
-         Process p = SpawnedVMSupport.spawnVM(NodeManagerAction.class.getName(), "-Xms512m", "-Xmx512m", new String[0], true, true, action.getWork());
+         Process p = SpawnedVMSupport.spawnVM(NodeManagerAction.class.getName(), "-Xms512m", "-Xmx512m", new String[0], true, true, true, action.getWork());
          processes.add(p);
       }
       for (Process process : processes) {

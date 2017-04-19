@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -345,6 +346,7 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, null, null);
 
+      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
       Assert.assertEquals(1, addressControl.getMessageCount());
 
       ClientConsumer consumer = session.createConsumer(address);

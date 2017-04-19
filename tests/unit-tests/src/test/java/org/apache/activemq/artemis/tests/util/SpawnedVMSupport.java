@@ -57,7 +57,7 @@ public final class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final String... args) throws Exception {
-      return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
+      return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
    }
 
    public static Process spawnVMWithLogMacher(String wordMatch,
@@ -66,7 +66,7 @@ public final class SpawnedVMSupport {
                                               final String[] vmargs,
                                               final boolean logOutput,
                                               final String... args) throws Exception {
-      return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
+      return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
    }
 
    public static Process spawnVM(final String className,
@@ -75,8 +75,9 @@ public final class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
+                                 final boolean useLogging,
                                  final String... args) throws Exception {
-      return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, args);
+      return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
    }
 
    public static Process spawnVM(final String wordMatch,
@@ -87,6 +88,7 @@ public final class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
+                                 final boolean useLogging,
                                  final String... args) throws Exception {
       ProcessBuilder builder = new ProcessBuilder();
       final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
@@ -102,8 +104,10 @@ public final class SpawnedVMSupport {
       }
 
       // The logs will be huge if you don't set this
-      commandList.add("-Djava.util.logging.manager=org.jboss.logmanager.LogManager");
-      commandList.add("-Dlogging.configuration=file:../config/logging.properties");
+      if (useLogging) {
+         commandList.add("-Djava.util.logging.manager=org.jboss.logmanager.LogManager");
+         commandList.add("-Dlogging.configuration=file:../config/logging.properties");
+      }
 
       commandList.add("-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir", "./tmp"));
       commandList.add("-Djava.library.path=" + System.getProperty("java.library.path", "./native/bin"));
