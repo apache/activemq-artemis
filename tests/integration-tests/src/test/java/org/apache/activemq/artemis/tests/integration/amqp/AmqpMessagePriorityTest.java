@@ -42,7 +42,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setMessageId("MessageID:1");
@@ -51,9 +51,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -73,7 +73,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setDurable(true);
@@ -91,9 +91,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       connection = addConnection(client.connect());
       session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -114,7 +114,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setMessageId("MessageID:1");
@@ -123,9 +123,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -146,7 +146,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setMessageId("MessageID:1");
@@ -155,9 +155,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -178,7 +178,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       AmqpMessage message = new AmqpMessage();
       message.setMessageId("MessageID:1");
@@ -186,9 +186,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       sender.send(message);
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(1, queueView.getMessageCount());
 
       receiver.flow(1);
@@ -208,7 +208,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getTestName());
+      AmqpSender sender = session.createSender(getQueueName());
 
       for (short i = 0; i <= 9; ++i) {
          AmqpMessage message = new AmqpMessage();
@@ -219,9 +219,9 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
 
       sender.close();
 
-      AmqpReceiver receiver = session.createReceiver(getTestName());
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
 
-      Queue queueView = getProxyToQueue(getTestName());
+      Queue queueView = getProxyToQueue(getQueueName());
       assertEquals(10, queueView.getMessageCount());
 
       receiver.flow(10);

@@ -34,19 +34,18 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
 
    @Test(timeout = 30000)
    public void testReleasedDisposition() throws Exception {
-      sendMessages(getTestName(), 1);
+      sendMessages(getQueueName(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(1);
 
       AmqpMessage message = receiver1.receive(5, TimeUnit.SECONDS);
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
-
+      AmqpReceiver receiver2 = session.createReceiver(getQueueName());
 
       assertNotNull("did not receive message first time", message);
       assertEquals("MessageID:0", message.getMessageId());
@@ -75,13 +74,13 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
 
    @Test(timeout = 30000)
    public void testRejectedDisposition() throws Exception {
-      sendMessages(getTestName(), 1);
+      sendMessages(getQueueName(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(1);
 
       AmqpMessage message = receiver1.receive(5, TimeUnit.SECONDS);
@@ -101,7 +100,7 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       assertNull("Should not receive message again", message);
 
       // Attempt to Read the message again with another receiver to validate it is archived.
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getQueueName());
       receiver2.flow(1);
       assertNull(receiver2.receiveNoWait());
 
@@ -129,13 +128,13 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
    }
 
    private void doModifiedDispositionTestImpl(Boolean deliveryFailed, Boolean undeliverableHere) throws Exception {
-      sendMessages(getTestName(), 1);
+      sendMessages(getQueueName(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver1 = session.createReceiver(getTestName());
+      AmqpReceiver receiver1 = session.createReceiver(getQueueName());
       receiver1.flow(1);
 
       AmqpMessage message = receiver1.receive(5, TimeUnit.SECONDS);
@@ -154,7 +153,7 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
          assertNull("Should not receive message again", message);
       }
 
-      AmqpReceiver receiver2 = session.createReceiver(getTestName());
+      AmqpReceiver receiver2 = session.createReceiver(getQueueName());
       receiver2.flow(1);
 
       message = receiver2.receive(5, TimeUnit.SECONDS);
