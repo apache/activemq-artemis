@@ -79,7 +79,7 @@
       <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
       <guava.version>19.0</guava.version>
       <jboss.logging.version>3.3.0.Final</jboss.logging.version>
-      <jetty.version>9.4.0.M1</jetty.version>
+      <jetty.version>9.4.3.v20170317</jetty.version>
       <jgroups.version>3.6.9.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <netty.version>4.1.6.Final</netty.version>
