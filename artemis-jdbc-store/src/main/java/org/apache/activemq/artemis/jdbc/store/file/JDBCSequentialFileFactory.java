@@ -101,6 +101,14 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       return dbDriver;
    }
 
+   /**
+    * @see Connection#setNetworkTimeout(Executor, int)
+    **/
+   public JDBCSequentialFileFactory setNetworkTimeout(Executor executor, int milliseconds) {
+      this.dbDriver.setNetworkTimeout(executor, milliseconds);
+      return this;
+   }
+
    @Override
    public SequentialFileFactory setDatasync(boolean enabled) {
       return this;

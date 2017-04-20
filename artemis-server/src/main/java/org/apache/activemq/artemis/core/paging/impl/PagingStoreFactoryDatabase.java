@@ -127,6 +127,10 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
             String driverClassName = dbConf.getJdbcDriverClassName();
             pagingFactoryFileFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, pageStoreTableNamePrefix, SQLProvider.DatabaseStoreType.PAGE), executorFactory.getExecutor(), criticalErrorListener);
          }
+         final int jdbcNetworkTimeout = dbConf.getJdbcNetworkTimeout();
+         if (jdbcNetworkTimeout >= 0) {
+            pagingFactoryFileFactory.setNetworkTimeout(this.executorFactory.getExecutor(), jdbcNetworkTimeout);
+         }
          pagingFactoryFileFactory.start();
          started = true;
       }
@@ -234,8 +238,12 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       } else {
          sqlProvider = JDBCUtils.getSQLProvider(dbConf.getJdbcDriverClassName(), getTableNameForGUID(directoryName), SQLProvider.DatabaseStoreType.PAGE);
       }
-
-      return  new JDBCSequentialFileFactory(pagingFactoryFileFactory.getDbDriver().getConnection(), sqlProvider, executorFactory.getExecutor(), criticalErrorListener);
+      final JDBCSequentialFileFactory fileFactory = new JDBCSequentialFileFactory(pagingFactoryFileFactory.getDbDriver().getConnection(), sqlProvider, executorFactory.getExecutor(), criticalErrorListener);
+      final int jdbcNetworkTimeout = dbConf.getJdbcNetworkTimeout();
+      if (jdbcNetworkTimeout >= 0) {
+         fileFactory.setNetworkTimeout(this.executorFactory.getExecutor(), jdbcNetworkTimeout);
+      }
+      return fileFactory;
    }
 
    private String getTableNameForGUID(String guid) {

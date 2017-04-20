@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.config;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
@@ -428,6 +430,8 @@ public final class ActiveMQDefaultConfiguration {
 
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
+
+   private static final int DEFAULT_JDBC_NETWORK_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(20);
 
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
@@ -1179,6 +1183,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultPageStoreTableName() {
       return DEFAULT_PAGE_STORE_TABLE_NAME;
+   }
+
+   public static int getDefaultJdbcNetworkTimeout() {
+      return DEFAULT_JDBC_NETWORK_TIMEOUT;
    }
 
    public static long getDefaultConnectionTtlCheckInterval() {
