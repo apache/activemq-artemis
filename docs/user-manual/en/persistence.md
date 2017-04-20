@@ -420,6 +420,14 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
     The name of the table in which messages and related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
 
+-   `page-store-table-name`
+
+    The name of the table in which paged messages are stored.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
+-   `jms-bindings-table-name`
+
+    The name of the table in which JMS bindings data will be  persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
 -   `jdbc-driver-class-name`
 
     The fully qualified class name of the desired database Driver.

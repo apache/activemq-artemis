@@ -22,11 +22,15 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -36,6 +40,10 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
+import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
@@ -75,10 +83,13 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
+
    public JMSJournalStorageManagerImpl(ExecutorFactory ioExecutors,
                                        final IDGenerator idGenerator,
                                        final Configuration config,
-                                       final ReplicationManager replicator) {
+                                       final ReplicationManager replicator,
+                                       final ScheduledExecutorService scheduledExecutorService,
+                                       final IOCriticalErrorListener criticalErrorListener) {
       final EnumSet<JournalType> supportedJournalTypes = EnumSet.allOf(JournalType.class);
       if (!supportedJournalTypes.contains(config.getJournalType())) {
          throw new IllegalArgumentException("Only " + supportedJournalTypes + " are supported Journal types");
@@ -88,14 +99,29 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       createDir = config.isCreateBindingsDir();
 
-      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
-
-      Journal localJMS = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1, 0);
-
-      if (replicator != null) {
-         jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);
-      } else {
+      Journal localJMS;
+      if (config.getStoreConfiguration() != null && config.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
+         if (dbConf.getDataSource() != null) {
+            SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
+            if (sqlProviderFactory == null) {
+               sqlProviderFactory = new GenericSQLProvider.Factory();
+            }
+            localJMS = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getJMSBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), dbConf.getBindingsTableName(), scheduledExecutorService, ioExecutors.getExecutor(), criticalErrorListener);
+         } else {
+            String driverClassName = dbConf.getJdbcDriverClassName();
+            localJMS = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getJMSBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), scheduledExecutorService, ioExecutors.getExecutor(), criticalErrorListener);
+         }
          jmsJournal = localJMS;
+      } else {
+         SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
+         localJMS = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1, 0);
+
+         if (replicator != null) {
+            jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);
+         } else {
+            jmsJournal = localJMS;
+         }
       }
 
       this.idGenerator = idGenerator;
