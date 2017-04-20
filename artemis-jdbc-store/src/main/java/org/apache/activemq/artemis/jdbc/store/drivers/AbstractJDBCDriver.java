@@ -26,6 +26,7 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,18 +52,28 @@ public abstract class AbstractJDBCDriver {
 
    private DataSource dataSource;
 
+   private Executor networkTimeoutExecutor;
+
+   private int networkTimeoutMillis;
+
    public AbstractJDBCDriver() {
+      this.networkTimeoutExecutor = null;
+      this.networkTimeoutMillis = -1;
    }
 
    public AbstractJDBCDriver(SQLProvider sqlProvider, String jdbcConnectionUrl, String jdbcDriverClass) {
       this.jdbcConnectionUrl = jdbcConnectionUrl;
       this.jdbcDriverClass = jdbcDriverClass;
       this.sqlProvider = sqlProvider;
+      this.networkTimeoutExecutor = null;
+      this.networkTimeoutMillis = -1;
    }
 
    public AbstractJDBCDriver(DataSource dataSource, SQLProvider provider) {
       this.dataSource = dataSource;
       this.sqlProvider = provider;
+      this.networkTimeoutExecutor = null;
+      this.networkTimeoutMillis = -1;
    }
 
    public void start() throws SQLException {
@@ -76,6 +87,8 @@ public abstract class AbstractJDBCDriver {
    public AbstractJDBCDriver(Connection connection, SQLProvider sqlProvider) {
       this.connection = connection;
       this.sqlProvider = sqlProvider;
+      this.networkTimeoutExecutor = null;
+      this.networkTimeoutMillis = -1;
    }
 
    public void stop() throws SQLException {
@@ -125,6 +138,17 @@ public abstract class AbstractJDBCDriver {
                logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
                ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
                throw e;
+            }
+         }
+         if (this.networkTimeoutMillis >= 0 && this.networkTimeoutExecutor != null) {
+            try {
+               connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
+            } catch (SQLException e) {
+               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+               ActiveMQJournalLogger.LOGGER.warn("Unable to set a network timeout on the JDBC connection");
+            } catch (Throwable throwable) {
+               //it included SecurityExceptions and UnsupportedOperationException
+               logger.warn("Unable to set a network timeout on the JDBC connection", throwable);
             }
          }
       }
@@ -238,6 +262,11 @@ public abstract class AbstractJDBCDriver {
 
    public void setDataSource(DataSource dataSource) {
       this.dataSource = dataSource;
+   }
+
+   public void setNetworkTimeout(Executor executor, int milliseconds) {
+      this.networkTimeoutExecutor = executor;
+      this.networkTimeoutMillis = milliseconds;
    }
 
 }

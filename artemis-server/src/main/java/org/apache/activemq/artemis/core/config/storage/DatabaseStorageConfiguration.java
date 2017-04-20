@@ -40,6 +40,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private SQLProvider.Factory sqlProviderFactory;
 
+   private int jdbcNetworkTimeout = ActiveMQDefaultConfiguration.getDefaultJdbcNetworkTimeout();
+
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -124,5 +126,13 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setSqlProvider(SQLProvider.Factory sqlProviderFactory) {
       this.sqlProviderFactory = sqlProviderFactory;
+   }
+
+   public int getJdbcNetworkTimeout() {
+      return this.jdbcNetworkTimeout;
+   }
+
+   public void setJdbcNetworkTimeout(int jdbcNetworkTimeout) {
+      this.jdbcNetworkTimeout = jdbcNetworkTimeout;
    }
 }
