@@ -289,6 +289,9 @@ The example below configures an address-setting to be automatically deleted by t
 
 Internally the broker maps a client’s request for an address to specific queues. The broker decides on behalf of the client which queues to send messages to or from which queue to receive messages. However, more advanced use cases might require that the client specify a queue directly. In these situations the client and use a fully qualified queue name, by specifying both the address name and the queue name, separated by a ::.
 
+Currently Artemis supports fully qualified queue names on Core, AMQP, JMS, OpenWire, MQTT and Stomp protocols for 
+ receiving messages only.
+
 ### Specifying a Fully Qualified Queue Name
 In this example, the address foo is configured with two queues q1, q2 as shown in the configuration below.
 

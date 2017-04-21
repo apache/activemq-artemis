@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 
 public class MQTTSubscriptionManager {
 
@@ -159,23 +160,23 @@ public class MQTTSubscriptionManager {
    }
 
    private void addSubscription(MqttTopicSubscription subscription) throws Exception {
-      MqttTopicSubscription s = session.getSessionState().getSubscription(subscription.topicName());
+      String topicName = CompositeAddress.extractAddressName(subscription.topicName());
+      MqttTopicSubscription s = session.getSessionState().getSubscription(topicName);
 
       int qos = subscription.qualityOfService().value();
-      String topic = subscription.topicName();
 
-      String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topic, session.getWildcardConfiguration());
+      String coreAddress = MQTTUtil.convertMQTTAddressFilterToCore(topicName, session.getWildcardConfiguration());
 
       session.getSessionState().addSubscription(subscription, session.getWildcardConfiguration());
 
       Queue q = createQueueForSubscription(coreAddress, qos);
 
       if (s == null) {
-         createConsumerForSubscriptionQueue(q, topic, qos);
+         createConsumerForSubscriptionQueue(q, topicName, qos);
       } else {
-         consumerQoSLevels.put(consumers.get(topic).getID(), qos);
+         consumerQoSLevels.put(consumers.get(topicName).getID(), qos);
       }
-      session.getRetainMessageManager().addRetainedMessagesToQueue(q, topic);
+      session.getRetainMessageManager().addRetainedMessagesToQueue(q, topicName);
    }
 
    void removeSubscriptions(List<String> topics) throws Exception {
