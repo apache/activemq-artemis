@@ -31,6 +31,7 @@ import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
@@ -80,6 +81,12 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    public void initialise() throws Exception {
       super.initialise();
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
+
+      // Match the settlement mode of the remote instead of relying on the default of MIXED.
+      receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
+
+      // We don't currently support SECOND so enforce that the answer is anlways FIRST
+      receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
       if (target != null) {
          if (target.getDynamic()) {
