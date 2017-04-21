@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -70,7 +70,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    private final AmqpSession session;
    private final String address;
    private final String receiverId;
+
    private final Source userSpecifiedSource;
+   private final SenderSettleMode userSpecifiedSenderSettlementMode;
+   private final ReceiverSettleMode userSpecifiedReceiverSettlementMode;
 
    private String subscriptionName;
    private String selector;
@@ -83,11 +86,32 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Create a new receiver instance.
     *
-    * @param session    The parent session that created the receiver.
-    * @param address    The address that this receiver should listen on.
-    * @param receiverId The unique ID assigned to this receiver.
+    * @param session
+    *        The parent session that created the receiver.
+    * @param address
+    *        The address that this receiver should listen on.
+    * @param receiverId
+    *        The unique ID assigned to this receiver.
     */
    public AmqpReceiver(AmqpSession session, String address, String receiverId) {
+      this(session, address, receiverId, null, null);
+   }
+
+   /**
+    * Create a new receiver instance.
+    *
+    * @param session
+    *        The parent session that created the receiver.
+    * @param address
+    *        The address that this receiver should listen on.
+    * @param receiverId
+    *        The unique ID assigned to this receiver.
+    * @param senderMode
+    *        The {@link SenderSettleMode} to use on open.
+    * @param receiverMode
+    *        The {@link ReceiverSettleMode} to use on open.
+    */
+   public AmqpReceiver(AmqpSession session, String address, String receiverId, SenderSettleMode senderMode, ReceiverSettleMode receiverMode) {
 
       if (address != null && address.isEmpty()) {
          throw new IllegalArgumentException("Address cannot be empty.");
@@ -97,6 +121,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       this.session = session;
       this.address = address;
       this.receiverId = receiverId;
+      this.userSpecifiedSenderSettlementMode = senderMode;
+      this.userSpecifiedReceiverSettlementMode = receiverMode;
    }
 
    /**
@@ -113,9 +139,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       }
 
       this.session = session;
-      this.userSpecifiedSource = source;
       this.address = source.getAddress();
       this.receiverId = receiverId;
+      this.userSpecifiedSource = source;
+      this.userSpecifiedSenderSettlementMode = null;
+      this.userSpecifiedReceiverSettlementMode = null;
    }
 
    /**
@@ -687,12 +715,25 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       Receiver receiver = session.getEndpoint().receiver(receiverName);
       receiver.setSource(source);
       receiver.setTarget(target);
-      if (isPresettle()) {
-         receiver.setSenderSettleMode(SenderSettleMode.SETTLED);
+
+      if (userSpecifiedSenderSettlementMode != null) {
+         receiver.setSenderSettleMode(userSpecifiedSenderSettlementMode);
+         if (SenderSettleMode.SETTLED.equals(userSpecifiedSenderSettlementMode)) {
+            setPresettle(true);
+         }
       } else {
-         receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+         if (isPresettle()) {
+            receiver.setSenderSettleMode(SenderSettleMode.SETTLED);
+         } else {
+            receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+         }
       }
-      receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+
+      if (userSpecifiedReceiverSettlementMode != null) {
+         receiver.setReceiverSettleMode(userSpecifiedReceiverSettlementMode);
+      } else {
+         receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+      }
 
       setEndpoint(receiver);
 
