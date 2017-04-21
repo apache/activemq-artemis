@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Inet6Address;
@@ -29,14 +26,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
@@ -44,6 +39,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -66,14 +65,12 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.base64.Base64;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -84,17 +81,19 @@ import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
+import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
+import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -142,7 +141,7 @@ public class NettyConnector extends AbstractConnector {
 
    static {
       // Disable resource leak detection for performance reasons by default
-      ResourceLeakDetector.setEnabled(false);
+      ResourceLeakDetector.setLevel(Level.DISABLED);
 
       // Set default Configuration
       Map<String, Object> config = new HashMap<>();
@@ -161,7 +160,7 @@ public class NettyConnector extends AbstractConnector {
 
    private final BufferHandler handler;
 
-   private final BaseConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener<?> listener;
 
    private boolean sslEnabled = TransportConstants.DEFAULT_SSL_ENABLED;
 
@@ -251,7 +250,7 @@ public class NettyConnector extends AbstractConnector {
    // Public --------------------------------------------------------
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
-                         final BaseConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener<?> listener,
                          final Executor closeExecutor,
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool) {
@@ -260,7 +259,7 @@ public class NettyConnector extends AbstractConnector {
 
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
-                         final BaseConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener<?> listener,
                          final Executor closeExecutor,
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool,
@@ -697,9 +696,9 @@ public class NettyConnector extends AbstractConnector {
                }
                URI uri = new URI(scheme, null, IPV6Util.encloseHost(host), port, null, null, null);
                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-               request.headers().set(HttpHeaders.Names.HOST, host);
-               request.headers().set(HttpHeaders.Names.UPGRADE, ACTIVEMQ_REMOTING);
-               request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.UPGRADE);
+               request.headers().set(HttpHeaderNames.HOST, host);
+               request.headers().set(HttpHeaderNames.UPGRADE, ACTIVEMQ_REMOTING);
+               request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.UPGRADE);
                final String serverName = ConfigurationHelper.getStringProperty(TransportConstants.ACTIVEMQ_SERVER_NAME, null, configuration);
                if (serverName != null) {
                   request.headers().set(TransportConstants.ACTIVEMQ_SERVER_NAME, serverName);
@@ -799,7 +798,7 @@ public class NettyConnector extends AbstractConnector {
          }
          if (msg instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) msg;
-            if (response.getStatus().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && response.headers().get(HttpHeaders.Names.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
+            if (response.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && response.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
                String accept = response.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
                String expectedResponse = createExpectedResponse(MAGIC_NUMBER, ctx.channel().attr(REMOTING_KEY).get());
 
@@ -894,10 +893,12 @@ public class NettyConnector extends AbstractConnector {
       public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
          FullHttpResponse response = (FullHttpResponse) msg;
          if (httpRequiresSessionId && !active) {
-            Set<Cookie> cookieMap = CookieDecoder.decode(response.headers().get(HttpHeaders.Names.SET_COOKIE));
-            for (Cookie cookie : cookieMap) {
-               if (cookie.getName().equals("JSESSIONID")) {
-                  this.cookie = ClientCookieEncoder.LAX.encode(cookie);
+            final List<String> setCookieHeaderValues = response.headers().getAll(HttpHeaderNames.SET_COOKIE);
+            for (String setCookieHeaderValue : setCookieHeaderValues) {
+               final Cookie cookie = ClientCookieDecoder.LAX.decode(setCookieHeaderValue);
+               if ("JSESSIONID".equals(cookie.name())) {
+                  this.cookie = setCookieHeaderValue;
+                  break;
                }
             }
             active = true;
@@ -922,11 +923,11 @@ public class NettyConnector extends AbstractConnector {
 
             ByteBuf buf = (ByteBuf) msg;
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf);
-            httpRequest.headers().add(HttpHeaders.Names.HOST, NettyConnector.this.host);
+            httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
             if (cookie != null) {
-               httpRequest.headers().add(HttpHeaders.Names.COOKIE, cookie);
+               httpRequest.headers().add(HttpHeaderNames.COOKIE, cookie);
             }
-            httpRequest.headers().add(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
+            httpRequest.headers().add(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
             ctx.write(httpRequest, promise);
             lastSendTime = System.currentTimeMillis();
          } else {
@@ -949,7 +950,7 @@ public class NettyConnector extends AbstractConnector {
 
             if (!waitingGet && System.currentTimeMillis() > lastSendTime + httpMaxClientIdleTime) {
                FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url);
-               httpRequest.headers().add(HttpHeaders.Names.HOST, NettyConnector.this.host);
+               httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
                waitingGet = true;
                channel.writeAndFlush(httpRequest);
             }
@@ -978,7 +979,9 @@ public class NettyConnector extends AbstractConnector {
          if (connections.putIfAbsent(connection.getID(), connection) != null) {
             throw ActiveMQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
-         listener.connectionCreated(component, connection, protocol);
+         @SuppressWarnings("unchecked")
+         final BaseConnectionLifeCycleListener<ClientProtocolManager> clientListener = (BaseConnectionLifeCycleListener<ClientProtocolManager>) listener;
+         clientListener.connectionCreated(component, connection, protocol);
       }
 
       @Override
@@ -1091,16 +1094,6 @@ public class NettyConnector extends AbstractConnector {
 
    public static void clearThreadPools() {
       SharedEventLoopGroup.forceShutdown();
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         @Override
-         public ClassLoader run() {
-            return ClientSessionFactoryImpl.class.getClassLoader();
-         }
-      });
-
    }
 
    private static String base64(byte[] data) {

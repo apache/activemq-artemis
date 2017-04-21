@@ -53,7 +53,7 @@ public class NettyConnection implements Connection {
    private static final int DEFAULT_WAIT_MILLIS = 10_000;
 
    protected final Channel channel;
-   private final BaseConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener<?> listener;
    private final boolean directDeliver;
    private final Map<String, Object> configuration;
    /**
@@ -81,7 +81,7 @@ public class NettyConnection implements Connection {
 
    public NettyConnection(final Map<String, Object> configuration,
                           final Channel channel,
-                          final BaseConnectionLifeCycleListener listener,
+                          final BaseConnectionLifeCycleListener<?> listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
       this.configuration = configuration;
