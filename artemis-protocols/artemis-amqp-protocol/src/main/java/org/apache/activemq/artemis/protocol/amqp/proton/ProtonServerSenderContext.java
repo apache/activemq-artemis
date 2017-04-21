@@ -22,8 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -63,11 +61,15 @@ import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 
 /**
  * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
@@ -154,6 +156,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       String queue = null;
       String selector = null;
       final Map<Symbol, Object> supportedFilters = new HashMap<>();
+
+      // Match the settlement mode of the remote instead of relying on the default of MIXED.
+      sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
+
+      // We don't currently support SECOND so enforce that the answer is anlways FIRST
+      sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
       if (source != null) {
          // We look for message selectors on every receiver, while in other cases we might only
@@ -570,7 +578,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   Modified modification = (Modified) remoteState;
 
                   if (Boolean.TRUE.equals(modification.getUndeliverableHere())) {
-                     message.rejectConsumer(((Consumer) brokerConsumer).sequentialID());
+                     message.rejectConsumer(brokerConsumer.sequentialID());
                   }
 
                   if (Boolean.TRUE.equals(modification.getDeliveryFailed())) {
