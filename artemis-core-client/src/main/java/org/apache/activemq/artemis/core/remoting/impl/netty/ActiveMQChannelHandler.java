@@ -37,13 +37,13 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    private final BufferHandler handler;
 
-   private final BaseConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener<?> listener;
 
    volatile boolean active;
 
    protected ActiveMQChannelHandler(final ChannelGroup group,
                                     final BufferHandler handler,
-                                    final BaseConnectionLifeCycleListener listener) {
+                                    final BaseConnectionLifeCycleListener<?> listener) {
       this.group = group;
       this.handler = handler;
       this.listener = listener;
