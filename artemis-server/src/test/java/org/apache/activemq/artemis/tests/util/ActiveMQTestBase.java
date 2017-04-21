@@ -414,6 +414,7 @@ public abstract class ActiveMQTestBase extends Assert {
    protected Configuration createDefaultJDBCConfig(boolean isNetty) throws Exception {
       Configuration configuration = createDefaultConfig(isNetty);
       setDBStoreType(configuration);
+      configuration.setPersistenceEnabled(true);
       return configuration;
    }
 
@@ -462,6 +463,7 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setMessageTableName("MESSAGE");
       dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
       dbStorageConfiguration.setPageStoreTableName("PAGE_STORE");
+      dbStorageConfiguration.setJMSBindingsTableName("JMS_BINDINGS");
       dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
 
       configuration.setStoreConfiguration(dbStorageConfiguration);

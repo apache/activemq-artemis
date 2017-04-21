@@ -2493,6 +2493,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    }
 
+   @Override
+   public IOCriticalErrorListener getCriticalIOErrorListener() {
+      return shutdownOnCriticalIO;
+   }
+
    private final class ConfigurationFileReloader implements ReloadCallback {
 
       @Override

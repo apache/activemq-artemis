@@ -1523,7 +1523,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private void initJournal() throws Exception {
       this.coreConfig = server.getConfiguration();
 
-      createJournal();
+      createJournal(server);
 
       storage.load();
 
@@ -1547,12 +1547,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    /**
     * @throws Exception
     */
-   private void createJournal() throws Exception {
+   private void createJournal(ActiveMQServer activeMQserver) throws Exception {
       if (storage != null) {
          storage.stop();
       }
       if (coreConfig.isPersistenceEnabled()) {
-         storage = new JMSJournalStorageManagerImpl(server.getIOExecutorFactory(), new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager());
+         storage = new JMSJournalStorageManagerImpl(server.getIOExecutorFactory(), new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager(), server.getScheduledPool(), activeMQserver.getCriticalIOErrorListener());
       } else {
          storage = new NullJMSStorageManagerImpl();
       }

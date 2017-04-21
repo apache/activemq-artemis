@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -421,4 +422,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
    boolean addClientConnection(String clientId, boolean unique);
 
    void removeClientConnection(String clientId);
+
+   IOCriticalErrorListener getCriticalIOErrorListener();
 }

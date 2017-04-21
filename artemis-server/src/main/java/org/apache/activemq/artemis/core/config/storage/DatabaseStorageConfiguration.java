@@ -32,6 +32,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String pageStoreTableName = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
+   private String jmsBindingsTableName = ActiveMQDefaultConfiguration.getDefaultJMSBindingsTableName();
+
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
    private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
@@ -77,6 +79,14 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setPageStoreTableName(String pageStoreTableName) {
       this.pageStoreTableName = pageStoreTableName;
+   }
+
+   public String getJMSBindingsTableName() {
+      return jmsBindingsTableName;
+   }
+
+   public void setJMSBindingsTableName(String jmsBindingsTableName) {
+      this.jmsBindingsTableName = jmsBindingsTableName;
    }
 
    public void setJdbcConnectionUrl(String jdbcConnectionUrl) {

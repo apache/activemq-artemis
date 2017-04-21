@@ -428,10 +428,14 @@ public final class ActiveMQDefaultConfiguration {
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_LARGE_MESSAGES_TABLE_NAME = "LARGE_MESSAGES";
 
-   // Default large messages table name, used with Database storage type
+   // Default Page Store table name, used with Database storage type
    private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
 
+
    private static final int DEFAULT_JDBC_NETWORK_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(20);
+
+   // Default JMS Bingings table name, used with Database storage type
+   private static final String DEFAULT_JMS_BINDINGS_TABLE_NAME = "JMS_BINDINGS";
 
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
@@ -1178,6 +1182,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultJdbcNetworkTimeout() {
       return DEFAULT_JDBC_NETWORK_TIMEOUT;
+   }
+
+   public static String getDefaultJMSBindingsTableName() {
+      return DEFAULT_JMS_BINDINGS_TABLE_NAME;
    }
 
    public static long getDefaultConnectionTtlCheckInterval() {
