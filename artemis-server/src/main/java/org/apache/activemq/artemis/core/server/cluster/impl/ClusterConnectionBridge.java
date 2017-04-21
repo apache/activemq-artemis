@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
@@ -213,10 +214,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
          }
 
          // Get the queue data
-
          String qName = "notif." + UUIDGenerator.getInstance().generateStringUUID() +
             "." +
-            clusterConnection.getServer();
+            clusterConnection.getServer().toString().replaceAll(CompositeAddress.SEPARATOR, "_");
 
          SimpleString notifQueueName = new SimpleString(qName);
 
