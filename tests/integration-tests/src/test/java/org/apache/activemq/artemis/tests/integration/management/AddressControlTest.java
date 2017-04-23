@@ -62,6 +62,12 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testManagementAddressAlwaysExists() throws Exception {
+      ClientSession.AddressQuery query = session.addressQuery(new SimpleString("activemq.management"));
+      assertTrue(query.isExists());
+   }
+
+   @Test
    public void testGetAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
