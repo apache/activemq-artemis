@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.tests.util.FQQN;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,9 +113,9 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
             System.out.println("checking binidng " + b.getUniqueName() + " " + ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
             SimpleString qName = b.getUniqueName();
             //do FQQN query
-            QueueQueryResult result = server.queueQuery(FQQN.toFullQN(multicastAddress, qName));
+            QueueQueryResult result = server.queueQuery(CompositeAddress.toFullQN(multicastAddress, qName));
             assertTrue(result.isExists());
-            assertEquals(result.getName(), FQQN.toFullQN(multicastAddress, qName));
+            assertEquals(result.getName(), CompositeAddress.toFullQN(multicastAddress, qName));
             //do qname query
             result = server.queueQuery(qName);
             assertTrue(result.isExists());
@@ -141,9 +140,9 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         Queue q1 = session.createQueue(FQQN.toFullQN(anycastAddress, anycastQ1).toString());
-         Queue q2 = session.createQueue(FQQN.toFullQN(anycastAddress, anycastQ2).toString());
-         Queue q3 = session.createQueue(FQQN.toFullQN(anycastAddress, anycastQ3).toString());
+         Queue q1 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ1).toString());
+         Queue q2 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ2).toString());
+         Queue q3 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ3).toString());
 
          //send 3 messages to anycastAddress
          locator = createNonHALocator(true);
@@ -168,10 +167,10 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
          //queues are empty now
          for (SimpleString q : new SimpleString[]{anycastQ1, anycastQ2, anycastQ3}) {
             //FQQN query
-            QueueQueryResult query = server.queueQuery(FQQN.toFullQN(anycastAddress, q));
+            QueueQueryResult query = server.queueQuery(CompositeAddress.toFullQN(anycastAddress, q));
             assertTrue(query.isExists());
             assertEquals(anycastAddress, query.getAddress());
-            assertEquals(FQQN.toFullQN(anycastAddress, q), query.getName());
+            assertEquals(CompositeAddress.toFullQN(anycastAddress, q), query.getName());
             assertEquals(0, query.getMessageCount());
             //try query again using qName
             query = server.queueQuery(q);
@@ -209,7 +208,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
 
          producer.send(message);
 
-         Destination destinationFQN = session.createQueue(FQQN.toFullQN(durableQueue, durableQueue).toString());
+         Destination destinationFQN = session.createQueue(CompositeAddress.toFullQN(durableQueue, durableQueue).toString());
 
          MessageConsumer messageConsumer = session.createConsumer(destinationFQN);
 

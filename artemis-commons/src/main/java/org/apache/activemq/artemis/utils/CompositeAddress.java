@@ -20,6 +20,14 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class CompositeAddress {
 
+   public static SimpleString toFullQN(SimpleString address, SimpleString qName) {
+      return address.concat(SEPARATOR).concat(qName);
+   }
+
+   public static String toFullQN(String address, String qName) {
+      return address + SEPARATOR + qName;
+   }
+
    public static String SEPARATOR = "::";
    private final String address;
    private final String queueName;
