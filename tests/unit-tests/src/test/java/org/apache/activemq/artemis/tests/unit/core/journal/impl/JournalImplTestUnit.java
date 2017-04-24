@@ -978,7 +978,13 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          add(i);
       }
 
-      Assert.assertEquals(calculateNumberOfFiles(journal, fileSize, journal.getAlignment(), 200, recordLength, 200, JournalImpl.SIZE_DELETE_RECORD_TX, 1, JournalImpl.SIZE_COMMIT_RECORD, 10, JournalImpl.SIZE_ADD_RECORD + recordLength), journal.getDataFilesCount());
+      int files = calculateNumberOfFiles(journal, fileSize, journal.getAlignment(), 200, recordLength, 200, JournalImpl.SIZE_DELETE_RECORD_TX, 1, JournalImpl.SIZE_COMMIT_RECORD, 10, JournalImpl.SIZE_ADD_RECORD + recordLength);
+
+      for (int i = 0; i < 100 && journal.getDataFilesCount() != files; i++) {
+         Thread.sleep(10);
+      }
+
+      Assert.assertEquals(files, journal.getDataFilesCount());
       Assert.assertEquals(0, journal.getFreeFilesCount());
       Assert.assertEquals(10, journal.getIDMapSize());
 
