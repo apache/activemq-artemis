@@ -232,6 +232,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
 
+   private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
+
    protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
 
    private boolean maskPassword = ActiveMQDefaultConfiguration.isDefaultMaskPassword();
@@ -1291,6 +1293,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public ConfigurationImpl setSecurityRoles(final Map<String, Set<Role>> securitySettings) {
       this.securitySettings = securitySettings;
       return this;
+   }
+
+   @Override
+   public Configuration addSecurityRoleNameMapping(String internalRole, Set<String> externalRoles) {
+      if (securityRoleNameMappings.containsKey(internalRole)) {
+         securityRoleNameMappings.get(internalRole).addAll(externalRoles);
+      } else {
+         securityRoleNameMappings.put(internalRole, externalRoles);
+      }
+      return this;
+   }
+
+   @Override
+   public Map<String, Set<String>> getSecurityRoleNameMappings() {
+      return securityRoleNameMappings;
    }
 
    @Override
