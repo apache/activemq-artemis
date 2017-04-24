@@ -83,6 +83,27 @@ public class MQTTTest extends MQTTTestSupport {
 
    }
 
+   @Test
+   public void testConnectWithLargePassword() throws Exception {
+      for (String version : Arrays.asList("3.1", "3.1.1")) {
+         String longString = new String(new char[65535]);
+
+         BlockingConnection connection = null;
+         try {
+            MQTT mqtt = createMQTTConnection("test-" + version, true);
+            mqtt.setUserName(longString);
+            mqtt.setPassword(longString);
+            mqtt.setConnectAttemptsMax(1);
+            mqtt.setVersion(version);
+            connection = mqtt.blockingConnection();
+            connection.connect();
+            assertTrue(connection.isConnected());
+         } finally {
+            if (connection != null && connection.isConnected()) connection.disconnect();
+         }
+      }
+   }
+
    @Test(timeout = 60 * 1000)
    public void testSendAndReceiveMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();

@@ -135,7 +135,7 @@ public class ProtocolHandler {
             return;
          }
 
-         // Will use the first five bytes to detect a protocol.
+         // Will use the first N bytes to detect a protocol depending on the protocol.
          if (in.readableBytes() < 8) {
             return;
          }
@@ -175,6 +175,7 @@ public class ProtocolHandler {
                protocolToUse = ActiveMQClient.DEFAULT_CORE_PROTOCOL;
             }
          }
+
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();
          ChannelPipeline pipeline = ctx.pipeline();
