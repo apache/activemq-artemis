@@ -57,6 +57,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants.BODY;
+
 public class QueueControlTest extends ManagementTestBase {
 
    private ActiveMQServer server;
@@ -2110,15 +2112,22 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = createManagementControl(address, queue);
 
       queueControl.sendMessage(new HashMap<String, String>(), Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
+      queueControl.sendMessage(null, Message.BYTES_TYPE, Base64.encodeBytes("theBody".getBytes()), true, "myUser", "myPassword");
 
-      Assert.assertEquals(1, getMessageCount(queueControl));
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       // the message IDs are set on the server
       CompositeData[] browse = queueControl.browse(null);
 
-      Assert.assertEquals(1, browse.length);
+      Assert.assertEquals(2, browse.length);
 
-      byte[] body = (byte[]) browse[0].get("BodyPreview");
+      byte[] body = (byte[]) browse[0].get(BODY);
+
+      Assert.assertNotNull(body);
+
+      Assert.assertEquals(new String(body), "theBody");
+
+      body = (byte[]) browse[1].get(BODY);
 
       Assert.assertNotNull(body);
 
