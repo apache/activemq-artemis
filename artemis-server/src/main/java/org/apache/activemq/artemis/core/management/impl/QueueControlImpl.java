@@ -743,42 +743,48 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              boolean durable,
                              final String user,
                              final String password) throws Exception {
-      securityStore.check(queue.getAddress(), CheckType.SEND, new SecurityAuth() {
-         @Override
-         public String getUsername() {
-            return user;
-         }
+      try {
+         securityStore.check(queue.getAddress(), CheckType.SEND, new SecurityAuth() {
+            @Override
+            public String getUsername() {
+               return user;
+            }
 
-         @Override
-         public String getPassword() {
-            return password;
-         }
+            @Override
+            public String getPassword() {
+               return password;
+            }
 
-         @Override
-         public RemotingConnection getRemotingConnection() {
-            return null;
+            @Override
+            public RemotingConnection getRemotingConnection() {
+               return null;
+            }
+         });
+         CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
+         if (headers != null) {
+            for (String header : headers.keySet()) {
+               message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+            }
          }
-      });
-      CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
-      for (String header : headers.keySet()) {
-         message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
-      }
-      message.setType((byte) type);
-      message.setDurable(durable);
-      message.setTimestamp(System.currentTimeMillis());
-      if (body != null) {
-         if (type == Message.TEXT_TYPE) {
-            message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
-         } else {
-            message.getBodyBuffer().writeBytes(Base64.decode(body));
+         message.setType((byte) type);
+         message.setDurable(durable);
+         message.setTimestamp(System.currentTimeMillis());
+         if (body != null) {
+            if (type == Message.TEXT_TYPE) {
+               message.getBodyBuffer().writeNullableSimpleString(new SimpleString(body));
+            } else {
+               message.getBodyBuffer().writeBytes(Base64.decode(body));
+            }
          }
+         message.setAddress(queue.getAddress());
+         ByteBuffer buffer = ByteBuffer.allocate(8);
+         buffer.putLong(queue.getID());
+         message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
+         postOffice.route(message, true);
+         return "" + message.getMessageID();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       }
-      message.setAddress(queue.getAddress());
-      ByteBuffer buffer = ByteBuffer.allocate(8);
-      buffer.putLong(queue.getID());
-      message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-      postOffice.route(message, true);
-      return "" + message.getMessageID();
    }
 
    @Override
