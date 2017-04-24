@@ -42,20 +42,17 @@ $ ./artemis create $directory <br><br>Where $directory is the folder that you'd 
 The create process will input for any required property not specified. Example:
 
 <PRE>
---user: is mandatory with this configuration:
+--user: is a mandatory property!
 Please provide the default username:
 admin
 
 --password: is mandatory with this configuration:
 Please provide the default password:
 
---role: is mandatory with this configuration:
-Please provide the default role:
-admin
 
---allow-anonymous | --require-login: is mandatory with this configuration:
-Allow anonymous access? (Y/N):
-Y
+--allow-anonymous | --require-login: is a mandatory property!
+Allow anonymous access?, valid values are Y,N,True,False
+y
 </PRE>
 
 For a full list of available options for the create process you may use:
@@ -66,17 +63,24 @@ NAME
         artemis create - creates a new broker instance
 
 SYNOPSIS
-        artemis create [--aio] [--allow-anonymous]
-                [--cluster-password &lt;clusterPassword&gt;] [--cluster-user &lt;clusterUser&gt;]
-                [--clustered] [--data &lt;data&gt;] [--disable-persistence]
+        artemis create [--addresses &lt;addresses&gt;] [--aio] [--allow-anonymous]
+                [--autocreate] [--blocking] [--cluster-password &lt;clusterPassword&gt;]
+                [--cluster-user &lt;clusterUser&gt;] [--clustered] [--data &lt;data&gt;]
+                [--default-port &lt;defaultPort&gt;] [--disable-persistence]
                 [--encoding &lt;encoding&gt;] [--failover-on-shutdown] [--force]
-                [--home &lt;home&gt;] [--host &lt;host&gt;] [--java-options &lt;javaOptions&gt;]
-                [--max-hops &lt;maxHops&gt;] [--message-load-balancing &lt;messageLoadBalancing&gt;]
-                [--name &lt;name&gt;] [--nio] [--no-autotune] [--no-web]
-                [--password &lt;password&gt;] [--port-offset &lt;portOffset&gt;] [--queues &lt;queues&gt;]
+                [--global-max-size &lt;globalMaxSize&gt;] [--home &lt;home&gt;] [--host &lt;host&gt;]
+                [--http-host &lt;httpHost&gt;] [--http-port &lt;httpPort&gt;]
+                [--java-options &lt;javaOptions&gt;] [--mapped] [--max-hops &lt;maxHops&gt;]
+                [--message-load-balancing &lt;messageLoadBalancing&gt;] [--name &lt;name&gt;]
+                [--nio] [--no-amqp-acceptor] [--no-autocreate] [--no-autotune]
+                [--no-fsync] [--no-hornetq-acceptor] [--no-mqtt-acceptor]
+                [--no-stomp-acceptor] [--no-web] [--paging] [--password &lt;password&gt;]
+                [--ping &lt;ping&gt;] [--port-offset &lt;portOffset&gt;] [--queues &lt;queues&gt;]
                 [--replicated] [--require-login] [--role &lt;role&gt;] [--shared-store]
-                [--silent] [--slave] [--topics &lt;topics&gt;] [--user &lt;user&gt;] [--verbose]
-                [--] &lt;directory&gt;
+                [--silent] [--slave] [--ssl-key &lt;sslKey&gt;]
+                [--ssl-key-password &lt;sslKeyPassword&gt;] [--ssl-trust &lt;sslTrust&gt;]
+                [--ssl-trust-password &lt;sslTrustPassword&gt;] [--use-client-auth]
+                [--user &lt;user&gt;] [--verbose] [--] &lt;directory&gt;
      ...
 </PRE>
 
