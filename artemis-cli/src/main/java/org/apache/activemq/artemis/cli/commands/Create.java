@@ -215,19 +215,19 @@ public class Create extends InputAbstract {
    @Option(name = "--role", description = "The name for the role created (Default: amq)")
    String role = "amq";
 
-   @Option(name = "--no-web", description = "remove the web-server definition from bootstrap.xml")
+   @Option(name = "--no-web", description = "Remove the web-server definition from bootstrap.xml")
    boolean noWeb;
 
-   @Option(name = "--queues", description = "comma separated list of queues.")
+   @Option(name = "--queues", description = "Comma separated list of queues.")
    String queues;
 
-   @Option(name = "--addresses", description = "comma separated list of addresses ")
+   @Option(name = "--addresses", description = "Comma separated list of addresses ")
    String addresses;
 
-   @Option(name = "--aio", description = "sets the journal as asyncio.")
+   @Option(name = "--aio", description = "Sets the journal as asyncio.")
    boolean aio;
 
-   @Option(name = "--nio", description = "sets the journal as nio.")
+   @Option(name = "--nio", description = "Sets the journal as nio.")
    boolean nio;
 
    @Option(name = "--mapped", description = "Sets the journal as mapped.")
