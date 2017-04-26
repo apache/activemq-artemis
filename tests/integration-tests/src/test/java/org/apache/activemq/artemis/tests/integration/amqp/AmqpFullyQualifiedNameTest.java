@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.HashMap;
+
+import javax.jms.Connection;
+import javax.jms.InvalidDestinationException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -23,32 +33,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.jms.Connection;
-import javax.jms.InvalidDestinationException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.Topic;
-import java.util.HashMap;
-import java.util.Map;
-
-public class ProtonFullQualifiedNameTest extends ProtonTestBase {
-
-   private static final String amqpConnectionUri = "amqp://localhost:5672";
+public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    private SimpleString anycastAddress = new SimpleString("address.anycast");
    private SimpleString multicastAddress = new SimpleString("address.multicast");
@@ -57,7 +53,6 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
    private SimpleString anycastQ2 = new SimpleString("q2");
    private SimpleString anycastQ3 = new SimpleString("q3");
 
-   JmsConnectionFactory factory = new JmsConnectionFactory(amqpConnectionUri);
    private ServerLocator locator;
 
    @Override
@@ -65,36 +60,20 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Configuration serverConfig = server.getConfiguration();
-
-      Map<String, AddressSettings> settings = serverConfig.getAddressesSettings();
-      assertNotNull(settings);
-      AddressSettings addressSetting = settings.get("#");
-      if (addressSetting == null) {
-         addressSetting = new AddressSettings();
-         settings.put("#", addressSetting);
-      }
-      addressSetting.setAutoCreateQueues(true);
       locator = createNettyNonHALocator();
    }
 
    @Override
-   @After
-   public void tearDown() throws Exception {
-      super.tearDown();
+   protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
    }
 
-   @Override
-   protected void configureServer(Configuration serverConfig) {
-      serverConfig.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
-   }
-
-   @Test
+   @Test(timeout = 60000)
    //there isn't much use of FQQN for topics
    //however we can test query functionality
    public void testTopic() throws Exception {
 
-      Connection connection = factory.createConnection();
+      Connection connection = createConnection(false);
       try {
          connection.setClientID("FQQNconn");
          connection.start();
@@ -141,14 +120,14 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
       server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ2, null, true, false, -1, false, true);
       server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ3, null, true, false, -1, false, true);
 
-      Connection connection = factory.createConnection();
+      Connection connection = createConnection();
       try {
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         Queue q1 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ1).toString());
-         Queue q2 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ2).toString());
-         Queue q3 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ3).toString());
+         javax.jms.Queue q1 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ1).toString());
+         javax.jms.Queue q2 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ2).toString());
+         javax.jms.Queue q3 = session.createQueue(CompositeAddress.toFullQN(anycastAddress, anycastQ3).toString());
 
          //send 3 messages to anycastAddress
          ClientSessionFactory cf = createSessionFactory(locator);
@@ -167,18 +146,25 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
          assertNotNull(consumer2.receive(2000));
          assertNotNull(consumer3.receive(2000));
 
+         Queue queue1 = getProxyToQueue(anycastQ1.toString());
+         assertTrue("Message not consumed on Q1", Wait.waitFor(() -> queue1.getMessageCount() == 0));
+         Queue queue2 = getProxyToQueue(anycastQ2.toString());
+         assertTrue("Message not consumed on Q2", Wait.waitFor(() -> queue2.getMessageCount() == 0));
+         Queue queue3 = getProxyToQueue(anycastQ3.toString());
+         assertTrue("Message not consumed on Q3", Wait.waitFor(() -> queue3.getMessageCount() == 0));
+
          connection.close();
          //queues are empty now
          for (SimpleString q : new SimpleString[]{anycastQ1, anycastQ2, anycastQ3}) {
             //FQQN query
-            QueueQueryResult query = server.queueQuery(CompositeAddress.toFullQN(anycastAddress, q));
+            final QueueQueryResult query = server.queueQuery(CompositeAddress.toFullQN(anycastAddress, q));
             assertTrue(query.isExists());
             assertEquals(anycastAddress, query.getAddress());
             assertEquals(CompositeAddress.toFullQN(anycastAddress, q), query.getName());
-            assertEquals(0, query.getMessageCount());
+            assertEquals("Message not consumed", 0, query.getMessageCount());
             //try query again using qName
-            query = server.queueQuery(q);
-            assertEquals(q, query.getName());
+            QueueQueryResult qNameQuery = server.queueQuery(q);
+            assertEquals(q, qNameQuery.getName());
          }
       } finally {
          connection.close();
@@ -189,14 +175,14 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
    public void testQueueSpecial() throws Exception {
       server.createQueue(anycastAddress, RoutingType.ANYCAST, anycastQ1, null, true, false, -1, false, true);
 
-      Connection connection = factory.createConnection();
+      Connection connection = createConnection();
       try {
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          //::queue ok!
          String specialName = CompositeAddress.toFullQN(new SimpleString(""), anycastQ1).toString();
-         Queue q1 = session.createQueue(specialName);
+         javax.jms.Queue q1 = session.createQueue(specialName);
 
          ClientSessionFactory cf = createSessionFactory(locator);
          ClientSession coreSession = cf.createSession();
@@ -228,10 +214,8 @@ public class ProtonFullQualifiedNameTest extends ProtonTestBase {
          } catch (InvalidDestinationException e) {
             //expected
          }
-
       } finally {
          connection.close();
       }
    }
-
 }

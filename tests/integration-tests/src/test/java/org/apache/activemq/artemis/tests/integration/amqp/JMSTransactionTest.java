@@ -1,0 +1,216 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.tests.integration.amqp;
+
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class JMSTransactionTest extends JMSClientTestSupport {
+
+   @Test(timeout = 60000)
+   public void testProduceMessageAndCommit() throws Throwable {
+      Connection connection = createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+
+      session.commit();
+      session.close();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+
+      assertTrue("Message didn't arrive on queue", Wait.waitFor(() -> queueView.getMessageCount() == 10));
+   }
+
+   @Test(timeout = 60000)
+   public void testProduceMessageAndRollback() throws Throwable {
+      Connection connection = createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+
+      session.rollback();
+      session.close();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("Messages arrived on queue", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+   }
+
+   @Test(timeout = 60000)
+   public void testProducedMessageAreRolledBackOnSessionClose() throws Exception {
+      int numMessages = 10;
+
+      Connection connection = createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      MessageProducer p = session.createProducer(queue);
+      byte[] bytes = new byte[2048];
+      new Random().nextBytes(bytes);
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("msg:" + i);
+         p.send(message);
+      }
+
+      session.close();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("Messages arrived on queue", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+   }
+
+   @Test(timeout = 60000)
+   public void testConsumeMessagesAndCommit() throws Throwable {
+      Connection connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.close();
+
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = (TextMessage) cons.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("Message:" + i, message.getText());
+      }
+      session.commit();
+      session.close();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("Messages not consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+   }
+
+   @Test(timeout = 60000)
+   public void testConsumeMessagesAndRollback() throws Throwable {
+      Connection connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.close();
+
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = (TextMessage) cons.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("Message:" + i, message.getText());
+      }
+
+      session.rollback();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("Messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 10));
+   }
+
+   @Test(timeout = 60000)
+   public void testRollbackSomeThenReceiveAndCommit() throws Exception {
+      final int MSG_COUNT = 5;
+      final int consumeBeforeRollback = 2;
+
+      Connection connection = createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = session.createQueue(getQueueName());
+
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < MSG_COUNT; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         message.setIntProperty("MESSAGE_NUMBER", i + 1);
+         p.send(message);
+      }
+
+      session.commit();
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("Messages not enqueued", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      for (int i = 1; i <= consumeBeforeRollback; i++) {
+         Message message = consumer.receive(1000);
+         assertNotNull(message);
+         assertEquals("Unexpected message number", i, message.getIntProperty("MESSAGE_NUMBER"));
+      }
+
+      session.rollback();
+
+      assertEquals(MSG_COUNT, queueView.getMessageCount());
+
+      // Consume again..check we receive all the messages.
+      Set<Integer> messageNumbers = new HashSet<>();
+      for (int i = 1; i <= MSG_COUNT; i++) {
+         messageNumbers.add(i);
+      }
+
+      for (int i = 1; i <= MSG_COUNT; i++) {
+         Message message = consumer.receive(1000);
+         assertNotNull(message);
+         int msgNum = message.getIntProperty("MESSAGE_NUMBER");
+         messageNumbers.remove(msgNum);
+      }
+
+      session.commit();
+
+      assertTrue("Did not consume all expected messages, missing messages: " + messageNumbers, messageNumbers.isEmpty());
+      assertEquals("Queue should have no messages left after commit", 0, queueView.getMessageCount());
+   }
+}
