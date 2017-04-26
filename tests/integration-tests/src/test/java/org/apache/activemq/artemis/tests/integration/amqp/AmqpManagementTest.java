@@ -31,7 +31,7 @@ import org.junit.Test;
 
 public class AmqpManagementTest extends AmqpClientTestSupport {
 
-   @Test
+   @Test(timeout = 60000)
    public void testManagementQueryOverAMQP() throws Throwable {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

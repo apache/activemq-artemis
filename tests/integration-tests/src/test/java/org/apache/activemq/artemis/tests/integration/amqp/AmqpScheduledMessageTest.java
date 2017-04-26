@@ -104,7 +104,7 @@ public class AmqpScheduledMessageTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test
+   @Test(timeout = 60000)
    public void testScheduleWithDelay() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

@@ -20,54 +20,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.hawtbuf.Buffer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ProtonTestForHeader extends ActiveMQTestBase {
-
-   private ActiveMQServer server;
+public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
 
    @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-      server = this.createServer(true, true);
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "5672");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-
-      server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
-      server.getConfiguration().setSecurityEnabled(true);
-      server.start();
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.getConfiguration().addUser("auser", "pass");
+   protected boolean isSecurityEnabled() {
+      return true;
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      try {
-         server.stop();
-      } finally {
-         super.tearDown();
-      }
-   }
-
-   @Test
-   public void testSimpleBytes() throws Exception {
+   @Test(timeout = 60000)
+   public void testNonSaslHeaderRejectedOnConnect() throws Exception {
       final AmqpHeader header = new AmqpHeader();
 
       header.setProtocolId(0);
@@ -76,13 +44,15 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
       header.setRevision(0);
 
       final ClientConnection connection = new ClientConnection();
-      connection.open("localhost", 5672);
+      connection.open("localhost", AMQP_PORT);
       connection.send(header);
 
       AmqpHeader response = connection.readAmqpHeader();
       assertNotNull(response);
+      assertEquals(3, response.getProtocolId());
       IntegrationTestLogger.LOGGER.info("Broker responded with: " + response);
 
+      // pump some bytes down the wire until broker closes the connection
       assertTrue("Broker should have closed client connection", Wait.waitFor(new Wait.Condition() {
 
          @Override
@@ -128,6 +98,7 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
       }
    }
 
+   @SuppressWarnings("unused")
    private class AmqpHeader {
 
       final Buffer PREFIX = new Buffer(new byte[]{'A', 'M', 'Q', 'P'});

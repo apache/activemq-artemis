@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.io.IOException;
@@ -33,6 +32,7 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -45,6 +45,7 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.Sender;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       sender.setStateInspector(new AmqpValidator() {
 
          @Override
-         public void inspectDeliveryUpdate(Delivery delivery) {
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (delivery.remotelySettled()) {
                DeliveryState state = delivery.getRemoteState();
                if (state instanceof TransactionalState) {
@@ -161,7 +162,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       session.commit();
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message was not queued", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       sender.close();
       connection.close();
@@ -205,7 +206,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
@@ -237,7 +238,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
@@ -281,7 +282,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
@@ -853,10 +854,10 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
    @Test(timeout = 120000)
    public void testSendPersistentTX() throws Exception {
-      int MESSAGE_COUNT = 100000;
+      int MESSAGE_COUNT = 2000;
       AtomicInteger errors = new AtomicInteger(0);
       server.createQueue(SimpleString.toSimpleString("q1"), RoutingType.ANYCAST, SimpleString.toSimpleString("q1"), null, true, false, 1, false, true);
-      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
+      ConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:" + AMQP_PORT);
       Connection sendConnection = factory.createConnection();
       Connection consumerConnection = factory.createConnection();
       try {
@@ -939,7 +940,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       receiver.setStateInspector(new AmqpValidator() {
 
          @Override
-         public void inspectDeliveryUpdate(Delivery delivery) {
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (delivery.remotelySettled()) {
                LOG.info("Receiver got delivery update for: {}", delivery);
                if (!(delivery.getRemoteState() instanceof TransactionalState)) {
