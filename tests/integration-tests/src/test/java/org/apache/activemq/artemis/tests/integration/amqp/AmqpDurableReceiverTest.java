@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpFrameValidator;
@@ -52,13 +50,6 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
    private static final Logger LOG = LoggerFactory.getLogger(AmqpDurableReceiverTest.class);
 
    private final String SELECTOR_STRING = "color = red";
-
-   @Override
-   public void setUp() throws Exception {
-      super.setUp();
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getTopicName()), RoutingType.MULTICAST));
-      server.createQueue(new SimpleString(getTopicName()), RoutingType.MULTICAST, new SimpleString(getTopicName()), null, true, false);
-   }
 
    @Test(timeout = 60000)
    public void testCreateDurableReceiver() throws Exception {
@@ -365,15 +356,11 @@ public class AmqpDurableReceiverTest extends AmqpClientTestSupport {
       return null;
    }
 
-   public String getContainerID() {
+   private String getContainerID() {
       return "myContainerID";
    }
 
-   public String getSubscriptionName() {
+   private String getSubscriptionName() {
       return "mySubscription";
-   }
-
-   public String getTopicName() {
-      return "myTopic";
    }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,8 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -28,12 +33,6 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
-import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
-
 
 public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
 
@@ -46,7 +45,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
 
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -68,7 +67,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
       server.createQueue(address, RoutingType.ANYCAST, address, null, true, false);
 
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -89,7 +88,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
 
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -111,7 +110,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
       server.createQueue(address, RoutingType.ANYCAST, queue2, null, true, false);
 
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -132,7 +131,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
       server.createQueue(address, RoutingType.ANYCAST, queue1, null, true, false);
 
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -152,7 +151,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    public void testConsumeWhenOnlyMulticast() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
 
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -195,7 +194,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
       AmqpReceiver receiver = session.createReceiver(address.toString());
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
       receiver.flow(1);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
@@ -223,7 +222,6 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       connection.close();
    }
 
-
    protected Source createJmsSource(boolean topic) {
 
       Source source = new Source();
@@ -236,5 +234,4 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
 
       return source;
    }
-
 }

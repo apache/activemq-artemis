@@ -17,21 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -39,44 +27,26 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.Sender;
 import org.junit.Test;
 
 public class AmqpSecurityTest extends AmqpClientTestSupport {
 
-   private String user1 = "user1";
-   private String password1 = "password1";
-
    @Override
-   protected ActiveMQServer createServer() throws Exception {
-      ActiveMQServer server = createServer(true, true);
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.getConfiguration().addUser("foo", "bar");
-      securityManager.getConfiguration().addRole("foo", "none");
-      securityManager.getConfiguration().addUser(user1, password1);
-      securityManager.getConfiguration().addRole(user1, "none");
-      HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HashSet<Role> value = new HashSet<>();
-      value.add(new Role("none", false, true, true, true, true, true, true, true));
-      securityRepository.addMatch(getQueueName(), value);
-
-      serverManager = new JMSServerManagerImpl(server);
-      Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(true).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
-      serverConfig.setSecurityEnabled(true);
-      serverManager.start();
-      server.start();
-      return server;
+   protected boolean isSecurityEnabled() {
+      return true;
    }
 
    @Test(timeout = 60000)
    public void testSaslAuthWithInvalidCredentials() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient("foo", "foo");
+      AmqpClient client = createAmqpClient(fullUser, guestUser);
 
       try {
          connection = client.connect();
-         fail("Should authenticate even with authzid set");
+         fail("Should not authenticate when invalid credentials provided");
       } catch (Exception ex) {
+         // Expected
       } finally {
          if (connection != null) {
             connection.close();
@@ -87,8 +57,8 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testSaslAuthWithAuthzid() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient("foo", "bar");
-      client.setAuthzid("foo");
+      AmqpClient client = createAmqpClient(guestUser, guestPass);
+      client.setAuthzid(guestUser);
 
       try {
          connection = client.connect();
@@ -104,7 +74,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
    @Test(timeout = 60000)
    public void testSaslAuthWithoutAuthzid() throws Exception {
       AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient("foo", "bar");
+      AmqpClient client = createAmqpClient(guestUser, guestPass);
 
       try {
          connection = client.connect();
@@ -119,20 +89,22 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendAndRejected() throws Exception {
-      AmqpConnection connection = null;
-      AmqpClient client = createAmqpClient("foo", "bar");
       CountDownLatch latch = new CountDownLatch(1);
+
+      AmqpClient client = createAmqpClient(guestUser, guestPass);
       client.setValidator(new AmqpValidator() {
+
          @Override
-         public void inspectDeliveryUpdate(Delivery delivery) {
-            super.inspectDeliveryUpdate(delivery);
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (!delivery.remotelySettled()) {
                markAsInvalid("delivery is not remotely settled");
             }
+
             latch.countDown();
          }
       });
-      connection = addConnection(client.connect());
+
+      AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
       AmqpSender sender = session.createSender(getQueueName());
@@ -145,8 +117,8 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       try {
          sender.send(message);
       } catch (IOException e) {
-         //
       }
+
       assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
       connection.getStateInspector().assertValid();
       connection.close();
@@ -154,11 +126,9 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
-      server.createQueue(new SimpleString(getQueueName()), RoutingType.ANYCAST, new SimpleString(getQueueName()), null, true, false);
-
-      AmqpClient client = createAmqpClient(user1, password1);
+      AmqpClient client = createAmqpClient(guestUser, guestPass);
       AmqpConnection connection = client.connect();
+
       try {
          AmqpSession session = connection.createSession();
 
@@ -181,5 +151,4 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
          connection.close();
       }
    }
-
 }

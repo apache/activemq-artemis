@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -29,10 +33,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
 
 public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
 
@@ -52,7 +52,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -86,7 +86,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|1");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -114,7 +114,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -145,7 +145,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -178,7 +178,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -206,7 +206,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -244,7 +244,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -282,7 +282,7 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
       AmqpReceiver receiver2 = session.createMulticastReceiver(source, "myReceiverID", "mySub|2");
       receiver.flow(1);
       receiver2.flow(1);
-      sendMessages(2, address.toString());
+      sendMessages(address.toString(), 2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       amqpMessage = receiver2.receive(5, TimeUnit.SECONDS);
@@ -313,7 +313,10 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
          fail("Exception expected");
       } catch (Exception e) {
          //expected
+      } finally {
+         receiver.close();
       }
+
       connection.close();
    }
 
@@ -331,7 +334,10 @@ public class ClientDefinedMultiConsumerTest extends AmqpClientTestSupport  {
          fail("Exception expected");
       } catch (Exception e) {
          //expected
+      } finally {
+         receiver.close();
       }
+
       connection.close();
    }
 

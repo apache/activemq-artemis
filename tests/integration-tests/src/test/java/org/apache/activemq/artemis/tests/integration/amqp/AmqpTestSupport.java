@@ -30,6 +30,8 @@ import org.junit.After;
  */
 public class AmqpTestSupport extends ActiveMQTestBase {
 
+   protected static final int AMQP_PORT = 5672;
+
    protected LinkedList<AmqpConnection> connections = new LinkedList<>();
 
    protected boolean useSSL;
@@ -65,7 +67,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
       boolean webSocket = false;
 
       try {
-         int port = 61616;
+         int port = AMQP_PORT;
 
          String uri = null;
 
