@@ -32,15 +32,6 @@ public abstract class LockAbstract extends DataAbstract {
    private static RandomAccessFile serverLockFile = null;
    private static FileLock serverLockLock = null;
 
-   protected File getLockPlace() throws Exception {
-      String brokerInstance = getBrokerInstance();
-      if (brokerInstance != null) {
-         return new File(new File(brokerInstance), "lock");
-      } else {
-         return null;
-      }
-   }
-
    public static void unlock() {
       try {
          if (serverLockFile != null) {
@@ -70,7 +61,7 @@ public abstract class LockAbstract extends DataAbstract {
       return null;
    }
 
-   protected void lockCLI(File lockPlace) throws Exception {
+   void lockCLI(File lockPlace) throws Exception {
       if (lockPlace != null) {
          lockPlace.mkdirs();
          if (serverLockFile == null) {
@@ -89,4 +80,12 @@ public abstract class LockAbstract extends DataAbstract {
       }
    }
 
+   private File getLockPlace() throws Exception {
+      String brokerInstance = getBrokerInstance();
+      if (brokerInstance != null) {
+         return new File(new File(brokerInstance), "lock");
+      } else {
+         return null;
+      }
+   }
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
@@ -79,12 +80,12 @@ public class DecodeJournal extends LockAbstract {
 
    }
 
-   public static void importJournal(final String directory,
-                                    final String journalPrefix,
-                                    final String journalSuffix,
-                                    final int minFiles,
-                                    final int fileSize,
-                                    final InputStream stream) throws Exception {
+   private static void importJournal(final String directory,
+                                     final String journalPrefix,
+                                     final String journalSuffix,
+                                     final int minFiles,
+                                     final int fileSize,
+                                     final InputStream stream) throws Exception {
       Reader reader = new InputStreamReader(stream);
       importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
    }
@@ -216,8 +217,7 @@ public class DecodeJournal extends LockAbstract {
       journal.stop();
    }
 
-   protected static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters) {
-
+   private static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters) {
       AtomicInteger counter = txCounters.get(txID);
       if (counter == null) {
          counter = new AtomicInteger(0);
@@ -227,7 +227,7 @@ public class DecodeJournal extends LockAbstract {
       return counter;
    }
 
-   protected static RecordInfo parseRecord(final Properties properties) throws Exception {
+   private static RecordInfo parseRecord(final Properties properties) throws Exception {
       long id = parseLong("id", properties);
       byte userRecordType = parseByte("userRecordType", properties);
       boolean isUpdate = parseBoolean("isUpdate", properties);
@@ -241,10 +241,6 @@ public class DecodeJournal extends LockAbstract {
       return decode(value);
    }
 
-   /**
-    * @param properties
-    * @return
-    */
    private static int parseInt(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
@@ -269,12 +265,6 @@ public class DecodeJournal extends LockAbstract {
       return Byte.parseByte(value);
    }
 
-   /**
-    * @param name
-    * @param properties
-    * @return
-    * @throws Exception
-    */
    private static String parseString(final String name, final Properties properties) throws Exception {
       String value = properties.getProperty(name);
 
@@ -284,7 +274,7 @@ public class DecodeJournal extends LockAbstract {
       return value;
    }
 
-   protected static Properties parseLine(final String[] splitLine) {
+   private static Properties parseLine(final String[] splitLine) {
       Properties properties = new Properties();
 
       for (String el : splitLine) {
@@ -301,18 +291,6 @@ public class DecodeJournal extends LockAbstract {
 
    private static byte[] decode(final String data) {
       return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
-   }
-
-   public void printUsage() {
-      for (int i = 0; i < 10; i++) {
-         System.err.println();
-      }
-      System.err.println("This method will export the journal at low level record.");
-      System.err.println();
-      System.err.println();
-      for (int i = 0; i < 10; i++) {
-         System.err.println();
-      }
    }
 
 }

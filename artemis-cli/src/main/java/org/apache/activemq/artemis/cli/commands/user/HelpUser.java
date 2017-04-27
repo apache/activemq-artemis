@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
-import org.apache.activemq.artemis.util.OptionsUtil;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.activemq.artemis.cli.commands.OptionsUtil;
 
 public class HelpUser extends Help implements Action {
 
