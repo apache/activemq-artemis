@@ -206,6 +206,14 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     of your queues and the size and number of your messages. Use the JVM
     arguments `-Xms` and `-Xmx` to set server available RAM. We
     recommend setting them to the same high value.
+    
+    When under periods of high load, it is likely that Artemis will be generating 
+    and destroying lots of objects. This can result in a build up of stale objects. 
+    To reduce the chance of running out of memory and causing a full GC 
+    (which may introduce pauses and unintentional behaviour), it is recommended that the 
+    max heap size (`-Xmx`) for the JVM is set at least to 5 x the `global-max-size` of the broker.
+    As an example, in a situation where the broker is under high load and running 
+    with a `global-max-size` of 1GB, it is recommended the the max heap size is set to 5GB.  
 
 -   Aggressive options. Different JVMs provide different sets of JVM
     tuning parameters, for the Sun Hotspot JVM the full list of options
