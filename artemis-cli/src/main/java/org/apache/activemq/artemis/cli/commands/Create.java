@@ -84,9 +84,9 @@ public class Create extends InputAbstract {
 
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
-   public static final String ETC_LOGIN_CONFIG = "etc/login.config";
-   public static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
-   public static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
+   private static final String ETC_LOGIN_CONFIG = "etc/login.config";
+   private static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
+   private static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
    public static final String ETC_REPLICATED_SETTINGS_TXT = "etc/replicated-settings.txt";
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
@@ -105,213 +105,162 @@ public class Create extends InputAbstract {
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
-   File directory;
+   private File directory;
 
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
-   String host;
+   private String host;
 
    @Option(name = "--http-host", description = "The host name to use for embedded web server (Default: localhost)")
-   String httpHost = HTTP_HOST;
+   private String httpHost = HTTP_HOST;
 
    @Option(name = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
-   String ping;
+   private String ping;
 
    @Option(name = "--default-port", description = "The port number to use for the main 'artemis' acceptor (Default: 61616)")
-   int defaultPort = DEFAULT_PORT;
+   private int defaultPort = DEFAULT_PORT;
 
    @Option(name = "--http-port", description = "The port number to use for embedded web server (Default: 8161)")
-   int httpPort = HTTP_PORT;
+   private int httpPort = HTTP_PORT;
 
    @Option(name = "--ssl-key", description = "The key store path for embedded web server")
-   String sslKey;
+   private String sslKey;
 
    @Option(name = "--ssl-key-password", description = "The key store password")
-   String sslKeyPassword;
+   private String sslKeyPassword;
 
    @Option(name = "--use-client-auth", description = "If the embedded server requires client authentication")
-   boolean useClientAuth;
+   private boolean useClientAuth;
 
    @Option(name = "--ssl-trust", description = "The trust store path in case of client authentication")
-   String sslTrust;
+   private String sslTrust;
 
    @Option(name = "--ssl-trust-password", description = "The trust store password")
-   String sslTrustPassword;
+   private String sslTrustPassword;
 
    @Option(name = "--name", description = "The name of the broker (Default: same as host)")
-   String name;
+   private String name;
 
    @Option(name = "--port-offset", description = "Off sets the ports of every acceptor")
-   int portOffset;
+   private int portOffset;
 
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
-   boolean force;
+   private boolean force;
 
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
-   File home;
+   private File home;
 
    @Option(name = "--data", description = "Directory where ActiveMQ Data is used. Paths are relative to artemis.instance")
-   String data = "./data";
+   private String data = "./data";
 
    @Option(name = "--clustered", description = "Enable clustering")
-   boolean clustered = false;
+   private boolean clustered = false;
 
    @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
-   int maxHops = 0;
+   private int maxHops = 0;
 
    @Option(name = "--message-load-balancing", description = "Load balancing policy on cluster. [ON_DEMAND (default) | STRICT | OFF]")
-   MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
+   private MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
 
    @Option(name = "--replicated", description = "Enable broker replication")
-   boolean replicated = false;
+   private boolean replicated = false;
 
    @Option(name = "--shared-store", description = "Enable broker shared store")
-   boolean sharedStore = false;
+   private boolean sharedStore = false;
 
    @Option(name = "--slave", description = "Valid for shared store or replication: this is a slave server?")
-   boolean slave;
+   private boolean slave;
 
    @Option(name = "--failover-on-shutdown", description = "Valid for shared store: will shutdown trigger a failover? (Default: false)")
-   boolean failoverOnShutodwn;
+   private boolean failoverOnShutodwn;
 
    @Option(name = "--cluster-user", description = "The cluster user to use for clustering. (Default: input)")
-   String clusterUser = null;
+   private String clusterUser = null;
 
    @Option(name = "--cluster-password", description = "The cluster password to use for clustering. (Default: input)")
-   String clusterPassword = null;
+   private String clusterPassword = null;
 
    @Option(name = "--encoding", description = "The encoding that text files should use")
-   String encoding = "UTF-8";
+   private String encoding = "UTF-8";
 
    @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
-   String javaOptions = "";
+   private String javaOptions = "";
 
    @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security, opposite of --require-login (Default: input)")
-   Boolean allowAnonymous = null;
+   private Boolean allowAnonymous = null;
 
    @Option(name = "--require-login", description = "This will configure security to require user / password, opposite of --allow-anonymous")
-   Boolean requireLogin = null;
+   private Boolean requireLogin = null;
 
    @Option(name = "--paging", description = "Page messages to disk when address becomes full, opposite of --blocking (Default: true)")
-   Boolean paging;
+   private Boolean paging;
 
    @Option(name = "--blocking", description = "Block producers when address becomes full, opposite of --paging (Default: false)")
-   Boolean blocking;
+   private Boolean blocking;
 
    @Option(name = "--no-autotune", description = "Disable auto tuning on the journal.")
-   boolean noAutoTune;
+   private boolean noAutoTune;
 
    @Option(name = "--no-autocreate", description = "Disable Auto create addresses.")
-   Boolean noAutoCreate;
+   private Boolean noAutoCreate;
 
    @Option(name = "--autocreate", description = "Auto create addresses. (default: true)")
-   Boolean autoCreate;
+   private Boolean autoCreate;
 
    @Option(name = "--user", description = "The username (Default: input)")
-   String user;
+   private String user;
 
    @Option(name = "--password", description = "The user's password (Default: input)")
-   String password;
+   private String password;
 
    @Option(name = "--role", description = "The name for the role created (Default: amq)")
-   String role = "amq";
+   private String role = "amq";
 
    @Option(name = "--no-web", description = "Remove the web-server definition from bootstrap.xml")
-   boolean noWeb;
+   private boolean noWeb;
 
    @Option(name = "--queues", description = "Comma separated list of queues.")
-   String queues;
+   private String queues;
 
    @Option(name = "--addresses", description = "Comma separated list of addresses ")
-   String addresses;
+   private String addresses;
 
    @Option(name = "--aio", description = "Sets the journal as asyncio.")
-   boolean aio;
+   private boolean aio;
 
    @Option(name = "--nio", description = "Sets the journal as nio.")
-   boolean nio;
+   private boolean nio;
 
    @Option(name = "--mapped", description = "Sets the journal as mapped.")
-   boolean mapped;
+   private boolean mapped;
 
    // this is used by the setupJournalType method
    private JournalType journalType;
 
    @Option(name = "--disable-persistence", description = "Disable message persistence to the journal")
-   boolean disablePersistence;
+   private boolean disablePersistence;
 
    @Option(name = "--no-amqp-acceptor", description = "Disable the AMQP specific acceptor.")
-   boolean noAmqpAcceptor;
+   private boolean noAmqpAcceptor;
 
    @Option(name = "--no-mqtt-acceptor", description = "Disable the MQTT specific acceptor.")
-   boolean noMqttAcceptor;
+   private boolean noMqttAcceptor;
 
    @Option(name = "--no-stomp-acceptor", description = "Disable the STOMP specific acceptor.")
-   boolean noStompAcceptor;
+   private boolean noStompAcceptor;
 
    @Option(name = "--no-hornetq-acceptor", description = "Disable the HornetQ specific acceptor.")
-   boolean noHornetQAcceptor;
+   private boolean noHornetQAcceptor;
 
    @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from java nio) on the journal")
-   boolean noJournalSync;
+   private boolean noJournalSync;
 
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
-   String globalMaxSize;
+   private String globalMaxSize;
 
-   boolean IS_WINDOWS;
+   private boolean IS_WINDOWS;
+   private boolean IS_CYGWIN;
 
-   boolean IS_CYGWIN;
-
-   public int getMaxHops() {
-      return maxHops;
-   }
-
-   public void setMaxHops(int maxHops) {
-      this.maxHops = maxHops;
-   }
-
-   public boolean isNoWeb() {
-      return noWeb;
-   }
-
-   public void setNoWeb(boolean noWeb) {
-      this.noWeb = noWeb;
-   }
-
-   public int getPortOffset() {
-      return portOffset;
-   }
-
-   public void setPortOffset(int portOffset) {
-      this.portOffset = portOffset;
-   }
-
-   public MessageLoadBalancingType getMessageLoadBalancing() {
-      return messageLoadBalancing;
-   }
-
-   public void setMessageLoadBalancing(MessageLoadBalancingType messageLoadBalancing) {
-      this.messageLoadBalancing = messageLoadBalancing;
-   }
-
-   public Boolean getAutoCreate() {
-      return autoCreate;
-   }
-
-   public Create setAutoCreate(Boolean autoCreate) {
-      this.autoCreate = autoCreate;
-      return this;
-   }
-
-   public Boolean getNoAutoCreate() {
-      return noAutoCreate;
-   }
-
-   public Create setNoAutoCreate(Boolean noAutoCreate) {
-      this.noAutoCreate = noAutoCreate;
-      return this;
-   }
-
-   public boolean isAutoCreate() {
+   private boolean isAutoCreate() {
       if (autoCreate == null) {
          if (noAutoCreate != null) {
             autoCreate = !noAutoCreate.booleanValue();
@@ -323,14 +272,6 @@ public class Create extends InputAbstract {
       }
 
       return autoCreate;
-   }
-
-   public String getJavaOptions() {
-      return javaOptions;
-   }
-
-   public void setJavaOptions(String javaOptions) {
-      this.javaOptions = javaOptions;
    }
 
    public File getInstance() {
@@ -348,7 +289,7 @@ public class Create extends InputAbstract {
       return host;
    }
 
-   public String getHostForClustered() {
+   private String getHostForClustered() {
       if (getHost().equals("0.0.0.0")) {
          host = input("--host", "Host " + host + " is not valid for clustering, please provide a valid IP or hostname", "localhost");
       }
@@ -379,14 +320,6 @@ public class Create extends InputAbstract {
       this.home = home;
    }
 
-   public boolean isClustered() {
-      return clustered;
-   }
-
-   public void setClustered(boolean clustered) {
-      this.clustered = clustered;
-   }
-
    public boolean isReplicated() {
       return replicated;
    }
@@ -397,10 +330,6 @@ public class Create extends InputAbstract {
 
    public boolean isSharedStore() {
       return sharedStore;
-   }
-
-   public void setSharedStore(boolean sharedStore) {
-      this.sharedStore = sharedStore;
    }
 
    public String getEncoding() {
@@ -419,50 +348,42 @@ public class Create extends InputAbstract {
       this.data = data;
    }
 
-   public String getClusterUser() {
+   private String getClusterUser() {
       if (clusterUser == null) {
          clusterUser = input("--cluster-user", "Please provide the username:", "cluster-admin");
       }
       return clusterUser;
    }
 
-   public void setClusterUser(String clusterUser) {
-      this.clusterUser = clusterUser;
-   }
-
-   public String getClusterPassword() {
+   private String getClusterPassword() {
       if (clusterPassword == null) {
          clusterPassword = inputPassword("--cluster-password", "Please enter the password:", "password-admin");
       }
       return clusterPassword;
    }
 
-   public String getSslKeyPassword() {
+   private String getSslKeyPassword() {
       if (sslKeyPassword == null) {
          sslKeyPassword = inputPassword("--ssl-key-password", "Please enter the keystore password:", "password");
       }
       return sslKeyPassword;
    }
 
-   public String getSslTrust() {
+   private String getSslTrust() {
       if (sslTrust == null) {
          sslTrust = input("--ssl-trust", "Please enter the trust store path:", "/etc/truststore.jks");
       }
       return sslTrust;
    }
 
-   public String getSslTrustPassword() {
+   private String getSslTrustPassword() {
       if (sslTrustPassword == null) {
          sslTrustPassword = inputPassword("--ssl-key-password", "Please enter the keystore password:", "password");
       }
       return sslTrustPassword;
    }
 
-   public void setClusterPassword(String clusterPassword) {
-      this.clusterPassword = clusterPassword;
-   }
-
-   public boolean isAllowAnonymous() {
+   private boolean isAllowAnonymous() {
       if (allowAnonymous == null) {
          allowAnonymous = inputBoolean("--allow-anonymous | --require-login", "Allow anonymous access?", true);
       }
@@ -471,21 +392,6 @@ public class Create extends InputAbstract {
 
    public boolean isPaging() {
       return paging;
-   }
-
-   public void setAllowAnonymous(boolean allowAnonymous) {
-      this.allowAnonymous = Boolean.valueOf(allowAnonymous);
-   }
-
-   public Boolean getRequireLogin() {
-      if (requireLogin == null) {
-         requireLogin = !isAllowAnonymous();
-      }
-      return requireLogin;
-   }
-
-   public void setRequireLogin(Boolean requireLogin) {
-      this.requireLogin = requireLogin;
    }
 
    public String getPassword() {
@@ -522,43 +428,16 @@ public class Create extends InputAbstract {
       this.role = role;
    }
 
-   public String getGlobalMaxSize() {
-      return globalMaxSize;
-   }
-   public void setGlobalMaxSize(String globalMaxSize) {
-      this.globalMaxSize = globalMaxSize;
-   }
-
-   public boolean isSlave() {
+   private boolean isSlave() {
       return slave;
    }
 
-   public void setSlave(boolean slave) {
-      this.slave = slave;
-   }
-
-   public boolean isFailoverOnShutodwn() {
+   private boolean isFailoverOnShutodwn() {
       return failoverOnShutodwn;
    }
 
-   public void setFailoverOnShutodwn(boolean failoverOnShutodwn) {
-      this.failoverOnShutodwn = failoverOnShutodwn;
-   }
-
-   public Boolean getAllowAnonymous() {
-      return allowAnonymous;
-   }
-
-   public void setAllowAnonymous(Boolean allowAnonymous) {
-      this.allowAnonymous = allowAnonymous;
-   }
-
-   public boolean isDisablePersistence() {
+   private boolean isDisablePersistence() {
       return disablePersistence;
-   }
-
-   public void setDisablePersistence(boolean disablePersistence) {
-      this.disablePersistence = disablePersistence;
    }
 
    @Override
@@ -589,6 +468,7 @@ public class Create extends InputAbstract {
          throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
       }
    }
+
    public Object run(ActionContext context) throws Exception {
 
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
@@ -860,7 +740,6 @@ public class Create extends InputAbstract {
       }
    }
 
-
    private static int countBoolean(boolean...b) {
       int count = 0;
 
@@ -887,23 +766,6 @@ public class Create extends InputAbstract {
       }
 
       return logManager;
-   }
-
-   /**
-    * It will create the jms configurations
-    */
-   private void applyJMSObjects(HashMap<String, String> filters) {
-      StringWriter writer = new StringWriter();
-      PrintWriter printWriter = new PrintWriter(writer);
-      printWriter.println();
-
-      for (String str : getQueueList()) {
-         printWriter.println("      <queue name=\"" + str + "\"/>");
-      }
-      for (String str : getAddressList()) {
-         printWriter.println("      <topic name=\"" + str + "\"/>");
-      }
-      filters.put("${jms-list.settings}", writer.toString());
    }
 
    /**
@@ -1004,7 +866,7 @@ public class Create extends InputAbstract {
       }
    }
 
-   String path(String value, boolean unixPaths) throws IOException {
+   private String path(String value, boolean unixPaths) throws IOException {
       return path(new File(value), unixPaths);
    }
 

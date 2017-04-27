@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.InputAbstract;
-import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
-
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import java.io.File;
+
+import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.commands.InputAbstract;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
 
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.ROLE_FILE_PROP_NAME;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule.USER_FILE_PROP_NAME;
@@ -39,23 +38,19 @@ public abstract class UserAction extends InputAbstract {
    @Option(name = "--entry", description = "The appConfigurationEntry (default: activemq)")
    String entry = "activemq";
 
-   protected void checkInputUser() {
+   void checkInputUser() {
       if (username == null) {
          username = input("--user", "Please provider the userName:", null);
       }
    }
 
-   public void setRole(String role) {
-      this.role = role;
-   }
-
-   public void checkInputRole() {
+   void checkInputRole() {
       if (role == null) {
          role = input("--role", "type a comma separated list of roles", null);
       }
    }
 
-   protected FileBasedSecStoreConfig getConfiguration() throws Exception {
+   FileBasedSecStoreConfig getConfiguration() throws Exception {
 
       Configuration securityConfig = Configuration.getConfiguration();
       AppConfigurationEntry[] entries = securityConfig.getAppConfigurationEntry(entry);
@@ -81,5 +76,9 @@ public abstract class UserAction extends InputAbstract {
 
    public void setUsername(String username) {
       this.username = username;
+   }
+
+   public void setRole(String role) {
+      this.role = role;
    }
 }

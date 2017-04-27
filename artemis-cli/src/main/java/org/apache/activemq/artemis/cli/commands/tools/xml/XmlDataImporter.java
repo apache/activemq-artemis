@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
@@ -77,11 +77,8 @@ import org.jboss.logging.Logger;
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataImporter extends ActionAbstract {
-   // Constants -----------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(XmlDataImporter.class);
-
-   // Attributes ----------------------------------------------------
 
    private XMLStreamReader reader;
 
@@ -151,7 +148,6 @@ public final class XmlDataImporter extends ActionAbstract {
     *
     * @param inputStream the stream from which to read the XML for import
     * @param session     used for sending messages, must use auto-commit for sends
-    * @throws Exception
     */
    public void process(InputStream inputStream, ClientSession session) throws Exception {
       this.process(inputStream, session, null);
@@ -413,8 +409,6 @@ public final class XmlDataImporter extends ActionAbstract {
       String key = "";
       String value = "";
       String propertyType = "";
-      String realStringValue = null;
-      SimpleString realSimpleStringValue = null;
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
@@ -515,8 +509,6 @@ public final class XmlDataImporter extends ActionAbstract {
     * CDATA has to be decoded in its entirety.
     *
     * @param processor used to deal with the decoded CDATA elements
-    * @throws IOException
-    * @throws XMLStreamException
     */
    private void getMessageBodyBytes(MessageBodyBytesProcessor processor) throws IOException, XMLStreamException {
       int currentEventType;
@@ -612,79 +604,11 @@ public final class XmlDataImporter extends ActionAbstract {
       }
    }
 
-   private String getEntries() throws Exception {
-      StringBuilder entry = new StringBuilder();
-      boolean endLoop = false;
-
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_JNDI_ENTRY.equals(reader.getLocalName())) {
-                  String elementText = reader.getElementText();
-                  entry.append(elementText).append(", ");
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("JMS admin object JNDI entry: " + entry.toString());
-                  }
-               }
-               break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
-               break;
-         }
-         if (endLoop) {
-            break;
-         }
-         reader.next();
-      }
-
-      return entry.delete(entry.length() - 2, entry.length()).toString();
-   }
-
-   private String getConnectors() throws Exception {
-      StringBuilder entry = new StringBuilder();
-      boolean endLoop = false;
-
-      while (reader.hasNext()) {
-         int eventType = reader.getEventType();
-         switch (eventType) {
-            case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
-                  entry.append(reader.getElementText()).append(", ");
-               }
-               break;
-            case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTORS.equals(reader.getLocalName())) {
-                  endLoop = true;
-               }
-               break;
-         }
-         if (endLoop) {
-            break;
-         }
-         reader.next();
-      }
-
-      return entry.delete(entry.length() - 2, entry.length()).toString();
-   }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
    private static byte[] decode(String data) {
       return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
    private interface MessageBodyBytesProcessor {
-
       void processBodyBytes(byte[] bytes) throws IOException;
    }
-
-   // Inner classes -------------------------------------------------
-
 }

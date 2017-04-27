@@ -14,24 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.activemq.artemis.dto.SecurityDTO;
+import org.apache.activemq.artemis.dto.ServerDTO;
+import org.apache.activemq.artemis.integration.Broker;
+import org.apache.activemq.artemis.integration.FileBroker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.utils.FactoryFinder;
 
-public class SecurityManagerFactory {
+public class FileBrokerHandler implements BrokerHandler {
 
-   public static ActiveMQSecurityManager create(SecurityDTO config) throws Exception {
-      if (config != null) {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/security/");
-         SecurityHandler securityHandler = (SecurityHandler) finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
-         return securityHandler.createSecurityManager(config);
-      } else {
-         throw new Exception("No security manager configured!");
-      }
+   @Override
+   public Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) {
+      return new FileBroker(brokerDTO, security);
    }
-
 }

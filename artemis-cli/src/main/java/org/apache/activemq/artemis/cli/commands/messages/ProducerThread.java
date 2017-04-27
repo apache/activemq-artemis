@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.util;
+package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;

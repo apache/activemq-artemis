@@ -24,7 +24,7 @@ public class PasswordAction extends UserAction {
    @Option(name = "--password", description = "the password (Default: input)")
    String password;
 
-   protected void checkInputPassword() {
+   void checkInputPassword() {
       if (password == null) {
          password = inputPassword("--password", "Please provide the password:", null);
       }
