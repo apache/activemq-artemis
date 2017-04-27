@@ -22,13 +22,13 @@ import java.util.TimerTask;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.cli.commands.tools.PrintData;
+import org.apache.activemq.artemis.cli.factory.BrokerFactory;
+import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
-import org.apache.activemq.artemis.factory.BrokerFactory;
-import org.apache.activemq.artemis.factory.SecurityManagerFactory;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -40,7 +40,7 @@ public class Run extends LockAbstract {
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
 
-   static boolean embedded = false;
+   private static boolean embedded = false;
 
    public static final ReusableLatch latchRunning = new ReusableLatch(0);
 
@@ -60,7 +60,7 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      Artemis.printBanner();
+      PrintData.printBanner();
 
       BrokerDTO broker = getBrokerDTO();
 

@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-import org.apache.activemq.artemis.util.OptionsUtil;
-import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.airlift.airline.Arguments;
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 
 @Command(name = "mask", description = "mask a password and print it out")
 public class Mask implements Action {

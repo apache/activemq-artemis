@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.xml;
 
 import com.google.common.base.Preconditions;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.Base64;
  */
 public class XmlDataExporterUtil {
 
-   public static String convertProperty(final Object value) {
+   static String convertProperty(final Object value) {
       if (value instanceof byte[]) {
          return encode((byte[]) value);
       } else {
@@ -35,7 +35,7 @@ public class XmlDataExporterUtil {
       }
    }
 
-   public static String getPropertyType(final Object value) {
+   static String getPropertyType(final Object value) {
       String stringValue = null;
 
       // if the value is null then we can't really know what it is so just set
@@ -87,11 +87,8 @@ public class XmlDataExporterUtil {
 
    /**
     * Base64 encode a ServerMessage body into the proper XML format
-    *
-    * @param message
-    * @return
     */
-   public static String encodeMessageBody(final Message message) throws Exception {
+   static String encodeMessageBody(final Message message) throws Exception {
       Preconditions.checkNotNull(message, "ServerMessage can not be null");
 
       ActiveMQBuffer byteBuffer = message.toCore().getReadOnlyBodyBuffer();

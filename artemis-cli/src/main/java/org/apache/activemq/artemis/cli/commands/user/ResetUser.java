@@ -20,7 +20,6 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -53,7 +52,7 @@ public class ResetUser extends PasswordAction {
       return null;
    }
 
-   protected void reset(String password, String[] roles) throws Exception {
+   private void reset(String password, String[] roles) throws Exception {
       if (password == null && roles == null) {
          context.err.println("Nothing to update.");
          return;

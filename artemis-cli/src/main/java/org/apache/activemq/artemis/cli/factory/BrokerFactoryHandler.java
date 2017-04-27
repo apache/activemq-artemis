@@ -14,28 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory;
 
-import java.io.File;
 import java.net.URI;
 
-import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.dto.BrokerDTO;
-import org.apache.activemq.artemis.dto.XmlUtil;
 
-public class XmlBrokerFactoryHandler implements BrokerFactoryHandler {
+public interface BrokerFactoryHandler {
 
-   @Override
-   public BrokerDTO createBroker(URI brokerURI) throws Exception {
-      return createBroker(brokerURI, null, null, null);
-   }
-
-   @Override
-   public BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance, URI artemisURIInstance) throws Exception {
-      File file = new File(brokerURI.getSchemeSpecificPart());
-      if (!file.exists()) {
-         throw new ConfigurationException("Invalid configuration URI, can't find file: " + file.getName());
-      }
-      return XmlUtil.decode(BrokerDTO.class, file, artemisHome, artemisInstance, artemisURIInstance);
-   }
+   BrokerDTO createBroker(URI brokerURI, String artemisHome, String artemisInstance, URI artemisURIInstance) throws Exception;
 }
