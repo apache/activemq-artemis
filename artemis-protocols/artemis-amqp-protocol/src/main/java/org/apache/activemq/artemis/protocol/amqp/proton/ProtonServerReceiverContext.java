@@ -143,6 +143,18 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       return sessionSPI.getDefaultRoutingType(address);
    }
 
+   private RoutingType getRoutingType(Symbol[] symbols) {
+      for (Symbol symbol : symbols) {
+         if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+            return RoutingType.MULTICAST;
+         } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+            return RoutingType.ANYCAST;
+         }
+      }
+
+      return sessionSPI.getDefaultRoutingType(address);
+   }
+
    /*
    * called when Proton receives a message to be delivered via a Delivery.
    *
