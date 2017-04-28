@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
-import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.security.cert.X509Certificate;
 import javax.transaction.xa.XAResource;
