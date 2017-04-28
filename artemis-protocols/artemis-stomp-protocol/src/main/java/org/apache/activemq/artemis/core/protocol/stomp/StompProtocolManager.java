@@ -403,6 +403,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    public boolean destinationExists(String destination) {
+      if (server.getManagementService().getManagementAddress().toString().equals(destination)) {
+         return true;
+      }
       return server.getPostOffice().getAddressInfo(SimpleString.toSimpleString(destination)) != null;
    }
 
