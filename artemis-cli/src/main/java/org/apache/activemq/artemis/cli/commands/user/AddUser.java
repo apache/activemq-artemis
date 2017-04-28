@@ -20,7 +20,6 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -53,7 +52,7 @@ public class AddUser extends PasswordAction {
     * @param role the role
     * @throws IllegalArgumentException if user exists
     */
-   protected void add(String hash, String... role) throws Exception {
+   private void add(String hash, String... role) throws Exception {
       FileBasedSecStoreConfig config = getConfiguration();
       config.addNewUser(username, hash, role);
       config.save();
