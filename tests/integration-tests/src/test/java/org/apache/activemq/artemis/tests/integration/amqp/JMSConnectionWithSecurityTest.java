@@ -22,6 +22,7 @@ import javax.jms.JMSSecurityException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -37,34 +38,49 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
 
    @Test(timeout = 10000)
    public void testNoUserOrPassword() throws Exception {
+      Connection connection = null;
       try {
-         Connection connection = createConnection("", "", null, false);
+         connection = createConnection("", "", null, false);
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
          IntegrationTestLogger.LOGGER.debug("Failed to authenticate connection with no user / password.");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
       }
    }
 
    @Test(timeout = 10000)
    public void testUnknownUser() throws Exception {
+      Connection connection = null;
       try {
-         Connection connection = createConnection("nosuchuser", "blah", null, false);
+         connection = createConnection("nosuchuser", "blah", null, false);
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
          IntegrationTestLogger.LOGGER.debug("Failed to authenticate connection with unknown user ID");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
       }
    }
 
    @Test(timeout = 10000)
    public void testKnownUserWrongPassword() throws Exception {
+      Connection connection = null;
       try {
-         Connection connection = createConnection(fullUser, "wrongPassword", null, false);
+         connection = createConnection(fullUser, "wrongPassword", null, false);
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
          IntegrationTestLogger.LOGGER.debug("Failed to authenticate connection with incorrect password.");
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
       }
    }
 
@@ -114,6 +130,102 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 30000)
+   public void testConsumerNotAuthorized() throws Exception {
+      Connection connection = createConnection(noprivUser, noprivPass);
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         try {
+            session.createConsumer(queue);
+            fail("Should not be able to consume here.");
+         } catch (JMSSecurityException jmsSE) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testBrowserNotAuthorized() throws Exception {
+      Connection connection = createConnection(noprivUser, noprivPass);
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         try {
+            QueueBrowser browser = session.createBrowser(queue);
+            // Browser is not created until an enumeration is requesteda
+            browser.getEnumeration();
+            fail("Should not be able to consume here.");
+         } catch (JMSSecurityException jmsSE) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testConsumerNotAuthorizedToCreateQueues() throws Exception {
+      Connection connection = createConnection(noprivUser, noprivPass);
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName(getPrecreatedQueueSize() + 1));
+         try {
+            session.createConsumer(queue);
+            fail("Should not be able to consume here.");
+         } catch (JMSSecurityException jmsSE) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testProducerNotAuthorized() throws Exception {
+      Connection connection = createConnection(guestUser, guestPass);
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         try {
+            // TODO - This seems a bit odd, can attach but not send
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            fail("Should not be able to produce here.");
+         } catch (JMSSecurityException jmsSE) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testAnonymousProducerNotAuthorized() throws Exception {
+      Connection connection = createConnection(guestUser, guestPass);
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         MessageProducer producer = session.createProducer(null);
+
+         try {
+            producer.send(queue, session.createTextMessage());
+            fail("Should not be able to produce here.");
+         } catch (JMSSecurityException jmsSE) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
    public void testCreateTemporaryQueueNotAuthorized() throws JMSException {
       Connection connection = createConnection(guestUser, guestPass);
 
@@ -123,7 +235,6 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          try {
             session.createTemporaryQueue();
          } catch (JMSSecurityException jmsse) {
-         } catch (JMSException jmse) {
             IntegrationTestLogger.LOGGER.info("Client should have thrown a JMSSecurityException but only threw JMSException");
          }
 
@@ -144,7 +255,6 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          try {
             session.createTemporaryTopic();
          } catch (JMSSecurityException jmsse) {
-         } catch (JMSException jmse) {
             IntegrationTestLogger.LOGGER.info("Client should have thrown a JMSSecurityException but only threw JMSException");
          }
 
