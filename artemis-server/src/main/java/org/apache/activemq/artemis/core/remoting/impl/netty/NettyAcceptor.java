@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -192,6 +193,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private Map<String, Object> extraConfigs;
 
    private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
+
+   final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
@@ -473,11 +476,15 @@ public class NettyAcceptor extends AbstractAcceptor {
       Set<String> set = new HashSet<>();
       for (String s : protocols) {
          if (s.equalsIgnoreCase("SSLv3") || s.equals("SSLv2Hello")) {
-            ActiveMQServerLogger.LOGGER.disallowedProtocol(s, name);
+            if (!warningPrinted.get()) {
+               ActiveMQServerLogger.LOGGER.disallowedProtocol(s, name);
+            }
             continue;
          }
          set.add(s);
       }
+
+      warningPrinted.set(true);
 
       engine.setEnabledProtocols(set.toArray(new String[set.size()]));
 
