@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalS
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInvalidFieldException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
@@ -76,5 +77,11 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 219014, value = "Transaction not found: xid={0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException txNotFound(String xidToString);
+
+   @Message(id = 219015, value = "not authorized to create consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPSecurityException securityErrorCreatingConsumer(String message);
+
+   @Message(id = 219016, value = "not authorized to create temporary destination, {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPSecurityException securityErrorCreatingTempDestination(String message);
 
 }

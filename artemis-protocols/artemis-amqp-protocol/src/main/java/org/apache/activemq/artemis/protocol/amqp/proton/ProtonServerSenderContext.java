@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -262,7 +263,17 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          boolean clientDefined = hasCapabilities(TOPIC, source) || hasCapabilities(QUEUE, source);
          if (clientDefined) {
             multicast = hasCapabilities(TOPIC, source);
-            AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
+            AddressQueryResult addressQueryResult = null;
+            try {
+               addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, true);
+            } catch (ActiveMQSecurityException e) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
+            } catch (ActiveMQAMQPException e) {
+               throw e;
+            } catch (Exception e) {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
+
             if (!addressQueryResult.isExists()) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
             }
@@ -276,8 +287,18 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                throw new ActiveMQAMQPIllegalStateException("Address " + addressToUse + " is not configured for queue support");
             }
          } else {
-            //if not we look up the address
-            AddressQueryResult addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), defaultRoutingType, true);
+            // if not we look up the address
+            AddressQueryResult addressQueryResult = null;
+            try {
+               addressQueryResult = sessionSPI.addressQuery(addressToUse.toString(), defaultRoutingType, true);
+            } catch (ActiveMQSecurityException e) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
+            } catch (ActiveMQAMQPException e) {
+               throw e;
+            } catch (Exception e) {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
+
             if (!addressQueryResult.isExists()) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
             }
@@ -407,6 +428,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          brokerConsumer = (Consumer) sessionSPI.createSender(this, queue, multicast ? null : selector, browseOnly);
       } catch (ActiveMQAMQPResourceLimitExceededException e1) {
          throw new ActiveMQAMQPResourceLimitExceededException(e1.getMessage());
+      } catch (ActiveMQSecurityException e) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
       }
