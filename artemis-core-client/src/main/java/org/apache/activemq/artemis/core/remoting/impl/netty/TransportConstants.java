@@ -101,6 +101,8 @@ public class TransportConstants {
 
    public static final String BACKLOG_PROP_NAME = "backlog";
 
+   public static final String USE_DEFAULT_SSL_CONTEXT_PROP_NAME = "useDefaultSslContext";
+
    public static final String NETTY_VERSION;
 
    /**
@@ -180,6 +182,8 @@ public class TransportConstants {
    public static final boolean DEFAULT_NEED_CLIENT_AUTH = false;
 
    public static final boolean DEFAULT_VERIFY_HOST = false;
+
+   public static final boolean DEFAULT_USE_DEFAULT_SSL_CONTEXT = false;
 
    public static final boolean DEFAULT_TCP_NODELAY = true;
 
@@ -321,6 +325,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
+      allowableConnectorKeys.add(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 
