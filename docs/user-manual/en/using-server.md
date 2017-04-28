@@ -89,28 +89,30 @@ For a full list of updated properties always use:
 
  SYNOPSIS
         artemis create [--addresses <addresses>] [--aio] [--allow-anonymous]
-                [--autocreate] [--cluster-password <clusterPassword>]
+                [--autocreate] [--blocking] [--cluster-password <clusterPassword>]
                 [--cluster-user <clusterUser>] [--clustered] [--data <data>]
                 [--default-port <defaultPort>] [--disable-persistence]
                 [--encoding <encoding>] [--failover-on-shutdown] [--force]
-                [--home <home>] [--host <host>] [--http-port <httpPort>]
+                [--global-max-size <globalMaxSize>] [--home <home>] [--host <host>]
+                [--http-host <httpHost>] [--http-port <httpPort>]
                 [--java-options <javaOptions>] [--mapped] [--max-hops <maxHops>]
                 [--message-load-balancing <messageLoadBalancing>] [--name <name>]
                 [--nio] [--no-amqp-acceptor] [--no-autocreate] [--no-autotune]
                 [--no-fsync] [--no-hornetq-acceptor] [--no-mqtt-acceptor]
-                [--no-stomp-acceptor] [--no-web] [--password <password>] [--ping <ping>]
-                [--port-offset <portOffset>] [--queues <queues>] [--replicated]
-                [--require-login] [--role <role>] [--shared-store] [--silent] [--slave]
-                [--ssl-key <sslKey>] [--ssl-key-password <sslKeyPassword>]
-                [--ssl-trust <sslTrust>] [--ssl-trust-password <sslTrustPassword>]
-                [--use-client-auth] [--user <user>] [--verbose] [--] <directory>
+                [--no-stomp-acceptor] [--no-web] [--paging] [--password <password>]
+                [--ping <ping>] [--port-offset <portOffset>] [--queues <queues>]
+                [--replicated] [--require-login] [--role <role>] [--shared-store]
+                [--silent] [--slave] [--ssl-key <sslKey>]
+                [--ssl-key-password <sslKeyPassword>] [--ssl-trust <sslTrust>]
+                [--ssl-trust-password <sslTrustPassword>] [--use-client-auth]
+                [--user <user>] [--verbose] [--] <directory>
 
  OPTIONS
          --addresses <addresses>
-             comma separated list of addresses
+             Comma separated list of addresses
 
          --aio
-             sets the journal as asyncio.
+             Sets the journal as asyncio.
 
          --allow-anonymous
              Enables anonymous configuration on security, opposite of
@@ -118,6 +120,10 @@ For a full list of updated properties always use:
 
          --autocreate
              Auto create addresses. (default: true)
+
+         --blocking
+             Block producers when address becomes full, opposite of --paging
+             (Default: false)
 
          --cluster-password <clusterPassword>
              The cluster password to use for clustering. (Default: input)
@@ -149,11 +155,18 @@ For a full list of updated properties always use:
          --force
              Overwrite configuration at destination directory
 
+         --global-max-size <globalMaxSize>
+             Maximum amount of memory which message data may consume (Default:
+             Undefined, half of the system's memory)
+
          --home <home>
              Directory where ActiveMQ Artemis is installed
 
          --host <host>
              The host name of the broker (Default: 0.0.0.0 or input if clustered)
+
+         --http-host <httpHost>
+             The host name to use for embedded web server (Default: localhost)
 
          --http-port <httpPort>
              The port number to use for embedded web server (Default: 8161)
@@ -175,7 +188,7 @@ For a full list of updated properties always use:
              The name of the broker (Default: same as host)
 
          --nio
-             sets the journal as nio.
+             Sets the journal as nio.
 
          --no-amqp-acceptor
              Disable the AMQP specific acceptor.
@@ -200,7 +213,11 @@ For a full list of updated properties always use:
              Disable the STOMP specific acceptor.
 
          --no-web
-             This will remove the web server definition from bootstrap.xml
+             Remove the web-server definition from bootstrap.xml
+
+         --paging
+             Page messages to disk when address becomes full, opposite of
+             --blocking (Default: true)
 
          --password <password>
              The user's password (Default: input)
@@ -214,7 +231,7 @@ For a full list of updated properties always use:
              Off sets the ports of every acceptor
 
          --queues <queues>
-             comma separated list of queues.
+             Comma separated list of queues.
 
          --replicated
              Enable broker replication
@@ -224,7 +241,7 @@ For a full list of updated properties always use:
              --allow-anonymous
 
          --role <role>
-             The name for the role created (Default: input)
+             The name for the role created (Default: amq)
 
          --shared-store
              Enable broker shared store
@@ -274,7 +291,7 @@ Some of these properties may be mandatory in certain configurations and the syst
     ./artemis create /usr/server
     Creating ActiveMQ Artemis instance at: /user/server
 
-    --user: is mandatory with this configuration:
+    --user: is a mandatory property!
     Please provide the default username:
     admin
 
@@ -282,9 +299,12 @@ Some of these properties may be mandatory in certain configurations and the syst
     Please provide the default password:
 
 
-    --allow-anonymous: is mandatory with this configuration:
-    Allow anonymous access? (Y/N):
+    --allow-anonymous | --require-login: is a mandatory property!
+    Allow anonymous access?, valid values are Y,N,True,False
     y
+
+    Auto tuning journal ...
+    done! Your system can make 0.34 writes per millisecond, your journal-buffer-timeout will be 2956000
 
     You can now start the broker by executing:
 
