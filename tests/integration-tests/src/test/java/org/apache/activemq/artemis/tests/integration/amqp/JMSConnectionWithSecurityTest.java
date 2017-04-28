@@ -193,9 +193,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(getQueueName());
          try {
-            // TODO - This seems a bit odd, can attach but not send
-            MessageProducer producer = session.createProducer(queue);
-            producer.send(session.createMessage());
+            session.createProducer(queue);
             fail("Should not be able to produce here.");
          } catch (JMSSecurityException jmsSE) {
             IntegrationTestLogger.LOGGER.info("Caught expected exception");

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -95,34 +94,20 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendAndRejected() throws Exception {
-      CountDownLatch latch = new CountDownLatch(1);
-
       AmqpClient client = createAmqpClient(guestUser, guestPass);
       client.setValidator(new AmqpValidator() {
 
          @Override
-         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
-            DeliveryState state = delivery.getRemoteState();
+         public void inspectOpenedResource(Sender sender) {
+            ErrorCondition condition = sender.getRemoteCondition();
 
-            if (!delivery.remotelySettled()) {
-               markAsInvalid("delivery is not remotely settled");
-            }
-
-            if (state instanceof Rejected) {
-               Rejected rejected = (Rejected) state;
-               if (rejected.getError() == null || rejected.getError().getCondition() == null) {
-                  markAsInvalid("Delivery should have been Rejected with an error condition");
-               } else {
-                  ErrorCondition error = rejected.getError();
-                  if (!error.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
-                     markAsInvalid("Should have been tagged with unauthorized access error");
-                  }
+            if (condition != null && condition.getCondition() != null) {
+               if (!condition.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                  markAsInvalid("Should have been tagged with unauthorized access error");
                }
             } else {
-               markAsInvalid("Delivery should have been Rejected");
+               markAsInvalid("Sender should have been opened with an error");
             }
-
-            latch.countDown();
          }
       });
 
@@ -130,19 +115,13 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       AmqpSession session = connection.createSession();
 
       try {
-         AmqpSender sender = session.createSender(getQueueName());
-         AmqpMessage message = new AmqpMessage();
-
-         message.setMessageId("msg" + 1);
-         message.setMessageAnnotation("serialNo", 1);
-         message.setText("Test-Message");
-
          try {
-            sender.send(message);
-         } catch (IOException e) {
+            session.createSender(getQueueName());
+            fail("Should not be able to consume here.");
+         } catch (Exception ex) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
          }
 
-         assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
          connection.getStateInspector().assertValid();
       } finally {
          connection.close();
