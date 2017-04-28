@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
+import javax.security.cert.X509Certificate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -54,8 +56,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -288,9 +289,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       String username = info.getUserName();
       String password = info.getPassword();
 
-      if (!this.validateUser(username, password)) {
-         throw new SecurityException("User name [" + username + "] or password is invalid.");
-      }
+      validateUser(username, password, connection);
 
       String clientId = info.getClientId();
       if (clientId == null) {
@@ -454,20 +453,13 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       return false;
    }
 
-   public boolean validateUser(String login, String passcode) {
-      boolean validated = true;
-
-      ActiveMQSecurityManager sm = server.getSecurityManager();
-
-      if (sm != null && server.getConfiguration().isSecurityEnabled()) {
-         if (sm instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, null) != null;
-         } else {
-            validated = sm.validateUser(login, passcode);
-         }
+   public void validateUser(String login, String passcode, OpenWireConnection connection) throws Exception {
+      X509Certificate[] certificates = null;
+      if (connection.getTransportConnection() instanceof NettyConnection) {
+         certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
       }
 
-      return validated;
+      server.getSecurityStore().authenticate(login, passcode, certificates);
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) throws Exception {
