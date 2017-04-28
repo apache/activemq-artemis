@@ -21,12 +21,18 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
@@ -120,6 +126,41 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                   throw e;
                } catch (Exception e) {
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+               }
+
+               try {
+                  sessionSPI.check(SimpleString.toSimpleString(address), CheckType.SEND, new SecurityAuth() {
+                     @Override
+                     public String getUsername() {
+                        String username = null;
+                        SASLResult saslResult = connection.getSASLResult();
+                        if (saslResult != null) {
+                           username = saslResult.getUser();
+                        }
+
+                        return username;
+                     }
+
+                     @Override
+                     public String getPassword() {
+                        String password = null;
+                        SASLResult saslResult = connection.getSASLResult();
+                        if (saslResult != null) {
+                           if (saslResult instanceof PlainSASLResult) {
+                              password = ((PlainSASLResult) saslResult).getPassword();
+                           }
+                        }
+
+                        return password;
+                     }
+
+                     @Override
+                     public RemotingConnection getRemotingConnection() {
+                        return null;
+                     }
+                  });
+               } catch (ActiveMQSecurityException e) {
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
                }
             }
          }
