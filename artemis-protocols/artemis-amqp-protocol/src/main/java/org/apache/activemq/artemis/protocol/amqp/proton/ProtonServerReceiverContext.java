@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -30,6 +31,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
@@ -96,6 +98,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
             try {
                sessionSPI.createTemporaryQueue(address, getRoutingType(target.getCapabilities()));
+            } catch (ActiveMQSecurityException e) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(e.getMessage());
             } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
@@ -160,10 +164,10 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          if (delivery.isPartial()) {
             return;
          }
+
          receiver = ((Receiver) delivery.getLink());
 
          Transaction tx = null;
-
          byte[] data;
 
          data = new byte[delivery.available()];
@@ -171,7 +175,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          receiver.advance();
 
          if (delivery.getRemoteState() instanceof TransactionalState) {
-
             TransactionalState txState = (TransactionalState) delivery.getRemoteState();
             tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
          }
@@ -183,7 +186,13 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();
-         condition.setCondition(Symbol.valueOf("failed"));
+
+         if (e instanceof ActiveMQSecurityException) {
+            condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
+         } else {
+            condition.setCondition(Symbol.valueOf("failed"));
+         }
+
          condition.setDescription(e.getMessage());
          rejected.setError(condition);
          connection.lock();
