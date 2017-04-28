@@ -416,6 +416,15 @@ following additional properties:
 
     Valid values are `true` or `false`. Default is `false`.
 
+-   `useDefaultSslContext`
+
+    Only valid on a `connector`. Allows the `connector` to use the "default" SSL
+    context (via `SSLContext.getDefault()`) which can be set programmatically by
+    the client (via `SSLContext.setDefault(SSLContext)`). If set to `true` all
+    other SSL related parameters except for `sslEnabled` are ignored.
+
+    Valid values are `true` or `false`. Default is `false`.
+
 ## Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in
