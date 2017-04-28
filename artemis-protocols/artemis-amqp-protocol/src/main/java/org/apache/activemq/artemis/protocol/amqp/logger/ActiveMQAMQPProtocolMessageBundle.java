@@ -84,4 +84,7 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 219016, value = "not authorized to create temporary destination, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPSecurityException securityErrorCreatingTempDestination(String message);
 
+   @Message(id = 219017, value = "not authorized to create producer, {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPSecurityException securityErrorCreatingProducer(String message);
+
 }
