@@ -16,28 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
-import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
-import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.jms.JMSException;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
-import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -48,8 +43,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.Source;
-import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.jgroups.util.UUID;
 import org.junit.Test;
@@ -63,19 +56,14 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(AmqpSendReceiveTest.class);
 
-   @Test(timeout = 60000)
-   public void testCreateQueueReceiver() throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
+   @Override
+   protected boolean isAutoCreateQueues() {
+      return false;
+   }
 
-      AmqpReceiver receiver = session.createReceiver(getQueueName());
-
-      Queue queue = getProxyToQueue(getQueueName());
-      assertNotNull(queue);
-
-      receiver.close();
-      connection.close();
+   @Override
+   protected boolean isAutoCreateAddresses() {
+      return false;
    }
 
    @Test(timeout = 60000)
@@ -103,90 +91,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(0, queue.getMessageCount());
    }
 
-
-   @Test(timeout = 60000)
-   public void testCreateQueueReceiverWithJMSSelector() throws Exception {
-      AmqpClient client = createAmqpClient();
-
-      client.setValidator(new AmqpValidator() {
-
-         @SuppressWarnings("unchecked")
-         @Override
-         public void inspectOpenedResource(Receiver receiver) {
-
-            if (receiver.getRemoteSource() == null) {
-               markAsInvalid("Link opened with null source.");
-            }
-
-            Source source = (Source) receiver.getRemoteSource();
-            Map<Symbol, Object> filters = source.getFilter();
-
-            if (findFilter(filters, JMS_SELECTOR_FILTER_IDS) == null) {
-               markAsInvalid("Broker did not return the JMS Filter on Attach");
-            }
-         }
-      });
-
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      session.createReceiver(getQueueName(), "JMSPriority > 8");
-
-      connection.getStateInspector().assertValid();
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testCreateQueueReceiverWithNoLocalSet() throws Exception {
-      AmqpClient client = createAmqpClient();
-
-      client.setValidator(new AmqpValidator() {
-
-         @SuppressWarnings("unchecked")
-         @Override
-         public void inspectOpenedResource(Receiver receiver) {
-
-            if (receiver.getRemoteSource() == null) {
-               markAsInvalid("Link opened with null source.");
-            }
-
-            Source source = (Source) receiver.getRemoteSource();
-            Map<Symbol, Object> filters = source.getFilter();
-
-            // Currently don't support noLocal on a Queue
-            if (findFilter(filters, NO_LOCAL_FILTER_IDS) != null) {
-               markAsInvalid("Broker did not return the NoLocal Filter on Attach");
-            }
-         }
-      });
-
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      session.createReceiver(getQueueName(), null, true);
-
-      connection.getStateInspector().assertValid();
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testInvalidFilter() throws Exception {
-      AmqpClient client = createAmqpClient();
-
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      try {
-         session.createReceiver(getQueueName(), "null = 'f''", true);
-         fail("should throw exception");
-      } catch (Exception e) {
-         assertTrue(e.getCause() instanceof JMSException);
-         //passed
-      }
-
-      connection.close();
-   }
-
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessage() throws Exception {
       sendMessages(getQueueName(), 1);
@@ -207,108 +111,6 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       assertEquals(1, queueView.getMessageCount());
 
       connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testQueueReceiverReadMessageWithDivert() throws Exception {
-      final String forwardingAddress = getQueueName() + "Divert";
-      final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
-      server.createQueue(simpleForwardingAddress, RoutingType.ANYCAST, simpleForwardingAddress, null, true, false);
-      server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(), forwardingAddress, true, null, null, DivertConfigurationRoutingType.ANYCAST.toString());
-      sendMessages(getQueueName(), 1);
-
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      AmqpSession session = connection.createSession();
-
-      AmqpReceiver receiver = session.createReceiver(forwardingAddress);
-
-      Queue queueView = getProxyToQueue(forwardingAddress);
-      assertEquals(1, queueView.getMessageCount());
-
-      receiver.flow(1);
-      assertNotNull(receiver.receive(5, TimeUnit.SECONDS));
-      receiver.close();
-
-      assertEquals(1, queueView.getMessageCount());
-
-      connection.close();
-   }
-
-   @Test(timeout = 60000)
-   public void testAnycastMessageRoutingExclusivityUsingPrefix() throws Exception {
-      final String addressA = "addressA";
-      final String queueA = "queueA";
-      final String queueB = "queueB";
-      final String queueC = "queueC";
-
-      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
-      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
-
-      sendMessages("anycast://" + addressA, 1);
-
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
-   }
-
-   @Test(timeout = 60000)
-   public void testAnycastMessageRoutingExclusivityUsingProperty() throws Exception {
-      final String addressA = "addressA";
-      final String queueA = "queueA";
-      final String queueB = "queueB";
-      final String queueC = "queueC";
-
-      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
-      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueB, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
-
-      sendMessages(addressA, 1, RoutingType.ANYCAST);
-
-      assertEquals(1, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount());
-   }
-
-   @Test
-   public void testMulticastMessageRoutingExclusivityUsingPrefix() throws Exception {
-      final String addressA = "addressA";
-      final String queueA = "queueA";
-      final String queueB = "queueB";
-      final String queueC = "queueC";
-
-      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
-      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueB, RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
-
-      sendMessages("multicast://" + addressA, 1);
-
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
-   }
-
-   @Test
-   public void testMulticastMessageRoutingExclusivityUsingProperty() throws Exception {
-      final String addressA = "addressA";
-      final String queueA = "queueA";
-      final String queueB = "queueB";
-      final String queueC = "queueC";
-
-      ActiveMQServerControl serverControl = server.getActiveMQServerControl();
-      serverControl.createAddress(addressA, RoutingType.ANYCAST.toString() + "," + RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueA, RoutingType.ANYCAST.toString());
-      serverControl.createQueue(addressA, queueB, RoutingType.MULTICAST.toString());
-      serverControl.createQueue(addressA, queueC, RoutingType.MULTICAST.toString());
-
-      sendMessages(addressA, 1, RoutingType.MULTICAST);
-
-      assertEquals(0, server.locateQueue(SimpleString.toSimpleString(queueA)).getMessageCount());
-      assertEquals(2, server.locateQueue(SimpleString.toSimpleString(queueC)).getMessageCount() + server.locateQueue(SimpleString.toSimpleString(queueB)).getMessageCount());
    }
 
    @Test(timeout = 60000)
@@ -870,7 +672,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message1.setMessageId("ID:Message:1");
       sender.send(message1);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
       receiver1.flow(1);
       message1 = receiver1.receive(50, TimeUnit.SECONDS);
       assertNotNull("Should have read a message", message1);
@@ -884,7 +686,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message2.setMessageId("ID:Message:2");
       sender.send(message2);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
       receiver1.flow(1);
       message2 = receiver1.receive(50, TimeUnit.SECONDS);
       assertNotNull("Should have read a message", message2);
@@ -1018,7 +820,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   @Test
+   @Test(timeout = 60000)
    public void testDeliveryDelayOfferedWhenRequested() throws Exception {
       AmqpClient client = createAmqpClient();
       client.setValidator(new AmqpValidator() {
@@ -1036,7 +838,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender("queue://" + getQueueName(), new Symbol[] {AmqpSupport.DELAYED_DELIVERY});
+      AmqpSender sender = session.createSender(getQueueName(), new Symbol[] {AmqpSupport.DELAYED_DELIVERY});
       assertNotNull(sender);
 
       connection.getStateInspector().assertValid();
@@ -1100,45 +902,119 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   public void sendMessages(String destinationName, int count) throws Exception {
-      sendMessages(destinationName, count, null);
-   }
-
-   public void sendMessages(String destinationName, int count, RoutingType routingType) throws Exception {
+   @Test(timeout = 60000)
+   public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      Exception expectedException = null;
+      try {
+         session.createSender("AnAddressThatDoesNotExist");
+         fail("Creating a sender here on an address that doesn't exist should fail");
+      } catch (Exception e) {
+         expectedException = e;
+      }
+
+      assertNotNull(expectedException);
+      assertTrue(expectedException.getMessage().contains("amqp:not-found"));
+      assertTrue(expectedException.getMessage().contains("target address does not exist"));
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testSendingAndReceivingToQueueWithDifferentAddressAndQueueName() throws Exception {
+      String queueName = "TestQueueName";
+      String address = "TestAddress";
+      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(address), RoutingType.ANYCAST));
+      server.createQueue(new SimpleString(address), RoutingType.ANYCAST, new SimpleString(queueName), null, true, false);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
       try {
          AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
+         AmqpSender sender = session.createSender(address);
+         AmqpReceiver receiver = session.createReceiver(address);
+         receiver.flow(1);
 
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            if (routingType != null) {
-               message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
+         AmqpMessage message = new AmqpMessage();
+         message.setText("TestPayload");
+         sender.send(message);
+
+         AmqpMessage receivedMessage = receiver.receive(5000, TimeUnit.MILLISECONDS);
+         assertNotNull(receivedMessage);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendReceiveLotsOfDurableMessagesOnQueue() throws Exception {
+      doTestSendReceiveLotsOfDurableMessages(Queue.class);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendReceiveLotsOfDurableMessagesOnTopic() throws Exception {
+      doTestSendReceiveLotsOfDurableMessages(Topic.class);
+   }
+
+   private void doTestSendReceiveLotsOfDurableMessages(Class<?> destType) throws Exception {
+      final int MSG_COUNT = 1000;
+
+      AmqpClient client = createAmqpClient();
+
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      final CountDownLatch done = new CountDownLatch(MSG_COUNT);
+      final AtomicBoolean error = new AtomicBoolean(false);
+      final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+      final String address;
+      if (Queue.class.equals(destType)) {
+         address = getQueueName();
+      } else {
+         address = getTopicName();
+      }
+
+      final AmqpReceiver receiver = session.createReceiver(address);
+      receiver.flow(MSG_COUNT);
+
+      AmqpSender sender = session.createSender(address);
+
+      Queue queueView = getProxyToQueue(address);
+
+      executor.execute(new Runnable() {
+
+         @Override
+         public void run() {
+            for (int i = 0; i < MSG_COUNT; i++) {
+               try {
+                  AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+                  received.accept();
+                  done.countDown();
+               } catch (Exception ex) {
+                  LOG.info("Caught error: {}", ex.getClass().getSimpleName());
+                  error.set(true);
+               }
             }
-            sender.send(message);
          }
-      } finally {
-         connection.close();
-      }
-   }
+      });
 
-   public void sendMessages(String destinationName, int count, boolean durable) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            message.setDurable(durable);
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
+      for (int i = 0; i < MSG_COUNT; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setMessageId("msg" + i);
+         sender.send(message);
       }
+
+      assertTrue("did not read all messages, waiting on: " + done.getCount(), done.await(10, TimeUnit.SECONDS));
+      assertFalse("should not be any errors on receive", error.get());
+      assertTrue("Should be no inflight messages.", Wait.waitFor(() -> queueView.getDeliveringCount() == 0));
+
+      sender.close();
+      receiver.close();
+      connection.close();
    }
 }

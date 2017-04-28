@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -24,8 +26,6 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
 
 public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
 
@@ -39,7 +39,7 @@ public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
       AmqpSession session = connection.createSession();
 
       AmqpReceiver receiver = session.createReceiver(address.toString());
-      sendMessages(1, address.toString());
+      sendMessages(address.toString(), 1);
       receiver.flow(1);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
@@ -48,5 +48,4 @@ public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
       receiver.close();
       connection.close();
    }
-
 }

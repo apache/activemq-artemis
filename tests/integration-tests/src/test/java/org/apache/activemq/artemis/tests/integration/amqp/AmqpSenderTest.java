@@ -16,14 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
+import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.Sender;
 import org.junit.Test;
 
 /**
@@ -99,6 +107,76 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
 
       sender.close();
 
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testUnsettledSender() throws Exception {
+      final int MSG_COUNT = 1000;
+
+      final CountDownLatch settled = new CountDownLatch(MSG_COUNT);
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+
+      connection.setStateInspector(new AmqpValidator() {
+
+         @Override
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
+            if (delivery.remotelySettled()) {
+               IntegrationTestLogger.LOGGER.trace("Remote settled message for sender: " + sender.getName());
+               settled.countDown();
+            }
+         }
+      });
+
+      AmqpSession session = connection.createSession();
+      AmqpSender sender = session.createSender(getQueueName(), false);
+
+      for (int i = 1; i <= MSG_COUNT; ++i) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message: " + i);
+         sender.send(message);
+
+         if (i % 1000 == 0) {
+            IntegrationTestLogger.LOGGER.info("Sent message: " + i);
+         }
+      }
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("All messages should arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+
+      sender.close();
+
+      assertTrue("Remote should have settled all deliveries", settled.await(5, TimeUnit.MINUTES));
+
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testPresettledSender() throws Exception {
+      final int MSG_COUNT = 1000;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getQueueName(), true);
+
+      for (int i = 1; i <= MSG_COUNT; ++i) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message: " + i);
+         sender.send(message);
+
+         if (i % 1000 == 0) {
+            IntegrationTestLogger.LOGGER.info("Sent message: " + i);
+         }
+      }
+
+      Queue queueView = getProxyToQueue(getQueueName());
+      assertTrue("All messages should arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+
+      sender.close();
       connection.close();
    }
 }

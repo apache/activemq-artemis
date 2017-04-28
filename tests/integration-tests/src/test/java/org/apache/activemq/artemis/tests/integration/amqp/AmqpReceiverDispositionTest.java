@@ -22,7 +22,6 @@ import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
-import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.message.Message;
 import org.junit.Test;
@@ -56,7 +55,6 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
 
       receiver2.flow(1);
       message.release();
-
 
       // Read the message again and validate its state
       message = receiver2.receive(10, TimeUnit.SECONDS);
@@ -171,22 +169,5 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       assertEquals("Unexpected updated value for AMQP delivery-count", expectedDeliveryCount, protonMessage2.getDeliveryCount());
 
       connection.close();
-   }
-
-   public void sendMessages(String destinationName, int count) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
-      }
    }
 }

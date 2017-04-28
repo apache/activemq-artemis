@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -53,7 +54,27 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
    private static final String BROKER_NAME = "localhost";
    private static final String PRODUCT_NAME = "apache-activemq-artemis";
 
-   @Test
+   @Test(timeout = 60000)
+   public void testCloseIsSentOnConnectionClose() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection amqpConnection = client.connect();
+
+      try {
+         for (RemotingConnection connection : server.getRemotingService().getConnections()) {
+            server.getRemotingService().removeConnection(connection);
+            connection.disconnect(true);
+         }
+
+         Wait.waitFor(amqpConnection::isClosed);
+
+         assertTrue(amqpConnection.isClosed());
+         assertEquals(AmqpSupport.CONNECTION_FORCED, amqpConnection.getConnection().getRemoteCondition().getCondition());
+      } finally {
+         amqpConnection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
    public void testBrokerContainerId() throws Exception {
       AmqpClient client = createAmqpClient();
       assertNotNull(client);
@@ -77,7 +98,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
-   @Test
+   @Test(timeout = 60000)
    public void testBrokerConnectionProperties() throws Exception {
       AmqpClient client = createAmqpClient();
 
