@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -30,29 +29,28 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Test;
 
-public class ProtonMaxFrameSizeTest extends ProtonTestBase {
+public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
    private static final int FRAME_SIZE = 512;
 
    @Override
-   protected void configureAmqp(Map<String, Object> params) {
+   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
       params.put("maxFrameSize", FRAME_SIZE);
    }
 
-   @Test
+   @Test(timeout = 60000)
    public void testMultipleTransfers() throws Exception {
 
       String testQueueName = "ConnectionFrameSize";
       int nMsgs = 200;
 
-      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
-
-      AmqpConnection amqpConnection = client.createConnection();
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
 
       try {
-         amqpConnection.connect();
+         connection.connect();
 
-         AmqpSession session = amqpConnection.createSession();
+         AmqpSession session = connection.createSession();
          AmqpSender sender = session.createSender(testQueueName);
 
          final int payload = FRAME_SIZE * 16;
@@ -79,7 +77,7 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
          }
 
       } finally {
-         amqpConnection.close();
+         connection.close();
       }
    }
 
@@ -92,5 +90,4 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
       message.setBytes(payload);
       return message;
    }
-
 }

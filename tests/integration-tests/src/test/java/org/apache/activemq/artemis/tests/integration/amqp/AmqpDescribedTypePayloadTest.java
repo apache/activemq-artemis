@@ -29,6 +29,7 @@ import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -43,7 +44,7 @@ import org.junit.Test;
  * Test that the broker can pass through an AMQP message with a described type in the message
  * body regardless of transformer in use.
  */
-public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
+public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 
    @Test(timeout = 60000)
    public void testSendMessageWithDescribedTypeInBody() throws Exception {
@@ -87,7 +88,7 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       Queue queue = getProxyToQueue(getQueueName());
       assertEquals(1, queue.getMessageCount());
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(getBrokerOpenWireConnectionURI());
       Connection jmsConnection = factory.createConnection();
       try {
          Session jmsSession = jmsConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -118,10 +119,10 @@ public class AmqpDescribedTypePayloadTest extends AmqpClientTestSupport {
       sender.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
-      // Receive and resend with OpenWire JMS client
-      JmsConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
+      // Receive and resend with Qpid JMS client
+      JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
       Connection jmsConnection = factory.createConnection();
       try {
          Session jmsSession = jmsConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);

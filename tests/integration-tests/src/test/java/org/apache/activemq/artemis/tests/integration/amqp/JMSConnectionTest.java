@@ -1,0 +1,118 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.tests.integration.amqp;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.jms.Connection;
+import javax.jms.InvalidClientIDException;
+import javax.jms.JMSException;
+import javax.jms.Session;
+
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Test;
+
+public class JMSConnectionTest extends JMSClientTestSupport {
+
+   @Test(timeout = 60000)
+   public void testConnection() throws Exception {
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         session.createConsumer(queue);
+
+         Queue queueView = getProxyToQueue(getQueueName());
+
+         assertTrue("Connection not counted", Wait.waitFor(() -> server.getConnectionCount() == 1));
+         assertTrue("Consumer not counted", Wait.waitFor(() -> queueView.getConsumerCount() == 1));
+
+         assertEquals(1, queueView.getConsumerCount());
+
+         connection.close();
+
+         assertTrue("Consumer not closed", Wait.waitFor(() -> queueView.getConsumerCount() == 0));
+         assertTrue("Connection not released", Wait.waitFor(() -> server.getConnectionCount() == 0));
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testClientIDsAreExclusive() throws Exception {
+      Connection testConn1 = createConnection(false);
+      Connection testConn2 = createConnection(false);
+
+      try {
+         testConn1.setClientID("client-id1");
+         try {
+            testConn1.setClientID("client-id2");
+            fail("didn't get expected exception");
+         } catch (javax.jms.IllegalStateException e) {
+            // expected
+         }
+
+         try {
+            testConn2.setClientID("client-id1");
+            fail("didn't get expected exception");
+         } catch (InvalidClientIDException e) {
+            // expected
+         }
+      } finally {
+         testConn1.close();
+         testConn2.close();
+      }
+
+      try {
+         testConn1 = createConnection(false);
+         testConn2 = createConnection(false);
+         testConn1.setClientID("client-id1");
+         testConn2.setClientID("client-id2");
+      } finally {
+         testConn1.close();
+         testConn2.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testParallelConnections() throws Exception {
+      final int numThreads = 40;
+      ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+      for (int i = 0; i < numThreads; i++) {
+         executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+
+               try {
+                  Connection connection = createConnection(fullUser, fullPass);
+                  connection.start();
+                  connection.close();
+               } catch (JMSException e) {
+                  e.printStackTrace();
+               }
+            }
+         });
+      }
+
+      executorService.shutdown();
+      assertTrue("executor done on time", executorService.awaitTermination(30, TimeUnit.SECONDS));
+   }
+}

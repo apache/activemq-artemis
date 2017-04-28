@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -192,7 +193,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
@@ -228,7 +229,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
@@ -249,22 +250,5 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       sender.close();
       connection.close();
-   }
-
-   public void sendMessages(String destinationName, int count) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
-      }
    }
 }

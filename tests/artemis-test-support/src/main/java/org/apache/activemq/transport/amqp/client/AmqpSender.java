@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 public class AmqpSender extends AmqpAbstractResource<Sender> {
 
    private static final Logger LOG = LoggerFactory.getLogger(AmqpSender.class);
-   private static final byte[] EMPTY_BYTE_ARRAY = new byte[]{};
+   private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
    public static final long DEFAULT_SEND_TIMEOUT = 15000;
 
@@ -126,9 +126,12 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Create a new sender instance using the given Target when creating the link.
     *
-    * @param session  The parent session that created the session.
-    * @param target   The target that this sender produces to.
-    * @param senderId The unique ID assigned to this sender.
+    * @param session
+    *        The parent session that created the session.
+    * @param target
+    *        The target that this sender produces to.
+    * @param senderId
+    *        The unique ID assigned to this sender.
     */
    public AmqpSender(AmqpSession session, Target target, String senderId) {
 
@@ -147,8 +150,10 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Sends the given message to this senders assigned address.
     *
-    * @param message the message to send.
-    * @throws IOException if an error occurs during the send.
+    * @param message
+    *        the message to send.
+    * @throws IOException
+    *         if an error occurs during the send.
     */
    public void send(final AmqpMessage message) throws IOException {
       checkClosed();
@@ -156,11 +161,15 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    /**
-    * Sends the given message to this senders assigned address using the supplied transaction ID.
+    * Sends the given message to this senders assigned address using the supplied transaction
+    * ID.
     *
-    * @param message the message to send.
-    * @param txId    the transaction ID to assign the outgoing send.
-    * @throws IOException if an error occurs during the send.
+    * @param message
+    *        the message to send.
+    * @param txId
+    *        the transaction ID to assign the outgoing send.
+    * @throws IOException
+    *         if an error occurs during the send.
     */
    public void send(final AmqpMessage message, final AmqpTransactionId txId) throws IOException {
       checkClosed();
@@ -188,10 +197,11 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    /**
-    * Close the sender, a closed sender will throw exceptions if any further send
-    * calls are made.
+    * Close the sender, a closed sender will throw exceptions if any further send calls are
+    * made.
     *
-    * @throws IOException if an error occurs while closing the sender.
+    * @throws IOException
+    *         if an error occurs while closing the sender.
     */
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
@@ -231,7 +241,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       return address;
    }
 
-   //----- Sender configuration ---------------------------------------------//
+   // ----- Sender configuration ---------------------------------------------//
 
    /**
     * @return will messages be settle on send.
@@ -243,7 +253,8 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Configure is sent messages are marked as settled on send, defaults to false.
     *
-    * @param presettle configure if this sender will presettle all sent messages.
+    * @param presettle
+    *        configure if this sender will presettle all sent messages.
     */
    public void setPresettle(boolean presettle) {
       this.presettle = presettle;
@@ -259,12 +270,12 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Sets the amount of time the sender will block on a send before failing.
     *
-    * @param sendTimeout time in milliseconds to wait.
+    * @param sendTimeout
+    *        time in milliseconds to wait.
     */
    public void setSendTimeout(long sendTimeout) {
       this.sendTimeout = sendTimeout;
    }
-
 
    public void setDesiredCapabilities(Symbol[] desiredCapabilities) {
       if (getEndpoint() != null) {
@@ -290,7 +301,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
       this.properties = properties;
    }
 
-   //----- Private Sender implementation ------------------------------------//
+   // ----- Private Sender implementation ------------------------------------//
 
    private void checkClosed() {
       if (isClosed()) {
@@ -301,7 +312,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    @Override
    protected void doOpen() {
 
-      Symbol[] outcomes = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL};
+      Symbol[] outcomes = new Symbol[] {Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL};
       Source source = new Source();
       source.setAddress(senderId);
       source.setOutcomes(outcomes);
@@ -379,6 +390,14 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    protected void doDetachedInspection() {
       try {
          getStateInspector().inspectDetachedResource(getSender());
+      } catch (Throwable error) {
+         getStateInspector().markAsInvalid(error.getMessage());
+      }
+   }
+
+   protected void doDeliveryUpdateInspection(Delivery delivery) {
+      try {
+         getStateInspector().inspectDeliveryUpdate(getSender(), delivery);
       } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
@@ -470,6 +489,8 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
             continue;
          }
 
+         doDeliveryUpdateInspection(delivery);
+
          Outcome outcome = null;
          if (state instanceof TransactionalState) {
             LOG.trace("State of delivery is Transactional, retrieving outcome: {}", state);
@@ -516,8 +537,6 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
          tagGenerator.returnTag(delivery.getTag());
          delivery.settle();
          toRemove.add(delivery);
-
-         doDeliveryUpdate(delivery);
       }
 
       pending.removeAll(toRemove);
