@@ -109,10 +109,10 @@ For a full list of updated properties always use:
 
  OPTIONS
          --addresses <addresses>
-             comma separated list of addresses
+             Comma separated list of addresses
 
          --aio
-             sets the journal as asyncio.
+             Sets the journal as asyncio.
 
          --allow-anonymous
              Enables anonymous configuration on security, opposite of
@@ -188,7 +188,7 @@ For a full list of updated properties always use:
              The name of the broker (Default: same as host)
 
          --nio
-             sets the journal as nio.
+             Sets the journal as nio.
 
          --no-amqp-acceptor
              Disable the AMQP specific acceptor.
@@ -213,7 +213,7 @@ For a full list of updated properties always use:
              Disable the STOMP specific acceptor.
 
          --no-web
-             remove the web-server definition from bootstrap.xml
+             Remove the web-server definition from bootstrap.xml
 
          --paging
              Page messages to disk when address becomes full, opposite of
@@ -231,7 +231,7 @@ For a full list of updated properties always use:
              Off sets the ports of every acceptor
 
          --queues <queues>
-             comma separated list of queues.
+             Comma separated list of queues.
 
          --replicated
              Enable broker replication
