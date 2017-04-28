@@ -31,6 +31,8 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -653,5 +655,9 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public RoutingType getDefaultRoutingType(String address) {
       return manager.getServer().getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType();
+   }
+
+   public void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception {
+      manager.getServer().getSecurityStore().check(address, checkType, session);
    }
 }
