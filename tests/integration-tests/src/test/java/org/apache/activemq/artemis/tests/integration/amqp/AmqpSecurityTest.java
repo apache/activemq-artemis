@@ -20,13 +20,19 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
+import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
+import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.junit.Test;
 
@@ -96,8 +102,24 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
+            DeliveryState state = delivery.getRemoteState();
+
             if (!delivery.remotelySettled()) {
                markAsInvalid("delivery is not remotely settled");
+            }
+
+            if (state instanceof Rejected) {
+               Rejected rejected = (Rejected) state;
+               if (rejected.getError() == null || rejected.getError().getCondition() == null) {
+                  markAsInvalid("Delivery should have been Rejected with an error condition");
+               } else {
+                  ErrorCondition error = rejected.getError();
+                  if (!error.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                     markAsInvalid("Should have been tagged with unauthorized access error");
+                  }
+               }
+            } else {
+               markAsInvalid("Delivery should have been Rejected");
             }
 
             latch.countDown();
@@ -107,26 +129,59 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpSender sender = session.createSender(getQueueName());
-      AmqpMessage message = new AmqpMessage();
-
-      message.setMessageId("msg" + 1);
-      message.setMessageAnnotation("serialNo", 1);
-      message.setText("Test-Message");
-
       try {
-         sender.send(message);
-      } catch (IOException e) {
-      }
+         AmqpSender sender = session.createSender(getQueueName());
+         AmqpMessage message = new AmqpMessage();
 
-      assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
-      connection.getStateInspector().assertValid();
-      connection.close();
+         message.setMessageId("msg" + 1);
+         message.setMessageAnnotation("serialNo", 1);
+         message.setText("Test-Message");
+
+         try {
+            sender.send(message);
+         } catch (IOException e) {
+         }
+
+         assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test(timeout = 60000)
    public void testSendMessageFailsOnAnonymousRelayWhenNotAuthorizedToSendToAddress() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
       AmqpClient client = createAmqpClient(guestUser, guestPass);
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
+            DeliveryState state = delivery.getRemoteState();
+
+            if (!delivery.remotelySettled()) {
+               markAsInvalid("delivery is not remotely settled");
+            }
+
+            if (state instanceof Rejected) {
+               Rejected rejected = (Rejected) state;
+               if (rejected.getError() == null || rejected.getError().getCondition() == null) {
+                  markAsInvalid("Delivery should have been Rejected with an error condition");
+               } else {
+                  ErrorCondition error = rejected.getError();
+                  if (!error.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                     markAsInvalid("Should have been tagged with unauthorized access error");
+                  }
+               }
+            } else {
+               markAsInvalid("Delivery should have been Rejected");
+            }
+
+            latch.countDown();
+         }
+      });
+
       AmqpConnection connection = client.connect();
 
       try {
@@ -147,6 +202,83 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
          } finally {
             sender.close();
          }
+
+         assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testReceiverNotAuthorized() throws Exception {
+      AmqpClient client = createAmqpClient(noprivUser, noprivPass);
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Receiver receiver) {
+            ErrorCondition condition = receiver.getRemoteCondition();
+
+            if (condition != null && condition.getCondition() != null) {
+               if (!condition.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                  markAsInvalid("Should have been tagged with unauthorized access error");
+               }
+            } else {
+               markAsInvalid("Receiver should have been opened with an error");
+            }
+         }
+      });
+
+      AmqpConnection connection = client.connect();
+
+      try {
+         AmqpSession session = connection.createSession();
+
+         try {
+            session.createReceiver(getQueueName());
+            fail("Should not be able to consume here.");
+         } catch (Exception ex) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+
+         connection.getStateInspector().assertValid();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testConsumerNotAuthorizedToCreateQueues() throws Exception {
+      AmqpClient client = createAmqpClient(noprivUser, noprivPass);
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Sender sender) {
+            ErrorCondition condition = sender.getRemoteCondition();
+
+            if (condition != null && condition.getCondition() != null) {
+               if (!condition.getCondition().equals(AmqpError.UNAUTHORIZED_ACCESS)) {
+                  markAsInvalid("Should have been tagged with unauthorized access error");
+               }
+            } else {
+               markAsInvalid("Sender should have been opened with an error");
+            }
+         }
+      });
+
+      AmqpConnection connection = client.connect();
+
+      try {
+         AmqpSession session = connection.createSession();
+
+         try {
+            session.createReceiver(getQueueName(getPrecreatedQueueSize() + 1));
+            fail("Should not be able to consume here.");
+         } catch (Exception ex) {
+            IntegrationTestLogger.LOGGER.info("Caught expected exception");
+         }
+
+         connection.getStateInspector().assertValid();
       } finally {
          connection.close();
       }
