@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class MySQLSQLProvider extends GenericSQLProvider {
 
-   private static final long MAX_BLOB_SIZE = 4 * 1024 * 1024 * 1024; // 4GB
+   private static final long MAX_BLOB_SIZE = 4L * 1024 * 1024 * 1024; // 4GB
 
    private final String createFileTableSQL;
 
