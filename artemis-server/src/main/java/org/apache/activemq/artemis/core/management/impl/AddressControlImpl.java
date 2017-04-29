@@ -331,9 +331,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    // Private -------------------------------------------------------
 
-   private int getMessageCount(final DurabilityType durability) {
+   private long getMessageCount(final DurabilityType durability) {
       List<QueueControl> queues = getQueues(durability);
-      int count = 0;
+      long count = 0;
       for (QueueControl queue : queues) {
          count += queue.getMessageCount();
       }
