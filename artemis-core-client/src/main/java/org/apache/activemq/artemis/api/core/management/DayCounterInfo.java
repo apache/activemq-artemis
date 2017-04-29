@@ -32,7 +32,7 @@ public final class DayCounterInfo {
 
    private final String date;
 
-   private final int[] counters;
+   private final long[] counters;
 
    // Static --------------------------------------------------------
 
@@ -41,7 +41,7 @@ public final class DayCounterInfo {
       JsonArrayBuilder counters = JsonLoader.createArrayBuilder();
       for (DayCounterInfo info : infos) {
          JsonArrayBuilder counter = JsonLoader.createArrayBuilder();
-         for (int c : info.getCounters()) {
+         for (long c : info.getCounters()) {
             counter.add(c);
          }
          JsonObjectBuilder dci = JsonLoader.createObjectBuilder().add("date", info.getDate()).add("counters", counter);
@@ -63,7 +63,7 @@ public final class DayCounterInfo {
 
          JsonObject counter = (JsonObject) dayCounters.get(i);
          JsonArray hour = counter.getJsonArray("counters");
-         int[] hourCounters = new int[24];
+         long[] hourCounters = new long[24];
          for (int j = 0; j < 24; j++) {
             hourCounters[j] = hour.getInt(j);
          }
@@ -75,7 +75,7 @@ public final class DayCounterInfo {
 
    // Constructors --------------------------------------------------
 
-   public DayCounterInfo(final String date, final int[] counters) {
+   public DayCounterInfo(final String date, final long[] counters) {
       this.date = date;
       this.counters = counters;
    }
@@ -93,7 +93,7 @@ public final class DayCounterInfo {
     * Returns a 24-length array corresponding to the number of messages added to the queue
     * for the given hour of the day.
     */
-   public int[] getCounters() {
+   public long[] getCounters() {
       return counters;
    }
 }
