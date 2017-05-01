@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.impl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.jboss.logging.Logger;
 
 public final class SharedStoreLiveActivation extends LiveActivation {
@@ -39,19 +38,6 @@ public final class SharedStoreLiveActivation extends LiveActivation {
    @Override
    public void run() {
       try {
-         if (activeMQServer.getNodeManager().isBackupLive()) {
-            /*
-             * looks like there is already a live server running and we should start as backup server
-             * so when the current live goes down they failover to us
-             */
-            if (logger.isDebugEnabled()) {
-               logger.debug("announcing backup to the former live " + this);
-            }
-
-            activeMQServer.setHAPolicy(new SharedStoreSlavePolicy(sharedStoreMasterPolicy.isFailoverOnServerShutdown(), false, false, null));
-            return;
-         }
-
          ActiveMQServerLogger.LOGGER.awaitingLiveLock();
 
          activeMQServer.checkJournalDirectory();
@@ -62,6 +48,18 @@ public final class SharedStoreLiveActivation extends LiveActivation {
 
          if (!activeMQServer.initialisePart1(false))
             return;
+
+         if (activeMQServer.getNodeManager().isBackupLive()) {
+            /*
+             * looks like we've failed over at some point need to inform that we are the backup
+             * so when the current live goes down they failover to us
+             */
+            if (logger.isDebugEnabled()) {
+               logger.debug("announcing backup to the former live" + this);
+            }
+            activeMQServer.getBackupManager().start();
+            activeMQServer.getBackupManager().announceBackup();
+         }
 
          activeMQServer.registerActivateCallback(activeMQServer.getNodeManager().startLiveNode());
 
