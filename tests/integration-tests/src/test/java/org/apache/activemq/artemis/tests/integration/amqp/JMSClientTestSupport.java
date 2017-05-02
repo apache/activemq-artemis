@@ -67,7 +67,6 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
    }
 
    protected URI getBrokerQpidJMSConnectionURI() {
-      boolean webSocket = false;
 
       try {
          int port = AMQP_PORT;
@@ -75,13 +74,13 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
          String uri = null;
 
          if (isUseSSL()) {
-            if (webSocket) {
+            if (isUseWebSockets()) {
                uri = "amqpwss://127.0.0.1:" + port;
             } else {
                uri = "amqps://127.0.0.1:" + port;
             }
          } else {
-            if (webSocket) {
+            if (isUseWebSockets()) {
                uri = "amqpws://127.0.0.1:" + port;
             } else {
                uri = "amqp://127.0.0.1:" + port;

@@ -48,8 +48,8 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * Test support class for tests that will be using the AMQP Proton wrapper client.
- * This is to make it easier to migrate tests from ActiveMQ5
+ * Test support class for tests that will be using the AMQP Proton wrapper client. This is to
+ * make it easier to migrate tests from ActiveMQ5
  */
 public class AmqpClientTestSupport extends AmqpTestSupport {
 
@@ -124,7 +124,19 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    public URI getBrokerOpenWireConnectionURI() {
-      return getBrokerAmqpConnectionURI();
+      try {
+         String uri = null;
+
+         if (isUseSSL()) {
+            uri = "ssl://127.0.0.1:" + AMQP_PORT;
+         } else {
+            uri = "tcp://127.0.0.1:" + AMQP_PORT;
+         }
+
+         return new URI(uri);
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
    }
 
    protected ActiveMQServer createServer() throws Exception {

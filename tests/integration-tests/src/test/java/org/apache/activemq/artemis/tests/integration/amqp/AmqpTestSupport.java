@@ -35,6 +35,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    protected LinkedList<AmqpConnection> connections = new LinkedList<>();
 
    protected boolean useSSL;
+   protected boolean useWebSockets;
 
    protected AmqpConnection addConnection(AmqpConnection connection) {
       connections.add(connection);
@@ -59,12 +60,16 @@ public class AmqpTestSupport extends ActiveMQTestBase {
       return useSSL;
    }
 
+   public boolean isUseWebSockets() {
+      return useWebSockets;
+   }
+
    public String getAmqpConnectionURIOptions() {
       return "";
    }
 
    public URI getBrokerAmqpConnectionURI() {
-      boolean webSocket = false;
+      boolean webSocket = isUseWebSockets();
 
       try {
          int port = AMQP_PORT;
