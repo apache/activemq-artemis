@@ -395,7 +395,7 @@ public class MessageCounter {
 
       GregorianCalendar date = null;
 
-      int[] counters = new int[DayCounter.HOURS];
+      long[] counters = new long[DayCounter.HOURS];
 
       /**
        * Constructor
@@ -415,17 +415,17 @@ public class MessageCounter {
          for (int i = 0; i < DayCounter.HOURS; i++) {
             if (i < hour) {
                if (isStartDay) {
-                  counters[i] = -1;
+                  counters[i] = -1L;
                } else {
-                  counters[i] = 0;
+                  counters[i] = 0L;
                }
             } else {
-               counters[i] = -1;
+               counters[i] = -1L;
             }
          }
 
          // set the array element of the current hour to '0'
-         counters[hour] = 0;
+         counters[hour] = 0L;
       }
 
       /**
@@ -437,7 +437,7 @@ public class MessageCounter {
          return (GregorianCalendar) date.clone();
       }
 
-      public int[] getCounters() {
+      public long[] getCounters() {
          return counters;
       }
 
