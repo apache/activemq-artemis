@@ -308,4 +308,13 @@ public class AddressingTest extends ActiveMQTestBase {
          session.createConsumer(q1.getName());
       }
    }
+
+   @Test
+   public void testEmptyRoutingTypes() throws Exception {
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("xy")));
+      server.stop();
+      server.start();
+      server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.toSimpleString("xy")));
+      server.stop();
+   }
 }
