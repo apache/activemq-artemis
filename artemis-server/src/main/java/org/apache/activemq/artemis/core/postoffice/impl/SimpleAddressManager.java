@@ -232,7 +232,7 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         Collection<RoutingType> routingTypes) {
-      if (routingTypes == null) {
+      if (routingTypes == null || routingTypes.isEmpty()) {
          return this.addressInfoMap.get(addressName);
       } else {
          return this.addressInfoMap.computeIfPresent(addressName, (name, oldAddressInfo) -> {
