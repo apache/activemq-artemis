@@ -26,8 +26,9 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
@@ -43,7 +44,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          }
       };
       Map<String, Object> params = new HashMap<>();
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -55,7 +56,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
@@ -79,7 +80,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          }
       };
       Map<String, Object> params = new HashMap<>();
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -91,7 +92,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
@@ -129,7 +130,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -141,7 +142,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
@@ -175,7 +176,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -187,7 +188,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
@@ -223,7 +224,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -235,7 +236,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
@@ -262,7 +263,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
@@ -274,7 +275,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(final ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ClientProtocolManager protocol) {
          }
 
          @Override
