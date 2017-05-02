@@ -18,26 +18,24 @@ package org.apache.activemq.artemis.core.io.buffer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public class TimedBuffer {
+public final class TimedBuffer {
    // Constants -----------------------------------------------------
-
-   // The number of tries on sleep before switching to spin
-   public static final int MAX_CHECKS_ON_SLEEP = 20;
 
    // Attributes ----------------------------------------------------
 
@@ -58,10 +56,9 @@ public class TimedBuffer {
 
    private List<IOCallback> callbacks;
 
-   private volatile int timeout;
+   private final int timeout;
 
-   // used to measure sync requests. When a sync is requested, it shouldn't take more than timeout to happen
-   private volatile boolean pendingSync = false;
+   private final AtomicLong pendingSyncs = new AtomicLong();
 
    private Thread timerThread;
 
@@ -76,15 +73,13 @@ public class TimedBuffer {
 
    private final boolean logRates;
 
-   private final AtomicLong bytesFlushed = new AtomicLong(0);
+   private long bytesFlushed = 0;
 
    private final AtomicLong flushesDone = new AtomicLong(0);
 
    private Timer logRatesTimer;
 
    private TimerTask logRatesTimerTask;
-
-   private boolean useSleep = true;
 
    // no need to be volatile as every access is synchronized
    private boolean spinning = false;
@@ -104,25 +99,16 @@ public class TimedBuffer {
          logRatesTimer = new Timer(true);
       }
       // Setting the interval for nano-sleeps
-
-      buffer = ActiveMQBuffers.fixedBuffer(bufferSize);
+      //prefer off heap buffer to allow further humongous allocations and reduce GC overhead
+      buffer = new ChannelBufferWrapper(Unpooled.directBuffer(size, size));
 
       buffer.clear();
 
       bufferLimit = 0;
 
-      callbacks = new ArrayList<>();
+      callbacks = null;
 
       this.timeout = timeout;
-   }
-
-   // for Debug purposes
-   public synchronized boolean isUseSleep() {
-      return useSleep;
-   }
-
-   public synchronized void setUseSleep(boolean useSleep) {
-      this.useSleep = useSleep;
    }
 
    public synchronized void start() {
@@ -232,7 +218,28 @@ public class TimedBuffer {
    }
 
    public synchronized void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) {
-      addBytes(new ByteArrayEncoding(bytes.toByteBuffer().array()), sync, callback);
+      if (!started) {
+         throw new IllegalStateException("TimedBuffer is not started");
+      }
+
+      delayFlush = false;
+
+      //it doesn't modify the reader index of bytes as in the original version
+      final int readableBytes = bytes.readableBytes();
+      final int writerIndex = buffer.writerIndex();
+      buffer.setBytes(writerIndex, bytes, bytes.readerIndex(), readableBytes);
+      buffer.writerIndex(writerIndex + readableBytes);
+
+      if (callbacks == null) {
+         callbacks = new ArrayList<>();
+      }
+      callbacks.add(callback);
+
+      if (sync) {
+         final long currentPendingSyncs = pendingSyncs.get();
+         pendingSyncs.lazySet(currentPendingSyncs + 1);
+         startSpin();
+      }
    }
 
    public synchronized void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
@@ -244,11 +251,14 @@ public class TimedBuffer {
 
       bytes.encode(buffer);
 
+      if (callbacks == null) {
+         callbacks = new ArrayList<>();
+      }
       callbacks.add(callback);
 
       if (sync) {
-         pendingSync = true;
-
+         final long currentPendingSyncs = pendingSyncs.get();
+         pendingSyncs.lazySet(currentPendingSyncs + 1);
          startSpin();
       }
 
@@ -262,43 +272,47 @@ public class TimedBuffer {
     * force means the Journal is moving to a new file. Any pending write need to be done immediately
     * or data could be lost
     */
-   public void flush(final boolean force) {
+   private void flush(final boolean force) {
       synchronized (this) {
          if (!started) {
             throw new IllegalStateException("TimedBuffer is not started");
          }
 
          if ((force || !delayFlush) && buffer.writerIndex() > 0) {
-            int pos = buffer.writerIndex();
+            final int pos = buffer.writerIndex();
 
-            if (logRates) {
-               bytesFlushed.addAndGet(pos);
-            }
+            final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
+            //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
+            bufferToFlush.limit(pos);
+            //perform memcpy under the hood due to the off heap buffer
+            buffer.getBytes(0, bufferToFlush);
 
-            ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
-
-            // Putting a byteArray on a native buffer is much faster, since it will do in a single native call.
-            // Using bufferToFlush.put(buffer) would make several append calls for each byte
-            // We also transfer the content of this buffer to the native file's buffer
-
-            bufferToFlush.put(buffer.toByteBuffer().array(), 0, pos);
-
-            bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
+            final List<IOCallback> ioCallbacks = callbacks == null ? Collections.emptyList() : callbacks;
+            bufferObserver.flushBuffer(bufferToFlush, pendingSyncs.get() > 0, ioCallbacks);
 
             stopSpin();
 
-            pendingSync = false;
+            pendingSyncs.lazySet(0);
 
-            // swap the instance as the previous callback list is being used asynchronously
-            callbacks = new LinkedList<>();
+            callbacks = null;
 
             buffer.clear();
 
             bufferLimit = 0;
 
-            flushesDone.incrementAndGet();
+            if (logRates) {
+               logFlushed(pos);
+            }
          }
       }
+   }
+
+   private void logFlushed(int bytes) {
+      this.bytesFlushed += bytes;
+      //more lightweight than XADD if single writer
+      final long currentFlushesDone = flushesDone.get();
+      //flushesDone::lazySet write-Release bytesFlushed
+      flushesDone.lazySet(currentFlushesDone + 1L);
    }
 
    // Package protected ---------------------------------------------
@@ -324,21 +338,21 @@ public class TimedBuffer {
          if (!closed) {
             long now = System.currentTimeMillis();
 
-            long bytesF = bytesFlushed.get();
-            long flushesD = flushesDone.get();
-
+            final long flushesDone = TimedBuffer.this.flushesDone.get();
+            //flushesDone::get read-Acquire bytesFlushed
+            final long bytesFlushed = TimedBuffer.this.bytesFlushed;
             if (lastExecution != 0) {
-               double rate = 1000 * (double) (bytesF - lastBytesFlushed) / (now - lastExecution);
+               final double rate = 1000 * (double) (bytesFlushed - lastBytesFlushed) / (now - lastExecution);
                ActiveMQJournalLogger.LOGGER.writeRate(rate, (long) (rate / (1024 * 1024)));
-               double flushRate = 1000 * (double) (flushesD - lastFlushesDone) / (now - lastExecution);
+               final double flushRate = 1000 * (double) (flushesDone - lastFlushesDone) / (now - lastExecution);
                ActiveMQJournalLogger.LOGGER.flushRate(flushRate);
             }
 
             lastExecution = now;
 
-            lastBytesFlushed = bytesF;
+            lastBytesFlushed = bytesFlushed;
 
-            lastFlushesDone = flushesD;
+            lastFlushesDone = flushesDone;
          }
       }
 
@@ -354,84 +368,40 @@ public class TimedBuffer {
 
       private volatile boolean closed = false;
 
-      int checks = 0;
-      int failedChecks = 0;
-      long timeBefore = 0;
-
-      final int sleepMillis = timeout / 1000000; // truncates
-      final int sleepNanos = timeout % 1000000;
-
       @Override
       public void run() {
+         int waitTimes = 0;
          long lastFlushTime = 0;
+         long estimatedOptimalBatch = Runtime.getRuntime().availableProcessors();
+         final Semaphore spinLimiter = TimedBuffer.this.spinLimiter;
+         final long timeout = TimedBuffer.this.timeout;
 
          while (!closed) {
-            // We flush on the timer if there are pending syncs there and we've waited at least one
-            // timeout since the time of the last flush.
-            // Effectively flushing "resets" the timer
-            // On the timeout verification, notice that we ignore the timeout check if we are using sleep
+            boolean flushed = false;
+            final long currentPendingSyncs = pendingSyncs.get();
 
-            if (pendingSync) {
-               if (isUseSleep()) {
-                  // if using sleep, we will always flush
-                  flush();
-                  lastFlushTime = System.nanoTime();
-               } else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
-                  // if not using flush we will spin and do the time checks manually
-                  flush();
-                  lastFlushTime = System.nanoTime();
-               }
-
-            }
-
-            sleepIfPossible();
-
-            try {
-               spinLimiter.acquire();
-
-               Thread.yield();
-
-               spinLimiter.release();
-            } catch (InterruptedException e) {
-               throw new ActiveMQInterruptedException(e);
-            }
-         }
-      }
-
-      /**
-       * We will attempt to use sleep only if the system supports nano-sleep
-       * we will on that case verify up to MAX_CHECKS if nano sleep is behaving well.
-       * if more than 50% of the checks have failed we will cancel the sleep and just use regular spin
-       */
-      private void sleepIfPossible() {
-         if (isUseSleep()) {
-            if (checks < MAX_CHECKS_ON_SLEEP) {
-               timeBefore = System.nanoTime();
-            }
-
-            try {
-               sleep(sleepMillis, sleepNanos);
-            } catch (InterruptedException e) {
-               throw new ActiveMQInterruptedException(e);
-            } catch (Exception e) {
-               setUseSleep(false);
-               ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
-            }
-
-            if (checks < MAX_CHECKS_ON_SLEEP) {
-               long realTimeSleep = System.nanoTime() - timeBefore;
-
-               // I'm letting the real time to be up to 50% than the requested sleep.
-               if (realTimeSleep > timeout * 1.5) {
-                  failedChecks++;
-               }
-
-               if (++checks >= MAX_CHECKS_ON_SLEEP) {
-                  if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
-                     ActiveMQJournalLogger.LOGGER.debug("Thread.sleep with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
-                     setUseSleep(false);
+            if (currentPendingSyncs > 0) {
+               if (bufferObserver != null) {
+                  final boolean checkpoint = System.nanoTime() > lastFlushTime + timeout;
+                  if (checkpoint || currentPendingSyncs >= estimatedOptimalBatch) {
+                     flush();
+                     if (checkpoint) {
+                        estimatedOptimalBatch = currentPendingSyncs;
+                     } else {
+                        estimatedOptimalBatch = Math.max(estimatedOptimalBatch, currentPendingSyncs);
+                     }
+                     lastFlushTime = System.nanoTime();
+                     //a flush has been requested
+                     flushed = true;
                   }
                }
+            }
+
+            if (flushed) {
+               waitTimes = 0;
+            } else {
+               //instead of interruptible sleeping, perform progressive parks depending on the load
+               waitTimes = TimedBuffer.wait(waitTimes, spinLimiter);
             }
          }
       }
@@ -441,15 +411,33 @@ public class TimedBuffer {
       }
    }
 
-   /**
-    * Sub classes (tests basically) can use this to override how the sleep is being done
-    *
-    * @param sleepMillis
-    * @param sleepNanos
-    * @throws InterruptedException
-    */
-   protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
-      Thread.sleep(sleepMillis, sleepNanos);
+   private static int wait(int waitTimes, Semaphore spinLimiter) {
+      if (waitTimes < 10) {
+         //doesn't make sense to spin loop here, because of the lock around flush/addBytes operations!
+         Thread.yield();
+         waitTimes++;
+      } else if (waitTimes < 20) {
+         LockSupport.parkNanos(1L);
+         waitTimes++;
+      } else if (waitTimes < 50) {
+         LockSupport.parkNanos(10L);
+         waitTimes++;
+      } else if (waitTimes < 100) {
+         LockSupport.parkNanos(100L);
+         waitTimes++;
+      } else if (waitTimes < 1000) {
+         LockSupport.parkNanos(1000L);
+         waitTimes++;
+      } else {
+         LockSupport.parkNanos(100_000L);
+         try {
+            spinLimiter.acquire();
+            spinLimiter.release();
+         } catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         }
+      }
+      return waitTimes;
    }
 
    /**
