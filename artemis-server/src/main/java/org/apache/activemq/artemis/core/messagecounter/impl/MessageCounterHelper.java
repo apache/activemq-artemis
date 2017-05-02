@@ -38,7 +38,7 @@ public class MessageCounterHelper {
       DayCounterInfo[] infos = new DayCounterInfo[history.size()];
       for (int i = 0; i < infos.length; i++) {
          DayCounter dayCounter = history.get(i);
-         int[] counters = dayCounter.getCounters();
+         long[] counters = dayCounter.getCounters();
          GregorianCalendar date = dayCounter.getDate();
 
          DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
