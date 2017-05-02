@@ -22,6 +22,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -33,6 +34,8 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.Env;
 
 public final class NIOSequentialFile extends AbstractSequentialFile {
 
@@ -40,9 +43,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
    private RandomAccessFile rfile;
 
-   private final int defaultMaxIO;
-
-   private int maxIO;
+   private final int maxIO;
 
    public NIOSequentialFile(final SequentialFileFactory factory,
                             final File directory,
@@ -50,7 +51,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
                             final int maxIO,
                             final Executor writerExecutor) {
       super(directory, file, factory, writerExecutor);
-      defaultMaxIO = maxIO;
+      this.maxIO = maxIO;
    }
 
    @Override
@@ -69,7 +70,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
     */
    @Override
    public synchronized void open() throws IOException {
-      open(defaultMaxIO, true);
+      open(maxIO, true);
    }
 
    @Override
@@ -90,30 +91,37 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void fill(final int size) throws IOException {
-      ByteBuffer bb = ByteBuffer.allocate(size);
-
-      bb.limit(size);
-      bb.position(0);
-
       try {
-         channel.position(0);
-         channel.write(bb);
-         channel.force(false);
-         channel.position(0);
+         //uses the most common OS page size to match the Page Cache entry size and reduce JVM memory footprint
+         final int zeroPageCapacity = Env.osPageSize();
+         final ByteBuffer zeroPage = this.factory.newBuffer(zeroPageCapacity);
+         try {
+            int bytesToWrite = size;
+            long writePosition = 0;
+            while (bytesToWrite > 0) {
+               zeroPage.clear();
+               final int zeroPageLimit = Math.min(bytesToWrite, zeroPageCapacity);
+               zeroPage.limit(zeroPageLimit);
+               //use the cheaper pwrite instead of fseek + fwrite
+               final int writtenBytes = channel.write(zeroPage, writePosition);
+               bytesToWrite -= writtenBytes;
+               writePosition += writtenBytes;
+            }
+            if (factory.isDatasync()) {
+               channel.force(true);
+            }
+            //set the position to 0 to match the fill contract
+            channel.position(0);
+            fileSize = size;
+         } finally {
+            //return it to the factory
+            this.factory.releaseBuffer(zeroPage);
+         }
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
-      }
-      channel.force(true);
-
-      fileSize = channel.size();
-   }
-
-   public synchronized void waitForClose() throws InterruptedException {
-      while (isOpen()) {
-         wait();
       }
    }
 
@@ -247,10 +255,6 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       internalWrite(bytes, sync, null);
    }
 
-   public void writeInternal(final ByteBuffer bytes) throws Exception {
-      internalWrite(bytes, true, null);
-   }
-
    @Override
    protected ByteBuffer newBuffer(int size, final int limit) {
       // For NIO, we don't need to allocate a buffer the entire size of the timed buffer, unlike AIO
@@ -293,14 +297,51 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
    private void doInternalWrite(final ByteBuffer bytes,
                                 final boolean sync,
                                 final IOCallback callback) throws IOException {
-      channel.write(bytes);
+      try {
+         channel.write(bytes);
 
-      if (sync) {
-         sync();
+         if (sync) {
+            sync();
+         }
+
+         if (callback != null) {
+            callback.done();
+         }
+      } finally {
+         //release it to recycle the write buffer if big enough
+         this.factory.releaseBuffer(bytes);
       }
+   }
 
-      if (callback != null) {
-         callback.done();
+   @Override
+   public void copyTo(SequentialFile dstFile) throws IOException {
+      if (ActiveMQJournalLogger.LOGGER.isDebugEnabled()) {
+         ActiveMQJournalLogger.LOGGER.debug("Copying " + this + " as " + dstFile);
+      }
+      if (isOpen()) {
+         throw new IllegalStateException("File opened!");
+      }
+      if (dstFile.isOpen()) {
+         throw new IllegalArgumentException("dstFile must be closed too");
+      }
+      try (RandomAccessFile src = new RandomAccessFile(getFile(), "rw");
+           FileChannel srcChannel = src.getChannel();
+           FileLock srcLock = srcChannel.lock()) {
+         final long readableBytes = srcChannel.size();
+         if (readableBytes > 0) {
+            try (RandomAccessFile dst = new RandomAccessFile(dstFile.getJavaFile(), "rw");
+                 FileChannel dstChannel = dst.getChannel();
+                 FileLock dstLock = dstChannel.lock()) {
+               final long oldLength = dst.length();
+               final long newLength = oldLength + readableBytes;
+               dst.setLength(newLength);
+               final long transferred = dstChannel.transferFrom(srcChannel, oldLength, readableBytes);
+               if (transferred != readableBytes) {
+                  dstChannel.truncate(oldLength);
+                  throw new IOException("copied less then expected");
+               }
+            }
+         }
       }
    }
 }

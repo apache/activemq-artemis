@@ -181,6 +181,7 @@ public class SyncCalculation {
 
          case NIO:
             factory = new NIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
+            ((NIOSequentialFileFactory) factory).disableBufferReuse();
             factory.start();
             return factory;
          case ASYNCIO:
