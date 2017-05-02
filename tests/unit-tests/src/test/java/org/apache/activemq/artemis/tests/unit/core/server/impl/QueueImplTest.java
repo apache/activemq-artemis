@@ -1309,6 +1309,7 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
-      return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor, new FakePostOffice(), null, null, executor);
+      return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor,
+                           new FakePostOffice(), null, null, executor, null);
    }
 }

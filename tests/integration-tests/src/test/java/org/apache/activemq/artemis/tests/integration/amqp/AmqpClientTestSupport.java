@@ -166,12 +166,19 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       // Add optional security for tests that need it
       configureBrokerSecurity(server);
 
+      // Add extra configuration
+      addConfiguration(server);
+
       server.start();
 
       // Prepare all addresses and queues for client tests.
       createAddressAndQueues(server);
 
       return server;
+   }
+
+   protected void addConfiguration(ActiveMQServer server) {
+
    }
 
    protected TransportConfiguration addAcceptorConfiguration(ActiveMQServer server, int port) {

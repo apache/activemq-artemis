@@ -40,7 +40,9 @@ public final class FakeQueueFactory implements QueueFactory {
 
    @Override
    public Queue createQueueWith(final QueueConfig config) {
-      return new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, null, null, executor);
+      return new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(),
+                           config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(),
+                           scheduledExecutor, postOffice, null, null, executor, null);
    }
 
    @Deprecated
@@ -54,7 +56,8 @@ public final class FakeQueueFactory implements QueueFactory {
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) {
-      return new QueueImpl(persistenceID, address, name, filter, subscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, null, null, executor);
+      return new QueueImpl(persistenceID, address, name, filter, subscription, user, durable, temporary, autoCreated,
+                           scheduledExecutor, postOffice, null, null, executor, null);
    }
 
    @Override

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.Map;
@@ -26,10 +25,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.MBeanServer;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -53,7 +54,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
@@ -234,8 +234,10 @@ public class HangConsumerTest extends ActiveMQTestBase {
                              final PostOffice postOffice,
                              final StorageManager storageManager,
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                             final Executor executor) {
-            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, deliveryMode, maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
+                             final Executor executor, final ActiveMQServer server) {
+            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
+                  maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager,
+                  addressSettingsRepository, executor, server);
          }
 
          @Override
@@ -256,13 +258,18 @@ public class HangConsumerTest extends ActiveMQTestBase {
          LocalFactory(final ExecutorFactory executorFactory,
                       final ScheduledExecutorService scheduledExecutor,
                       final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                      final StorageManager storageManager) {
-            super(executorFactory, scheduledExecutor, addressSettingsRepository, storageManager);
+                      final StorageManager storageManager, final ActiveMQServer server) {
+            super(executorFactory, scheduledExecutor, addressSettingsRepository, storageManager, server);
          }
 
          @Override
          public Queue createQueueWith(final QueueConfig config) {
-            queue = new MyQueueWithBlocking(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), config.deliveryMode(), config.maxConsumers(), config.isPurgeOnNoConsumers(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
+            queue = new MyQueueWithBlocking(config.id(), config.address(), config.name(), config.filter(),
+                                            config.user(), config.pageSubscription(), config.isDurable(),
+                                            config.isTemporary(), config.isAutoCreated(), config.deliveryMode(),
+                                            config.maxConsumers(), config.isPurgeOnNoConsumers(), scheduledExecutor,
+                                            postOffice, storageManager, addressSettingsRepository,
+                                            executorFactory.getExecutor(), server);
             return queue;
          }
 
@@ -277,13 +284,18 @@ public class HangConsumerTest extends ActiveMQTestBase {
                                   final boolean durable,
                                   final boolean temporary,
                                   final boolean autoCreated) {
-            queue = new MyQueueWithBlocking(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
+            queue = new MyQueueWithBlocking(persistenceID, address, name, filter, user, pageSubscription, durable,
+                                            temporary, autoCreated, RoutingType.MULTICAST, null, null,
+                                            scheduledExecutor, postOffice, storageManager, addressSettingsRepository,
+                                            executorFactory.getExecutor(), server);
             return queue;
          }
 
       }
 
-      LocalFactory queueFactory = new LocalFactory(server.getExecutorFactory(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getStorageManager());
+      LocalFactory queueFactory =
+               new LocalFactory(server.getExecutorFactory(), server.getScheduledPool(),
+                                server.getAddressSettingsRepository(), server.getStorageManager(), server);
 
       queueFactory.setPostOffice(server.getPostOffice());
 
@@ -359,7 +371,10 @@ public class HangConsumerTest extends ActiveMQTestBase {
       long txID = server.getStorageManager().generateID();
 
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
-      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false, false, null, null, null, null, null), server.getNodeID());
+      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE,
+                                                           new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false,
+                                                                         false, null, null, null, null, null, null),
+                                                           server.getNodeID());
       server.getStorageManager().addQueueBinding(txID, newBinding);
       server.getStorageManager().commitBindings(txID);
 

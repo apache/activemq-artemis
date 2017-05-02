@@ -405,6 +405,8 @@ public final class ClusterManager implements ActiveMQComponent {
          return;
       }
 
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeDeployBridge(config) : null);
+
       Queue queue = (Queue) binding.getBindable();
 
       ServerLocatorInternal serverLocator;
@@ -478,6 +480,7 @@ public final class ClusterManager implements ActiveMQComponent {
 
       bridge.start();
 
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDeployBridge(bridge) : null);
    }
 
    public static class IncomingInterceptorLookingForExceptionMessage implements Interceptor {
