@@ -17,18 +17,47 @@
 
 package org.apache.activemq.artemis.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+
 /**
  * Utility that detects various properties specific to the current runtime
  * environment, such as JVM bitness and OS type.
  */
 public final class Env {
 
-   /** The system will change a few logs and semantics to be suitable to
-    *  run a long testsuite.
-    *  Like a few log entries that are only valid during a production system.
-    *  or a few cases we need to know as warn on the testsuite and as log in production. */
-   private static boolean testEnv = false;
+   private static final int OS_PAGE_SIZE;
 
+   static {
+      //most common OS page size value
+      int osPageSize = 4096;
+      sun.misc.Unsafe instance;
+      try {
+         Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+         field.setAccessible(true);
+         instance = (sun.misc.Unsafe) field.get((Object) null);
+      } catch (Throwable t) {
+         try {
+            Constructor<sun.misc.Unsafe> c = sun.misc.Unsafe.class.getDeclaredConstructor(new Class[0]);
+            c.setAccessible(true);
+            instance = c.newInstance(new Object[0]);
+         } catch (Throwable t1) {
+            instance = null;
+         }
+      }
+      if (instance != null) {
+         osPageSize = instance.pageSize();
+      }
+      OS_PAGE_SIZE = osPageSize;
+   }
+
+   /**
+    * The system will change a few logs and semantics to be suitable to
+    * run a long testsuite.
+    * Like a few log entries that are only valid during a production system.
+    * or a few cases we need to know as warn on the testsuite and as log in production.
+    */
+   private static boolean testEnv = false;
 
    private static final String OS = System.getProperty("os.name").toLowerCase();
    private static final boolean IS_LINUX = OS.startsWith("linux");
@@ -36,6 +65,14 @@ public final class Env {
 
    private Env() {
 
+   }
+
+   /**
+    * Return the size in bytes of a OS memory page.
+    * This value will always be a power of two.
+    */
+   public static int osPageSize() {
+      return OS_PAGE_SIZE;
    }
 
    public static boolean isTestEnv() {
