@@ -30,6 +30,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
+
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
@@ -47,7 +48,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
    public static synchronized void forceShutdown() {
       if (instance != null) {
-         instance.shutdown();
+         instance.forEach(executor -> executor.shutdownGracefully(0, 0, TimeUnit.MILLISECONDS));
          instance.channelFactoryCount.set(0);
          instance = null;
       }
@@ -55,7 +56,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
    public static synchronized SharedEventLoopGroup getInstance(Function<ThreadFactory, EventLoopGroup> eventLoopGroupSupplier) {
       if (instance != null) {
-         ScheduledFuture f = instance.shutdown.getAndSet(null);
+         ScheduledFuture<?> f = instance.shutdown.getAndSet(null);
          if (f != null) {
             f.cancel(false);
          }
@@ -92,7 +93,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
                      Future<?> future = SharedEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
                      future.addListener(new FutureListener<Object>() {
                         @Override
-                        public void operationComplete(Future future) throws Exception {
+                        public void operationComplete(Future<Object> future) throws Exception {
                            if (future.isSuccess()) {
                               terminationPromise.setSuccess(null);
                            } else {
