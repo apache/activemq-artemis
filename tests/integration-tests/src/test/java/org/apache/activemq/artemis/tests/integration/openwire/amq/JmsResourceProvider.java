@@ -45,7 +45,7 @@ public class JmsResourceProvider {
    /**
     * Creates a connection.
     *
-    * @see org.apache.activemq.test.JmsResourceProvider#createConnection(javax.jms.ConnectionFactory)
+    * @see org.apache.activemq.test.JmsResourceProvider#afterCreateConnection(javax.jms.ConnectionFactory)
     */
    public Connection createConnection(ConnectionFactory cf) throws JMSException {
       Connection connection = cf.createConnection();
