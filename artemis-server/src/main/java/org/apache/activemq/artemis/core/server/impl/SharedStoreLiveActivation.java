@@ -58,6 +58,10 @@ public final class SharedStoreLiveActivation extends LiveActivation {
                logger.debug("announcing backup to the former live" + this);
             }
             activeMQServer.getBackupManager().start();
+
+            if (!sharedStoreMasterPolicy.isWaitForActivation())
+               activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+
             activeMQServer.getBackupManager().announceBackup();
          }
 
