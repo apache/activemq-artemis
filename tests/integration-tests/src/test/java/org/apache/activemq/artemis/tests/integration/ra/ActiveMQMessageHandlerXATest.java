@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 
@@ -148,6 +149,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
 
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
+      Wait.waitFor(() -> getMessageCount((Queue) binding.getBindable()) == 1);
       long messageCount = getMessageCount((Queue) binding.getBindable());
       assertEquals(1, messageCount);
    }
