@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 
@@ -1081,4 +1082,24 @@ public interface Configuration {
    Configuration setNetworkCheckPing6Command(String command);
 
    String getInternalNamingPrefix();
+
+   /**
+    * @param plugins
+    */
+   void registerBrokerPlugins(List<ActiveMQServerPlugin> plugins);
+
+   /**
+    * @param plugin
+    */
+   void registerBrokerPlugin(ActiveMQServerPlugin plugin);
+
+   /**
+    * @param plugin
+    */
+   void unRegisterBrokerPlugin(ActiveMQServerPlugin plugin);
+
+   /**
+    * @return
+    */
+   List<ActiveMQServerPlugin> getBrokerPlugins();
 }
