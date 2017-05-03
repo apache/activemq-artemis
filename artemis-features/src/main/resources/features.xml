@@ -19,14 +19,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-  <feature name="artemis" version="${pom.version}" description="Full ActiveMQ Artemis broker with default configuration">
-    <feature>artemis-core</feature>
-    <feature>artemis-amqp</feature>
-    <feature>artemis-stomp</feature>
-    <feature>artemis-mqtt</feature>
-    <feature>artemis-hornetq</feature>
-    <feature>artemis-openwire</feature>
-  </feature>
+	<feature name="artemis" version="${pom.version}" description="Full ActiveMQ Artemis broker with default configuration">
+		<feature>artemis-core</feature>
+		<feature>artemis-amqp</feature>
+		<feature>artemis-stomp</feature>
+		<feature>artemis-mqtt</feature>
+		<feature>artemis-hornetq</feature>
+		<feature>artemis-openwire</feature>
+	</feature>
 
 	<feature name="netty-core" version="${netty.version}" description="Netty libraries">
 		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
@@ -45,17 +45,17 @@
 		<configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${pom.version}/cfg</configfile>
 		<configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${pom.version}/xml/artemis</configfile>
 
-		<bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
-		<bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
-		<bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
-		<bundle>mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
-		<bundle>mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+		<bundle dependency="true">mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+		<bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
+		<bundle dependency="true">mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
 
-		<bundle>mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
-		<bundle>mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
+		<bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
+		<bundle dependency="true">mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
 
-		<bundle>mvn:org.apache.geronimo.specs/geronimo-json_1.0_spec/${json-p.spec.version}</bundle>
-		<bundle>mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-json_1.0_spec/${json-p.spec.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
@@ -64,8 +64,8 @@
 	<feature name="artemis-amqp" version="${pom.version}" description="ActiveMQ Artemis AMQP protocol libraries">
 		<feature prerequisite="true">wrap</feature>
 		<feature>artemis-core</feature>
-		<bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
-		<bundle>wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
+		<bundle dependency="true">wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+		<bundle dependency="true">wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
 	</feature>
 
@@ -76,7 +76,7 @@
 
 	<feature name="artemis-mqtt" version="${pom.version}" description="ActiveMQ Artemis MQTT protocol libraries">
 		<feature>artemis-core</feature>
-		<bundle>mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
+		<bundle dependency="true">mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${pom.version}</bundle>
 	</feature>
 
@@ -88,7 +88,7 @@
 
 	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis HornetQ protocol libraries">
 		<feature>artemis-core</feature>
-		<bundle>mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
+		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
 		<bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${pom.version}</bundle>
 	</feature>
