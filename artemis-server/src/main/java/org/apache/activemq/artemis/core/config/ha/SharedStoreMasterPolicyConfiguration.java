@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfiguration {
 
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
+   private boolean waitForActivation = ActiveMQDefaultConfiguration.isDefaultWaitForActivation();
 
    public SharedStoreMasterPolicyConfiguration() {
    }
@@ -47,6 +48,15 @@ public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfigurati
 
    public SharedStoreMasterPolicyConfiguration setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
+      return this;
+   }
+
+   public boolean isWaitForActivation() {
+      return waitForActivation;
+   }
+
+   public SharedStoreMasterPolicyConfiguration setWaitForActivation(Boolean waitForActivation) {
+      this.waitForActivation = waitForActivation;
       return this;
    }
 }

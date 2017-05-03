@@ -395,6 +395,9 @@ public final class ActiveMQDefaultConfiguration {
    // Will this backup server come live on a normal server shutdown
    private static boolean DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN = false;
 
+   // Will a shared-store master startup wait for activation
+   private static boolean  DEFAULT_WAIT_FOR_ACTIVATION = true;
+
    // Will the broker populate the message with the name of the validated user
    private static boolean DEFAULT_POPULATE_VALIDATED_USER = false;
 
@@ -1111,6 +1114,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultFailoverOnServerShutdown() {
       return DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN;
+   }
+
+   /**
+    * Will a shared-store master startup wait for activation
+    */
+   public static boolean isDefaultWaitForActivation() {
+      return DEFAULT_WAIT_FOR_ACTIVATION;
    }
 
    /**
