@@ -90,6 +90,14 @@
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
          <optional>true</optional>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>xalan</groupId>
+         <artifactId>xalan</artifactId>
+         <version>2.7.2</version>
+         <optional>true</optional>
+         <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -117,6 +125,7 @@
                <instructions>
                   <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
                   <Import-Package>
+                     !org.apache.activemq.artemis.*,
                      org.postgresql*;resolution:=optional,
                      *
                   </Import-Package>
