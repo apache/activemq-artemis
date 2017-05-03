@@ -141,7 +141,7 @@ public final class SharedStoreBackupActivation extends Activation {
       //we need to check as the servers policy may have changed
       if (activeMQServer.getHAPolicy().isBackup()) {
 
-         activeMQServer.interrupBackupThread(nodeManagerInUse);
+         activeMQServer.interruptActivationThread(nodeManagerInUse);
 
          if (nodeManagerInUse != null) {
             nodeManagerInUse.stopBackup();

@@ -362,7 +362,7 @@ public final class SharedNothingBackupActivation extends Activation {
          // To avoid a NPE cause by the stop
          NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
-         activeMQServer.interrupBackupThread(nodeManagerInUse);
+         activeMQServer.interruptActivationThread(nodeManagerInUse);
 
          if (nodeManagerInUse != null) {
             nodeManagerInUse.stopBackup();
