@@ -350,7 +350,15 @@ public abstract class ActiveMQServerTestCase {
       if (binding != null && binding instanceof LocalQueueBinding) {
          ((LocalQueueBinding) binding).getQueue().flushExecutor();
       }
-      Long messageCount = ActiveMQServerTestCase.servers.get(0).getMessageCountForQueue(queueName);
+      Long messageCount = null;
+      for (int i = 0; i < 10; i++) {
+         messageCount = servers.get(0).getMessageCountForQueue(queueName);
+         if (messageCount.longValue() == expected) {
+            break;
+         } else {
+            Thread.sleep(100);
+         }
+      }
 
       ProxyAssertSupport.assertEquals(expected, messageCount.intValue());
       return expected == messageCount.intValue();
