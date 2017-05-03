@@ -514,6 +514,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       }
 
       ConnectionEntry entry = protocol.createConnectionEntry((Acceptor) component, connection);
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCreateConnection(entry.connection) : null);
 
       if (logger.isTraceEnabled()) {
          logger.trace("Connection created " + connection);
@@ -534,8 +535,10 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       ConnectionEntry conn = connections.get(connectionID);
 
       if (conn != null && !conn.connection.isSupportReconnect()) {
-         removeConnection(connectionID);
-
+         RemotingConnection removedConnection = removeConnection(connectionID);
+         if (removedConnection != null) {
+            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterDestroyConnection(removedConnection) : null);
+         }
          conn.connection.fail(new ActiveMQRemoteDisconnectException());
       }
    }

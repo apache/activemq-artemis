@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.management.MBeanServer;
-import javax.security.cert.X509Certificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -47,6 +45,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.management.MBeanServer;
+import javax.security.cert.X509Certificate;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
@@ -144,6 +145,8 @@ import org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
@@ -1309,9 +1312,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       checkSessionLimit(validatedUser);
 
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
+            autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes) : null);
+
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes);
 
       sessions.put(name, session);
+
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateSession(session) : null);
 
       return session;
    }
@@ -1705,6 +1713,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
+            removeConsumers, autoDeleteAddress) : null);
+
       addressSettingsRepository.clearCache();
 
       Binding binding = postOffice.getBinding(queueName);
@@ -1743,6 +1754,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       callPostQueueDeletionCallbacks(address, queueName);
+
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
+            removeConsumers, autoDeleteAddress) : null);
    }
 
    @Override
@@ -1805,6 +1819,38 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       for (PostQueueDeletionCallback callback : postQueueDeletionCallbacks) {
          callback.callback(address, queueName);
       }
+   }
+
+   @Override
+   public void registerBrokerPlugins(final List<ActiveMQServerPlugin> plugins) {
+      configuration.registerBrokerPlugins(plugins);
+   }
+
+   @Override
+   public void registerBrokerPlugin(final ActiveMQServerPlugin plugin) {
+      configuration.registerBrokerPlugin(plugin);
+   }
+
+   @Override
+   public void unRegisterBrokerPlugin(final ActiveMQServerPlugin plugin) {
+      configuration.unRegisterBrokerPlugin(plugin);
+   }
+
+   @Override
+   public List<ActiveMQServerPlugin> getBrokerPlugins() {
+      return configuration.getBrokerPlugins();
+   }
+
+   @Override
+   public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) {
+      if (pluginRun != null) {
+         getBrokerPlugins().forEach(plugin -> pluginRun.run(plugin));
+      }
+   }
+
+   @Override
+   public boolean hasBrokerPlugins() {
+      return !getBrokerPlugins().isEmpty();
    }
 
    @Override
@@ -2103,7 +2149,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       securityStore = new SecurityStoreImpl(securityRepository, securityManager, configuration.getSecurityInvalidationInterval(), configuration.isSecurityEnabled(), configuration.getClusterUser(), configuration.getClusterPassword(), managementService);
 
-      queueFactory = new QueueFactoryImpl(executorFactory, scheduledPool, addressSettingsRepository, storageManager);
+      queueFactory = new QueueFactoryImpl(executorFactory, scheduledPool, addressSettingsRepository, storageManager, this);
 
       pagingManager = createPagingManager();
 
@@ -2508,6 +2554,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       final QueueConfig queueConfig = queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(user).durable(durable).temporary(temporary).autoCreated(autoCreated).routingType(routingType).maxConsumers(maxConsumers).purgeOnNoConsumers(purgeOnNoConsumers).build();
 
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateQueue(queueConfig) : null);
+
       final Queue queue = queueFactory.createQueueWith(queueConfig);
 
       if (transientQueue) {
@@ -2549,6 +2597,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
       callPostQueueCreationCallbacks(queue.getName());
+
+      callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterCreateQueue(queue) : null);
 
       return queue;
    }
@@ -2763,4 +2813,5 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          deployAddressesFromConfiguration(config);
       }
    }
+
 }

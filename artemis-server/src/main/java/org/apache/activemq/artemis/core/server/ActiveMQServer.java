@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import javax.management.MBeanServer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.MBeanServer;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -47,6 +48,8 @@ import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -185,6 +188,18 @@ public interface ActiveMQServer extends ServiceComponent {
     * @param queueName
     */
    void callPostQueueDeletionCallbacks(SimpleString address, SimpleString queueName) throws Exception;
+
+   void registerBrokerPlugin(ActiveMQServerPlugin plugin);
+
+   void unRegisterBrokerPlugin(ActiveMQServerPlugin plugin);
+
+   void registerBrokerPlugins(List<ActiveMQServerPlugin> plugins);
+
+   List<ActiveMQServerPlugin> getBrokerPlugins();
+
+   void callBrokerPlugins(ActiveMQPluginRunnable pluginRun);
+
+   boolean hasBrokerPlugins();
 
    void checkQueueCreationLimit(String username) throws Exception;
 
@@ -447,4 +462,5 @@ public interface ActiveMQServer extends ServiceComponent {
    void removeAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
 
    String getInternalNamingPrefix();
+
 }

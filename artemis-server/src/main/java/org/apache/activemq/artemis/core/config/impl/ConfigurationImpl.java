@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -63,6 +64,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.Env;
@@ -231,6 +233,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private Map<String, Set<Role>> securitySettings = new HashMap<>();
 
    private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
+
+   private final List<ActiveMQServerPlugin> brokerPlugins = new CopyOnWriteArrayList<>();
 
    private Map<String, Set<String>> securityRoleNameMappings = new HashMap<>();
 
@@ -1318,6 +1322,26 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<SecuritySettingPlugin> getSecuritySettingPlugins() {
       return this.securitySettingPlugins;
+   }
+
+   @Override
+   public void registerBrokerPlugins(final List<ActiveMQServerPlugin> plugins) {
+      brokerPlugins.addAll(plugins);
+   }
+
+   @Override
+   public void registerBrokerPlugin(final ActiveMQServerPlugin plugin) {
+      brokerPlugins.add(plugin);
+   }
+
+   @Override
+   public void unRegisterBrokerPlugin(final ActiveMQServerPlugin plugin) {
+      brokerPlugins.remove(plugin);
+   }
+
+   @Override
+   public List<ActiveMQServerPlugin> getBrokerPlugins() {
+      return brokerPlugins;
    }
 
    @Override

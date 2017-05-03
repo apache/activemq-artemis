@@ -16,10 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.Xid;
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -88,8 +91,6 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Server side Session implementation
@@ -345,6 +346,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected void doClose(final boolean failed) throws Exception {
       synchronized (this) {
+         if (!closed) {
+            server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseSession(this, failed) : null);
+         }
          this.setStarted(false);
          if (closed)
             return;
@@ -395,6 +399,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
 
          closed = true;
+
+         server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCloseSession(this, failed) : null);
       }
    }
 
@@ -444,8 +450,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       Filter filter = FilterImpl.createFilter(filterString);
 
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCreateConsumer(consumerID, unPrefixedQueueName,
+            filterString, browseOnly, supportLargeMessage) : null);
+
       ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
       consumers.put(consumer.getID(), consumer);
+
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterCreateConsumer(consumer) : null);
 
       if (!browseOnly) {
          TypedProperties props = new TypedProperties();
@@ -1290,6 +1301,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           final boolean direct,
                                           boolean noAutoCreateQueue) throws Exception {
 
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSend(tx, message, direct, noAutoCreateQueue) : null);
+
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
       if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
          ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit();
@@ -1333,10 +1346,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (message.getAddressSimpleString().equals(managementAddress)) {
          // It's a management message
 
-         handleManagementMessage(tx, message, direct);
+         result = handleManagementMessage(tx, message, direct);
       } else {
          result = doSend(tx, message, address, direct, noAutoCreateQueue);
       }
+
+      final RoutingStatus finalResult = result;
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSend(tx, message, direct, noAutoCreateQueue, finalResult) : null);
+
       return result;
    }
 
@@ -1367,10 +1384,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void addMetaData(String key, String data) {
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSessionMetadataAdded(this, key, data) : null);
       if (metaData == null) {
          metaData = new HashMap<>();
       }
       metaData.put(key, data);
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSessionMetadataAdded(this, key, data) : null);
    }
 
    @Override
