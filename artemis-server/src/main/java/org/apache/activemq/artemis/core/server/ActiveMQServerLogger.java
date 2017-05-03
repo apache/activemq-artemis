@@ -40,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.netty.channel.Channel;
+
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -998,8 +999,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorCompletingCallbackOnReplicationManager(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222158, value = "{0} backup activation thread did not finish.", format = Message.Format.MESSAGE_FORMAT)
-   void backupActivationDidntFinish(ActiveMQServer server);
+   @Message(id = 222158, value = "{0} activation thread did not finish.", format = Message.Format.MESSAGE_FORMAT)
+   void activationDidntFinish(ActiveMQServer server);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222159, value = "unable to send notification when broadcast group is stopped", format = Message.Format.MESSAGE_FORMAT)
@@ -1209,9 +1210,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222201,
-      value = "Timed out waiting for backup activation to exit",
+      value = "Timed out waiting for activation to exit",
       format = Message.Format.MESSAGE_FORMAT)
-   void backupActivationTimeout();
+   void activationTimeout();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222202,
