@@ -34,6 +34,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -289,7 +290,14 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       String username = info.getUserName();
       String password = info.getPassword();
 
-      validateUser(username, password, connection);
+      try {
+         validateUser(username, password, connection);
+      } catch (ActiveMQSecurityException e) {
+         // We need to send an exception used by the openwire
+         SecurityException ex = new SecurityException("User name [" + username + "] or password is invalid.");
+         ex.initCause(e);
+         throw ex;
+      }
 
       String clientId = info.getClientId();
       if (clientId == null) {
