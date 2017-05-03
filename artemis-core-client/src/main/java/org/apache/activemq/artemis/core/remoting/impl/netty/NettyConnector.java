@@ -694,9 +694,10 @@ public class NettyConnector extends AbstractConnector {
                if (sslEnabled) {
                   scheme = "https";
                }
-               URI uri = new URI(scheme, null, IPV6Util.encloseHost(host), port, null, null, null);
+               String ipv6Host = IPV6Util.encloseHost(host);
+               URI uri = new URI(scheme, null, ipv6Host, port, null, null, null);
                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-               request.headers().set(HttpHeaderNames.HOST, host);
+               request.headers().set(HttpHeaderNames.HOST, ipv6Host);
                request.headers().set(HttpHeaderNames.UPGRADE, ACTIVEMQ_REMOTING);
                request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.UPGRADE);
                final String serverName = ConfigurationHelper.getStringProperty(TransportConstants.ACTIVEMQ_SERVER_NAME, null, configuration);
