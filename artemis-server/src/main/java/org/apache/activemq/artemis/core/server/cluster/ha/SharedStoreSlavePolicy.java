@@ -29,6 +29,8 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
 
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
+   private boolean isWaitForActivation = ActiveMQDefaultConfiguration.isDefaultWaitForActivation();
+
    //this is how we act once we have failed over
    private SharedStoreMasterPolicy sharedStoreMasterPolicy;
 
@@ -64,7 +66,7 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
 
    public SharedStoreMasterPolicy getSharedStoreMasterPolicy() {
       if (sharedStoreMasterPolicy == null) {
-         sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failoverOnServerShutdown);
+         sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failoverOnServerShutdown, isWaitForActivation);
       }
       return sharedStoreMasterPolicy;
    }
@@ -89,6 +91,10 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
 
    public void setAllowAutoFailBack(boolean allowAutoFailBack) {
       this.allowAutoFailBack = allowAutoFailBack;
+   }
+
+   public void setIsWaitForActivation(boolean isWaitForActivation) {
+      this.isWaitForActivation = isWaitForActivation;
    }
 
    @Override

@@ -24,7 +24,9 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -100,6 +102,23 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       assertTrue(wildCard.isEnabled());
       assertEquals('>', wildCard.getAnyWords());
       assertEquals('*', wildCard.getSingleWord());
+   }
+
+   @Test
+   public void testParsingHaSharedStoreWaitForActivation() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + "<ha-policy><shared-store><master><wait-for-activation>false</wait-for-activation></master></shared-store></ha-policy>" + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+      HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
+
+      assertTrue(haConfig instanceof SharedStoreMasterPolicyConfiguration);
+
+      SharedStoreMasterPolicyConfiguration masterConfig = (SharedStoreMasterPolicyConfiguration) haConfig;
+
+      assertFalse(masterConfig.isWaitForActivation());
    }
 
    @Test

@@ -1241,6 +1241,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       SharedStoreMasterPolicyConfiguration configuration = new SharedStoreMasterPolicyConfiguration();
 
       configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
+      configuration.setWaitForActivation(getBoolean(policyNode, "wait-for-activation", configuration.isWaitForActivation()));
 
       return configuration;
    }

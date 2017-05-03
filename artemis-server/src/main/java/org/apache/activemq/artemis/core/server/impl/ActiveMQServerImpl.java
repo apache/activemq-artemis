@@ -306,7 +306,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    // Used to identify the server on tests... useful on debugging testcases
    private String identity;
 
-   private Thread backupActivationThread;
+   private Thread activationThread;
 
    private Activation activation;
 
@@ -514,7 +514,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (!haPolicy.isBackup()) {
             activation = haPolicy.createActivation(this, false, activationParams, shutdownOnCriticalIO);
 
-            activation.run();
+            if (haPolicy.isWaitForActivation()) {
+               activation.run();
+            } else {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("starting activation");
+               }
+               activationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
+               activationThread.start();
+            }
          }
          // The activation on fail-back may change the value of isBackup, for that reason we are
          // checking again here
@@ -528,8 +536,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             if (logger.isTraceEnabled()) {
                logger.trace("starting backupActivation");
             }
-            backupActivationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
-            backupActivationThread.start();
+            activationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
+            activationThread.start();
          } else {
             ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(), identity != null ? identity : "");
          }
@@ -583,24 +591,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return state;
    }
 
-   public void interrupBackupThread(NodeManager nodeManagerInUse) throws InterruptedException {
+   public void interruptActivationThread(NodeManager nodeManagerInUse) throws InterruptedException {
       long timeout = 30000;
 
       long start = System.currentTimeMillis();
 
-      while (backupActivationThread.isAlive() && System.currentTimeMillis() - start < timeout) {
+      while (activationThread.isAlive() && System.currentTimeMillis() - start < timeout) {
          if (nodeManagerInUse != null) {
             nodeManagerInUse.interrupt();
          }
 
-         backupActivationThread.interrupt();
+         activationThread.interrupt();
 
-         backupActivationThread.join(1000);
+         activationThread.join(1000);
 
       }
 
       if (System.currentTimeMillis() - start >= timeout) {
-         ActiveMQServerLogger.LOGGER.backupActivationTimeout();
+         ActiveMQServerLogger.LOGGER.activationTimeout();
          threadDump();
       }
    }
@@ -1021,16 +1029,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      if (backupActivationThread != null) {
+      if (activationThread != null) {
          try {
-            backupActivationThread.join(30000);
+            activationThread.join(30000);
          } catch (InterruptedException e) {
-            ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(backupActivationThread.getClass().getName());
+            ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(activationThread.getClass().getName());
          }
 
-         if (backupActivationThread.isAlive()) {
-            ActiveMQServerLogger.LOGGER.backupActivationDidntFinish(this);
-            backupActivationThread.interrupt();
+         if (activationThread.isAlive()) {
+            ActiveMQServerLogger.LOGGER.activationDidntFinish(this);
+            activationThread.interrupt();
          }
       }
 

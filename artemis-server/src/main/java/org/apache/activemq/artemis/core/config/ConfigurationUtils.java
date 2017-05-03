@@ -80,7 +80,7 @@ public final class ConfigurationUtils {
          }
          case SHARED_STORE_MASTER: {
             SharedStoreMasterPolicyConfiguration pc = (SharedStoreMasterPolicyConfiguration) conf;
-            return new SharedStoreMasterPolicy(pc.isFailoverOnServerShutdown());
+            return new SharedStoreMasterPolicy(pc.isFailoverOnServerShutdown(), pc.isWaitForActivation());
          }
          case SHARED_STORE_SLAVE: {
             SharedStoreSlavePolicyConfiguration pc = (SharedStoreSlavePolicyConfiguration) conf;

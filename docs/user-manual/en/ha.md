@@ -505,6 +505,12 @@ HA strategy shared store for `master`:
         Note that if false you want failover to occur the you
         can use the the management API as explained at [Management](management.md)</td>
     </tr>
+    <tr>
+        <td>`wait-for-activation`</td>
+        <td>If set to true then server startup will wait until it is activated.
+        If set to false then server startup will be done in the background.
+        Default is true.</td>
+    </tr>
     </tbody>
 </table>
 
