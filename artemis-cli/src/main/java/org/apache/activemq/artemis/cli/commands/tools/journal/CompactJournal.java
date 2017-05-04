@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.io.File;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
@@ -44,12 +45,12 @@ public final class CompactJournal extends LockAbstract {
       return null;
    }
 
-   void compactJournal(final File directory,
-                       final String journalPrefix,
-                       final String journalSuffix,
-                       final int minFiles,
-                       final int fileSize,
-                       final IOCriticalErrorListener listener) throws Exception {
+   private void compactJournal(final File directory,
+                               final String journalPrefix,
+                               final String journalSuffix,
+                               final int minFiles,
+                               final int fileSize,
+                               final IOCriticalErrorListener listener) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);

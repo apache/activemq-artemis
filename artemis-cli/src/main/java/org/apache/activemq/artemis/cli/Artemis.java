@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.cli;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import io.airlift.airline.Cli;
@@ -37,22 +35,22 @@ import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
 import org.apache.activemq.artemis.cli.commands.address.HelpAddress;
 import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
 import org.apache.activemq.artemis.cli.commands.address.UpdateAddress;
+import org.apache.activemq.artemis.cli.commands.messages.Browse;
+import org.apache.activemq.artemis.cli.commands.messages.Consumer;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.cli.commands.migration1x.Migrate1X;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
-import org.apache.activemq.artemis.cli.commands.messages.Browse;
-import org.apache.activemq.artemis.cli.commands.messages.Consumer;
-import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
-import org.apache.activemq.artemis.cli.commands.tools.CompactJournal;
-import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
-import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.HelpData;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
-import org.apache.activemq.artemis.cli.commands.tools.PerfJournal;
-import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
-import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
+import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.PerfJournal;
+import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
+import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
 import org.apache.activemq.artemis.cli.commands.user.HelpUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
@@ -126,7 +124,7 @@ public class Artemis {
     * This method is used to validate exception returns.
     * Useful on test cases
     */
-   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
+   private static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
       return internalExecute(artemisHome, artemisInstance, args, ActionContext.system());
    }
 
@@ -172,20 +170,6 @@ public class Artemis {
       }
 
       return builder;
-   }
-
-   public static void printBanner() throws Exception {
-      copy(Artemis.class.getResourceAsStream("banner.txt"), System.out);
-   }
-
-   private static long copy(InputStream in, OutputStream out) throws Exception {
-      byte[] buffer = new byte[1024];
-      int len = in.read(buffer);
-      while (len != -1) {
-         out.write(buffer, 0, len);
-         len = in.read(buffer);
-      }
-      return len;
    }
 
 }

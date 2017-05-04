@@ -20,7 +20,6 @@ import java.util.List;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.util.FileBasedSecStoreConfig;
 
 /**
  * list existing users, example:
@@ -42,7 +41,7 @@ public class ListUser extends UserAction {
     * list a single user or all users
     * if username is not specified
     */
-   protected void list() throws Exception {
+   private void list() throws Exception {
       FileBasedSecStoreConfig config = getConfiguration();
       List<String> result = config.listUser(username);
       for (String str : result) {

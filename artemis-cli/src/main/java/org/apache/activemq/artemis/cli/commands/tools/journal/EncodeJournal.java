@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,6 +25,7 @@ import java.util.List;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -64,11 +65,11 @@ public class EncodeJournal extends LockAbstract {
       return null;
    }
 
-   public static void exportJournal(final String directory,
-                                    final String journalPrefix,
-                                    final String journalSuffix,
-                                    final int minFiles,
-                                    final int fileSize) throws Exception {
+   private static void exportJournal(final String directory,
+                                     final String journalPrefix,
+                                     final String journalSuffix,
+                                     final int minFiles,
+                                     final int fileSize) throws Exception {
 
       exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, System.out);
    }
@@ -105,15 +106,9 @@ public class EncodeJournal extends LockAbstract {
       }
    }
 
-   /**
-    * @param out
-    * @param fileFactory
-    * @param file
-    * @throws Exception
-    */
-   public static void exportJournalFile(final PrintStream out,
-                                        final SequentialFileFactory fileFactory,
-                                        final JournalFile file) throws Exception {
+   private static void exportJournalFile(final PrintStream out,
+                                         final SequentialFileFactory fileFactory,
+                                         final JournalFile file) throws Exception {
       JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
 
          @Override
@@ -191,18 +186,6 @@ public class EncodeJournal extends LockAbstract {
 
    private static String encode(final byte[] data) {
       return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
-   }
-
-   public void printUsage() {
-      for (int i = 0; i < 10; i++) {
-         System.err.println();
-      }
-      System.err.println("This method will export the journal at low level record.");
-      System.err.println();
-      System.err.println();
-      for (int i = 0; i < 10; i++) {
-         System.err.println();
-      }
    }
 
 }

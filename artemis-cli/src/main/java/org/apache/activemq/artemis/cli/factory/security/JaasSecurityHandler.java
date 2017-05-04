@@ -14,12 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory.security;
 
+import org.apache.activemq.artemis.dto.JaasSecurityDTO;
 import org.apache.activemq.artemis.dto.SecurityDTO;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
-public interface SecurityHandler {
+public class JaasSecurityHandler implements SecurityHandler {
 
-   ActiveMQSecurityManager createSecurityManager(SecurityDTO securityDTO) throws Exception;
+   @Override
+   public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception {
+      JaasSecurityDTO jaasSecurity = (JaasSecurityDTO) security;
+      return new ActiveMQJAASSecurityManager(jaasSecurity.domain, jaasSecurity.certificateDomain);
+   }
 }
