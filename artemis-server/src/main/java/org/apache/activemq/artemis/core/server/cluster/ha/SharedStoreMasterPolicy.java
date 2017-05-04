@@ -26,14 +26,16 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
 
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
+   private boolean waitForActivation = ActiveMQDefaultConfiguration.isDefaultWaitForActivation();
 
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
 
    public SharedStoreMasterPolicy() {
    }
 
-   public SharedStoreMasterPolicy(boolean failoverOnServerShutdown) {
+   public SharedStoreMasterPolicy(boolean failoverOnServerShutdown, boolean waitForActivation) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
+      this.waitForActivation = waitForActivation;
    }
 
    @Deprecated
@@ -51,6 +53,15 @@ public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
 
    public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
+   }
+
+   @Override
+   public boolean isWaitForActivation() {
+      return waitForActivation;
+   }
+
+   public void setWaitForActivation(boolean waitForActivation) {
+      this.waitForActivation = waitForActivation;
    }
 
    public SharedStoreSlavePolicy getSharedStoreSlavePolicy() {
