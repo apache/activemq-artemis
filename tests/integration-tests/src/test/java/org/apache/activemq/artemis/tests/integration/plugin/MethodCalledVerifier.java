@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-
+import org.apache.activemq.artemis.tests.util.Wait;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -265,6 +265,11 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
 
    public void validatePluginMethodsAtLeast(int count, String... names) {
       Arrays.asList(names).forEach(name -> {
+         try {
+            Wait.waitFor(() -> count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
          assertTrue("validating method " + name, count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
       });
    }
