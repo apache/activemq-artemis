@@ -123,13 +123,14 @@
             <extensions>true</extensions>
             <configuration>
                <instructions>
-                  <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                  <Embed-Dependency>*;scope=compile|runtime;groupId=org.apache.activemq</Embed-Dependency>
                   <Import-Package>
                      !org.apache.activemq.artemis.*,
                      org.postgresql*;resolution:=optional,
+                     io.netty.*;version="[4.1,5)",
                      *
                   </Import-Package>
-                  <_exportcontents>*</_exportcontents>
+                  <_exportcontents>org.apache.activemq.artemis.*</_exportcontents>
                </instructions>
             </configuration>
          </plugin>
