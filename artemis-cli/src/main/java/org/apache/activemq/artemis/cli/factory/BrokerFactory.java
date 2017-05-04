@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.factory;
+package org.apache.activemq.artemis.cli.factory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,14 +28,10 @@ import org.apache.activemq.artemis.utils.FactoryFinder;
 
 public class BrokerFactory {
 
-   public static BrokerDTO createBrokerConfiguration(URI configURI) throws Exception {
-      return createBrokerConfiguration(configURI, null, null, null);
-   }
-
-   public static BrokerDTO createBrokerConfiguration(URI configURI,
-                                                     String artemisHome,
-                                                     String artemisInstance,
-                                                     URI artemisURIInstance) throws Exception {
+   private static BrokerDTO createBrokerConfiguration(URI configURI,
+                                                      String artemisHome,
+                                                      String artemisInstance,
+                                                      URI artemisURIInstance) throws Exception {
       if (configURI.getScheme() == null) {
          throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
       }
@@ -47,12 +43,7 @@ public class BrokerFactory {
       } catch (IOException ioe) {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
-
       return factory.createBroker(configURI, artemisHome, artemisInstance, artemisURIInstance);
-   }
-
-   public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception {
-      return createBrokerConfiguration(new URI(configuration), null, null, null);
    }
 
    public static BrokerDTO createBrokerConfiguration(String configuration,

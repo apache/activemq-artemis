@@ -15,19 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.util;
-
-import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.Action;
-import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
+package org.apache.activemq.artemis.cli.commands;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.airlift.airline.Option;
+
 public class OptionsUtil {
 
-   public static void findAllOptions(Set<String> options, Class<? extends Action> command) {
+   private static void findAllOptions(Set<String> options, Class<? extends Action> command) {
       for (Field field  : command.getDeclaredFields()) {
          if (field.isAnnotationPresent(Option.class)) {
             Option annotation = field.getAnnotation(Option.class);
@@ -43,7 +41,7 @@ public class OptionsUtil {
       }
    }
 
-   public static Set<String> findCommandOptions(Class<? extends Action> command) {
+   private static Set<String> findCommandOptions(Class<? extends Action> command) {
       Set<String> options = new HashSet<>();
       findAllOptions(options, command);
 

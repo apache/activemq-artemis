@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
-import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;

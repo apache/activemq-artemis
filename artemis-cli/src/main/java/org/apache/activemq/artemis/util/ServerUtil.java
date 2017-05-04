@@ -40,10 +40,9 @@ public class ServerUtil {
    }
 
    /**
-    *
     * @param artemisInstance
-    * @param serverName it will be used on logs
-    * @param id it will be used to add on the port
+    * @param serverName      it will be used on logs
+    * @param id              it will be used to add on the port
     * @param timeout
     * @return
     * @throws Exception
@@ -94,7 +93,8 @@ public class ServerUtil {
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
             cf.createConnection().close();
             System.out.println("server " + uri + " started");
-         } catch (Exception e) {
+         }
+         catch (Exception e) {
             System.out.println("awaiting server " + uri + " start at ");
             Thread.sleep(500);
             continue;

@@ -25,7 +25,7 @@ import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
-import org.apache.activemq.artemis.util.OptionsUtil;
+import org.apache.activemq.artemis.cli.commands.OptionsUtil;
 
 public class HelpAddress extends Help implements Action {
 

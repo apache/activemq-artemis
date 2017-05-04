@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.tools;
+package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.text.DecimalFormat;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -32,7 +33,6 @@ public class PerfJournal extends LockAbstract {
 
    @Option(name = "--block-size", description = "The block size for each write (default 4096)")
    public int size = 4 * 1024;
-
 
    @Option(name = "--writes", description = "The number of writes to be performed (default 250)")
    public int writes = 250;
