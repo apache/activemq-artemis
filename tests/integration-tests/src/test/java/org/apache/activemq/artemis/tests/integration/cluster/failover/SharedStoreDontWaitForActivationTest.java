@@ -76,7 +76,7 @@ public class SharedStoreDontWaitForActivationTest extends ClusterTestBase {
 
       server0.start();
       // server 0 is live
-      assertTrue(server1.waitForActivation(5, TimeUnit.SECONDS));
+      assertTrue(server0.waitForActivation(5, TimeUnit.SECONDS));
       server1.start();
       // server 1 is backup
       assertFalse(server1.waitForActivation(1, TimeUnit.SECONDS));
