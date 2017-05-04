@@ -98,7 +98,7 @@ public class StompPluginTest extends StompTestBase {
    @Test
    public void testSendAndReceive() throws Exception {
 
-      // subscribehoward county escaped
+      // subscribe
       StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
       newConn.connect(defUser, defPass);
       subscribe(newConn, "a-sub");
