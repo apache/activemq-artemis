@@ -62,10 +62,9 @@
 	</feature>
 
 	<feature name="artemis-amqp" version="${pom.version}" description="ActiveMQ Artemis AMQP protocol libraries">
-		<feature prerequisite="true">wrap</feature>
 		<feature>artemis-core</feature>
-		<bundle dependency="true">wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
-		<bundle dependency="true">wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
+		<bundle>mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+		<bundle>mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
 	</feature>
 

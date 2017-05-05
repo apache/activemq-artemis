@@ -119,18 +119,17 @@
          <plugin>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.3.0</version>
             <extensions>true</extensions>
             <configuration>
                <instructions>
                   <Embed-Dependency>*;scope=compile|runtime;groupId=org.apache.activemq</Embed-Dependency>
                   <Import-Package>
-                     !org.apache.activemq.artemis.*,
                      org.postgresql*;resolution:=optional,
-                     io.netty.*;version="[4.1,5)",
+                     io.netty.buffer;io.netty.*;version="[4.1,5)",
                      *
                   </Import-Package>
-                  <_exportcontents>org.apache.activemq.artemis.*</_exportcontents>
+                  <_exportcontents>org.apache.activemq.artemis.*;-noimport:=true</_exportcontents>
                </instructions>
             </configuration>
          </plugin>
