@@ -78,6 +78,7 @@
             <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss.logging:jboss-logging</include>
+            <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
             <include>io.netty:netty-all</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.activemq:activemq-client</include>
