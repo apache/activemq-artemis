@@ -47,13 +47,13 @@ echo.
 
 :RUN_JAVA
 
+rem "Load Profile Config"
+call %ARTEMIS_INSTANCE%\etc\artemis.profile.cmd %*
+
 rem "Set Defaults."
 set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_URI%/etc/logging.properties
 set ARTEMIS_DATA_DIR=%ARTEMIS_INSTANCE%\data
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
-
-rem "Load Profile Config"
-call %ARTEMIS_INSTANCE%\etc\artemis.profile.cmd %*
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%

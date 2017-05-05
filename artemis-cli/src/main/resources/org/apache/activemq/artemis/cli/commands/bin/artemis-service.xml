@@ -24,6 +24,7 @@
 
    <env name="ARTEMIS_HOME" value="${artemis.home}"/>
    <env name="ARTEMIS_INSTANCE" value="${artemis.instance}"/>
+   <env name="ARTEMIS_INSTANCE_URI" value="${artemis.instance.uri}"/>
 
    <logpath>${artemis.instance}\log</logpath>
    <logmode>roll</logmode>
@@ -43,12 +44,19 @@
    <argument>-Dartemis.remoting.hornetq.port=5446</argument>
    -->
 
+   <!-- uncomment this if you want to connect jconsole to connect
+    <argument>-Dcom.sun.management.jmxremote</argument>
+    <argument>-Dcom.sun.management.jmxremote.port=8086</argument>
+    <argument>-Dcom.sun.management.jmxremote.ssl=false</argument>
+    <argument>-Dcom.sun.management.jmxremote.authenticate=false</argument>
+   -->
+
    <argument>-classpath</argument>
    <argument>%ARTEMIS_HOME%\lib\artemis-boot.jar</argument>
    <argument>-Dartemis.home=%ARTEMIS_HOME%</argument>
    <argument>-Dartemis.instance=%ARTEMIS_INSTANCE%</argument>
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
-   <argument>-Dlogging.configuration=file:%ARTEMIS_INSTANCE%\etc\logging.properties</argument>
+   <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_URI%/etc/logging.properties</argument>
    <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config</argument>
 
 

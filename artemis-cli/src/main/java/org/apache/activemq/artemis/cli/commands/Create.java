@@ -589,6 +589,7 @@ public class Create extends InputAbstract {
       filters.put("${artemis.home}", path(getHome().toString()));
       filters.put("${artemis.instance}", path(directory));
       filters.put("${artemis.instance.uri}", directory.toURI().toString());
+      filters.put("${artemis.instance.uri.windows}", directory.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.name}", directory.getName());
       filters.put("${java.home}", path(System.getProperty("java.home")));
 
