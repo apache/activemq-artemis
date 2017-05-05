@@ -179,13 +179,17 @@ public class Artemis {
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {
-      byte[] buffer = new byte[1024];
-      int len = in.read(buffer);
-      while (len != -1) {
-         out.write(buffer, 0, len);
-         len = in.read(buffer);
+      try {
+         byte[] buffer = new byte[1024];
+         int len = in.read(buffer);
+         while (len != -1) {
+            out.write(buffer, 0, len);
+            len = in.read(buffer);
+         }
+         return len;
+      } finally {
+         in.close();
       }
-      return len;
    }
 
 }
