@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -482,6 +483,7 @@ public class SessionTest extends ActiveMQTestBase {
       Assert.assertNotNull(m);
       m.acknowledge();
       clientSession.rollback();
+      Wait.waitFor(() -> getMessageCount(q) == 10);
       Assert.assertEquals(10, getMessageCount(q));
       clientSession.close();
       sendSession.close();
