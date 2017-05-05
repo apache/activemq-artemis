@@ -44,13 +44,14 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
   ARTEMIS_INSTANCE=`cd "$ARTEMIS_INSTANCE/.." && pwd`
 fi
 
+# Load Profile Data
+. "$ARTEMIS_INSTANCE/etc/artemis.profile"
+
 # Set Defaults Properties
-ARTEMIS_LOGGING_CONF="file:$ARTEMIS_INSTANCE/etc/logging.properties"
+ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_URI/etc/logging.properties"
 ARTEMIS_DATA_DIR="$ARTEMIS_INSTANCE/data"
 ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
-# Load Profile Data
-. "$ARTEMIS_INSTANCE/etc/artemis.profile"
 
 CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
 

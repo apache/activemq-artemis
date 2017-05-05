@@ -584,12 +584,13 @@ public class Create extends InputAbstract {
       applyAddressesAndQueues(filters);
 
       if (home != null) {
-         filters.put("${home}", path(home, false));
+         filters.put("${home}", path(home));
       }
-      filters.put("${artemis.home}", path(getHome().toString(), false));
-      filters.put("${artemis.instance}", path(directory, false));
+      filters.put("${artemis.home}", path(getHome().toString()));
+      filters.put("${artemis.instance}", path(directory));
+      filters.put("${artemis.instance.uri}", directory.toURI().toString());
       filters.put("${artemis.instance.name}", directory.getName());
-      filters.put("${java.home}", path(System.getProperty("java.home"), false));
+      filters.put("${java.home}", path(System.getProperty("java.home")));
 
       new File(directory, "bin").mkdirs();
       new File(directory, "etc").mkdirs();
@@ -688,7 +689,7 @@ public class Create extends InputAbstract {
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
       context.out.println("");
-      context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"), true)));
+      context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"))));
 
       File service = new File(directory, BIN_ARTEMIS_SERVICE);
       context.out.println("");
@@ -696,7 +697,7 @@ public class Create extends InputAbstract {
       if (!IS_WINDOWS || IS_CYGWIN) {
          context.out.println("Or you can run the broker in the background using:");
          context.out.println("");
-         context.out.println(String.format("   \"%s\" start", path(service, true)));
+         context.out.println(String.format("   \"%s\" start", path(service)));
          context.out.println("");
       }
 
@@ -704,14 +705,14 @@ public class Create extends InputAbstract {
          service = new File(directory, BIN_ARTEMIS_SERVICE_EXE);
          context.out.println("Or you can setup the broker as Windows service and run it in the background:");
          context.out.println("");
-         context.out.println(String.format("   \"%s\" install", path(service, true)));
-         context.out.println(String.format("   \"%s\" start", path(service, true)));
+         context.out.println(String.format("   \"%s\" install", path(service)));
+         context.out.println(String.format("   \"%s\" start", path(service)));
          context.out.println("");
          context.out.println("   To stop the windows service:");
-         context.out.println(String.format("      \"%s\" stop", path(service, true)));
+         context.out.println(String.format("      \"%s\" stop", path(service)));
          context.out.println("");
          context.out.println("   To uninstall the windows service");
-         context.out.println(String.format("      \"%s\" uninstall", path(service, true)));
+         context.out.println(String.format("      \"%s\" uninstall", path(service)));
       }
 
       return null;
@@ -752,7 +753,7 @@ public class Create extends InputAbstract {
 
    private String getLogManager() throws IOException {
       String logManager = "";
-      File dir = new File(path(getHome().toString(), false) + "/lib");
+      File dir = new File(path(getHome().toString()) + "/lib");
 
       File[] matches = dir.listFiles(new FilenameFilter() {
          @Override
@@ -866,16 +867,12 @@ public class Create extends InputAbstract {
       }
    }
 
-   private String path(String value, boolean unixPaths) throws IOException {
-      return path(new File(value), unixPaths);
+   private String path(String value) throws IOException {
+      return path(new File(value));
    }
 
-   private String path(File value, boolean unixPaths) throws IOException {
-      if (unixPaths && IS_CYGWIN) {
-         return value.getCanonicalPath();
-      } else {
-         return value.getCanonicalPath();
-      }
+   private String path(File value) throws IOException {
+      return value.getCanonicalPath();
    }
 
    private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws Exception {
