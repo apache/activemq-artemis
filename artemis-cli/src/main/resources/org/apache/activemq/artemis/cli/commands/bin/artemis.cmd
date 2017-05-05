@@ -48,7 +48,7 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-set ARTEMIS_LOGGING_CONF=file:%ARTEMIS_INSTANCE%\etc\logging.properties
+set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_URI%/etc/logging.properties
 set ARTEMIS_DATA_DIR=%ARTEMIS_INSTANCE%\data
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
