@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,25 +16,25 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
+import java.util.ArrayList;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
-import java.util.ArrayList;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
       serverConfig.setSecurityEnabled(false);
       server.start();
       coreQueue = new SimpleString(queueName);
-      this.server.createQueue(coreQueue, RoutingType.MULTICAST, coreQueue, null, false, false, -1, false, true);
+      server.createQueue(coreQueue, RoutingType.ANYCAST, coreQueue, null, false, false);
       qpidfactory = new JmsConnectionFactory("amqp://localhost:61616");
    }
 
@@ -74,7 +74,8 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
+   @SuppressWarnings("unchecked")
+   @Test(timeout = 60000)
    public void testObjectMessage() throws Exception {
       Connection connection = null;
       try {
@@ -82,24 +83,34 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(queueName);
          MessageProducer producer = session.createProducer(queue);
-         ArrayList list = new ArrayList();
+         ArrayList<String> list = new ArrayList<>();
          list.add("aString");
          ObjectMessage objectMessage = session.createObjectMessage(list);
          producer.send(objectMessage);
          connection.close();
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail("Failed to send message via OpenWire: " + e.getMessage());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
 
+      try {
          connection = qpidfactory.createConnection();
-         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         queue = session.createQueue(coreQueue.toString());
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
-         Assert.assertNotNull(receive);
-         list = (ArrayList) receive.getObject();
+         assertNotNull(receive);
+         ArrayList<String> list = (ArrayList<String>) receive.getObject();
          assertEquals(list.get(0), "aString");
          connection.close();
       } catch (Exception e) {
          e.printStackTrace();
+         fail("Failed to receive message via AMQP: " + e.getMessage());
       } finally {
          if (connection != null) {
             connection.close();
