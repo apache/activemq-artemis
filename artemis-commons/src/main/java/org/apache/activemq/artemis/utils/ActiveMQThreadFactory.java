@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ActiveMQThreadFactory implements ThreadFactory {
 
-   private final ThreadGroup group;
+   private String groupName;
 
    private final AtomicInteger threadCount = new AtomicInteger(0);
 
@@ -59,7 +59,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
     * @param tccl      the context class loader of newly created threads
     */
    public ActiveMQThreadFactory(final String groupName, String prefix, final boolean daemon, final ClassLoader tccl) {
-      group = new ThreadGroup(groupName + "-" + System.identityHashCode(this));
+      this.groupName = groupName;
 
       this.prefix = prefix;
 
@@ -97,7 +97,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
    }
 
    private Thread createThread(final Runnable command) {
-      final Thread t = new Thread(group, command, prefix + threadCount.getAndIncrement() + " (" + group.getName() + ")");
+      final Thread t = new Thread(command, prefix + threadCount.getAndIncrement() + " (" + groupName + ")");
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
       t.setContextClassLoader(tccl);
