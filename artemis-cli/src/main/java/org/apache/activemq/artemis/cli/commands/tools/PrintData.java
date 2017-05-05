@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +31,7 @@ import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
@@ -82,7 +81,7 @@ public class PrintData extends OptionalLocking {
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception {
       // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
-      printBanner();
+      Artemis.printBanner();
 
       File serverLockFile = new File(messagesDirectory, "server.lock");
 
@@ -134,20 +133,6 @@ public class PrintData extends OptionalLocking {
          return;
       }
 
-   }
-
-   public static void printBanner() throws Exception {
-      copy(PrintData.class.getResourceAsStream("banner.txt"), System.out);
-   }
-
-   private static long copy(InputStream in, OutputStream out) throws Exception {
-      byte[] buffer = new byte[1024];
-      int len = in.read(buffer);
-      while (len != -1) {
-         out.write(buffer, 0, len);
-         len = in.read(buffer);
-      }
-      return len;
    }
 
    private static void printPages(File pageDirectory, DescribeJournal describeJournal) {

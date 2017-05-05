@@ -22,8 +22,8 @@ import java.util.TimerTask;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
-import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
 import org.apache.activemq.artemis.components.ExternalComponent;
@@ -60,7 +60,7 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      PrintData.printBanner();
+      Artemis.printBanner();
 
       BrokerDTO broker = getBrokerDTO();
 
