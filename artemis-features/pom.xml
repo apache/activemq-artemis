@@ -73,7 +73,7 @@
 				<executions>
 					<execution>
 						<id>verify</id>
-						<phase>process-resources</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>verify</goal>
 						</goals>
