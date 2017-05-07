@@ -1,0 +1,540 @@
+2015/10/05 12:55:10 INFO  - jmeter.util.JMeterUtils: Setting Locale to en_US 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Loading user properties from: /Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin/user.properties 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Loading system properties from: /Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin/system.properties 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Copyright (c) 1998-2015 The Apache Software Foundation 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Version 2.13 r1665067 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: java.version=1.8.0_60 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: os.name=Mac OS X 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: os.arch=x86_64 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: os.version=10.10.5 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: file.encoding=UTF-8 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Default Locale=English (United States) 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: JMeter  Locale=English (United States) 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: JMeterHome=/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: user.dir  =/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: PWD       =/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: IP: 192.168.189.185 Name: MAC-124.local FullName: 192.168.189.185 
+2015/10/05 12:55:10 INFO  - jmeter.gui.action.LookAndFeelCommand: Using look and feel: com.apple.laf.AquaLookAndFeel [Mac OS X, System] 
+2015/10/05 12:55:10 INFO  - jmeter.JMeter: Loaded icon properties from org/apache/jmeter/images/icon.properties 
+2015/10/05 12:55:11 INFO  - jmeter.engine.util.CompoundVariable: Note: Function class names must contain the string: '.functions.' 
+2015/10/05 12:55:11 INFO  - jmeter.engine.util.CompoundVariable: Note: Function class names must not contain the string: '.gui.' 
+2015/10/05 12:55:12 INFO  - jmeter.util.BSFTestElement: Registering JMeter version of JavaScript engine as work-round for BSF-22 
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Cannot find .className property for htmlParser, using default 
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Parser for text/html is  
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Parser for application/xhtml+xml is  
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Parser for application/xml is  
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Parser for text/xml is  
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.sampler.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser 
+2015/10/05 12:55:12 INFO  - jmeter.gui.util.MenuFactory: Skipping org.apache.jmeter.protocol.http.control.gui.WebServiceSamplerGui 
+2015/10/05 12:55:12 INFO  - jmeter.gui.util.MenuFactory: Skipping org.apache.jmeter.protocol.http.modifier.gui.ParamModifierGui 
+2015/10/05 12:55:12 INFO  - jorphan.exec.KeyToolUtils: keytool found at 'keytool' 
+2015/10/05 12:55:12 INFO  - jmeter.protocol.http.proxy.ProxyControl: HTTP(S) Test Script Recorder SSL Proxy will use keys that support embedded 3rd party resources in file /Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin/proxyserver.jks 
+2015/10/05 12:55:12 INFO  - jmeter.samplers.SampleResult: Note: Sample TimeStamps are START times 
+2015/10/05 12:55:12 INFO  - jmeter.samplers.SampleResult: sampleresult.default.encoding is set to ISO-8859-1 
+2015/10/05 12:55:12 INFO  - jmeter.samplers.SampleResult: sampleresult.useNanoTime=true 
+2015/10/05 12:55:12 INFO  - jmeter.samplers.SampleResult: sampleresult.nanoThreadSleep=5000 
+2015/10/05 12:55:18 INFO  - jmeter.services.FileServer: Default base='/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin' 
+2015/10/05 12:55:18 INFO  - jmeter.gui.action.Load: Loading file: /Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin/Subscribers.jmx 
+2015/10/05 12:55:18 INFO  - jmeter.services.FileServer: Set new base='/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin' 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: Using SaveService properties file encoding UTF-8 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: Using SaveService properties file version 1656252 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: Using SaveService properties version 2.8 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: All converter versions present and correct 
+2015/10/05 12:55:18 INFO  - jmeter.save.SaveService: Loading file: /Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin/Subscribers.jmx 
+2015/10/05 12:55:18 INFO  - jmeter.services.FileServer: Set new base='/Users/glaucio.melo/projects/performance-test/apache-jmeter-2.13/bin' 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Listeners will be started after enabling running version 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: To revert to the earlier behaviour, define jmeterengine.startlistenerslater=false 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Running the test! 
+2015/10/05 12:55:23 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2015/10/05 12:55:23 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2015/10/05 12:55:23 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(true,*local*) 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 1 : Subscribers 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting 5 threads for group Subscribers. 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:55:23 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 1 threads 5 ramp-up 0 perThread 0.0 delayedStart=false 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: jmeterthread.startearlier=true (see jmeter.properties) 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Running PostProcessors in forward order 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-4 
+2015/10/05 12:55:23 INFO  - jmeter.threads.ThreadGroup: Started thread group number 1 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-2 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-3 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-5 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 2 : Publishers 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-1 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Starting 1 threads for group Publishers. 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:55:23 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 2 threads 1 ramp-up 1 perThread 1000.0 delayedStart=false 
+2015/10/05 12:55:23 INFO  - jmeter.threads.ThreadGroup: Started thread group number 2 
+2015/10/05 12:55:23 INFO  - jmeter.engine.StandardJMeterEngine: All thread groups have been started 
+2015/10/05 12:55:23 INFO  - jmeter.threads.JMeterThread: Thread started: Publishers 2-1 
+2015/10/05 12:55:23 ERROR - jmeter.protocol.jms.sampler.SubscriberSampler: Could not initialise client javax.jms.JMSException: Failed to create session factory
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:675)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:206)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:202)
+	at org.apache.jmeter.protocol.jms.Utils.getConnection(Utils.java:206)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:233)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:170)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.initListenerClient(SubscriberSampler.java:113)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.threadStarted(SubscriberSampler.java:305)
+	at org.apache.jmeter.threads.JMeterThread$ThreadListenerTraverser.addNode(JMeterThread.java:610)
+	at org.apache.jorphan.collections.HashTree.traverseInto(HashTree.java:998)
+	at org.apache.jorphan.collections.HashTree.traverse(HashTree.java:980)
+	at org.apache.jmeter.threads.JMeterThread.threadStarted(JMeterThread.java:579)
+	at org.apache.jmeter.threads.JMeterThread.initRun(JMeterThread.java:567)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:257)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: ActiveMQNotConnectedException[errorType=NOT_CONNECTED message=AMQ119007: Cannot connect to server(s). Tried with all available servers.]
+	at org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl.createSessionFactory(ServerLocatorImpl.java:818)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:672)
+	... 14 more
+
+2015/10/05 12:55:23 ERROR - jmeter.protocol.jms.sampler.SubscriberSampler: Could not initialise client javax.jms.JMSException: Failed to create session factory
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:675)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:206)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:202)
+	at org.apache.jmeter.protocol.jms.Utils.getConnection(Utils.java:206)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:233)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:170)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.initListenerClient(SubscriberSampler.java:113)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.threadStarted(SubscriberSampler.java:305)
+	at org.apache.jmeter.threads.JMeterThread$ThreadListenerTraverser.addNode(JMeterThread.java:610)
+	at org.apache.jorphan.collections.HashTree.traverseInto(HashTree.java:998)
+	at org.apache.jorphan.collections.HashTree.traverse(HashTree.java:980)
+	at org.apache.jmeter.threads.JMeterThread.threadStarted(JMeterThread.java:579)
+	at org.apache.jmeter.threads.JMeterThread.initRun(JMeterThread.java:567)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:257)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: ActiveMQNotConnectedException[errorType=NOT_CONNECTED message=AMQ119007: Cannot connect to server(s). Tried with all available servers.]
+	at org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl.createSessionFactory(ServerLocatorImpl.java:818)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:672)
+	... 14 more
+
+2015/10/05 12:55:23 ERROR - jmeter.protocol.jms.sampler.SubscriberSampler: Could not initialise client javax.jms.JMSException: Failed to create session factory
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:675)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:206)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:202)
+	at org.apache.jmeter.protocol.jms.Utils.getConnection(Utils.java:206)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:233)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:170)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.initListenerClient(SubscriberSampler.java:113)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.threadStarted(SubscriberSampler.java:305)
+	at org.apache.jmeter.threads.JMeterThread$ThreadListenerTraverser.addNode(JMeterThread.java:610)
+	at org.apache.jorphan.collections.HashTree.traverseInto(HashTree.java:998)
+	at org.apache.jorphan.collections.HashTree.traverse(HashTree.java:980)
+	at org.apache.jmeter.threads.JMeterThread.threadStarted(JMeterThread.java:579)
+	at org.apache.jmeter.threads.JMeterThread.initRun(JMeterThread.java:567)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:257)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: ActiveMQNotConnectedException[errorType=NOT_CONNECTED message=AMQ119007: Cannot connect to server(s). Tried with all available servers.]
+	at org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl.createSessionFactory(ServerLocatorImpl.java:818)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:672)
+	... 14 more
+
+2015/10/05 12:55:23 ERROR - jmeter.protocol.jms.sampler.SubscriberSampler: Could not initialise client javax.jms.JMSException: Failed to create session factory
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:675)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:206)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:202)
+	at org.apache.jmeter.protocol.jms.Utils.getConnection(Utils.java:206)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:233)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:170)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.initListenerClient(SubscriberSampler.java:113)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.threadStarted(SubscriberSampler.java:305)
+	at org.apache.jmeter.threads.JMeterThread$ThreadListenerTraverser.addNode(JMeterThread.java:610)
+	at org.apache.jorphan.collections.HashTree.traverseInto(HashTree.java:998)
+	at org.apache.jorphan.collections.HashTree.traverse(HashTree.java:980)
+	at org.apache.jmeter.threads.JMeterThread.threadStarted(JMeterThread.java:579)
+	at org.apache.jmeter.threads.JMeterThread.initRun(JMeterThread.java:567)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:257)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: ActiveMQNotConnectedException[errorType=NOT_CONNECTED message=AMQ119007: Cannot connect to server(s). Tried with all available servers.]
+	at org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl.createSessionFactory(ServerLocatorImpl.java:818)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:672)
+	... 14 more
+
+2015/10/05 12:55:23 ERROR - jmeter.protocol.jms.sampler.SubscriberSampler: Could not initialise client javax.jms.JMSException: Failed to create session factory
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:675)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:206)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnection(ActiveMQConnectionFactory.java:202)
+	at org.apache.jmeter.protocol.jms.Utils.getConnection(Utils.java:206)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:233)
+	at org.apache.jmeter.protocol.jms.client.ReceiveSubscriber.<init>(ReceiveSubscriber.java:170)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.initListenerClient(SubscriberSampler.java:113)
+	at org.apache.jmeter.protocol.jms.sampler.SubscriberSampler.threadStarted(SubscriberSampler.java:305)
+	at org.apache.jmeter.threads.JMeterThread$ThreadListenerTraverser.addNode(JMeterThread.java:610)
+	at org.apache.jorphan.collections.HashTree.traverseInto(HashTree.java:998)
+	at org.apache.jorphan.collections.HashTree.traverse(HashTree.java:980)
+	at org.apache.jmeter.threads.JMeterThread.threadStarted(JMeterThread.java:579)
+	at org.apache.jmeter.threads.JMeterThread.initRun(JMeterThread.java:567)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:257)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: ActiveMQNotConnectedException[errorType=NOT_CONNECTED message=AMQ119007: Cannot connect to server(s). Tried with all available servers.]
+	at org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl.createSessionFactory(ServerLocatorImpl.java:818)
+	at org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.createConnectionInternal(ActiveMQConnectionFactory.java:672)
+	... 14 more
+
+2015/10/05 12:55:26 INFO  - jmeter.gui.action.Start: Stopping test 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-1 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-5 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-3 
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-5 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-3 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-2 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-5 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-1 
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-2 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-4 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-3 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Stopping: Publishers 2-1 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-2 
+2015/10/05 12:55:26 WARN  - jmeter.threads.JMeterThread: Sampler is not Interruptible: Sample Publisher 
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-4 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Publishers 2-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-4 
+2015/10/05 12:55:26 INFO  - jmeter.threads.JMeterThread: Thread finished: Publishers 2-1 
+2015/10/05 12:55:26 INFO  - jmeter.engine.StandardJMeterEngine: Notifying test listeners of end of test 
+2015/10/05 12:55:26 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:55:26 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:55:26 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(false,*local*) 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Running the test! 
+2015/10/05 12:58:32 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2015/10/05 12:58:32 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(true,*local*) 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 1 : Subscribers 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Starting 5 threads for group Subscribers. 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:58:32 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 1 threads 5 ramp-up 0 perThread 0.0 delayedStart=false 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-1 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-2 
+2015/10/05 12:58:32 INFO  - jmeter.threads.ThreadGroup: Started thread group number 1 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-3 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 2 : Publishers 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-4 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Starting 1 threads for group Publishers. 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-5 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:58:32 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 2 threads 1 ramp-up 1 perThread 1000.0 delayedStart=false 
+2015/10/05 12:58:32 INFO  - jmeter.threads.ThreadGroup: Started thread group number 2 
+2015/10/05 12:58:32 INFO  - jmeter.engine.StandardJMeterEngine: All thread groups have been started 
+2015/10/05 12:58:32 INFO  - jmeter.threads.JMeterThread: Thread started: Publishers 2-1 
+2015/10/05 12:58:38 INFO  - jmeter.gui.action.Start: Stopping test 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-3 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-1 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-5 
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-3 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-5 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-4 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-1 
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-4 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-2 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-5 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-3 
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-2 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Stopping: Publishers 2-1 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-4 
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-2 
+2015/10/05 12:58:38 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Publishers 2-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:38 INFO  - jmeter.threads.JMeterThread: Thread finished: Publishers 2-1 
+2015/10/05 12:58:38 INFO  - jmeter.engine.StandardJMeterEngine: Notifying test listeners of end of test 
+2015/10/05 12:58:38 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:58:38 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:58:38 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(false,*local*) 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Running the test! 
+2015/10/05 12:58:42 INFO  - jmeter.samplers.SampleEvent: List of sample_variables: [] 
+2015/10/05 12:58:42 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(true,*local*) 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 1 : Subscribers 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Starting 5 threads for group Subscribers. 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:58:42 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 1 threads 5 ramp-up 0 perThread 0.0 delayedStart=false 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-1 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-2 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-3 
+2015/10/05 12:58:42 INFO  - jmeter.threads.ThreadGroup: Started thread group number 1 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Starting ThreadGroup: 2 : Publishers 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Starting 1 threads for group Publishers. 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: Thread will continue on error 
+2015/10/05 12:58:42 INFO  - jmeter.threads.ThreadGroup: Starting thread group number 2 threads 1 ramp-up 1 perThread 1000.0 delayedStart=false 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-4 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Subscribers 1-5 
+2015/10/05 12:58:42 INFO  - jmeter.threads.ThreadGroup: Started thread group number 2 
+2015/10/05 12:58:42 INFO  - jmeter.engine.StandardJMeterEngine: All thread groups have been started 
+2015/10/05 12:58:42 INFO  - jmeter.threads.JMeterThread: Thread started: Publishers 2-1 
+2015/10/05 12:58:46 INFO  - jmeter.gui.action.Start: Stopping test 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-1 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-4 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-4 
+2015/10/05 12:58:46 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-1 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-5 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-2 
+2015/10/05 12:58:46 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-5 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:46 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-2 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Subscribers 1-3 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-2 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Stopping: Publishers 2-1 
+2015/10/05 12:58:46 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Subscribers 1-3 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-3 
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Subscribers 1-5 
+2015/10/05 12:58:46 WARN  - jmeter.util.JMeterUtils: Interrupted in thread Publishers 2-1 java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1313)
+	at java.awt.EventQueue.invokeAndWait(EventQueue.java:1294)
+	at javax.swing.SwingUtilities.invokeAndWait(SwingUtilities.java:1348)
+	at org.apache.jmeter.util.JMeterUtils.runSafe(JMeterUtils.java:1322)
+	at org.apache.jmeter.visualizers.GraphVisualizer.add(GraphVisualizer.java:134)
+	at org.apache.jmeter.reporters.ResultCollector.sendToVisualizer(ResultCollector.java:595)
+	at org.apache.jmeter.reporters.ResultCollector.sampleOccurred(ResultCollector.java:571)
+	at org.apache.jmeter.threads.ListenerNotifier.notifyListeners(ListenerNotifier.java:84)
+	at org.apache.jmeter.threads.JMeterThread.notifyListeners(JMeterThread.java:796)
+	at org.apache.jmeter.threads.JMeterThread.process_sampler(JMeterThread.java:456)
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:261)
+	at java.lang.Thread.run(Thread.java:745)
+
+2015/10/05 12:58:46 INFO  - jmeter.threads.JMeterThread: Thread finished: Publishers 2-1 
+2015/10/05 12:58:46 INFO  - jmeter.engine.StandardJMeterEngine: Notifying test listeners of end of test 
+2015/10/05 12:58:46 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:58:46 INFO  - jmeter.protocol.jms.client.InitialContextFactory: InitialContextFactory.close() called and Context instances cleaned up 
+2015/10/05 12:58:46 INFO  - jmeter.gui.util.JMeterMenuBar: setRunning(false,*local*) 
