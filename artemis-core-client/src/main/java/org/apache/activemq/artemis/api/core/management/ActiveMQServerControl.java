@@ -1057,6 +1057,9 @@ public interface ActiveMQServerControl {
    @Operation(desc = "force the server to stop and notify clients to failover", impact = MBeanOperationInfo.UNKNOWN)
    void forceFailover() throws Exception;
 
+   @Operation(desc = "force the server to stop and shutdown JVM", impact = MBeanOperationInfo.UNKNOWN)
+   void forceShutdown() throws Exception;
+
    void updateDuplicateIdCache(String address, Object[] ids) throws Exception;
 
    @Operation(desc = "force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)

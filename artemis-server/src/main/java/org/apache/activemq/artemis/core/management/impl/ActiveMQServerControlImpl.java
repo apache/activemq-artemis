@@ -2220,6 +2220,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void forceShutdown() throws Exception {
+      forceFailover();
+      System.exit(0);
+   }
+
+   @Override
    public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
       try {

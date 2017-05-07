@@ -790,6 +790,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("forceFailover");
          }
 
+         @Override
+         public void forceShutdown() throws Exception {
+            proxy.invokeOperation("forceShutdown");
+         }
+
          public String getLiveConnectorName() throws Exception {
             return (String) proxy.retrieveAttributeValue("liveConnectorName");
          }
