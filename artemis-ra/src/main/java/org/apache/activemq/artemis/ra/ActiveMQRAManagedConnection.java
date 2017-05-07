@@ -25,6 +25,7 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.DissociatableManagedConnection;
 import javax.resource.spi.IllegalStateException;
 import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnection;
@@ -59,7 +60,7 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 /**
  * The managed connection
  */
-public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener {
+public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener, DissociatableManagedConnection {
 
    /**
     * Trace enabled
@@ -583,6 +584,19 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
       ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_ERROR_OCCURRED, exception);
       sendEvent(event);
+   }
+
+   /**
+    * Dissociate the connection.
+    *
+    * @throws ResourceException Thrown if a connection couldn't be dissociated
+    */
+   @Override
+   public void dissociateConnections() throws ResourceException {
+      if (ActiveMQRAManagedConnection.trace) {
+	     ActiveMQRALogger.LOGGER.trace("dissociateConnections()");
+	  }
+	  connection = null;
    }
 
    /**
