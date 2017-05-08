@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -86,6 +87,10 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public MethodCalledVerifier(Map<String, AtomicInteger> methodCalls) {
       super();
       this.methodCalls = methodCalls;
+   }
+
+   public MethodCalledVerifier() {
+      this(new HashMap<String, AtomicInteger>());
    }
 
    @Override

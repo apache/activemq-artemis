@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -96,6 +97,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    public static final String SECURITY_PLUGIN_ELEMENT_NAME = "security-setting-plugin";
 
    public static final String SECURITY_ROLE_MAPPING_NAME = "role-mapping";
+
+   public static final String BROKER_PLUGINS_ELEMENT_NAME = "broker-plugins";
+
+   public static final String BROKER_PLUGIN_ELEMENT_NAME = "broker-plugin";
 
    private static final String PERMISSION_ELEMENT_NAME = "permission";
 
@@ -600,6 +605,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       parseSecurity(e, config);
 
+      parseBrokerPlugins(e, config);
+
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
       ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
@@ -645,6 +652,31 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             config.addSecuritySettingPlugin(securityItem.getA().init(securityItem.getB()));
          }
       }
+   }
+
+   private void parseBrokerPlugins(final Element e, final Configuration config) {
+      NodeList brokerPlugins = e.getElementsByTagName(BROKER_PLUGINS_ELEMENT_NAME);
+      if (brokerPlugins.getLength() != 0) {
+         Element node = (Element) brokerPlugins.item(0);
+         NodeList list = node.getElementsByTagName(BROKER_PLUGIN_ELEMENT_NAME);
+         for (int i = 0; i < list.getLength(); i++) {
+            ActiveMQServerPlugin plugin = parseActiveMQServerPlugin(list.item(i));
+            config.registerBrokerPlugin(plugin);
+         }
+      }
+   }
+
+   private ActiveMQServerPlugin parseActiveMQServerPlugin(Node item) {
+      final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
+
+      ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged(new PrivilegedAction<ActiveMQServerPlugin>() {
+         @Override
+         public ActiveMQServerPlugin run() {
+            return (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(clazz);
+         }
+      });
+
+      return serverPlugin;
    }
 
    /**
