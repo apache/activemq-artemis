@@ -19,13 +19,23 @@ package org.apache.activemq.artemis.core.io.nio;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
+import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.utils.Env;
 
-public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
+public final class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
+
+   private static final int DEFAULT_CAPACITY_ALIGNMENT = Env.osPageSize();
+
+   private boolean bufferPooling;
+
+   //pools only the biggest one -> optimized for the common case
+   private final ThreadLocal<ByteBuffer> bytesPool;
 
    public NIOSequentialFileFactory(final File journalDir, final int maxIO) {
       this(journalDir, null, maxIO);
@@ -63,6 +73,8 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
                                    final boolean logRates,
                                    final IOCriticalErrorListener listener) {
       super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener);
+      this.bufferPooling = true;
+      this.bytesPool = new ThreadLocal<>();
    }
 
    public static ByteBuffer allocateDirectByteBuffer(final int size) {
@@ -91,6 +103,14 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       return buffer2;
    }
 
+   public void enableBufferReuse() {
+      this.bufferPooling = true;
+   }
+
+   public void disableBufferReuse() {
+      this.bufferPooling = false;
+   }
+
    @Override
    public SequentialFile createSequentialFile(final String fileName) {
       return new NIOSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
@@ -101,31 +121,71 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       return timedBuffer != null;
    }
 
+   private static int align(final int value, final int pow2alignment) {
+      return (value + (pow2alignment - 1)) & ~(pow2alignment - 1);
+   }
+
    @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
-      return NIOSequentialFileFactory.allocateDirectByteBuffer(size);
+      final int requiredCapacity = align(size, DEFAULT_CAPACITY_ALIGNMENT);
+      final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
+      byteBuffer.limit(size);
+      return byteBuffer;
    }
 
    @Override
    public void releaseDirectBuffer(ByteBuffer buffer) {
-      // nothing we can do on this case. we can just have good faith on GC
+      PlatformDependent.freeDirectBuffer(buffer);
    }
 
    @Override
    public ByteBuffer newBuffer(final int size) {
-      return ByteBuffer.allocate(size);
+      if (!this.bufferPooling) {
+         return allocateDirectBuffer(size);
+      } else {
+         final int requiredCapacity = align(size, DEFAULT_CAPACITY_ALIGNMENT);
+         ByteBuffer byteBuffer = bytesPool.get();
+         if (byteBuffer == null || requiredCapacity > byteBuffer.capacity()) {
+            //do not free the old one (if any) until the new one will be released into the pool!
+            byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
+         } else {
+            bytesPool.set(null);
+            PlatformDependent.setMemory(PlatformDependent.directBufferAddress(byteBuffer), size, (byte) 0);
+            byteBuffer.clear();
+         }
+         byteBuffer.limit(size);
+         return byteBuffer;
+      }
+   }
+
+   @Override
+   public void releaseBuffer(ByteBuffer buffer) {
+      if (this.bufferPooling) {
+         if (buffer.isDirect()) {
+            final ByteBuffer byteBuffer = bytesPool.get();
+            if (byteBuffer != buffer) {
+               //replace with the current pooled only if greater or null
+               if (byteBuffer == null || buffer.capacity() > byteBuffer.capacity()) {
+                  if (byteBuffer != null) {
+                     //free the smaller one
+                     PlatformDependent.freeDirectBuffer(byteBuffer);
+                  }
+                  bytesPool.set(buffer);
+               } else {
+                  PlatformDependent.freeDirectBuffer(buffer);
+               }
+            }
+         }
+      }
    }
 
    @Override
    public void clearBuffer(final ByteBuffer buffer) {
-      final int limit = buffer.limit();
-      buffer.rewind();
-
-      for (int i = 0; i < limit; i++) {
-         buffer.put((byte) 0);
+      if (buffer.isDirect()) {
+         PlatformDependent.setMemory(PlatformDependent.directBufferAddress(buffer), buffer.limit(), (byte) 0);
+      } else {
+         Arrays.fill(buffer.array(), buffer.arrayOffset(), buffer.limit(), (byte) 0);
       }
-
-      buffer.rewind();
    }
 
    @Override
