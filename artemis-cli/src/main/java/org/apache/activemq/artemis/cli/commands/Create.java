@@ -597,6 +597,7 @@ public class Create extends InputAbstract {
       new File(directory, "etc").mkdirs();
       new File(directory, "log").mkdirs();
       new File(directory, "tmp").mkdirs();
+      new File(directory, "lib").mkdirs();
       File dataFolder = new File(directory, "data");
       dataFolder.mkdirs();
 
