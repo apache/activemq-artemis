@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -45,12 +46,12 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -618,6 +619,19 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       }
    }
 
+   @Test
+   public void testBrokerPlugin() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("brokerPlugin.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      List<ActiveMQServerPlugin> brokerPlugins = fc.getBrokerPlugins();
+      assertEquals(2, brokerPlugins.size());
+      assertTrue(brokerPlugins.get(0) instanceof EmptyPlugin1);
+      assertTrue(brokerPlugins.get(1) instanceof EmptyPlugin2);
+   }
+
    @Override
    protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
@@ -625,5 +639,13 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;
+   }
+
+   public static class EmptyPlugin1 implements ActiveMQServerPlugin {
+
+   }
+
+   public static class EmptyPlugin2 implements ActiveMQServerPlugin {
+
    }
 }
