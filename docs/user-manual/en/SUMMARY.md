@@ -37,6 +37,7 @@
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
 * [Security](security.md)
+* [Broker Plugins](broker-plugins.md)
 * [Resource Limits](resource-limits.md)
 * [The JMS Bridge](jms-bridge.md)
 * [Client Reconnection and Session Reattachment](client-reconnection.md)
