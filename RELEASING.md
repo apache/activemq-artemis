@@ -27,15 +27,6 @@ Things to do before issuing a new release:
 ## Extra tests
 Note: The Apache Release plugin does not bump the version on the extraTests module.  Release manager should manually bump the version in the test/extra-tests/pom.xml to the next development version.
 
-## Removing additional files
-
-Note: There is one additional step to remove the activemq-pom-<version>-source-release.zip from the Nexus staging repository before closing the staging repository.  At the moment this artifact is uploaded automatically by the Apache release plugin.  In future versions the ActiveMQ Artemis pom will be updated to take this into account.
-
-The file will be located under ./artemis-pom/RELEASE/
-
-Remove these files manually under Nexus while the repository is still open.
-
-
 ## Checking out a new empty git repository
 
 Before starting make sure you clone a brand new git as follows as the release plugin will use the upstream for pushing the tags:
@@ -98,6 +89,15 @@ There is a release.properties file that is generated at the root of the project 
 scm.url=scm:git:https://github.com/apache/activemq-artemis.git
 scm.tag=1.4.0
 ```
+
+
+## Removing additional files
+
+Note: There is one additional step to remove the activemq-pom-<version>-source-release.zip from the Nexus staging repository before closing the staging repository.  At the moment this artifact is uploaded automatically by the Apache release plugin.  In future versions the ActiveMQ Artemis pom will be updated to take this into account.
+
+The file will be located under ./artemis-pom/RELEASE/
+
+Remove these files manually under Nexus while the repository is still open.
 
 
 ### Web site update:
