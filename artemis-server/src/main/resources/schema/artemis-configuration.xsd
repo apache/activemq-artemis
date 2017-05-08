@@ -852,6 +852,34 @@
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
+         
+         <xsd:element name="broker-plugins" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a list of broker-plugins
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="broker-plugin" maxOccurs="unbounded" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              a broker plugin
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:attribute name="class-name" type="xsd:string" use="required">
+                           <xsd:annotation>
+                              <xsd:documentation>
+                                 the name of the broker plugin class to instantiate
+                              </xsd:documentation>
+                           </xsd:annotation>
+                        </xsd:attribute>
+                     </xsd:complexType>
+                  </xsd:element>               
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
 
          <xsd:element name="address-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
