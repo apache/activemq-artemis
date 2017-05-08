@@ -189,9 +189,12 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          bytes.setIndex(0, bytes.capacity());
          timedBuffer.addBytes(bytes, sync, callback);
       } else {
-         ByteBuffer buffer = factory.newBuffer(bytes.capacity());
-         buffer.put(bytes.toByteBuffer().array());
-         buffer.rewind();
+         final int readableBytes = bytes.readableBytes();
+         final ByteBuffer buffer = factory.newBuffer(readableBytes);
+         //factory::newBuffer doesn't necessary return a buffer with limit == readableBytes!!
+         buffer.limit(readableBytes);
+         bytes.getBytes(bytes.readerIndex(), buffer);
+         buffer.flip();
          writeDirect(buffer, sync, callback);
       }
    }
@@ -215,15 +218,12 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       if (timedBuffer != null) {
          timedBuffer.addBytes(bytes, sync, callback);
       } else {
-         ByteBuffer buffer = factory.newBuffer(bytes.getEncodeSize());
-
-         // If not using the TimedBuffer, a final copy is necessary
-         // Because AIO will need a specific Buffer
-         // And NIO will also need a whole buffer to perform the write
-
+         final int encodedSize = bytes.getEncodeSize();
+         ByteBuffer buffer = factory.newBuffer(encodedSize);
          ActiveMQBuffer outBuffer = ActiveMQBuffers.wrappedBuffer(buffer);
          bytes.encode(outBuffer);
-         buffer.rewind();
+         buffer.clear();
+         buffer.limit(encodedSize);
          writeDirect(buffer, sync, callback);
       }
    }
@@ -255,9 +255,10 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
       @Override
       public void done() {
-         for (IOCallback callback : delegates) {
+         final int size = delegates.size();
+         for (int i = 0; i < size; i++) {
             try {
-               callback.done();
+               delegates.get(i).done();
             } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
             }
@@ -266,9 +267,10 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
       @Override
       public void onError(final int errorCode, final String errorMessage) {
-         for (IOCallback callback : delegates) {
+         final int size = delegates.size();
+         for (int i = 0; i < size; i++) {
             try {
-               callback.onError(errorCode, errorMessage);
+               delegates.get(i).onError(errorCode, errorMessage);
             } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
             }
