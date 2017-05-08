@@ -26,7 +26,7 @@ https://github.com/PowerShell/PowerShell/
 - Create the broker, by running:
 
 ```
-../../../../bin/artemis create ./server1 --user a --password a --role a --allow-anonymous --force
+../../../../../bin/artemis create ./server1 --user a --password a --role a --allow-anonymous --force
 ./server1/bin/artemis-service start
 ```
 
