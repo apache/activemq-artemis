@@ -298,25 +298,27 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    }
 
+   /**
+    * @return true if no checks were done or if one address/url responds; false if all addresses/urls fail
+    */
    public boolean check() {
-      boolean isEmpty = true;
+      if (isEmpty()) {
+         return true;
+      }
+
       for (InetAddress address : addresses) {
-         isEmpty = false;
          if (check(address)) {
             return true;
          }
       }
 
       for (URL url : urls) {
-         isEmpty = false;
          if (check(url)) {
             return true;
          }
       }
 
-      // This should return true if no checks were done, on this case it's empty
-      // This is tested by {@link NetworkHe
-      return isEmpty;
+      return false;
    }
 
    public boolean check(InetAddress address) {
@@ -396,5 +398,9 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          logger.warn(e.getMessage(), e);
          return false;
       }
+   }
+
+   public boolean isEmpty() {
+      return addresses.isEmpty() && urls.isEmpty();
    }
 }
