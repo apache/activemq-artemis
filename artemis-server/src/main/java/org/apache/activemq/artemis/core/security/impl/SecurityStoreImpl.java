@@ -141,7 +141,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser();
+            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(user);
          }
 
          return validatedUser;
