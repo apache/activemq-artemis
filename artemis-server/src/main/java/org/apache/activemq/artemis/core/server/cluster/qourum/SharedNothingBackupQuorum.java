@@ -108,7 +108,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
 
-         if (networkHealthCheck != null && networkHealthCheck.check()) {
+         if (networkHealthCheck != null && !networkHealthCheck.isEmpty() && networkHealthCheck.check()) {
             // live is assumed to be down, backup fails-over
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          } else {
