@@ -117,6 +117,10 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       }
    }
 
+   void removeFile(JDBCSequentialFile file) {
+
+   }
+
    /**
     * Checks to see if a file with filename and extension exists.  If so returns the ID of the file or returns -1.
     *
