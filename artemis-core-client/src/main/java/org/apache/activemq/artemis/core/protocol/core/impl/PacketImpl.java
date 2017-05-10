@@ -347,7 +347,9 @@ public class PacketImpl implements Packet {
    }
 
    protected ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
-      return buffer.retainedSlice(PACKET_HEADERS_SIZE, buffer.readableBytes() - skipBytes);
+      ByteBuf byteBuf = buffer.retainedSlice(PACKET_HEADERS_SIZE, buffer.capacity());
+      byteBuf.setIndex( 0, buffer.writerIndex() - PACKET_HEADERS_SIZE - skipBytes);
+      return byteBuf;
    }
 
 
