@@ -266,8 +266,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final Object getID() {
-      // TODO: Think of it
-      return channel.hashCode();
+      return channel.id();
    }
 
    // This is called periodically to flush the batch buffer
