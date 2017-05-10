@@ -111,6 +111,8 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
+      ClientSessionFactory sf2 = createSessionFactory(locator);
+
       ClientSession session = sf.createSession(false, true, true, true);
 
       server.createQueue(QUEUE, RoutingType.ANYCAST, QUEUE, null, true, false);

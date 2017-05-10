@@ -44,7 +44,7 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       Channel channel = createChannel();
       NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
 
-      Assert.assertEquals(channel.hashCode(), conn.getID());
+      Assert.assertEquals(channel.id(), conn.getID());
    }
 
    @Test

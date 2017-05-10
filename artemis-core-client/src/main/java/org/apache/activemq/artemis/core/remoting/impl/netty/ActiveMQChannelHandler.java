@@ -57,7 +57,6 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    @Override
    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-      // TODO: Think about the id thingy
       listener.connectionReadyForWrites(channelId(ctx.channel()), ctx.channel().isWritable());
    }
 
@@ -107,7 +106,7 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
       }
    }
 
-   protected static int channelId(Channel channel) {
-      return channel.hashCode();
+   protected static Object channelId(Channel channel) {
+      return channel.id();
    }
 }
