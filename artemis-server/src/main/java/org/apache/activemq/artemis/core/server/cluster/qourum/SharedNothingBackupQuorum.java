@@ -108,12 +108,17 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
 
-         if (networkHealthCheck != null && !networkHealthCheck.isEmpty() && networkHealthCheck.check()) {
-            // live is assumed to be down, backup fails-over
-            signal = BACKUP_ACTIVATION.FAIL_OVER;
-         } else {
-            ActiveMQServerLogger.LOGGER.serverIsolatedOnNetwork();
-            signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
+         /* use NetworkHealthCheck to determine if node is isolated
+          * if there are no addresses/urls configured then ignore and rely on quorum vote only
+          */
+         if (networkHealthCheck != null && !networkHealthCheck.isEmpty()) {
+            if (networkHealthCheck.check()) {
+               // live is assumed to be down, backup fails-over
+               signal = BACKUP_ACTIVATION.FAIL_OVER;
+            } else {
+               ActiveMQServerLogger.LOGGER.serverIsolatedOnNetwork();
+               signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
+            }
          }
       }
       latch.countDown();
