@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,12 +30,16 @@ public final class NettyTransportFactory {
    }
 
    /**
-    * Creates an instance of the given Transport and configures it using the
-    * properties set on the given remote broker URI.
+    * Creates an instance of the given Transport and configures it using the properties set on
+    * the given remote broker URI.
     *
-    * @param remoteURI The URI used to connect to a remote Peer.
+    * @param remoteURI
+    *        The URI used to connect to a remote Peer.
+    *
     * @return a new Transport instance.
-    * @throws Exception if an error occurs while creating the Transport instance.
+    *
+    * @throws Exception
+    *         if an error occurs while creating the Transport instance.
     */
    public static NettyTransport createTransport(URI remoteURI) throws Exception {
       Map<String, String> map = PropertyUtil.parseQuery(remoteURI.getQuery());
