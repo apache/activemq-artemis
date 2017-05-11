@@ -109,9 +109,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    private boolean trace;
    private boolean noContainerID = false;
 
-   public AmqpConnection(org.apache.activemq.transport.amqp.client.transport.NettyTransport transport,
-                         String username,
-                         String password) {
+   public AmqpConnection(org.apache.activemq.transport.amqp.client.transport.NettyTransport transport, String username, String password) {
       setEndpoint(Connection.Factory.create());
       getEndpoint().collect(protonCollector);
 
@@ -137,6 +135,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       this.serializer.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 
       this.transport.setTransportListener(this);
+      this.transport.setMaxFrameSize(getMaxFrameSize());
    }
 
    public void connect() throws Exception {

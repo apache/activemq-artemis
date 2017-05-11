@@ -113,8 +113,9 @@ public class NettyWSTransport extends NettyTcpTransport {
       private final WebSocketClientHandshaker handshaker;
 
       NettyWebSocketTransportHandler() {
-         handshaker = WebSocketClientHandshakerFactory.newHandshaker(getRemoteLocation(), WebSocketVersion.V13, AMQP_SUB_PROTOCOL, true,
-            new DefaultHttpHeaders());
+         handshaker = WebSocketClientHandshakerFactory.newHandshaker(
+            getRemoteLocation(), WebSocketVersion.V13, AMQP_SUB_PROTOCOL,
+            true, new DefaultHttpHeaders(), getMaxFrameSize());
       }
 
       @Override
