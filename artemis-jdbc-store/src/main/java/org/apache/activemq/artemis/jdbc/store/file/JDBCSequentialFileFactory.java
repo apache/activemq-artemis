@@ -21,10 +21,10 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {
@@ -42,7 +43,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private boolean started;
 
-   private final List<JDBCSequentialFile> files = new ArrayList<>();
+   private final Set<JDBCSequentialFile> files = new ConcurrentHashSet<>();
 
    private final Executor executor;
 
@@ -153,6 +154,14 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
          criticalErrorListener.onIOException(e, "Error whilst creating JDBC file", null);
       }
       return null;
+   }
+
+   public void sequentialFileClosed(SequentialFile file) {
+      files.remove(file);
+   }
+
+   public int getNumberOfOpenFiles() {
+      return files.size();
    }
 
    @Override

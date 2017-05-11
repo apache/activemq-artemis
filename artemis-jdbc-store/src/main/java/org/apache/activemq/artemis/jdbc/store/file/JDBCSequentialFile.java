@@ -99,7 +99,7 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
-   public synchronized void open() throws Exception {
+   public void open() throws Exception {
       try {
          if (!isOpen) {
             synchronized (writeLock) {
@@ -151,12 +151,14 @@ public class JDBCSequentialFile implements SequentialFile {
       }
    }
 
-   private synchronized int internalWrite(byte[] data, IOCallback callback) throws Exception {
+   private synchronized int internalWrite(byte[] data, IOCallback callback) {
       try {
          synchronized (writeLock) {
             int noBytes = dbDriver.writeToFile(this, data);
             seek(noBytes);
-            System.out.println("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
+            if (logger.isTraceEnabled()) {
+               logger.trace("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
+            }
             if (callback != null)
                callback.done();
             return noBytes;
@@ -169,42 +171,25 @@ public class JDBCSequentialFile implements SequentialFile {
       return 0;
    }
 
-   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) throws Exception {
+   public synchronized int internalWrite(ActiveMQBuffer buffer, IOCallback callback) {
       byte[] data = new byte[buffer.readableBytes()];
       buffer.readBytes(data);
       return internalWrite(data, callback);
    }
 
-   private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) throws Exception {
+   private synchronized int internalWrite(ByteBuffer buffer, IOCallback callback) {
       return internalWrite(buffer.array(), callback);
    }
 
    private void scheduleWrite(final ActiveMQBuffer bytes, final IOCallback callback) {
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               internalWrite(bytes, callback);
-            } catch (Exception e) {
-               logger.error(e);
-               // internalWrite will notify the CriticalIOErrorListener
-            }
-         }
+      executor.execute(() -> {
+         internalWrite(bytes, callback);
       });
    }
 
    private void scheduleWrite(final ByteBuffer bytes, final IOCallback callback) {
-      final SequentialFile file = this;
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               internalWrite(bytes, callback);
-            } catch (Exception e) {
-               logger.error(e);
-               fileFactory.onIOError(e, "Error on JDBC file sync", file);
-            }
-         }
+      executor.execute(() -> {
+         internalWrite(bytes, callback);
       });
    }
 
@@ -292,19 +277,16 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
-   public synchronized void close() throws Exception {
+   public void close() throws Exception {
       isOpen = false;
+      sync();
+      fileFactory.sequentialFileClosed(this);
    }
 
    @Override
    public void sync() throws IOException {
       final SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            callback.done();
-         }
-      });
+      executor.execute(callback::done);
 
       try {
          callback.waitCompletion();
