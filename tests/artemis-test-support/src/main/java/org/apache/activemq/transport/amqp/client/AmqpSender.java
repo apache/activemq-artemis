@@ -29,7 +29,7 @@ import javax.jms.InvalidDestinationException;
 
 import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.ClientFuture;
-import org.apache.activemq.transport.amqp.client.util.UnmodifiableSender;
+import org.apache.activemq.transport.amqp.client.util.UnmodifiableProxy;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
@@ -231,7 +231,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
     * @return an unmodifiable view of the underlying Sender instance.
     */
    public Sender getSender() {
-      return new UnmodifiableSender(getEndpoint());
+      return UnmodifiableProxy.senderProxy(getEndpoint());
    }
 
    /**
