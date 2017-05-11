@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.transport.amqp.client.transport;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509ExtendedKeyManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -38,9 +29,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.netty.handler.ssl.SslHandler;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.netty.handler.ssl.SslHandler;
 
 /**
  * Static class that provides various utility methods used by Transport implementations.
@@ -50,13 +52,18 @@ public class NettyTransportSupport {
    private static final Logger LOG = LoggerFactory.getLogger(NettyTransportSupport.class);
 
    /**
-    * Creates a Netty SslHandler instance for use in Transports that require
-    * an SSL encoder / decoder.
+    * Creates a Netty SslHandler instance for use in Transports that require an SSL encoder /
+    * decoder.
     *
-    * @param remote  The URI of the remote peer that the SslHandler will be used against.
-    * @param options The SSL options object to build the SslHandler instance from.
+    * @param remote
+    *        The URI of the remote peer that the SslHandler will be used against.
+    * @param options
+    *        The SSL options object to build the SslHandler instance from.
+    *
     * @return a new SslHandler that is configured from the given options.
-    * @throws Exception if an error occurs while creating the SslHandler instance.
+    *
+    * @throws Exception
+    *         if an error occurs while creating the SslHandler instance.
     */
    public static SslHandler createSslHandler(URI remote, NettyTransportSslOptions options) throws Exception {
       return new SslHandler(createSslEngine(remote, createSslContext(options), options));
@@ -66,9 +73,13 @@ public class NettyTransportSupport {
     * Create a new SSLContext using the options specific in the given TransportSslOptions
     * instance.
     *
-    * @param options the configured options used to create the SSLContext.
+    * @param options
+    *        the configured options used to create the SSLContext.
+    *
     * @return a new SSLContext instance.
-    * @throws Exception if an error occurs while creating the context.
+    *
+    * @throws Exception
+    *         if an error occurs while creating the context.
     */
    public static SSLContext createSslContext(NettyTransportSslOptions options) throws Exception {
       try {
@@ -91,10 +102,15 @@ public class NettyTransportSupport {
     * Create a new SSLEngine instance in client mode from the given SSLContext and
     * TransportSslOptions instances.
     *
-    * @param context the SSLContext to use when creating the engine.
-    * @param options the TransportSslOptions to use to configure the new SSLEngine.
+    * @param context
+    *        the SSLContext to use when creating the engine.
+    * @param options
+    *        the TransportSslOptions to use to configure the new SSLEngine.
+    *
     * @return a new SSLEngine instance in client mode.
-    * @throws Exception if an error occurs while creating the new SSLEngine.
+    *
+    * @throws Exception
+    *         if an error occurs while creating the new SSLEngine.
     */
    public static SSLEngine createSslEngine(SSLContext context, NettyTransportSslOptions options) throws Exception {
       return createSslEngine(null, context, options);
@@ -104,15 +120,20 @@ public class NettyTransportSupport {
     * Create a new SSLEngine instance in client mode from the given SSLContext and
     * TransportSslOptions instances.
     *
-    * @param remote  the URI of the remote peer that will be used to initialize the engine, may be null if none should.
-    * @param context the SSLContext to use when creating the engine.
-    * @param options the TransportSslOptions to use to configure the new SSLEngine.
+    * @param remote
+    *        the URI of the remote peer that will be used to initialize the engine, may be null
+    *        if none should.
+    * @param context
+    *        the SSLContext to use when creating the engine.
+    * @param options
+    *        the TransportSslOptions to use to configure the new SSLEngine.
+    *
     * @return a new SSLEngine instance in client mode.
-    * @throws Exception if an error occurs while creating the new SSLEngine.
+    *
+    * @throws Exception
+    *         if an error occurs while creating the new SSLEngine.
     */
-   public static SSLEngine createSslEngine(URI remote,
-                                           SSLContext context,
-                                           NettyTransportSslOptions options) throws Exception {
+   public static SSLEngine createSslEngine(URI remote, SSLContext context, NettyTransportSslOptions options) throws Exception {
       SSLEngine engine = null;
       if (remote == null) {
          engine = context.createSSLEngine();
@@ -185,7 +206,7 @@ public class NettyTransportSupport {
 
    private static TrustManager[] loadTrustManagers(NettyTransportSslOptions options) throws Exception {
       if (options.isTrustAll()) {
-         return new TrustManager[]{createTrustAllTrustManager()};
+         return new TrustManager[] {createTrustAllTrustManager()};
       }
 
       if (options.getTrustStoreLocation() == null) {
