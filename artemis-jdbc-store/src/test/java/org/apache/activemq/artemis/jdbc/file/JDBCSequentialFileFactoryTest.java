@@ -20,11 +20,12 @@ import java.nio.ByteBuffer;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,9 +61,11 @@ public class JDBCSequentialFileFactoryTest {
 
    private JDBCSequentialFileFactory factory;
 
+   private ExecutorService executor;
+
    @Before
    public void setup() throws Exception {
-      Executor executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
       String connectionUrl = "jdbc:derby:target/data;create=true";
       String tableName = "FILES";
@@ -75,6 +79,7 @@ public class JDBCSequentialFileFactoryTest {
 
    @After
    public void tearDown() throws Exception {
+      executor.shutdown();
       factory.destroy();
    }
 
@@ -94,6 +99,8 @@ public class JDBCSequentialFileFactoryTest {
    @Test
    public void testCreateFiles() throws Exception {
       int noFiles = 100;
+      List<SequentialFile> files = new LinkedList<>();
+
       Set<String> fileNames = new HashSet<>();
       for (int i = 0; i < noFiles; i++) {
          String fileName = UUID.randomUUID().toString() + ".txt";
@@ -101,10 +108,17 @@ public class JDBCSequentialFileFactoryTest {
          SequentialFile file = factory.createSequentialFile(fileName);
          // We create files on Open
          file.open();
+         files.add(file);
       }
 
       List<String> queryFileNames = factory.listFiles("txt");
       assertTrue(queryFileNames.containsAll(fileNames));
+
+      for (SequentialFile file: files) {
+         file.close();
+      }
+
+      Assert.assertEquals(0, factory.getNumberOfOpenFiles());
    }
 
    @Test
