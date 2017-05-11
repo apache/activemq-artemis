@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ public class NettyTransportOptions implements Cloneable {
    public static final int DEFAULT_SO_TIMEOUT = -1;
    public static final int DEFAULT_CONNECT_TIMEOUT = 60000;
    public static final int DEFAULT_TCP_PORT = 5672;
+   public static final boolean DEFAULT_TRACE_BYTES = false;
 
    public static final NettyTransportOptions INSTANCE = new NettyTransportOptions();
 
@@ -42,6 +43,7 @@ public class NettyTransportOptions implements Cloneable {
    private boolean tcpKeepAlive = DEFAULT_TCP_KEEP_ALIVE;
    private boolean tcpNoDelay = DEFAULT_TCP_NO_DELAY;
    private int defaultTcpPort = DEFAULT_TCP_PORT;
+   private boolean traceBytes = DEFAULT_TRACE_BYTES;
 
    /**
     * @return the currently set send buffer size in bytes.
@@ -51,11 +53,14 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * Sets the send buffer size in bytes, the value must be greater than zero
-    * or an {@link IllegalArgumentException} will be thrown.
+    * Sets the send buffer size in bytes, the value must be greater than zero or an
+    * {@link IllegalArgumentException} will be thrown.
     *
-    * @param sendBufferSize the new send buffer size for the TCP Transport.
-    * @throws IllegalArgumentException if the value given is not in the valid range.
+    * @param sendBufferSize
+    *        the new send buffer size for the TCP Transport.
+    *
+    * @throws IllegalArgumentException
+    *         if the value given is not in the valid range.
     */
    public void setSendBufferSize(int sendBufferSize) {
       if (sendBufferSize <= 0) {
@@ -73,11 +78,14 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * Sets the receive buffer size in bytes, the value must be greater than zero
-    * or an {@link IllegalArgumentException} will be thrown.
+    * Sets the receive buffer size in bytes, the value must be greater than zero or an
+    * {@link IllegalArgumentException} will be thrown.
     *
-    * @param receiveBufferSize the new receive buffer size for the TCP Transport.
-    * @throws IllegalArgumentException if the value given is not in the valid range.
+    * @param receiveBufferSize
+    *        the new receive buffer size for the TCP Transport.
+    *
+    * @throws IllegalArgumentException
+    *         if the value given is not in the valid range.
     */
    public void setReceiveBufferSize(int receiveBufferSize) {
       if (receiveBufferSize <= 0) {
@@ -95,11 +103,13 @@ public class NettyTransportOptions implements Cloneable {
    }
 
    /**
-    * Sets the traffic class value used by the TCP connection, valid
-    * range is between 0 and 255.
+    * Sets the traffic class value used by the TCP connection, valid range is between 0 and 255.
     *
-    * @param trafficClass the new traffic class value.
-    * @throws IllegalArgumentException if the value given is not in the valid range.
+    * @param trafficClass
+    *        the new traffic class value.
+    *
+    * @throws IllegalArgumentException
+    *         if the value given is not in the valid range.
     */
    public void setTrafficClass(int trafficClass) {
       if (trafficClass < 0 || trafficClass > 255) {
@@ -155,6 +165,27 @@ public class NettyTransportOptions implements Cloneable {
 
    public void setDefaultTcpPort(int defaultTcpPort) {
       this.defaultTcpPort = defaultTcpPort;
+   }
+
+   /**
+    * @return true if the transport should enable byte tracing
+    */
+   public boolean isTraceBytes() {
+      return traceBytes;
+   }
+
+   /**
+    * Determines if the transport should add a logger for bytes in / out
+    *
+    * @param traceBytes
+    *        should the transport log the bytes in and out.
+    */
+   public void setTraceBytes(boolean traceBytes) {
+      this.traceBytes = traceBytes;
+   }
+
+   public boolean isSSL() {
+      return false;
    }
 
    @Override
