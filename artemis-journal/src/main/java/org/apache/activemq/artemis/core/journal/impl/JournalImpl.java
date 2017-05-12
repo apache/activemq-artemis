@@ -31,8 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -74,6 +72,8 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
@@ -168,12 +168,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private final JournalFilesRepository filesRepository;
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<>();
+   private final ConcurrentLongHashMap<JournalRecord> records = new ConcurrentLongHashMap<>();
 
-   private final Set<Long> pendingRecords = new ConcurrentHashSet<>();
+   private final ConcurrentLongHashSet pendingRecords = new ConcurrentLongHashSet();
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalTransaction> transactions = new ConcurrentHashMap<>();
+   private final ConcurrentLongHashMap<JournalTransaction> transactions = new ConcurrentLongHashMap<>();
 
    // This will be set only while the JournalCompactor is being executed
    private volatile JournalCompactor compactor;
@@ -345,7 +345,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public Map<Long, JournalRecord> getRecords() {
+   public ConcurrentLongHashMap<JournalRecord> getRecords() {
       return records;
    }
 
@@ -1487,12 +1487,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   return;
                }
 
-               compactor = new JournalCompactor(fileFactory, this, filesRepository, records.keySet(), dataFilesToProcess.get(0).getFileID());
+               compactor = new JournalCompactor(fileFactory, this, filesRepository, records.keysLongHashSet(), dataFilesToProcess.get(0).getFileID());
 
-               for (Map.Entry<Long, JournalTransaction> entry : transactions.entrySet()) {
-                  compactor.addPendingTransaction(entry.getKey(), entry.getValue().getPositiveArray());
-                  entry.getValue().setCompacting();
-               }
+               transactions.forEach((id, pendingTransaction) -> {
+                  compactor.addPendingTransaction(id, pendingTransaction.getPositiveArray());
+                  pendingTransaction.setCompacting();
+               });
 
                // We will calculate the new records during compacting, what will take the position the records will take
                // after compacting
@@ -1540,9 +1540,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                newDatafiles = localCompactor.getNewDataFiles();
 
                // Restore newRecords created during compacting
-               for (Map.Entry<Long, JournalRecord> newRecordEntry : localCompactor.getNewRecords().entrySet()) {
-                  records.put(newRecordEntry.getKey(), newRecordEntry.getValue());
-               }
+               localCompactor.getNewRecords().forEach((id, newRecord) -> {
+                  records.put(id, newRecord);
+               });
 
                // Restore compacted dataFiles
                for (int i = newDatafiles.size() - 1; i >= 0; i--) {
@@ -1559,9 +1559,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                // Replay pending commands (including updates, deletes and commits)
 
-               for (JournalTransaction newTransaction : localCompactor.getNewTransactions().values()) {
-                  newTransaction.replaceRecordProvider(this);
-               }
+               localCompactor.getNewTransactions().forEach((id, newTransaction) -> newTransaction.replaceRecordProvider(this));
 
                localCompactor.replayPendingCommands();
 
@@ -1569,7 +1567,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                // This has to be done after the replay pending commands, as we need to delete commits
                // that happened during the compacting
 
-               for (JournalTransaction newTransaction : localCompactor.getNewTransactions().values()) {
+               localCompactor.getNewTransactions().forEach((id, newTransaction) -> {
                   if (logger.isTraceEnabled()) {
                      logger.trace("Merging pending transaction " + newTransaction + " after compacting the journal");
                   }
@@ -1579,7 +1577,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   } else {
                      ActiveMQJournalLogger.LOGGER.compactMergeError(newTransaction.getId());
                   }
-               }
+               });
             } finally {
                journalLock.writeLock().unlock();
             }
