@@ -24,10 +24,13 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 
 public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
+
+   private static final Logger logger = Logger.getLogger(JMSClientTestSupport.class);
 
    protected LinkedList<Connection> jmsConnections = new LinkedList<>();
 
@@ -44,12 +47,16 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
    @After
    @Override
    public void tearDown() throws Exception {
-      for (Connection connection : jmsConnections) {
-         try {
-            connection.close();
-         } catch (Throwable ignored) {
-            ignored.printStackTrace();
+      try {
+         for (Connection connection : jmsConnections) {
+            try {
+               connection.close();
+            } catch (Throwable ignored) {
+               ignored.printStackTrace();
+            }
          }
+      } catch (Exception e) {
+         logger.warn(e);
       }
       jmsConnections.clear();
 
