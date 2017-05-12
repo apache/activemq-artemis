@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.server.management;
 
 import org.apache.activemq.artemis.api.core.management.NotificationType;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 /**
  * A Notification

@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 public interface ClientMessageInternal extends ClientMessage {
 

@@ -32,7 +32,7 @@ public final class DataConstants {
 
    public static final int SIZE_FLOAT = 4;
 
-   static final int SIZE_CHAR = 2;
+   public static final int SIZE_CHAR = 2;
 
    public static final byte TRUE = 1;
 

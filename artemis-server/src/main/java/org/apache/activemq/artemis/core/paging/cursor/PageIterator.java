@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public interface PageIterator extends LinkedListIterator<PagedReference> {
 

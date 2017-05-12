@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.utils.collections;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -28,6 +28,8 @@ import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 import static org.apache.activemq.artemis.utils.DataConstants.BOOLEAN;
 import static org.apache.activemq.artemis.utils.DataConstants.BYTE;
@@ -48,7 +50,7 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
  * (Version 1.1 April 12, 2002).
  * <p>
  */
-public final class TypedProperties {
+public class TypedProperties {
 
    private static final SimpleString AMQ_PROPNAME = new SimpleString("_AMQ_");
 
