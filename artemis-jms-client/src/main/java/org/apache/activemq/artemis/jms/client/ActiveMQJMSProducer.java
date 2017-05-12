@@ -39,7 +39,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 /**
  * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and

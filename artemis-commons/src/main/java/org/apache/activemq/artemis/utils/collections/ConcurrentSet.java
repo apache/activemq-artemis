@@ -14,19 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.utils.collections;
 
-public interface LinkedList<E> {
+import java.util.Set;
 
-   void addHead(E e);
+/**
+ * A ConcurrentSet
+ *
+ * @param <E> The generic class
+ */
+public interface ConcurrentSet<E> extends Set<E> {
 
-   void addTail(E e);
-
-   E poll();
-
-   LinkedListIterator<E> iterator();
-
-   void clear();
-
-   int size();
+   boolean addIfAbsent(E o);
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.management.MBeanServer;
+import javax.security.cert.X509Certificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,9 +47,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.management.MBeanServer;
-import javax.security.cert.X509Certificate;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
@@ -165,13 +164,13 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
 /**

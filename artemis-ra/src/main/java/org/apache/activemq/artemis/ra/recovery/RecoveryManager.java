@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistryImpl;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 public final class RecoveryManager {
 

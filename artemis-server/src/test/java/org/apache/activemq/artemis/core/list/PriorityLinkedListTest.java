@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.list;
 
-import org.apache.activemq.artemis.utils.LinkedListIterator;
-import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

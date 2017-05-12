@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.stress.journal;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -238,12 +237,15 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
       reloadJournal();
 
-      Collection<Long> records = journal.getRecords().keySet();
-
       System.out.println("Deleting everything!");
-      for (Long delInfo : records) {
-         journal.appendDeleteRecord(delInfo, false);
-      }
+
+      journal.getRecords().forEach((id, record) -> {
+         try {
+            journal.appendDeleteRecord(id, false);
+         } catch (Exception e) {
+            new RuntimeException(e);
+         }
+      });
 
       journal.forceMoveNextFile();
 
