@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {

@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
-import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 

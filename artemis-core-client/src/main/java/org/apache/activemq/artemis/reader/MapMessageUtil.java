@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.reader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 public class MapMessageUtil extends MessageUtil {
 

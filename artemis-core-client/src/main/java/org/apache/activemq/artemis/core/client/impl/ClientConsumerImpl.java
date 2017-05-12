@@ -40,10 +40,10 @@ import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.FutureLatch;
-import org.apache.activemq.artemis.utils.PriorityLinkedList;
-import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
+import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.jboss.logging.Logger;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal {

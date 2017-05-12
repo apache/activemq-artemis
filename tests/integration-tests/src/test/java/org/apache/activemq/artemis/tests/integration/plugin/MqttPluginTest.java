@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.plugin;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_CONSUMER;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CLOSE_SESSION;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_CREATE_CONNECTION;
@@ -38,22 +54,6 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_SEND;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
-import org.junit.Before;
-import org.junit.Test;
 
 public class MqttPluginTest extends MQTTTestSupport {
 

@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 public abstract class GroupHandlingAbstract implements GroupingHandler {
 

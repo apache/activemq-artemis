@@ -371,7 +371,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @throws Exception
     */
    private void handleReplicationSynchronization(ReplicationSyncFileMessage msg) throws Exception {
-      Long id = Long.valueOf(msg.getId());
+      long id = msg.getId();
       byte[] data = msg.getData();
       SequentialFile channel1;
       switch (msg.getFileType()) {

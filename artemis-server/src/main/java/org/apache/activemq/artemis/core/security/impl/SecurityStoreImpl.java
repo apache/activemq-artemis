@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
 /**
