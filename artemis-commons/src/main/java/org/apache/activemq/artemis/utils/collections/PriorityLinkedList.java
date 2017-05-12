@@ -14,16 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
-
-import java.util.Set;
+package org.apache.activemq.artemis.utils.collections;
 
 /**
- * A ConcurrentSet
- *
- * @param <E> The generic class
+ * A type of linked list which maintains items according to a priority
+ * and allows adding and removing of elements at both ends, and peeking
  */
-public interface ConcurrentSet<E> extends Set<E> {
+public interface PriorityLinkedList<T> {
 
-   boolean addIfAbsent(E o);
+   void addHead(T t, int priority);
+
+   void addTail(T t, int priority);
+
+   T poll();
+
+   void clear();
+
+   int size();
+
+   LinkedListIterator<T> iterator();
+
+   boolean isEmpty();
 }

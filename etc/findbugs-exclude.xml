@@ -91,7 +91,7 @@ under the License.
 
          so methods are passed null arguments to trigger the exact same exceptions.
     -->
-    <Class name="org.apache.activemq.artemis.utils.TypedProperties"/>
+    <Class name="org.apache.activemq.artemis.utils.collections.TypedProperties"/>
     <Or>
       <Method name="getFloatProperty"/>
       <Method name="getDoubleProperty"/>

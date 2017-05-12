@@ -51,7 +51,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.junit.Before;
 import org.junit.Test;
 

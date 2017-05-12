@@ -14,25 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.utils.collections;
+
+import java.util.Iterator;
 
 /**
- * A type of linked list which maintains items according to a priority
- * and allows adding and removing of elements at both ends, and peeking
+ * A LinkedListIterator
+ *
+ * This iterator allows the last element to be repeated in the next call to hasNext or next
  */
-public interface PriorityLinkedList<T> {
+public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
 
-   void addHead(T t, int priority);
+   void repeat();
 
-   void addTail(T t, int priority);
-
-   T poll();
-
-   void clear();
-
-   int size();
-
-   LinkedListIterator<T> iterator();
-
-   boolean isEmpty();
+   @Override
+   void close();
 }
