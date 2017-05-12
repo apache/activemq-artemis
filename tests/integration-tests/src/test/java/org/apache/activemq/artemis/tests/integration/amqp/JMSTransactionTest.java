@@ -193,6 +193,8 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       session.rollback();
 
+      Wait.waitFor(() -> MSG_COUNT == queueView.getConsumerCount());
+
       assertEquals(MSG_COUNT, queueView.getMessageCount());
 
       // Consume again..check we receive all the messages.
