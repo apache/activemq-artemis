@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.journal.impl;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -30,7 +29,7 @@ import org.apache.activemq.artemis.core.journal.EncoderPersister;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 
 /**
  * Super class for Journal maintenances such as clean up and Compactor
@@ -56,7 +55,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    private ActiveMQBuffer writingChannel;
 
-   private final Set<Long> recordsSnapshot = new ConcurrentHashSet<>();
+   private final ConcurrentLongHashSet recordsSnapshot;
 
    protected final List<JournalFile> newDataFiles = new ArrayList<>();
 
@@ -67,14 +66,14 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    protected AbstractJournalUpdateTask(final SequentialFileFactory fileFactory,
                                        final JournalImpl journal,
                                        final JournalFilesRepository filesRepository,
-                                       final Set<Long> recordsSnapshot,
+                                       final ConcurrentLongHashSet recordsSnapshot,
                                        final long nextOrderingID) {
       super();
       this.journal = journal;
       this.filesRepository = filesRepository;
       this.fileFactory = fileFactory;
       this.nextOrderingID = nextOrderingID;
-      this.recordsSnapshot.addAll(recordsSnapshot);
+      this.recordsSnapshot = recordsSnapshot;
    }
 
    // Public --------------------------------------------------------

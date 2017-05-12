@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import java.util.Map;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 
 /**
  * This is an interface used only internally.
@@ -29,5 +29,5 @@ public interface JournalRecordProvider {
 
    JournalCompactor getCompactor();
 
-   Map<Long, JournalRecord> getRecords();
+   ConcurrentLongHashMap<JournalRecord> getRecords();
 }
