@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -43,6 +41,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRecordTX;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'
@@ -54,7 +53,7 @@ public final class FileWrapperJournal extends JournalBase {
 
    private final ReentrantLock lockAppend = new ReentrantLock();
 
-   private final ConcurrentMap<Long, AtomicInteger> transactions = new ConcurrentHashMap<>();
+   private final ConcurrentLongHashMap<AtomicInteger> transactions = new ConcurrentLongHashMap<>();
    private final JournalImpl journal;
    protected volatile JournalFile currentFile;
 
@@ -181,7 +180,7 @@ public final class FileWrapperJournal extends JournalBase {
                                   IOCompletion callback,
                                   boolean lineUpContext) throws Exception {
       JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, txID, null);
-      AtomicInteger value = transactions.remove(Long.valueOf(txID));
+      AtomicInteger value = transactions.remove(txID);
       if (value != null) {
          commitRecord.setNumberOfRecords(value.get());
       }
@@ -195,7 +194,7 @@ public final class FileWrapperJournal extends JournalBase {
                                    boolean sync,
                                    IOCompletion callback) throws Exception {
       JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, txID, transactionData);
-      AtomicInteger value = transactions.get(Long.valueOf(txID));
+      AtomicInteger value = transactions.get(txID);
       if (value != null) {
          prepareRecord.setNumberOfRecords(value.get());
       }
@@ -204,7 +203,7 @@ public final class FileWrapperJournal extends JournalBase {
 
    private int count(long txID) throws ActiveMQException {
       AtomicInteger defaultValue = new AtomicInteger(1);
-      AtomicInteger count = transactions.putIfAbsent(Long.valueOf(txID), defaultValue);
+      AtomicInteger count = transactions.putIfAbsent(txID, defaultValue);
       if (count != null) {
          return count.incrementAndGet();
       }
@@ -219,7 +218,7 @@ public final class FileWrapperJournal extends JournalBase {
    @Override
    public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
       JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(txID);
-      AtomicInteger value = transactions.remove(Long.valueOf(txID));
+      AtomicInteger value = transactions.remove(txID);
       if (value != null) {
          rollbackRecord.setNumberOfRecords(value.get());
       }

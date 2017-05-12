@@ -18,12 +18,8 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -41,6 +37,8 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRec
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
+import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
 import org.jboss.logging.Logger;
 
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider {
@@ -53,11 +51,11 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    private static final short COMPACT_SPLIT_LINE = 2;
 
    // Snapshot of transactions that were pending when the compactor started
-   private final Map<Long, PendingTransaction> pendingTransactions = new ConcurrentHashMap<>();
+   private final ConcurrentLongHashMap<PendingTransaction> pendingTransactions = new ConcurrentLongHashMap<>();
 
-   private final Map<Long, JournalRecord> newRecords = new HashMap<>();
+   private final ConcurrentLongHashMap<JournalRecord> newRecords = new ConcurrentLongHashMap<>();
 
-   private final Map<Long, JournalTransaction> newTransactions = new HashMap<>();
+   private final ConcurrentLongHashMap<JournalTransaction> newTransactions = new ConcurrentLongHashMap<>();
 
    /**
     * Commands that happened during compacting
@@ -120,18 +118,18 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       return newDataFiles;
    }
 
-   public Map<Long, JournalRecord> getNewRecords() {
+   public ConcurrentLongHashMap<JournalRecord> getNewRecords() {
       return newRecords;
    }
 
-   public Map<Long, JournalTransaction> getNewTransactions() {
+   public ConcurrentLongHashMap<JournalTransaction> getNewTransactions() {
       return newTransactions;
    }
 
    public JournalCompactor(final SequentialFileFactory fileFactory,
                            final JournalImpl journal,
                            final JournalFilesRepository filesRepository,
-                           final Set<Long> recordsSnapshot,
+                           final ConcurrentLongHashSet recordsSnapshot,
                            final long firstFileID) {
       super(fileFactory, journal, filesRepository, recordsSnapshot, firstFileID);
    }
@@ -628,7 +626,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    }
 
    @Override
-   public Map<Long, JournalRecord> getRecords() {
+   public ConcurrentLongHashMap<JournalRecord> getRecords() {
       return newRecords;
    }
 
