@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
 /**

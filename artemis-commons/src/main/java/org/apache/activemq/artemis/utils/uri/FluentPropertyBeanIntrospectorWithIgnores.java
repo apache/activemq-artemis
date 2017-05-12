@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Locale;
 
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 import org.apache.commons.beanutils.IntrospectionContext;
 import org.jboss.logging.Logger;

@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils;
+package org.apache.activemq.artemis.utils.collections;
 
-import java.util.Iterator;
+public interface LinkedList<E> {
 
-/**
- * A LinkedListIterator
- *
- * This iterator allows the last element to be repeated in the next call to hasNext or next
- */
-public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
+   void addHead(E e);
 
-   void repeat();
+   void addTail(E e);
 
-   @Override
-   void close();
+   E poll();
+
+   LinkedListIterator<E> iterator();
+
+   void clear();
+
+   int size();
 }

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.util;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;

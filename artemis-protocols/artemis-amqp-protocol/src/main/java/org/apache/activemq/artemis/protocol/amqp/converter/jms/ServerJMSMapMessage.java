@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
 import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;

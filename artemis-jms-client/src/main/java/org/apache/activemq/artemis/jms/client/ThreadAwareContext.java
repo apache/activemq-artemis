@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.jms.client;
 import javax.jms.IllegalStateException;
 import java.util.Set;
 
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 /**
  * Restricts what can be called on context passed in wrapped CompletionListener.

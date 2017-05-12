@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
 import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
