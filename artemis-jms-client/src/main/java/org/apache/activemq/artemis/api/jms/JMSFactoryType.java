@@ -18,108 +18,138 @@ package org.apache.activemq.artemis.api.jms;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.jms.client.*;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
 
 // XXX no javadocs
 public enum JMSFactoryType {
    CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQJMSConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQJMSConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQJMSConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQJMSConnectionFactory(false, transportConfigurations);
       }
    },
    QUEUE_CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQQueueConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQQueueConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQQueueConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQQueueConnectionFactory(false, transportConfigurations);
       }
    },
    TOPIC_CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQTopicConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQTopicConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQTopicConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQTopicConnectionFactory(false, transportConfigurations);
       }
    },
    XA_CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXAConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXAConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQXAConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXAConnectionFactory(false, transportConfigurations);
       }
    },
    QUEUE_XA_CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXAQueueConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXAQueueConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQXAQueueConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXAQueueConnectionFactory(false, transportConfigurations);
       }
    },
    TOPIC_XA_CF {
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXATopicConnectionFactory(true, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
          return new ActiveMQXATopicConnectionFactory(false, groupConfiguration);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers) {
          return new ActiveMQXATopicConnectionFactory(true, initialServers);
       }
 
+      @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXATopicConnectionFactory(false, transportConfigurations);
       }
