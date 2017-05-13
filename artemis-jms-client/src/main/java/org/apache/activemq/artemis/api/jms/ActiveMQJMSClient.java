@@ -64,22 +64,7 @@ public class ActiveMQJMSClient {
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration,
                                                                          JMSFactoryType jmsFactoryType) {
-      ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
-         factory = new ActiveMQJMSConnectionFactory(true, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
-         factory = new ActiveMQQueueConnectionFactory(true, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
-         factory = new ActiveMQTopicConnectionFactory(true, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
-         factory = new ActiveMQXAConnectionFactory(true, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
-         factory = new ActiveMQXAQueueConnectionFactory(true, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
-         factory = new ActiveMQXATopicConnectionFactory(true, groupConfiguration);
-      }
-
-      return factory;
+      return jmsFactoryType.createConnectionFactoryWithHA(groupConfiguration);
    }
 
    /**
@@ -93,22 +78,7 @@ public class ActiveMQJMSClient {
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration,
                                                                             JMSFactoryType jmsFactoryType) {
-      ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
-         factory = new ActiveMQJMSConnectionFactory(false, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
-         factory = new ActiveMQQueueConnectionFactory(false, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
-         factory = new ActiveMQTopicConnectionFactory(false, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
-         factory = new ActiveMQXAConnectionFactory(false, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
-         factory = new ActiveMQXAQueueConnectionFactory(false, groupConfiguration);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
-         factory = new ActiveMQXATopicConnectionFactory(false, groupConfiguration);
-      }
-
-      return factory;
+      return jmsFactoryType.createConnectionFactoryWithoutHA(groupConfiguration);
    }
 
    /**
@@ -129,22 +99,7 @@ public class ActiveMQJMSClient {
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithHA(JMSFactoryType jmsFactoryType,
                                                                          final TransportConfiguration... initialServers) {
-      ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
-         factory = new ActiveMQJMSConnectionFactory(true, initialServers);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
-         factory = new ActiveMQQueueConnectionFactory(true, initialServers);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
-         factory = new ActiveMQTopicConnectionFactory(true, initialServers);
-      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
-         factory = new ActiveMQXAConnectionFactory(true, initialServers);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
-         factory = new ActiveMQXAQueueConnectionFactory(true, initialServers);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
-         factory = new ActiveMQXATopicConnectionFactory(true, initialServers);
-      }
-
-      return factory;
+      return jmsFactoryType.createConnectionFactoryWithHA(initialServers);
    }
 
    /**
@@ -160,22 +115,7 @@ public class ActiveMQJMSClient {
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(JMSFactoryType jmsFactoryType,
                                                                             final TransportConfiguration... transportConfigurations) {
-      ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
-         factory = new ActiveMQJMSConnectionFactory(false, transportConfigurations);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
-         factory = new ActiveMQQueueConnectionFactory(false, transportConfigurations);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
-         factory = new ActiveMQTopicConnectionFactory(false, transportConfigurations);
-      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
-         factory = new ActiveMQXAConnectionFactory(false, transportConfigurations);
-      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
-         factory = new ActiveMQXAQueueConnectionFactory(false, transportConfigurations);
-      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
-         factory = new ActiveMQXATopicConnectionFactory(false, transportConfigurations);
-      }
-
-      return factory;
+      return jmsFactoryType.createConnectionFactoryWithoutHA(transportConfigurations);
    }
 
    /**
