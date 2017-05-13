@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -652,6 +653,19 @@ public interface Configuration {
    Configuration setJournalMinFiles(int files);
 
    // AIO and NIO need different values for these params
+   /**
+    * Returns the type of journal used by this server ({@code FIXED}, {@code ADAPTING}).
+    * <br>
+    * Default value is FIXED.
+    */
+   TimedBufferType getJournalTimedBufferType();
+
+   /**
+    * Sets the type of journal used by this server (either {@code FIXED} or {@code ADAPTING}).
+    */
+   Configuration setJournalTimedBufferType(TimedBufferType type);
+
+
 
    /**
     * Returns the maximum number of write requests that can be in the AIO queue at any given time. <br>

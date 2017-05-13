@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
@@ -54,28 +55,30 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private static final String AIO_TEST_FILE = ".aio-test";
 
    public AIOSequentialFileFactory(final File journalDir, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, TimedBufferType.DEFAULT, maxIO, false, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, listener);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, TimedBufferType.DEFAULT, maxIO, false, listener);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
                                    final int bufferSize,
                                    final int bufferTimeout,
+                                   final TimedBufferType timedBufferType,
                                    final int maxIO,
                                    final boolean logRates) {
-      this(journalDir, bufferSize, bufferTimeout, maxIO, logRates, null);
+      this(journalDir, bufferSize, bufferTimeout, timedBufferType, maxIO, logRates, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
                                    final int bufferSize,
                                    final int bufferTimeout,
+                                   final TimedBufferType timedBufferType,
                                    final int maxIO,
                                    final boolean logRates,
                                    final IOCriticalErrorListener listener) {
-      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener);
+      super(journalDir, true, bufferSize, bufferTimeout, timedBufferType, maxIO, logRates, listener);
       callbackPool = new CallbackCache<>(maxIO);
    }
 

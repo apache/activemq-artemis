@@ -428,4 +428,8 @@ public interface ActiveMQMessageBundle {
                                                   Set<RoutingType> supportedRoutingTypes);
 
 
+   @Message(id = 119212, value = "Invalid timed buffer type {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidTimedBufferType(String val);
+
+
 }

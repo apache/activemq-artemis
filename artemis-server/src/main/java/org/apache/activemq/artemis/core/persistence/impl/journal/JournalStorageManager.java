@@ -129,11 +129,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          case NIO:
             ActiveMQServerLogger.LOGGER.journalUseNIO();
-            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalTimedBufferType(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
             break;
          case ASYNCIO:
             ActiveMQServerLogger.LOGGER.journalUseAIO();
-            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalTimedBufferType(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
             break;
          case MAPPED:
             ActiveMQServerLogger.LOGGER.journalUseMAPPED();
@@ -153,7 +153,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       largeMessagesDirectory = config.getLargeMessagesDirectory();
 
-      largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener, 1);
+      largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener,1);
 
       if (config.getPageMaxConcurrentIO() != 1) {
          pageMaxConcurrentIO = new Semaphore(config.getPageMaxConcurrentIO());

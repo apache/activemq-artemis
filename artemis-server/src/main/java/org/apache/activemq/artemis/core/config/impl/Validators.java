@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -129,6 +130,16 @@ public final class Validators {
          String val = (String) value;
          if (val == null || !EnumSet.allOf(JournalType.class).contains(JournalType.valueOf(val))) {
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType(val);
+         }
+      }
+   };
+
+   public static final Validator TIMED_BUFFER_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !EnumSet.allOf(TimedBufferType.class).contains(TimedBufferType.valueOf(val))) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidTimedBufferType(val);
          }
       }
    };
