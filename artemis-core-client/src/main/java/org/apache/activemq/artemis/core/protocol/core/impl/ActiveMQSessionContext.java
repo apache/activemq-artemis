@@ -168,6 +168,36 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   private static int sendSessionSendContinuationMessage(Channel channel,
+                                                         Message msgI,
+                                                         long messageBodySize,
+                                                         boolean sendBlocking,
+                                                         boolean lastChunk,
+                                                         byte[] chunk,
+                                                         SendAcknowledgementHandler messageHandler) throws ActiveMQException {
+      final boolean requiresResponse = lastChunk && sendBlocking;
+      final SessionSendContinuationMessage chunkPacket = new SessionSendContinuationMessage(msgI, chunk, !lastChunk, requiresResponse, messageBodySize, messageHandler);
+      final int expectedEncodeSize = chunkPacket.expectedEncodeSize();
+      //perform a weak form of flow control to avoid OOM on tight loops
+      final CoreRemotingConnection connection = channel.getConnection();
+      final long blockingCallTimeoutMillis = Math.max(0, connection.getBlockingCallTimeout());
+      final long startFlowControl = System.nanoTime();
+      final boolean isWritable = connection.blockUntilWritable(expectedEncodeSize, blockingCallTimeoutMillis);
+      if (!isWritable) {
+         final long endFlowControl = System.nanoTime();
+         final long elapsedFlowControl = endFlowControl - startFlowControl;
+         final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedFlowControl);
+         logger.warn("try to write " + expectedEncodeSize + " bytes after blocked " + elapsedMillis + " ms on a not writable connection: [" + connection.getID() + "]");
+      }
+      if (requiresResponse) {
+         // When sending it blocking, only the last chunk will be blocking.
+         channel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
+      } else {
+         channel.send(chunkPacket);
+      }
+      return chunkPacket.getPacketSize();
+   }
+
    @Override
    public int getReconnectID() {
       return sessionChannel.getReconnectID();
