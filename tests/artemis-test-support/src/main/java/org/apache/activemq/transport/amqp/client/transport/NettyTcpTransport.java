@@ -269,16 +269,16 @@ public class NettyTcpTransport implements NettyTransport {
 
    @Override
    public void setMaxFrameSize(int maxFrameSize) {
-       if (connected.get()) {
-           throw new IllegalStateException("Cannot change Max Frame Size while connected.");
-       }
+      if (connected.get()) {
+         throw new IllegalStateException("Cannot change Max Frame Size while connected.");
+      }
 
-       this.maxFrameSize = maxFrameSize;
+      this.maxFrameSize = maxFrameSize;
    }
 
    @Override
    public int getMaxFrameSize() {
-       return maxFrameSize;
+      return maxFrameSize;
    }
 
    // ----- Internal implementation details, can be overridden as needed -----//
