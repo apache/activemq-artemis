@@ -22,6 +22,7 @@ import javax.jms.Topic;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +39,8 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
  */
 public class ActiveMQInitialContextFactory implements InitialContextFactory {
 
+   private static final String[] DEFAULT_CONNECTION_FACTORY_NAMES = {"ConnectionFactory", "XAConnectionFactory", "QueueConnectionFactory", "TopicConnectionFactory"};
+
    public static final String REFRESH_TIMEOUT = "refreshTimeout";
    public static final String DISCOVERY_INITIAL_WAIT_TIMEOUT = "discoveryInitialWaitTimeout";
    public static final String DYNAMIC_QUEUE_CONTEXT = "dynamicQueues";
@@ -50,19 +53,35 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
    public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
       // lets create a factory
       Map<String, Object> data = new ConcurrentHashMap<>();
+
+      Map<String, ConnectionFactory> connectionFactories = new HashMap<>();
       for (Map.Entry<?, ?> entry : environment.entrySet()) {
          String key = entry.getKey().toString();
          if (key.startsWith(connectionFactoryPrefix)) {
             String jndiName = key.substring(connectionFactoryPrefix.length());
             try {
-               ConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
-               data.put(jndiName, factory);
+               connectionFactories.put(jndiName, createConnectionFactory((String) environment.get(key), jndiName));
             } catch (Exception e) {
                e.printStackTrace();
                throw new NamingException("Invalid broker URL");
             }
          }
       }
+
+      if (connectionFactories.isEmpty()) {
+         String providerUrl = (String) environment.get(javax.naming.Context.PROVIDER_URL);
+         if (providerUrl != null) {
+            for (String factoryName : DEFAULT_CONNECTION_FACTORY_NAMES) {
+               try {
+                  connectionFactories.put(factoryName, createConnectionFactory(providerUrl, factoryName));
+               } catch (Exception e) {
+                  e.printStackTrace();
+                  throw new NamingException("Invalid broker URL");
+               }
+            }
+         }
+      }
+      connectionFactories.forEach((name, factory) -> data.put(name, factory));
 
       createQueues(data, environment);
       createTopics(data, environment);
