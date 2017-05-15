@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -525,5 +526,31 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
          connection.close();
       }
 
+   }
+
+   @Test
+   public void providerURLTest() throws NamingException {
+      String url = "(tcp://somehost:62616,tcp://somehost:62616)?ha=true";
+
+      Properties props = new Properties();
+      props.setProperty(javax.naming.Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
+      props.setProperty(javax.naming.Context.PROVIDER_URL, url);
+
+      InitialContext context =  new InitialContext(props);
+      ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
+   }
+
+   @Test
+   public void connectionFactoryProperty() throws NamingException {
+      String url = "(tcp://somehost:62616,tcp://somehost:62616)?ha=true";
+
+      Properties props = new Properties();
+      props.setProperty(javax.naming.Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
+      props.setProperty(javax.naming.Context.PROVIDER_URL, url);
+
+      props.setProperty("connectionFactory.ConnectionFactory",url);
+
+      InitialContext context =  new InitialContext(props);
+      ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
    }
 }
