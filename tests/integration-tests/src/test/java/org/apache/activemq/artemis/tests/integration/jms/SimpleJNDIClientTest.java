@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -528,29 +527,141 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
    }
 
+   public void testContext(Context ctx, String jndiName, JMSFactoryType expectedFactoryType) {
+      try {
+         ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup(jndiName);
+         if (expectedFactoryType == null) {
+            Assert.fail("expected no factory, should have thrown NamingException");
+         } else {
+            Assert.assertEquals(expectedFactoryType.intValue(), connectionFactory.getFactoryType());
+         }
+      } catch (NamingException namingException) {
+         Assert.assertNull("NamingException should only occur when no ExpectedFactoryType, but one existed", expectedFactoryType);
+      }
+   }
+
+
    @Test
-   public void providerURLTest() throws NamingException {
-      String url = "(tcp://somehost:62616,tcp://somehost:62616)?ha=true";
+   public void testProviderUrlDefault() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0");
+      Context ctx = new InitialContext(props);
 
-      Properties props = new Properties();
-      props.setProperty(javax.naming.Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
-      props.setProperty(javax.naming.Context.PROVIDER_URL, url);
-
-      InitialContext context =  new InitialContext(props);
-      ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
+      testContext(ctx, "ConnectionFactory", JMSFactoryType.CF);
+      testContext(ctx, "QueueConnectionFactory", JMSFactoryType.QUEUE_CF);
+      testContext(ctx, "TopicConnectionFactory", JMSFactoryType.TOPIC_CF);
+      testContext(ctx, "XAConnectionFactory", JMSFactoryType.XA_CF);
+      testContext(ctx, "XAQueueConnectionFactory", JMSFactoryType.QUEUE_XA_CF);
+      testContext(ctx, "XATopicConnectionFactory", JMSFactoryType.TOPIC_XA_CF);
    }
 
    @Test
-   public void connectionFactoryProperty() throws NamingException {
-      String url = "(tcp://somehost:62616,tcp://somehost:62616)?ha=true";
+   public void testProviderUrlCF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=CF");
+      Context ctx = new InitialContext(props);
 
-      Properties props = new Properties();
-      props.setProperty(javax.naming.Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
-      props.setProperty(javax.naming.Context.PROVIDER_URL, url);
+      testContext(ctx, "ConnectionFactory", JMSFactoryType.CF);
+      testContext(ctx, "QueueConnectionFactory", null);
+      testContext(ctx, "TopicConnectionFactory", null);
+      testContext(ctx, "XAConnectionFactory", null);
+      testContext(ctx, "XAQueueConnectionFactory", null);
+      testContext(ctx, "XATopicConnectionFactory", null);
+   }
 
-      props.setProperty("connectionFactory.ConnectionFactory",url);
+   @Test
+   public void testProviderUrlXACF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=XA_CF");
+      Context ctx = new InitialContext(props);
 
-      InitialContext context =  new InitialContext(props);
-      ConnectionFactory connectionFactory = (ConnectionFactory)context.lookup("ConnectionFactory");
+      testContext(ctx, "ConnectionFactory", null);
+      testContext(ctx, "QueueConnectionFactory", null);
+      testContext(ctx, "TopicConnectionFactory", null);
+      testContext(ctx, "XAConnectionFactory", JMSFactoryType.XA_CF);
+      testContext(ctx, "XAQueueConnectionFactory", null);
+      testContext(ctx, "XATopicConnectionFactory", null);
+   }
+
+   @Test
+   public void testProviderUrlQueueCF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=QUEUE_CF");
+      Context ctx = new InitialContext(props);
+
+      testContext(ctx, "ConnectionFactory", null);
+      testContext(ctx, "QueueConnectionFactory", JMSFactoryType.QUEUE_CF);
+      testContext(ctx, "TopicConnectionFactory", null);
+      testContext(ctx, "XAConnectionFactory", null);
+      testContext(ctx, "XAQueueConnectionFactory", null);
+      testContext(ctx, "XATopicConnectionFactory", null);
+   }
+
+   @Test
+   public void testProviderUrlQueueXACF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=QUEUE_XA_CF");
+      Context ctx = new InitialContext(props);
+
+      testContext(ctx, "ConnectionFactory", null);
+      testContext(ctx, "QueueConnectionFactory", null);
+      testContext(ctx, "TopicConnectionFactory", null);
+      testContext(ctx, "XAConnectionFactory", null);
+      testContext(ctx, "XAQueueConnectionFactory", JMSFactoryType.QUEUE_XA_CF);
+      testContext(ctx, "XATopicConnectionFactory", null);
+   }
+
+   @Test
+   public void testProviderUrlTopicCF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=TOPIC_CF");
+      Context ctx = new InitialContext(props);
+
+      testContext(ctx, "ConnectionFactory", null);
+      testContext(ctx, "QueueConnectionFactory", null);
+      testContext(ctx, "TopicConnectionFactory", JMSFactoryType.TOPIC_CF);
+      testContext(ctx, "XAConnectionFactory", null);
+      testContext(ctx, "XAQueueConnectionFactory", null);
+      testContext(ctx, "XATopicConnectionFactory", null);
+   }
+
+   @Test
+   public void testProviderUrlTopicXACF() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0?type=TOPIC_XA_CF");
+      Context ctx = new InitialContext(props);
+
+      testContext(ctx, "ConnectionFactory", null);
+      testContext(ctx, "QueueConnectionFactory", null);
+      testContext(ctx, "TopicConnectionFactory", null);
+      testContext(ctx, "XAConnectionFactory", null);
+      testContext(ctx, "XAQueueConnectionFactory", null);
+      testContext(ctx, "XATopicConnectionFactory", JMSFactoryType.TOPIC_XA_CF);
+   }
+
+   @Test
+   public void testProviderUrlDefaultAndCustom() throws NamingException, JMSException {
+      Hashtable<String, String> props = new Hashtable<>();
+      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+      props.put(Context.PROVIDER_URL, "vm://0");
+      props.put("connectionFactory.myConnectionFactory", "vm://0");
+      Context ctx = new InitialContext(props);
+
+      testContext(ctx, "ConnectionFactory", JMSFactoryType.CF);
+      testContext(ctx, "QueueConnectionFactory", JMSFactoryType.QUEUE_CF);
+      testContext(ctx, "TopicConnectionFactory", JMSFactoryType.TOPIC_CF);
+      testContext(ctx, "XAConnectionFactory", JMSFactoryType.XA_CF);
+      testContext(ctx, "XAQueueConnectionFactory", JMSFactoryType.QUEUE_XA_CF);
+      testContext(ctx, "XATopicConnectionFactory", JMSFactoryType.TOPIC_XA_CF);
+
+      testContext(ctx, "myConnectionFactory", JMSFactoryType.CF);
+
    }
 }
