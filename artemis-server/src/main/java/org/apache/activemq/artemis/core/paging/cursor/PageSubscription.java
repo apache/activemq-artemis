@@ -98,6 +98,8 @@ public interface PageSubscription {
 
    void reloadPageCompletion(PagePosition position) throws Exception;
 
+   void clearPageCompletion(long pageNr);
+
    void reloadPageInfo(long pageNr);
 
    /**
