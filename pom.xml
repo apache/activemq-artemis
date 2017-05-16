@@ -83,10 +83,10 @@
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <netty.version>4.1.9.Final</netty.version>
-      <proton.version>0.18.0</proton.version>
+      <proton.version>0.19.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.22.0</qpid.jms.version>
+      <qpid.jms.version>0.23.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
