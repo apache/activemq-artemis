@@ -155,7 +155,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected void createJMSStorage() throws Exception {
-      jmsJournal = new JMSJournalStorageManagerImpl(null, new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null, scheduledExecutorService, null);
+      jmsJournal = new JMSJournalStorageManagerImpl(null, execFactory, new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null, scheduledExecutorService, null);
       addActiveMQComponent(jmsJournal);
       jmsJournal.start();
       jmsJournal.load();

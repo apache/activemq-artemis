@@ -85,6 +85,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
    // Constructors --------------------------------------------------
 
    public JMSJournalStorageManagerImpl(ExecutorFactory ioExecutors,
+                                       ExecutorFactory executorFactory,
                                        final IDGenerator idGenerator,
                                        final Configuration config,
                                        final ReplicationManager replicator,
@@ -99,8 +100,8 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       createDir = config.isCreateBindingsDir();
 
-      Journal localJMS;
       if (config.getStoreConfiguration() != null && config.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         final JDBCJournalImpl localJMS;
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
          if (dbConf.getDataSource() != null) {
             SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
@@ -112,10 +113,14 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
             String driverClassName = dbConf.getJdbcDriverClassName();
             localJMS = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getJMSBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL), scheduledExecutorService, ioExecutors.getExecutor(), criticalErrorListener);
          }
+         final int networkTimeout = dbConf.getJdbcNetworkTimeout();
+         if (networkTimeout >= 0) {
+            localJMS.setNetworkTimeout(executorFactory.getExecutor(), networkTimeout);
+         }
          jmsJournal = localJMS;
       } else {
          SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
-         localJMS = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1, 0);
+         final Journal localJMS = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1, 0);
 
          if (replicator != null) {
             jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);
