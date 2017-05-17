@@ -59,6 +59,16 @@ public class URIFactory<T, P> {
       return schemaFactory.newObject(uri, param);
    }
 
+   public T newObject(URI uri, Map<String, String> overrides, P param) throws Exception {
+      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
+
+      if (schemaFactory == null) {
+         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
+      }
+
+      return schemaFactory.newObject(uri, overrides, param);
+   }
+
    public T newObject(String uri, P param) throws Exception {
       return newObject(new URI(uri), param);
    }

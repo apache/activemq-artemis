@@ -26,6 +26,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.TopicConnectionFactory;
+import javax.jms.XAConnectionFactory;
+import javax.jms.XAQueueConnectionFactory;
+import javax.jms.XATopicConnectionFactory;
+
 // XXX no javadocs
 public enum JMSFactoryType {
    CF {
@@ -48,6 +55,11 @@ public enum JMSFactoryType {
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQJMSConnectionFactory(false, transportConfigurations);
       }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return ConnectionFactory.class;
+      }
    },
    QUEUE_CF {
       @Override
@@ -68,6 +80,11 @@ public enum JMSFactoryType {
       @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQQueueConnectionFactory(false, transportConfigurations);
+      }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return QueueConnectionFactory.class;
       }
    },
    TOPIC_CF {
@@ -90,6 +107,11 @@ public enum JMSFactoryType {
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQTopicConnectionFactory(false, transportConfigurations);
       }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return TopicConnectionFactory.class;
+      }
    },
    XA_CF {
       @Override
@@ -110,6 +132,11 @@ public enum JMSFactoryType {
       @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXAConnectionFactory(false, transportConfigurations);
+      }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return XAConnectionFactory.class;
       }
    },
    QUEUE_XA_CF {
@@ -132,6 +159,11 @@ public enum JMSFactoryType {
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXAQueueConnectionFactory(false, transportConfigurations);
       }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return XAQueueConnectionFactory.class;
+      }
    },
    TOPIC_XA_CF {
       @Override
@@ -152,6 +184,11 @@ public enum JMSFactoryType {
       @Override
       public ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations) {
          return new ActiveMQXATopicConnectionFactory(false, transportConfigurations);
+      }
+
+      @Override
+      public Class connectionFactoryInterface() {
+         return XATopicConnectionFactory.class;
       }
    };
 
@@ -264,5 +301,11 @@ public enum JMSFactoryType {
     */
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations);
 
+   /**
+    * Returns the connection factory interface that this JMSFactoryType creates.
+    *
+    * @return the javax.jms Class ConnectionFactory interface
+    */
+   public abstract Class connectionFactoryInterface();
 
 }
