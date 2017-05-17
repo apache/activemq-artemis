@@ -280,8 +280,33 @@ public interface ActiveMQServerPlugin {
    /**
     * Before a message is delivered to a client consumer
     *
-    * @param reference
+    * @param consumer the consumer the message will be delivered to
+    * @param reference message reference
     */
+   default void beforeDeliver(ServerConsumer consumer, MessageReference reference) {
+      //by default call the old method for backwards compatibility
+      this.beforeDeliver(reference);
+   }
+
+   /**
+    * After a message is delivered to a client consumer
+    *
+    * @param consumer the consumer the message was delivered to
+    * @param reference message reference
+    */
+   default void afterDeliver(ServerConsumer consumer, MessageReference reference) {
+      //by default call the old method for backwards compatibility
+      this.afterDeliver(reference);
+   }
+
+   /**
+    * Before a message is delivered to a client consumer
+    *
+    * @param reference
+    *
+    * @deprecated use {@link #beforeDeliver(ServerConsumer, MessageReference)}
+    */
+   @Deprecated
    default void beforeDeliver(MessageReference reference) {
 
    }
@@ -290,7 +315,10 @@ public interface ActiveMQServerPlugin {
     * After a message is delivered to a client consumer
     *
     * @param reference
+    *
+    * @deprecated use {@link #afterDeliver(ServerConsumer, MessageReference)}
     */
+   @Deprecated
    default void afterDeliver(MessageReference reference) {
 
    }
