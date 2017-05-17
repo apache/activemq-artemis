@@ -461,7 +461,7 @@ public class AMQPSessionCallback implements SessionCallback {
                            final Delivery delivery,
                            final Receiver receiver) throws Exception {
       message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
-
+      invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection());
       serverSession.send(transaction, message, false, false);
 
       afterIO(new IOCallback() {
@@ -659,5 +659,13 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception {
       manager.getServer().getSecurityStore().check(address, checkType, session);
+   }
+
+   public void invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      protonSPI.invokeIncomingInterceptors(message, connection);
+   }
+
+   public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      protonSPI.invokeOutgoingInterceptors(message, connection);
    }
 }
