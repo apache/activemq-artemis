@@ -1552,7 +1552,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          storage.stop();
       }
       if (coreConfig.isPersistenceEnabled()) {
-         storage = new JMSJournalStorageManagerImpl(server.getIOExecutorFactory(), new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager(), server.getScheduledPool(), activeMQserver.getCriticalIOErrorListener());
+         storage = new JMSJournalStorageManagerImpl(server.getIOExecutorFactory(), server.getExecutorFactory(), new TimeAndCounterIDGenerator(), server.getConfiguration(), server.getReplicationManager(), server.getScheduledPool(), activeMQserver.getCriticalIOErrorListener());
       } else {
          storage = new NullJMSStorageManagerImpl();
       }
