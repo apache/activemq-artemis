@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -40,7 +41,7 @@ import java.util.concurrent.locks.Lock;
 public class ProtonClientProtocolManager extends ProtonProtocolManager implements ClientProtocolManager {
 
    public ProtonClientProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
-      super(factory, server);
+      super(factory, server, Collections.emptyList(), Collections.emptyList());
    }
 
    @Override

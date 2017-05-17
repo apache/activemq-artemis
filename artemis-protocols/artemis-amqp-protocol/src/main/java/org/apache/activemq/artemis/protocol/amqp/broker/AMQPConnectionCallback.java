@@ -250,4 +250,12 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       }
       return null;
    }
+
+   public void invokeIncomingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      manager.invokeIncoming(message, connection);
+   }
+
+   public void invokeOutgoingInterceptors(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      manager.invokeOutgoing(message, connection);
+   }
 }

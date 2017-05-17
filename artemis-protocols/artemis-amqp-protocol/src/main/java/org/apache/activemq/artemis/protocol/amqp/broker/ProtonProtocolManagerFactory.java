@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -32,7 +30,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = ProtocolManagerFactory.class)
-public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
+public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<AmqpInterceptor> {
 
    public static final byte ID = 2;
 
@@ -57,13 +55,12 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) throws Exception {
-      return BeanSupport.setData(new ProtonProtocolManager(this, server), parameters);
+      return BeanSupport.setData(new ProtonProtocolManager(this, server, incomingInterceptors, outgoingInterceptors), parameters);
    }
 
    @Override
-   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
-      // no interceptors on Proton
-      return Collections.emptyList();
+   public List<AmqpInterceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
+      return internalFilterInterceptors(AmqpInterceptor.class, interceptors);
    }
 
    @Override
