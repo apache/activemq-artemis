@@ -576,7 +576,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setJournalCompactPercentage(getInteger(e, "journal-compact-percentage", config.getJournalCompactPercentage(), Validators.PERCENTAGE));
 
-      config.setLogJournalWriteRate(getBoolean(e, "log-journal-write-rate", ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate()));
+      config.journalProfiler(getBoolean(e, "journal-profiler", ActiveMQDefaultConfiguration.getDefaultJournalProfiler()));
 
       if (e.hasAttribute("wild-card-routing-enabled")) {
          config.setWildcardRoutingEnabled(getBoolean(e, "wild-card-routing-enabled", config.isWildcardRoutingEnabled()));

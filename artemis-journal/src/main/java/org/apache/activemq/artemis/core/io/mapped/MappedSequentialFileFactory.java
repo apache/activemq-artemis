@@ -44,16 +44,17 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
 
    private MappedSequentialFileFactory(File directory,
                                        int capacity,
-                                       final boolean buffered,
-                                       final int bufferSize,
-                                       final int bufferTimeout,
+                                       boolean buffered,
+                                       int bufferSize,
+                                       int bufferTimeout,
+                                       boolean enableProfiler,
                                        IOCriticalErrorListener criticalErrorListener) {
       this.directory = directory;
       this.capacity = capacity;
       this.criticalErrorListener = criticalErrorListener;
       this.useDataSync = true;
       if (buffered && bufferTimeout > 0 && bufferSize > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, false);
+         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, enableProfiler);
       } else {
          timedBuffer = null;
       }
@@ -72,16 +73,17 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
 
    public static MappedSequentialFileFactory buffered(File directory,
                                                       int capacity,
-                                                      final int bufferSize,
-                                                      final int bufferTimeout,
+                                                      int bufferSize,
+                                                      int bufferTimeout,
+                                                      boolean enableProfiling,
                                                       IOCriticalErrorListener criticalErrorListener) {
-      return new MappedSequentialFileFactory(directory, capacity, true, bufferSize, bufferTimeout, criticalErrorListener);
+      return new MappedSequentialFileFactory(directory, capacity, true, bufferSize, bufferTimeout, enableProfiling, criticalErrorListener);
    }
 
    public static MappedSequentialFileFactory unbuffered(File directory,
                                                         int capacity,
                                                         IOCriticalErrorListener criticalErrorListener) {
-      return new MappedSequentialFileFactory(directory, capacity, false, 0, 0, criticalErrorListener);
+      return new MappedSequentialFileFactory(directory, capacity, false, 0, 0, false, criticalErrorListener);
    }
 
    @Override

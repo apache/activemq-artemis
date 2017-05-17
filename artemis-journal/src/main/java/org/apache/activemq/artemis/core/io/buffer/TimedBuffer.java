@@ -20,8 +20,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
@@ -31,8 +29,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.buffer.counters.FlushProfiler;
+import org.apache.activemq.artemis.core.io.buffer.counters.Profiler;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public final class TimedBuffer {
    // Constants -----------------------------------------------------
@@ -69,20 +68,10 @@ public final class TimedBuffer {
    // can get in an inconsistent state
    private boolean delayFlush;
 
-   // for logging write rates
-
-   private final boolean logRates;
-
-   private long bytesFlushed = 0;
-
-   private final AtomicLong flushesDone = new AtomicLong(0);
-
-   private Timer logRatesTimer;
-
-   private TimerTask logRatesTimerTask;
-
    // no need to be volatile as every access is synchronized
    private boolean spinning = false;
+
+   private final FlushProfiler flushProfiler;
 
    // Static --------------------------------------------------------
 
@@ -90,13 +79,13 @@ public final class TimedBuffer {
 
    // Public --------------------------------------------------------
 
-   public TimedBuffer(final int size, final int timeout, final boolean logRates) {
+   public TimedBuffer(final int size, final int timeout, final boolean enableProfiler) {
       bufferSize = size;
 
-      this.logRates = logRates;
-
-      if (logRates) {
-         logRatesTimer = new Timer(true);
+      if (enableProfiler) {
+         this.flushProfiler = Profiler.instrumented();
+      } else {
+         this.flushProfiler = Profiler.none();
       }
       // Setting the interval for nano-sleeps
       //prefer off heap buffer to allow further humongous allocations and reduce GC overhead
@@ -131,12 +120,6 @@ public final class TimedBuffer {
 
       timerThread.start();
 
-      if (logRates) {
-         logRatesTimerTask = new LogRatesTimerTask();
-
-         logRatesTimer.scheduleAtFixedRate(logRatesTimerTask, 2000, 2000);
-      }
-
       started = true;
    }
 
@@ -152,10 +135,6 @@ public final class TimedBuffer {
       timerRunnable.close();
 
       spinLimiter.release();
-
-      if (logRates) {
-         logRatesTimerTask.cancel();
-      }
 
       while (timerThread.isAlive()) {
          try {
@@ -187,8 +166,7 @@ public final class TimedBuffer {
       }
 
       if (sizeChecked > bufferSize) {
-         throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize +
-                                            ") on the journal");
+         throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize + ") on the journal");
       }
 
       if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
@@ -290,7 +268,14 @@ public final class TimedBuffer {
             buffer.getBytes(0, bufferToFlush);
 
             final List<IOCallback> ioCallbacks = callbacks == null ? Collections.emptyList() : callbacks;
-            bufferObserver.flushBuffer(bufferToFlush, pendingSyncs.get() > 0, ioCallbacks);
+
+            final boolean requiredSync = pendingSyncs.get() > 0;
+            this.flushProfiler.onStartFlush(bufferToFlush.position(), requiredSync);
+            try {
+               bufferObserver.flushBuffer(bufferToFlush, requiredSync, ioCallbacks);
+            } finally {
+               this.flushProfiler.onCompletedFlush();
+            }
 
             stopSpin();
 
@@ -301,68 +286,7 @@ public final class TimedBuffer {
             buffer.clear();
 
             bufferLimit = 0;
-
-            if (logRates) {
-               logFlushed(pos);
-            }
          }
-      }
-   }
-
-   private void logFlushed(int bytes) {
-      this.bytesFlushed += bytes;
-      //more lightweight than XADD if single writer
-      final long currentFlushesDone = flushesDone.get();
-      //flushesDone::lazySet write-Release bytesFlushed
-      flushesDone.lazySet(currentFlushesDone + 1L);
-   }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
-   private class LogRatesTimerTask extends TimerTask {
-
-      private boolean closed;
-
-      private long lastExecution;
-
-      private long lastBytesFlushed;
-
-      private long lastFlushesDone;
-
-      @Override
-      public synchronized void run() {
-         if (!closed) {
-            long now = System.currentTimeMillis();
-
-            final long flushesDone = TimedBuffer.this.flushesDone.get();
-            //flushesDone::get read-Acquire bytesFlushed
-            final long bytesFlushed = TimedBuffer.this.bytesFlushed;
-            if (lastExecution != 0) {
-               final double rate = 1000 * (double) (bytesFlushed - lastBytesFlushed) / (now - lastExecution);
-               ActiveMQJournalLogger.LOGGER.writeRate(rate, (long) (rate / (1024 * 1024)));
-               final double flushRate = 1000 * (double) (flushesDone - lastFlushesDone) / (now - lastExecution);
-               ActiveMQJournalLogger.LOGGER.flushRate(flushRate);
-            }
-
-            lastExecution = now;
-
-            lastBytesFlushed = bytesFlushed;
-
-            lastFlushesDone = flushesDone;
-         }
-      }
-
-      @Override
-      public synchronized boolean cancel() {
-         closed = true;
-
-         return super.cancel();
       }
    }
 
