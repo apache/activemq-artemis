@@ -19,26 +19,26 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Artemis JMS Interceptor Example</title>
+    <title>ActiveMQ Artemis AMQP Interceptor Example</title>
     <link rel="stylesheet" type="text/css" href="../../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../common/prettify.css" />
     <script type="text/javascript" src="../../../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
-     <h1>MQTT Interceptor Example</h1>
+     <h1>AMQP Interceptor Example</h1>
 
      <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
 
-     <p>This example shows you how to implement and configure a simple incoming, server-side MQTT interceptor with ActiveMQ Artemis.</p>
+     <p>This example shows you how to implement and configure a simple incoming, server-side AMQP interceptor with ActiveMQ Artemis.</p>
 
      <p>ActiveMQ Artemis allows an application to use an interceptor to hook into the messaging system. All that needs to do is to implement the
      Interceptor interface, as defined below: </p>
      <pre class="prettyprint">
      <code>
-         public interface Interceptor
+         public interface AmqpInterceptor
          {
-            boolean intercept(final MqttMessage mqttMessage, RemotingConnection connection);
+            boolean intercept(final AMQPMessage message, RemotingConnection connection);
          }
      </code>
      </pre>
@@ -48,15 +48,15 @@ under the License.
         &lt;configuration&gt;
         ...
            &lt;remoting-incoming-interceptors&gt;
-              &lt;class-name&gt;org.apache.activemq.artemis.mqtt.example.SimpleMQTTInterceptor&lt;/class-name&gt;
+              &lt;class-name&gt;org.apache.activemq.artemis.amqp.example.SimpleAMQPInterceptor&lt;/class-name&gt;
            &lt;/remoting-incoming-interceptors&gt;
         ...
         &lt;/configuration&gt;
      </code>
      </pre>
 
-     <p>With interceptor, you can handle various events in message processing. In this example, a simple interceptor, SimpleMQTTInterceptor, is implemented and configured.
-     When the example is running, the interceptor will modify the payload of a sample MQTT message.</p>
+     <p>With interceptor, you can handle various events in message processing. In this example, a simple interceptor, SimpleAMQPInterceptor, is implemented and configured.
+     When the example is running, the interceptor examine and log properties of the AMQP message.</p>
 
      <p>With our interceptor we always return <code>true</code> from the <code>intercept</code> method. If we were
      to return <code>false</code> that signifies that no more interceptors are to run.
