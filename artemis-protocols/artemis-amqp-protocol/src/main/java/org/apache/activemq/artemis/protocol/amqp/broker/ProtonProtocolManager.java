@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.concurrent.Executor;
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -46,9 +46,12 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
-public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener {
+public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection> implements NotificationListener {
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
+
+   private final List<AmqpInterceptor> incomingInterceptors = new ArrayList<>();
+   private final List<AmqpInterceptor> outgoingInterceptors = new ArrayList<>();
 
    private final ActiveMQServer server;
 
@@ -69,9 +72,10 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    private int maxFrameSize = AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
 
-   public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
+   public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server, List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
       this.factory = factory;
       this.server = server;
+      this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
    }
 
    public ActiveMQServer getServer() {
@@ -84,14 +88,17 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    }
 
    @Override
-   public ProtocolManagerFactory<Interceptor> getFactory() {
+   public ProtocolManagerFactory<AmqpInterceptor> getFactory() {
       return factory;
    }
 
    @Override
-   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors,
-                                  List<BaseInterceptor> outgoingInterceptors) {
-      // no op
+   public void updateInterceptors(List incoming, List outgoing) {
+      this.incomingInterceptors.clear();
+      this.incomingInterceptors.addAll(getFactory().filterInterceptors(incoming));
+
+      this.outgoingInterceptors.clear();
+      this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
 
    @Override
@@ -206,5 +213,13 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    @Override
    public Map<SimpleString, RoutingType> getPrefixes() {
       return prefixes;
+   }
+
+   public void invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      super.invokeInterceptors(this.incomingInterceptors, message, connection);
+   }
+
+   public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
+      super.invokeInterceptors(this.outgoingInterceptors, message, connection);
    }
 }

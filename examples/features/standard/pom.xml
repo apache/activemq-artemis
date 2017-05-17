@@ -57,6 +57,7 @@ under the License.
             <module>interceptor</module>
             <module>interceptor-client</module>
             <module>interceptor-client-mqtt</module>
+            <module>interceptor-client-amqp</module>
             <module>instantiate-connection-factory</module>
             <module>jms-auto-closeable</module>
             <module>jms-bridge</module>
@@ -120,6 +121,7 @@ under the License.
             <module>interceptor</module>
             <module>interceptor-client</module>
             <module>interceptor-client-mqtt</module>
+            <module>interceptor-client-amqp</module>
             <module>jms-auto-closeable</module>
             <module>instantiate-connection-factory</module>
             <module>jms-bridge</module>
