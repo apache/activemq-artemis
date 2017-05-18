@@ -1332,6 +1332,7 @@
                   <exclude>**/Makefile</exclude>
                   <exclude>**/cmake_install.cmake</exclude>
                   <exclude>artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+                  <exclude>**/dependency-reduced-pom.xml</exclude>
 
                </excludes>
             </configuration>
