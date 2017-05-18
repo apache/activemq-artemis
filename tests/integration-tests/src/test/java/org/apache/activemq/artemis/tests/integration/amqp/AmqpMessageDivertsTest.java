@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
@@ -32,10 +33,19 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testQueueReceiverReadMessageWithDivert() throws Exception {
+      runQueueReceiverReadMessageWithDivert(DivertConfigurationRoutingType.ANYCAST.toString());
+   }
+
+   @Test(timeout = 60000)
+   public void testQueueReceiverReadMessageWithDivertDefaultRouting() throws Exception {
+      runQueueReceiverReadMessageWithDivert(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
+   }
+
+   public void runQueueReceiverReadMessageWithDivert(String routingType) throws Exception {
       final String forwardingAddress = getQueueName() + "Divert";
       final SimpleString simpleForwardingAddress = SimpleString.toSimpleString(forwardingAddress);
       server.createQueue(simpleForwardingAddress, RoutingType.ANYCAST, simpleForwardingAddress, null, true, false);
-      server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(), forwardingAddress, true, null, null, DivertConfigurationRoutingType.ANYCAST.toString());
+      server.getActiveMQServerControl().createDivert("name", "routingName", getQueueName(), forwardingAddress, true, null, null, routingType);
 
       sendMessages(getQueueName(), 1);
 
