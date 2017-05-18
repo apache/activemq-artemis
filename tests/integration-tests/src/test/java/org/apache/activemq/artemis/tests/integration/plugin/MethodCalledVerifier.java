@@ -239,13 +239,13 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void beforeDeliver(MessageReference reference) {
+   public void beforeDeliver(ServerConsumer consumer, MessageReference reference) {
       Preconditions.checkNotNull(reference);
       methodCalled(BEFORE_DELIVER);
    }
 
    @Override
-   public void afterDeliver(MessageReference reference) {
+   public void afterDeliver(ServerConsumer consumer, MessageReference reference) {
       Preconditions.checkNotNull(reference);
       methodCalled(AFTER_DELIVER);
    }
