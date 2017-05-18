@@ -58,12 +58,43 @@
                         <filter>
                            <artifact>*:*</artifact>
                            <excludes>
+                              <exclude>INSTALL.html</exclude>
+                              <exclude>LICENSE</exclude>
+                              <exclude>README</exclude>
                               <exclude>META-INF/*.SF</exclude>
                               <exclude>META-INF/*.DSA</exclude>
                               <exclude>META-INF/*.RSA</exclude>
+                              <exclude>META-INF/ASL2.0</exclude>
+                              <exclude>META-INF/DEPENDENCIES.txt</exclude>
+                              <exclude>META-INF/LICENSE.txt</exclude>
+                              <exclude>META-INF/NOTICE.txt</exclude>
+                              <exlude>overview.html</exlude>
                            </excludes>
                         </filter>
+                        <filter>
+                           <artifact>org.jgroups:jgroups</artifact>
+                           <includes>
+                              <include>org/jgroups/**</include>
+                              <include>jg-magic-map.xml</include>
+                              <include>jg-protocol-ids.xml</include>
+                              <include>*.properties</include>
+                              <include>*.xsd</include>
+                           </includes>
+                        </filter>
                      </filters>
+                     <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                           <resource>META-INF/DEPENDENCIES</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                           <addHeader>false</addHeader>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                           <resource>.txt</resource>
+                           <resource>features.xml</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                     </transformers>
                      <relocations>
                         <relocation>
                            <pattern>org.apache.activemq</pattern>
