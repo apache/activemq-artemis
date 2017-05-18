@@ -279,8 +279,9 @@ public class AMQPMessage extends RefCountMessage {
       parseHeaders();
       if (routingType == null) {
          removeSymbol(AMQPMessageSupport.ROUTING_TYPE);
+      } else {
+         setSymbol(AMQPMessageSupport.ROUTING_TYPE, routingType.getType());
       }
-      setSymbol(AMQPMessageSupport.ROUTING_TYPE, routingType.getType());
       return this;
    }
 
