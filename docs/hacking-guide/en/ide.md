@@ -9,13 +9,13 @@ There a few files useful for IDE integration under ./etc/ide-settings on a check
 ### Importing the Project
 
 The following steps show how to import ActiveMQ Artemis source into IntelliJ IDEA and setup the correct maven profile to allow
-running of JUnit tests from within the IDE.  (Steps are based on version: 13.1.4)
+running of JUnit tests from within the IDE.  (Steps are based on version: 2017.1.2)
 
 * File --> Import Project --> Select the root directory of the ActiveMQ Artemis source folder. --> Click OK
 
 This should open the import project wizard.  From here:
 
-* Select "Import from existing model" toggle box, then select Maven from the list box below.  Click Next.
+* Select "Import project from external model" toggle box, then select Maven from the list box below.  Click Next.
 * Leave the defaults set on this page and click next.
 * On the "Select profiles page", select the checkbox next to "dev" and click next.
 * From here the default settings should suffice.  Continue through the wizard, clicking next until the wizard is complete.
