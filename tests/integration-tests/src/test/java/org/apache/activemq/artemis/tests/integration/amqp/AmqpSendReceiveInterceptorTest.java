@@ -70,7 +70,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       receiver.flow(2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(latch.getCount(), 0);
+      assertEquals(latch2.getCount(), 0);
       receiver.close();
       connection.close();
    }
