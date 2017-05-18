@@ -567,8 +567,7 @@ public class AMQPSessionCallback implements SessionCallback {
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 
       try {
-         invokeOutgoing((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection());
-         return plugSender.deliverMessage(ref, deliveryCount);
+         return plugSender.deliverMessage(ref, deliveryCount, transportConnection);
       } catch (Exception e) {
          connection.lock();
          try {
