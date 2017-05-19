@@ -370,6 +370,7 @@ public class ManagementServiceImpl implements ManagementService {
       message = message.toCore();
       // a reply message is sent with the result stored in the message body.
       CoreMessage reply = new CoreMessage(storageManager.generateID(), 512);
+      reply.setType(Message.TEXT_TYPE);
       reply.setReplyTo(message.getReplyTo());
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
