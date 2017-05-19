@@ -22,6 +22,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.security.auth.Subject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,6 +30,7 @@ import java.io.PrintStream;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -150,6 +152,14 @@ public class ArtemisFeatureTest extends Assert {
          Queue queue = sess.createQueue("exampleQueue");
          MessageProducer producer = sess.createProducer(queue);
          producer.send(sess.createTextMessage("TEST"));
+
+         // Test browsing
+         try (QueueBrowser browser = sess.createBrowser(queue)) {
+            Enumeration messages = browser.getEnumeration();
+            while (messages.hasMoreElements()) {
+               messages.nextElement();
+            }
+         }
 
          MessageConsumer consumer = sess.createConsumer(queue);
          Message msg = consumer.receive(5000);
