@@ -84,6 +84,7 @@ under the License.
             <permission type="deleteAddress" roles="manager"/>
             <permission type="consume" roles="manager"/>
             <permission type="send" roles="manager"/>
+            <permission type="browse" roles="manager"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
             <permission type="manage" roles="manager"/>
          </security-setting>
