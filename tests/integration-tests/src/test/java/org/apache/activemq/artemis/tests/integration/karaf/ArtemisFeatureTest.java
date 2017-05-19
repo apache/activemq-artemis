@@ -23,14 +23,22 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
+import javax.jms.QueueRequestor;
+import javax.jms.QueueSession;
+import javax.jms.TextMessage;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonString;
 import javax.security.auth.Subject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,7 +156,7 @@ public class ArtemisFeatureTest extends Assert {
          connection = factory.createConnection(USER, PASSWORD);
          connection.start();
 
-         javax.jms.Session sess = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+         QueueSession sess = (QueueSession) connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
          Queue queue = sess.createQueue("exampleQueue");
          MessageProducer producer = sess.createProducer(queue);
          producer.send(sess.createTextMessage("TEST"));
@@ -160,6 +168,21 @@ public class ArtemisFeatureTest extends Assert {
                messages.nextElement();
             }
          }
+
+         // Test management
+         Queue managementQueue = sess.createQueue("activemq.management");
+         QueueRequestor requestor = new QueueRequestor(sess, managementQueue);
+         connection.start();
+         TextMessage m = sess.createTextMessage();
+         m.setStringProperty("_AMQ_ResourceName", "broker");
+         m.setStringProperty("_AMQ_OperationName", "getQueueNames");
+         m.setText("[\"ANYCAST\"]");
+         Message reply = requestor.request(m);
+         String json = ((TextMessage) reply).getText();
+         JsonArray array = Json.createReader(new StringReader(json)).readArray();
+         List<JsonString> queues = (List<JsonString>) array.get(0);
+         assertNotNull(queues);
+         assertFalse(queues.isEmpty());
 
          MessageConsumer consumer = sess.createConsumer(queue);
          Message msg = consumer.receive(5000);
