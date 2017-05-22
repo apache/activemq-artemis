@@ -32,7 +32,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
@@ -42,6 +44,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -149,6 +153,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private long acks;
 
+   private boolean requiresLegacyPrefix = false;
+
+   private boolean anycast = false;
+
    // Constructors ---------------------------------------------------------------------------------
 
    public ServerConsumerImpl(final long id,
@@ -226,6 +234,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       this.server = server;
+
+      if (session.getRemotingConnection() instanceof CoreRemotingConnection) {
+         CoreRemotingConnection coreRemotingConnection = (CoreRemotingConnection) session.getRemotingConnection();
+         if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null && coreRemotingConnection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+            requiresLegacyPrefix = true;
+            if (getQueue().getRoutingType().equals(RoutingType.ANYCAST)) {
+               anycast = true;
+            }
+         }
+      }
    }
 
    @Override
@@ -535,6 +553,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
          forcedDeliveryMessage.setAddress(messageQueue.getName());
 
+         applyPrefixForLegacyConsumer(forcedDeliveryMessage);
          callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
 
       });
@@ -1053,7 +1072,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * @param ref
     * @param message
     */
-   private void deliverStandardMessage(final MessageReference ref, final Message message) throws ActiveMQException {
+   private void deliverStandardMessage(final MessageReference ref, Message message) throws ActiveMQException {
+      applyPrefixForLegacyConsumer(message);
       int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
 
       if (availableCredits != null) {
@@ -1064,6 +1084,28 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                             packetSize +
                             " from credits, available now is " +
                             availableCredits);
+         }
+      }
+   }
+
+   private void applyPrefixForLegacyConsumer(Message message) {
+      /**
+       * check to see if:
+       * 1) This is a "core" connection
+       * 2) The "core" connection belongs to a JMS client
+       * 3) The JMS client is an "old" client which needs address prefixes
+       *
+       * If 1, 2, & 3 are true then apply the "old" prefix for queues and topics as appropriate.
+       */
+      if (requiresLegacyPrefix) {
+         if (anycast) {
+            if (!message.getAddress().startsWith(PacketImpl.OLD_QUEUE_PREFIX.toString())) {
+               message.setAddress(PacketImpl.OLD_QUEUE_PREFIX + message.getAddress());
+            }
+         } else {
+            if (!message.getAddress().startsWith(PacketImpl.OLD_TOPIC_PREFIX.toString())) {
+               message.setAddress(PacketImpl.OLD_TOPIC_PREFIX + message.getAddress());
+            }
          }
       }
    }
