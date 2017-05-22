@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -27,6 +28,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -323,6 +326,19 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress(remotingConnection.getClientVersion()));
+
+                  /* if the session is JMS and it's from an older client then we need to add the old prefix to the queue
+                   * names otherwise the older client won't realize the queue exists and will try to create it and receive
+                   * an error
+                   */
+                  if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null && remotingConnection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+                     List<SimpleString> queueNames = new ArrayList<>();
+                     for (SimpleString queueName : result.getQueueNames()) {
+                        queueNames.add(PacketImpl.OLD_QUEUE_PREFIX.concat(queueName));
+                     }
+                     result = new BindingQueryResult(result.isExists(), queueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                  }
+
                   if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V4)) {
                      response = new SessionBindingQueryResponseMessage_V4(result.isExists(), result.getQueueNames(), result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
                   } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
