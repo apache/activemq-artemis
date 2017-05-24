@@ -635,6 +635,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
+    * Set cacheDestinations
+    *
+    * @param cacheDestinations The value
+    */
+   public void setCacheDestinations(final Boolean cacheDestinations) {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("setCacheDestinations(" + cacheDestinations + ")");
+      }
+
+      raProperties.setCacheDestinations(cacheDestinations);
+   }
+
+   /**
+    * Get isCacheDestinations
+    *
+    * @return The value
+    */
+   public Boolean isCacheDestinations() {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("isCacheDestinations()");
+      }
+
+      return raProperties.isCacheDestinations();
+   }
+
+   /**
     * Set compressLargeMessage
     *
     * @param compressLargeMessage The value
@@ -1909,6 +1935,11 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val = overrideProperties.isFailoverOnInitialConnection() != null ? overrideProperties.isFailoverOnInitialConnection() : raProperties.isFailoverOnInitialConnection();
       if (val != null) {
          cf.setFailoverOnInitialConnection(val);
+      }
+
+      val = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
+      if (val != null) {
+         cf.setCacheDestinations(val);
       }
 
       Integer val2 = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
