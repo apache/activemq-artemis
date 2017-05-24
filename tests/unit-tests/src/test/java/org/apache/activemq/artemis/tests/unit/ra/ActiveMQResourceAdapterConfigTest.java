@@ -253,6 +253,12 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-type>boolean</config-property-type>\n" +
       "         <config-property-value></config-property-value>\n" +
       "      </config-property>\n" +
+      "      <config-property>" +
+      "         <description>Cache destinations per session</description>" +
+      "         <config-property-name>CacheDestinations</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
       "      <config-property>\n" +
       "         <description>max number of threads for scheduled thread pool</description>\n" +
       "         <config-property-name>ScheduledThreadPoolMaxSize</config-property-name>\n" +

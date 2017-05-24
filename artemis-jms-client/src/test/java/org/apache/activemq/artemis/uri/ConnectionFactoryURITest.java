@@ -400,6 +400,18 @@ public class ConnectionFactoryURITest {
       checkEquals(bean, connectionFactoryWithHA, factory);
    }
 
+   @Test
+   public void testCacheDestinations() throws Exception {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030"), null);
+
+      Assert.assertFalse(factory.isCacheDestinations());
+
+      factory = parser.newObject(new URI("tcp://localhost:3030?cacheDestinations=true"), null);
+
+      Assert.assertTrue(factory.isCacheDestinations());
+
+   }
+
    private void populate(StringBuilder sb,
                          BeanUtilsBean bean,
                          ActiveMQConnectionFactory factory) throws IllegalAccessException, InvocationTargetException {
