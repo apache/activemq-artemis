@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.netty.handler.codec.socksx.SocksVersion;
 import io.netty.util.Version;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
@@ -149,6 +150,18 @@ public class TransportConstants {
 
    public static final int STOMP_DEFAULT_CONSUMERS_CREDIT = 10 * 1024; // 10K
 
+   public static final String PROXY_ENABLED_PROP_NAME = "socksEnabled";
+
+   public static final String PROXY_HOST_PROP_NAME = "socksHost";
+
+   public static final String PROXY_PORT_PROP_NAME = "socksPort";
+
+   public static final String PROXY_VERSION_PROP_NAME = "socksVersion";
+
+   public static final String PROXY_USERNAME_PROP_NAME = "socksUsername";
+
+   public static final String PROXY_PASSWORD_PROP_NAME = "socksPassword";
+
    public static final boolean DEFAULT_SSL_ENABLED = false;
 
    public static final String DEFAULT_SSL_KRB5_CONFIG = null;
@@ -255,6 +268,18 @@ public class TransportConstants {
 
    public static final int DEFAULT_STOMP_MAX_FRAME_PAYLOAD_LENGTH = 65536;
 
+   public static final boolean DEFAULT_PROXY_ENABLED = false;
+
+   public static final String DEFAULT_PROXY_HOST = null;
+
+   public static final int DEFAULT_PROXY_PORT = 0;
+
+   public static final byte DEFAULT_PROXY_VERSION = SocksVersion.SOCKS5.byteValue();
+
+   public static final String DEFAULT_PROXY_USERNAME = null;
+
+   public static final String DEFAULT_PROXY_PASSWORD = null;
+
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
@@ -342,6 +367,12 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);
+      allowableConnectorKeys.add(TransportConstants.PROXY_ENABLED_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_HOST_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_PORT_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_VERSION_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_USERNAME_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.PROXY_PASSWORD_PROP_NAME);
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);

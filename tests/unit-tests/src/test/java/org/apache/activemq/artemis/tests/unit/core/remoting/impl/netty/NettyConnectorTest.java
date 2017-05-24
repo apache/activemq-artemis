@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.proxy.Socks5ProxyHandler;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
@@ -194,6 +197,94 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       connector.start();
       Assert.assertTrue(connector.isStarted());
       Assert.assertNull(connector.createConnection());
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testSocksProxyHandlerAdded() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.HOST_PROP_NAME, InetAddress.getLocalHost().getHostAddress());
+      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
+         @Override
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
+         }
+
+         @Override
+         public void connectionDestroyed(final Object connectionID) {
+         }
+
+         @Override
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final ClientProtocolManager protocol) {
+         }
+
+         @Override
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         }
+      };
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+
+      ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
+      Assert.assertNotNull(pipeline.get(Socks5ProxyHandler.class));
+
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testSocksProxyHandlerNotAddedForLocalhost() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
+         @Override
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
+         }
+
+         @Override
+         public void connectionDestroyed(final Object connectionID) {
+         }
+
+         @Override
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final ClientProtocolManager protocol) {
+         }
+
+         @Override
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         }
+      };
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+
+      ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
+      Assert.assertNull(pipeline.get(Socks5ProxyHandler.class));
+
       connector.close();
       Assert.assertFalse(connector.isStarted());
    }
