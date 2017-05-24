@@ -126,6 +126,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final int transactionBatchSize;
 
+   private final boolean cacheDestinations;
+
    private ClientSession initialSession;
 
    private final Exception creationStack;
@@ -143,6 +145,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                              final String clientID,
                              final int dupsOKBatchSize,
                              final int transactionBatchSize,
+                             final boolean cacheDestinations,
                              final ClientSessionFactory sessionFactory) {
       this.options = options;
 
@@ -163,6 +166,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       this.dupsOKBatchSize = dupsOKBatchSize;
 
       this.transactionBatchSize = transactionBatchSize;
+
+      this.cacheDestinations = cacheDestinations;
 
       creationStack = new Exception();
    }
@@ -654,9 +659,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                                               ClientSession session,
                                               int type) {
       if (isXA) {
-         return new ActiveMQXASession(options, this, transacted, true, acknowledgeMode, session, type);
+         return new ActiveMQXASession(options, this, transacted, true, acknowledgeMode, cacheDestinations, session, type);
       } else {
-         return new ActiveMQSession(options, this, transacted, false, acknowledgeMode, session, type);
+         return new ActiveMQSession(options, this, transacted, false, acknowledgeMode, cacheDestinations, session, type);
       }
    }
 

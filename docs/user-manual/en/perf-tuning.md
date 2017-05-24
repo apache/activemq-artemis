@@ -150,6 +150,11 @@ tuning:
     java.lang.String does not require copying before it is written to
     the wire, so if you re-use `SimpleString` instances between calls
     then you can avoid some unnecessary copying.
+    
+-   If using frameworks like Spring, configure destinations permanently broker side
+    and enable `destinationCache` on the client side. 
+    See the [Setting The Destination Cache](using-jms.md)
+                                                          for more information on this.
 
 ## Tuning Transport Settings
 
