@@ -18,6 +18,7 @@ package org.apache.activemq.cli.test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -46,11 +47,14 @@ import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class WebServerComponentTest extends Assert {
 
@@ -59,9 +63,13 @@ public class WebServerComponentTest extends Assert {
    private Bootstrap bootstrap;
    private EventLoopGroup group;
    private List<ActiveMQComponent> testedComponents;
+   @Rule
+   public TemporaryFolder tmpDir = new TemporaryFolder();
 
    @Before
    public void setupNetty() throws URISyntaxException {
+      System.out.println("tmpdir set to " + tmpDir.getRoot().getAbsolutePath());
+      System.setProperty("java.io.tmpdir", tmpDir.getRoot().getAbsolutePath());
       // Configure the client.
       group = new NioEventLoopGroup();
       bootstrap = new Bootstrap();
@@ -73,6 +81,35 @@ public class WebServerComponentTest extends Assert {
       for (ActiveMQComponent c : testedComponents) {
          c.stop();
       }
+   }
+
+   @Test
+   public void testWarTmpDirCleanUp() throws Exception {
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "http://localhost:8161";
+      webServerDTO.path = "webapps";
+      List<AppDTO> apps = new ArrayList<>();
+      AppDTO app = new AppDTO();
+      app.url = "jolokia";
+      app.war = "jolokia-war-1.3.5.war";
+      apps.add(app);
+      webServerDTO.apps = apps;
+
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      testedComponents.add(webServerComponent);
+      webServerComponent.start();
+      webServerComponent.stop(true);
+      checkTempDirEmpty();
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   private void checkTempDirEmpty() {
+      File basedir = tmpDir.getRoot();
+      assertTrue(basedir.isDirectory());
+      String[] names = basedir.list();
+      assertEquals("nothing should be left over " + names.length, 0, names.length);
    }
 
    @Test
