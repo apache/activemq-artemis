@@ -258,6 +258,12 @@
         <config-property-name>PasswordCodec</config-property-name>
         <config-property-type>java.lang.String</config-property-type>
         <config-property-value>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=clusterpassword;algorithm=something</config-property-value>
+      </config-property>
+      <config-property>
+        <description>Cache destinations per session</description>
+        <config-property-name>CacheDestinations</config-property-name>
+        <config-property-type>java.lang.Boolean</config-property-type>
+        <config-property-value>false</config-property-value>
       </config-property>-->
 
       <outbound-resourceadapter>

@@ -580,6 +580,14 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setUseGlobalPools(useGlobalPools);
    }
 
+   public Boolean isCacheDestinations() {
+      return mcfProperties.isCacheDestinations();
+   }
+
+   public void setCacheDestinations(final Boolean cacheDestinations) {
+      mcfProperties.setCacheDestinations(cacheDestinations);
+   }
+
    public Integer getScheduledThreadPoolMaxSize() {
       return mcfProperties.getScheduledThreadPoolMaxSize();
    }
