@@ -1476,12 +1476,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          return "ServerLocatorImpl (identity=" + identity +
             ") [initialConnectors=" +
             Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
-            ",\n discoveryGroupConfiguration=" +
+            ", discoveryGroupConfiguration=" +
             discoveryGroupConfiguration +
             "]";
       }
       return "ServerLocatorImpl [initialConnectors=" + Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
-         ",\n discoveryGroupConfiguration=" +
+         ", discoveryGroupConfiguration=" +
          discoveryGroupConfiguration +
          "]";
    }

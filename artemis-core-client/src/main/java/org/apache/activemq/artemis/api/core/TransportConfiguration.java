@@ -252,16 +252,15 @@ public class TransportConfiguration implements Serializable {
 
    public static String toStringParameters(Map<String, Object> params, Map<String, Object> extraProps) {
       StringBuilder str = new StringBuilder();
-      str.append("{");
       if (params != null) {
          if (!params.isEmpty()) {
-            str.append("\n\t\t\t");
+            str.append("?");
          }
 
          boolean first = true;
          for (Map.Entry<String, Object> entry : params.entrySet()) {
             if (!first) {
-               str.append("\n\t\t\t");
+               str.append("&");
             }
 
             String key = entry.getKey();
@@ -281,7 +280,7 @@ public class TransportConfiguration implements Serializable {
          if (extraProps != null) {
             for (Map.Entry<String, Object> entry : extraProps.entrySet()) {
                if (!first) {
-                  str.append("\n\t\t\t");
+                  str.append("&");
                }
 
                String key = entry.getKey();
@@ -293,7 +292,6 @@ public class TransportConfiguration implements Serializable {
             }
          }
       }
-      str.append("\n\t\t}");
       return str.toString();
    }
 

@@ -742,13 +742,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public String toString() {
-      return "\n " + this.getClass().getSimpleName() + "@" +
+      return this.getClass().getSimpleName() + "@" +
          Integer.toHexString(System.identityHashCode(this)) +
-         "\n [name=" +
+         " [name=" +
          name +
-         ",\n queue=" +
+         ", queue=" +
          queue +
-         "\n targetConnector=" +
+         " targetConnector=" +
          this.serverLocator +
          "]";
    }
