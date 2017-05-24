@@ -112,6 +112,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Boolean useGlobalPools;
 
+   private Boolean cacheDestinations;
+
    private Integer initialMessagePacketSize;
 
    private Integer scheduledThreadPoolMaxSize;
@@ -610,6 +612,21 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       }
       hasBeenUpdated = true;
       this.useGlobalPools = useGlobalPools;
+   }
+
+   public Boolean isCacheDestinations() {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("isCacheDestinations()");
+      }
+      return cacheDestinations;
+   }
+
+   public void setCacheDestinations(final Boolean cacheDestinations) {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("setCacheDestinations(" + cacheDestinations + ")");
+      }
+      hasBeenUpdated = true;
+      this.cacheDestinations = cacheDestinations;
    }
 
    public Integer getScheduledThreadPoolMaxSize() {

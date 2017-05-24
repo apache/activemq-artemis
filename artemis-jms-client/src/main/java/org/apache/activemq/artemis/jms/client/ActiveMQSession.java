@@ -45,8 +45,10 @@ import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -95,6 +97,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    private final Set<ActiveMQMessageConsumer> consumers = new HashSet<>();
 
+   private final boolean cacheDestination;
+
+   private final Map<String, Topic> topicCache = new ConcurrentHashMap<>();
+
+   private final Map<String, Queue> queueCache = new ConcurrentHashMap<>();
+
    // Constructors --------------------------------------------------
 
    protected ActiveMQSession(final ConnectionFactoryOptions options,
@@ -102,6 +110,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                              final boolean transacted,
                              final boolean xa,
                              final int ackMode,
+                             final boolean cacheDestination,
                              final ClientSession session,
                              final int sessionType) {
       this.options = options;
@@ -117,6 +126,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       this.transacted = transacted;
 
       this.xa = xa;
+
+      this.cacheDestination = cacheDestination;
    }
 
    // Session implementation ----------------------------------------
@@ -255,6 +266,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
       }
+      topicCache.clear();
+      queueCache.clear();
    }
 
    @Override
@@ -367,7 +380,17 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         return internalCreateQueue(queueName, false);
+         Queue queue = null;
+         if (cacheDestination) {
+            queue = queueCache.get(queueName);
+         }
+         if (queue == null) {
+            queue = internalCreateQueue(queueName, false);
+         }
+         if (cacheDestination) {
+            queueCache.put(queueName, queue);
+         }
+         return queue;
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
@@ -396,9 +419,18 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       if (sessionType == ActiveMQSession.TYPE_QUEUE_SESSION) {
          throw new IllegalStateException("Cannot create a topic on a QueueSession");
       }
-
       try {
-         return internalCreateTopic(topicName, false);
+         Topic topic = null;
+         if (cacheDestination) {
+            topic = topicCache.get(topicName);
+         }
+         if (topic == null) {
+            topic = internalCreateTopic(topicName, false);
+         }
+         if (cacheDestination) {
+            topicCache.put(topicName, topic);
+         }
+         return topic;
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
