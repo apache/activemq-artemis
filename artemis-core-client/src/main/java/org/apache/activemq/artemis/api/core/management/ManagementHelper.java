@@ -195,7 +195,7 @@ public final class ManagementHelper {
     * and the result will be a String corresponding to the server exception.
     */
    public static Object[] getResults(final ICoreMessage message) throws Exception {
-      SimpleString sstring = message.getBodyBuffer().readNullableSimpleString();
+      SimpleString sstring = message.getReadOnlyBodyBuffer().readNullableSimpleString();
       String jsonString = (sstring == null) ? null : sstring.toString();
 
       if (jsonString != null) {
