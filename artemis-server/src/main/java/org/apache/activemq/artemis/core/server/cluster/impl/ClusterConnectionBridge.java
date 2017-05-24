@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
@@ -102,14 +102,14 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final boolean useDuplicateDetection,
                                   final String user,
                                   final String password,
-                                  final StorageManager storageManager,
+                                  final ActiveMQServer server,
                                   final SimpleString managementAddress,
                                   final SimpleString managementNotificationAddress,
                                   final MessageFlowRecord flowRecord,
                                   final TransportConfiguration connector,
                                   final String storeAndForwardPrefix) {
       super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
-            retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, storageManager);
+            retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, server);
 
       this.discoveryLocator = discoveryLocator;
 
