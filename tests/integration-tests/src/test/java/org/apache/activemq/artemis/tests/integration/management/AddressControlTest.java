@@ -334,12 +334,11 @@ public class AddressControlTest extends ManagementTestBase {
 
       session.createQueue(address, RoutingType.ANYCAST, address);
       producer.send(session.createMessage(false));
-      assertEquals(1, addressControl.getMessageCount());
+      assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 1, 2000, 100));
 
       session.createQueue(address, RoutingType.ANYCAST, address.concat('2'));
       producer.send(session.createMessage(false));
-      Wait.waitFor(() -> addressControl.getMessageCount() == 2);
-      assertEquals(2, addressControl.getMessageCount());
+      assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
    }
 
    @Test

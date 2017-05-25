@@ -129,8 +129,8 @@ public final class DiscoveryGroupConfiguration implements Serializable {
    public String toString() {
       return "DiscoveryGroupConfiguration{" +
          "name='" + name + '\'' +
-         ",\n refreshTimeout=" + refreshTimeout +
-         ",\n discoveryInitialWaitTimeout=" + discoveryInitialWaitTimeout +
-         "}";
+         ", refreshTimeout=" + refreshTimeout +
+         ", discoveryInitialWaitTimeout=" + discoveryInitialWaitTimeout +
+         '}';
    }
 }
