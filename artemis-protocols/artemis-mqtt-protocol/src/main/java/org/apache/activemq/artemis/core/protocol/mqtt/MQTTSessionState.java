@@ -159,6 +159,7 @@ public class MQTTSessionState {
             Pair p =  mqttToServerIds.remove(mqtt);
             if (p != null) {
                mqttToServerIds.remove(p.getA());
+               artemisToMqttMessageMap.remove(p.getB() + ":" + p.getA());
             }
             return p;
          }
