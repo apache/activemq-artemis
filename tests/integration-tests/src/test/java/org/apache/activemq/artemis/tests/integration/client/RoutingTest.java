@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -238,8 +239,8 @@ public class RoutingTest extends ActiveMQTestBase {
       message.setRoutingType(RoutingType.ANYCAST);
       p.send(message);
       sendSession.close();
-      assertEquals(1, server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount());
-      assertEquals(0, server.locateQueue(queueC).getMessageCount());
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount() == 1));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueC).getMessageCount() == 0));
    }
 
    @Test
@@ -257,8 +258,8 @@ public class RoutingTest extends ActiveMQTestBase {
       message.setRoutingType(RoutingType.MULTICAST);
       p.send(message);
       sendSession.close();
-      assertEquals(0, server.locateQueue(queueA).getMessageCount());
-      assertEquals(2, server.locateQueue(queueB).getMessageCount() + server.locateQueue(queueC).getMessageCount());
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueA).getMessageCount() == 0));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueB).getMessageCount() + server.locateQueue(queueC).getMessageCount() == 2));
    }
 
    @Test
