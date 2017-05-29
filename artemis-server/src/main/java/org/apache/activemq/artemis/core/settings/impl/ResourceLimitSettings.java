@@ -142,6 +142,26 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       return result;
    }
 
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+         return false;
+      }
+
+      ResourceLimitSettings that = (ResourceLimitSettings) o;
+
+      if (match != null ? !match.equals(that.match) : that.match != null) {
+         return false;
+      }
+      if (maxConnections != null ? !maxConnections.equals(that.maxConnections) : that.maxConnections != null) {
+         return false;
+      }
+      return maxQueues != null ? maxQueues.equals(that.maxQueues) : that.maxQueues == null;
+   }
+
    /* (non-Javadoc)
     * @see java.lang.Object#toString()
     */
