@@ -331,7 +331,8 @@ public class JMSUtil {
                break;
             }
             Thread.sleep(10);
-         } while (System.currentTimeMillis() - start < timeToWait);
+         }
+         while (System.currentTimeMillis() - start < timeToWait);
          if (!exists) {
             String msg = "Timed out waiting for cluster topology of " + backupServer +
                " (received " +

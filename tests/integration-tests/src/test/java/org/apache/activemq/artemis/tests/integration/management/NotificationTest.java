@@ -231,7 +231,8 @@ public class NotificationTest extends ActiveMQTestBase {
       ClientMessage message = null;
       do {
          message = notifConsumer.receive(500);
-      } while (message != null);
+      }
+      while (message != null);
    }
 
    protected static ClientMessage[] consumeMessages(final int expected,

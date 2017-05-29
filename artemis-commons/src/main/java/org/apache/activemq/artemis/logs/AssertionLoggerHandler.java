@@ -78,7 +78,8 @@ public class AssertionLoggerHandler extends ExtHandler {
          if (findText(text)) {
             return true;
          }
-      } while (timeMax > System.currentTimeMillis());
+      }
+      while (timeMax > System.currentTimeMillis());
 
       return false;
 

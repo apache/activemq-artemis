@@ -84,7 +84,8 @@ public final class InVMNodeManager extends NodeManager {
          } else if (state == LIVE) {
             break;
          }
-      } while (true);
+      }
+      while (true);
       if (failoverPause > 0L) {
          Thread.sleep(failoverPause);
       }

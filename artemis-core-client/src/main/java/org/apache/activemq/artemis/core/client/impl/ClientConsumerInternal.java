@@ -37,7 +37,7 @@ public interface ClientConsumerInternal extends ClientConsumer {
 
    void handleLargeMessageContinuation(byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
 
-   void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException;
+   void flowControl(int messageBytes, boolean discountSlowConsumer) throws ActiveMQException;
 
    void clear(boolean waitForOnMessage) throws ActiveMQException;
 

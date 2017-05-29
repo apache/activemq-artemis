@@ -73,7 +73,7 @@ public interface Channel {
     * @return false if the packet was rejected by an outgoing interceptor; true if the send was
     * successful
     */
-   boolean send(Packet packet, final int reconnectID);
+   boolean send(Packet packet, int reconnectID);
 
    /**
     * Sends a packet on this channel using batching algorithm if appropriate

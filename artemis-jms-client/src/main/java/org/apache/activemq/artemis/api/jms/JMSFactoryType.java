@@ -260,7 +260,7 @@ public enum JMSFactoryType {
     * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
     */
-   public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration);
+   public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(DiscoveryGroupConfiguration groupConfiguration);
 
    /**
     * Create an ActiveMQConnectionFactory which creates session factories from a set of live servers, no HA backup information is propagated to the client
@@ -270,7 +270,7 @@ public enum JMSFactoryType {
     * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
     */
-   public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration);
+   public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(DiscoveryGroupConfiguration groupConfiguration);
 
    /**
     * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster
@@ -287,7 +287,7 @@ public enum JMSFactoryType {
     *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
     * @return the ActiveMQConnectionFactory
     */
-   public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(final TransportConfiguration... initialServers);
+   public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(TransportConfiguration... initialServers);
 
    /**
     * Create an ActiveMQConnectionFactory which creates session factories using a static list of
@@ -299,7 +299,7 @@ public enum JMSFactoryType {
     * @param transportConfigurations
     * @return the ActiveMQConnectionFactory
     */
-   public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final TransportConfiguration... transportConfigurations);
+   public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(TransportConfiguration... transportConfigurations);
 
    /**
     * Returns the connection factory interface that this JMSFactoryType creates.

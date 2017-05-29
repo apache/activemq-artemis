@@ -1257,7 +1257,8 @@ final class PageSubscriptionImpl implements PageSubscription {
                } else if (!browsing && ignored) {
                   positionIgnored(message.getPosition());
                }
-            } while (!match);
+            }
+            while (!match);
 
             if (message != null) {
                lastOperation = lastPosition;

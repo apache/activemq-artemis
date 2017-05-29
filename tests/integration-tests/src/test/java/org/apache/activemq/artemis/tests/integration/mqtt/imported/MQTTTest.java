@@ -465,7 +465,8 @@ public class MQTTTest extends MQTTTestSupport {
             assertTrue("RETAINED matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
             msg = connection.receive(5000, TimeUnit.MILLISECONDS);
-         } while (msg != null);
+         }
+         while (msg != null);
 
          // test non-retained message
          for (String topic : topics) {
@@ -477,7 +478,8 @@ public class MQTTTest extends MQTTTestSupport {
             assertTrue("Non-retained matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
             msg = connection.receive(1000, TimeUnit.MILLISECONDS);
-         } while (msg != null);
+         }
+         while (msg != null);
 
          connection.unsubscribe(new String[]{wildcard});
          connection.disconnect();
@@ -769,7 +771,8 @@ public class MQTTTest extends MQTTTestSupport {
             waitCount++;
          }
          msg = connection.receive(5000, TimeUnit.MILLISECONDS);
-      } while (msg != null && received++ < subs.length * 2);
+      }
+      while (msg != null && received++ < subs.length * 2);
       assertEquals("Unexpected number of messages", subs.length * 2, received + 1);
 
       // make sure we received distinct ids for QoS != AT_MOST_ONCE, and 0 for
@@ -928,7 +931,8 @@ public class MQTTTest extends MQTTTestSupport {
             assertEquals(TOPIC, new String(msg.getPayload()));
             msg.ack();
          }
-      } while (msg != null);
+      }
+      while (msg != null);
 
       // make sure we received all message ids
       for (short id = 1; id <= TOTAL_MESSAGES; id++) {

@@ -78,5 +78,5 @@ public enum CheckType {
       }
    };
 
-   public abstract boolean hasRole(final Role role);
+   public abstract boolean hasRole(Role role);
 }
