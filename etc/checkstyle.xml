@@ -46,7 +46,9 @@ under the License.
 
       <!-- Modifier Checks -->
       <module name="ModifierOrder"/>
-      <module name="RedundantModifier"/>
+      <module name="RedundantModifier">
+         <property name="tokens" value="ANNOTATION_FIELD_DEF, INTERFACE_DEF, CLASS_DEF, ENUM_DEF"/>
+      </module>
 
       <!-- Checks for common coding problems -->
       <module name="EmptyStatement"/>
@@ -71,7 +73,7 @@ under the License.
       <module name="RightCurly"/>
       <module name="RightCurly">
          <property name="option" value="alone"/>
-         <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT"/>
+         <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
       </module>
       <!-- Checks that there is no whitespace after certain tokens; e.g. "." and "!". -->
       <module name="NoWhitespaceAfter"/>
