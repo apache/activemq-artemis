@@ -94,7 +94,7 @@ public abstract class SessionContext {
    }
 
    protected void handleReceiveMessage(ConsumerContext consumerID,
-                                       final ClientMessageInternal message) throws Exception {
+                                       ClientMessageInternal message) throws Exception {
 
       ClientSessionInternal session = this.session;
       if (session != null) {
@@ -102,7 +102,7 @@ public abstract class SessionContext {
       }
    }
 
-   protected void handleReceiveContinuation(final ConsumerContext consumerID,
+   protected void handleReceiveContinuation(ConsumerContext consumerID,
                                             byte[] chunk,
                                             int flowControlSize,
                                             boolean isContinues) throws Exception {
@@ -159,7 +159,7 @@ public abstract class SessionContext {
                                                    byte[] chunk,
                                                    SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
-   public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
+   public abstract void setSendAcknowledgementHandler(SendAcknowledgementHandler handler);
 
    /**
     * Creates a shared queue using the routing type set by the Address.  If the Address supports more than one type of delivery
@@ -210,7 +210,7 @@ public abstract class SessionContext {
 
    public abstract void forceDelivery(ClientConsumer consumer, long sequence) throws ActiveMQException;
 
-   public abstract ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException;
+   public abstract ClientSession.AddressQuery addressQuery(SimpleString address) throws ActiveMQException;
 
    public abstract void simpleCommit() throws ActiveMQException;
 
@@ -231,10 +231,10 @@ public abstract class SessionContext {
 
    public abstract void sendACK(boolean individual,
                                 boolean block,
-                                final ClientConsumer consumer,
-                                final Message message) throws ActiveMQException;
+                                ClientConsumer consumer,
+                                Message message) throws ActiveMQException;
 
-   public abstract void expireMessage(final ClientConsumer consumer, Message message) throws ActiveMQException;
+   public abstract void expireMessage(ClientConsumer consumer, Message message) throws ActiveMQException;
 
    public abstract void sessionClose() throws ActiveMQException;
 
@@ -242,7 +242,7 @@ public abstract class SessionContext {
 
    public abstract void addUniqueMetaData(String key, String data) throws ActiveMQException;
 
-   public abstract void sendProducerCreditsMessage(final int credits, final SimpleString address);
+   public abstract void sendProducerCreditsMessage(int credits, SimpleString address);
 
    public abstract void xaCommit(Xid xid, boolean onePhase) throws XAException, ActiveMQException;
 
@@ -278,13 +278,13 @@ public abstract class SessionContext {
 
    public abstract int getServerVersion();
 
-   public abstract void recreateSession(final String username,
-                                        final String password,
-                                        final int minLargeMessageSize,
-                                        final boolean xa,
-                                        final boolean autoCommitSends,
-                                        final boolean autoCommitAcks,
-                                        final boolean preAcknowledge) throws ActiveMQException;
+   public abstract void recreateSession(String username,
+                                        String password,
+                                        int minLargeMessageSize,
+                                        boolean xa,
+                                        boolean autoCommitSends,
+                                        boolean autoCommitAcks,
+                                        boolean preAcknowledge) throws ActiveMQException;
 
    public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException;
 

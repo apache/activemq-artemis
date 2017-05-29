@@ -154,7 +154,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     * @param certs The distinguished name.
     * @return The unique name if the certificate is recognized, null otherwise.
     */
-   protected abstract String getUserNameForCertificates(final X509Certificate[] certs) throws LoginException;
+   protected abstract String getUserNameForCertificates(X509Certificate[] certs) throws LoginException;
 
    /**
     * Should return a set of the roles this user belongs to. The roles
@@ -164,7 +164,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     *                 getUserNameForDn returned for the user's DN.
     * @return A Set of the names of the roles this user belongs to.
     */
-   protected abstract Set<String> getUserRoles(final String username) throws LoginException;
+   protected abstract Set<String> getUserRoles(String username) throws LoginException;
 
    protected String getDistinguishedName(final X509Certificate[] certs) {
       if (certs != null && certs.length > 0 && certs[0] != null) {

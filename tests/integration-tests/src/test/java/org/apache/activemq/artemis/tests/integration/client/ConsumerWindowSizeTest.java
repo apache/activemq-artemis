@@ -1354,7 +1354,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             foundB = consB.getBufferSize() == numberOfMessages / 2;
 
             Thread.sleep(10);
-         } while ((!foundA || !foundB) && System.currentTimeMillis() < timeout);
+         }
+         while ((!foundA || !foundB) && System.currentTimeMillis() < timeout);
 
          Assert.assertTrue("ConsumerA didn't receive the expected number of messages on buffer (consA=" + consA.getBufferSize() +
                               ", consB=" +

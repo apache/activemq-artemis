@@ -26,12 +26,12 @@ public interface TopologyResponseHandler {
    void nodeDisconnected(RemotingConnection conn, String nodeID, String scaleDownTargetNodeID);
 
    void notifyNodeUp(long uniqueEventID,
-                     final String backupGroupName,
-                     final String scaleDownGroupName,
-                     final String nodeName,
-                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
-                     final boolean isLast);
+                     String backupGroupName,
+                     String scaleDownGroupName,
+                     String nodeName,
+                     Pair<TransportConfiguration, TransportConfiguration> connectorPair,
+                     boolean isLast);
 
    // This is sent when any node on the cluster topology is going down
-   void notifyNodeDown(final long eventTime, final String nodeID);
+   void notifyNodeDown(long eventTime, String nodeID);
 }

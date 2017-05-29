@@ -93,9 +93,9 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     */
    boolean page(Message message, Transaction tx, RouteContextList listCtx, ReadLock readLock) throws Exception;
 
-   Page createPage(final int page) throws Exception;
+   Page createPage(int page) throws Exception;
 
-   boolean checkPageFileExists(final int page) throws Exception;
+   boolean checkPageFileExists(int page) throws Exception;
 
    PagingManager getPagingManager();
 

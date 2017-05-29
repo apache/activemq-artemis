@@ -60,11 +60,11 @@ public interface JMSServerManager extends ActiveMQComponent {
                        boolean durable,
                        String... bindings) throws Exception;
 
-   boolean addTopicToBindingRegistry(final String topicName, final String binding) throws Exception;
+   boolean addTopicToBindingRegistry(String topicName, String binding) throws Exception;
 
-   boolean addQueueToBindingRegistry(final String queueName, final String binding) throws Exception;
+   boolean addQueueToBindingRegistry(String queueName, String binding) throws Exception;
 
-   boolean addConnectionFactoryToBindingRegistry(final String name, final String binding) throws Exception;
+   boolean addConnectionFactoryToBindingRegistry(String name, String binding) throws Exception;
 
    /**
     * Creates a JMS Topic
@@ -306,7 +306,7 @@ public interface JMSServerManager extends ActiveMQComponent {
 
    void addSecurity(String addressMatch, Set<Role> roles);
 
-   Set<Role> getSecurity(final String addressMatch);
+   Set<Role> getSecurity(String addressMatch);
 
    BindingRegistry getRegistry();
 

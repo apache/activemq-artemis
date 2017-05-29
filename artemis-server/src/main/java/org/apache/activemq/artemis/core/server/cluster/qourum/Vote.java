@@ -31,9 +31,9 @@ public abstract class Vote<T> {
       return map;
    }
 
-   public abstract void encode(final ActiveMQBuffer buff);
+   public abstract void encode(ActiveMQBuffer buff);
 
-   public abstract void decode(final ActiveMQBuffer buff);
+   public abstract void decode(ActiveMQBuffer buff);
 
    //whether or note we should ask the target server for an answer or decide ourselves, for instance if we couldn't
    //connect to the node in the first place.

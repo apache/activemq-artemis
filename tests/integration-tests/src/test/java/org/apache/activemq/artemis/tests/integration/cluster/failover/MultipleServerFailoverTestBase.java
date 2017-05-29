@@ -239,7 +239,8 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < timeout);
+      }
+      while (System.currentTimeMillis() - start < timeout);
 
       throw new Exception();
    }

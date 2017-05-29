@@ -457,7 +457,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
             }
 
             pos += numberOfBytesRead;
-         } while (pos < minLargeMessageSize);
+         }
+         while (pos < minLargeMessageSize);
 
          totalSize += pos;
 

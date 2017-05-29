@@ -136,7 +136,8 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
             runnable.checkFail();
 
-         } while (!failer.isExecuted());
+         }
+         while (!failer.isExecuted());
 
          InVMConnector.resetFailures();
 
@@ -189,7 +190,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
          }
       }
 
-      public abstract void run(final ClientSessionFactory sf, final int threadNum) throws Exception;
+      public abstract void run(ClientSessionFactory sf, int threadNum) throws Exception;
    }
 
    private class Failer extends TimerTask {

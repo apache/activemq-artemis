@@ -44,7 +44,7 @@ public interface ProtocolManager<P extends BaseInterceptor> {
 
    ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection);
 
-   void removeHandler(final String name);
+   void removeHandler(String name);
 
    void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer);
 

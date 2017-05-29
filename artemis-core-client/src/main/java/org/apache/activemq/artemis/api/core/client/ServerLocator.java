@@ -74,7 +74,7 @@ public interface ServerLocator extends AutoCloseable {
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
-   ClientSessionFactory createSessionFactory(final String nodeID) throws Exception;
+   ClientSessionFactory createSessionFactory(String nodeID) throws Exception;
 
    /**
     * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
@@ -86,7 +86,7 @@ public interface ServerLocator extends AutoCloseable {
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
-   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration) throws Exception;
+   ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration) throws Exception;
 
    /**
     * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
@@ -100,7 +100,7 @@ public interface ServerLocator extends AutoCloseable {
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
-   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
+   ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration,
                                              int reconnectAttempts,
                                              boolean failoverOnInitialConnection) throws Exception;
 

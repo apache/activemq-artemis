@@ -163,7 +163,8 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
          } finally {
             server.getStorageManager().clearContext();
          }
-      } while (conn.hasBytes());
+      }
+      while (conn.hasBytes());
    }
 
    @Override

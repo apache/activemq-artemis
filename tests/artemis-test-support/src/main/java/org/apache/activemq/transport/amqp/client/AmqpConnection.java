@@ -571,7 +571,8 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                buffer.put(duplicate);
                protonTransport.processInput();
                source.position(source.position() + limit);
-            } while (source.hasRemaining());
+            }
+            while (source.hasRemaining());
 
             ReferenceCountUtil.release(incoming);
 

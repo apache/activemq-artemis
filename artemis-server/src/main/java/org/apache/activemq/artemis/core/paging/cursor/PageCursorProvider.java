@@ -31,7 +31,7 @@ public interface PageCursorProvider {
 
    PageCache getPageCache(long pageNr);
 
-   PagedReference newReference(final PagePosition pos, final PagedMessage msg, PageSubscription sub);
+   PagedReference newReference(PagePosition pos, PagedMessage msg, PageSubscription sub);
 
    void addPageCache(PageCache cache);
 
