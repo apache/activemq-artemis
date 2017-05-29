@@ -271,7 +271,7 @@ public interface ActiveMQJournalLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 144006, value = "IOError code {0}, {1}", format = Message.Format.MESSAGE_FORMAT)
-   void ioError(final int errorCode, final String errorMessage);
+   void ioError(int errorCode, String errorMessage);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 144007, value = "Ignoring journal file {0}: file is shorter then minimum header size. This file is being removed.", format = Message.Format.MESSAGE_FORMAT)

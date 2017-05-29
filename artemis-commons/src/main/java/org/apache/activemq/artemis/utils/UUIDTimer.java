@@ -293,6 +293,7 @@ public class UUIDTimer {
          if (++counter > UUIDTimer.MAX_WAIT_COUNT) {
             break;
          }
-      } while (System.currentTimeMillis() < waitUntil);
+      }
+      while (System.currentTimeMillis() < waitUntil);
    }
 }

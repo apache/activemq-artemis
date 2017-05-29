@@ -33,7 +33,7 @@ public interface ClientSessionInternal extends ClientSession {
 
    void acknowledge(ClientConsumer consumer, Message message) throws ActiveMQException;
 
-   void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException;
+   void individualAcknowledge(ClientConsumer consumer, Message message) throws ActiveMQException;
 
    boolean isCacheLargeMessageClient();
 

@@ -324,7 +324,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             inCreateSession = false;
             inCreateSessionLatch.countDown();
          }
-      } while (retry);
+      }
+      while (retry);
       return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
 
    }

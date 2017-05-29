@@ -296,14 +296,14 @@ public interface ActiveMQServer extends ServiceComponent {
     * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
     * @throws NullPointerException                                                           if {@code address} is {@code null}
     */
-   void createSharedQueue(final SimpleString address, final RoutingType routingType, final SimpleString name, final SimpleString filterString,
-                          final SimpleString user, boolean durable) throws Exception;
+   void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString name, SimpleString filterString,
+                          SimpleString user, boolean durable) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      boolean durable, boolean temporary) throws Exception;
 
-   Queue createQueue(final SimpleString address, final RoutingType routingType, final SimpleString queueName, final SimpleString user,
-                               final SimpleString filterString,  final boolean durable, final boolean temporary) throws Exception;
+   Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString user,
+                               SimpleString filterString,  boolean durable, boolean temporary) throws Exception;
 
    Queue createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
                      boolean durable, boolean temporary, int maxConsumers, boolean purgeOnNoConsumers,

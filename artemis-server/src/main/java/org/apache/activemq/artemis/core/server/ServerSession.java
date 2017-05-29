@@ -60,7 +60,7 @@ public interface ServerSession extends SecurityAuth {
 
    void individualAcknowledge(long consumerID, long messageID) throws Exception;
 
-   void individualCancel(final long consumerID, final long messageID, boolean failed) throws Exception;
+   void individualCancel(long consumerID, long messageID, boolean failed) throws Exception;
 
    void expire(long consumerID, long messageID) throws Exception;
 
@@ -149,13 +149,13 @@ public interface ServerSession extends SecurityAuth {
                      boolean durable,
                      boolean autoCreated) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address,
+   AddressInfo createAddress(SimpleString address,
                              Set<RoutingType> routingTypes,
-                             final boolean autoCreated) throws Exception;
+                             boolean autoCreated) throws Exception;
 
-   AddressInfo createAddress(final SimpleString address,
+   AddressInfo createAddress(SimpleString address,
                              RoutingType routingType,
-                             final boolean autoCreated) throws Exception;
+                             boolean autoCreated) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
 
@@ -164,12 +164,12 @@ public interface ServerSession extends SecurityAuth {
                                  SimpleString filterString,
                                  boolean browseOnly) throws Exception;
 
-   ServerConsumer createConsumer(final long consumerID,
-                                 final SimpleString queueName,
-                                 final SimpleString filterString,
-                                 final boolean browseOnly,
-                                 final boolean supportLargeMessage,
-                                 final Integer credits) throws Exception;
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 boolean browseOnly,
+                                 boolean supportLargeMessage,
+                                 Integer credits) throws Exception;
 
    QueueQueryResult executeQueueQuery(SimpleString name) throws Exception;
 
@@ -186,11 +186,11 @@ public interface ServerSession extends SecurityAuth {
                       boolean direct,
                       boolean noAutoCreateQueue) throws Exception;
 
-   RoutingStatus doSend(final Transaction tx,
-                        final Message msg,
-                        final SimpleString originalAddress,
-                        final boolean direct,
-                        final boolean noAutoCreateQueue) throws Exception;
+   RoutingStatus doSend(Transaction tx,
+                        Message msg,
+                        SimpleString originalAddress,
+                        boolean direct,
+                        boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus send(Message message, boolean direct, boolean noAutoCreateQueue) throws Exception;
 
@@ -239,7 +239,7 @@ public interface ServerSession extends SecurityAuth {
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,
-                          final RoutingType routingType,
+                          RoutingType routingType,
                           boolean durable,
                           SimpleString filterString) throws Exception;
 

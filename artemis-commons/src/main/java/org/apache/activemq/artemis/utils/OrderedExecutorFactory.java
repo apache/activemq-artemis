@@ -115,7 +115,8 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
                //we loop again based on tasks not being empty. Otherwise there is a window where the state is running,
                //but poll() has returned null, so a submitting thread will believe that it does not need re-execute.
                //this check fixes the issue
-            } while (!tasks.isEmpty());
+            }
+            while (!tasks.isEmpty());
          }
       }
 

@@ -606,7 +606,8 @@ public abstract class ActiveMQTestBase extends Assert {
                break;
             }
          }
-      } while (i++ <= 200 && hasValue);
+      }
+      while (i++ <= 200 && hasValue);
 
       for (WeakReference<?> ref : references) {
          Assert.assertNull(ref.get());
@@ -1144,7 +1145,8 @@ public abstract class ActiveMQTestBase extends Assert {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < timeout);
+      }
+      while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for cluster topology of live=" + liveNodes + ",backup=" + backupNodes +
          " (received live=" + liveNodesCount + ", backup=" + backupNodesCount +
@@ -1175,7 +1177,8 @@ public abstract class ActiveMQTestBase extends Assert {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < timeout);
+      }
+      while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for cluster topology of " + nodes +
          " (received " +
@@ -1878,7 +1881,8 @@ public abstract class ActiveMQTestBase extends Assert {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < timeout);
+      }
+      while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for bindings (bindingCount = " + bindingCount +
          " (expecting " +

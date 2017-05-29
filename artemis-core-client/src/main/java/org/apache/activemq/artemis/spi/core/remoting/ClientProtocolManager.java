@@ -58,13 +58,13 @@ public interface ClientProtocolManager {
 
    void ping(long connectionTTL);
 
-   SessionContext createSessionContext(final String name,
-                                       final String username,
-                                       final String password,
-                                       final boolean xa,
-                                       final boolean autoCommitSends,
-                                       final boolean autoCommitAcks,
-                                       final boolean preAcknowledge,
+   SessionContext createSessionContext(String name,
+                                       String username,
+                                       String password,
+                                       boolean xa,
+                                       boolean autoCommitSends,
+                                       boolean autoCommitAcks,
+                                       boolean preAcknowledge,
                                        int minLargeMessageSize,
                                        int confirmationWindowSize) throws ActiveMQException;
 

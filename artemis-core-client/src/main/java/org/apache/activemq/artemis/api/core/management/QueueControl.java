@@ -363,7 +363,7 @@ public interface QueueControl {
     */
    @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
    String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
-                      @Parameter(name = "type", desc = "A type for the message") final int type,
+                      @Parameter(name = "type", desc = "A type for the message") int type,
                       @Parameter(name = "body", desc = "The body (byte[]) of the message encoded as a string using Base64") String body,
                       @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
                       @Parameter(name = "user", desc = "The user to authenticate with") String user,

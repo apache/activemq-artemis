@@ -98,12 +98,12 @@ public interface Journal extends ActiveMQComponent {
       appendUpdateRecord(id, recordType, EncoderPersister.getInstance(), record, sync, completionCallback);
    }
 
-   void appendUpdateRecord(final long id,
-                           final byte recordType,
-                           final Persister persister,
-                           final Object record,
-                           final boolean sync,
-                           final IOCompletion callback) throws Exception;
+   void appendUpdateRecord(long id,
+                           byte recordType,
+                           Persister persister,
+                           Object record,
+                           boolean sync,
+                           IOCompletion callback) throws Exception;
 
    void appendDeleteRecord(long id, boolean sync) throws Exception;
 
@@ -117,11 +117,11 @@ public interface Journal extends ActiveMQComponent {
       appendAddRecordTransactional(txID, id, recordType, EncoderPersister.getInstance(), record);
    }
 
-   void appendAddRecordTransactional(final long txID,
-                                     final long id,
-                                     final byte recordType,
-                                     final Persister persister,
-                                     final Object record) throws Exception;
+   void appendAddRecordTransactional(long txID,
+                                     long id,
+                                     byte recordType,
+                                     Persister persister,
+                                     Object record) throws Exception;
 
    void appendUpdateRecordTransactional(long txID, long id, byte recordType, byte[] record) throws Exception;
 

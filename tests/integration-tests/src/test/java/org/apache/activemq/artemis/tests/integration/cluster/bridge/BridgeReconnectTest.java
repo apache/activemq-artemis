@@ -710,7 +710,8 @@ public class BridgeReconnectTest extends BridgeTestBase {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < 50000);
+      }
+      while (System.currentTimeMillis() - start < 50000);
 
       throw new IllegalStateException("Failed to get forwarding connection");
    }
