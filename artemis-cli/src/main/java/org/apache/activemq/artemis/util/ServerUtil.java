@@ -93,8 +93,7 @@ public class ServerUtil {
          try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
             cf.createConnection().close();
             System.out.println("server " + uri + " started");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             System.out.println("awaiting server " + uri + " start at ");
             Thread.sleep(500);
             continue;
