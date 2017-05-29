@@ -687,7 +687,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                                    boolean autoCommitSends,
                                                    boolean autoCommitAcks,
                                                    boolean preAcknowledge) {
-      return new CreateSessionMessage(name, sessionChannel.getID(), VersionLoader.getVersion().getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
+      return new CreateSessionMessage(name, sessionChannel.getID(), serverVersion, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, null);
    }
 
    @Override
