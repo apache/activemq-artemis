@@ -45,10 +45,10 @@ public interface PageTransactionInfo extends EncodingSupport {
 
    void storeUpdate(StorageManager storageManager, PagingManager pagingManager, Transaction tx) throws Exception;
 
-   void reloadUpdate(final StorageManager storageManager,
-                     final PagingManager pagingManager,
-                     final Transaction tx,
-                     final int increment) throws Exception;
+   void reloadUpdate(StorageManager storageManager,
+                     PagingManager pagingManager,
+                     Transaction tx,
+                     int increment) throws Exception;
 
    // To be used after the update was stored or reload
    void onUpdate(int update, StorageManager storageManager, PagingManager pagingManager);

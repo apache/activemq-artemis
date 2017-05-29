@@ -28,12 +28,12 @@ public interface JMSServerConfigParser {
    /**
     * Parse the JMS Configuration XML as a JMSConfiguration object
     */
-   JMSConfiguration parseConfiguration(final InputStream stream) throws Exception;
+   JMSConfiguration parseConfiguration(InputStream stream) throws Exception;
 
    /**
     * Parse the JMS Configuration XML as a JMSConfiguration object
     */
-   JMSConfiguration parseConfiguration(final Node rootnode) throws Exception;
+   JMSConfiguration parseConfiguration(Node rootnode) throws Exception;
 
    /**
     * Parse the topic node as a TopicConfiguration object
@@ -42,7 +42,7 @@ public interface JMSServerConfigParser {
     * @return {@link TopicConfiguration} parsed from the node
     * @throws Exception
     */
-   TopicConfiguration parseTopicConfiguration(final Node node) throws Exception;
+   TopicConfiguration parseTopicConfiguration(Node node) throws Exception;
 
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
@@ -51,5 +51,5 @@ public interface JMSServerConfigParser {
     * @return {@link JMSQueueConfiguration} parsed from the node
     * @throws Exception
     */
-   JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception;
+   JMSQueueConfiguration parseQueueConfiguration(Node node) throws Exception;
 }

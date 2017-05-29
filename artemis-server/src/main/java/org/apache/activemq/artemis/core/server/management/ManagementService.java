@@ -68,29 +68,29 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void setStorageManager(StorageManager storageManager);
 
-   ActiveMQServerControlImpl registerServer(final PostOffice postOffice,
-                                            final SecurityStore securityStore,
-                                            final StorageManager storageManager,
-                                            final Configuration configuration,
-                                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                            final HierarchicalRepository<Set<Role>> securityRepository,
-                                            final ResourceManager resourceManager,
-                                            final RemotingService remotingService,
-                                            final ActiveMQServer messagingServer,
-                                            final QueueFactory queueFactory,
-                                            final ScheduledExecutorService scheduledThreadPool,
-                                            final PagingManager pagingManager,
-                                            final boolean backup) throws Exception;
+   ActiveMQServerControlImpl registerServer(PostOffice postOffice,
+                                            SecurityStore securityStore,
+                                            StorageManager storageManager,
+                                            Configuration configuration,
+                                            HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                            HierarchicalRepository<Set<Role>> securityRepository,
+                                            ResourceManager resourceManager,
+                                            RemotingService remotingService,
+                                            ActiveMQServer messagingServer,
+                                            QueueFactory queueFactory,
+                                            ScheduledExecutorService scheduledThreadPool,
+                                            PagingManager pagingManager,
+                                            boolean backup) throws Exception;
 
    void unregisterServer() throws Exception;
 
    void registerInJMX(ObjectName objectName, Object managedResource) throws Exception;
 
-   void unregisterFromJMX(final ObjectName objectName) throws Exception;
+   void unregisterFromJMX(ObjectName objectName) throws Exception;
 
    void registerInRegistry(String resourceName, Object managedResource);
 
-   void unregisterFromRegistry(final String resourceName);
+   void unregisterFromRegistry(String resourceName);
 
    void registerAddress(AddressInfo addressInfo) throws Exception;
 

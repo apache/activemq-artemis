@@ -144,7 +144,8 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
                   return;
                // otherwise ignore, we'll just try again
             }
-         } while (responseHolder == null);
+         }
+         while (responseHolder == null);
          if (!bogusResponse) {
             piggyBackResponses(responseHolder.response.content());
             responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
@@ -175,7 +176,8 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
                } catch (InterruptedException e) {
                   break;
                }
-            } while (responses.isEmpty());
+            }
+            while (responses.isEmpty());
             return;
          }
          buf.writeBytes(buffer);

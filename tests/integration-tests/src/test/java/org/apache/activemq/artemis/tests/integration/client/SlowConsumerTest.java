@@ -306,7 +306,8 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             m.acknowledge();
             messagesConsumed++;
          }
-      } while (m != null);
+      }
+      while (m != null);
 
       assertEquals(messagesProduced.longValue(), messagesConsumed);
    }

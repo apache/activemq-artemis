@@ -45,7 +45,7 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
 
    int numSessions();
 
-   void removeSession(final ClientSessionInternal session, boolean failingOver);
+   void removeSession(ClientSessionInternal session, boolean failingOver);
 
    void connect(int reconnectAttempts, boolean failoverOnInitialConnection) throws ActiveMQException;
 

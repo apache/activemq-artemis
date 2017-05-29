@@ -92,9 +92,9 @@ public interface ServerConsumer extends Consumer {
 
    void individualAcknowledge(Transaction tx, long messageID) throws Exception;
 
-   void reject(final long messageID) throws Exception;
+   void reject(long messageID) throws Exception;
 
-   void individualCancel(final long messageID, boolean failed) throws Exception;
+   void individualCancel(long messageID, boolean failed) throws Exception;
 
    void forceDelivery(long sequence);
 

@@ -29,7 +29,7 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    void start(Executor executor) throws Exception;
 
-   void factoryClosed(final ClientSessionFactory factory);
+   void factoryClosed(ClientSessionFactory factory);
 
    AfterConnectInternalListener getAfterConnectInternalListener();
 

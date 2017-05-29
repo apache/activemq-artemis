@@ -311,7 +311,7 @@ public interface Configuration {
     */
    Configuration setAcceptorConfigurations(Set<TransportConfiguration> infos);
 
-   Configuration addAcceptorConfiguration(final TransportConfiguration infos);
+   Configuration addAcceptorConfiguration(TransportConfiguration infos);
 
    /**
     * Add an acceptor to the config
@@ -335,9 +335,9 @@ public interface Configuration {
     */
    Configuration setConnectorConfigurations(Map<String, TransportConfiguration> infos);
 
-   Configuration addConnectorConfiguration(final String key, final TransportConfiguration info);
+   Configuration addConnectorConfiguration(String key, TransportConfiguration info);
 
-   Configuration addConnectorConfiguration(final String name, final String uri) throws Exception;
+   Configuration addConnectorConfiguration(String name, String uri) throws Exception;
 
    Configuration clearConnectorConfigurations();
 
@@ -351,7 +351,7 @@ public interface Configuration {
     */
    Configuration setBroadcastGroupConfigurations(List<BroadcastGroupConfiguration> configs);
 
-   Configuration addBroadcastGroupConfiguration(final BroadcastGroupConfiguration config);
+   Configuration addBroadcastGroupConfiguration(BroadcastGroupConfiguration config);
 
    /**
     * Returns the discovery groups configured for this server.
@@ -363,7 +363,7 @@ public interface Configuration {
     */
    Configuration setDiscoveryGroupConfigurations(Map<String, DiscoveryGroupConfiguration> configs);
 
-   Configuration addDiscoveryGroupConfiguration(final String key,
+   Configuration addDiscoveryGroupConfiguration(String key,
                                                 DiscoveryGroupConfiguration discoveryGroupConfiguration);
 
    /**
@@ -384,7 +384,7 @@ public interface Configuration {
    /**
     * Sets the bridges configured for this server.
     */
-   Configuration setBridgeConfigurations(final List<BridgeConfiguration> configs);
+   Configuration setBridgeConfigurations(List<BridgeConfiguration> configs);
 
    /**
     * Returns the diverts configured for this server.
@@ -394,9 +394,9 @@ public interface Configuration {
    /**
     * Sets the diverts configured for this server.
     */
-   Configuration setDivertConfigurations(final List<DivertConfiguration> configs);
+   Configuration setDivertConfigurations(List<DivertConfiguration> configs);
 
-   Configuration addDivertConfiguration(final DivertConfiguration config);
+   Configuration addDivertConfiguration(DivertConfiguration config);
 
    /**
     * Returns the cluster connections configured for this server.
@@ -409,9 +409,9 @@ public interface Configuration {
    /**
     * Sets the cluster connections configured for this server.
     */
-   Configuration setClusterConfigurations(final List<ClusterConnectionConfiguration> configs);
+   Configuration setClusterConfigurations(List<ClusterConnectionConfiguration> configs);
 
-   Configuration addClusterConfiguration(final ClusterConnectionConfiguration config);
+   Configuration addClusterConfiguration(ClusterConnectionConfiguration config);
 
    ClusterConnectionConfiguration addClusterConfiguration(String name, String uri) throws Exception;
 
@@ -425,9 +425,9 @@ public interface Configuration {
    /**
     * Sets the queues configured for this server.
     */
-   Configuration setQueueConfigurations(final List<CoreQueueConfiguration> configs);
+   Configuration setQueueConfigurations(List<CoreQueueConfiguration> configs);
 
-   Configuration addQueueConfiguration(final CoreQueueConfiguration config);
+   Configuration addQueueConfiguration(CoreQueueConfiguration config);
 
    /**
     * Returns the addresses configured for this server.
@@ -437,12 +437,12 @@ public interface Configuration {
    /**
     * Sets the addresses configured for this server.
     */
-   Configuration setAddressConfigurations(final List<CoreAddressConfiguration> configs);
+   Configuration setAddressConfigurations(List<CoreAddressConfiguration> configs);
 
    /**
     * Adds an addresses configuration
     */
-   Configuration addAddressConfiguration(final CoreAddressConfiguration config);
+   Configuration addAddressConfiguration(CoreAddressConfiguration config);
 
    /**
     * Returns the management address of this server. <br>
@@ -938,9 +938,9 @@ public interface Configuration {
 
    Configuration addConnectorServiceConfiguration(ConnectorServiceConfiguration config);
 
-   Configuration setSecuritySettingPlugins(final List<SecuritySettingPlugin> plugins);
+   Configuration setSecuritySettingPlugins(List<SecuritySettingPlugin> plugins);
 
-   Configuration addSecuritySettingPlugin(final SecuritySettingPlugin plugin);
+   Configuration addSecuritySettingPlugin(SecuritySettingPlugin plugin);
 
    /**
     * @return list of {@link ConnectorServiceConfiguration}

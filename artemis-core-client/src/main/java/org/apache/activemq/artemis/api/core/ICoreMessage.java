@@ -63,7 +63,7 @@ public interface ICoreMessage extends Message {
 
 
    /** Used on large messages treatment */
-   void copyHeadersAndProperties(final Message msg);
+   void copyHeadersAndProperties(Message msg);
 
    /**
     * @return Returns the message in Map form, useful when encoding to JSON

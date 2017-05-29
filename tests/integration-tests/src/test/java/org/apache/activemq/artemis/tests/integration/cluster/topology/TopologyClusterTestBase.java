@@ -135,7 +135,8 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
          if (ok) {
             return;
          }
-      } while (System.currentTimeMillis() - start < 5000);
+      }
+      while (System.currentTimeMillis() - start < 5000);
       Assert.fail("did not contain all expected node ID: " + actual);
    }
 
@@ -191,7 +192,8 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
+      }
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       log.error(clusterDescription(servers[node]));
       Assert.assertEquals("Timed out waiting for cluster connections for server " + node, expected, nodesCount);

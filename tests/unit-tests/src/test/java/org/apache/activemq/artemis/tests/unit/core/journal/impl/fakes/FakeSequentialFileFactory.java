@@ -221,7 +221,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
     */
    public interface ListenerHoldCallback {
 
-      void callbackAdded(final ByteBuffer bytes);
+      void callbackAdded(ByteBuffer bytes);
    }
 
    private class CallbackRunnable implements Runnable {

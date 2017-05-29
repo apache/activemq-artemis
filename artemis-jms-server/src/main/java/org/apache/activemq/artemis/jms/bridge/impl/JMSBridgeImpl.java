@@ -1314,7 +1314,8 @@ public final class JMSBridgeImpl implements JMSBridge {
                ActiveMQJMSBridgeLogger.LOGGER.warn(e.getMessage() + ", retrying TX", e);
                exHappened = true;
             }
-         } while (exHappened);
+         }
+         while (exHappened);
 
          if (maxBatchSize > 1) {
             // The sending session is transacted - we need to commit it
