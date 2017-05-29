@@ -6,7 +6,7 @@ An address represents a messaging endpoint. Within the configuration, a typical 
 
 A queue is associated with an address. There can be multiple queues per address. Once an incoming message is matched to an address, the message will be sent on to one or more of its queues, depending on the routing type configured. Queues can be configured to be automatically created and deleted.
 
-A routing type determines how messages are sent to the queues associated with an address. A Apache ActiveMQ Artemis address can be configured with two different routing types.
+A routing type determines how messages are sent to the queues associated with an address. An Apache ActiveMQ Artemis address can be configured with two different routing types.
 
 Table 1. Routing Types
 
@@ -79,9 +79,9 @@ Add an address configuration element with multicast routing type.
 </configuration>
 ```
 
-When clients connect to an address with the multicast element, a subscription queue for the client will be automatically created for the client.  It is also possible to pre-configure subscription queues and connect to them directly using the queue's [Fully Qualified Queue names](#fully-qualified-queue-names).
+When clients connect to an address with the multicast element, a subscription queue for the client will be automatically created for the client. It is also possible to pre-configure subscription queues and connect to them directly using the queue's [Fully Qualified Queue names](#fully-qualified-queue-names).
 
-Add one more queue elements to the address and wrap the multicast element around them. This step is typically not needed since the broker will automatically create a queue for each subscription requested by a client.
+Optionally add one or more queue elements to the address and wrap the multicast element around them. This step is typically not needed since the broker will automatically create a queue for each subscription requested by a client.
 
 ```xml
 <configuration ...>
@@ -101,15 +101,14 @@ Figure 3. Point-to-Point with Two Queues
 
 ### Point-to-Point Address multiple Queues
 
-It is actually possible to define more than one queue on an address with an anycast routing type. When messages are received on such an address, they are firstly distributed evenly across all the defined queues. Using [Fully Qualified Queue names](#fully-qualified-queue-names)., clients are able to select the queue that they’d like to subscribe to. Should more than one consumer connect direct to a single queue, Apache ActiveMQ Artemis will take care of distributing messages between them, as in the example above.
+It is actually possible to define more than one queue on an address with an anycast routing type. When messages are received on such an address, they are firstly distributed evenly across all the defined queues. Using [Fully Qualified Queue names](#fully-qualified-queue-names), clients are able to select the queue that they would like to subscribe to. Should more than one consumer connect direct to a single queue, Apache ActiveMQ Artemis will take care of distributing messages between them, as in the example above.
 
 ![Point to Point](images/addressing-model-p2p2.png)
 Figure 3. Point-to-Point with Two Queues
 
 --------------------------------------------------------------------------------------------
 **Note:** This is how Apache ActiveMQ Artemis handles load balancing of queues across multiple nodes in a cluster.
-Configuring a Point-to-Point Address with Two Queues
-Open the file <broker-instance>/etc/broker.xml for editing.
+Configuring a Point-to-Point Address with two queues, open the file <broker-instance>/etc/broker.xml for editing.
 
 Add an address configuration with Anycast routing type element and its associated queues.
 
@@ -131,7 +130,7 @@ Add an address configuration with Anycast routing type element and its associate
 
 It is possible to define an address with both point-to-point and publish-subscribe semantics enabled. While not typically recommend, this can be useful when you want, for example, a JMS Queue say orders and a JMS Topic named orders. The different routing types make the addresses appear to be distinct.
 
-Using an example of JMS Clients, the messages sent by a JMS queue producer will be routed using the anycast routing type. Messages sent by a JMS topic producer will use the multicast routing type. In addition when a JMS topic consumer attaches it will be attached to it’s own subscription queue. JMS queue consumer will be attached to the anycast queue.
+Using an example of JMS Clients, the messages sent by a JMS queue producer will be routed using the anycast routing type. Messages sent by a JMS topic producer will use the multicast routing type. In addition when a JMS topic consumer attaches, it will be attached to it’s own subscription queue. JMS queue consumer will be attached to the anycast queue.
 
 ![Point to Point](images/addressing-model-p2p-pubsub.png)
 Figure 4. [Point-to-Point and Publish-Subscribe
@@ -139,7 +138,7 @@ Figure 4. [Point-to-Point and Publish-Subscribe
 --------------------------------------------------------------------------------------------
 **Note:** The behavior in this scenario is dependent on the protocol being used. For JMS there is a clear distinction between topic and queue producers and consumers, which make the logic straight forward. Other protocols like AMQP do not make this distinction. A message being sent via AMQP will be routed by both anycast and multicast and consumers will default to anycast. For more information, please check the behavior of each protocol in the sections on protocols.
 
-The XML snippet below is an example of what the configuration for an address using both anycast and multicast would look like in <broker-instance>/etc/broker.xml. routing types. Note that subscription queues are typically created on demand, so there is no need to list specific queue elements inside the multicast routing type.
+The XML snippet below is an example of what the configuration for an address using both anycast and multicast would look like in <broker-instance>/etc/broker.xml. Note that subscription queues are typically created on demand, so there is no need to list specific queue elements inside the multicast routing type.
 
 ```xml
 <configuration ...>
