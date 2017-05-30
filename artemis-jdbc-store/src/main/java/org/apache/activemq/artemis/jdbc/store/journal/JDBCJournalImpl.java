@@ -191,7 +191,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          for (JDBCJournalRecord record : recordRef) {
 
             if (logger.isTraceEnabled()) {
-               logger.trace("sync::preparing JDBC statment for " + record);
+               logger.trace("sync::preparing JDBC statement for " + record);
             }
 
 

@@ -1766,7 +1766,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
                      logger.info("Going to commit " + tx);
                      storage.commit(tx);
-                     logger.info("Commited " + tx);
+                     logger.info("Committed " + tx);
 
                      ctx.executeOnCompletion(new IOCallback() {
                         @Override
