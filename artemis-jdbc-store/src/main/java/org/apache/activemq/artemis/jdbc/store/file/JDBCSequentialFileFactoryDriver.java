@@ -163,7 +163,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             if (rs.next()) {
                Blob blob = rs.getBlob(1);
                if (blob != null) {
-                  file.setWritePosition((int) blob.length());
+                  file.setWritePosition(blob.length());
                } else {
                   logger.warn("ERROR NO BLOB FOR FILE" + "File: " + file.getFileName() + " " + file.getId());
                }

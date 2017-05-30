@@ -77,7 +77,7 @@ public class JDBCSequentialFile implements SequentialFile {
       this.dbDriver = driver;
    }
 
-   void setWritePosition(int writePosition) {
+   void setWritePosition(long writePosition) {
       this.writePosition = writePosition;
    }
 
