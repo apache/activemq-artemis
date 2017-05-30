@@ -87,15 +87,15 @@ public interface Queue extends Bindable {
 
    void addHead(MessageReference ref, boolean scheduling);
 
-   void addHead(final List<MessageReference> refs, boolean scheduling);
+   void addHead(List<MessageReference> refs, boolean scheduling);
 
    void acknowledge(MessageReference ref) throws Exception;
 
-   void acknowledge(final MessageReference ref, AckReason reason) throws Exception;
+   void acknowledge(MessageReference ref, AckReason reason) throws Exception;
 
    void acknowledge(Transaction tx, MessageReference ref) throws Exception;
 
-   void acknowledge(final Transaction tx, final MessageReference ref, AckReason reason) throws Exception;
+   void acknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception;
 
    void reacknowledge(Transaction tx, MessageReference ref) throws Exception;
 
@@ -152,7 +152,7 @@ public interface Queue extends Bindable {
 
    int deleteAllReferences() throws Exception;
 
-   int deleteAllReferences(final int flushLimit) throws Exception;
+   int deleteAllReferences(int flushLimit) throws Exception;
 
    boolean deleteReference(long messageID) throws Exception;
 
@@ -175,7 +175,7 @@ public interface Queue extends Bindable {
 
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
 
-   void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception;
+   void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
 
    boolean changeReferencePriority(long messageID, byte newPriority) throws Exception;
 
@@ -187,7 +187,7 @@ public interface Queue extends Bindable {
 
    int moveReferences(Filter filter, SimpleString toAddress) throws Exception;
 
-   int moveReferences(final int flushLimit,
+   int moveReferences(int flushLimit,
                       Filter filter,
                       SimpleString toAddress,
                       boolean rejectDuplicates) throws Exception;

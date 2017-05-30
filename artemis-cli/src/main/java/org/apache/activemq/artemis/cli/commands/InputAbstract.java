@@ -59,7 +59,8 @@ public class InputAbstract extends ActionAbstract {
             case "N":
                booleanValue = Boolean.FALSE; break;
          }
-      } while (booleanValue == null);
+      }
+      while (booleanValue == null);
 
       return booleanValue.booleanValue();
    }
@@ -85,7 +86,8 @@ public class InputAbstract extends ActionAbstract {
          } else {
             valid = true;
          }
-      } while (!valid);
+      }
+      while (!valid);
 
       return inputStr.trim();
    }
@@ -116,7 +118,8 @@ public class InputAbstract extends ActionAbstract {
          } else {
             valid = true;
          }
-      } while (!valid);
+      }
+      while (!valid);
 
       return inputStr.trim();
    }

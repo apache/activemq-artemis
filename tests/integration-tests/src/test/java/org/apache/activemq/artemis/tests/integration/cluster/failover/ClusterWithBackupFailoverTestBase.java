@@ -34,7 +34,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   protected abstract void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception;
+   protected abstract void setupCluster(MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 
    protected abstract void setupServers() throws Exception;
 

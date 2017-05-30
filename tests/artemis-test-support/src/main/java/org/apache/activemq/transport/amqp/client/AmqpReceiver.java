@@ -894,7 +894,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                }
             }
          }
-      } while (incoming != null);
+      }
+      while (incoming != null);
 
       super.processDeliveryUpdates(connection, delivery);
    }

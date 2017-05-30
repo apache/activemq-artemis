@@ -29,14 +29,14 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
  */
 public interface QueueFactory {
 
-   Queue createQueueWith(final QueueConfig config) throws Exception;
+   Queue createQueueWith(QueueConfig config) throws Exception;
 
    /**
     * @deprecated Replaced by {@link #createQueueWith}
     */
    @Deprecated
    Queue createQueue(long persistenceID,
-                     final SimpleString address,
+                     SimpleString address,
                      SimpleString name,
                      Filter filter,
                      PageSubscription pageSubscription,

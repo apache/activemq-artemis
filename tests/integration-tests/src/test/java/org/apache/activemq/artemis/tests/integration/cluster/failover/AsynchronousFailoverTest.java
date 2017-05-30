@@ -253,7 +253,8 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                } catch (ActiveMQException e) {
                   fail("Invalid Exception type:" + e.getType());
                }
-            } while (retry);
+            }
+            while (retry);
          }
 
          // create the consumer with retry if failover occurs during createConsumer call
@@ -272,7 +273,8 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
             } catch (ActiveMQException e) {
                fail("Invalid Exception type:" + e.getType());
             }
-         } while (retry);
+         }
+         while (retry);
 
          session.start();
 
@@ -381,7 +383,8 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   log.info("#test Exception " + e, e);
                   throw e;
                }
-            } while (retry);
+            }
+            while (retry);
 
             logAndSystemOut("#test Finished sending, starting consumption now");
 
@@ -481,7 +484,8 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   logAndSystemOut(e.getMessage(), e);
                   throw e;
                }
-            } while (retry);
+            }
+            while (retry);
          } finally {
             if (session != null) {
                session.close();

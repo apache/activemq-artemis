@@ -419,7 +419,8 @@ public class JMSFailoverTest extends ActiveMQTestBase {
             } catch (JMSException e) {
                new Exception("Exception on receive message", e).printStackTrace();
             }
-         } while (retryNrs < 10);
+         }
+         while (retryNrs < 10);
 
          assertNotNull(message);
 

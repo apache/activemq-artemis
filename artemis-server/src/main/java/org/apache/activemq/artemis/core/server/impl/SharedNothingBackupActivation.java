@@ -293,7 +293,8 @@ public final class SharedNothingBackupActivation extends Activation {
                replicationEndpoint.getChannel().close();
                replicationEndpoint.setChannel(null);
             }
-         } while (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.ALREADY_REPLICATING);
+         }
+         while (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.ALREADY_REPLICATING);
 
          if (logger.isTraceEnabled()) {
             logger.trace("Activation loop finished, current signal = " + signal);

@@ -215,7 +215,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
          do {
             runnable.run(sf);
-         } while (!failer.isExecuted());
+         }
+         while (!failer.isExecuted());
       }
    }
 
@@ -1290,7 +1291,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
    public abstract class RunnableT {
 
-      abstract void run(final ClientSessionFactory sf) throws Exception;
+      abstract void run(ClientSessionFactory sf) throws Exception;
    }
 
    abstract static class AssertionCheckMessageHandler implements MessageHandler {

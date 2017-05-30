@@ -46,13 +46,13 @@ public interface LargeMessageController extends ActiveMQBuffer {
    /**
     * Sets the OutputStream of this buffer to the specified output.
     */
-   void setOutputStream(final OutputStream output) throws ActiveMQException;
+   void setOutputStream(OutputStream output) throws ActiveMQException;
 
    /**
     * Saves this buffer to the specified output. This is just a blocking version of
     * {@link #setOutputStream(OutputStream)}.
     */
-   void saveBuffer(final OutputStream output) throws ActiveMQException;
+   void saveBuffer(OutputStream output) throws ActiveMQException;
 
    void addPacket(byte[] chunk, int flowControlSize, boolean isContinues);
 

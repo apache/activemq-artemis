@@ -91,7 +91,8 @@ public class PageStressTest extends ActiveMQTestBase {
                System.out.println("Received " + msgs);
             }
          }
-      } while (msg != null);
+      }
+      while (msg != null);
 
       session.commit();
 
@@ -122,7 +123,8 @@ public class PageStressTest extends ActiveMQTestBase {
                System.out.println("Received " + msgs);
             }
          }
-      } while (msg != null);
+      }
+      while (msg != null);
 
       System.out.println("msgs second time: " + msgs);
 
@@ -208,7 +210,8 @@ public class PageStressTest extends ActiveMQTestBase {
 
             }
          }
-      } while (msg != null);
+      }
+      while (msg != null);
 
       session.commit();
 

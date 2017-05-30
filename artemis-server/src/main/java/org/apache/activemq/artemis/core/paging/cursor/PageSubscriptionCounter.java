@@ -28,9 +28,9 @@ public interface PageSubscriptionCounter {
 
    void increment(Transaction tx, int add) throws Exception;
 
-   void loadValue(final long recordValueID, final long value);
+   void loadValue(long recordValueID, long value);
 
-   void loadInc(final long recordInd, final int add);
+   void loadInc(long recordInd, int add);
 
    void applyIncrementOnTX(Transaction tx, long recordID, int add);
 
@@ -54,6 +54,6 @@ public interface PageSubscriptionCounter {
    // for each queue on the address
    void delete(Transaction tx) throws Exception;
 
-   void cleanupNonTXCounters(final long pageID) throws Exception;
+   void cleanupNonTXCounters(long pageID) throws Exception;
 
 }

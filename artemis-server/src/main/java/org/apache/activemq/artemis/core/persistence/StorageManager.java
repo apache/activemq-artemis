@@ -246,7 +246,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * @param extension the extension to add to the file
     * @return
     */
-   SequentialFile createFileForLargeMessage(final long messageID, LargeMessageExtension extension);
+   SequentialFile createFileForLargeMessage(long messageID, LargeMessageExtension extension);
 
    void prepare(long txID, Xid xid) throws Exception;
 
@@ -266,14 +266,14 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void deletePageTransactional(long recordID) throws Exception;
 
-   JournalLoadInformation loadMessageJournal(final PostOffice postOffice,
-                                             final PagingManager pagingManager,
-                                             final ResourceManager resourceManager,
+   JournalLoadInformation loadMessageJournal(PostOffice postOffice,
+                                             PagingManager pagingManager,
+                                             ResourceManager resourceManager,
                                              Map<Long, QueueBindingInfo> queueInfos,
-                                             final Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
-                                             final Set<Pair<Long, Long>> pendingLargeMessages,
+                                             Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
+                                             Set<Pair<Long, Long>> pendingLargeMessages,
                                              List<PageCountPending> pendingNonTXPageCounter,
-                                             final JournalLoader journalLoader) throws Exception;
+                                             JournalLoader journalLoader) throws Exception;
 
    long storeHeuristicCompletion(Xid xid, boolean isCommit) throws Exception;
 
