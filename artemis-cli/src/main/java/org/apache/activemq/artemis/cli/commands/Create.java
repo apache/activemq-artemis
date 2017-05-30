@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -483,7 +484,7 @@ public class Create extends InputAbstract {
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
-      HashMap<String, String> filters = new HashMap<>();
+      HashMap<String, String> filters = new LinkedHashMap<>();
 
       filters.put("${master-slave}", isSlave() ? "slave" : "master");
 
