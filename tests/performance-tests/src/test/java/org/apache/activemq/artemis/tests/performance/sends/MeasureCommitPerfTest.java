@@ -35,33 +35,33 @@ public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
 
       long startMeasure = System.currentTimeMillis() + 5000;
       long start = 0;
-      long committs = 0;
+      long commits = 0;
       while (timeout > System.currentTimeMillis()) {
 
          if (start == 0 && System.currentTimeMillis() > startMeasure) {
             System.out.println("heat up");
             start = System.currentTimeMillis();
-            committs = 0;
+            commits = 0;
          }
 
          s.commit();
-         committs++;
-         if (start > 0 && committs % 1000 == 0)
-            printCommitsSecond(start, committs);
+         commits++;
+         if (start > 0 && commits % 1000 == 0)
+            printCommitsSecond(start, commits);
       }
-      printCommitsSecond(start, committs);
+      printCommitsSecond(start, commits);
 
       s.close();
    }
 
-   protected void printCommitsSecond(final long start, final double committs) {
+   protected void printCommitsSecond(final long start, final double commits) {
 
       long end = System.currentTimeMillis();
       double elapsed = ((double) end - (double) start) / 1000f;
 
-      double commitsPerSecond = committs / elapsed;
+      double commitsPerSecond = commits / elapsed;
 
-      System.out.println("end = " + end + ", start=" + start + ", numberOfMessages=" + committs + ", elapsed=" + elapsed + " msgs/sec= " + commitsPerSecond);
+      System.out.println("end = " + end + ", start=" + start + ", numberOfMessages=" + commits + ", elapsed=" + elapsed + " msgs/sec= " + commitsPerSecond);
 
    }
 
