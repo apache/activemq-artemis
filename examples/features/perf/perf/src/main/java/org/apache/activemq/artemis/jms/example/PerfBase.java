@@ -276,7 +276,8 @@ public abstract class PerfBase {
 
             count++;
          }
-      } while (message != null);
+      }
+      while (message != null);
 
       drainSession.close();
 
