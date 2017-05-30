@@ -493,21 +493,21 @@ public class Create extends InputAbstract {
 
       if (ping != null && !ping.isEmpty()) {
          filters.put("${ping}", ping);
-         filters.put("${ping-config.settings}", applyFilters(readTextFile(ETC_PING_TXT), filters));
+         filters.put("${ping-config.settings}", readTextFile(ETC_PING_TXT, filters));
       } else {
-         filters.put("${ping-config.settings}", readTextFile(ETC_COMMENTED_PING_TXT));
+         filters.put("${ping-config.settings}", readTextFile(ETC_COMMENTED_PING_TXT, filters));
       }
 
       if (replicated) {
          clustered = true;
-         filters.put("${replicated.settings}", applyFilters(readTextFile(ETC_REPLICATED_SETTINGS_TXT), filters));
+         filters.put("${replicated.settings}", readTextFile(ETC_REPLICATED_SETTINGS_TXT, filters));
       } else {
          filters.put("${replicated.settings}", "");
       }
 
       if (sharedStore) {
          clustered = true;
-         filters.put("${shared-store.settings}", applyFilters(readTextFile(ETC_SHARED_STORE_SETTINGS_TXT), filters));
+         filters.put("${shared-store.settings}", readTextFile(ETC_SHARED_STORE_SETTINGS_TXT, filters));
       } else {
          filters.put("${shared-store.settings}", "");
       }
@@ -547,10 +547,10 @@ public class Create extends InputAbstract {
 
 
       if (globalMaxSize == null || globalMaxSize.trim().equals("")) {
-         filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT));
+         filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT, filters));
       } else {
          filters.put("${global-max-size}", globalMaxSize);
-         filters.put("${global-max-section}", applyFilters(readTextFile(ETC_GLOBAL_MAX_SPECIFIED_TXT), filters));
+         filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_SPECIFIED_TXT, filters));
       }
 
 
@@ -559,13 +559,12 @@ public class Create extends InputAbstract {
          if (name == null) {
             name = getHostForClustered();
          }
-         String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT);
-         connectorSettings = applyFilters(connectorSettings, filters);
+         String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT, filters);
 
          filters.put("${name}", name);
          filters.put("${connector-config.settings}", connectorSettings);
-         filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT));
-         filters.put("${cluster.settings}", applyFilters(readTextFile(ETC_CLUSTER_SETTINGS_TXT), filters));
+         filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT, filters));
+         filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT, filters));
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
       } else {
@@ -639,31 +638,31 @@ public class Create extends InputAbstract {
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
       } else {
-         filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
+         filters.put("${bootstrap-web-settings}", readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT, filters));
       }
 
       if (noAmqpAcceptor) {
          filters.put("${amqp-acceptor}", "");
       } else {
-         filters.put("${amqp-acceptor}", applyFilters(readTextFile(ETC_AMQP_ACCEPTOR_TXT), filters));
+         filters.put("${amqp-acceptor}", readTextFile(ETC_AMQP_ACCEPTOR_TXT, filters));
       }
 
       if (noMqttAcceptor) {
          filters.put("${mqtt-acceptor}", "");
       } else {
-         filters.put("${mqtt-acceptor}", applyFilters(readTextFile(ETC_MQTT_ACCEPTOR_TXT), filters));
+         filters.put("${mqtt-acceptor}",readTextFile(ETC_MQTT_ACCEPTOR_TXT, filters));
       }
 
       if (noStompAcceptor) {
          filters.put("${stomp-acceptor}", "");
       } else {
-         filters.put("${stomp-acceptor}", applyFilters(readTextFile(ETC_STOMP_ACCEPTOR_TXT), filters));
+         filters.put("${stomp-acceptor}", readTextFile(ETC_STOMP_ACCEPTOR_TXT, filters));
       }
 
       if (noHornetQAcceptor) {
          filters.put("${hornetq-acceptor}", "");
       } else {
-         filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
+         filters.put("${hornetq-acceptor}", readTextFile(ETC_HORNETQ_ACCEPTOR_TXT, filters));
       }
 
       if (paging == null && blocking == null) {
@@ -814,7 +813,7 @@ public class Create extends InputAbstract {
             System.out.println("done! Your system can make " + writesPerMillisecondStr +
                                   " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
 
-            filters.put("${journal-buffer.settings}", applyFilters(readTextFile(ETC_JOURNAL_BUFFER_SETTINGS), syncFilter));
+            filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
          } catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");
@@ -889,7 +888,7 @@ public class Create extends InputAbstract {
          throw new CLIException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
       }
 
-      String content = applyFilters(readTextFile(source), filters);
+      String content = readTextFile(source, filters);
 
       // and then writing out in the new target encoding..  Let's also replace \n with the values
       // that is correct for the current platform.
@@ -902,7 +901,7 @@ public class Create extends InputAbstract {
       }
    }
 
-   private String applyFilters(String content, HashMap<String, String> filters) throws IOException {
+   private String applyFilters(String content, Map<String, String> filters) throws IOException {
 
       if (filters != null) {
          for (Map.Entry<String, String> entry : filters.entrySet()) {
@@ -912,12 +911,12 @@ public class Create extends InputAbstract {
       return content;
    }
 
-   private String readTextFile(String source) throws IOException {
+   private String readTextFile(String source, Map<String, String> filters) throws IOException {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       try (InputStream in = openStream(source)) {
          copy(in, out);
       }
-      return new String(out.toByteArray(), StandardCharsets.UTF_8);
+      return applyFilters(new String(out.toByteArray(), StandardCharsets.UTF_8), filters);
    }
 
    private void write(String source) throws IOException {
