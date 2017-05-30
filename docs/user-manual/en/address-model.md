@@ -367,7 +367,7 @@ However, there are scenarios where a user may want to use broker side configurat
 
 #### Configuring a shared durable subscription queue with up to 10 concurrent consumers
 
-The default behavior for queues is to not limit the number connected queue consumers.  The **max-consumers** paramter of the queue element can be used to limit the number of connected consumers allowed at any one time.
+The default behavior for queues is to not limit the number connected queue consumers.  The **max-consumers** parameter of the queue element can be used to limit the number of connected consumers allowed at any one time.
 
 Open the file <broker-instance>/etc/broker.xml for editing.
 
