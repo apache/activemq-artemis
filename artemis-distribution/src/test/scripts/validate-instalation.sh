@@ -18,7 +18,7 @@
 
 # This script will validate the distribution works with folders with spaces on Linux machines
 
-echo validating instalation on $1
+echo validating installation on $1
 rm -rf target
 mkdir target
 mkdir target/"$1"

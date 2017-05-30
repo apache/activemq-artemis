@@ -183,7 +183,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    }
 
    private class PBKDF2Algorithm extends CodecAlgorithm {
-      private static final String SEPERATOR = ":";
+      private static final String SEPARATOR = ":";
       private String sceretKeyAlgorithm = "PBKDF2WithHmacSHA1";
       private String randomScheme = "SHA1PRNG";
       private int keyLength = 64 * 8;
@@ -212,7 +212,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          byte[] salt = getSalt();
 
          StringBuilder builder = new StringBuilder();
-         builder.append(iterations).append(SEPERATOR).append(ByteUtil.bytesToHex(salt)).append(SEPERATOR);
+         builder.append(iterations).append(SEPARATOR).append(ByteUtil.bytesToHex(salt)).append(SEPARATOR);
 
          PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, keyLength);
 
@@ -225,7 +225,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
       @Override
       public boolean verify(char[] plainChars, String storedValue) {
-         String[] parts = storedValue.split(SEPERATOR);
+         String[] parts = storedValue.split(SEPARATOR);
          int originalIterations = Integer.parseInt(parts[0]);
          byte[] salt = ByteUtil.hexToBytes(parts[1]);
          byte[] originalHash = ByteUtil.hexToBytes(parts[2]);

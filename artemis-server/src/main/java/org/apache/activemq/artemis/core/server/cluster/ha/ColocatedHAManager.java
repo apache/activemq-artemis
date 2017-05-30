@@ -274,7 +274,7 @@ public class ColocatedHAManager implements HAManager {
     * Offset the port for Netty connector/acceptor (unless HTTP upgrade is enabled) and the server ID for invm connector/acceptor.
     *
     * The port is not offset for Netty connector/acceptor when HTTP upgrade is enabled. In this case, the app server that
-    * embed ActiveMQ is "owning" the port and is charge to delegate the HTTP ugprade to the correct broker (that can be
+    * embed ActiveMQ is "owning" the port and is charge to delegate the HTTP upgrade to the correct broker (that can be
     * the main one or any colocated backup hosted on the main broker). Delegation to the correct broker is done by looking at the
     * {@link TransportConstants#ACTIVEMQ_SERVER_NAME} property [ARTEMIS-803]
     */

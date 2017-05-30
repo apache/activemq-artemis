@@ -64,7 +64,7 @@ public class TypedProperties {
    }
 
    /**
-    *  Return the number of properites
+    *  Return the number of properties
     * */
    public int size() {
       return properties.size();
