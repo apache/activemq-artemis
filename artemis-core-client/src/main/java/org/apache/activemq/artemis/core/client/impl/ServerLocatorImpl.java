@@ -792,7 +792,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                   throw e;
                }
             }
-         } while (retry);
+         }
+         while (retry);
       }
 
       // ATM topology is never != null. Checking here just to be consistent with

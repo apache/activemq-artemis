@@ -119,10 +119,10 @@ public interface PostOffice extends ActiveMQComponent {
    MessageReference reroute(Message message, Queue queue, Transaction tx) throws Exception;
 
    Pair<RoutingContext, Message> redistribute(Message message,
-                                                    final Queue originatingQueue,
+                                                    Queue originatingQueue,
                                                     Transaction tx) throws Exception;
 
-   void processRoute(final Message message, final RoutingContext context, final boolean direct) throws Exception;
+   void processRoute(Message message, RoutingContext context, boolean direct) throws Exception;
 
    DuplicateIDCache getDuplicateIDCache(SimpleString address);
 
@@ -133,7 +133,7 @@ public interface PostOffice extends ActiveMQComponent {
    // we can't start expiry scanner until the system is load otherwise we may get weird races - https://issues.jboss.org/browse/HORNETQ-1142
    void startExpiryScanner();
 
-   boolean isAddressBound(final SimpleString address) throws Exception;
+   boolean isAddressBound(SimpleString address) throws Exception;
 
    Set<SimpleString> getAddresses();
 }

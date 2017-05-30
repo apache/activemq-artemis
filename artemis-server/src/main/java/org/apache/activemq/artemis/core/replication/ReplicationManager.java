@@ -534,8 +534,8 @@ public final class ReplicationManager implements ActiveMQComponent {
       final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(size, size);
 
       try {
-         try (final FileInputStream fis = new FileInputStream(file.getJavaFile());
-              final FileChannel channel = fis.getChannel()) {
+         try (FileInputStream fis = new FileInputStream(file.getJavaFile());
+              FileChannel channel = fis.getChannel()) {
             // We can afford having a single buffer here for this entire loop
             // because sendReplicatePacket will encode the packet as a NettyBuffer
             // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy

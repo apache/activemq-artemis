@@ -183,7 +183,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          m.setExpiration(expiration);
          producer.send(m);
          Thread.sleep(100);
-      } while (System.currentTimeMillis() < sendMessagesUntil);
+      }
+      while (System.currentTimeMillis() < sendMessagesUntil);
       Assert.assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
       consumer.close();
 
@@ -197,7 +198,8 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          cm.acknowledge();
          Assert.assertFalse(dummyMessageHandler.payloads.contains(text));
          dummyMessageHandler.payloads.add(text);
-      } while (true);
+      }
+      while (true);
 
       for (int i = 0; i < numMessages; i++) {
          if (dummyMessageHandler.payloads.isEmpty()) {

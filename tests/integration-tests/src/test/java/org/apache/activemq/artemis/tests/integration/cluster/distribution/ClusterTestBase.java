@@ -279,7 +279,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                break;
             }
             Thread.sleep(10);
-         } while (System.currentTimeMillis() - start < WAIT_TIMEOUT);
+         }
+         while (System.currentTimeMillis() - start < WAIT_TIMEOUT);
          if (!exists) {
             String msg = "Timed out waiting for cluster topology of " + Arrays.toString(nodes) +
                " (received " +
@@ -367,7 +368,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          }
 
          Thread.sleep(10);
-      } while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
+      }
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       throw new IllegalStateException("Timed out waiting for messages (messageCount = " + messageCount +
                                          ", expecting = " +
@@ -1042,7 +1044,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             } else {
                log.info("check receive Consumer " + consumerID + " null message");
             }
-         } while (message != null);
+         }
+         while (message != null);
 
       }
    }
@@ -1221,7 +1224,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                   message.acknowledge();
                }
             }
-         } while (message != null);
+         }
+         while (message != null);
       }
 
       for (int messageCount : messageCounts) {
@@ -1313,7 +1317,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             ints.add(count);
          }
-      } while (message != null);
+      }
+      while (message != null);
 
       int[] res = new int[ints.size()];
 

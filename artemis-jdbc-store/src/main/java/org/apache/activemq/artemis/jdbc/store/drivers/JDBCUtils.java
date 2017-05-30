@@ -117,7 +117,8 @@ public class JDBCUtils {
          formatSqlException(errorMessage, nextEx);
          nextEx = exception.getNextException();
          level++;
-      } while (nextEx != null);
+      }
+      while (nextEx != null);
       return errorMessage;
    }
 

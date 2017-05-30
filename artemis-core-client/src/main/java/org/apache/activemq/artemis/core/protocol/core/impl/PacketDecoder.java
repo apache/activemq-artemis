@@ -160,7 +160,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SUB
 
 public abstract class PacketDecoder implements Serializable {
 
-   public abstract Packet decode(final ActiveMQBuffer in);
+   public abstract Packet decode(ActiveMQBuffer in);
 
    public Packet decode(byte packetType) {
       Packet packet;

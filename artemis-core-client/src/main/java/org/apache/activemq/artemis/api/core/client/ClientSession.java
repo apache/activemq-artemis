@@ -216,7 +216,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated
     * @throws ActiveMQException
     */
-   void createAddress(final SimpleString address, Set<RoutingType> routingTypes, final boolean autoCreated) throws ActiveMQException;
+   void createAddress(SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
    /**
     * Create Address with a single initial routing type
@@ -225,7 +225,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param autoCreated
     * @throws ActiveMQException
     */
-   void createAddress(final SimpleString address, RoutingType routingType, final boolean autoCreated) throws ActiveMQException;
+   void createAddress(SimpleString address, RoutingType routingType, boolean autoCreated) throws ActiveMQException;
 
    // Queue Operations ----------------------------------------------
 

@@ -64,7 +64,7 @@ public interface PageSubscription {
 
    void scheduleCleanupCheck();
 
-   void cleanupEntries(final boolean completeDelete) throws Exception;
+   void cleanupEntries(boolean completeDelete) throws Exception;
 
    void onPageModeCleared(Transaction tx) throws Exception;
 
@@ -118,7 +118,7 @@ public interface PageSubscription {
 
    void processReload() throws Exception;
 
-   void addPendingDelivery(final PagePosition position);
+   void addPendingDelivery(PagePosition position);
 
    /**
     * To be used on redeliveries

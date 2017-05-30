@@ -676,7 +676,8 @@ public class ActiveMQSessionContext extends SessionContext {
                throw e;
             }
          }
-      } while (retry && !session.isClosing());
+      }
+      while (retry && !session.isClosing());
    }
 
    protected CreateSessionMessage newCreateSession(String username,

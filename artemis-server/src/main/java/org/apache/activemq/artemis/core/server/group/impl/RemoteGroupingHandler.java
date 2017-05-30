@@ -157,7 +157,8 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
             if (response != null) {
                break;
             }
-         } while (timeLimit > System.currentTimeMillis());
+         }
+         while (timeLimit > System.currentTimeMillis());
       } finally {
          if (notification != null) {
             pendingNotifications.remove(notification);

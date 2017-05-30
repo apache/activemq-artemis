@@ -139,7 +139,8 @@ public class FileLockNodeManager extends NodeManager {
             logger.debug("acquired live node lock state = " + (char) state);
             break;
          }
-      } while (true);
+      }
+      while (true);
    }
 
    @Override
@@ -317,7 +318,8 @@ public class FileLockNodeManager extends NodeManager {
             interrupted = false;
             throw new IOException("Lock was interrupted");
          }
-      } while (lock == null);
+      }
+      while (lock == null);
       return lock;
    }
 

@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 public interface ConnectionCreator extends ChannelHandler {
 
-   NettyServerConnection createConnection(final ChannelHandlerContext ctx,
+   NettyServerConnection createConnection(ChannelHandlerContext ctx,
                                           String protocol,
                                           boolean httpEnabled) throws Exception;
 }
