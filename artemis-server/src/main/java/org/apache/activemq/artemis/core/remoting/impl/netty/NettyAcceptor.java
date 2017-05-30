@@ -380,13 +380,13 @@ public class NettyAcceptor extends AbstractAcceptor {
             notificationService.sendNotification(notification);
          }
 
-         if (batchDelay > 0) {
-            flusher = new BatchFlusher();
-
-            batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
-         }
-
          ActiveMQServerLogger.LOGGER.startedAcceptor(acceptorType, host, port, protocolsString);
+      }
+
+      if (batchDelay > 0) {
+         flusher = new BatchFlusher();
+
+         batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
    }
 
