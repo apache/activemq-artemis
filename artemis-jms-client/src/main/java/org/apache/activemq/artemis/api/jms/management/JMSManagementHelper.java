@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.jms.management;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
@@ -147,7 +148,11 @@ public class JMSManagementHelper {
     * and the result will be a String corresponding to the server exception.
     */
    public static Object getResult(final Message message, Class desiredType) throws Exception {
-      return ManagementHelper.getResult(JMSManagementHelper.getCoreMessage(message), desiredType);
+      if (message instanceof TextMessage) {
+         return ManagementHelper.getResult(((TextMessage) message).getText(), desiredType);
+      } else {
+         return ManagementHelper.getResult(JMSManagementHelper.getCoreMessage(message), desiredType);
+      }
    }
 
    private JMSManagementHelper() {
