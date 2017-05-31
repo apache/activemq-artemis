@@ -183,7 +183,7 @@ public class ArtemisFeatureTest extends Assert {
          JsonArray array = Json.createReader(new StringReader(json)).readArray();
          List<JsonString> queues = (List<JsonString>) array.get(0);
          assertNotNull(queues);
-         System.out.println(queues.stream().map(JsonString::getString).collect(Collectors.joining(", ", "Queues: ", "")));
+         assertFalse(queues.isEmpty());
 
          MessageConsumer consumer = sess.createConsumer(queue);
          Message msg = consumer.receive(5000);
