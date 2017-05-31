@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
@@ -554,6 +555,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setJournalBufferSize_NIO(journalBufferSize);
          config.setJournalMaxIO_NIO(journalMaxIO);
       }
+
+      config.setJournalTimedBufferType(TimedBufferType.getType(getString(e, "journal-timed-buffer-type", config.getJournalTimedBufferType().toString(), Validators.TIMED_BUFFER_TYPE)));
 
       config.setJournalMinFiles(getInteger(e, "journal-min-files", config.getJournalMinFiles(), Validators.GT_ZERO));
 

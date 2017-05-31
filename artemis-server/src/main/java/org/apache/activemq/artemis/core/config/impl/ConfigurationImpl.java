@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -78,6 +79,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
+
+   public static final TimedBufferType DEFAULT_TIMED_BUFFER_TYPE = TimedBufferType.DEFAULT;
 
    private static final long serialVersionUID = 4077088945050267843L;
 
@@ -178,6 +181,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected int journalPoolFiles = ActiveMQDefaultConfiguration.getDefaultJournalPoolFiles();
 
    protected int journalMinFiles = ActiveMQDefaultConfiguration.getDefaultJournalMinFiles();
+
+   public TimedBufferType journalTimedBufferType = ConfigurationImpl.DEFAULT_TIMED_BUFFER_TYPE;
 
    // AIO and NIO need different values for these attributes
 
@@ -1171,6 +1176,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public TimedBufferType getJournalTimedBufferType() {
+      return this.journalTimedBufferType;
+   }
+
+   @Override
+   public ConfigurationImpl setJournalTimedBufferType(final TimedBufferType journalTimedBufferType) {
+      this.journalTimedBufferType = journalTimedBufferType;
+      return this;
+   }
+
+   @Override
    public int getJournalMaxIO_AIO() {
       return journalMaxIO_AIO;
    }
@@ -1575,6 +1591,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (journalSyncNonTransactional ? 1231 : 1237);
       result = prime * result + (journalSyncTransactional ? 1231 : 1237);
       result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
+      result = prime * result + ((journalTimedBufferType == null) ? 0 : journalTimedBufferType.hashCode());
       result = prime * result + ((largeMessagesDirectory == null) ? 0 : largeMessagesDirectory.hashCode());
       result = prime * result + (logJournalWriteRate ? 1231 : 1237);
       result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
@@ -1742,6 +1759,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (journalSyncTransactional != other.journalSyncTransactional)
          return false;
       if (journalType != other.journalType)
+         return false;
+      if (journalTimedBufferType != other.journalTimedBufferType)
          return false;
       if (largeMessagesDirectory == null) {
          if (other.largeMessagesDirectory != null)

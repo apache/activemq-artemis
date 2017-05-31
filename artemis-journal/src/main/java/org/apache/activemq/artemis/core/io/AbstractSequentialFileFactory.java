@@ -30,7 +30,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.core.io.buffer.AdaptingTimedBuffer;
+import org.apache.activemq.artemis.core.io.buffer.FixedTimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferType;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
@@ -69,16 +72,24 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
                                            final boolean buffered,
                                            final int bufferSize,
                                            final int bufferTimeout,
+                                           final TimedBufferType timedBufferType,
                                            final int maxIO,
                                            final boolean logRates,
                                            final IOCriticalErrorListener criticalErrorListener) {
       this.journalDir = journalDir;
 
+      TimedBuffer timedBuffer = null;
       if (buffered && bufferTimeout > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
-      } else {
-         timedBuffer = null;
+         switch (timedBufferType) {
+            case ADAPTING:
+               timedBuffer = new AdaptingTimedBuffer(bufferSize, bufferTimeout, logRates);
+               break;
+            case FIXED:
+               timedBuffer = new FixedTimedBuffer(bufferSize, bufferTimeout, logRates);
+               break;
+         }
       }
+      this.timedBuffer = timedBuffer;
       this.bufferSize = bufferSize;
       this.bufferTimeout = bufferTimeout;
       this.critialErrorListener = criticalErrorListener;

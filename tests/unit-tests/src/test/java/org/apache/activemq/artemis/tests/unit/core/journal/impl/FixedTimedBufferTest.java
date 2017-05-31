@@ -19,18 +19,20 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
+import org.apache.activemq.artemis.core.io.buffer.FixedTimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TimedBufferTest extends ActiveMQTestBase {
+public class FixedTimedBufferTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -68,7 +70,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.FixedTimedBufferObserver#newBuffer(int, int)
           */
          @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
@@ -81,7 +83,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS, false);
+      FixedTimedBuffer timedBuffer = new FixedTimedBuffer(100, FixedTimedBufferTest.ONE_SECOND_IN_NANOS, false);
 
       timedBuffer.start();
 
@@ -136,7 +138,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.FixedTimedBufferObserver#newBuffer(int, int)
           */
          @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
@@ -149,7 +151,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
+      FixedTimedBuffer timedBuffer = new FixedTimedBuffer(100, FixedTimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
 
       timedBuffer.start();
 
@@ -202,5 +204,163 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.stop();
       }
 
+   }
+
+   /**
+    * This test will verify if the system will switch to spin case the system can't perform sleeps timely
+    * due to proper kernel installations
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testVerifySwitchToSpin() throws Exception {
+      class TestObserver implements TimedBufferObserver {
+
+         @Override
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+         }
+
+         /* (non-Javadoc)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.FixedTimedBufferObserver#newBuffer(int, int)
+          */
+         @Override
+         public ByteBuffer newBuffer(final int minSize, final int maxSize) {
+            return ByteBuffer.allocate(maxSize);
+         }
+
+         @Override
+         public int getRemainingBytes() {
+            return 1024 * 1024;
+         }
+      }
+
+      final CountDownLatch sleptLatch = new CountDownLatch(1);
+
+      FixedTimedBuffer timedBuffer = new FixedTimedBuffer(100, FixedTimedBufferTest.ONE_SECOND_IN_NANOS / 1000, false) {
+
+         @Override
+         protected void stopSpin() {
+            // keeps spinning forever
+         }
+
+         @Override
+         protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
+            Thread.sleep(10);
+         }
+
+         @Override
+         public synchronized void setUseSleep(boolean param) {
+            super.setUseSleep(param);
+            sleptLatch.countDown();
+         }
+
+      };
+
+      timedBuffer.start();
+
+      try {
+
+         timedBuffer.setObserver(new TestObserver());
+
+         int x = 0;
+
+         byte[] bytes = new byte[10];
+         for (int j = 0; j < 10; j++) {
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
+         }
+
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
+
+         timedBuffer.checkSize(10);
+         timedBuffer.addBytes(buff, true, dummyCallback);
+
+         sleptLatch.await(10, TimeUnit.SECONDS);
+
+         assertFalse(timedBuffer.isUseSleep());
+      } finally {
+         timedBuffer.stop();
+      }
+
+   }
+
+   /**
+    * This test will verify if the system will switch to spin case the system can't perform sleeps timely
+    * due to proper kernel installations
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testStillSleeps() throws Exception {
+      class TestObserver implements TimedBufferObserver {
+
+         @Override
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
+         }
+
+         /* (non-Javadoc)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.FixedTimedBufferObserver#newBuffer(int, int)
+          */
+         @Override
+         public ByteBuffer newBuffer(final int minSize, final int maxSize) {
+            return ByteBuffer.allocate(maxSize);
+         }
+
+         @Override
+         public int getRemainingBytes() {
+            return 1024 * 1024;
+         }
+      }
+
+      final CountDownLatch sleptLatch = new CountDownLatch(FixedTimedBuffer.MAX_CHECKS_ON_SLEEP);
+
+      FixedTimedBuffer timedBuffer = new FixedTimedBuffer(100, FixedTimedBufferTest.ONE_SECOND_IN_NANOS / 1000, false) {
+
+         @Override
+         protected void stopSpin() {
+            // keeps spinning forever
+         }
+
+         @Override
+         protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
+            sleptLatch.countDown();
+            // no sleep
+         }
+
+         @Override
+         public synchronized void setUseSleep(boolean param) {
+            super.setUseSleep(param);
+            sleptLatch.countDown();
+         }
+
+      };
+
+      timedBuffer.start();
+
+      try {
+
+         timedBuffer.setObserver(new TestObserver());
+
+         int x = 0;
+
+         byte[] bytes = new byte[10];
+         for (int j = 0; j < 10; j++) {
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
+         }
+
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
+
+         timedBuffer.checkSize(10);
+         timedBuffer.addBytes(buff, true, dummyCallback);
+
+         // waits all the sleeps to be done
+         sleptLatch.await(10, TimeUnit.SECONDS);
+
+         // keeps waiting a bit longer
+         Thread.sleep(100);
+
+         assertTrue(timedBuffer.isUseSleep());
+      } finally {
+         timedBuffer.stop();
+      }
    }
 }
