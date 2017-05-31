@@ -347,18 +347,7 @@ public class PacketImpl implements Packet {
    }
 
    protected ByteBuf copyMessageBuffer(ByteBuf buffer, int skipBytes) {
-
-      ByteBuf newNettyBuffer = Unpooled.buffer(buffer.capacity() - PACKET_HEADERS_SIZE - skipBytes);
-
-      int read = buffer.readerIndex();
-      int writ = buffer.writerIndex();
-      buffer.readerIndex(PACKET_HEADERS_SIZE);
-
-      newNettyBuffer.writeBytes(buffer, buffer.readableBytes() - skipBytes);
-      buffer.setIndex( read, writ );
-      newNettyBuffer.setIndex( 0, writ - PACKET_HEADERS_SIZE - skipBytes);
-
-      return newNettyBuffer;
+      return buffer.retainedSlice(PACKET_HEADERS_SIZE, buffer.readableBytes() - skipBytes);
    }
 
 
