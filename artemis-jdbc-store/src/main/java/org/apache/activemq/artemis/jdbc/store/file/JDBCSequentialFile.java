@@ -156,7 +156,9 @@ public class JDBCSequentialFile implements SequentialFile {
          synchronized (writeLock) {
             int noBytes = dbDriver.writeToFile(this, data);
             seek(noBytes);
-            System.out.println("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
+            if (logger.isTraceEnabled()) {
+               logger.trace("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
+            }
             if (callback != null)
                callback.done();
             return noBytes;
