@@ -29,7 +29,10 @@ under the License.
 
       <persistence-enabled>${persistence-enabled}</persistence-enabled>
 
-      <!-- this could be ASYNCIO or NIO
+      <!-- this could be ASYNCIO, MAPPED, NIO
+           ASYNCIO: Linux Libaio
+           MAPPED: mmap files
+           NIO: Plain Java Files
        -->
       <journal-type>${journal.settings}</journal-type>
 
