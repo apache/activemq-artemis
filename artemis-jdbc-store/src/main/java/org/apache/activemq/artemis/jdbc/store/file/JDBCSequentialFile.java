@@ -45,7 +45,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private boolean isOpen = false;
 
-   private boolean isCreated = false;
+   private boolean isLoaded = false;
 
    private long id = -1;
 
@@ -88,7 +88,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean exists() {
-      if (isCreated) return true;
+      if (isLoaded) return true;
       try {
          return fileFactory.listFiles(extension).contains(filename);
       } catch (Exception e) {
@@ -100,12 +100,16 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void open() throws Exception {
+      load();
+      isOpen = true;
+   }
+
+   private void load() {
       try {
-         if (!isOpen) {
-            synchronized (writeLock) {
+         synchronized (writeLock) {
+            if (!isLoaded) {
                dbDriver.openFile(this);
-               isCreated = true;
-               isOpen = true;
+               isLoaded = true;
             }
          }
       } catch (SQLException e) {
@@ -141,10 +145,9 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
-         if (isCreated) {
-            synchronized (writeLock) {
-               dbDriver.deleteFile(this);
-            }
+         synchronized (writeLock) {
+            load();
+            dbDriver.deleteFile(this);
          }
       } catch (SQLException e) {
          fileFactory.onIOError(e, "Error deleting JDBC file.", this);
@@ -298,6 +301,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public long size() throws Exception {
+      load();
       return writePosition;
    }
 
