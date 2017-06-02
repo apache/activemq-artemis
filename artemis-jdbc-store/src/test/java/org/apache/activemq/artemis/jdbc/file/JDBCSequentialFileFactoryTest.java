@@ -186,6 +186,36 @@ public class JDBCSequentialFileFactoryTest {
       assertEquals(bufferSize, file.size());
    }
 
+   /**
+    * Using a real file system users are not required to call file.open() in order to read the file size.  The file
+    * descriptor has enough information.  However, with JDBC we do require that some information is loaded in order to
+    * get the underlying BLOB.  This tests ensures that file.size() returns the correct value, without the user calling
+    * file.open() with JDBCSequentialFile.
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testGetFileSizeWorksWhenNotOpen() throws Exception {
+      // Create test file with some data.
+      int testFileSize = 1024;
+      String fileName = "testFile.txt";
+      SequentialFile file = factory.createSequentialFile(fileName);
+      file.open();
+
+      // Write some data to the file
+      ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(new byte[1024]);
+      file.write(buffer, true);
+      file.close();
+
+      try {
+         // Create a new pointer to the test file and ensure file.size() returns the correct value.
+         SequentialFile file2 = factory.createSequentialFile(fileName);
+         assertEquals(testFileSize, file2.size());
+      } catch (Throwable t) {
+         t.printStackTrace();
+      }
+   }
+
    private void checkData(JDBCSequentialFile file, ActiveMQBuffer expectedData) throws SQLException {
       expectedData.resetReaderIndex();
 
