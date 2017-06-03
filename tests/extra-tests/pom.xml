@@ -34,7 +34,7 @@
 
    <properties>
       <tools.jar>${java.home}/../lib/tools.jar</tools.jar>
-      <byteman.version>2.2.0</byteman.version>
+      <byteman.version>3.0.10</byteman.version>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <jboss-jts.version>4.17.13.Final</jboss-jts.version>
       <hornetq.version>2.4.7.Final</hornetq.version>
