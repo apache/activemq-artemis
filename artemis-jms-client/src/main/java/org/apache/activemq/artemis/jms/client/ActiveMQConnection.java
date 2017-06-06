@@ -280,8 +280,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public ExceptionListener getExceptionListener() throws JMSException {
       checkClosed();
 
-      justCreated = false;
-
       return exceptionListener;
    }
 
@@ -290,7 +288,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       checkClosed();
 
       exceptionListener = listener;
-      justCreated = false;
    }
 
    @Override
