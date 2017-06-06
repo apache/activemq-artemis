@@ -143,4 +143,31 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
       conn.close();
    }
 
+
+   /**
+    * The JMS Spec isn't specific about if ClientId can be set after Exception Listener or not,
+    * simply it states that clientId must be set before any operation (read as remote)
+    *
+    * QpidJMS and ActiveMQ5 both interpret that therefor you can set the exception lister first.
+    * As such we align with those, allowing the exception listener to be set prior to the clientId,
+    * This to avoid causing implementation nuance's, when switching code from one client to another.
+    *
+    * This test is to test this and to ensure it doesn't get accidentally regressed.
+    */
+   @Test
+   public void testSetClientIdAfterSetExceptionListener() throws Exception {
+      Connection conn = cf.createConnection();
+      conn.setExceptionListener((e) -> { });
+      conn.setClientID("clientId");
+      conn.close();
+   }
+
+   @Test
+   public void testSetClientIdAfterGetExceptionListener() throws Exception {
+      Connection conn = cf.createConnection();
+      conn.getExceptionListener();
+      conn.setClientID("clientId");
+      conn.close();
+   }
+
 }

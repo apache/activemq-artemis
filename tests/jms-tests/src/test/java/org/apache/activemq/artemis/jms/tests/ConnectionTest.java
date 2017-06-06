@@ -153,24 +153,6 @@ public class ConnectionTest extends JMSTestCase {
       //      {
       //      }
       //      connection.close();
-
-      connection = createConnection();
-      ExceptionListener listener = connection.getExceptionListener();
-      try {
-         connection.setClientID(clientID);
-         ProxyAssertSupport.fail();
-      } catch (javax.jms.IllegalStateException e) {
-      }
-      connection.close();
-
-      connection = createConnection();
-      connection.setExceptionListener(listener);
-      try {
-         connection.setClientID(clientID);
-         ProxyAssertSupport.fail();
-      } catch (javax.jms.IllegalStateException e) {
-      }
-      connection.close();
    }
 
    @Test
@@ -232,6 +214,27 @@ public class ConnectionTest extends JMSTestCase {
       ProxyAssertSupport.assertEquals(listener1, listener2);
 
       conn.close();
+
+      // Ensure setting / getting exception listener can occur before setting clientid.
+      final String clientID = "my-test-client-id";
+
+      Connection connection = createConnection();
+      ExceptionListener listener = connection.getExceptionListener();
+      try {
+         connection.setClientID(clientID);
+      } catch (javax.jms.IllegalStateException e) {
+         ProxyAssertSupport.fail();
+      }
+      connection.close();
+
+      connection = createConnection();
+      connection.setExceptionListener(listener);
+      try {
+         connection.setClientID(clientID);
+      } catch (javax.jms.IllegalStateException e) {
+         ProxyAssertSupport.fail();
+      }
+      connection.close();
 
    }
 
