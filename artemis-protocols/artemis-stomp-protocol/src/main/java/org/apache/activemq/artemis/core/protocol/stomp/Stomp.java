@@ -98,6 +98,14 @@ public interface Stomp {
          String TYPE = "type";
 
          String PERSISTENT = "persistent";
+
+         // Extensions
+
+         // ActiveMQ 5.x Scheduled Message Compatibility.
+         String AMQ_SCHEDULED_DELAY = "AMQ_SCHEDULED_DELAY";
+
+         // Provides a hard time of delivery option (Epoch based)
+         String AMQ_SCHEDULED_TIME = "AMQ_SCHEDULED_TIME";
       }
 
       interface Message {

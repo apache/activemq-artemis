@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,6 +69,23 @@ public class StompUtils {
       String expiration = headers.remove(Stomp.Headers.Send.EXPIRATION_TIME);
       if (expiration != null) {
          msg.setExpiration(Long.parseLong(expiration));
+      }
+
+      // Extension headers
+      String scheduledDelay = headers.remove(Stomp.Headers.Send.AMQ_SCHEDULED_DELAY);
+      if (scheduledDelay != null) {
+         long delay = Long.parseLong(scheduledDelay);
+         if (delay > 0) {
+            msg.putLongProperty(HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + delay);
+         }
+      }
+
+      String scheduledTime = headers.remove(Stomp.Headers.Send.AMQ_SCHEDULED_TIME);
+      if (scheduledTime != null) {
+         long deliveryTime = Long.parseLong(scheduledTime);
+         if (deliveryTime > 0) {
+            msg.putLongProperty(HDR_SCHEDULED_DELIVERY_TIME, deliveryTime);
+         }
       }
 
       // now the general headers
