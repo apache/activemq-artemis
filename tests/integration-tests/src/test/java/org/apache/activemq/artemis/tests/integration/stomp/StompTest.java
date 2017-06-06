@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import javax.jms.BytesMessage;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -32,7 +26,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.jms.BytesMessage;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.TextMessage;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -48,7 +50,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -542,6 +543,110 @@ public class StompTest extends StompTestBase {
                                                      .length());
 
       Assert.assertEquals("JMSXGroupID", "abc", message.getStringProperty("JMSXGroupID"));
+   }
+
+   @Test
+   public void testSendMessageWithDelay() throws Exception {
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      conn.connect(defUser, defPass);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+                                   .addHeader("foo", "abc")
+                                   .addHeader("bar", "123")
+                                   .addHeader("correlation-id", "c123")
+                                   .addHeader("persistent", "true")
+                                   .addHeader("type", "t345")
+                                   .addHeader("JMSXGroupID", "abc")
+                                   .addHeader("priority", "3")
+                                   .addHeader("AMQ_SCHEDULED_DELAY", "2000")
+                                   .setBody("Hello World");
+      conn.sendFrame(frame);
+
+      assertNull("Should not receive message yet", consumer.receive(1000));
+
+      TextMessage message = (TextMessage) consumer.receive(4000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
+      Assert.assertEquals("getJMSType", "t345", message.getJMSType());
+      Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
+      Assert.assertEquals("JMSXGroupID", "abc", message.getStringProperty("JMSXGroupID"));
+   }
+
+   @Test
+   public void testSendMessageWithDeliveryTime() throws Exception {
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      conn.connect(defUser, defPass);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+                                   .addHeader("foo", "abc")
+                                   .addHeader("bar", "123")
+                                   .addHeader("correlation-id", "c123")
+                                   .addHeader("persistent", "true")
+                                   .addHeader("type", "t345")
+                                   .addHeader("JMSXGroupID", "abc")
+                                   .addHeader("priority", "3")
+                                   .addHeader("AMQ_SCHEDULED_TIME", Long.toString(System.currentTimeMillis() + 2000))
+                                   .setBody("Hello World");
+      conn.sendFrame(frame);
+
+      assertNull("Should not receive message yet", consumer.receive(1000));
+
+      TextMessage message = (TextMessage) consumer.receive(4000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      Assert.assertEquals("JMSCorrelationID", "c123", message.getJMSCorrelationID());
+      Assert.assertEquals("getJMSType", "t345", message.getJMSType());
+      Assert.assertEquals("getJMSPriority", 3, message.getJMSPriority());
+      Assert.assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
+      Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
+      Assert.assertEquals("JMSXGroupID", "abc", message.getStringProperty("JMSXGroupID"));
+   }
+
+   @Test
+   public void testSendMessageWithDelayWithBadValue() throws Exception {
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      conn.connect(defUser, defPass);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+                                   .addHeader("AMQ_SCHEDULED_DELAY", "foo")
+                                   .setBody("Hello World");
+      conn.sendFrame(frame);
+
+      assertNull("Should not receive message yet", consumer.receive(1000));
+
+      ClientStompFrame error = conn.receiveFrame();
+
+      Assert.assertNotNull(error);
+      Assert.assertTrue(error.getCommand().equals("ERROR"));
+   }
+
+   @Test
+   public void testSendMessageWithDeliveryTimeWithBadValue() throws Exception {
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      conn.connect(defUser, defPass);
+
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+                                   .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+                                   .addHeader("AMQ_SCHEDULED_TIME", "foo")
+                                   .setBody("Hello World");
+      conn.sendFrame(frame);
+
+      assertNull("Should not receive message yet", consumer.receive(1000));
+
+      ClientStompFrame error = conn.receiveFrame();
+
+      Assert.assertNotNull(error);
+      Assert.assertTrue(error.getCommand().equals("ERROR"));
    }
 
    @Test
