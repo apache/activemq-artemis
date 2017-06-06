@@ -267,8 +267,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public ConnectionMetaData getMetaData() throws JMSException {
       checkClosed();
 
-      justCreated = false;
-
       if (metaData == null) {
          metaData = new ActiveMQConnectionMetaData(thisVersion);
       }
@@ -323,7 +321,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          session.stop();
       }
 
-      justCreated = false;
       started = false;
    }
 
