@@ -98,6 +98,15 @@ public class ConnectionTest extends JMSTestCase {
    }
 
    @Test
+   public void testSetClientIdAfterStop() throws Exception {
+      try (Connection connection = createConnection()) {
+         connection.stop();
+         connection.setClientID("clientId");
+      }
+   }
+
+
+   @Test
    public void testSetClientAfterStart() throws Exception {
       Connection connection = null;
       try {
@@ -172,6 +181,14 @@ public class ConnectionTest extends JMSTestCase {
       metaData.getProviderVersion();
 
       connection.close();
+   }
+
+   @Test
+   public void testSetClientIdAfterGetMetadata() throws Exception {
+      try (Connection connection = createConnection()) {
+         connection.getMetaData();
+         connection.setClientID("clientId");
+      }
    }
 
    /**
