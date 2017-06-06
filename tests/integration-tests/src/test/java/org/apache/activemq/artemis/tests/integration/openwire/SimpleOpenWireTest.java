@@ -38,6 +38,7 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.jms.TopicConnection;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
@@ -1463,6 +1464,27 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          }
          if (connection2 != null) {
             connection2.close();
+         }
+      }
+   }
+
+   @Test
+   public void testNotificationProperties() throws Exception {
+      try (TopicConnection topicConnection = factory.createTopicConnection()) {
+         TopicSession topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic notificationsTopic = topicSession.createTopic("activemq.notifications");
+         TopicSubscriber subscriber = topicSession.createSubscriber(notificationsTopic);
+         List<Message> receivedMessages = new ArrayList<>();
+         subscriber.setMessageListener(receivedMessages::add);
+         topicConnection.start();
+
+         while (receivedMessages.size() == 0) {
+            Thread.sleep(1000);
+         }
+
+         for (Message message : receivedMessages) {
+            assertNotNull(message);
+            assertNotNull(message.getStringProperty("_AMQ_NotifType"));
          }
       }
    }
