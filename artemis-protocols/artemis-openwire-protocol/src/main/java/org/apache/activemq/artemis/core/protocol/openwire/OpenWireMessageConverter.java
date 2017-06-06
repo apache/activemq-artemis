@@ -94,6 +94,8 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
    private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
    private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
 
+   private static final String AMQ_NOTIFICATIONS_DESTINATION = "activemq.notifications";
+
    private final WireFormat marshaller;
 
    public OpenWireMessageConverter(WireFormat marshaller) {
@@ -774,7 +776,8 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       if (props != null) {
          for (SimpleString s : props) {
             String keyStr = s.toString();
-            if (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_")) {
+            if ((keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_")) &&
+                    !(actualDestination.toString().contains(AMQ_NOTIFICATIONS_DESTINATION))) {
                continue;
             }
             Object prop = coreMessage.getObjectProperty(s);
