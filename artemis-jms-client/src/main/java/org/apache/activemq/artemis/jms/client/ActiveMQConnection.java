@@ -242,13 +242,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          throw new IllegalStateException("setClientID can only be called directly after the connection is created");
       }
 
-      try {
-         initialSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
-      } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
-            throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
-         }
-      }
+      validateClientID(initialSession, clientID);
 
       this.clientID = clientID;
       try {
@@ -261,6 +255,16 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
 
       justCreated = false;
+   }
+
+   private void validateClientID(ClientSession validateSession, String clientID) throws InvalidClientIDException {
+      try {
+         validateSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
+      } catch (ActiveMQException e) {
+         if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
+            throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
+         }
+      }
    }
 
    @Override
@@ -668,6 +672,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public void authorize() throws JMSException {
       try {
          initialSession = sessionFactory.createSession(username, password, false, false, false, false, 0);
+
+         if (clientID != null) {
+            validateClientID(initialSession, clientID);
+         }
 
          addSessionMetaData(initialSession);
 
