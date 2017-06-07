@@ -600,9 +600,18 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       return mcfProperties.isHA();
    }
 
+   public void setAllowLocalTransactions(Boolean allowLocalTransactions) {
+      mcfProperties.setAllowLocalTransactions(allowLocalTransactions);
+   }
+
+   public Boolean isAllowLocalTransactions() {
+      return mcfProperties.isAllowLocalTransactions();
+   }
+
    public void setHA(Boolean ha) {
       mcfProperties.setHA(ha);
    }
+
 
    /**
     * Get the useTryLock.

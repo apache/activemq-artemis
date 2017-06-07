@@ -37,6 +37,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * Trace enabled
     */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
+   protected boolean allowLocalTransactions;
 
    /**
     * The user name
@@ -281,4 +282,11 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       this.jgroupsChannelRefName = jgroupsChannelRefName;
    }
 
+   public boolean isAllowLocalTransactions() {
+      return allowLocalTransactions;
+   }
+
+   public void setAllowLocalTransactions(boolean allowLocalTransactions) {
+      this.allowLocalTransactions = allowLocalTransactions;
+   }
 }
