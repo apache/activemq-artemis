@@ -120,6 +120,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    private final Set<TemporaryTopic> tempTopics = new HashSet<>();
 
+   private boolean allowLocalTransaction;
+
    /**
     * Constructor
     *
@@ -829,24 +831,32 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                //In the Java EE web or EJB container, when there is no active JTA transaction in progress
                // The argument {@code transacted} is ignored.
 
-               //The session will always be non-transacted,
-               transacted = false;
-               switch (acknowledgeMode) {
-                  //using one of the two acknowledgement modes AUTO_ACKNOWLEDGE and DUPS_OK_ACKNOWLEDGE.
-                  case Session.AUTO_ACKNOWLEDGE:
-                  case Session.DUPS_OK_ACKNOWLEDGE:
-                     //plus our own
-                  case ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE:
-                  case ActiveMQJMSConstants.PRE_ACKNOWLEDGE:
-                     break;
-                  //The value {@code Session.CLIENT_ACKNOWLEDGE} may not be used.
-                  case Session.CLIENT_ACKNOWLEDGE:
-                     throw ActiveMQRABundle.BUNDLE.invalidClientAcknowledgeModeRuntime();
-                     //same with this although the spec doesn't explicitly say
-                  case Session.SESSION_TRANSACTED:
-                     throw ActiveMQRABundle.BUNDLE.invalidSessionTransactedModeRuntime();
-                  default:
-                     throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(acknowledgeMode);
+               //The session will always be non-transacted, unless allow-local-transactions is true
+               if (transacted && mcf.isAllowLocalTransactions()) {
+                  acknowledgeMode = Session.SESSION_TRANSACTED;
+               } else {
+                  transacted = false;
+                  switch (acknowledgeMode) {
+                     //using one of the two acknowledgement modes AUTO_ACKNOWLEDGE and DUPS_OK_ACKNOWLEDGE.
+                     case Session.AUTO_ACKNOWLEDGE:
+                     case Session.DUPS_OK_ACKNOWLEDGE:
+                        //plus our own
+                     case ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE:
+                     case ActiveMQJMSConstants.PRE_ACKNOWLEDGE:
+                        break;
+                     //The value {@code Session.CLIENT_ACKNOWLEDGE} may not be used.
+                     case Session.CLIENT_ACKNOWLEDGE:
+                        throw ActiveMQRABundle.BUNDLE.invalidClientAcknowledgeModeRuntime();
+                        //same with this although the spec doesn't explicitly say
+                     case Session.SESSION_TRANSACTED:
+                        if (!mcf.isAllowLocalTransactions()) {
+                           throw ActiveMQRABundle.BUNDLE.invalidSessionTransactedModeRuntimeAllowLocal();
+                        }
+                        transacted = true;
+                        break;
+                     default:
+                        throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(acknowledgeMode);
+                  }
                }
             }
 

@@ -43,6 +43,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * The topic type
     */
    private static final String TOPIC_TYPE = Topic.class.getName();
+   protected boolean allowLocalTransactions;
 
    private String strConnectorClassName;
 
@@ -170,5 +171,13 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
       }
 
       this.useTryLock = useTryLock;
+   }
+
+   public boolean isAllowLocalTransactions() {
+      return allowLocalTransactions;
+   }
+
+   public void setAllowLocalTransactions(boolean allowLocalTransactions) {
+      this.allowLocalTransactions = allowLocalTransactions;
    }
 }
