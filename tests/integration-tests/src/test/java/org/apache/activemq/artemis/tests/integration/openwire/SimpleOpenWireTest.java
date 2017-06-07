@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Assert;
@@ -1478,9 +1479,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          subscriber.setMessageListener(receivedMessages::add);
          topicConnection.start();
 
-         while (receivedMessages.size() == 0) {
-            Thread.sleep(1000);
-         }
+         Wait.waitFor(() -> receivedMessages.size() > 0);
+
+         Assert.assertTrue(receivedMessages.size() > 0);
 
          for (Message message : receivedMessages) {
             assertNotNull(message);
