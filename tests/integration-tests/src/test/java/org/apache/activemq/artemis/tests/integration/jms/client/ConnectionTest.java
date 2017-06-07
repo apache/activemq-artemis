@@ -100,7 +100,37 @@ public class ConnectionTest extends JMSTestBase {
       } catch (InvalidClientIDException expected) {
          // expected
       }
+
+
+      Session session1 = conn.createSession();
+      Session session2 = conn.createSession();
+
+      session1.close();
+      session2.close();
+
    }
+
+
+   @Test
+   public void testTwoConnectionsSameIDThroughCF() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616?clientID=myid");
+
+      conn = connectionFactory.createConnection();
+      try {
+         conn2 = connectionFactory.createConnection();
+         Assert.fail("Exception expected");
+      } catch (InvalidClientIDException expected) {
+         // expected
+      }
+
+
+      Session session1 = conn.createSession();
+      Session session2 = conn.createSession();
+
+      session1.close();
+      session2.close();
+   }
+
 
    @Test
    public void testGetSetConnectionFactory() throws Exception {
