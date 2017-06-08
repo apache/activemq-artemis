@@ -87,6 +87,8 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    private boolean cacheDestinations;
 
    private boolean finalizeChecks;
+   
+   private boolean amqpCompatibleQueues;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
@@ -439,6 +441,15 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       this.cacheDestinations = cacheDestinations;
    }
 
+   public synchronized boolean isAmqpCompatibleQueues() {
+      return this.amqpCompatibleQueues;
+   }
+
+   public synchronized void setAmqpCompatibleQueues(final boolean amqpCompatibleQueues) {
+      checkWrite();
+      this.amqpCompatibleQueues = amqpCompatibleQueues;
+   }
+
    public synchronized long getClientFailureCheckPeriod() {
       return serverLocator.getClientFailureCheckPeriod();
    }
@@ -777,19 +788,19 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       if (isXA) {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues, factory);
          } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues,factory);
          } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues, factory);
          }
       } else {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues, factory);
          } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues, factory);
          } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, cacheDestinations, amqpCompatibleQueues, factory);
          }
       }
 

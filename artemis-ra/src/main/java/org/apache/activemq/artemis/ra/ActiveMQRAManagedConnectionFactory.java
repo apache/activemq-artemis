@@ -588,6 +588,14 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setCacheDestinations(cacheDestinations);
    }
 
+   public Boolean isAmqpCompatibleQueues() {
+      return mcfProperties.isAmqpCompatibleQueues();
+   }
+
+   public void setAmqpCompatibleQueues(final Boolean amqpCompatibleQueues) {
+      mcfProperties.setAmqpCompatibleQueues(amqpCompatibleQueues);
+   }
+   
    public Integer getScheduledThreadPoolMaxSize() {
       return mcfProperties.getScheduledThreadPoolMaxSize();
    }

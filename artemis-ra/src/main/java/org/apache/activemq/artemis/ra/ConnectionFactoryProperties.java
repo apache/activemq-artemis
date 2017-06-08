@@ -114,6 +114,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Boolean cacheDestinations;
 
+   private Boolean amqpCompatibleQueues;
+
    private Integer initialMessagePacketSize;
 
    private Integer scheduledThreadPoolMaxSize;
@@ -627,6 +629,21 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       }
       hasBeenUpdated = true;
       this.cacheDestinations = cacheDestinations;
+   }
+
+   public Boolean isAmqpCompatibleQueues() {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("isAmqpCompatibleQueues()");
+      }
+      return amqpCompatibleQueues;
+   }
+
+   public void setAmqpCompatibleQueues(final Boolean amqpCompatibleQueues) {
+      if (ConnectionFactoryProperties.trace) {
+         ActiveMQRALogger.LOGGER.trace("setAmqpCompatibleQueues(" + amqpCompatibleQueues + ")");
+      }
+      hasBeenUpdated = true;
+      this.amqpCompatibleQueues = amqpCompatibleQueues;
    }
 
    public Integer getScheduledThreadPoolMaxSize() {

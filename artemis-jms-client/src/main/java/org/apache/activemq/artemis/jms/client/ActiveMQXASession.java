@@ -37,8 +37,9 @@ public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession
                                boolean xa,
                                int ackMode,
                                boolean cacheDestinations,
+                               boolean amqpCompatibleQueues,
                                ClientSession session,
                                int sessionType) {
-      super(options, connection, transacted, xa, ackMode, cacheDestinations, session, sessionType);
+      super(options, connection, transacted, xa, ackMode, cacheDestinations, amqpCompatibleQueues, session, sessionType);
    }
 }
