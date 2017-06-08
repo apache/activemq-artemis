@@ -32,6 +32,8 @@ import org.junit.Test;
 
 public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
 
+   public static final String SHARED_CONSUMER = "WithDot.SharedConsumer";
+
    @Override
    protected String getConfiguredProtocols() {
       return "AMQP,OPENWIRE,CORE";
@@ -45,8 +47,8 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
          Topic topic = session1.createTopic(getTopicName());
          Topic topic2 = session2.createTopic(getTopicName());
 
-         final MessageConsumer consumer1 = session1.createSharedDurableConsumer(topic, "SharedConsumer");
-         final MessageConsumer consumer2 = session2.createSharedDurableConsumer(topic2, "SharedConsumer");
+         final MessageConsumer consumer1 = session1.createSharedDurableConsumer(topic, SHARED_CONSUMER);
+         final MessageConsumer consumer2 = session2.createSharedDurableConsumer(topic2, SHARED_CONSUMER);
 
          MessageProducer producer = session1.createProducer(topic);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);

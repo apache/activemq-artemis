@@ -738,7 +738,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                                          boolean shared,
                                          boolean global,
                                          boolean isVolatile) {
-      String queue = clientId == null || clientId.isEmpty() || global ? pubId : clientId + "." + pubId;
+      String queue = clientId == null || clientId.isEmpty() || global ? escape(pubId) : escape(clientId) + "." + escape(pubId);
       if (shared) {
          if (queue.contains("|")) {
             queue = queue.split("\\|")[0];
@@ -748,5 +748,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
       }
       return queue;
+   }
+
+   private static String escape(final String input) {
+      if (input == null) {
+         return "";
+      }
+      return input.replace("\\", "\\\\").replace(".", "\\.");
    }
 }

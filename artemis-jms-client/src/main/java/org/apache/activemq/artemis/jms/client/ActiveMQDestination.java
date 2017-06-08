@@ -124,18 +124,6 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
    }
 
-   public static String createQueueNameForSharedSubscription(final boolean isDurable,
-                                                             final String clientID,
-                                                             final String subscriptionName) {
-      if (clientID != null) {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(clientID) + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
-      } else {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
-      }
-   }
 
    public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName) {
       StringBuffer[] parts = new StringBuffer[2];
