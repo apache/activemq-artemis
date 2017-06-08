@@ -197,7 +197,16 @@ public final class ManagementHelper {
    public static Object[] getResults(final ICoreMessage message) throws Exception {
       SimpleString sstring = message.getReadOnlyBodyBuffer().readNullableSimpleString();
       String jsonString = (sstring == null) ? null : sstring.toString();
+      return getResults(jsonString);
+   }
 
+   /**
+    * Returns the result of an operation invocation or an attribute value.
+    * <br>
+    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
+    * and the result will be a String corresponding to the server exception.
+    */
+   public static Object[] getResults(final String jsonString) throws Exception {
       if (jsonString != null) {
          JsonArray jsonArray = JsonUtil.readJsonArray(jsonString);
          return JsonUtil.fromJsonArray(jsonArray);
@@ -223,6 +232,22 @@ public final class ManagementHelper {
     * and the result will be a String corresponding to the server exception.
     */
    public static Object getResult(final ICoreMessage message, Class desiredType) throws Exception {
+      Object[] res = ManagementHelper.getResults(message);
+
+      if (res != null) {
+         return JsonUtil.convertJsonValue(res[0], desiredType);
+      } else {
+         return null;
+      }
+   }
+
+   /**
+    * Returns the result of an operation invocation or an attribute value.
+    * <br>
+    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
+    * and the result will be a String corresponding to the server exception.
+    */
+   public static Object getResult(final String message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
 
       if (res != null) {
