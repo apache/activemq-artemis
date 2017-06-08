@@ -66,7 +66,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
       server = createServer(false, isNetty);
 
       server.start();
-      ServerLocator locator = createFactory(isNetty).setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024).setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
+      ServerLocator locator = createFactory(isNetty).setReconnectAttempts(15).setConfirmationWindowSize(1024 * 1024).setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

@@ -314,7 +314,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testRecreateConsumerOverServerFailure() throws Exception {
-      ServerLocator serverWithReattach = createInVMNonHALocator().setReconnectAttempts(-1).setRetryInterval(1000).setConfirmationWindowSize(-1).setConnectionTTL(TemporaryQueueTest.CONNECTION_TTL).setClientFailureCheckPeriod(TemporaryQueueTest.CONNECTION_TTL / 3);
+      ServerLocator serverWithReattach = createInVMNonHALocator().setReconnectAttempts(30).setRetryInterval(1000).setConfirmationWindowSize(-1).setConnectionTTL(TemporaryQueueTest.CONNECTION_TTL).setClientFailureCheckPeriod(TemporaryQueueTest.CONNECTION_TTL / 3);
       ClientSessionFactory reattachSF = createSessionFactory(serverWithReattach);
 
       ClientSession session = reattachSF.createSession(false, false);

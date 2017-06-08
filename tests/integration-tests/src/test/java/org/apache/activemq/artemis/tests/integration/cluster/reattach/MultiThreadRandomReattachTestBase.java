@@ -1129,7 +1129,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
     */
    @Override
    protected ServerLocator createLocator() throws Exception {
-      ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(15).setConfirmationWindowSize(1024 * 1024);
       return locator;
    }
 
