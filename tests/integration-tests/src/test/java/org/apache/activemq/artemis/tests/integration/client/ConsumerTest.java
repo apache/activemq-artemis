@@ -128,7 +128,7 @@ public class ConsumerTest extends ActiveMQTestBase {
    public void testStressConnection() throws Exception {
 
       for (int i = 0; i < 10; i++) {
-         ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(-1);
+         ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(15);
          ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
          factoryx.close();
          locatorSendx.close();
@@ -770,7 +770,7 @@ public class ConsumerTest extends ActiveMQTestBase {
                @Override
                public void onMessage(final ClientMessage msg) {
                   try {
-                     ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(-1);
+                     ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(15);
                      ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
                      ClientSession sessionSend = factoryx.createSession(true, true);
 

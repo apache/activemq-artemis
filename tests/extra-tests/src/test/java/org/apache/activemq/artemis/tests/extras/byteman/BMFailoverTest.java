@@ -350,7 +350,7 @@ public class BMFailoverTest extends FailoverTestBase {
    }
 
    private void createSessionFactory() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }

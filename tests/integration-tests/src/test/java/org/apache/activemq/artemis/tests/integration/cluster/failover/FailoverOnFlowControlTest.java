@@ -42,7 +42,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
 
    @Test
    public void testOverflowSend() throws Exception {
-      ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1).setProducerWindowSize(1000).setRetryInterval(123);
+      ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setProducerWindowSize(1000).setRetryInterval(100);
       final ArrayList<ClientSession> sessionList = new ArrayList<>();
       Interceptor interceptorClient = new Interceptor() {
          AtomicInteger count = new AtomicInteger(0);

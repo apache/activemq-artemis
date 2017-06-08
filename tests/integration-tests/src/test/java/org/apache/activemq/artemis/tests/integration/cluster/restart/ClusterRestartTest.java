@@ -43,7 +43,7 @@ public class ClusterRestartTest extends ClusterTestBase {
       System.out.println("server 0 = " + getServer(0).getNodeID());
       System.out.println("server 1 = " + getServer(1).getNodeID());
 
-      setupSessionFactory(0, isNetty(), -1);
+      setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
 
       // create some dummy queues to ensure that the test queue has a high numbered binding
@@ -106,7 +106,7 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       System.out.println("server 0 = " + getServer(0).getNodeID());
       System.out.println("server 1 = " + getServer(1).getNodeID());
-      setupSessionFactory(0, isNetty(), -1);
+      setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
 
       // create some dummy queues to ensure that the test queue has a high numbered binding

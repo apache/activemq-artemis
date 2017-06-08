@@ -80,7 +80,7 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       // for logging and debugging
       topology.setOwner("testMultipleFailovers");
 
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       int backupNode;

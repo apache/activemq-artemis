@@ -232,7 +232,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
    private void createSessionFactory() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
-         .setReconnectAttempts(-1);
+         .setReconnectAttempts(15);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }
 
