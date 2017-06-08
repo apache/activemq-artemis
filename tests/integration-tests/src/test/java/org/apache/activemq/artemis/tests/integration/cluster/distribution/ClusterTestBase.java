@@ -1427,7 +1427,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       TransportConfiguration serverToTC = createTransportConfiguration(netty, false, params);
 
-      locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC)).setRetryInterval(100).setRetryIntervalMultiplier(1d).setReconnectAttempts(-1).setBlockOnNonDurableSend(blocking).setBlockOnDurableSend(blocking);
+      locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC)).setRetryInterval(100).setRetryIntervalMultiplier(1d).setReconnectAttempts(300).setBlockOnNonDurableSend(blocking).setBlockOnDurableSend(blocking);
 
       final String identity = "TestClientConnector,live=" + node + ",backup=" + backupNode;
       ((ServerLocatorInternal) locators[node]).setIdentity(identity);
