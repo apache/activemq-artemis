@@ -105,7 +105,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
    @Test
    public void testMultipleConnectorSingleServerConnectReconnect() throws Exception {
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())));
-      locator.setReconnectAttempts(-1);
+      locator.setReconnectAttempts(15);
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
       assertEquals(csf.numConnections(), 1);
@@ -131,7 +131,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
    @Test
    public void testMultipleConnectorSingleServerNoConnectAttemptReconnect() throws Exception {
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(5, isNetty())));
-      locator.setReconnectAttempts(-1);
+      locator.setReconnectAttempts(15);
       CountDownLatch countDownLatch = new CountDownLatch(1);
       Connector target = new Connector(locator, countDownLatch);
       Thread t = new Thread(target);
