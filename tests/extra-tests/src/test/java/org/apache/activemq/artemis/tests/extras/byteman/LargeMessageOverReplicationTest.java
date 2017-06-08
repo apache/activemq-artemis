@@ -25,6 +25,7 @@ import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -79,7 +80,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
 
       liveServer = createServer(liveConfig);
-      liveServer.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName("Queue").setAddress("Queue"));
+      liveServer.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName("Queue").setAddress("Queue").setRoutingType(RoutingType.ANYCAST));
       liveServer.start();
 
       waitForServerToStart(liveServer);
