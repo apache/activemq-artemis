@@ -171,7 +171,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          backupNode.start();
          waitForRemoteBackupSynchronization(backupNode.getActiveMQServer());
 
-         locator = ActiveMQClient.createServerLocatorWithHA(liveConnector).setReconnectAttempts(-1);
+         locator = ActiveMQClient.createServerLocatorWithHA(liveConnector).setReconnectAttempts(15);
          sessionFactory = locator.createSessionFactory();
       }
 
@@ -191,7 +191,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
             @Override
             public ConnectionFactory createConnectionFactory() throws Exception {
                ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, liveConnector);
-               cf.getServerLocator().setReconnectAttempts(-1);
+               cf.getServerLocator().setReconnectAttempts(15);
                return cf;
             }
          };

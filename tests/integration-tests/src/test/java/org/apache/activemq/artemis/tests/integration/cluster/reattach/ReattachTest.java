@@ -192,7 +192,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 1d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -267,7 +267,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 1d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       final long asyncFailDelay = 2000;
 
@@ -447,11 +447,11 @@ public class ReattachTest extends ActiveMQTestBase {
 
       try {
 
-         final long retryInterval = 50;
+         final long retryInterval = 100;
 
          final double retryMultiplier = 1d;
 
-         final int reconnectAttempts = -1;
+         final int reconnectAttempts = 300;
 
          locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -542,7 +542,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 1d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -621,11 +621,11 @@ public class ReattachTest extends ActiveMQTestBase {
 
    @Test
    public void testCreateQueue() throws Exception {
-      final long retryInterval = 50;
+      final long retryInterval = 100;
 
       final double retryMultiplier = 1d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 300;
 
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -748,7 +748,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 1d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -827,7 +827,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 2d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       locator.setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryMultiplier).setReconnectAttempts(reconnectAttempts).setConfirmationWindowSize(1024 * 1024);
 
@@ -894,7 +894,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       final double retryMultiplier = 2d;
 
-      final int reconnectAttempts = -1;
+      final int reconnectAttempts = 60;
 
       final long maxRetryInterval = 1000;
 
