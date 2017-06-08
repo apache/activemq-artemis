@@ -738,6 +738,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                                          boolean shared,
                                          boolean global,
                                          boolean isVolatile) {
+      if (pubId.endsWith("|global")) {
+         global = true;
+      }
       String queue = clientId == null || clientId.isEmpty() || global ? pubId : clientId + "." + pubId;
       if (shared) {
          if (queue.contains("|")) {

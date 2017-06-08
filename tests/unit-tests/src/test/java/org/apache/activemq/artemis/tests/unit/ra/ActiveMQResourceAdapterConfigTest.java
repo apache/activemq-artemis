@@ -259,6 +259,12 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-type>boolean</config-property-type>" +
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +
+      "      <config-property>" +
+      "         <description>Set if to use AMQP compatible queue naming or legacy naming</description>" +
+      "         <config-property-name>AmqpCompatibleQueues</config-property-name>" +
+      "         <config-property-type>boolean</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
       "      <config-property>\n" +
       "         <description>max number of threads for scheduled thread pool</description>\n" +
       "         <config-property-name>ScheduledThreadPoolMaxSize</config-property-name>\n" +

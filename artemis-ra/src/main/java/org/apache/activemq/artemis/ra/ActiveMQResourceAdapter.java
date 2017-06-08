@@ -661,6 +661,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
+    * Set amqpCompatibleQueues
+    *
+    * @param amqpCompatibleQueues The value
+    */
+   public void setAmqpCompatibleQueues(final Boolean amqpCompatibleQueues) {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("setAmqpCompatibleQueues(" + amqpCompatibleQueues + ")");
+      }
+
+      raProperties.setAmqpCompatibleQueues(amqpCompatibleQueues);
+   }
+
+   /**
+    * Get isAmqpCompatibleQueues
+    *
+    * @return The value
+    */
+   public Boolean isAmqpCompatibleQueues() {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("isAmqpCompatibleQueues()");
+      }
+
+      return raProperties.isAmqpCompatibleQueues();
+   }
+
+   /**
     * Set compressLargeMessage
     *
     * @param compressLargeMessage The value
