@@ -31,7 +31,7 @@ public class NettyMultiThreadRandomReattachTest extends MultiThreadRandomReattac
 
    @Override
    protected ServerLocator createLocator() throws Exception {
-      return createNettyNonHALocator().setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024).setAckBatchSize(0);
+      return createNettyNonHALocator().setReconnectAttempts(15).setConfirmationWindowSize(1024 * 1024).setAckBatchSize(0);
    }
 
 }
