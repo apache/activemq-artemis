@@ -171,7 +171,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
    private void createSessionFactory(int members) throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
-         .setReconnectAttempts(-1);
+         .setReconnectAttempts(15);
       sf = createSessionFactoryAndWaitForTopology(locator, members);
    }
 

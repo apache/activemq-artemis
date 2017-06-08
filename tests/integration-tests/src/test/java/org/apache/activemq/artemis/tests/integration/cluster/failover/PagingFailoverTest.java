@@ -87,7 +87,7 @@ public class PagingFailoverTest extends FailoverTestBase {
    }
 
    public void internalTestPage(final boolean transacted, final boolean failBeforeConsume) throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
@@ -165,7 +165,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    @Test
    public void testExpireMessage() throws Exception {
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(true, true, 0);

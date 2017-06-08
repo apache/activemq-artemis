@@ -192,11 +192,11 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    }
 
    protected ServerLocatorInternal getServerLocator(int node) throws Exception {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node))).setRetryInterval(50).setReconnectAttempts(-1).setInitialConnectAttempts(-1);
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node))).setRetryInterval(100).setReconnectAttempts(300).setInitialConnectAttempts(300);
    }
 
    protected ServerLocatorInternal getBackupServerLocator(int node) throws Exception {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node))).setRetryInterval(50).setReconnectAttempts(-1).setInitialConnectAttempts(-1);
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node))).setRetryInterval(100).setReconnectAttempts(300).setInitialConnectAttempts(300);
    }
 
    protected ClientSession createSession(ClientSessionFactory sf,
