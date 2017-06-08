@@ -102,85 +102,49 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
    }
 
-   public static String createQueueNameForDurableSubscription(final boolean isDurable,
-                                                              final String clientID,
-                                                              final String subscriptionName) {
+   public static String createQueueNameForSubscription(final boolean amqpCompatibleQueues,
+                                                       final boolean isDurable,
+                                                       final String clientID,
+                                                       final String subscriptionName) {
+      
+      if (amqpCompatibleQueues) {
+         return createQueueNameForAmqpCompatibleSubscription(isDurable, clientID, subscriptionName);
+      } else {
+         return createQueueNameForLegacySubscription(isDurable, clientID, subscriptionName);
+      }
+   }
+
+   public static String createQueueNameForLegacySubscription(final boolean isDurable,
+                                                             final String clientID,
+                                                             final String subscriptionName) {
       if (clientID != null) {
          if (isDurable) {
             return ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+                   ActiveMQDestination.escape(subscriptionName);
          } else {
             return "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+                   ActiveMQDestination.escape(clientID) + SEPARATOR +
+                   ActiveMQDestination.escape(subscriptionName);
          }
       } else {
          if (isDurable) {
             return ActiveMQDestination.escape(subscriptionName);
          } else {
             return "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+                   ActiveMQDestination.escape(subscriptionName);
          }
       }
    }
 
-   public static String createQueueNameForSharedSubscription(final boolean isDurable,
-                                                             final String clientID,
-                                                             final String subscriptionName) {
-      if (clientID != null) {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(clientID) + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
-      } else {
-         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
-            ActiveMQDestination.escape(subscriptionName);
+   public static String createQueueNameForAmqpCompatibleSubscription(final boolean isDurable,
+                                                                     final String clientID,
+                                                                     final String subscriptionName) {
+      String queue = clientID == null || clientID.isEmpty() ? subscriptionName : clientID + SEPARATOR + subscriptionName;
+      if (!isDurable) {
+         queue += ":shared-volatile";
       }
-   }
-
-   public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName) {
-      StringBuffer[] parts = new StringBuffer[2];
-      int currentPart = 0;
-
-      parts[0] = new StringBuffer();
-      parts[1] = new StringBuffer();
-
-      int pos = 0;
-      while (pos < queueName.length()) {
-         char ch = queueName.charAt(pos);
-         pos++;
-
-         if (ch == SEPARATOR) {
-            currentPart++;
-            if (currentPart >= parts.length) {
-               throw new JMSRuntimeException("Invalid message queue name: " + queueName);
-            }
-
-            continue;
-         }
-
-         if (ch == '\\') {
-            if (pos >= queueName.length()) {
-               throw new JMSRuntimeException("Invalid message queue name: " + queueName);
-            }
-            ch = queueName.charAt(pos);
-            pos++;
-         }
-
-         parts[currentPart].append(ch);
-      }
-
-      if (currentPart != 1) {
-         /* JMS 2.0 introduced the ability to create "shared" subscriptions which do not require a clientID.
-          * In this case the subscription name will be the same as the queue name, but the above algorithm will put that
-          * in the wrong position in the array so we need to move it.
-          */
-         parts[1] = parts[0];
-         parts[0] = new StringBuffer();
-      }
-
-      Pair<String, String> pair = new Pair<>(parts[0].toString(), parts[1].toString());
-
-      return pair;
+      queue += ":global";
+      return queue;
    }
 
    public static SimpleString createQueueAddressFromName(final String name) {

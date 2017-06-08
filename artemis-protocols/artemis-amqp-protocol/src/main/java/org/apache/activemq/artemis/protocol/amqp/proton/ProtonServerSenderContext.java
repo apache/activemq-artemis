@@ -744,7 +744,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             queue = queue.split("\\|")[0];
          }
          if (isVolatile) {
-            queue = "nonDurable" + "." + queue;
+            queue += ":shared-volatile";
+         }
+         if (global) {
+            queue += ":global";
          }
       }
       return queue;
