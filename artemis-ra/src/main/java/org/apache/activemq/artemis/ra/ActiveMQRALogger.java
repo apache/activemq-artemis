@@ -77,6 +77,10 @@ public interface ActiveMQRALogger extends BasicLogger {
    @Message(id = 151006, value = "Cluster topology change detected. Re-balancing connections on even {0}.", format = Message.Format.MESSAGE_FORMAT)
    void rebalancingConnections(String event);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 151007, value = "Resource adaptor started", format = Message.Format.MESSAGE_FORMAT)
+   void resourceAdaptorStarted();
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 152001, value = "problem resetting xa session after failure", format = Message.Format.MESSAGE_FORMAT)
    void problemResettingXASession(@Cause Throwable t);
@@ -112,6 +116,14 @@ public interface ActiveMQRALogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 152009, value = "Unable to validate properties", format = Message.Format.MESSAGE_FORMAT)
    void unableToValidateProperties(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 152010, value = "Unable to clear the transaction", format = Message.Format.MESSAGE_FORMAT)
+   void unableToClearTheTransaction(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 152011, value = "Unable to close the factory", format = Message.Format.MESSAGE_FORMAT)
+   void unableToCloseFactory(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 154000, value = "Error while creating object Reference.", format = Message.Format.MESSAGE_FORMAT)
