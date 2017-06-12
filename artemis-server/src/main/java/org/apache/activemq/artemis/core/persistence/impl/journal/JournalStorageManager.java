@@ -145,8 +145,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       int fileSize = config.getJournalFileSize();
       // we need to correct the file size if its not a multiple of the alignement
-      if (fileSize % journalFF.getAlignment() != 0) {
-         int difference = fileSize % journalFF.getAlignment();
+      int modulus = fileSize % journalFF.getAlignment();
+      if (modulus != 0) {
+         int difference = modulus;
          int low = config.getJournalFileSize() - difference;
          int high = low + journalFF.getAlignment();
          fileSize = difference < journalFF.getAlignment() / 2 ? low : high;
