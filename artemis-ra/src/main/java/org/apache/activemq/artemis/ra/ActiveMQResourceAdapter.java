@@ -251,7 +251,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
       }
 
-      ActiveMQRALogger.LOGGER.info("Resource adaptor started");
+      ActiveMQRALogger.LOGGER.resourceAdaptorStarted();
    }
 
    /**

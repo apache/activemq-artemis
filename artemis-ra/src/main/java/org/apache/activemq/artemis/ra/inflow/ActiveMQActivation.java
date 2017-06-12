@@ -421,7 +421,7 @@ public class ActiveMQActivation {
             // closing the factory will help making sure pending threads are closed
             factory.close();
          } catch (Throwable e) {
-            ActiveMQRALogger.LOGGER.warn(e);
+            ActiveMQRALogger.LOGGER.unableToCloseFactory(e);
          }
 
          factory = null;
