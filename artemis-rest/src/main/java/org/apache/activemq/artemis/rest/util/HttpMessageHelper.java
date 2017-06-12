@@ -83,7 +83,7 @@ public class HttpMessageHelper {
                ActiveMQRestLogger.LOGGER.debug("**** Building Message from object: " + obj.toString());
                request.body(contentType, obj);
             } catch (Exception e) {
-               ActiveMQRestLogger.LOGGER.warn("Building Message from object", e.getMessage(), e);
+               ActiveMQRestLogger.LOGGER.failedToBuildMessageFromObject(e);
                throw new RuntimeException(e);
             }
          }
