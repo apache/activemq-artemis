@@ -205,7 +205,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
       for (int its = 0; its < numIts; its++) {
          RandomReattachTest.log.info("####" + getName() + " iteration #" + its);
          start();
-         ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
+         ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(15).setConfirmationWindowSize(1024 * 1024);
 
          ClientSessionFactory sf = createSessionFactory(locator);
 

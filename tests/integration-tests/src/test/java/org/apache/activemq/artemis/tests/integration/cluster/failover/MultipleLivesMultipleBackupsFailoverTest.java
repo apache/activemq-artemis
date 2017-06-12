@@ -73,7 +73,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
 
       waitForServerToStart(servers.get(4).getServer());
 
-      locator = getServerLocator(0).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(-1);
+      locator = getServerLocator(0).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 4, servers.get(0).getServer());
       ClientSession session = sendAndConsume(sf, true);
@@ -84,7 +84,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
 
       int liveAfter0 = waitForNewLive(10000, true, servers, 1, 2);
 
-      locator2 = getServerLocator(3).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(-1);
+      locator2 = getServerLocator(3).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(15);
 
       ClientSessionFactoryInternal sf2 = createSessionFactoryAndWaitForTopology(locator2, 4);
       ClientSession session2 = sendAndConsume(sf2, true);

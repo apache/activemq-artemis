@@ -82,8 +82,8 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
    @Before
    public void setUp() throws Exception {
       nettyLocator = createNettyNonHALocator();
-      nettyLocator.setRetryInterval(10);
-      nettyLocator.setReconnectAttempts(-1);
+      nettyLocator.setRetryInterval(100);
+      nettyLocator.setReconnectAttempts(300);
       mapCounter.clear();
       resourceAdapter = null;
       super.setUp();
