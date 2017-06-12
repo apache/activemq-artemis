@@ -821,7 +821,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public MessageReference reroute(final Message message,
                                    final Queue queue,
                                    final Transaction tx) throws Exception {
-
       setPagingStore(message);
 
       MessageReference reference = MessageReference.Factory.createReference(message, queue);
@@ -830,6 +829,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (scheduledDeliveryTime != null) {
          reference.setScheduledDeliveryTime(scheduledDeliveryTime);
       }
+      message.cleanupInternalProperties();
 
       message.incrementDurableRefCount();
 
