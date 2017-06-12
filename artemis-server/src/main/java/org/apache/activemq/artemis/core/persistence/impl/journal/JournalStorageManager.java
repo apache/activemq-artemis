@@ -142,7 +142,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       journalFF.setDatasync(config.isJournalDatasync());
 
-      Journal localMessage = new JournalImpl(ioExecutors, config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0);
+
+      int fileSize = config.getJournalFileSize();
+      // we need to correct the file size if its not a multiple of the alignement
+      if (fileSize % journalFF.getAlignment() != 0) {
+         int difference = fileSize % journalFF.getAlignment();
+         int low = config.getJournalFileSize() - difference;
+         int high = low + journalFF.getAlignment();
+         fileSize = difference < journalFF.getAlignment() / 2 ? low : high;
+         ActiveMQServerLogger.LOGGER.invalidJournalFileSize(config.getJournalFileSize(), fileSize, journalFF.getAlignment());
+      }
+      Journal localMessage = new JournalImpl(ioExecutors, fileSize, config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0);
 
       messageJournal = localMessage;
       originalMessageJournal = localMessage;
