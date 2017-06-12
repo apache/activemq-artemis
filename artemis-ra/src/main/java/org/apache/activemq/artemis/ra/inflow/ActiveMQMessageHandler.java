@@ -342,7 +342,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                      tx.setRollbackOnly();
                   }
                } catch (Exception e1) {
-                  ActiveMQRALogger.LOGGER.warn("unable to clear the transaction", e1);
+                  ActiveMQRALogger.LOGGER.unableToClearTheTransaction(e1);
                }
             }
 
