@@ -64,6 +64,14 @@ public interface ActiveMQRestLogger extends BasicLogger {
    @Message(id = 182001, value = "shutdown REST subscription because of timeout for: {0}", format = Message.Format.MESSAGE_FORMAT)
    void shutdownRestSubscription(String id);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 182002, value = "Failed to push message to {0}", format = Message.Format.MESSAGE_FORMAT)
+   void failedToPushMessageToUri(String uri, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 182003, value = "Failed to build Message from object", format = Message.Format.MESSAGE_FORMAT)
+   void failedToBuildMessageFromObject(@Cause Exception e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 184000, value = "Failed to load push store {0}, it is probably corrupted", format = Message.Format.MESSAGE_FORMAT)
    void errorLoadingStore(@Cause Exception e, String name);
