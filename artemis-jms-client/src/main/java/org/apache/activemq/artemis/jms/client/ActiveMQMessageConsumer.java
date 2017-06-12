@@ -229,7 +229,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                // nothing better than keep it for future investigations in case it happened again
                IndexOutOfBoundsException newIOOB = new IndexOutOfBoundsException(ioob.getMessage() + "@" + jmsMsg.getCoreMessage());
                newIOOB.initCause(ioob);
-               ActiveMQClientLogger.LOGGER.warn(newIOOB.getMessage(), newIOOB);
+               ActiveMQClientLogger.LOGGER.unableToGetMessage(newIOOB);
                throw ioob;
             }
 
