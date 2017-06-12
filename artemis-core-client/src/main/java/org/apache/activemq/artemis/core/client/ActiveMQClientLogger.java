@@ -315,6 +315,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void timeoutStreamingLargeMessage();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212058, value = "Unable to get a message.",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToGetMessage(@Cause Exception e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
@@ -441,5 +446,9 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214029, value = "Unexpected response from HTTP server: %s")
    void unexpectedResponseFromHttpServer(Object response);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214030, value = "Failed to bind {0}={1}", format = Message.Format.MESSAGE_FORMAT)
+   void failedToBind(String p1, String p2, @Cause Throwable cause);
 
 }
