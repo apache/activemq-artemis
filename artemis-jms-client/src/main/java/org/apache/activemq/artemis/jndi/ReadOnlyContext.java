@@ -101,7 +101,7 @@ public class ReadOnlyContext implements Context, Serializable {
             try {
                internalBind(binding.getKey(), binding.getValue());
             } catch (Throwable e) {
-               ActiveMQClientLogger.LOGGER.error("Failed to bind " + binding.getKey() + "=" + binding.getValue(), e);
+               ActiveMQClientLogger.LOGGER.failedToBind(binding.getKey(), binding.getValue().toString(), e);
             }
          }
       }
