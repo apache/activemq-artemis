@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -27,10 +26,32 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collection;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+@RunWith(Parameterized.class)
 public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
+
+   @Parameterized.Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   /* NOT private @see https://github.com/junit-team/junit4/wiki/parameterized-tests */
+   @Parameterized.Parameter(0)
+   public boolean amqpUseCoreSubscriptionNaming;
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      server.getConfiguration().setAmqpUseCoreSubscriptionNaming(amqpUseCoreSubscriptionNaming);
+   }
 
    @Override
    protected String getConfiguredProtocols() {
@@ -68,6 +89,10 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
          }
          assertNotNull("Should have received a message by now.", received);
          assertTrue("Should be an instance of TextMessage", received instanceof TextMessage);
+
+         consumer1.close();
+         consumer2.close();
+         session1.unsubscribe("SharedConsumer");
       } finally {
          connection1.close();
          connection2.close();
@@ -94,6 +119,7 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
 
    @Test(timeout = 30000)
    public void testSharedDurableConsumerWithAMQPClientAndArtemisClient() throws Exception {
+      org.junit.Assume.assumeTrue(amqpUseCoreSubscriptionNaming);
 
       Connection connection = createConnection(); //AMQP
       Connection connection2 = createCoreConnection(); //CORE
@@ -104,6 +130,7 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
 
    @Test(timeout = 30000)
    public void testSharedDurableConsumerWithArtemisClientAndAMQPClient() throws Exception {
+      org.junit.Assume.assumeTrue(amqpUseCoreSubscriptionNaming);
 
       Connection connection = createCoreConnection(); //CORE
       Connection connection2 = createConnection(); //AMQP
@@ -111,56 +138,4 @@ public class JMSSharedDurableConsumerTest extends JMSClientTestSupport {
       testSharedDurableConsumer(connection, connection2);
 
    }
-
-
-   protected String getBrokerCoreJMSConnectionString() {
-
-      try {
-         int port = AMQP_PORT;
-
-         String uri = null;
-
-         if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
-         } else {
-            uri = "tcp://127.0.0.1:" + port;
-         }
-
-         if (!getJmsConnectionURIOptions().isEmpty()) {
-            uri = uri + "?" + getJmsConnectionURIOptions();
-         }
-
-         return uri;
-      } catch (Exception e) {
-         throw new RuntimeException();
-      }
-   }
-
-   protected Connection createCoreConnection() throws JMSException {
-      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, true);
-   }
-
-   private Connection createCoreConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
-      ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
-
-      Connection connection = trackJMSConnection(factory.createConnection(username, password));
-
-      connection.setExceptionListener(new ExceptionListener() {
-         @Override
-         public void onException(JMSException exception) {
-            exception.printStackTrace();
-         }
-      });
-
-      if (clientId != null && !clientId.isEmpty()) {
-         connection.setClientID(clientId);
-      }
-
-      if (start) {
-         connection.start();
-      }
-
-      return connection;
-   }
-
 }
