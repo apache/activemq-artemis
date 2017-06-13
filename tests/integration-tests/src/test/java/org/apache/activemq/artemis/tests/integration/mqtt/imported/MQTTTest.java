@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
@@ -1896,6 +1898,41 @@ public class MQTTTest extends MQTTTestSupport {
 
       Message message = connection2.receive(5000, TimeUnit.MILLISECONDS);
       assertEquals(payload, new String(message.getPayload()));
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testBrokerRestartAfterSubHashWithConfigurationQueues() throws Exception {
+
+      // Add some pre configured queues
+      CoreQueueConfiguration coreQueueConfiguration = new CoreQueueConfiguration();
+      coreQueueConfiguration.setName("DLQ");
+      coreQueueConfiguration.setRoutingType(RoutingType.ANYCAST);
+      coreQueueConfiguration.setAddress("DLA");
+
+      CoreAddressConfiguration coreAddressConfiguration = new CoreAddressConfiguration();
+      coreAddressConfiguration.setName("DLA");
+      coreAddressConfiguration.addRoutingType(RoutingType.ANYCAST);
+      coreAddressConfiguration.addQueueConfiguration(coreQueueConfiguration);
+
+      getServer().getConfiguration().getAddressConfigurations().add(coreAddressConfiguration);
+
+      getServer().stop();
+      getServer().start();
+      getServer().waitForActivation(10, TimeUnit.SECONDS);
+
+      for (int i = 0; i < 2; i++) {
+         MQTT mqtt = createMQTTConnection("myClient", false);
+         BlockingConnection connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.subscribe(new Topic[]{new Topic("#", QoS.AT_MOST_ONCE)});
+         connection.disconnect();
+
+         getServer().stop();
+         getServer().start();
+         getServer().waitForActivation(10, TimeUnit.SECONDS);
+      }
+
+
    }
 
    @Test
