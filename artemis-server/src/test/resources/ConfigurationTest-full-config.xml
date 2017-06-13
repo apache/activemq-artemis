@@ -122,6 +122,7 @@
             <exclusive>false</exclusive>
          </divert>
       </diverts>
+      <amqp-use-core-subscription-naming>true</amqp-use-core-subscription-naming>
       <queues>
          <queue name="queue1">
             <address>address1</address>

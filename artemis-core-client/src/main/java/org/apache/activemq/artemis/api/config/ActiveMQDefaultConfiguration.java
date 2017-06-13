@@ -442,6 +442,8 @@ public final class ActiveMQDefaultConfiguration {
    // Default period to wait between configuration file checks
    public static final long DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD = 5000;
 
+   public static final boolean DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING = false;
+
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
    public static final int DEFAULT_MAX_DISK_USAGE = 100;
@@ -1205,6 +1207,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultConfigurationFileRefreshPeriod() {
       return DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD;
+   }
+
+   public static boolean getDefaultAmqpUseCoreSubscriptionNaming() {
+      return DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING;
    }
 
    /**

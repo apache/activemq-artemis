@@ -92,6 +92,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals("pagingdir", conf.getPagingDirectory());
       Assert.assertEquals("somedir", conf.getBindingsDirectory());
       Assert.assertEquals(false, conf.isCreateBindingsDir());
+      Assert.assertEquals(true, conf.isAmqpUseCoreSubscriptionNaming());
 
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
       Assert.assertEquals("somedir2", conf.getJournalDirectory());

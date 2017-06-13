@@ -102,9 +102,9 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
    }
 
-   public static String createQueueNameForDurableSubscription(final boolean isDurable,
-                                                              final String clientID,
-                                                              final String subscriptionName) {
+   public static String createQueueNameForSubscription(final boolean isDurable,
+                                                       final String clientID,
+                                                       final String subscriptionName) {
       if (clientID != null) {
          if (isDurable) {
             return ActiveMQDestination.escape(clientID) + SEPARATOR +
