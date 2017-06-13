@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -43,9 +44,9 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private final String extension;
 
-   private boolean isOpen = false;
+   private AtomicBoolean isOpen = new AtomicBoolean(false);
 
-   private boolean isLoaded = false;
+   private AtomicBoolean isLoaded = new AtomicBoolean(false);
 
    private long id = -1;
 
@@ -83,12 +84,12 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean isOpen() {
-      return isOpen;
+      return isOpen.get();
    }
 
    @Override
    public boolean exists() {
-      if (isLoaded) return true;
+      if (isLoaded.get()) return true;
       try {
          return fileFactory.listFiles(extension).contains(filename);
       } catch (Exception e) {
@@ -100,21 +101,20 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void open() throws Exception {
-      load();
-      isOpen = true;
+      isOpen.compareAndSet(false, load());
    }
 
-   private void load() {
+   private boolean load() {
       try {
-         synchronized (writeLock) {
-            if (!isLoaded) {
-               dbDriver.openFile(this);
-               isLoaded = true;
-            }
+         if (isLoaded.compareAndSet(false, true)) {
+            dbDriver.openFile(this);
          }
+         return true;
       } catch (SQLException e) {
+         isLoaded.set(false);
          fileFactory.onIOError(e, "Error attempting to open JDBC file.", this);
       }
+      return false;
    }
 
    @Override
@@ -146,8 +146,9 @@ public class JDBCSequentialFile implements SequentialFile {
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
          synchronized (writeLock) {
-            load();
-            dbDriver.deleteFile(this);
+            if (load()) {
+               dbDriver.deleteFile(this);
+            }
          }
       } catch (SQLException e) {
          fileFactory.onIOError(e, "Error deleting JDBC file.", this);
@@ -156,6 +157,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private synchronized int internalWrite(byte[] data, IOCallback callback) {
       try {
+         open();
          synchronized (writeLock) {
             int noBytes = dbDriver.writeToFile(this, data);
             seek(noBytes);
@@ -281,7 +283,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void close() throws Exception {
-      isOpen = false;
+      isOpen.set(false);
       sync();
       fileFactory.sequentialFileClosed(this);
    }
