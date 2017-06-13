@@ -290,6 +290,16 @@ public interface Configuration {
    Configuration setConnectionTTLOverride(long ttl);
 
    /**
+    * Returns if to use Core subscription naming for AMQP.
+    */
+   boolean isAmqpUseCoreSubscriptionNaming();
+
+   /**
+    * Sets if to use Core subscription naming for AMQP.
+    */
+   Configuration setAmqpUseCoreSubscriptionNaming(boolean amqpUseCoreSubscriptionNaming);
+
+   /**
     * Returns whether code coming from connection is executed asynchronously or not. <br>
     * Default value is
     * {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.

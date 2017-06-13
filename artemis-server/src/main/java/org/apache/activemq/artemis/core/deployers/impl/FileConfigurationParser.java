@@ -219,6 +219,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String INTERNAL_NAMING_PREFIX = "internal-naming-prefix";
 
+   private static final String AMQP_USE_CORE_SUBSCRIPTION_NAMING = "amqp-use-core-subscription-naming";
+
+
    // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
@@ -341,6 +344,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setDiskScanPeriod(getInteger(e, DISK_SCAN_PERIOD, config.getDiskScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
 
       config.setInternalNamingPrefix(getString(e, INTERNAL_NAMING_PREFIX, config.getInternalNamingPrefix(), Validators.NO_CHECK));
+
+      config.setAmqpUseCoreSubscriptionNaming(getBoolean(e, AMQP_USE_CORE_SUBSCRIPTION_NAMING, config.isAmqpUseCoreSubscriptionNaming()));
+
 
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);
