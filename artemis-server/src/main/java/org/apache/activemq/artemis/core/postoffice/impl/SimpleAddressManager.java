@@ -251,7 +251,7 @@ public class SimpleAddressManager implements AddressManager {
             if (binding instanceof QueueBinding) {
                final QueueBinding queueBinding = (QueueBinding) binding;
                final RoutingType routingType = queueBinding.getQueue().getRoutingType();
-               if (!routingTypes.contains(routingType)) {
+               if (!routingTypes.contains(routingType) && binding.getAddress().equals(addressName)) {
                   throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeDelete(routingType, addressName.toString());
                }
             }
