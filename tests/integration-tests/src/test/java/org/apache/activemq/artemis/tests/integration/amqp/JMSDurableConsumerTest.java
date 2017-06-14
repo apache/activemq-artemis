@@ -31,10 +31,16 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 
 public class JMSDurableConsumerTest extends JMSClientTestSupport {
+
+   @Override
+   protected String getConfiguredProtocols() {
+      return "AMQP,OPENWIRE,CORE";
+   }
 
    @Test(timeout = 30000)
    public void testDurableConsumerAsync() throws Exception {
@@ -199,4 +205,58 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          connection.close();
       }
    }
+
+
+   private void testDurableConsumer(Connection connection1, Connection connection2) throws JMSException {
+      try {
+         Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session1.createTopic(getTopicName());
+         final MessageConsumer consumer1 = session1.createDurableConsumer(topic, "Durable");
+
+         MessageProducer producer = session1.createProducer(topic);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         connection1.start();
+
+         TextMessage message = session1.createTextMessage();
+         message.setText("hello");
+         producer.send(message);
+
+         Message message1 = consumer1.receive(100);
+
+         assertNotNull("Should have received a message by now.", message1);
+         assertTrue("Should be an instance of TextMessage", message1 instanceof TextMessage);
+
+         consumer1.close();
+
+         producer.send(message);
+
+         Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic2 = session2.createTopic(getTopicName());
+         final MessageConsumer consumer2 = session2.createDurableConsumer(topic2, "Durable");
+         connection2.start();
+         Message message2 = consumer2.receive(100);
+
+         System.out.println((server.getPostOffice().listQueuesForAddress(new SimpleString(getTopicName()))));
+
+         assertNotNull("Should have received a message by now.", message2);
+         assertTrue("Should be an instance of TextMessage", message2 instanceof TextMessage);
+
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         connection1.close();
+         connection2.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSharedConsumerWithArtemisClientAndAMQPClient() throws Exception {
+
+      Connection connection = createCoreConnection("clientId"); //CORE
+      Connection connection2 = createConnection("clientId"); //AMQP
+
+      testDurableConsumer(connection, connection2);
+
+   }
+
 }

@@ -102,24 +102,30 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
    }
 
-   public static String createQueueNameForDurableSubscription(final boolean isDurable,
-                                                              final String clientID,
-                                                              final String subscriptionName) {
-      if (clientID != null) {
+   public static String createQueueNameForSubscription(final boolean amqpCompatibleQueues,
+                                                       final boolean isDurable,
+                                                       final String clientID,
+                                                       final String subscriptionName) {
+      final String clientId;
+      final String subscription;
+      if (amqpCompatibleQueues) {
+         clientId = clientID;
+         subscription = subscriptionName;
+      } else {
+         clientId = clientID == null ? null : ActiveMQDestination.escape(clientID);
+         subscription = ActiveMQDestination.escape(subscriptionName);
+      }
+      if (clientId != null) {
          if (isDurable) {
-            return ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+            return clientId + SEPARATOR + subscription;
          } else {
-            return "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(clientID) + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+            return "nonDurable" + SEPARATOR + clientId + SEPARATOR + subscription;
          }
       } else {
          if (isDurable) {
-            return ActiveMQDestination.escape(subscriptionName);
+            return subscription;
          } else {
-            return "nonDurable" + SEPARATOR +
-               ActiveMQDestination.escape(subscriptionName);
+            return "nonDurable" + SEPARATOR + subscription;
          }
       }
    }
