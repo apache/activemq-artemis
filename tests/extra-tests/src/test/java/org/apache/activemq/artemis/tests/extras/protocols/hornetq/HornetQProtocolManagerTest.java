@@ -46,6 +46,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * These tests attempt to mimic a legacy client without actually using a legacy versions of the client libraries.
+ */
 public class HornetQProtocolManagerTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
@@ -121,8 +124,12 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
          producer.send(message);
       }
 
+      // WORKAROUND: the 2.0.0 broker introduced addressing change and the 2.2.0 broker added compatibility for old
+      // client libraries relying on the legacy prefixes. The new client being used in this test needs prefix explicitly.
+      Queue prefixedQueueWorkaround = session.createQueue("jms.queue." + queue.getQueueName());
+
       connection.start();
-      MessageConsumer consumer = session.createConsumer(queue);
+      MessageConsumer consumer = session.createConsumer(prefixedQueueWorkaround);
       TextMessage messageRec = (TextMessage) consumer.receive(5000);
       Assert.assertNotNull(messageRec);
 
