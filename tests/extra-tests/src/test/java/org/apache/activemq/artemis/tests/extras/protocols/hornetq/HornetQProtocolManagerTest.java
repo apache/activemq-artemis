@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
@@ -46,6 +47,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * These tests attempt to mimic a legacy client without actually using a legacy versions of the client libraries.
+ */
 public class HornetQProtocolManagerTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
@@ -108,7 +112,9 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
       configuration.setProtocolManagerFactoryStr(HornetQClientProtocolManagerFactory.class.getName());
       embeddedJMS.getJMSServerManager().createConnectionFactory(false, configuration, "legacy");
 
-      Queue queue = (Queue) embeddedJMS.lookup("testQueue");
+      // WORKAROUND: the 2.0.0 broker introduced addressing change and the 2.2.0 broker added compatibility for old
+      // client libraries relying on the legacy prefixes. The new client being used in this test needs prefix explicitly.
+      Queue queue = new ActiveMQQueue("jms.queue.testQueue");
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) embeddedJMS.lookup("legacy");
       Connection connection = connectionFactory.createConnection();
