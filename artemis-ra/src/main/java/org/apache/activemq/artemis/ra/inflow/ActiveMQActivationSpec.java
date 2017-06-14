@@ -53,6 +53,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public String strConnectorClassName;
 
    public String strConnectionParameters;
+   protected boolean allowLocalTransactions;
 
    /**
     * The resource adapter
@@ -816,6 +817,14 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    }
 
    public void setMaxMessages(final Integer value) {
+   }
+
+   public boolean isAllowLocalTransactions() {
+      return allowLocalTransactions;
+   }
+
+   public void setAllowLocalTransactions(boolean allowLocalTransactions) {
+      this.allowLocalTransactions = allowLocalTransactions;
    }
 
    @Override
