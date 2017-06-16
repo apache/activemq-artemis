@@ -6,7 +6,7 @@ performance.
 ## Tuning persistence
 
 -   To get the best performance from Apache ActiveMQ Artemis whilst
-    using perisistent messages it is recommended that the file store
+    using persistent messages it is recommended that the file store
     is used.  Apache ActiveMQ Artemis also supports JDBC persistence,
     but there is a performance cost when persisting to a database vs 
     local disk.
