@@ -2455,6 +2455,22 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     What to do when a queue is no longer in broker.xml.
+                     OFF = will do nothing queues will remain,
+                     FORCE = delete queues even if messages remaining.
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                     <xsd:enumeration value="OFF"/>
+                     <xsd:enumeration value="FORCE"/>
+                  </xsd:restriction>
+               </xsd:simpleType>
+            </xsd:element>
+
             <xsd:element name="auto-create-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
@@ -2468,9 +2484,25 @@
             <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     whether or not to delete auto-created addresses when it no longer has any queues
+                     What to do when an address is no longer in broker.xml.
+                     OFF = will do nothing addresses will remain,
+                     FORCE = delete address and its queues even if messages remaining.
                   </xsd:documentation>
                </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="config-delete-addresses" default="OFF" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     What to do when an address is no longer in broker.xml. OFF = will do nothing addresses will remain, FORCE = delete queues, and address even if messages remaining.
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:simpleType>
+                  <xsd:restriction base="xsd:string">
+                     <xsd:enumeration value="OFF"/>
+                     <xsd:enumeration value="FORCE"/>
+                  </xsd:restriction>
+               </xsd:simpleType>
             </xsd:element>
 
             <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1"

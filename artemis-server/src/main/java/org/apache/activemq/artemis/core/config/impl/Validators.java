@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 
 /**
@@ -152,6 +153,16 @@ public final class Validators {
          String val = (String) value;
          if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) && !val.equals(SlowConsumerPolicy.NOTIFY.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
+         }
+      }
+   };
+
+   public static final Validator DELETION_POLICY_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null || !val.equals(DeletionPolicy.OFF.toString()) && !val.equals(DeletionPolicy.FORCE.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidDeletionPolicyType(val);
          }
       }
    };
