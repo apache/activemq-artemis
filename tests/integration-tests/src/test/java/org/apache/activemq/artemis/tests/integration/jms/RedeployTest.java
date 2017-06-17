@@ -27,8 +27,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -104,4 +108,72 @@ public class RedeployTest extends ActiveMQTestBase {
       }
 
    }
+
+
+
+
+   @Test
+   public void testRedeployAddressQueue() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-address-queues.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-address-queues-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedJMS embeddedJMS = new EmbeddedJMS();
+      embeddedJMS.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedJMS.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = new Runnable() {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+
+      embeddedJMS.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_2"));
+
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_address_removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_queue_removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_2"));
+
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedJMS.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         Assert.assertNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));
+         Assert.assertFalse(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_2"));
+
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_address_removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_queue_removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_2"));
+      } finally {
+         embeddedJMS.stop();
+      }
+   }
+
+   private AddressInfo getAddressInfo(EmbeddedJMS embeddedJMS, String address) {
+      return embeddedJMS.getActiveMQServer().getPostOffice().getAddressInfo(SimpleString.toSimpleString(address));
+   }
+
+   private List<String> listQueuesNamesForAddress(EmbeddedJMS embeddedJMS, String address) throws Exception {
+      return embeddedJMS.getActiveMQServer().getPostOffice().listQueuesForAddress(SimpleString.toSimpleString(address)).stream().map(
+          org.apache.activemq.artemis.core.server.Queue::getName).map(SimpleString::toString).collect(Collectors.toList());
+   }
+
 }
