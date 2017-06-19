@@ -81,6 +81,8 @@ public class JournalFilesRepository {
 
    private final AtomicInteger freeFilesCount = new AtomicInteger(0);
 
+   private final int journalFileOpenTimeout;
+
    private Executor openFilesExecutor;
 
    private final Runnable pushOpenRunnable = new Runnable() {
@@ -102,7 +104,8 @@ public class JournalFilesRepository {
                                  final int maxAIO,
                                  final int fileSize,
                                  final int minFiles,
-                                 final int poolSize) {
+                                 final int poolSize,
+                                 final int journalFileOpenTimeout) {
       if (filePrefix == null) {
          throw new IllegalArgumentException("filePrefix cannot be null");
       }
@@ -121,6 +124,7 @@ public class JournalFilesRepository {
       this.poolSize = poolSize;
       this.userVersion = userVersion;
       this.journal = journal;
+      this.journalFileOpenTimeout = journalFileOpenTimeout;
    }
 
    // Public --------------------------------------------------------
@@ -418,7 +422,7 @@ public class JournalFilesRepository {
          openFilesExecutor.execute(pushOpenRunnable);
       }
 
-      JournalFile nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
+      JournalFile nextFile = openedFiles.poll(journalFileOpenTimeout, TimeUnit.SECONDS);
       if (nextFile == null) {
          fileFactory.onIOError(ActiveMQJournalBundle.BUNDLE.fileNotOpened(), "unable to open ", null);
          // We need to reconnect the current file with the timed buffer as we were not able to roll the file forward
