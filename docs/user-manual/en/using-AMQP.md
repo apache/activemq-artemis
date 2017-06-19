@@ -28,6 +28,13 @@ If you send a body type that is not recognized by this specification the convers
 
 So, make sure you follow these conventions if you intend to cross protocols or languages. Especially on the message body.
 
+A compatibility setting, allows aligning the naming convention of AMQP queues (JMS Durable and Shared Subscriptions) with CORE.
+For backwards compatibility reasons, you need to explicitly enable this via broker configuration:
+
+* amqp-use-core-subscription-naming
+   * true - use queue naming convention that is aligned with CORE.
+   * false (DEFAULT) - use older naming convention.
+
 
 # Example
 
