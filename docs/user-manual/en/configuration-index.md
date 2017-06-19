@@ -44,6 +44,7 @@ Name | Description
 [acceptors.acceptor](configuring-transports.md "Understanding Acceptors") | Each acceptor is composed for just an URL
 [address-settings](address-model.md "Configuring Addresses and Queues Via Address Settings")                                                    |  [a list of address-setting](#address-setting-type)
 [allow-failback](ha.md "Failing Back to live Server")                                                                              |  Should stop backup on live restart. default true
+[amqp-use-core-subscription-naming](using-AMQP.md "Message Conversions")  | If true uses CORE queue naming convention for AMQP. default false
 [async-connection-execution-enabled](connection-ttl.md "Configuring Asynchronous Connection Execution")  | If False delivery would be always asynchronous. default true
 [bindings-directory](persistence.md "Configuring the bindings journal")  | The folder in use for the bindings folder
 [bridges](core-bridges.md "Core Bridges")  | [a list of bridge](#bridge-type)
