@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
@@ -68,6 +69,7 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
+import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
 
@@ -188,7 +190,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // subscription queue
          String clientId = getClientId();
          String pubId = sender.getName();
-         queue = createQueueName(clientId, pubId, true, global, false);
+         global = hasRemoteDesiredCapability(sender, GLOBAL);
+         queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, true, global, false);
          QueueQueryResult result = sessionSPI.queueQuery(queue, RoutingType.MULTICAST, false);
          multicast = true;
          routingTypeToUse = RoutingType.MULTICAST;
@@ -343,7 +346,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                // id and link name
                String clientId = getClientId();
                String pubId = sender.getName();
-               queue = createQueueName(clientId, pubId, shared, global, false);
+               queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, false);
                QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
 
                if (result.isExists()) {
@@ -369,7 +372,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                // otherwise we are a volatile subscription
                isVolatile = true;
                if (shared && sender.getName() != null) {
-                  queue = createQueueName(getClientId(), sender.getName(), shared, global, isVolatile);
+                  queue = createQueueName(connection.isUseCoreSubscriptionNaming(), getClientId(), sender.getName(), shared, global, isVolatile);
                   try {
                      sessionSPI.createSharedVolatileQueue(source.getAddress(), RoutingType.MULTICAST, queue, selector);
                   } catch (ActiveMQQueueExistsException e) {
@@ -493,7 +496,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                      if (pubId.contains("|")) {
                         pubId = pubId.split("\\|")[0];
                      }
-                     String queue = createQueueName(clientId, pubId, shared, global, isVolatile);
+                     String queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, isVolatile);
                      result = sessionSPI.queueQuery(queue, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, false);
                      //only delete if it isn't volatile and has no consumers
                      if (result.isExists() && !isVolatile && result.getConsumerCount() == 0) {
@@ -733,20 +736,43 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       return false;
    }
 
-   private static String createQueueName(String clientId,
+   private static boolean hasRemoteDesiredCapability(Link link, Symbol capability) {
+      Symbol[] remoteDesiredCapabilities = link.getRemoteDesiredCapabilities();
+      if (remoteDesiredCapabilities != null) {
+         for (Symbol cap : remoteDesiredCapabilities) {
+            if (capability.equals(cap)) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   private static String createQueueName(boolean useCoreSubscriptionNaming,
+                                         String clientId,
                                          String pubId,
                                          boolean shared,
                                          boolean global,
                                          boolean isVolatile) {
-      String queue = clientId == null || clientId.isEmpty() || global ? pubId : clientId + "." + pubId;
-      if (shared) {
-         if (queue.contains("|")) {
-            queue = queue.split("\\|")[0];
+      if (useCoreSubscriptionNaming) {
+         final boolean durable = !isVolatile;
+         final String subscriptionName = pubId.contains("|") ? pubId.split("\\|")[0] : pubId;
+         final String clientID = clientId == null || clientId.isEmpty() || global ? null : clientId;
+         return ActiveMQDestination.createQueueNameForSubscription(durable, clientID, subscriptionName);
+      } else {
+         String queue = clientId == null || clientId.isEmpty() || global ? pubId : clientId + "." + pubId;
+         if (shared) {
+            if (queue.contains("|")) {
+               queue = queue.split("\\|")[0];
+            }
+            if (isVolatile) {
+               queue += ":shared-volatile";
+            }
+            if (global) {
+               queue += ":global";
+            }
          }
-         if (isVolatile) {
-            queue = "nonDurable" + "." + queue;
-         }
+         return queue;
       }
-      return queue;
    }
 }

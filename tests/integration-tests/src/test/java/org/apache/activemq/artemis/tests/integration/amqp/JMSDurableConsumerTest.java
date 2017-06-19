@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,10 +33,30 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class JMSDurableConsumerTest extends JMSClientTestSupport {
+
+   @Parameterized.Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}")
+   public static Collection<Object[]> parameters() {
+      return Arrays.asList(new Object[][] {
+         {true}, {false}
+      });
+   }
+
+   /* NOT private @see https://github.com/junit-team/junit4/wiki/parameterized-tests */
+   @Parameterized.Parameter(0)
+   public boolean amqpUseCoreSubscriptionNaming;
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      server.getConfiguration().setAmqpUseCoreSubscriptionNaming(amqpUseCoreSubscriptionNaming);
+   }
 
    @Test(timeout = 30000)
    public void testDurableConsumerAsync() throws Exception {

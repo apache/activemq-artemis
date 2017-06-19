@@ -52,6 +52,16 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="amqp-use-core-subscription-naming" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="false">
+            <xsd:annotation>
+               <xsd:documentation>
+                  This enables making AMQP subscription queue names, match core queue names, for better interoperability between protocols.
+                  Note: Enabling this to an existing broker if pre-existing amqp durable subscriptions already existed will require
+                  clients to re-subscribe and to clean up old subscription names.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="resolve-protocols" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>
