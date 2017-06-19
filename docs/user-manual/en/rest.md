@@ -5,7 +5,7 @@ scalability features of Apache ActiveMQ Artemis over a simple REST/HTTP interfac
 The REST Interface implementation sits on top of an Apache ActiveMQ Artemis JMS API and
 as such exposes JMS like concepts via REST.
 
-Using the REST internface Messages can produced and consumed by sending 
+Using the REST interface Messages can be produced and consumed by sending 
 and receiving simple HTTP messages that contain the content you want to push around. For instance,
 here's a simple example of posting an order to an order processing queue
 express as an HTTP message:
