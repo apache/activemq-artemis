@@ -81,6 +81,8 @@ public class JournalFilesRepository {
 
    private final AtomicInteger freeFilesCount = new AtomicInteger(0);
 
+   private final int journalFileOpenTimeout;
+
    private Executor openFilesExecutor;
 
    private final Runnable pushOpenRunnable = new Runnable() {
@@ -103,7 +105,8 @@ public class JournalFilesRepository {
                                  final int maxAIO,
                                  final int fileSize,
                                  final int minFiles,
-                                 final int poolSize) {
+                                 final int poolSize,
+                                 final int journalFileOpenTimeout) {
       if (filePrefix == null) {
          throw new IllegalArgumentException("filePrefix cannot be null");
       }
@@ -122,6 +125,7 @@ public class JournalFilesRepository {
       this.poolSize = poolSize;
       this.userVersion = userVersion;
       this.journal = journal;
+      this.journalFileOpenTimeout = journalFileOpenTimeout;
    }
 
    // Public --------------------------------------------------------
@@ -421,7 +425,7 @@ public class JournalFilesRepository {
 
          pushOpen();
 
-         nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
+         nextFile = openedFiles.poll(journalFileOpenTimeout, TimeUnit.SECONDS);
       }
 
       if (openedFiles.isEmpty()) {
@@ -431,7 +435,7 @@ public class JournalFilesRepository {
 
       if (nextFile == null) {
 
-         logger.debug("Could not get a file in 5 seconds, it will retry directly, without an executor");
+         logger.debug("Could not get a file in " + journalFileOpenTimeout + " seconds, it will retry directly, without an executor");
          try {
             nextFile = takeFile(true, true, true, false);
          } catch (Exception e) {
