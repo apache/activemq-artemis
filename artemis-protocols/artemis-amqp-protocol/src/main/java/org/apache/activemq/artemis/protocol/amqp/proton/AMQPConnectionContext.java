@@ -74,16 +74,20 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final ProtonProtocolManager protocolManager;
 
+   private final boolean useCoreSubscriptionNaming;
+
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
                                 AMQPConnectionCallback connectionSP,
                                 String containerId,
                                 int idleTimeout,
                                 int maxFrameSize,
                                 int channelMax,
+                                boolean useCoreSubscriptionNaming,
                                 ScheduledExecutorService scheduledPool) {
 
       this.protocolManager = protocolManager;
       this.connectionCallback = connectionSP;
+      this.useCoreSubscriptionNaming = useCoreSubscriptionNaming;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
 
       connectionProperties.put(AmqpSupport.PRODUCT, "apache-activemq-artemis");
@@ -258,6 +262,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          // this is for tests only...
          return 100;
       }
+   }
+
+   public boolean isUseCoreSubscriptionNaming() {
+      return useCoreSubscriptionNaming;
    }
 
    @Override

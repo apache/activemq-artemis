@@ -112,7 +112,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       // Create the message consumer
       SimpleString selectorString = selector == null || selector.trim().equals("") ? null : new SimpleString(selector);
       if (activation.isTopic() && spec.isSubscriptionDurable()) {
-         SimpleString queueName = new SimpleString(ActiveMQDestination.createQueueNameForDurableSubscription(true, spec.getClientID(), spec.getSubscriptionName()));
+         SimpleString queueName = new SimpleString(ActiveMQDestination.createQueueNameForSubscription(true, spec.getClientID(), spec.getSubscriptionName()));
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
