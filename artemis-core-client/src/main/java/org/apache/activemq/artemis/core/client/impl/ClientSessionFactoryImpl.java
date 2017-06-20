@@ -1140,7 +1140,17 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          RemotingConnection theConn = connection;
 
          if (theConn != null && connectionID.equals(theConn.getID())) {
-            theConn.bufferReceived(connectionID, buffer);
+            try {
+               theConn.bufferReceived(connectionID, buffer);
+            } catch (final RuntimeException e) {
+               ActiveMQClientLogger.LOGGER.disconnectOnErrorDecoding(e);
+               threadPool.execute(new Runnable() {
+                  @Override
+                  public void run() {
+                     theConn.fail(new ActiveMQException(e.getMessage()));
+                  }
+               });
+            }
          } else {
             logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
          }
