@@ -37,6 +37,7 @@ import io.netty.handler.codec.mqtt.MqttSubAckPayload;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 
@@ -147,6 +148,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       } catch (Exception e) {
          log.debug("Error processing Control Packet, Disconnecting Client", e);
          disconnect(true);
+      } finally {
+         ReferenceCountUtil.release(msg);
       }
    }
 
