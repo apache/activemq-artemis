@@ -451,4 +451,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 214030, value = "Failed to bind {0}={1}", format = Message.Format.MESSAGE_FORMAT)
    void failedToBind(String p1, String p2, @Cause Throwable cause);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214031, value = "Failed to decode buffer, disconnect immediately.", format = Message.Format.MESSAGE_FORMAT)
+   void disconnectOnErrorDecoding(@Cause Throwable cause);
 }
