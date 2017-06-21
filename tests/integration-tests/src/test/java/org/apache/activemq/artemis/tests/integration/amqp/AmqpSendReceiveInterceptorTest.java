@@ -26,8 +26,12 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.messaging.Header;
+import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -71,6 +75,104 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       assertEquals(latch2.getCount(), 0);
+      sender.close();
+      receiver.close();
+      connection.close();
+   }
+
+   private static final String ADDRESS = "address";
+   private static final String MESSAGE_ID = "messageId";
+   private static final String CORRELATION_ID = "correlationId";
+   private static final String MESSAGE_TEXT = "messageText";
+   private static final String DURABLE = "durable";
+   private static final String PRIORITY = "priority";
+   private static final String REPLY_TO = "replyTo";
+   private static final String TIME_TO_LIVE = "timeToLive";
+
+
+   private boolean checkMessageProperties(AMQPMessage message, Map<String, Object> expectedProperties) {
+      assertNotNull(message);
+      assertNotNull(server.getNodeID());
+
+      assertNotNull(message.getConnectionID());
+      assertEquals(message.getAddress(), expectedProperties.get(ADDRESS));
+      assertEquals(message.isDurable(), expectedProperties.get(DURABLE));
+
+      Properties props = message.getProperties();
+      assertEquals(props.getCorrelationId(), expectedProperties.get(CORRELATION_ID));
+      assertEquals(props.getReplyTo(), expectedProperties.get(REPLY_TO));
+      assertEquals(props.getMessageId(), expectedProperties.get(MESSAGE_ID));
+
+      Header header = message.getHeader();
+      assertEquals(header.getDurable(), expectedProperties.get(DURABLE));
+      assertEquals(header.getTtl().toString(), expectedProperties.get(TIME_TO_LIVE).toString());
+      assertEquals(header.getPriority().toString(), expectedProperties.get(PRIORITY).toString());
+      return true;
+   }
+
+   @Test(timeout = 60000)
+   public void testCheckInterceptedMessageProperties() throws Exception {
+      final CountDownLatch latch = new CountDownLatch(1);
+
+      final String addressQueue = getTestName();
+      final String messageId = "lala200";
+      final String correlationId = "lala-corrId";
+      final String msgText = "Test intercepted message";
+      final boolean durableMsg = false;
+      final short priority = 8;
+      final long timeToLive = 10000;
+      final String replyTo = "reply-to-myQueue";
+
+      Map<String, Object> expectedProperties = new HashMap<>();
+      expectedProperties.put(ADDRESS, addressQueue);
+      expectedProperties.put(MESSAGE_ID, messageId);
+      expectedProperties.put(CORRELATION_ID, correlationId);
+      expectedProperties.put(MESSAGE_TEXT, msgText);
+      expectedProperties.put(DURABLE, durableMsg);
+      expectedProperties.put(PRIORITY, priority);
+      expectedProperties.put(REPLY_TO, replyTo);
+      expectedProperties.put(TIME_TO_LIVE, timeToLive);
+
+      server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
+         @Override
+         public boolean intercept(AMQPMessage message, RemotingConnection connection) throws ActiveMQException {
+            latch.countDown();
+            return checkMessageProperties(message, expectedProperties);
+         }
+      });
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpSender sender = session.createSender(getTestName());
+      AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId(messageId);
+      message.setCorrelationId(correlationId);
+      message.setText(msgText);
+      message.setDurable(durableMsg);
+      message.setPriority(priority);
+      message.setReplyToAddress(replyTo);
+      message.setTimeToLive(timeToLive);
+
+      sender.send(message);
+
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      final CountDownLatch latch2 = new CountDownLatch(1);
+      server.getRemotingService().addOutgoingInterceptor(new AmqpInterceptor() {
+         @Override
+         public boolean intercept(AMQPMessage packet, RemotingConnection connection) throws ActiveMQException {
+            latch2.countDown();
+            return checkMessageProperties(packet, expectedProperties);
+         }
+      });
+      AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(2);
+      AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(amqpMessage);
+      assertEquals(latch2.getCount(), 0);
+      sender.close();
       receiver.close();
       connection.close();
    }
