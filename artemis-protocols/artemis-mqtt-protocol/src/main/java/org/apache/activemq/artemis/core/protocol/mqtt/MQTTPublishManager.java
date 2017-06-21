@@ -35,6 +35,8 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_MESSAGE_RETAIN_KEY;
+
 /**
  * Handles MQTT Exactly Once (QoS level 2) Protocol.
  */
@@ -256,6 +258,7 @@ public class MQTTPublishManager {
 
    private void sendServerMessage(int messageId, CoreMessage message, int deliveryCount, int qos) {
       String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString(), session.getWildcardConfiguration());
+      boolean isRetain = message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY);
 
       ByteBuf payload;
       switch (message.getType()) {
@@ -274,7 +277,7 @@ public class MQTTPublishManager {
             payload = bufferDup.readBytes(bufferDup.writerIndex()).byteBuf();
             break;
       }
-      session.getProtocolHandler().send(messageId, address, qos, payload, deliveryCount);
+      session.getProtocolHandler().send(messageId, address, qos, isRetain, payload, deliveryCount);
    }
 
    private int decideQoS(Message message, ServerConsumer consumer) {
