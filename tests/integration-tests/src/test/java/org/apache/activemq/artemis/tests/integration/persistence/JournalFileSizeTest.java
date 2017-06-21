@@ -1,5 +1,4 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
+/** * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -17,7 +16,10 @@
 package org.apache.activemq.artemis.tests.integration.persistence;
 
 
+import java.io.File;
+
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.junit.Assert;
@@ -25,11 +27,22 @@ import org.junit.Test;
 
 public class JournalFileSizeTest {
 
+   private static int align;
+
+   static {
+      try {
+         AIOSequentialFileFactory factory = new AIOSequentialFileFactory(new File("./target/"), 100);
+         align = factory.getAlignment();
+      } catch (Exception e) {
+         align = 512;
+      }
+   }
+
    @Test
    public void testIncorrectFileSizeLower() {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
-      config.setJournalFileSize(origFileSize + (512 / 2 - 1));
+      config.setJournalFileSize(origFileSize + (align / 2 - 1));
       JournalStorageManager manager = new JournalStorageManager(config,
             new OrderedExecutorFactory(null),
             new OrderedExecutorFactory(null));
@@ -41,23 +54,23 @@ public class JournalFileSizeTest {
    public void testIncorrectFileSizeHigher() {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
-      config.setJournalFileSize(origFileSize + (512 / 2 + 1));
+      config.setJournalFileSize(origFileSize + (align / 2 + 1));
       JournalStorageManager manager = new JournalStorageManager(config,
             new OrderedExecutorFactory(null),
             new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
-      Assert.assertEquals(origFileSize + 512, fileSize);
+      Assert.assertEquals(origFileSize + align, fileSize);
    }
 
    @Test
    public void testIncorrectFileSizeHalf() {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
-      config.setJournalFileSize(origFileSize + (512 / 2));
+      config.setJournalFileSize(origFileSize + (align / 2));
       JournalStorageManager manager = new JournalStorageManager(config,
             new OrderedExecutorFactory(null),
             new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
-      Assert.assertEquals(origFileSize + 512, fileSize);
+      Assert.assertEquals(origFileSize + align, fileSize);
    }
 }
