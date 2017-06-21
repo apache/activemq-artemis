@@ -26,11 +26,11 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.apache.felix.resolver.util.ArrayMap;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -123,7 +123,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       final long timeToLive = 10000;
       final String replyTo = "reply-to-myQueue";
 
-      Map<String, Object> expectedProperties = new ArrayMap<>();
+      Map<String, Object> expectedProperties = new HashMap<>();
       expectedProperties.put(ADDRESS, addressQueue);
       expectedProperties.put(MESSAGE_ID, messageId);
       expectedProperties.put(CORRELATION_ID, correlationId);
