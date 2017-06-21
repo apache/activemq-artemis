@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
@@ -1101,12 +1102,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRollbackTransaction(TransactionInfo info) throws Exception {
-         Transaction tx = lookupTX(info.getTransactionId(), null);
+         Transaction tx = lookupTX(info.getTransactionId(), null, true);
+         AMQSession amqSession = (AMQSession) tx.getProtocolData();
+
          if (info.getTransactionId().isXATransaction() && tx == null) {
             throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
          } else if (tx != null) {
-
-            AMQSession amqSession = (AMQSession) tx.getProtocolData();
 
             if (amqSession != null) {
                amqSession.getCoreSession().resetTX(tx);
@@ -1117,6 +1118,54 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   amqSession.getCoreSession().resetTX(null);
                }
             }
+         }
+
+         if (info.getTransactionId().isXATransaction()) {
+            ResourceManager resourceManager = server.getResourceManager();
+            Xid xid = OpenWireUtil.toXID(info.getTransactionId());
+
+            if (tx == null) {
+               if (resourceManager.getHeuristicCommittedTransactions().contains(xid)) {
+                  XAException ex = new XAException("transaction has been heuristically committed: " + xid);
+                  ex.errorCode = XAException.XA_HEURCOM;
+                  throw ex;
+               } else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid)) {
+                  // checked heuristic rolled back transactions
+                  XAException ex = new XAException("transaction has been heuristically rolled back: " + xid);
+                  ex.errorCode = XAException.XA_HEURRB;
+                  throw ex;
+               } else {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("xarollback into " + tx + ", xid=" + xid + " forcing a rollback regular");
+                  }
+
+                  try {
+                     if (amqSession != null) {
+                        amqSession.getCoreSession().rollback(false);
+                     }
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                  }
+
+                  XAException ex = new XAException("Cannot find xid in resource manager: " + xid);
+                  ex.errorCode = XAException.XAER_NOTA;
+                  throw ex;
+               }
+            } else {
+               if (tx.getState() == Transaction.State.SUSPENDED) {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("xarollback into " + tx + " sending tx back as it was suspended");
+                  }
+                  // Put it back
+                  resourceManager.putTransaction(xid, tx);
+                  XAException ex = new XAException("Cannot commit transaction, it is suspended " + xid);
+                  ex.errorCode = XAException.XAER_PROTO;
+                  throw ex;
+               } else {
+                  tx.rollback();
+               }
+            }
+         } else {
             tx.rollback();
          }
 
@@ -1229,11 +1278,47 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       private Response processCommit(TransactionInfo info, boolean onePhase) throws Exception {
          TransactionId txID = info.getTransactionId();
 
-         Transaction tx = lookupTX(txID, null);
+         Transaction tx = lookupTX(txID, null, true);
 
-         AMQSession session = (AMQSession) tx.getProtocolData();
+         if (txID.isXATransaction()) {
+            ResourceManager resourceManager = server.getResourceManager();
+            Xid xid = OpenWireUtil.toXID(txID);
+            if (logger.isTraceEnabled()) {
+               logger.trace("XAcommit into " + tx + ", xid=" + xid);
+            }
 
-         tx.commit(onePhase);
+            if (tx == null) {
+               if (resourceManager.getHeuristicCommittedTransactions().contains(xid)) {
+                  XAException ex = new XAException("transaction has been heuristically committed: " + xid);
+                  ex.errorCode = XAException.XA_HEURCOM;
+                  throw ex;
+               } else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid)) {
+                  // checked heuristic rolled back transactions
+                  XAException ex = new XAException("transaction has been heuristically rolled back: " + xid);
+                  ex.errorCode = XAException.XA_HEURRB;
+                  throw ex;
+               } else {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("XAcommit into " + tx + ", xid=" + xid + " cannot find it");
+                  }
+                  XAException ex = new XAException("Cannot find xid in resource manager: " + xid);
+                  ex.errorCode = XAException.XAER_NOTA;
+                  throw ex;
+               }
+            } else {
+               if (tx.getState() == Transaction.State.SUSPENDED) {
+                  // Put it back
+                  resourceManager.putTransaction(xid, tx);
+                  XAException ex = new XAException("Cannot commit transaction, it is suspended " + xid);
+                  ex.errorCode = XAException.XAER_PROTO;
+                  throw ex;
+               } else {
+                  tx.commit(onePhase);
+               }
+            }
+         } else {
+            tx.commit(onePhase);
+         }
 
          return null;
       }
@@ -1485,6 +1570,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private Transaction lookupTX(TransactionId txID, AMQSession session) throws IllegalStateException {
+      return lookupTX(txID, session, false);
+   }
+
+   private Transaction lookupTX(TransactionId txID, AMQSession session, boolean remove) throws IllegalStateException {
       if (txID == null) {
          return null;
       }
@@ -1493,9 +1582,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       Transaction transaction;
       if (txID.isXATransaction()) {
          xid = OpenWireUtil.toXID(txID);
-         transaction = server.getResourceManager().getTransaction(xid);
+         transaction = remove ? server.getResourceManager().removeTransaction(xid) : server.getResourceManager().getTransaction(xid);
       } else {
-         transaction = txMap.get(txID);
+         transaction = remove ? txMap.remove(txID) : txMap.get(txID);
       }
 
       if (transaction == null) {

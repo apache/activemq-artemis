@@ -44,6 +44,7 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.jms.XAConnection;
 import javax.jms.XASession;
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
@@ -63,6 +64,8 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -1488,6 +1491,97 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
             assertNotNull(message.getStringProperty("_AMQ_NotifType"));
          }
       }
+   }
+
+   @Test
+   public void testXAResourceCommitSuspendedNotRemoved() throws Exception {
+      Queue queue = null;
+
+      Xid xid = newXID();
+      try (XAConnection xaconnection = xaFactory.createXAConnection()) {
+         XASession session = xaconnection.createXASession();
+         queue = session.createQueue(queueName);
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         session.getXAResource().end(xid, XAResource.TMSUSPEND);
+
+         XidImpl xid1 = new XidImpl(xid);
+         Transaction transaction = server.getResourceManager().getTransaction(xid1);
+         //amq5.x doesn't pass suspend flags to broker,
+         //directly suspend the tx
+         transaction.suspend();
+
+         session.getXAResource().commit(xid, true);
+      } catch (XAException ex) {
+         //ignore
+      } finally {
+         XidImpl xid1 = new XidImpl(xid);
+         Transaction transaction = server.getResourceManager().getTransaction(xid1);
+         assertNotNull(transaction);
+      }
+   }
+
+   @Test
+   public void testXAResourceRolledBackSuspendedNotRemoved() throws Exception {
+      Queue queue = null;
+
+      Xid xid = newXID();
+      try (XAConnection xaconnection = xaFactory.createXAConnection()) {
+         XASession session = xaconnection.createXASession();
+         queue = session.createQueue(queueName);
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         session.getXAResource().end(xid, XAResource.TMSUSPEND);
+
+         XidImpl xid1 = new XidImpl(xid);
+         Transaction transaction = server.getResourceManager().getTransaction(xid1);
+         //directly suspend the tx
+         transaction.suspend();
+
+         session.getXAResource().rollback(xid);
+      } catch (XAException ex) {
+        //ignore
+      } finally {
+         XidImpl xid1 = new XidImpl(xid);
+         Transaction transaction = server.getResourceManager().getTransaction(xid1);
+         assertNotNull(transaction);
+      }
+   }
+
+   @Test
+   public void testXAResourceCommittedRemoved() throws Exception {
+      Queue queue = null;
+
+      Xid xid = newXID();
+      try (XAConnection xaconnection = xaFactory.createXAConnection()) {
+         XASession session = xaconnection.createXASession();
+         queue = session.createQueue(queueName);
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage("xa message"));
+         session.getXAResource().end(xid, XAResource.TMSUCCESS);
+         session.getXAResource().commit(xid, true);
+      }
+      XidImpl xid1 = new XidImpl(xid);
+      Transaction transaction = server.getResourceManager().getTransaction(xid1);
+      assertNull(transaction);
+   }
+
+   @Test
+   public void testXAResourceRolledBackRemoved() throws Exception {
+      Queue queue = null;
+
+      Xid xid = newXID();
+      try (XAConnection xaconnection = xaFactory.createXAConnection()) {
+         XASession session = xaconnection.createXASession();
+         queue = session.createQueue(queueName);
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage("xa message"));
+         session.getXAResource().end(xid, XAResource.TMSUCCESS);
+         session.getXAResource().rollback(xid);
+      }
+      XidImpl xid1 = new XidImpl(xid);
+      Transaction transaction = server.getResourceManager().getTransaction(xid1);
+      assertNull(transaction);
    }
 
    private void checkQueueEmpty(String qName) {
