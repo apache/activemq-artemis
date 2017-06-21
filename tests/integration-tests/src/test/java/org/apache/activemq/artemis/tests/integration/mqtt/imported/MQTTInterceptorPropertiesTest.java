@@ -64,6 +64,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
          MqttFixedHeader header = message.fixedHeader();
          assertNotNull(header.messageType());
          assertEquals(header.qosLevel().value(), AT_MOST_ONCE);
+         // TODO resolve the following line based on result of ARTEMIS-1244, currently fails (2.1.0)
          assertEquals(header.isRetain(), expectedProperties.get(RETAINED));
       } catch (Throwable t) {
          collector.addError(t);
