@@ -39,7 +39,7 @@ public interface ActiveMQJournalBundle {
    @Message(id = 149001, value = "Journal data belong to a different version")
    ActiveMQIOErrorException journalDifferentVersion();
 
-   @Message(id = 149002, value = "Journal files version mismatch. You should export the data from the previous version and import it as explained on the user''s manual")
+   @Message(id = 149002, value = "Journal files version mismatch. You should export the data from the previous version and import it as explained on the user's manual")
    ActiveMQIOErrorException journalFileMisMatch();
 
    @Message(id = 149003, value = "File not opened")
