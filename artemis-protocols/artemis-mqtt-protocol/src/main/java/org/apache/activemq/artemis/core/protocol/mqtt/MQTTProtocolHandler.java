@@ -291,9 +291,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       disconnect(false);
    }
 
-   protected int send(int messageId, String topicName, int qosLevel, ByteBuf payload, int deliveryCount) {
+   protected int send(int messageId, String topicName, int qosLevel, boolean isRetain, ByteBuf payload, int deliveryCount) {
       boolean redelivery = qosLevel == 0 ? false : (deliveryCount > 0);
-      MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qosLevel), false, 0);
+      MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qosLevel), isRetain, 0);
       MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topicName, messageId);
       MqttMessage publish = new MqttPublishMessage(header, varHeader, payload);
       this.protocolManager.invokeOutgoing(publish, connection);
