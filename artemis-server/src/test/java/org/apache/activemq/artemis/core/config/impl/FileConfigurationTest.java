@@ -101,6 +101,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(10000, conf.getJournalBufferSize_NIO());
       Assert.assertEquals(1000, conf.getJournalBufferTimeout_NIO());
       Assert.assertEquals(56546, conf.getJournalMaxIO_NIO());
+      Assert.assertEquals(9876, conf.getJournalFileOpenTimeout());
 
       Assert.assertEquals(false, conf.isJournalSyncTransactional());
       Assert.assertEquals(true, conf.isJournalSyncNonTransactional());
