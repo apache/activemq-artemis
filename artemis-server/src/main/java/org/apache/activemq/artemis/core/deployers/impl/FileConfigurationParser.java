@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfigu
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.utils.ByteUtil;
@@ -193,9 +194,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_QUEUES = "auto-delete-queues";
 
+   private static final String CONFIG_DELETE_QUEUES = "config-delete-queues";
+
    private static final String AUTO_CREATE_ADDRESSES = "auto-create-addresses";
 
    private static final String AUTO_DELETE_ADDRESSES = "auto-delete-addresses";
+
+   private static final String CONFIG_DELETE_ADDRESSES = "config-delete-addresses";
 
    private static final String DEFAULT_PURGE_ON_NO_CONSUMERS = "default-purge-on-no-consumers";
 
@@ -985,10 +990,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setAutoCreateQueues(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteQueues(XMLUtil.parseBoolean(child));
+         } else if (CONFIG_DELETE_QUEUES.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_QUEUES, value);
+            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
+            addressSettings.setConfigDeleteQueues(policy);
          } else if (AUTO_CREATE_ADDRESSES.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateAddresses(XMLUtil.parseBoolean(child));
          } else if (AUTO_DELETE_ADDRESSES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteAddresses(XMLUtil.parseBoolean(child));
+         } else if (CONFIG_DELETE_ADDRESSES.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.DELETION_POLICY_TYPE.validate(CONFIG_DELETE_ADDRESSES, value);
+            DeletionPolicy policy = Enum.valueOf(DeletionPolicy.class, value);
+            addressSettings.setConfigDeleteAddresses(policy);
          } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          } else if (DEFAULT_PURGE_ON_NO_CONSUMERS.equalsIgnoreCase(name)) {

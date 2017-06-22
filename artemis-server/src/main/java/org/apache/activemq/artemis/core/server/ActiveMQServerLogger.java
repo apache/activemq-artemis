@@ -1582,4 +1582,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224075, value = "Cannot find pageTX id = {0}", format = Message.Format.MESSAGE_FORMAT)
    void journalCannotFindPageTX(Long id);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224076, value = "UnDeploying address {0}", format = Message.Format.MESSAGE_FORMAT)
+   void undeployAddress(SimpleString addressName);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224077, value = "UnDeploying queue {0}", format = Message.Format.MESSAGE_FORMAT)
+   void undeployQueue(SimpleString queueName);
 }
