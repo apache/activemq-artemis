@@ -277,7 +277,8 @@ public class RoutingTest extends ActiveMQTestBase {
       ClientMessage message = sendSession.createMessage(false);
       p.send(message);
       sendSession.close();
-      assertEquals(1, server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount());
-      assertEquals(2, server.locateQueue(queueC).getMessageCount() + server.locateQueue(queueD).getMessageCount());
+
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueA).getMessageCount() + server.locateQueue(queueB).getMessageCount() == 1));
+      assertTrue(Wait.waitFor(() -> server.locateQueue(queueC).getMessageCount() + server.locateQueue(queueD).getMessageCount() == 2));
    }
 }
