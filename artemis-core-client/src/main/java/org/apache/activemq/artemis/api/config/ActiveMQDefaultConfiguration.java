@@ -261,6 +261,9 @@ public final class ActiveMQDefaultConfiguration {
    // The percentage of live data on which we consider compacting the journal
    private static int DEFAULT_JOURNAL_COMPACT_PERCENTAGE = 30;
 
+   // The time to wait when opening a new journal file before failing
+   private static int DEFAULT_JOURNAL_FILE_OPEN_TIMEOUT = 5;
+
    // The minimal number of data files before we can start compacting
    private static int DEFAULT_JOURNAL_COMPACT_MIN_FILES = 10;
 
@@ -794,6 +797,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultJournalCompactPercentage() {
       return DEFAULT_JOURNAL_COMPACT_PERCENTAGE;
+   }
+
+   public static int getDefaultJournalFileOpenTimeout() {
+      return DEFAULT_JOURNAL_FILE_OPEN_TIMEOUT;
    }
 
    /**

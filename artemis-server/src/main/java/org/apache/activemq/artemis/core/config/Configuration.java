@@ -646,6 +646,16 @@ public interface Configuration {
    int getJournalCompactPercentage();
 
    /**
+    * @return How long to wait when opening a new Journal file before failing
+    */
+   int getJournalFileOpenTimeout();
+
+   /**
+   * Sets the journal file open timeout
+   */
+   Configuration setJournalFileOpenTimeout(int journalFileOpenTimeout);
+
+   /**
     * Sets the percentage of live data before compacting the journal.
     */
    Configuration setJournalCompactPercentage(int percentage);
