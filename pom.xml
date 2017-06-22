@@ -104,6 +104,7 @@
       <arquillian-weld-embedded.version>2.0.0.Beta3</arquillian-weld-embedded.version>
       <owb.version>1.7.0</owb.version>
       <arquillian.version>1.1.11.Final</arquillian.version>
+      <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
 
       <owasp.version>1.4.3</owasp.version>
 
