@@ -61,7 +61,7 @@ public class MQTTUtil {
 
    public static final String MQTT_MESSAGE_TYPE_KEY = "mqtt.message.type";
 
-   public static final String MQTT_MESSAGE_RETAIN_KEY = "mqtt.message.retain";
+   public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = new SimpleString("mqtt.message.retain");
 
    public static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
 
@@ -102,7 +102,7 @@ public class MQTTUtil {
 
       CoreMessage message = new CoreMessage(id, DEFAULT_SERVER_MESSAGE_BUFFER_SIZE);
       message.setAddress(address);
-      message.putBooleanProperty(new SimpleString(MQTT_MESSAGE_RETAIN_KEY), retain);
+      message.putBooleanProperty(MQTT_MESSAGE_RETAIN_KEY, retain);
       message.putIntProperty(new SimpleString(MQTT_QOS_LEVEL_KEY), qos);
       message.setType(Message.BYTES_TYPE);
       return message;
