@@ -44,7 +44,12 @@ import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERA
  */
 public class ReplicatedJournal implements Journal {
 
-   private static final boolean trace = false;
+   private static final boolean trace = isTraceEnabled(false);
+
+   private static boolean isTraceEnabled(boolean defaultValue) {
+	   String traceEnabled = System.getProperty("artemis.trace.enabled");
+	   return (! "".equals(traceEnabled)) ? Boolean.valueOf(traceEnabled) : defaultValue;
+   }
 
    private static void trace(final String message) {
       System.out.println("ReplicatedJournal::" + message);
