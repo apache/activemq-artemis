@@ -114,7 +114,7 @@ or committed via the coordinator.
 
 Apache ActiveMQ Artemis now supports the
 [OpenWire](http://activemq.apache.org/openwire.html) protocol so that an
-Apache ActiveMQ Artemis JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
+Apache ActiveMQ 5.x JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
 OpenWire support you must configure a Netty Acceptor, like so:
 
     <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
