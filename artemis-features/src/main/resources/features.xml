@@ -54,8 +54,8 @@
 		<bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
 		<bundle dependency="true">mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
 
-		<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-json_1.0_spec/${json-p.spec.version}</bundle>
-		<bundle dependency="true">mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
+		<bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.json-api-1.1/${servicemix.json-1.1.spec.version}</bundle>
+		<bundle>mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
