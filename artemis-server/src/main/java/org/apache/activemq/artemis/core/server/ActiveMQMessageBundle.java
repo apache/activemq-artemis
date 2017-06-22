@@ -427,5 +427,7 @@ public interface ActiveMQMessageBundle {
                                                   String address,
                                                   Set<RoutingType> supportedRoutingTypes);
 
+   @Message(id = 119212, value = "Invalid deletion policy type {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidDeletionPolicyType(String val);
 
 }

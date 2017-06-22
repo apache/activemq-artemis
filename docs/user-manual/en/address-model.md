@@ -577,6 +577,11 @@ are durable, non-temporary, and non-transient. Default is `true`.
 delete auto-created queues when they have both 0 consumers and 0 messages.
 Default is `true`.
 
+`config-delete-queues`. How the broker should handle queues deleted
+on config reload, by delete policy: `OFF` or `FORCE`.
+See [config-reload](config-reload.md) for more details.
+Default is `OFF`.
+
 `auto-create-addresses`. Whether or not the broker should automatically
 create an address when a message is sent to or a consumer tries to consume
 from a queue which is mapped to an address whose name fits the address `match`.
@@ -585,3 +590,9 @@ Default is `true`.
 `auto-delete-addresses`. Whether or not the broker should automatically
 delete auto-created addresses once the address no longer has any queues.
 Default is `true`.
+
+`config-delete-addresses`. How the broker should handle addresses deleted
+on config reload, by delete policy: `OFF` or `FORCE`.
+See [config-reload](config-reload.md) for more details.
+Default is `OFF`.
+
