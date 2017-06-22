@@ -173,6 +173,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected int journalCompactPercentage = ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage();
 
+   protected int journalFileOpenTimeout = ActiveMQDefaultConfiguration.getDefaultJournalFileOpenTimeout();
+
    protected int journalFileSize = ActiveMQDefaultConfiguration.getDefaultJournalFileSize();
 
    protected int journalPoolFiles = ActiveMQDefaultConfiguration.getDefaultJournalPoolFiles();
@@ -1142,6 +1144,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setJournalCompactMinFiles(final int minFiles) {
       journalCompactMinFiles = minFiles;
+      return this;
+   }
+
+   @Override
+   public int getJournalFileOpenTimeout() {
+      return journalFileOpenTimeout;
+   }
+
+   @Override
+   public Configuration setJournalFileOpenTimeout(int journalFileOpenTimeout) {
+      this.journalFileOpenTimeout = journalFileOpenTimeout;
       return this;
    }
 

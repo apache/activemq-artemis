@@ -692,6 +692,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="journal-file-open-timeout" type="xsd:int" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the length of time to wait when opening a new Journal file before timing out and failing
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="server-dump-interval" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -764,7 +772,7 @@
                   a list of security settings
                </xsd:documentation>
             </xsd:annotation>
-            
+
             <xsd:complexType>
                <xsd:sequence>
                   <xsd:choice>
@@ -862,7 +870,7 @@
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
-         
+
          <xsd:element name="broker-plugins" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -886,7 +894,7 @@
                            </xsd:annotation>
                         </xsd:attribute>
                      </xsd:complexType>
-                  </xsd:element>               
+                  </xsd:element>
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
