@@ -977,7 +977,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       List<String> files9 = fileFactory.listFiles(fileExtension);
 
-      Assert.assertEquals(calculateNumberOfFiles(journal, fileSize, journal.getAlignment(), 200, recordLength, 200, JournalImpl.SIZE_DELETE_RECORD_TX, 1, JournalImpl.SIZE_COMMIT_RECORD, 10, JournalImpl.SIZE_ADD_RECORD + recordLength) + 2, files9.size());
       Assert.assertEquals(1, journal.getOpenedFilesCount());
 
       for (String file : files1) {
