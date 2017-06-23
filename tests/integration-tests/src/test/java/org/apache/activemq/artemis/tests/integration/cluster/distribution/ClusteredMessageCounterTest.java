@@ -127,10 +127,12 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
 
          addConsumer(1, 1, "queue0", null);
 
+         waitForBindings(0, "queues", 1, 1, false);
+
          System.out.println("sending.....");
          send(0, "queues", numMsg, durable, null);
 
-         verifyReceiveAllOnSingleConsumer(true, numMsg, 1);
+         verifyReceiveAllOnSingleConsumer(true, 0, numMsg, 1);
 
          QueueControl control = (QueueControl) servers[1].getManagementService().getResource(ResourceNames.QUEUE + "queue0");
 
