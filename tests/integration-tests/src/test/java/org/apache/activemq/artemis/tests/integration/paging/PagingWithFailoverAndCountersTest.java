@@ -73,7 +73,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
       if (inProcessBackup != null) {
          try {
-            inProcessBackup.getServer().stop(false);
+            inProcessBackup.getServer().fail(false);
          } catch (Throwable ignored) {
             ignored.printStackTrace();
          }

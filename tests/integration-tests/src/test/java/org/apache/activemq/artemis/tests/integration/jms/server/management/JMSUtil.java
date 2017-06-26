@@ -257,7 +257,7 @@ public class JMSUtil {
 
       ClusterManager clusterManager = server.getClusterManager();
       clusterManager.clear();
-      server.stop(true);
+      server.fail(true);
 
       // Wait to be informed of failure
       boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
