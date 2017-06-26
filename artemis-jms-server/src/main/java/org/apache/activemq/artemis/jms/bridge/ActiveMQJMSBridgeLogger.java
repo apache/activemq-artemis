@@ -95,6 +95,10 @@ public interface ActiveMQJMSBridgeLogger extends BasicLogger {
    @Message(id = 342010, value = "Failed to connect JMS Bridge {0}", format = Message.Format.MESSAGE_FORMAT)
    void bridgeConnectError(@Cause Exception e, String bridgeName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 342011, value = "Transaction rolled back, retrying TX", format = Message.Format.MESSAGE_FORMAT)
+   void transactionRolledBack(@Cause Exception e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 344001, value = "JMS Bridge {0}, failed to start source connection", format = Message.Format.MESSAGE_FORMAT)
    void jmsBridgeSrcConnectError(@Cause Exception e, String bridgeName);
