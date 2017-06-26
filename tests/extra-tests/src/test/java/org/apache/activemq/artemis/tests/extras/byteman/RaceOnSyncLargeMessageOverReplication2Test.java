@@ -221,7 +221,7 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
 
       waitForRemoteBackup(connection.getSessionFactory(), 30);
 
-      liveServer.stop(true);
+      liveServer.fail(true);
 
       Assert.assertTrue(failedOver.await(10, TimeUnit.SECONDS));
 

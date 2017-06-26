@@ -2358,7 +2358,7 @@ public abstract class ActiveMQTestBase extends Assert {
       clusterManager.flushExecutor();
       clusterManager.clear();
       Assert.assertTrue("server should be running!", server.isStarted());
-      server.stop(true);
+      server.fail(true);
 
       if (sessions.length > 0) {
          // Wait to be informed of failure

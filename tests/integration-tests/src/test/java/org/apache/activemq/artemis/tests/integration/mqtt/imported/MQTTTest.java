@@ -1886,7 +1886,7 @@ public class MQTTTest extends MQTTTestSupport {
       connection1.connect();
       connection1.publish(address, payload.getBytes(), QoS.AT_LEAST_ONCE, true);
 
-      getServer().stop(false);
+      getServer().fail(false);
       getServer().start();
       waitForServerToStart(getServer());
 

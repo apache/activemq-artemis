@@ -92,7 +92,7 @@ public class StartStopDeadlockTest extends ActiveMQTestBase {
                align.countDown();
                startLatch.await();
                System.out.println("Crashing....");
-               serverLive.stop(true);
+               serverLive.fail(true);
             } catch (Exception e) {
                errors.incrementAndGet();
                e.printStackTrace();

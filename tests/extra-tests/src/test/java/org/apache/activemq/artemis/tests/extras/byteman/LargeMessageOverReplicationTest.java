@@ -233,7 +233,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
 
       try {
          if (messageChunkCount == 10) {
-            liveServer.stop(true);
+            liveServer.fail(true);
 
             System.err.println("activating");
             if (!backupServer.waitForActivation(1, TimeUnit.MINUTES)) {

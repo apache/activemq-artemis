@@ -220,7 +220,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       }
 
       Assert.assertFalse(t.isAlive());
-      liveServer.stop(true);
+      liveServer.fail(true);
       Assert.assertTrue(failedOver.await(10, TimeUnit.SECONDS));
 
       {
