@@ -311,7 +311,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    }
 
    public QueueConnection createQueueConnection() throws JMSException {
-      return createQueueConnection(null, null);
+      return createQueueConnection(user, password);
    }
 
    public QueueConnection createQueueConnection(final String username, final String password) throws JMSException {
@@ -321,7 +321,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    // TopicConnectionFactory implementation --------------------------------------------------------
 
    public TopicConnection createTopicConnection() throws JMSException {
-      return createTopicConnection(null, null);
+      return createTopicConnection(user, password);
    }
 
    public TopicConnection createTopicConnection(final String username, final String password) throws JMSException {
@@ -332,7 +332,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
    @Override
    public XAConnection createXAConnection() throws JMSException {
-      return createXAConnection(null, null);
+      return createXAConnection(user, password);
    }
 
    @Override
@@ -342,7 +342,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
    @Override
    public XAJMSContext createXAContext() {
-      return createXAContext(null, null);
+      return createXAContext(user, password);
    }
 
    @Override
@@ -360,7 +360,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    // XAQueueConnectionFactory implementation ------------------------------------------------------
 
    public XAQueueConnection createXAQueueConnection() throws JMSException {
-      return createXAQueueConnection(null, null);
+      return createXAQueueConnection(user, password);
    }
 
    public XAQueueConnection createXAQueueConnection(final String username, final String password) throws JMSException {
@@ -370,7 +370,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    // XATopicConnectionFactory implementation ------------------------------------------------------
 
    public XATopicConnection createXATopicConnection() throws JMSException {
-      return createXATopicConnection(null, null);
+      return createXATopicConnection(user, password);
    }
 
    public XATopicConnection createXATopicConnection(final String username, final String password) throws JMSException {
