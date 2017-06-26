@@ -20,6 +20,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -108,22 +109,33 @@ public final class PasswordMaskingUtil {
 
       // semi colons
       String[] parts = codecDesc.split(";");
-
       if (parts.length < 1)
          throw new ActiveMQException(ActiveMQExceptionType.ILLEGAL_STATE, "Invalid PasswordCodec value: " + codecDesc);
 
       final String codecClassName = parts[0];
 
       // load class
-      codecInstance = AccessController.doPrivileged(new PrivilegedAction<SensitiveDataCodec<String>>() {
-         @Override
-         public SensitiveDataCodec<String> run() {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      codecInstance = AccessController.doPrivileged((PrivilegedAction<SensitiveDataCodec<String>>) () -> {
+         ServiceLoader<SensitiveDataCodec> serviceLoader = ServiceLoader.load(SensitiveDataCodec.class, PasswordMaskingUtil.class.getClassLoader());
+         try {
+            // Service load the codec, if a service is available
+            for (SensitiveDataCodec<String> codec : serviceLoader) {
+               if ((codec.getClass().getCanonicalName()).equals(codecClassName)) {
+                  return codec.getClass().newInstance();
+               }
+            }
+         } catch (Exception e) {
+            // Will ignore the exception and attempt to load the class directly
+         }
+         try {
+            // If a service is not available, load the codec class using this class's class loader
+            return (SensitiveDataCodec<String>) PasswordMaskingUtil.class.getClassLoader().loadClass(codecClassName).newInstance();
+         } catch (Exception e) {
             try {
-               Class<?> clazz = loader.loadClass(codecClassName);
-               return (SensitiveDataCodec<String>) clazz.newInstance();
-            } catch (Exception e) {
-               throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e, codecClassName);
+               // As a last resort, load the codec class using the current thread's context class loader
+               return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).newInstance();
+            } catch (Exception e2) {
+               throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e2, codecClassName);
             }
          }
       });

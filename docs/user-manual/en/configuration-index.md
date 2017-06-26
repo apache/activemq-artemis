@@ -464,11 +464,12 @@ If you don't want to use the jar-with-dependencies, make sure the classpath is c
 
 Just copy "80cf731af62c290" and replace your plaintext password with it.
 
-#### Using a different decoder
+#### Using a custom decoder
 
-It is possible to use a different decoder rather than the built-in one.
-Simply make sure the decoder is in Apache ActiveMQ Artemis's classpath and configure
-the server to use it as follows:
+It is possible to use a custom decoder rather than the built-in one.
+Simply make sure the decoder is in Apache ActiveMQ Artemis's classpath. The custom decoder
+can also be service loaded rather than class loaded, if the decoder's service provider is installed in the classpath.
+Then configure the server to use it as follows:
 
 ```xml
     <password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
