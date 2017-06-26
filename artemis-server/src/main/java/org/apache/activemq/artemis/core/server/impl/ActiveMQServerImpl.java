@@ -340,7 +340,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       @Override
       public void stop() throws Exception {
-         internalStop(false);
+         ActiveMQServerImpl.this.stop(false);
       }
 
       @Override
@@ -679,20 +679,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void exit() throws Exception {
-      internalStop(true);
+   public void stop() throws Exception {
+      stop(true);
    }
 
    @Override
-   public final void stop() throws Exception {
-      internalStop(false);
-   }
-
-   private void internalStop(boolean isExit) throws Exception {
+   public void stop(boolean isShutdown)  throws Exception {
       try {
-         stop(false, isExit);
+         stop(false, isShutdown);
       } finally {
-         networkHealthCheck.stop();
+         if (isShutdown) networkHealthCheck.stop();
       }
    }
 
@@ -866,7 +862,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     *
     * @param criticalIOError whether we have encountered an IO error with the journal etc
     */
-   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isExit) {
+   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting, boolean isShutdown) {
 
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
@@ -1055,8 +1051,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       for (ActiveMQComponent externalComponent : externalComponents) {
          try {
-            if (isExit && externalComponent instanceof ServiceComponent) {
-               ((ServiceComponent)externalComponent).exit();
+            if (externalComponent instanceof ServiceComponent) {
+               ((ServiceComponent)externalComponent).stop(isShutdown);
             } else {
                externalComponent.stop();
             }
