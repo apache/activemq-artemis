@@ -26,14 +26,18 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NetworkIsolationReplicationTest extends FailoverTestBase {
+public class NetworkReplicationTest extends FailoverTestBase {
 
-   private static final Logger logger = Logger.getLogger(NetworkIsolationReplicationTest.class);
+   private static final Logger logger = Logger.getLogger(NetworkReplicationTest.class);
+
+   // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
+   private static final String badAddress = "203.0.113.1";
 
    @Before
    @Override
@@ -60,6 +64,22 @@ public class NetworkIsolationReplicationTest extends FailoverTestBase {
    }
 
    @Test
+   public void testReactivate() throws Exception {
+      liveServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
+      liveServer.start();
+
+      Assert.assertTrue(Wait.waitFor(liveServer::isActive));
+
+      liveServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName(badAddress));
+
+      Assert.assertTrue(Wait.waitFor(() -> !liveServer.isStarted()));
+
+      liveServer.getServer().getNetworkHealthCheck().clearAddresses();
+
+      Assert.assertTrue(Wait.waitFor(liveServer::isStarted));
+   }
+
+   @Test
    public void testDoNotActivateOnIsolation() throws Exception {
       AssertionLoggerHandler.startCapture();
 
@@ -81,7 +101,7 @@ public class NetworkIsolationReplicationTest extends FailoverTestBase {
             backupServer.getServer().getNetworkHealthCheck().clearAddresses();
          }
 
-         backupServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName("203.0.113.1"));
+         backupServer.getServer().getNetworkHealthCheck().addAddress(InetAddress.getByName(badAddress));
          backupServer.getServer().start();
 
          ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
@@ -121,7 +141,7 @@ public class NetworkIsolationReplicationTest extends FailoverTestBase {
       backupServer.stop();
 
       liveServer.stop();
-      liveServer.getServer().getConfiguration().setNetworkCheckList("203.0.113.1").
+      liveServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
          setNetworkCheckPeriod(100).setNetworkCheckTimeout(100);
 
       try {
