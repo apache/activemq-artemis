@@ -282,7 +282,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
             byte[] bufferToWrite;
             if (bytesRead <= 0) {
                break;
-            } else if (bytesRead == bufferBytes.length) {
+            } else if (bytesRead == bufferBytes.length && !this.storageManager.isReplicated()) {
                bufferToWrite = bufferBytes;
             } else {
                bufferToWrite = new byte[bytesRead];
