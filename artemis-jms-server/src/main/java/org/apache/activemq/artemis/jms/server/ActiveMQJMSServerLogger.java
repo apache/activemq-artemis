@@ -97,6 +97,12 @@ public interface ActiveMQJMSServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void failedToSendNotification(String notification);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 122019,
+      value = "Unable to deactivate server",
+      format = Message.Format.MESSAGE_FORMAT)
+   void failedToDeactivateServer(@Cause Exception e);
+
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 123000, value = "JMS Server Manager Running cached command for {0}." + "(In the event of failover after failback has occurred, this message may be output multiple times.)",
       format = Message.Format.MESSAGE_FORMAT)
