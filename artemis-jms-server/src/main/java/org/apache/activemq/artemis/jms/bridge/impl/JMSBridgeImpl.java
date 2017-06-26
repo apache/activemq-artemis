@@ -1311,7 +1311,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             try {
                sendMessages();
             } catch (TransactionRolledbackException e) {
-               ActiveMQJMSBridgeLogger.LOGGER.warn(e.getMessage() + ", retrying TX", e);
+               ActiveMQJMSBridgeLogger.LOGGER.transactionRolledBack(e);
                exHappened = true;
             }
          }
