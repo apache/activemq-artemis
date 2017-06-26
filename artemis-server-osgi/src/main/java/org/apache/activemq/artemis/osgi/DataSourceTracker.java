@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.osgi;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
@@ -30,7 +28,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 public class DataSourceTracker implements ServiceTrackerCustomizer<DataSource, DataSource> {
 
-   private static final Logger LOG = Logger.getLogger(ProtocolTracker.class.getName());
    private final String name;
    private final BundleContext context;
    private final DatabaseStorageConfiguration dsc;
@@ -51,13 +48,13 @@ public class DataSourceTracker implements ServiceTrackerCustomizer<DataSource, D
       try (Connection conn = dataSource.getConnection()) {
          dsc.setSqlProvider(JDBCUtils.getSQLProviderFactory(conn.getMetaData().getURL()));
       } catch (SQLException ex) {
-         LOG.log(Level.WARNING, "Error getting dataSource provider infos", ex);
+         ActiveMQOsgiLogger.LOGGER.errorGettingDataSourceProviderInfo(ex);
       }
       callback.setDataSourceDependency(false);
       try {
          callback.start();
       } catch (Exception ex) {
-         LOG.log(Level.WARNING, "Error starting broker " + name, ex);
+         ActiveMQOsgiLogger.LOGGER.errorStartingBroker(ex, name);
       }
       return dataSource;
    }
@@ -73,7 +70,7 @@ public class DataSourceTracker implements ServiceTrackerCustomizer<DataSource, D
       try {
          callback.stop();
       } catch (Exception ex) {
-         LOG.log(Level.WARNING, "Error stopping broker " + name, ex);
+         ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(ex, name);
       }
    }
 }
