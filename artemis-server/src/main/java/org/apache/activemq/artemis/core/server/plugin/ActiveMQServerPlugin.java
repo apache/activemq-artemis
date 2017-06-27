@@ -228,11 +228,45 @@ public interface ActiveMQServerPlugin {
    /**
     * Before a message is sent
     *
+    * @param session the session that sends the message
     * @param tx
     * @param message
     * @param direct
     * @param noAutoCreateQueue
     */
+   default void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) {
+      //by default call the old method for backwards compatibility
+      this.beforeSend(tx, message, direct, noAutoCreateQueue);
+   }
+
+   /**
+    * After a message is sent
+    *
+    * @param session the session that sends the message
+    * @param tx
+    * @param message
+    * @param direct
+    * @param noAutoCreateQueue
+    * @param result
+    */
+   default void afterSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
+         RoutingStatus result) {
+      //by default call the old method for backwards compatibility
+      this.afterSend(tx, message, direct, noAutoCreateQueue, result);
+   }
+
+
+   /**
+    * Before a message is sent
+    *
+    * @param tx
+    * @param message
+    * @param direct
+    * @param noAutoCreateQueue
+    *
+    * @deprecated use {@link #beforeSend(ServerSession, Transaction, Message, boolean, boolean)}
+    */
+   @Deprecated
    default void beforeSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) {
 
    }
@@ -245,7 +279,10 @@ public interface ActiveMQServerPlugin {
     * @param direct
     * @param noAutoCreateQueue
     * @param result
+    *
+    * @deprecated use {@link #afterSend(ServerSession, Transaction, Message, boolean, boolean, RoutingStatus)}
     */
+   @Deprecated
    default void afterSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
          RoutingStatus result) {
 

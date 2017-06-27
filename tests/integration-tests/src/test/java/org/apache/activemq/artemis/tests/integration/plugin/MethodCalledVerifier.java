@@ -209,13 +209,15 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void beforeSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) {
+   public void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct,
+         boolean noAutoCreateQueue) {
       Preconditions.checkNotNull(message);
       methodCalled(BEFORE_SEND);
    }
 
    @Override
-   public void afterSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
+   public void afterSend(ServerSession session, Transaction tx, Message message, boolean direct,
+         boolean noAutoCreateQueue,
                          RoutingStatus result) {
       Preconditions.checkNotNull(message);
       Preconditions.checkNotNull(result);
