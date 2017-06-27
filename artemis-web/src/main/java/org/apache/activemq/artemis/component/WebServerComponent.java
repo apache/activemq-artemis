@@ -191,10 +191,6 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    @Override
-   public void exit() throws Exception {
-      stop(true);
-   }
-
    public void stop(boolean isShutdown) throws Exception {
       if (isShutdown) {
          internalStop();

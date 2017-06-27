@@ -81,7 +81,7 @@ public class EmbeddedServerTest {
       server.addExternalComponent(normalComponent);
       server.addExternalComponent(serviceComponent);
 
-      server.stop();
+      server.stop(false);
       assertTrue(normalComponent.stopCalled);
 
       assertTrue(serviceComponent.stopCalled);
@@ -91,7 +91,7 @@ public class EmbeddedServerTest {
       serviceComponent.resetFlags();
 
       server.start();
-      server.exit();
+      server.stop();
       assertTrue(normalComponent.stopCalled);
 
       assertFalse(serviceComponent.stopCalled);
@@ -129,8 +129,12 @@ public class EmbeddedServerTest {
       volatile boolean exitCalled;
 
       @Override
-      public void exit() throws Exception {
-         exitCalled = true;
+      public void stop(boolean isShutdown) throws Exception {
+         if (isShutdown) {
+            exitCalled = true;
+         } else {
+            stop();
+         }
       }
 
       @Override

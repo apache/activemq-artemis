@@ -71,7 +71,7 @@ public class BMFailoverTest extends FailoverTestBase {
    public static void stopAndThrow() throws ActiveMQUnBlockedException {
       if (!stopped) {
          try {
-            serverToStop.getServer().stop(true);
+            serverToStop.getServer().fail(true);
          } catch (Exception e) {
             e.printStackTrace();
          }

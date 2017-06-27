@@ -155,7 +155,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
       startServers();
 
       waitForServerStart(server0);
-      server0.stop(true);
+      server0.fail(true);
 
       waitForServerStart(server2);
 
@@ -206,7 +206,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeReconnectTest.log.info("** failing connection");
       // Now we will simulate a failure of the bridge connection between server0 and server1
-      server0.stop(true);
+      server0.fail(true);
 
       waitForServerStart(server2);
 
@@ -285,7 +285,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       startServers();
       // Now we will simulate a failure of the bridge connection between server0 and server1
-      server0.stop(true);
+      server0.fail(true);
 
       locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server2tc)).setReconnectAttempts(100);
       ClientSessionFactory csf0 = addSessionFactory(locator.createSessionFactory(server2tc));

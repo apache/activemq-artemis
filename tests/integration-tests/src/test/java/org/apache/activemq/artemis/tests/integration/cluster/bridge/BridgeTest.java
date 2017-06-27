@@ -1455,7 +1455,7 @@ public class BridgeTest extends ActiveMQTestBase {
                      try {
                         System.out.println("Stopping server");
                         latch.countDown();
-                        serverToStop.stop(false);
+                        serverToStop.fail(false);
                      } catch (Exception e) {
                         e.printStackTrace();
                      }
