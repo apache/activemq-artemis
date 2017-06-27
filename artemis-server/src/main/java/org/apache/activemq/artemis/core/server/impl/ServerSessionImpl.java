@@ -16,10 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.Xid;
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -88,8 +91,6 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Server side Session implementation
@@ -1300,7 +1301,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           final boolean direct,
                                           boolean noAutoCreateQueue) throws Exception {
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSend(tx, message, direct, noAutoCreateQueue) : null);
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue) : null);
 
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
       if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
@@ -1351,7 +1352,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       final RoutingStatus finalResult = result;
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSend(tx, message, direct, noAutoCreateQueue, finalResult) : null);
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, finalResult) : null);
 
       return result;
    }
