@@ -47,7 +47,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
          for (int i = 0; i < 50; i++) {
             server = createServer(true, false);
             server.start();
-            server.stop(false);
+            server.fail(false);
          }
 
          // There shouldn't be any error from starting / stopping the server

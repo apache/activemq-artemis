@@ -2216,7 +2216,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      server.stop(true);
+      server.fail(true);
    }
 
    @Override
@@ -2251,7 +2251,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
          }
 
-         server.stop(true);
+         server.fail(true);
       }
 
    }

@@ -92,7 +92,7 @@ public class SameProcessActiveMQServer implements TestableServer {
       clusterManager.flushExecutor();
       clusterManager.clear();
       Assert.assertTrue("server should be running!", server.isStarted());
-      server.stop(failover);
+      server.fail(failover);
 
       if (waitFailure) {
          // Wait to be informed of failure
