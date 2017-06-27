@@ -623,11 +623,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       this.localTx = localTx;
    }
 
-   public boolean isRebalanceConnections() {
+   public Boolean isRebalanceConnections() {
       return rebalanceConnections;
    }
 
-   public void setRebalanceConnections(boolean rebalanceConnections) {
+   public void setRebalanceConnections(Boolean rebalanceConnections) {
       this.rebalanceConnections = rebalanceConnections;
    }
 
