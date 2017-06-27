@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
@@ -39,7 +37,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 @SuppressWarnings("rawtypes")
 public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManagerFactory<Interceptor>, ProtocolManagerFactory<Interceptor>> {
 
-   private static Logger LOG = Logger.getLogger(ProtocolTracker.class.getName());
    private String name;
    private BundleContext context;
    private Map<String, Boolean> protocols;
@@ -56,7 +53,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
       for (String requiredProtocol : requiredProtocols) {
          this.protocols.put(requiredProtocol, false);
       }
-      LOG.info("Broker config " + name + " found. Tracking protocols " + Arrays.asList(requiredProtocols));
+      ActiveMQOsgiLogger.LOGGER.brokerConfigFound(name, Arrays.asList(requiredProtocols).toString());
    }
 
    @Override
@@ -90,13 +87,12 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
       if (present != null && !present) {
          this.protocols.put(protocol, true);
          List<String> missing = getMissing();
-         LOG.info("Required protocol " + protocol + " was added for broker " + name + ". " +
-                     (missing.isEmpty() ? "Starting broker." : "Still waiting for " + missing));
+         ActiveMQOsgiLogger.LOGGER.protocolWasAddedForBroker(protocol, name, (missing.isEmpty() ? "Starting broker." : "Still waiting for " + missing));
          if (missing.isEmpty()) {
             try {
                callback.start();
             } catch (Exception e) {
-               LOG.log(Level.WARNING, "Error starting broker " + name, e);
+               ActiveMQOsgiLogger.LOGGER.errorStartingBroker(e, name);
             }
          }
       }
@@ -106,12 +102,12 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
       Boolean present = this.protocols.get(protocol);
       if (present != null && present) {
          List<String> missing = getMissing();
-         LOG.info("Required protocol " + protocol + " was removed for broker " + name + ". " + (missing.isEmpty() ? "Stopping broker. " : ""));
+         ActiveMQOsgiLogger.LOGGER.protocolWasRemovedForBroker(protocol, name, (missing.isEmpty() ? "Stopping broker. " : ""));
          if (missing.isEmpty()) {
             try {
                callback.stop();
             } catch (Exception e) {
-               LOG.log(Level.WARNING, "Error stopping broker " + name, e);
+               ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(e, name);
             }
          }
          this.protocols.put(protocol, false);
