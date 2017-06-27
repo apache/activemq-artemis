@@ -32,9 +32,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NetworkReplicationTest extends FailoverTestBase {
+public class NetworkIsolationTest extends FailoverTestBase {
 
-   private static final Logger logger = Logger.getLogger(NetworkReplicationTest.class);
+   private static final Logger logger = Logger.getLogger(NetworkIsolationTest.class);
 
    // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
    private static final String badAddress = "203.0.113.1";
