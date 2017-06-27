@@ -145,6 +145,9 @@ public class PagingOMETest extends ActiveMQTestBase {
 
       session.start();
 
+      queue.forceDelivery();
+      Assert.assertTrue("Queue could not flush executor.", queue.flushExecutor());
+
       assertEquals(numberOfMessages, queue.getMessageCount());
 
       // The consumer has to be created after the queue.getMessageCount assertion
