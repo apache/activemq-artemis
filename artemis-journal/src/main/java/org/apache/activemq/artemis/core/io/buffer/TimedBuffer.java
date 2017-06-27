@@ -100,7 +100,9 @@ public final class TimedBuffer {
       }
       // Setting the interval for nano-sleeps
       //prefer off heap buffer to allow further humongous allocations and reduce GC overhead
-      buffer = new ChannelBufferWrapper(Unpooled.directBuffer(size, size));
+      //NOTE: it is used ByteBuffer::allocateDirect instead of Unpooled::directBuffer, because the latter could allocate
+      //direct ByteBuffers with no Cleaner!
+      buffer = new ChannelBufferWrapper(Unpooled.wrappedBuffer(ByteBuffer.allocateDirect(size)));
 
       buffer.clear();
 
