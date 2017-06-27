@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -145,7 +146,7 @@ public class PagingOMETest extends ActiveMQTestBase {
 
       session.start();
 
-      assertEquals(numberOfMessages, queue.getMessageCount());
+      Assert.assertTrue(Wait.waitFor(() -> numberOfMessages == queue.getMessageCount()));
 
       // The consumer has to be created after the queue.getMessageCount assertion
       // otherwise delivery could alter the messagecount and give us a false failure
