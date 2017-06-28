@@ -519,6 +519,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
       final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), true, false);
       if (message != null) {
+         message.setPendingRecordID(packet.getPendingRecordId());
          executor.execute(new Runnable() {
             @Override
             public void run() {
