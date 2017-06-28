@@ -118,6 +118,11 @@ public final class SpawnedVMSupport {
          commandList.add("-Djava.util.logging.config.file=" + loggingConfigFile + " ");
       }
 
+      String jacocoAgent = System.getProperty("jacoco.agent");
+      if (jacocoAgent != null && !jacocoAgent.isEmpty()) {
+         commandList.add(jacocoAgent);
+      }
+
       String loggingPlugin = System.getProperty("org.jboss.logging.Logger.pluginClass");
       if (loggingPlugin != null) {
          commandList.add("-Dorg.jboss.logging.Logger.pluginClass=" + loggingPlugin + " ");
