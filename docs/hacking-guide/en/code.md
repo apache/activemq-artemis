@@ -37,7 +37,7 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
 
 1. Build with Maven
 
-   Typically developers will want to build using the `dev` profile which disables license and code style checks. For
+   Typically developers will want to build using the `dev` profile which enables license and code style checks. For
    example:
    
         $ mvn -Pdev install
