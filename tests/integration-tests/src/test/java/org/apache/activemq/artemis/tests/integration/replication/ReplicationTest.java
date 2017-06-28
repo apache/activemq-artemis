@@ -204,7 +204,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
    public void testSendPackets() throws Exception {
       setupServer(true);
 
-      StorageManager storage = getStorage();
+      JournalStorageManager storage = getStorage();
 
       manager = liveServer.getReplicationManager();
       waitForComponent(manager);
@@ -270,7 +270,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       manager.largeMessageWrite(500, new byte[1024]);
 
-      manager.largeMessageDelete(Long.valueOf(500));
+      manager.largeMessageDelete(Long.valueOf(500), storage);
 
       blockOnReplication(storage, manager);
 
