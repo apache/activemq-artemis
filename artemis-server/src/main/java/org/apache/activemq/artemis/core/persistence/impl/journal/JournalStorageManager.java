@@ -137,8 +137,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             break;
          case MAPPED:
             ActiveMQServerLogger.LOGGER.journalUseMAPPED();
-            //the mapped version do not need buffering by default
-            journalFF = new MappedSequentialFileFactory(config.getJournalLocation(), criticalErrorListener, true).chunkBytes(config.getJournalFileSize()).overlapBytes(0);
+            journalFF = MappedSequentialFileFactory.buffered(config.getJournalLocation(), config.getJournalFileSize(), config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), criticalErrorListener);
             break;
          default:
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());

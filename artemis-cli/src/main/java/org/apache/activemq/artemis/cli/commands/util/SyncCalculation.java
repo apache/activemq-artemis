@@ -24,7 +24,6 @@ import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
@@ -190,13 +189,9 @@ public class SyncCalculation {
             ((AIOSequentialFileFactory) factory).disableBufferReuse();
             return factory;
          case MAPPED:
-            factory = new MappedSequentialFileFactory(datafolder, new IOCriticalErrorListener() {
-               @Override
-               public void onIOException(Throwable code, String message, SequentialFile file) {
-
-               }
-            }, true).chunkBytes(fileSize).overlapBytes(0).setDatasync(datasync);
-
+            factory = MappedSequentialFileFactory.unbuffered(datafolder, fileSize, null)
+               .setDatasync(datasync)
+               .disableBufferReuse();
             factory.start();
             return factory;
          default:
