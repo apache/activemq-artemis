@@ -42,7 +42,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
 
    private final JournalStorageManager storageManager;
 
-   private long pendingRecordID = -1;
+   private long pendingRecordID = NO_PENDING_ID;
 
    private boolean paged;
 
