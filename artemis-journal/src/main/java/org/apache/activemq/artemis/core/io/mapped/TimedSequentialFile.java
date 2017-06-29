@@ -20,14 +20,10 @@ package org.apache.activemq.artemis.core.io.mapped;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -35,6 +31,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 final class TimedSequentialFile implements SequentialFile {
@@ -42,14 +39,12 @@ final class TimedSequentialFile implements SequentialFile {
    private final SequentialFileFactory factory;
    private final SequentialFile sequentialFile;
    private final LocalBufferObserver observer;
-   private final ThreadLocal<ResettableIOCallback> callbackPool;
    private TimedBuffer timedBuffer;
 
    TimedSequentialFile(SequentialFileFactory factory, SequentialFile sequentialFile) {
       this.sequentialFile = sequentialFile;
       this.factory = factory;
       this.observer = new LocalBufferObserver();
-      this.callbackPool = ThreadLocal.withInitial(ResettableIOCallback::new);
    }
 
    @Override
@@ -114,13 +109,10 @@ final class TimedSequentialFile implements SequentialFile {
    public void write(ActiveMQBuffer bytes, boolean sync) throws Exception {
       if (sync) {
          if (this.timedBuffer != null) {
-            final ResettableIOCallback callback = callbackPool.get();
-            try {
-               this.timedBuffer.addBytes(bytes, true, callback);
-               callback.waitCompletion();
-            } finally {
-               callback.reset();
-            }
+            //the only way to avoid allocations is by using a lock-free pooled callback -> CyclicBarrier allocates on each new Generation!!!
+            final SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
+            this.timedBuffer.addBytes(bytes, true, callback);
+            callback.waitCompletion();
          } else {
             this.sequentialFile.write(bytes, true);
          }
@@ -146,13 +138,10 @@ final class TimedSequentialFile implements SequentialFile {
    public void write(EncodingSupport bytes, boolean sync) throws Exception {
       if (sync) {
          if (this.timedBuffer != null) {
-            final ResettableIOCallback callback = callbackPool.get();
-            try {
-               this.timedBuffer.addBytes(bytes, true, callback);
-               callback.waitCompletion();
-            } finally {
-               callback.reset();
-            }
+            //the only way to avoid allocations is by using a lock-free pooled callback -> CyclicBarrier allocates on each new Generation!!!
+            final SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
+            this.timedBuffer.addBytes(bytes, true, callback);
+            callback.waitCompletion();
          } else {
             this.sequentialFile.write(bytes, true);
          }
@@ -197,7 +186,11 @@ final class TimedSequentialFile implements SequentialFile {
 
    @Override
    public void close() throws Exception {
-      this.sequentialFile.close();
+      try {
+         this.sequentialFile.close();
+      } finally {
+         this.timedBuffer = null;
+      }
    }
 
    @Override
@@ -241,128 +234,99 @@ final class TimedSequentialFile implements SequentialFile {
       return this.sequentialFile.getJavaFile();
    }
 
-   private static final class ResettableIOCallback implements IOCallback {
-
-      private final CyclicBarrier cyclicBarrier;
-      private int errorCode;
-      private String errorMessage;
-
-      ResettableIOCallback() {
-         this.cyclicBarrier = new CyclicBarrier(2);
-      }
-
-      public void waitCompletion() throws InterruptedException, ActiveMQException, BrokenBarrierException {
-         this.cyclicBarrier.await();
-         if (this.errorMessage != null) {
-            throw ActiveMQExceptionType.createException(this.errorCode, this.errorMessage);
+   private static void invokeDoneOn(List<? extends IOCallback> callbacks) {
+      final int size = callbacks.size();
+      for (int i = 0; i < size; i++) {
+         try {
+            final IOCallback callback = callbacks.get(i);
+            callback.done();
+         } catch (Throwable e) {
+            ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
          }
       }
+   }
 
-      public void reset() {
-         this.errorCode = 0;
-         this.errorMessage = null;
-      }
-
-      @Override
-      public void done() {
+   private static void invokeOnErrorOn(final int errorCode,
+                                       final String errorMessage,
+                                       List<? extends IOCallback> callbacks) {
+      final int size = callbacks.size();
+      for (int i = 0; i < size; i++) {
          try {
-            this.cyclicBarrier.await();
-         } catch (BrokenBarrierException | InterruptedException e) {
-            throw new IllegalStateException(e);
-         }
-      }
-
-      @Override
-      public void onError(int errorCode, String errorMessage) {
-         try {
-            this.errorCode = errorCode;
-            this.errorMessage = errorMessage;
-            this.cyclicBarrier.await();
-         } catch (BrokenBarrierException | InterruptedException e) {
-            throw new IllegalStateException(e);
+            final IOCallback callback = callbacks.get(i);
+            callback.onError(errorCode, errorMessage);
+         } catch (Throwable e) {
+            ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
          }
       }
    }
 
    private static final class DelegateCallback implements IOCallback {
 
-      final List<IOCallback> delegates;
+      List<IOCallback> delegates;
 
       private DelegateCallback() {
-         this.delegates = new ArrayList<>();
-      }
-
-      public List<IOCallback> delegates() {
-         return this.delegates;
+         this.delegates = null;
       }
 
       @Override
       public void done() {
-         final int size = delegates.size();
-         for (int i = 0; i < size; i++) {
-            try {
-               final IOCallback callback = delegates.get(i);
-               callback.done();
-            } catch (Throwable e) {
-               ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
-            }
-         }
+         invokeDoneOn(delegates);
       }
 
       @Override
       public void onError(final int errorCode, final String errorMessage) {
-         for (IOCallback callback : delegates) {
-            try {
-               callback.onError(errorCode, errorMessage);
-            } catch (Throwable e) {
-               ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
-            }
-         }
+         invokeOnErrorOn(errorCode, errorMessage, delegates);
       }
    }
 
    private final class LocalBufferObserver implements TimedBufferObserver {
 
-      private final ThreadLocal<DelegateCallback> callbacksPool = ThreadLocal.withInitial(DelegateCallback::new);
+      private final DelegateCallback delegateCallback = new DelegateCallback();
 
       @Override
       public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks) {
          buffer.flip();
+
          if (buffer.limit() == 0) {
-            //if there are no bytes to flush, can release the callbacks
-            final int size = callbacks.size();
-            for (int i = 0; i < size; i++) {
-               callbacks.get(i).done();
+            try {
+               invokeDoneOn(callbacks);
+            } finally {
+               factory.releaseBuffer(buffer);
             }
          } else {
-            final DelegateCallback delegateCallback = callbacksPool.get();
-            final int size = callbacks.size();
-            final List<IOCallback> delegates = delegateCallback.delegates();
-            for (int i = 0; i < size; i++) {
-               delegates.add(callbacks.get(i));
-            }
-            try {
-               sequentialFile.writeDirect(buffer, requestedSync, delegateCallback);
-            } finally {
-               delegates.clear();
+            if (callbacks.isEmpty()) {
+               try {
+                  sequentialFile.writeDirect(buffer, requestedSync);
+               } catch (Exception e) {
+                  throw new IllegalStateException(e);
+               }
+            } else {
+               delegateCallback.delegates = callbacks;
+               try {
+                  sequentialFile.writeDirect(buffer, requestedSync, delegateCallback);
+               } finally {
+                  delegateCallback.delegates = null;
+               }
             }
          }
       }
 
       @Override
       public ByteBuffer newBuffer(final int size, final int limit) {
-         final int alignedSize = factory.calculateBlockSize(size);
-         final int alignedLimit = factory.calculateBlockSize(limit);
-         final ByteBuffer buffer = factory.newBuffer(alignedSize);
-         buffer.limit(alignedLimit);
-         return buffer;
+         return factory.newBuffer(limit);
       }
 
       @Override
       public int getRemainingBytes() {
          try {
-            final int remaining = (int) Math.min(sequentialFile.size() - sequentialFile.position(), Integer.MAX_VALUE);
-            return remaining;
+            final long position = sequentialFile.position();
+            final long size = sequentialFile.size();
+            final long remaining = size - position;
+            if (remaining > Integer.MAX_VALUE) {
+               return Integer.MAX_VALUE;
+            } else {
+               return (int) remaining;
+            }
          } catch (Exception e) {
             throw new IllegalStateException(e);
          }
@@ -370,7 +334,7 @@ final class TimedSequentialFile implements SequentialFile {
 
       @Override
       public String toString() {
-         return "TimedBufferObserver on file (" + getFileName() + ")";
+         return "TimedBufferObserver on file (" + sequentialFile.getFileName() + ")";
       }
 
    }

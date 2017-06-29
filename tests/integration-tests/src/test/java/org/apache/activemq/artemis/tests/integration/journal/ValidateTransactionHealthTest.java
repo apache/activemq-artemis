@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.ArtemisConstants;
-import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
@@ -354,12 +352,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
       } else if (factoryType.equals("nio2")) {
          return new NIOSequentialFileFactory(new File(directory), true, 1);
       } else if (factoryType.equals("mmap")) {
-         return new MappedSequentialFileFactory(new File(directory), new IOCriticalErrorListener() {
-            @Override
-            public void onIOException(Throwable code, String message, SequentialFile file) {
-               code.printStackTrace();
-            }
-         }, true).chunkBytes(fileSize).overlapBytes(0);
+         return MappedSequentialFileFactory.unbuffered(new File(directory), fileSize, null);
       } else {
          return new NIOSequentialFileFactory(new File(directory), false, 1);
       }
