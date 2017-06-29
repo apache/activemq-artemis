@@ -223,34 +223,6 @@
          <artifactId>jbossjts-jacorb</artifactId>
          <version>4.17.13.Final</version>
       </dependency>
-
-      <!-- ### Benchmark Tools -->
-      <!-- ### Java Latency Benchmarking Harness -->
-      <dependency>
-         <groupId>net.openhft</groupId>
-         <artifactId>chronicle-core</artifactId>
-         <version>${openhft.core.version}</version>
-         <!-- License: Apache 2.0 -->
-      </dependency>
-      <dependency>
-         <groupId>net.openhft</groupId>
-         <artifactId>affinity</artifactId>
-         <version>${openhft.affinity.version}</version>
-         <!-- License: LGPLv3-->
-      </dependency>
-      <!-- ### Java Microbenchmark Harness -->
-      <dependency>
-         <groupId>org.openjdk.jmh</groupId>
-         <artifactId>jmh-core</artifactId>
-         <version>${openjdk.jmh.version}</version>
-         <!-- License: GPLv2-->
-      </dependency>
-      <dependency>
-         <groupId>org.openjdk.jmh</groupId>
-         <artifactId>jmh-generator-annprocess</artifactId>
-         <version>${openjdk.jmh.version}</version>
-         <!-- License: GPLv2-->
-      </dependency>
    </dependencies>
 
    <build>

@@ -23,8 +23,26 @@ import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 public class MappedImportExportTest extends NIOImportExportTest {
 
    @Override
+   protected void setup(int minFreeFiles, int fileSize, boolean sync) {
+      super.setup(minFreeFiles, fileSize, sync);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
+   protected void setup(int minFreeFiles, int fileSize, boolean sync, int maxAIO) {
+      super.setup(minFreeFiles, fileSize, sync, maxAIO);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
+   protected void setup(int minFreeFiles, int poolSize, int fileSize, boolean sync, int maxAIO) {
+      super.setup(minFreeFiles, poolSize, fileSize, sync, maxAIO);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
-      return new MappedSequentialFileFactory(getTestDirfile());
+      return MappedSequentialFileFactory.unbuffered(getTestDirfile(), 10 * 4096, null);
    }
 }
 
