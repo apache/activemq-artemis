@@ -304,7 +304,7 @@ public final class ActiveMQDefaultConfiguration {
    private static boolean DEFAULT_BRIDGE_DUPLICATE_DETECTION = true;
 
    // Once the bridge has received this many bytes, it sends a confirmation
-   private static int DEFAULT_BRIDGE_CONFIRMATION_WINDOW_SIZE = 1048576;
+   private static int DEFAULT_BRIDGE_CONFIRMATION_WINDOW_SIZE = 1024 * 1024 * 10;
 
    // Producer flow control
    private static int DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE = -1;
@@ -348,7 +348,7 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_CLUSTER_MAX_HOPS = 1;
 
    // The size (in bytes) of the window used for confirming data from the server connected to.
-   private static int DEFAULT_CLUSTER_CONFIRMATION_WINDOW_SIZE = 1048576;
+   private static int DEFAULT_CLUSTER_CONFIRMATION_WINDOW_SIZE = 1024 * 1024 * 10;
 
    // How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
    private static long DEFAULT_CLUSTER_CALL_FAILOVER_TIMEOUT = -1;
