@@ -1565,7 +1565,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       if (largeServerMessage.getPendingRecordID() >= 0) {
          try {
             confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-            largeServerMessage.setPendingRecordID(-1);
+            largeServerMessage.setPendingRecordID(LargeServerMessage.NO_PENDING_ID);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
