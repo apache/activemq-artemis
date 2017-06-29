@@ -634,6 +634,15 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertTrue(brokerPlugins.get(1) instanceof EmptyPlugin2);
    }
 
+   @Test
+   public void testDefaultConstraints() {
+      int defaultConfirmationWinSize = ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
+      int defaultIdCacheSize = ActiveMQDefaultConfiguration.getDefaultIdCacheSize();
+      assertTrue("check failed, " + defaultConfirmationWinSize + ":" + defaultIdCacheSize, ConfigurationImpl.checkoutDupCacheSize(defaultConfirmationWinSize, defaultIdCacheSize));
+      defaultConfirmationWinSize = ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize();
+      assertTrue("check failed, " + defaultConfirmationWinSize + ":" + defaultIdCacheSize, ConfigurationImpl.checkoutDupCacheSize(defaultConfirmationWinSize, defaultIdCacheSize));
+   }
+
    @Override
    protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();

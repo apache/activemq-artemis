@@ -79,6 +79,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
+   private static final int DEFAULT_JMS_MESSAGE_SIZE = 1864;
+
+   private static final int RANGE_SIZE_MIN = 0;
+
+   private static final int RANGE_SZIE_MAX = 4;
+
    private static final long serialVersionUID = 4077088945050267843L;
 
    // Attributes -----------------------------------------------------------------------------
@@ -2056,6 +2062,26 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public Configuration setNetworkCheckPing6Command(String command) {
       this.networkCheckPing6Command = command;
       return this;
+   }
+
+   public static boolean checkoutDupCacheSize(final int windowSize, final int idCacheSize) {
+      final int msgNumInFlight = windowSize / DEFAULT_JMS_MESSAGE_SIZE;
+
+      if (msgNumInFlight == 0) {
+         return true;
+      }
+
+      boolean sizeGood = false;
+
+      if (idCacheSize >= msgNumInFlight) {
+         int r = idCacheSize / msgNumInFlight;
+
+         // This setting is here to accomodate the current default setting.
+         if ( (r >= RANGE_SIZE_MIN) && (r <= RANGE_SZIE_MAX)) {
+            sizeGood = true;
+         }
+      }
+      return sizeGood;
    }
 
    /**
