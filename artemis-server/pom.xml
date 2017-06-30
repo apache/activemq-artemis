@@ -94,7 +94,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.directory.server</groupId>
-         <artifactId>apacheds-server-integ</artifactId>
+         <artifactId>apacheds-test-framework</artifactId>
          <version>${directory-version}</version>
          <scope>test</scope>
          <exclusions>
@@ -105,18 +105,11 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.directory.server</groupId>
-         <artifactId>apacheds-core-integ</artifactId>
-         <version>${directory-version}</version>
+         <groupId>org.apache.directory.jdbm</groupId>
+         <artifactId>apacheds-jdbm2</artifactId>
+         <version>${directory-jdbm2-version}</version>
          <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>bouncycastle</groupId>
-               <artifactId>bcprov-jdk15</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
-
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
