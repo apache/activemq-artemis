@@ -22,10 +22,10 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.jboss.logging.Logger;
 
 /**
  * Stops the backup in case of an error at the start of Replication.
@@ -36,11 +36,11 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
  */
 final class ReplicationError implements Interceptor {
 
-   private final ActiveMQServer server;
+   private static final Logger logger = Logger.getLogger(ReplicationError.class);
+
    private LiveNodeLocator nodeLocator;
 
-   ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator) {
-      this.server = server;
+   ReplicationError(LiveNodeLocator nodeLocator) {
       this.nodeLocator = nodeLocator;
    }
 
@@ -48,6 +48,10 @@ final class ReplicationError implements Interceptor {
    public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() != PacketImpl.BACKUP_REGISTRATION_FAILED)
          return true;
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("Received ReplicationError::" + packet);
+      }
       BackupReplicationStartFailedMessage message = (BackupReplicationStartFailedMessage) packet;
       switch (message.getRegistrationProblem()) {
          case ALREADY_REPLICATING:
