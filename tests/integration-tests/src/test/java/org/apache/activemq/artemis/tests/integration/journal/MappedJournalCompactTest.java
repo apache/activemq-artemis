@@ -25,6 +25,24 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 public class MappedJournalCompactTest extends NIOJournalCompactTest {
 
    @Override
+   protected void setup(int minFreeFiles, int fileSize, boolean sync) {
+      super.setup(minFreeFiles, fileSize, sync);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
+   protected void setup(int minFreeFiles, int fileSize, boolean sync, int maxAIO) {
+      super.setup(minFreeFiles, fileSize, sync, maxAIO);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
+   protected void setup(int minFreeFiles, int poolSize, int fileSize, boolean sync, int maxAIO) {
+      super.setup(minFreeFiles, poolSize, fileSize, sync, maxAIO);
+      ((MappedSequentialFileFactory) this.fileFactory).capacity(fileSize);
+   }
+
+   @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
@@ -32,6 +50,6 @@ public class MappedJournalCompactTest extends NIOJournalCompactTest {
 
       file.mkdir();
 
-      return new MappedSequentialFileFactory(getTestDirfile());
+      return MappedSequentialFileFactory.unbuffered(getTestDirfile(), 60 * 1024, null);
    }
 }

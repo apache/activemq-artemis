@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.LockSupport;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -41,12 +40,12 @@ public class SequentialFileTptBenchmark {
    private static final FastWaitIOCallback CALLBACK = new FastWaitIOCallback();
 
    public static void main(String[] args) throws Exception {
-      final boolean dataSync = true;
+      final boolean dataSync = false;
       final boolean writeSync = true;
       final Type type = Type.Mapped;
       final int tests = 10;
       final int warmup = 20_000;
-      final int measurements = 20_000;
+      final int measurements = 100_000;
       final int msgSize = 100;
       final byte[] msgContent = new byte[msgSize];
       Arrays.fill(msgContent, (byte) 1);
@@ -56,10 +55,8 @@ public class SequentialFileTptBenchmark {
       switch (type) {
 
          case Mapped:
-            final MappedSequentialFileFactory mappedFactory = new MappedSequentialFileFactory(tmpDirectory, null, true);
-            final int alignedMessageSize = mappedFactory.calculateBlockSize(msgSize);
-            final int totalFileSize = Math.max(alignedMessageSize * measurements, alignedMessageSize * warmup);
-            factory = mappedFactory.chunkBytes(totalFileSize).overlapBytes(0).setDatasync(dataSync);
+            final int fileSize = Math.max(msgSize * measurements, msgSize * warmup);
+            factory = MappedSequentialFileFactory.buffered(tmpDirectory, fileSize, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, null).setDatasync(dataSync);
             break;
          case Nio:
             factory = new NIOSequentialFileFactory(tmpDirectory, true, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, 1, false, null).setDatasync(dataSync);
@@ -147,9 +144,9 @@ public class SequentialFileTptBenchmark {
                              boolean sync) throws Exception {
       //this pattern is necessary to ensure that NIO's TimedBuffer fill flush the buffer and know the real size of it
       if (sequentialFile.fits(encodingSupport.getEncodeSize())) {
-         final FastWaitIOCallback ioCallback = CALLBACK.reset();
-         sequentialFile.write(encodingSupport, sync, ioCallback);
-         ioCallback.waitCompletion();
+         CALLBACK.reset();
+         sequentialFile.write(encodingSupport, sync, CALLBACK);
+         CALLBACK.waitCompletion();
       } else {
          throw new IllegalStateException("can't happen!");
       }
@@ -189,11 +186,7 @@ public class SequentialFileTptBenchmark {
       }
 
       public void waitCompletion() throws InterruptedException, ActiveMQException {
-         final Thread currentThread = Thread.currentThread();
          while (!done.get()) {
-            LockSupport.parkNanos(1L);
-            if (currentThread.isInterrupted())
-               throw new InterruptedException();
          }
          if (errorMessage != null) {
             throw ActiveMQExceptionType.createException(errorCode, errorMessage);

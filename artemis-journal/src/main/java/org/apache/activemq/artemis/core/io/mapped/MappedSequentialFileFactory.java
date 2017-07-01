@@ -29,62 +29,64 @@ import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
+import org.apache.activemq.artemis.utils.Env;
 
 public final class MappedSequentialFileFactory implements SequentialFileFactory {
 
-   private static long DEFAULT_BLOCK_SIZE = 64L << 20;
    private final File directory;
+   private int capacity;
    private final IOCriticalErrorListener criticalErrorListener;
    private final TimedBuffer timedBuffer;
-   private long chunkBytes;
-   private long overlapBytes;
    private boolean useDataSync;
-   private boolean supportCallbacks;
+   private boolean bufferPooling;
+   //pools only the biggest one -> optimized for the common case
+   private final ThreadLocal<ByteBuffer> bytesPool;
 
-   protected volatile int alignment = -1;
-
-   public MappedSequentialFileFactory(File directory,
-                                      IOCriticalErrorListener criticalErrorListener,
-                                      boolean supportCallbacks) {
+   private MappedSequentialFileFactory(File directory,
+                                       int capacity,
+                                       final boolean buffered,
+                                       final int bufferSize,
+                                       final int bufferTimeout,
+                                       IOCriticalErrorListener criticalErrorListener) {
       this.directory = directory;
+      this.capacity = capacity;
       this.criticalErrorListener = criticalErrorListener;
-      this.chunkBytes = DEFAULT_BLOCK_SIZE;
-      this.overlapBytes = DEFAULT_BLOCK_SIZE / 4;
       this.useDataSync = true;
-      this.timedBuffer = null;
-      this.supportCallbacks = supportCallbacks;
+      if (buffered && bufferTimeout > 0 && bufferSize > 0) {
+         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, false);
+      } else {
+         timedBuffer = null;
+      }
+      this.bufferPooling = true;
+      this.bytesPool = new ThreadLocal<>();
    }
 
-   public MappedSequentialFileFactory(File directory, IOCriticalErrorListener criticalErrorListener) {
-      this(directory, criticalErrorListener, false);
-   }
-
-   public MappedSequentialFileFactory(File directory) {
-      this(directory, null);
-   }
-
-
-   public long chunkBytes() {
-      return chunkBytes;
-   }
-
-   public MappedSequentialFileFactory chunkBytes(long chunkBytes) {
-      this.chunkBytes = chunkBytes;
+   public MappedSequentialFileFactory capacity(int capacity) {
+      this.capacity = capacity;
       return this;
    }
 
-   public long overlapBytes() {
-      return overlapBytes;
+   public int capacity() {
+      return capacity;
    }
 
-   public MappedSequentialFileFactory overlapBytes(long overlapBytes) {
-      this.overlapBytes = overlapBytes;
-      return this;
+   public static MappedSequentialFileFactory buffered(File directory,
+                                                      int capacity,
+                                                      final int bufferSize,
+                                                      final int bufferTimeout,
+                                                      IOCriticalErrorListener criticalErrorListener) {
+      return new MappedSequentialFileFactory(directory, capacity, true, bufferSize, bufferTimeout, criticalErrorListener);
+   }
+
+   public static MappedSequentialFileFactory unbuffered(File directory,
+                                                        int capacity,
+                                                        IOCriticalErrorListener criticalErrorListener) {
+      return new MappedSequentialFileFactory(directory, capacity, false, 0, 0, criticalErrorListener);
    }
 
    @Override
    public SequentialFile createSequentialFile(String fileName) {
-      final MappedSequentialFile mappedSequentialFile = new MappedSequentialFile(this, directory, new File(directory, fileName), chunkBytes, overlapBytes, criticalErrorListener);
+      final MappedSequentialFile mappedSequentialFile = new MappedSequentialFile(this, directory, new File(directory, fileName), capacity, criticalErrorListener);
       if (this.timedBuffer == null) {
          return mappedSequentialFile;
       } else {
@@ -93,7 +95,7 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    }
 
    @Override
-   public SequentialFileFactory setDatasync(boolean enabled) {
+   public MappedSequentialFileFactory setDatasync(boolean enabled) {
       this.useDataSync = enabled;
       return this;
    }
@@ -120,7 +122,7 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
 
    @Override
    public boolean isSupportsCallbacks() {
-      return this.supportCallbacks;
+      return timedBuffer != null;
    }
 
    @Override
@@ -132,23 +134,65 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
 
    @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
-      return ByteBuffer.allocateDirect(size);
+      final int requiredCapacity = (int) BytesUtils.align(size, Env.osPageSize());
+      final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
+      byteBuffer.limit(size);
+      return byteBuffer;
    }
 
    @Override
-   public void releaseDirectBuffer(final ByteBuffer buffer) {
+   public void releaseDirectBuffer(ByteBuffer buffer) {
       PlatformDependent.freeDirectBuffer(buffer);
+   }
+
+   public MappedSequentialFileFactory enableBufferReuse() {
+      this.bufferPooling = true;
+      return this;
+   }
+
+   public MappedSequentialFileFactory disableBufferReuse() {
+      this.bufferPooling = false;
+      return this;
    }
 
    @Override
    public ByteBuffer newBuffer(final int size) {
-      return ByteBuffer.allocate(size);
+      if (!this.bufferPooling) {
+         return allocateDirectBuffer(size);
+      } else {
+         final int requiredCapacity = (int) BytesUtils.align(size, Env.osPageSize());
+         ByteBuffer byteBuffer = bytesPool.get();
+         if (byteBuffer == null || requiredCapacity > byteBuffer.capacity()) {
+            //do not free the old one (if any) until the new one will be released into the pool!
+            byteBuffer = ByteBuffer.allocateDirect(requiredCapacity);
+         } else {
+            bytesPool.set(null);
+            PlatformDependent.setMemory(PlatformDependent.directBufferAddress(byteBuffer), size, (byte) 0);
+            byteBuffer.clear();
+         }
+         byteBuffer.limit(size);
+         return byteBuffer;
+      }
    }
 
    @Override
    public void releaseBuffer(ByteBuffer buffer) {
-      if (buffer.isDirect()) {
-         PlatformDependent.freeDirectBuffer(buffer);
+      if (this.bufferPooling) {
+         if (buffer.isDirect()) {
+            final ByteBuffer byteBuffer = bytesPool.get();
+            if (byteBuffer != buffer) {
+               //replace with the current pooled only if greater or null
+               if (byteBuffer == null || buffer.capacity() > byteBuffer.capacity()) {
+                  if (byteBuffer != null) {
+                     //free the smaller one
+                     PlatformDependent.freeDirectBuffer(byteBuffer);
+                  }
+                  bytesPool.set(buffer);
+               } else {
+                  PlatformDependent.freeDirectBuffer(buffer);
+               }
+            }
+         }
       }
    }
 
@@ -179,9 +223,9 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    }
 
    @Override
+   @Deprecated
    public MappedSequentialFileFactory setAlignment(int alignment) {
-      this.alignment = alignment;
-      return this;
+      throw new UnsupportedOperationException("alignment can't be changed!");
    }
 
    @Override
@@ -203,7 +247,6 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
          //SIMD OPTIMIZATION
          Arrays.fill(array, (byte) 0);
       } else {
-         //TODO VERIFY IF IT COULD HAPPENS
          final int capacity = buffer.capacity();
          for (int i = 0; i < capacity; i++) {
             buffer.put(i, (byte) 0);
