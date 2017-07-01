@@ -210,7 +210,16 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
          response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
-      channel.send(response);
+
+      if (response != null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Returning " + response);
+         }
+
+         channel.send(response);
+      } else {
+         logger.trace("Response is null, ignoring response");
+      }
    }
 
    /**
@@ -332,34 +341,68 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private void finishSynchronization(String liveID) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("finishSynchronization::" + liveID);
+         logger.trace("BACKUP-SYNC-START: finishSynchronization::" + liveID);
       }
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
          Journal journal = journalsHolder.remove(jc);
+         if (logger.isTraceEnabled()) {
+            logger.trace("getting lock on " + jc + ", journal = " + journal);
+         }
+         registerJournal(jc.typeByte, journal);
          journal.synchronizationLock();
          try {
+            if (logger.isTraceEnabled()) {
+               logger.trace("lock acquired on " + jc);
+            }
             // files should be already in place.
             filesReservedForSync.remove(jc);
-            registerJournal(jc.typeByte, journal);
+            if (logger.isTraceEnabled()) {
+               logger.trace("stopping journal for " + jc);
+            }
             journal.stop();
+            if (logger.isTraceEnabled()) {
+               logger.trace("starting journal for " + jc);
+            }
             journal.start();
+            if (logger.isTraceEnabled()) {
+               logger.trace("loadAndSync " + jc);
+            }
             journal.loadSyncOnly(JournalState.SYNCING_UP_TO_DATE);
          } finally {
+            if (logger.isTraceEnabled()) {
+               logger.trace("unlocking " + jc);
+            }
             journal.synchronizationUnlock();
          }
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("Sync on large messages...");
       }
       ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
       for (Entry<Long, ReplicatedLargeMessage> entry : largeMessages.entrySet()) {
          ReplicatedLargeMessage lm = entry.getValue();
          if (lm instanceof LargeServerMessageInSync) {
             LargeServerMessageInSync lmSync = (LargeServerMessageInSync) lm;
+            if (logger.isTraceEnabled()) {
+               logger.trace("lmSync on " + lmSync.toString());
+            }
             lmSync.joinSyncedData(buffer);
          }
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("setRemoteBackupUpToDate and liveIDSet for " + liveID);
       }
 
       journalsHolder = null;
       backupQuorum.liveIDSet(liveID);
       activation.setRemoteBackupUpToDate();
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
+      }
+
       ActiveMQServerLogger.LOGGER.backupServerSynched(server);
       return;
    }
@@ -428,13 +471,28 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("handleStartReplicationSynchronization:: nodeID = " + packet);
       }
-      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
-      if (!started)
-         return replicationResponseMessage;
 
       if (packet.isSynchronizationFinished()) {
-         finishSynchronization(packet.getNodeID());
-         replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
+         executor.execute(() -> {
+            try {
+               // this is a long running process, we cannot block the reading thread from netty
+               finishSynchronization(packet.getNodeID());
+               if (logger.isTraceEnabled()) {
+                  logger.trace("returning completion on synchronization catchup");
+               }
+               channel.send(new ReplicationResponseMessageV2().setSynchronizationIsFinishedAcknowledgement(true));
+            } catch (Exception e) {
+               logger.warn(e.getMessage());
+               channel.send(new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e)));
+            }
+
+         });
+         // the write will happen through an executor
+         return null;
+      }
+
+      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
+      if (!started) {
          return replicationResponseMessage;
       }
 

@@ -136,7 +136,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
    @Override
    public boolean isNetty() {
-      return false;
+      return true;
    }
 
    @Override

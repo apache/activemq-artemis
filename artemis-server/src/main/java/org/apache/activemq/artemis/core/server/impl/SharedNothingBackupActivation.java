@@ -101,6 +101,8 @@ public final class SharedNothingBackupActivation extends Activation {
    @Override
    public void run() {
       try {
+
+         logger.trace("SharedNothingBackupActivation..start");
          synchronized (activeMQServer) {
             activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          }
@@ -109,16 +111,24 @@ public final class SharedNothingBackupActivation extends Activation {
          activeMQServer.moveServerData(replicaPolicy.getMaxSavedReplicatedJournalsSize());
          activeMQServer.getNodeManager().start();
          synchronized (this) {
-            if (closed)
+            if (closed) {
+               logger.trace("SharedNothingBackupActivation is closed, ignoring activation!");
                return;
+            }
          }
 
          boolean scalingDown = replicaPolicy.getScaleDownPolicy() != null && replicaPolicy.getScaleDownPolicy().isEnabled();
 
-         if (!activeMQServer.initialisePart1(scalingDown))
+         if (!activeMQServer.initialisePart1(scalingDown)) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("could not initialize part1 " + scalingDown);
+            }
             return;
+         }
 
+         logger.trace("Waiting for a synchronize now...");
          synchronized (this) {
+            logger.trace("Entered a synchronized");
             if (closed)
                return;
             backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize());
@@ -136,16 +146,12 @@ public final class SharedNothingBackupActivation extends Activation {
          ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
          clusterController.addClusterTopologyListenerForReplication(nodeLocator);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Waiting on cluster connection");
-         }
-         //todo do we actually need to wait?
+         logger.trace("Waiting on cluster connection");
          clusterController.awaitConnectionToReplicationCluster();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Cluster Connected");
-         }
-         clusterController.addIncomingInterceptorForReplication(new ReplicationError(activeMQServer, nodeLocator));
+         logger.trace("Cluster Connected");
+
+         clusterController.addIncomingInterceptorForReplication(new ReplicationError(nodeLocator));
 
          // nodeManager.startBackup();
          if (logger.isTraceEnabled()) {
@@ -320,13 +326,19 @@ public final class SharedNothingBackupActivation extends Activation {
                return;
             }
             ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
+            logger.trace("stop backup");
             activeMQServer.getNodeManager().stopBackup();
+            logger.trace("start store manager");
             activeMQServer.getStorageManager().start();
+            logger.trace("activated");
             activeMQServer.getBackupManager().activated();
             if (scalingDown) {
+               logger.trace("Scalling down...");
                activeMQServer.initialisePart2(true);
             } else {
+               logger.trace("Setting up new activation");
                activeMQServer.setActivation(new SharedNothingLiveActivation(activeMQServer, replicaPolicy.getReplicatedPolicy()));
+               logger.trace("initialize part 2");
                activeMQServer.initialisePart2(false);
 
                if (activeMQServer.getIdentity() != null) {
@@ -336,6 +348,8 @@ public final class SharedNothingBackupActivation extends Activation {
                }
 
             }
+
+            logger.trace("completeActivation at the end");
 
             activeMQServer.completeActivation();
          }
