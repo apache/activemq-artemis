@@ -86,7 +86,7 @@ public final class TransportConfigurationUtils {
    private static TransportConfiguration transportConfiguration(String classname, boolean live, int server) {
       if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<>();
-         Integer port = live ? 61616 : 5545;
+         Integer port = live ? 61616 + server : 5545 + server;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams);
       }
@@ -102,7 +102,7 @@ public final class TransportConfigurationUtils {
                                                                 String name) {
       if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<>();
-         Integer port = live ? 61616 : 5545;
+         Integer port = live ? 61616 + server : 5545 + server;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams, name);
       }

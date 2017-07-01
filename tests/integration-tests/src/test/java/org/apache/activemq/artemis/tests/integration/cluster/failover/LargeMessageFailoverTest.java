@@ -18,22 +18,23 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LargeMessageFailoverTest extends FailoverTest {
 
    @Override
    @Test
+   @Ignore
    public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
-      Thread.sleep(1000);
    }
 
    @Override
    @Test
+   @Ignore
    public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
-      Thread.sleep(1000);
    }
 
    /**
