@@ -38,8 +38,9 @@ public final class ReplicationResponseMessageV2 extends ReplicationResponseMessa
       return synchronizationIsFinishedAcknowledgement;
    }
 
-   public void setSynchronizationIsFinishedAcknowledgement(boolean synchronizationIsFinishedAcknowledgement) {
+   public ReplicationResponseMessageV2 setSynchronizationIsFinishedAcknowledgement(boolean synchronizationIsFinishedAcknowledgement) {
       this.synchronizationIsFinishedAcknowledgement = synchronizationIsFinishedAcknowledgement;
+      return this;
    }
 
    @Override
