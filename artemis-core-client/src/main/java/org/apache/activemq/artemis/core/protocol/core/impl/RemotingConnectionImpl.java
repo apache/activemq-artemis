@@ -362,7 +362,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          doBufferReceived(packet);
 
          super.bufferReceived(connectionID, buffer);
-      } catch (Exception e) {
+      } catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.errorDecodingPacket(e);
       }
    }
