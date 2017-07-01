@@ -374,7 +374,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214013, value = "Failed to decode packet", format = Message.Format.MESSAGE_FORMAT)
-   void errorDecodingPacket(@Cause Exception e);
+   void errorDecodingPacket(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214014, value = "Failed to execute failure listener", format = Message.Format.MESSAGE_FORMAT)

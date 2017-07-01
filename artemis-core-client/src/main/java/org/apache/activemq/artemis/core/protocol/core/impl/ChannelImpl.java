@@ -462,6 +462,10 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public void setHandler(final ChannelHandler handler) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Setting handler on " + this + " as " + handler);
+      }
+
       this.handler = handler;
    }
 
@@ -521,6 +525,9 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public void lock() {
+      if (logger.isTraceEnabled()) {
+         logger.trace("lock channel " + this);
+      }
       lock.lock();
 
       reconnectID.incrementAndGet();
@@ -532,6 +539,9 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public void unlock() {
+      if (logger.isTraceEnabled()) {
+         logger.trace("unlock channel " + this);
+      }
       lock.lock();
 
       failingOver = false;
