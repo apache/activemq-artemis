@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 
 /**
@@ -47,12 +46,12 @@ public class JournalTptBenchmark {
 
    public static void main(String[] args) throws Exception {
       final boolean useDefaultIoExecutor = true;
-      final int fileSize = 1024 * 1024;
-      final boolean dataSync = true;
+      final int fileSize = 10 * 1024 * 1024;
+      final boolean dataSync = false;
       final Type type = Type.Mapped;
-      final int tests = 5;
+      final int tests = 10;
       final int warmup = 20_000;
-      final int measurements = 20_000;
+      final int measurements = 100_000;
       final int msgSize = 100;
       final byte[] msgContent = new byte[msgSize];
       Arrays.fill(msgContent, (byte) 1);
@@ -63,8 +62,8 @@ public class JournalTptBenchmark {
       switch (type) {
 
          case Mapped:
-            final MappedSequentialFileFactory mappedFactory = new MappedSequentialFileFactory(tmpDirectory, null, true);
-            factory = mappedFactory.chunkBytes(fileSize).overlapBytes(0).setDatasync(dataSync);
+            factory = MappedSequentialFileFactory.buffered(tmpDirectory, fileSize, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, null)
+               .setDatasync(dataSync);
             break;
          case Nio:
             factory = new NIOSequentialFileFactory(tmpDirectory, true, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, 1, false, null).setDatasync(dataSync);
@@ -195,9 +194,7 @@ public class JournalTptBenchmark {
 
    private static void write(long id, Journal journal, EncodingSupport encodingSupport) throws Exception {
       journal.appendAddRecord(id, (byte) 1, encodingSupport, false);
-      final SimpleWaitIOCallback ioCallback = new SimpleWaitIOCallback();
-      journal.appendUpdateRecord(id, (byte) 1, encodingSupport, true, ioCallback);
-      ioCallback.waitCompletion();
+      journal.appendUpdateRecord(id, (byte) 1, encodingSupport, true);
    }
 
    private enum Type {

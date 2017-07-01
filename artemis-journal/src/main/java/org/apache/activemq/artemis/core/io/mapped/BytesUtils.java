@@ -29,8 +29,32 @@ final class BytesUtils {
       return (value + (alignment - 1)) & ~(alignment - 1);
    }
 
+   /**
+    * Is a value a positive power of two.
+    *
+    * @param value to be checked.
+    * @return true if the number is a positive power of two otherwise false.
+    */
+   public static boolean isPowOf2(final int value) {
+      return Integer.bitCount(value) == 1;
+   }
+
+   /**
+    * Test if a value is pow2alignment-aligned.
+    *
+    * @param value         to be tested.
+    * @param pow2alignment boundary the address is tested against.
+    * @return true if the address is on the aligned boundary otherwise false.
+    * @throws IllegalArgumentException if the alignment is not a power of 2
+    */
+   public static boolean isAligned(final long value, final int pow2alignment) {
+      if (!isPowOf2(pow2alignment)) {
+         throw new IllegalArgumentException("Alignment must be a power of 2");
+      }
+      return (value & (pow2alignment - 1)) == 0;
+   }
+
    public static void zerosDirect(final ByteBuffer buffer) {
-      //TODO When PlatformDependent will be replaced by VarHandle or Unsafe, replace with safepoint-fixed setMemory
       //DANGEROUS!! erases bound-checking using directly addresses -> safe only if it use counted loops
       int remaining = buffer.capacity();
       long address = PlatformDependent.directBufferAddress(buffer);

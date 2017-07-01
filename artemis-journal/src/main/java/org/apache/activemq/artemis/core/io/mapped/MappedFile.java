@@ -18,79 +18,66 @@ package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledUnsafeDirectByteBufWrapper;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.utils.Env;
 
 final class MappedFile implements AutoCloseable {
 
-   private final MappedByteBufferCache cache;
+   private static final int OS_PAGE_SIZE = Env.osPageSize();
+   private final MappedByteBuffer buffer;
+   private final FileChannel channel;
+   private final long address;
    private final UnpooledUnsafeDirectByteBufWrapper byteBufWrapper;
    private final ChannelBufferWrapper channelBufferWrapper;
-   private MappedByteBuffer lastMapped;
-   private long lastMappedStart;
-   private long lastMappedLimit;
-   private long position;
-   private long length;
+   private int position;
+   private int length;
 
-   private MappedFile(MappedByteBufferCache cache) throws IOException {
-      this.cache = cache;
-      this.lastMapped = null;
-      this.lastMappedStart = -1;
-      this.lastMappedLimit = -1;
-      this.position = 0;
-      this.length = this.cache.fileSize();
+   private MappedFile(FileChannel channel, MappedByteBuffer byteBuffer, int position, int length) throws IOException {
+      this.channel = channel;
+      this.buffer = byteBuffer;
+      this.position = position;
+      this.length = length;
       this.byteBufWrapper = new UnpooledUnsafeDirectByteBufWrapper();
       this.channelBufferWrapper = new ChannelBufferWrapper(this.byteBufWrapper, false);
+      this.address = PlatformDependent.directBufferAddress(buffer);
    }
 
-   public static MappedFile of(File file, long chunckSize, long overlapSize) throws IOException {
-      return new MappedFile(MappedByteBufferCache.of(file, chunckSize, overlapSize));
-   }
-
-   public MappedByteBufferCache cache() {
-      return cache;
-   }
-
-   private int checkOffset(long offset, int bytes) throws BufferUnderflowException, IOException {
-      if (!MappedByteBufferCache.inside(offset, lastMappedStart, lastMappedLimit)) {
-         return updateOffset(offset, bytes);
-      } else {
-         final int bufferPosition = (int) (offset - lastMappedStart);
-         return bufferPosition;
+   public static MappedFile of(File file, int position, int capacity) throws IOException {
+      final MappedByteBuffer buffer;
+      final int length;
+      final FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+      length = (int) channel.size();
+      if (length != capacity && length != 0) {
+         channel.close();
+         throw new IllegalStateException("the file is not " + capacity + " bytes long!");
       }
+      buffer = channel.map(FileChannel.MapMode.READ_WRITE, position, capacity);
+      return new MappedFile(channel, buffer, 0, length);
    }
 
-   private int updateOffset(long offset, int bytes) throws BufferUnderflowException, IOException {
-      try {
-         final int index = cache.indexFor(offset);
-         final long mappedPosition = cache.mappedPositionFor(index);
-         final long mappedLimit = cache.mappedLimitFor(mappedPosition);
-         if (offset + bytes > mappedLimit) {
-            throw new IOException("mapping overflow!");
-         }
-         lastMapped = cache.acquireMappedByteBuffer(index);
-         lastMappedStart = mappedPosition;
-         lastMappedLimit = mappedLimit;
-         final int bufferPosition = (int) (offset - mappedPosition);
-         return bufferPosition;
-      } catch (IllegalStateException e) {
-         throw new IOException(e);
-      } catch (IllegalArgumentException e) {
-         throw new BufferUnderflowException();
-      }
+   public FileChannel channel() {
+      return channel;
+   }
+
+   public MappedByteBuffer mapped() {
+      return buffer;
+   }
+
+   public long address() {
+      return this.address;
    }
 
    public void force() {
-      if (lastMapped != null) {
-         lastMapped.force();
-      }
+      this.buffer.force();
    }
 
    /**
@@ -98,9 +85,8 @@ final class MappedFile implements AutoCloseable {
     * <p>
     * <p> Bytes are read starting at this file's specified position.
     */
-   public int read(long position, ByteBuf dst, int dstStart, int dstLength) throws IOException {
-      final int bufferPosition = checkOffset(position, dstLength);
-      final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+   public int read(int position, ByteBuf dst, int dstStart, int dstLength) throws IOException {
+      final long srcAddress = this.address + position;
       if (dst.hasMemoryAddress()) {
          final long dstAddress = dst.memoryAddress() + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, dstLength);
@@ -122,9 +108,8 @@ final class MappedFile implements AutoCloseable {
     * <p>
     * <p> Bytes are read starting at this file's specified position.
     */
-   public int read(long position, ByteBuffer dst, int dstStart, int dstLength) throws IOException {
-      final int bufferPosition = checkOffset(position, dstLength);
-      final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+   public int read(int position, ByteBuffer dst, int dstStart, int dstLength) throws IOException {
+      final long srcAddress = this.address + position;
       if (dst.isDirect()) {
          final long dstAddress = PlatformDependent.directBufferAddress(dst) + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, dstLength);
@@ -146,10 +131,9 @@ final class MappedFile implements AutoCloseable {
     * then the position is updated with the number of bytes actually read.
     */
    public int read(ByteBuf dst, int dstStart, int dstLength) throws IOException {
-      final int remaining = (int) Math.min(this.length - this.position, Integer.MAX_VALUE);
+      final int remaining = this.length - this.position;
       final int read = Math.min(remaining, dstLength);
-      final int bufferPosition = checkOffset(position, read);
-      final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+      final long srcAddress = this.address + position;
       if (dst.hasMemoryAddress()) {
          final long dstAddress = dst.memoryAddress() + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, read);
@@ -170,10 +154,9 @@ final class MappedFile implements AutoCloseable {
     * then the position is updated with the number of bytes actually read.
     */
    public int read(ByteBuffer dst, int dstStart, int dstLength) throws IOException {
-      final int remaining = (int) Math.min(this.length - this.position, Integer.MAX_VALUE);
+      final int remaining = this.length - this.position;
       final int read = Math.min(remaining, dstLength);
-      final int bufferPosition = checkOffset(position, read);
-      final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+      final long srcAddress = this.address + position;
       if (dst.isDirect()) {
          final long dstAddress = PlatformDependent.directBufferAddress(dst) + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, read);
@@ -192,8 +175,7 @@ final class MappedFile implements AutoCloseable {
     */
    public void write(EncodingSupport encodingSupport) throws IOException {
       final int encodedSize = encodingSupport.getEncodeSize();
-      final int bufferPosition = checkOffset(position, encodedSize);
-      this.byteBufWrapper.wrap(this.lastMapped, bufferPosition, encodedSize);
+      this.byteBufWrapper.wrap(this.buffer, this.position, encodedSize);
       try {
          encodingSupport.encode(this.channelBufferWrapper);
       } finally {
@@ -211,8 +193,7 @@ final class MappedFile implements AutoCloseable {
     * <p> Bytes are written starting at this file's current position,
     */
    public void write(ByteBuf src, int srcStart, int srcLength) throws IOException {
-      final int bufferPosition = checkOffset(position, srcLength);
-      final long destAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+      final long destAddress = this.address + position;
       if (src.hasMemoryAddress()) {
          final long srcAddress = src.memoryAddress() + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
@@ -234,8 +215,7 @@ final class MappedFile implements AutoCloseable {
     * <p> Bytes are written starting at this file's current position,
     */
    public void write(ByteBuffer src, int srcStart, int srcLength) throws IOException {
-      final int bufferPosition = checkOffset(position, srcLength);
-      final long destAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+      final long destAddress = this.address + position;
       if (src.isDirect()) {
          final long srcAddress = PlatformDependent.directBufferAddress(src) + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
@@ -254,9 +234,8 @@ final class MappedFile implements AutoCloseable {
     * <p>
     * <p> Bytes are written starting at this file's specified position,
     */
-   public void write(long position, ByteBuf src, int srcStart, int srcLength) throws IOException {
-      final int bufferPosition = checkOffset(position, srcLength);
-      final long destAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+   public void write(int position, ByteBuf src, int srcStart, int srcLength) throws IOException {
+      final long destAddress = this.address + position;
       if (src.hasMemoryAddress()) {
          final long srcAddress = src.memoryAddress() + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
@@ -277,9 +256,8 @@ final class MappedFile implements AutoCloseable {
     * <p>
     * <p> Bytes are written starting at this file's specified position,
     */
-   public void write(long position, ByteBuffer src, int srcStart, int srcLength) throws IOException {
-      final int bufferPosition = checkOffset(position, srcLength);
-      final long destAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
+   public void write(int position, ByteBuffer src, int srcStart, int srcLength) throws IOException {
+      final long destAddress = this.address + position;
       if (src.isDirect()) {
          final long srcAddress = PlatformDependent.directBufferAddress(src) + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
@@ -298,32 +276,47 @@ final class MappedFile implements AutoCloseable {
     * <p>
     * <p> Bytes are written starting at this file's current position,
     */
-   public void zeros(long offset, int count) throws IOException {
-      while (count > 0) {
-         //do not need to validate the bytes count
-         final int bufferPosition = checkOffset(offset, 0);
-         final int endZerosPosition = (int)Math.min((long)bufferPosition + count, lastMapped.capacity());
-         final int zeros = endZerosPosition - bufferPosition;
-         final long destAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
-         PlatformDependent.setMemory(destAddress, zeros, (byte) 0);
-         offset += zeros;
-         count -= zeros;
-         //TODO need to call force on each write?
-         //this.force();
+   public void zeros(int position, final int count) throws IOException {
+      //zeroes memory in reverse direction in OS_PAGE_SIZE batches
+      //to gain sympathy by the page cache LRU policy
+      final long start = this.address + position;
+      final long end = start + count;
+      int toZeros = count;
+      final long lastGap = (int) (end & (OS_PAGE_SIZE - 1));
+      final long lastStartPage = end - lastGap;
+      long lastZeroed = end;
+      if (start <= lastStartPage) {
+         if (lastGap > 0) {
+            PlatformDependent.setMemory(lastStartPage, lastGap, (byte) 0);
+            lastZeroed = lastStartPage;
+            toZeros -= lastGap;
+         }
       }
-      if (offset > this.length) {
-         this.length = offset;
+      //any that will enter has lastZeroed OS page aligned
+      while (toZeros >= OS_PAGE_SIZE) {
+         assert BytesUtils.isAligned(lastZeroed, OS_PAGE_SIZE);/**/
+         final long startPage = lastZeroed - OS_PAGE_SIZE;
+         PlatformDependent.setMemory(startPage, OS_PAGE_SIZE, (byte) 0);
+         lastZeroed = startPage;
+         toZeros -= OS_PAGE_SIZE;
+      }
+      //there is anything left in the first OS page?
+      if (toZeros > 0) {
+         PlatformDependent.setMemory(start, toZeros, (byte) 0);
+      }
+
+      position += count;
+      if (position > this.length) {
+         this.length = position;
       }
    }
 
-   public long position() {
+   public int position() {
       return position;
    }
 
-   public long position(long newPosition) {
-      final long oldPosition = this.position;
-      this.position = newPosition;
-      return oldPosition;
+   public void position(int position) {
+      this.position = position;
    }
 
    public long length() {
@@ -332,10 +325,13 @@ final class MappedFile implements AutoCloseable {
 
    @Override
    public void close() {
-      cache.close();
-   }
-
-   public void closeAndResize(long length) {
-      cache.closeAndResize(length);
+      try {
+         channel.close();
+      } catch (IOException e) {
+         throw new IllegalStateException(e);
+      } finally {
+         //unmap in a deterministic way: do not rely on GC to do it
+         PlatformDependent.freeDirectBuffer(this.buffer);
+      }
    }
 }
