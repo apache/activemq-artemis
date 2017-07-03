@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,6 +141,9 @@ public class MultipleProducersTest extends JMSTestBase {
       session.close();
 
       conn.close();
+
+      Wait.waitFor(() -> server.locateQueue(queueOneName).getMessageCount() == 5);
+      Wait.waitFor(() -> server.locateQueue(queueTwoName).getMessageCount() == 5);
 
       queueOneMsgCount = server.locateQueue(queueOneName).getMessageCount();
 
