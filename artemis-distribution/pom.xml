@@ -169,7 +169,28 @@
           <artifactId>jolokia-war</artifactId>
           <type>war</type>
        </dependency>
-      <dependency>
+
+       <!-- Management Console Dependencies -->
+       <dependency>
+           <groupId>io.hawt</groupId>
+           <artifactId>hawtio-no-slf4j</artifactId>
+           <version>1.5.2</version>
+           <type>war</type>
+       </dependency>
+       <dependency>
+           <groupId>org.apache.activemq</groupId>
+           <artifactId>activemq-branding</artifactId>
+           <version>${project.version} </version>
+           <type>war</type>
+       </dependency>
+       <dependency>
+           <groupId>org.apache.activemq</groupId>
+           <artifactId>artemis-plugin</artifactId>
+           <version>${project.version} </version>
+           <type>war</type>
+       </dependency>
+       
+       <dependency>
          <groupId>commons-beanutils</groupId>
          <artifactId>commons-beanutils</artifactId>
       </dependency>

@@ -55,6 +55,7 @@ public class WebServerComponent implements ExternalComponent {
    private WebServerDTO webServerConfig;
    private URI uri;
    private String jolokiaUrl;
+   private String hawtioUrl;
    private List<WebAppContext> webContexts;
    private ServerConnector connector;
 
@@ -105,6 +106,9 @@ public class WebServerComponent implements ExternalComponent {
             if (app.war.startsWith("jolokia")) {
                jolokiaUrl = webServerConfig.bind + "/" + app.url;
             }
+            if (app.war.startsWith("hawtio")) {
+               hawtioUrl = webServerConfig.bind + "/" + app.url;
+            }
          }
       }
 
@@ -135,6 +139,9 @@ public class WebServerComponent implements ExternalComponent {
       ActiveMQWebLogger.LOGGER.webserverStarted(webServerConfig.bind);
       if (jolokiaUrl != null) {
          ActiveMQWebLogger.LOGGER.jolokiaAvailable(jolokiaUrl);
+      }
+      if (hawtioUrl != null) {
+         ActiveMQWebLogger.LOGGER.hawtioAvailable(hawtioUrl);
       }
    }
 

@@ -54,6 +54,7 @@
       <module>artemis-jdbc-store</module>
       <module>artemis-maven-plugin</module>
       <module>artemis-server-osgi</module>
+      <module>artemis-hawtio</module>
       <module>integration/activemq-spring-integration</module>
       <module>artemis-distribution</module>
       <module>artemis-tools</module>

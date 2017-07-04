@@ -54,4 +54,8 @@ public interface ActiveMQWebLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 244003, value = "Temporary file not deleted on shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
    void tmpFileNotDeleted(File tmpdir);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 241004, value = "Artemis Hawtio available at {0}", format = Message.Format.MESSAGE_FORMAT)
+   void hawtioAvailable(String bind);
 }
