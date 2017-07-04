@@ -142,6 +142,33 @@
          <unpack>false</unpack>
          <outputFileNameMapping>jolokia.war</outputFileNameMapping>
       </dependencySet>
+      
+      <!-- Management Console Dependencies -->
+      <dependencySet>
+         <includes>
+            <include>io.hawt:hawtio-no-slf4j:war</include>
+         </includes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>false</unpack>
+         <outputFileNameMapping>hawtio.war</outputFileNameMapping>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:activemq-branding:war</include>
+         </includes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>false</unpack>
+         <outputFileNameMapping>activemq-branding.war</outputFileNameMapping>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:artemis-plugin:war</include>
+         </includes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>false</unpack>
+         <outputFileNameMapping>artemis-plugin.war</outputFileNameMapping>
+      </dependencySet>
+      
    </dependencySets>
    <fileSets>
       <!-- schema -->
