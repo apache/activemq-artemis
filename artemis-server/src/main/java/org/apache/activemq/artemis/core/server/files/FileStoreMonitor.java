@@ -44,6 +44,7 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    private final Set<Callback> callbackList = new HashSet<>();
    private final Set<FileStore> stores = new HashSet<>();
    private double maxUsage;
+   private final Object monitorLock = new Object();
 
    public FileStoreMonitor(ScheduledExecutorService scheduledExecutorService,
                            Executor executor,
@@ -54,22 +55,28 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       this.maxUsage = maxUsage;
    }
 
-   public synchronized FileStoreMonitor addCallback(Callback callback) {
-      callbackList.add(callback);
-      return this;
-   }
-
-   public synchronized FileStoreMonitor addStore(File file) throws IOException {
-      // JDBC storage may return this as null, and we may need to ignore it
-      if (file != null && file.exists()) {
-         addStore(Files.getFileStore(file.toPath()));
+   public FileStoreMonitor addCallback(Callback callback) {
+      synchronized (monitorLock) {
+         callbackList.add(callback);
+         return this;
       }
-      return this;
    }
 
-   public synchronized FileStoreMonitor addStore(FileStore store) {
-      stores.add(store);
-      return this;
+   public FileStoreMonitor addStore(File file) throws IOException {
+      synchronized (monitorLock) {
+         // JDBC storage may return this as null, and we may need to ignore it
+         if (file != null && file.exists()) {
+            addStore(Files.getFileStore(file.toPath()));
+         }
+         return this;
+      }
+   }
+
+   public FileStoreMonitor addStore(FileStore store) {
+      synchronized (monitorLock) {
+         stores.add(store);
+         return this;
+      }
    }
 
    @Override
@@ -77,32 +84,34 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
       tick();
    }
 
-   public synchronized void tick() {
-      boolean over = false;
+   public void tick() {
+      synchronized (monitorLock) {
+         boolean over = false;
 
-      FileStore lastStore = null;
-      double usage = 0;
+         FileStore lastStore = null;
+         double usage = 0;
 
-      for (FileStore store : stores) {
-         try {
-            lastStore = store;
-            usage = calculateUsage(store);
-            over = usage > maxUsage;
-            if (over) {
-               break;
+         for (FileStore store : stores) {
+            try {
+               lastStore = store;
+               usage = calculateUsage(store);
+               over = usage > maxUsage;
+               if (over) {
+                  break;
+               }
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
             }
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
          }
-      }
 
-      for (Callback callback : callbackList) {
-         callback.tick(lastStore, usage);
+         for (Callback callback : callbackList) {
+            callback.tick(lastStore, usage);
 
-         if (over) {
-            callback.over(lastStore, usage);
-         } else {
-            callback.under(lastStore, usage);
+            if (over) {
+               callback.over(lastStore, usage);
+            } else {
+               callback.under(lastStore, usage);
+            }
          }
       }
    }
