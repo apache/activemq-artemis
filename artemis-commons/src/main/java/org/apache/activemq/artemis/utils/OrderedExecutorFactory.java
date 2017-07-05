@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -32,6 +34,21 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
    private static final Logger logger = Logger.getLogger(OrderedExecutorFactory.class);
 
    private final Executor parent;
+
+
+   public static boolean flushExecutor(Executor executor) {
+      return flushExecutor(executor, 30, TimeUnit.SECONDS);
+   }
+
+   public static boolean flushExecutor(Executor executor, long timeout, TimeUnit unit) {
+      final CountDownLatch latch = new CountDownLatch(1);
+      executor.execute(latch::countDown);
+      try {
+         return latch.await(timeout, unit);
+      } catch (Exception e) {
+         return false;
+      }
+   }
 
    /**
     * Construct a new instance delegating to the given parent executor.

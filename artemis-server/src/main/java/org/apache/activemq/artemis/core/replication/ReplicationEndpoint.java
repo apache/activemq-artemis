@@ -27,9 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -81,6 +79,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -204,9 +203,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             ActiveMQServerLogger.LOGGER.invalidPacketForReplication(packet);
          }
       } catch (ActiveMQException e) {
+         logger.warn(e.getMessage(), e);
          ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
          response = new ActiveMQExceptionMessage(e);
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
          response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
@@ -278,6 +279,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          return;
       }
 
+      logger.trace("Stopping endpoint");
+
+      started = false;
+
+      OrderedExecutorFactory.flushExecutor(executor);
+
       // Channel may be null if there isn't a connection to a live server
       if (channel != null) {
          channel.close();
@@ -315,15 +322,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       pageManager.stop();
 
       pageIndex.clear();
-      final CountDownLatch latch = new CountDownLatch(1);
-      executor.execute(new Runnable() {
-
-         @Override
-         public void run() {
-            latch.countDown();
-         }
-      });
-      latch.await(30, TimeUnit.SECONDS);
 
       // Storage needs to be the last to stop
       storageManager.stop();
@@ -471,28 +469,13 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("handleStartReplicationSynchronization:: nodeID = " + packet);
       }
+      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
+      if (!started)
+         return replicationResponseMessage;
 
       if (packet.isSynchronizationFinished()) {
-         executor.execute(() -> {
-            try {
-               // this is a long running process, we cannot block the reading thread from netty
-               finishSynchronization(packet.getNodeID());
-               if (logger.isTraceEnabled()) {
-                  logger.trace("returning completion on synchronization catchup");
-               }
-               channel.send(new ReplicationResponseMessageV2().setSynchronizationIsFinishedAcknowledgement(true));
-            } catch (Exception e) {
-               logger.warn(e.getMessage());
-               channel.send(new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e)));
-            }
-
-         });
-         // the write will happen through an executor
-         return null;
-      }
-
-      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
-      if (!started) {
+         finishSynchronization(packet.getNodeID());
+         replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
          return replicationResponseMessage;
       }
 
