@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,8 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -95,6 +98,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
+import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
@@ -204,6 +208,10 @@ public class NettyConnector extends AbstractConnector {
    private String enabledProtocols;
 
    private boolean verifyHost;
+
+   private String sniHost;
+
+   private String kerb5Config;
 
    private boolean useDefaultSslContext;
 
@@ -327,6 +335,10 @@ public class NettyConnector extends AbstractConnector {
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
          verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
+
+         sniHost = ConfigurationHelper.getStringProperty(TransportConstants.SNIHOST_PROP_NAME, TransportConstants.DEFAULT_SNIHOST_CONFIG, configuration);
+
+         kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
 
          useDefaultSslContext = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, TransportConstants.DEFAULT_USE_DEFAULT_SSL_CONTEXT, configuration);
       } else {
@@ -509,12 +521,35 @@ public class NettyConnector extends AbstractConnector {
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled && !useServlet) {
-               SSLEngine engine;
-               if (verifyHost) {
-                  engine = context.createSSLEngine(host, port);
-               } else {
-                  engine = context.createSSLEngine();
+
+               Subject subject = null;
+               if (kerb5Config != null && kerb5Config.length() > 0) {
+
+                  LoginContext loginContext = null;
+                  if (Character.isUpperCase(kerb5Config.charAt(0))) {
+                     // use as login.config scope
+                     loginContext = new LoginContext(kerb5Config);
+                  } else {
+                     // inline keytab config using kerb5Config as principal
+                     loginContext = new LoginContext("", null, null,
+                             TransportConfigurationUtil.kerb5Config(kerb5Config, true));
+                  }
+
+                  loginContext.login();
+                  subject = loginContext.getSubject();
+                  verifyHost = true;
                }
+
+               SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+                  @Override
+                  public SSLEngine run() {
+                     if (verifyHost) {
+                        return context.createSSLEngine(sniHost != null ? sniHost : host, port);
+                     } else {
+                        return context.createSSLEngine();
+                     }
+                  }
+               });
 
                engine.setUseClientMode(true);
 

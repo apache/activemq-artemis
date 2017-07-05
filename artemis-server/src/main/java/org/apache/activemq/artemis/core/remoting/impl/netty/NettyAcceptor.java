@@ -20,10 +20,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +71,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
+import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -154,6 +158,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean verifyHost;
 
+   private final String kerb5Config;
+
    private final boolean tcpNoDelay;
 
    private final int backlog;
@@ -216,6 +222,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.listener = listener;
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
+
+      kerb5Config = ConfigurationHelper.getStringProperty(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, TransportConstants.DEFAULT_SSL_KRB5_CONFIG, configuration);
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
@@ -423,7 +431,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    public synchronized SslHandler getSslHandler() throws Exception {
       final SSLContext context;
       try {
-         if (keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+         if (kerb5Config == null && keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
             throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
                                                   "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
                                                   "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
@@ -433,12 +441,31 @@ public class NettyAcceptor extends AbstractAcceptor {
          ise.initCause(e);
          throw ise;
       }
-      SSLEngine engine;
-      if (verifyHost) {
-         engine = context.createSSLEngine(host, port);
-      } else {
-         engine = context.createSSLEngine();
+      Subject subject = null;
+      if (kerb5Config != null && kerb5Config.length() > 0) {
+         LoginContext loginContext = null;
+         if (Character.isUpperCase(kerb5Config.charAt(0))) {
+            // use as login.config scope
+            loginContext = new LoginContext(kerb5Config);
+         } else {
+            loginContext = new LoginContext("", null, null,
+                    TransportConfigurationUtil.kerb5Config(kerb5Config, false));
+         }
+         loginContext.login();
+
+         subject = loginContext.getSubject();
       }
+
+      SSLEngine engine = Subject.doAs(subject, new PrivilegedExceptionAction<SSLEngine>() {
+         @Override
+         public SSLEngine run() {
+            if (verifyHost) {
+               return context.createSSLEngine(host, port);
+            } else {
+               return context.createSSLEngine();
+            }
+         }
+      });
 
       engine.setUseClientMode(false);
 
