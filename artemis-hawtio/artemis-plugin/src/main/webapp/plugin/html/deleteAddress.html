@@ -1,0 +1,48 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<div ng-controller="ARTEMIS.AddressController">
+  <div class="row-fluid">
+
+    <div class="control-group">
+      <div class="alert">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Warning:</strong> these operations cannot be undone. Please be careful!
+      </div>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span4">
+      <div class="control-group">
+        <button type="submit" class="btn btn-warning" ng-click="deleteDialog = true">Delete address '{{name().unescapeHTML()}}'</button>
+        <label>This will remove the address completely.</label>
+      </div>
+    </div>
+  </div>
+
+  <div hawtio-confirm-dialog="deleteDialog"
+       ok-button-text="Delete"
+       on-ok="deleteAddress()">
+    <div class="dialog-body">
+      <p>You are about to delete the <b>{{name().unescapeHTML()}}</b> address</p>
+      <p>This operation cannot be undone so please be careful.</p>
+    </div>
+  </div>
+
+
+
+</div>
