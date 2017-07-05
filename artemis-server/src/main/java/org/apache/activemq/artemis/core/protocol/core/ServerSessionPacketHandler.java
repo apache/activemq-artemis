@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -90,6 +91,9 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.SimpleFuture;
+import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
@@ -141,6 +145,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private volatile CoreRemotingConnection remotingConnection;
 
+   private final Executor callExecutor;
+
    private final CoreProtocolManager manager;
 
    // The current currentLargeMessage being processed
@@ -148,7 +154,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final boolean direct;
 
-   public ServerSessionPacketHandler(final CoreProtocolManager manager,
+   public ServerSessionPacketHandler(final Executor callExecutor,
+                                     final CoreProtocolManager manager,
                                      final ServerSession session,
                                      final StorageManager storageManager,
                                      final Channel channel) {
@@ -165,6 +172,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       this.remotingConnection = channel.getConnection();
 
       Connection conn = remotingConnection.getTransportConnection();
+
+      this.callExecutor = callExecutor;
 
       if (conn instanceof NettyConnection) {
          direct = ((NettyConnection) conn).isDirectDeliver();
@@ -199,11 +208,18 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
+      flushExecutor();
 
       ActiveMQServerLogger.LOGGER.clearingUpSession(session.getName());
    }
 
+   private void flushExecutor() {
+      OrderedExecutorFactory.flushExecutor(callExecutor);
+   }
+
    public void close() {
+      flushExecutor();
+
       channel.flushConfirmations();
 
       try {
@@ -219,6 +235,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    @Override
    public void handlePacket(final Packet packet) {
+      channel.confirm(packet);
+      callExecutor.execute(() -> internalHandlePacket(packet));
+   }
+
+   private void internalHandlePacket(final Packet packet) {
       byte type = packet.getType();
 
       storageManager.setContext(session.getSessionContext());
@@ -653,8 +674,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                      final boolean flush,
                                      final boolean closeChannel) {
       if (confirmPacket != null) {
-         channel.confirm(confirmPacket);
-
          if (flush) {
             channel.flushConfirmations();
          }
@@ -678,9 +697,26 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             remotingConnection.removeFailureListener((FailureListener) closeListener);
          }
       }
+
+      flushExecutor();
    }
 
    public int transferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID) {
+
+      SimpleFuture<Integer> future = new SimpleFutureImpl<>();
+      callExecutor.execute(() -> {
+         int value = internaltransferConnection(newConnection, lastReceivedCommandID);
+         future.set(value);
+      });
+
+      try {
+         return future.get().intValue();
+      } catch (Exception e) {
+         throw new IllegalStateException(e);
+      }
+   }
+
+   private int internaltransferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID) {
       // We need to disable delivery on all the consumers while the transfer is occurring- otherwise packets might get
       // delivered
       // after the channel has transferred but *before* packets have been replayed - this will give the client the wrong
