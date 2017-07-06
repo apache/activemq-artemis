@@ -27,6 +27,8 @@ public class TransportConstants {
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
+   public static final String SSL_KRB5_CONFIG_PROP_NAME = "sslKrb5Config";
+
    public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
 
    public static final String HTTP_CLIENT_IDLE_PROP_NAME = "httpClientIdleTime";
@@ -99,6 +101,8 @@ public class TransportConstants {
 
    public static final String VERIFY_HOST_PROP_NAME = "verifyHost";
 
+   public static final String SNIHOST_PROP_NAME = "sniHost";
+
    public static final String BACKLOG_PROP_NAME = "backlog";
 
    public static final String USE_DEFAULT_SSL_CONTEXT_PROP_NAME = "useDefaultSslContext";
@@ -144,6 +148,10 @@ public class TransportConstants {
    public static final int STOMP_DEFAULT_CONSUMERS_CREDIT = 10 * 1024; // 10K
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
+
+   public static final String DEFAULT_SSL_KRB5_CONFIG = null;
+
+   public static final String DEFAULT_SNIHOST_CONFIG = null;
 
    public static final boolean DEFAULT_USE_GLOBAL_WORKER_POOL = true;
 
