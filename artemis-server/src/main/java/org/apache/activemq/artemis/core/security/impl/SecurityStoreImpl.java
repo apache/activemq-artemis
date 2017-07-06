@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.security.impl;
 
-import javax.security.cert.X509Certificate;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,6 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
@@ -102,7 +103,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    @Override
    public String authenticate(final String user,
                               final String password,
-                              X509Certificate[] certificates) throws Exception {
+                              Connection connection) throws Exception {
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
@@ -125,9 +126,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          boolean userIsValid = false;
 
          if (securityManager instanceof ActiveMQSecurityManager3) {
-            validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, certificates);
+            validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, connection);
          } else if (securityManager instanceof ActiveMQSecurityManager2) {
-            userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, certificates);
+            userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
          } else {
             userIsValid = securityManager.validateUser(user, password);
          }
@@ -177,7 +178,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          final boolean validated;
          if (securityManager instanceof ActiveMQSecurityManager3) {
             final ActiveMQSecurityManager3 securityManager3 = (ActiveMQSecurityManager3) securityManager;
-            validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
+            validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection().getTransportConnection()) != null;
          } else if (securityManager instanceof ActiveMQSecurityManager2) {
             final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
             validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
