@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.ssl;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -32,6 +33,8 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.hadoop.minikdc.MiniKdc;
@@ -41,6 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,10 +58,23 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
    public static final String SNI_HOST = "sni.host";
    public static final String SERVICE_PRINCIPAL = "host/" + SNI_HOST;
 
+   static {
+      String path = System.getProperty("java.security.auth.login.config");
+      if (path == null) {
+         URL resource = CoreClientOverOneWaySSLKerb5Test.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            path = resource.getFile();
+            System.setProperty("java.security.auth.login.config", path);
+         }
+      }
+   }
+
    private MiniKdc kdc;
    private ActiveMQServer server;
 
    private TransportConfiguration tc;
+   private TransportConfiguration inVMTc;
+   private String userPrincipal;
 
    @Test
    public void testOneWaySSLWithGoodClientCipherSuite() throws Exception {
@@ -103,6 +121,23 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
          }
          locator.close();
       }
+
+      // validate only ssl creds work, try and fake the principal w/o ssl
+      final ServerLocator inVmLocator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(inVMTc));
+      ClientSessionFactory inVmSf = null;
+      try {
+         inVmSf = createSessionFactory(inVmLocator);
+         inVmSf.createSession(userPrincipal, "", false, false, false, false, 10);
+
+         fail("supposed to throw exception");
+      } catch (ActiveMQSecurityException e) {
+         // expected
+      } finally {
+         if (inVmSf != null) {
+            inVmSf.close();
+         }
+         inVmLocator.close();
+      }
    }
 
 
@@ -142,22 +177,26 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
       config.setPopulateValidatedUser(true); // so we can verify the kerb5 id is present
       config.setSecurityEnabled(true);
 
-      server = createServer(false, config);
-      server.start();
-      waitForServerToStart(server);
+      config.addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager("Krb5SslPlus");
+      server = addServer(ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
+
 
       final String roleName = "ALLOW_ALL";
       Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
-      HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       securityRepository.addMatch(QUEUE.toString(), roles);
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
 
-      final String user = CLIENT_PRINCIPAL + "@" + kdc.getRealm();
-      securityManager.getConfiguration().addUser(user, "");
-      securityManager.getConfiguration().addRole(user, roleName);
+      server.start();
+      waitForServerToStart(server);
+
+      // note kerberos user does not exist on the broker save as a role member in dual-authentication-roles.properties
+      userPrincipal = CLIENT_PRINCIPAL + "@" + kdc.getRealm();
 
       tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      inVMTc = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
    }
 }

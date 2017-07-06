@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-import javax.security.cert.X509Certificate;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -320,16 +320,16 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       return "activemq";
    }
 
-   public boolean validateUser(String login, String passcode, X509Certificate[] certificates) {
+   public boolean validateUser(String login, String passcode, Connection connection) {
       boolean validated = true;
 
       ActiveMQSecurityManager sm = server.getSecurityManager();
 
       if (sm != null && server.getConfiguration().isSecurityEnabled()) {
          if (sm instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, certificates) != null;
+            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, connection) != null;
          } else if (sm instanceof ActiveMQSecurityManager2) {
-            validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, certificates);
+            validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, CertificateUtil.getCertsFromConnection(connection));
          } else {
             validated = sm.validateUser(login, passcode);
          }
