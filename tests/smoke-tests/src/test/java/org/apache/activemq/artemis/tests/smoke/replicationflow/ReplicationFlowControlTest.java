@@ -49,9 +49,9 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
 
    private static Process server1;
 
-   static final int NUM_MESSAGES = 300_000;
-   static final int START_CONSUMERS = 100_000;
-   static final int START_SERVER = 101_000;
+   static final int NUM_MESSAGES = 50_000;
+   static final int START_CONSUMERS = 10_000;
+   static final int START_SERVER = 15_000;
    static final int NUMBER_OF_CONSUMERS = 10;
    static final ReusableLatch latch = new ReusableLatch(NUM_MESSAGES);
 
@@ -88,7 +88,7 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
 
    private void internalTest(boolean failover) throws Exception {
 
-      int KILL_SERVER = failover ? 150_000 : -1;
+      int KILL_SERVER = failover ? 50_000 : -1;
 
       Connection connection = null;
 
