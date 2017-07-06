@@ -76,7 +76,7 @@ public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
       for (int i = 0; i <= 2; i++) {
          createQueue(i, "queues.testaddress", "queue0", null, true);
          getServer(i).createQueue(expiryQueue, RoutingType.ANYCAST, expiryQueue, null, true, false);
-         getServer(i).getAddressSettingsRepository().addMatch("queues.*", as);
+         getServer(i).getAddressSettingsRepository().addMatch("#", as);
 
       }
 
