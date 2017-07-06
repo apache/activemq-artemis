@@ -114,18 +114,24 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    @Override
    public boolean commit() throws LoginException {
       boolean result = loginSucceeded;
+      Set<UserPrincipal> authenticatedUsers = subject.getPrincipals(UserPrincipal.class);
       if (result) {
-         principals.add(new UserPrincipal(user));
+         UserPrincipal userPrincipal = new UserPrincipal(user);
+         principals.add(userPrincipal);
+         authenticatedUsers.add(userPrincipal);
+      }
 
-         Set<String> matchedRoles = roles.get(user);
+      // populate roles for UserPrincipal from other login modules too
+      for (UserPrincipal userPrincipal : authenticatedUsers) {
+         Set<String> matchedRoles = roles.get(userPrincipal.getName());
          if (matchedRoles != null) {
             for (String entry : matchedRoles) {
                principals.add(new RolePrincipal(entry));
             }
          }
-
-         subject.getPrincipals().addAll(principals);
       }
+
+      subject.getPrincipals().addAll(principals);
 
       // will whack loginSucceeded
       clear();
