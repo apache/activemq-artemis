@@ -597,10 +597,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       files1 = fileFactory.listFiles(fileExtension);
       Assert.assertTrue(files1.size() > 200);
 
-      Assert.assertEquals(numberOfFiles, files1.size());
-
-      System.out.println("we have " + files1.size() + " files now");
-
       stopJournal();
    }
 

@@ -326,6 +326,9 @@ public class ClusterController implements ActiveMQComponent {
       @Override
       public void handlePacket(Packet packet) {
          if (!isStarted()) {
+            if (channelHandler != null) {
+               channelHandler.handlePacket(packet);
+            }
             return;
          }
 
