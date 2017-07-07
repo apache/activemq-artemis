@@ -117,7 +117,7 @@ public class MQTTPublishManager {
          int qos = decideQoS(message, consumer);
          if (qos == 0) {
             sendServerMessage((int) message.getMessageID(),  message, deliveryCount, qos);
-            session.getServerSession().acknowledge(consumer.getID(), message.getMessageID());
+            session.getServerSession().individualAcknowledge(consumer.getID(), message.getMessageID());
          } else if (qos == 1 || qos == 2) {
             int mqttid = outboundStore.generateMqttId(message.getMessageID(), consumer.getID());
             outboundStore.publish(mqttid, message.getMessageID(), consumer.getID());
@@ -200,7 +200,7 @@ public class MQTTPublishManager {
          if (ref != null) {
             Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
             session.getServerSession().send(m, true);
-            session.getServerSession().acknowledge(ref.getB(), ref.getA());
+            session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
          } else {
             session.getProtocolHandler().sendPubRel(messageId);
          }
@@ -212,7 +212,7 @@ public class MQTTPublishManager {
    void handlePubComp(int messageId) throws Exception {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
-         session.getServerSession().acknowledge(managementConsumer.getID(), ref.getA());
+         session.getServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
       }
    }
 
@@ -247,7 +247,7 @@ public class MQTTPublishManager {
       try {
          Pair<Long, Long> ref = outboundStore.publishAckd(messageId);
          if (ref != null) {
-            session.getServerSession().acknowledge(ref.getB(), ref.getA());
+            session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
          }
       } catch (ActiveMQIllegalStateException e) {
          log.warn("MQTT Client(" + session.getSessionState().getClientId() + ") attempted to Ack already Ack'd message");
