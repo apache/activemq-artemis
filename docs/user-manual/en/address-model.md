@@ -57,7 +57,7 @@ Add an address configuration element and its associated queue if they do not exi
 
 In a publish-subscribe scenario, messages are sent to every consumer subscribed to an address. JMS topics and MQTT subscriptions are two examples of publish-subscribe messaging.
 
-To configure an address with publish-subscribe semantics, create an address with the multicast routing tyoe.
+To configure an address with publish-subscribe semantics, create an address with the multicast routing type.
 
 ![Publish Subscribe](images/addressing-model-pubsub.png)
 Figure 2. Publish-Subscribe
