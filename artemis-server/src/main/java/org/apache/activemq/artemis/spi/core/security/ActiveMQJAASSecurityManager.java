@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.spi.core.security;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.cert.X509Certificate;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.Principal;
@@ -28,15 +27,15 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
@@ -89,9 +88,9 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
    }
 
    @Override
-   public String validateUser(final String user, final String password, X509Certificate[] certificates) {
+   public String validateUser(final String user, final String password, Connection connection) {
       try {
-         return getUserFromSubject(getAuthenticatedSubject(user, password, certificates));
+         return getUserFromSubject(getAuthenticatedSubject(user, password, connection));
       } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
@@ -122,14 +121,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
                                      final Set<Role> roles,
                                      final CheckType checkType,
                                      final String address,
-                                     final RemotingConnection connection) {
-      X509Certificate[] certificates = null;
-      if (connection != null && connection.getTransportConnection() instanceof NettyConnection) {
-         certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
-      }
+                                     final Connection connection) {
       Subject localSubject;
       try {
-         localSubject = getAuthenticatedSubject(user, password, certificates);
+         localSubject = getAuthenticatedSubject(user, password, connection);
       } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
@@ -175,7 +170,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
    private Subject getAuthenticatedSubject(final String user,
                                            final String password,
-                                           final X509Certificate[] certificates) throws LoginException {
+                                           final Connection connection) throws LoginException {
       LoginContext lc;
       ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
       ClassLoader thisLoader = this.getClass().getClassLoader();
@@ -183,10 +178,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          if (thisLoader != currentLoader) {
             Thread.currentThread().setContextClassLoader(thisLoader);
          }
-         if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && certificates != null) {
-            lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, certificates), certificateConfiguration);
+         if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && getCertsFromConnection(connection) != null) {
+            lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, connection), certificateConfiguration);
          } else {
-            lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
+            lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, connection), configuration);
          }
          lc.login();
          return lc.getSubject();
