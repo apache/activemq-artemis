@@ -156,7 +156,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
                      @Override
                      public RemotingConnection getRemotingConnection() {
-                        return null;
+                        return connection.connectionCallback.getProtonConnectionDelegate();
                      }
                   });
                } catch (ActiveMQSecurityException e) {
