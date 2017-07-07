@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.cert.X509Certificate;
 import java.io.IOException;
+
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
+import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
 
 /**
  * A JAAS username password CallbackHandler.
@@ -31,12 +35,12 @@ public class JaasCallbackHandler implements CallbackHandler {
 
    private final String username;
    private final String password;
-   final X509Certificate[] certificates;
+   final Connection connection;
 
-   public JaasCallbackHandler(String username, String password, X509Certificate[] certs) {
+   public JaasCallbackHandler(String username, String password, Connection connection) {
       this.username = username;
       this.password = password;
-      this.certificates = certs;
+      this.connection = connection;
    }
 
    @Override
@@ -59,7 +63,11 @@ public class JaasCallbackHandler implements CallbackHandler {
          } else if (callback instanceof CertificateCallback) {
             CertificateCallback certCallback = (CertificateCallback) callback;
 
-            certCallback.setCertificates(certificates);
+            certCallback.setCertificates(getCertsFromConnection(connection));
+         } else if (callback instanceof Krb5SslCallback) {
+            Krb5SslCallback krb5SslCallback = (Krb5SslCallback) callback;
+
+            krb5SslCallback.setPeerPrincipal(getPeerPrincipalFromConnection(connection));
          } else {
             throw new UnsupportedCallbackException(callback);
          }

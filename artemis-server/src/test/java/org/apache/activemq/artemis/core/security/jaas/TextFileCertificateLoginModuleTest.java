@@ -18,8 +18,11 @@ package org.apache.activemq.artemis.core.security.jaas;
 
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -27,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.spi.core.security.jaas.CertificateCallback;
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
@@ -121,7 +125,19 @@ public class TextFileCertificateLoginModuleTest {
    private JaasCallbackHandler getJaasCertificateCallbackHandler(String user) {
       JMXPrincipal principal = new JMXPrincipal(user);
       X509Certificate cert = new StubX509Certificate(principal);
-      return new JaasCallbackHandler(null, null, new X509Certificate[]{cert});
+      return new JaasCallbackHandler(null, null, null) {
+         @Override
+         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            for (Callback callback : callbacks) {
+               if (callback instanceof CertificateCallback) {
+                  CertificateCallback certCallback = (CertificateCallback) callback;
+                  certCallback.setCertificates(new X509Certificate[]{cert});
+               } else {
+                  throw new UnsupportedCallbackException(callback);
+               }
+            }
+         }
+      };
    }
 
    private Subject doAuthenticate(HashMap<String, ?> options,

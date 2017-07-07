@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-import javax.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -561,8 +560,8 @@ public final class StompConnection implements RemotingConnection {
       manager.sendReply(this, frame);
    }
 
-   public boolean validateUser(final String login, final String pass, final X509Certificate[] certificates) {
-      this.valid = manager.validateUser(login, pass, certificates);
+   public boolean validateUser(final String login, final String pass, final Connection connection) {
+      this.valid = manager.validateUser(login, pass, connection);
       if (valid) {
          this.login = login;
          this.passcode = pass;
