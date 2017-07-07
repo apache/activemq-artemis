@@ -14,18 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.security;
+package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import javax.security.auth.callback.Callback;
+import java.security.Principal;
 
-public interface SecurityStore {
+/**
+ * A Callback for SSL kerberos peer principal.
+ */
+public class Krb5SslCallback implements Callback {
 
-   String authenticate(String user, String password, Connection transportConnection) throws Exception;
+   Principal peerPrincipal;
 
-   void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
+   /**
+    * Setter for peer Principal.
+    *
+    * @param principal The certificates to be returned.
+    */
+   public void setPeerPrincipal(Principal principal) {
+      peerPrincipal = principal;
+   }
 
-   boolean isSecurityEnabled();
-
-   void stop();
+   /**
+    * Getter for peer Principal.
+    *
+    * @return The principal being carried.
+    */
+   public Principal getPeerPrincipal() {
+      return peerPrincipal;
+   }
 }

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.management.MBeanServer;
-import javax.security.cert.X509Certificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -98,7 +97,6 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
@@ -164,7 +162,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
-import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
@@ -1308,11 +1305,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       String validatedUser = "";
 
       if (securityStore != null) {
-         X509Certificate[] certificates = null;
-         if (connection.getTransportConnection() instanceof NettyConnection) {
-            certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
-         }
-         validatedUser = securityStore.authenticate(username, password, certificates);
+         validatedUser = securityStore.authenticate(username, password, connection.getTransportConnection());
       }
 
       checkSessionLimit(validatedUser);
