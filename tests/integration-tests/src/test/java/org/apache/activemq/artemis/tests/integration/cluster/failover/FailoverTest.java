@@ -370,7 +370,7 @@ public class FailoverTest extends FailoverTestBase {
       }
       session.end(xid, XAResource.TMSUCCESS);
       session.prepare(xid);
-      crash(false, session);
+      crash(true, session);
 
       try {
          session.commit(xid, false);
@@ -417,7 +417,7 @@ public class FailoverTest extends FailoverTestBase {
 
       session.end(xid, XAResource.TMSUCCESS);
       session.prepare(xid);
-      crash(false, session);
+      crash(true, session);
 
       try {
          session.rollback(xid);
