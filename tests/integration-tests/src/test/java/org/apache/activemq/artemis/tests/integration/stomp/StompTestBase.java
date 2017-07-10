@@ -137,6 +137,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       connection.start();
    }
 
+
    /**
     * @return
     * @throws Exception
@@ -167,6 +168,8 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       if (getOutgoingInterceptors() != null) {
          config.setOutgoingInterceptorClassNames(getOutgoingInterceptors());
       }
+
+      config.setPersistenceEnabled(true);
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
