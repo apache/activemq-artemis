@@ -445,7 +445,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       try {
          for (int i = 0; i < 5; i++) {
             if (server.locateQueue(SimpleString.toSimpleString("tt")) == null) {
-               server.createQueue(SimpleString.toSimpleString("tt"), RoutingType.ANYCAST, SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
+               server.createQueue(SimpleString.toSimpleString("tt"), RoutingType.ANYCAST, SimpleString.toSimpleString("tt"), SimpleString.toSimpleString(Filter.GENERIC_IGNORED_FILTER), true, false);
             }
 
             server.stop();

@@ -499,7 +499,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return connectionCountLatch;
    }
 
-   // ConnectionLifeCycleListener implementation -----------------------------------
+   // ServerConnectionLifeCycleListener implementation -----------------------------------
 
    private ProtocolManagerFactory getProtocolManager(String protocol) {
       return protocolMap.get(protocol);

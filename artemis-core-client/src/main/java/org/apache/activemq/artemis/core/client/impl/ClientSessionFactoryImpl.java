@@ -338,7 +338,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return createSessionInternal(null, null, xa, autoCommitSends, autoCommitAcks, preAcknowledge, serverLocator.getAckBatchSize());
    }
 
-   // ConnectionLifeCycleListener implementation --------------------------------------------------
+   // ClientConnectionLifeCycleListener implementation --------------------------------------------------
 
    @Override
    public void connectionCreated(final ActiveMQComponent component,
