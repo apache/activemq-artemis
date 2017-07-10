@@ -299,8 +299,6 @@ public abstract class VersionedStompFrameHandler {
 
       ActiveMQBuffer buffer = bodyBuffer != null ? bodyBuffer : serverMessage.getReadOnlyBodyBuffer();
 
-      int bodyPos = (serverMessage).getEndOfBodyPosition() == -1 ? buffer.writerIndex() : (serverMessage).getEndOfBodyPosition();
-
       int size = buffer.writerIndex();
 
       byte[] data = new byte[size];

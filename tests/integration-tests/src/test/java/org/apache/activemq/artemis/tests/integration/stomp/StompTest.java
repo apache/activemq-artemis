@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import javax.jms.BytesMessage;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -25,13 +31,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.jms.BytesMessage;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -159,12 +158,16 @@ public class StompTest extends StompTestBase {
                                                           .setMaxUsage(0)
                                                           .tick();
 
-         for (int i = 1; i <= count; i++) {
-            // Thread.sleep(1);
-            // log.info(">>> " + i);
-            send(conn, getQueuePrefix() + getQueueName(), null, "Hello World!");
+         // Connection should be closed by broker when disk is full and attempt to send
+         Exception e = null;
+         try {
+            for (int i = 1; i <= count; i++) {
+               send(conn, getQueuePrefix() + getQueueName(), null, "Hello World!");
+            }
+         } catch (Exception se) {
+            e = se;
          }
-
+         assertNotNull(e);
          // It should encounter the exception on logs
          AssertionLoggerHandler.findText("AMQ119119");
       } finally {
@@ -252,6 +255,33 @@ public class StompTest extends StompTestBase {
 
       assertEquals(stompPayload, new String(mqttPayload, "UTF-8"));
       clientProvider.disconnect();
+   }
+
+   @Test
+   public void testSendReceiveLargeMessage() throws Exception {
+      String address = "testLargeMessageAddress";
+      server.getActiveMQServer().createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
+
+      // STOMP default is UTF-8 == 1 byte per char.
+      int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
+      StringBuilder b = new StringBuilder(largeMessageStringSize);
+      for (int i = 0; i < largeMessageStringSize; i++) {
+         b.append('t');
+      }
+      String payload =  b.toString();
+
+      // Set up STOMP subscription
+      conn.connect(defUser, defPass);
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, address, true);
+
+      // Send Large Message
+      System.out.println("Sending Message Size: " + largeMessageStringSize);
+      send(conn, address, null, payload);
+
+      // Receive STOMP Message
+      ClientStompFrame frame = conn.receiveFrame();
+      System.out.println(frame.getBody().length());
+      assertTrue(frame.getBody().equals(payload));
    }
 
    @Test
