@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -58,7 +59,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
@@ -113,7 +113,7 @@ import org.w3c.dom.NodeList;
 @Deprecated
 public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback {
 
-   private static final String REJECT_FILTER = ActiveMQServerImpl.GENERIC_IGNORED_FILTER;
+   private static final String REJECT_FILTER = Filter.GENERIC_IGNORED_FILTER;
 
    private BindingRegistry registry;
 
