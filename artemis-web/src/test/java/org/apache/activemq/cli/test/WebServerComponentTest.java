@@ -36,7 +36,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -100,7 +100,7 @@ public class WebServerComponentTest extends Assert {
       URI uri = new URI(URL);
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaders.Names.HOST, "localhost");
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
 
       // Send the HTTP request.
       ch.writeAndFlush(request);
@@ -137,7 +137,7 @@ public class WebServerComponentTest extends Assert {
       URI uri = new URI(URL);
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaders.Names.HOST, "localhost");
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
 
       // Send the HTTP request.
       ch.writeAndFlush(request);
@@ -193,7 +193,7 @@ public class WebServerComponentTest extends Assert {
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaders.Names.HOST, "localhost");
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
 
       // Send the HTTP request.
       ch.writeAndFlush(request);
@@ -247,7 +247,7 @@ public class WebServerComponentTest extends Assert {
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaders.Names.HOST, "localhost");
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
 
       // Send the HTTP request.
       ch.writeAndFlush(request);

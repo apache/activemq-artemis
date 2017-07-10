@@ -241,6 +241,7 @@ public class InVMConnector extends AbstractConnector {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
+         //noinspection deprecation
          if (listener instanceof ConnectionLifeCycleListener) {
             listener.connectionCreated(component, connection, protocol.getName());
          } else {
