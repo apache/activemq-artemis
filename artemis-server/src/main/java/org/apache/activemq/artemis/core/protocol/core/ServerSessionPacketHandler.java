@@ -85,13 +85,15 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.Actor;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.jboss.logging.Logger;
@@ -145,6 +147,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private volatile CoreRemotingConnection remotingConnection;
 
+   private final Actor<Packet> packetActor;
+
    private final Executor callExecutor;
 
    private final CoreProtocolManager manager;
@@ -154,7 +158,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final boolean direct;
 
-   public ServerSessionPacketHandler(final Executor callExecutor,
+   public ServerSessionPacketHandler(final ActiveMQServer server,
                                      final CoreProtocolManager manager,
                                      final ServerSession session,
                                      final StorageManager storageManager,
@@ -173,7 +177,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       Connection conn = remotingConnection.getTransportConnection();
 
-      this.callExecutor = callExecutor;
+      this.callExecutor = server.getExecutorFactory().getExecutor();
+
+      // TODO: I wish I could figure out how to create this through OrderedExecutor
+      this.packetActor = new Actor<>(server.getThreadPool(), this::onMessagePacket);
 
       if (conn instanceof NettyConnection) {
          direct = ((NettyConnection) conn).isDirectDeliver();
@@ -214,6 +221,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void flushExecutor() {
+      packetActor.flush();
       OrderedExecutorFactory.flushExecutor(callExecutor);
    }
 
@@ -236,10 +244,14 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    @Override
    public void handlePacket(final Packet packet) {
       channel.confirm(packet);
-      callExecutor.execute(() -> internalHandlePacket(packet));
+
+      // This method will call onMessagePacket through an actor
+      packetActor.act(packet);
    }
 
-   private void internalHandlePacket(final Packet packet) {
+
+   // this method is used as a listener on the packetActor
+   private void onMessagePacket(final Packet packet) {
       byte type = packet.getType();
 
       storageManager.setContext(session.getSessionContext());
