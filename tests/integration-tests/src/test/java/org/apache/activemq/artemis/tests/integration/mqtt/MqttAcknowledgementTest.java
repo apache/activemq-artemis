@@ -17,11 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionTimeoutException;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -31,6 +29,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.jgroups.util.UUID;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class MqttAcknowledgementTest extends MQTTTestSupport {
@@ -39,7 +38,7 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
    private volatile boolean messageArrived = false;
 
    private MqttClient subscriber;
-   MqttClient sender;
+   private MqttClient sender;
 
    @After
    public void clean() throws MqttException {
@@ -56,16 +55,16 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 300000)
-   public void testAcknowledgementQOS1() throws MqttException {
+   public void testAcknowledgementQOS1() throws Exception {
       test(1);
    }
 
-   @Test(timeout = 300000, expected = ConditionTimeoutException.class)
-   public void testAcknowledgementQOS0() throws MqttException {
+   @Test(timeout = 300000, expected = AssertionError.class)
+   public void testAcknowledgementQOS0() throws Exception {
       test(0);
    }
 
-   private void test(int qos) throws MqttException {
+   private void test(int qos) throws Exception {
       String subscriberId = UUID.randomUUID().toString();
       String senderId = UUID.randomUUID().toString();
       String topic = UUID.randomUUID().toString();
@@ -77,23 +76,32 @@ public class MqttAcknowledgementTest extends MQTTTestSupport {
       sender.publish(topic, UUID.randomUUID().toString().getBytes(), qos, false);
       sender.publish(topic, UUID.randomUUID().toString().getBytes(), qos, false);
 
-      Awaitility.await().atMost(5_000, TimeUnit.MILLISECONDS).until(() -> messageIds.size() == 2);
+      boolean satisfied = Wait.waitFor(() -> messageIds.size() == 2, 5_000);
+      if (!satisfied) {
+         Assert.fail();
+      }
 
       subscriber.messageArrivedComplete(messageIds.getLast(), qos);
       subscriber.disconnect();
       subscriber.close();
       messageArrived = false;
 
-      Awaitility.await().atMost(60_000, TimeUnit.MILLISECONDS).until(() -> {
+      satisfied = Wait.waitFor(() -> {
          try {
             subscriber = createMqttClient(subscriberId);
             return true;
          } catch (MqttException e) {
             return false;
          }
-      });
+      }, 60_000);
+      if (!satisfied) {
+         Assert.fail();
+      }
 
-      Awaitility.await().atMost(5_000, TimeUnit.MILLISECONDS).until(() -> messageArrived == true);
+      satisfied = Wait.waitFor(() -> messageArrived == true, 5_000);
+      if (!satisfied) {
+         Assert.fail();
+      }
    }
 
    private MqttClient createMqttClient(String clientId) throws MqttException {
