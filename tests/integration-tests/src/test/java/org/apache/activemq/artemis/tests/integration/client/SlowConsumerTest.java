@@ -362,9 +362,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
     * messages at a rate of 2 messages per second. Each consumer
     * consumes messages at rate of 1 message per second. The slow
     * consumer threshold is 1 message per second.
-    * Based on the above settings, at least one of the consumers
-    * will be removed during the test, but at least one of the
-    * consumers will remain and all messages will be received.
+    * Based on the above settings, slow consumer removal will not
+    * be performed (2 < 3*1), so no consumer will be removed during the
+    * test, and all messages will be received.
     */
    @Test
    public void testMultipleConsumersOneQueue() throws Exception {
