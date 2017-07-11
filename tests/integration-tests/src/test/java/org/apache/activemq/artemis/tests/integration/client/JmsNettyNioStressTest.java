@@ -38,6 +38,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -95,6 +97,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       TransportConfiguration transportConfig = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, params);
       Configuration config = createBasicConfig().setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(transportConfig);
       ActiveMQServer server = createServer(true, config);
+
+
+      server.getAddressSettingsRepository().clear();
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(AddressSettings.DEFAULT_PAGE_SIZE).
+         setMaxSizeBytes(AddressSettings.DEFAULT_MAX_SIZE_BYTES).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).
+         setAutoDeleteAddresses(false).setAutoCreateAddresses(true).setAutoCreateQueues(false);
+
+      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+
       server.getConfiguration().setThreadPoolMaxSize(2);
       server.start();
 
@@ -133,8 +144,13 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       ClientSession session = sf.createTransactedSession();
       session.createAddress(SimpleString.toSimpleString("queue"), RoutingType.ANYCAST, false);
       session.createAddress(SimpleString.toSimpleString("queue2"), RoutingType.ANYCAST, false);
+
+      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
+      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
       session.createQueue("queue", RoutingType.ANYCAST, "queue");
       session.createQueue("queue2", RoutingType.ANYCAST, "queue2");
+      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue")).isExists());
+      Assert.assertTrue(session.addressQuery(SimpleString.toSimpleString("queue2")).isExists());
       session.commit();
       sf.close();
       session.close();
@@ -151,6 +167,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       connectionConsumer = cf.createConnection();
       connectionConsumer.start();
 
+      session.close();
       // these threads produce messages on the the first queue
       for (int i = 0; i < numProducers; i++) {
          new Thread() {
