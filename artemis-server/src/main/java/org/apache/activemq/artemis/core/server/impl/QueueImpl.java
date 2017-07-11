@@ -207,8 +207,6 @@ public class QueueImpl implements Queue {
 
    private ScheduledFuture<?> redistributorFuture;
 
-   private ScheduledFuture<?> checkQueueSizeFuture;
-
    // We cache the consumers here since we don't want to include the redistributor
 
    private final AtomicInteger consumersCount = new AtomicInteger();
@@ -724,10 +722,6 @@ public class QueueImpl implements Queue {
 
    @Override
    public void close() throws Exception {
-      if (checkQueueSizeFuture != null) {
-         checkQueueSizeFuture.cancel(false);
-      }
-
       getExecutor().execute(new Runnable() {
          @Override
          public void run() {
@@ -913,10 +907,6 @@ public class QueueImpl implements Queue {
 
    @Override
    protected void finalize() throws Throwable {
-      if (checkQueueSizeFuture != null) {
-         checkQueueSizeFuture.cancel(false);
-      }
-
       cancelRedistributor();
 
       super.finalize();
