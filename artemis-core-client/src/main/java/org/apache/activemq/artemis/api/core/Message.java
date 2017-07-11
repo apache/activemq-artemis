@@ -70,7 +70,7 @@ import org.apache.activemq.artemis.core.persistence.Persister;
  */
 public interface Message {
 
-   // This is an estimate of how much memory a Message takes up, exclusing body and properties
+   // This is an estimate of how much memory a Message takes up, excluding body and properties
    // Note, it is only an estimate, it's not possible to be entirely sure with Java
    // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
    // The value is somewhat higher on 64 bit architectures, probably due to different alignment
