@@ -173,7 +173,7 @@ public final class FileWrapperJournal extends JournalBase {
                                             EncodingSupport record) throws Exception {
       JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, record);
       writeRecord(addRecord, false, txID, false, null);
-  }
+   }
 
    @Override
    public void appendUpdateRecord(long id,
@@ -190,7 +190,7 @@ public final class FileWrapperJournal extends JournalBase {
                                                long id,
                                                byte recordType,
                                                EncodingSupport record) throws Exception {
-     JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, record);
+      JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, record);
       writeRecord(updateRecordTX, false, txID, false, null);
    }
 
