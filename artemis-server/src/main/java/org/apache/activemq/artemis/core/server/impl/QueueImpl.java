@@ -2837,6 +2837,10 @@ public class QueueImpl implements Queue {
    }
 
    void postRollback(final LinkedList<MessageReference> refs) {
+      //if we have purged then ignore adding the messages back
+      if (purgeOnNoConsumers && getConsumerCount() == 0) {
+         return;
+      }
       addHead(refs, false);
    }
 
