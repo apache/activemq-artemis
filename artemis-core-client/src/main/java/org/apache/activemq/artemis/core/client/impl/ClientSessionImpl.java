@@ -531,7 +531,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           SimpleString.toSimpleString(queueName), routingType,
                           null,
                           false,
-                          true,
+                          false,
                           ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                           ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                           false);
