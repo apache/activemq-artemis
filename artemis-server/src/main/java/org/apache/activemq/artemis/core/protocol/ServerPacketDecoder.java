@@ -46,6 +46,9 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 
@@ -70,6 +73,9 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REP
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_RESPONSE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SCALEDOWN_ANNOUNCEMENT;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_ACKNOWLEDGE;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_FLOWTOKEN;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_PRODUCER_REQUEST_CREDITS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_LARGE;
 
@@ -78,18 +84,55 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
    private static final long serialVersionUID = 3348673114388400766L;
    public static final ServerPacketDecoder INSTANCE = new ServerPacketDecoder();
 
+   private static SessionSendMessage decodeSessionSendMessage(final ActiveMQBuffer in) {
+      final SessionSendMessage sendMessage = new SessionSendMessage(new CoreMessage());
+      sendMessage.decode(in);
+      return sendMessage;
+   }
+
+   private static SessionAcknowledgeMessage decodeSessionAcknowledgeMessage(final ActiveMQBuffer in) {
+      final SessionAcknowledgeMessage acknowledgeMessage = new SessionAcknowledgeMessage();
+      acknowledgeMessage.decode(in);
+      return acknowledgeMessage;
+   }
+
+   private static SessionRequestProducerCreditsMessage decodeRequestProducerCreditsMessage(final ActiveMQBuffer in) {
+      final SessionRequestProducerCreditsMessage requestProducerCreditsMessage = new SessionRequestProducerCreditsMessage();
+      requestProducerCreditsMessage.decode(in);
+      return requestProducerCreditsMessage;
+   }
+
+   private static SessionConsumerFlowCreditMessage decodeSessionConsumerFlowCreditMessage(final ActiveMQBuffer in) {
+      final SessionConsumerFlowCreditMessage sessionConsumerFlowCreditMessage = new SessionConsumerFlowCreditMessage();
+      sessionConsumerFlowCreditMessage.decode(in);
+      return sessionConsumerFlowCreditMessage;
+   }
+
    @Override
    public Packet decode(final ActiveMQBuffer in) {
       final byte packetType = in.readByte();
+      //optimized for the most common cases: hottest and commons methods will be inlined and this::decode too due to the byte code size
+      switch (packetType) {
+         case SESS_SEND:
+            return decodeSessionSendMessage(in);
+         case SESS_ACKNOWLEDGE:
+            return decodeSessionAcknowledgeMessage(in);
+         case SESS_PRODUCER_REQUEST_CREDITS:
+            return decodeRequestProducerCreditsMessage(in);
+         case SESS_FLOWTOKEN:
+            return decodeSessionConsumerFlowCreditMessage(in);
+         default:
+            return slowPathDecode(in, packetType);
+      }
+   }
 
+
+   // separating for performance reasons
+   private Packet slowPathDecode(ActiveMQBuffer in, byte packetType) {
       Packet packet;
 
       switch (packetType) {
 
-         case SESS_SEND: {
-            packet = new SessionSendMessage(new CoreMessage());
-            break;
-         }
          case SESS_SEND_LARGE: {
             packet = new SessionSendLargeMessage(new CoreMessage());
             break;
