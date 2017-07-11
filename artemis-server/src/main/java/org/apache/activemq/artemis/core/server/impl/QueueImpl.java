@@ -88,7 +88,6 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
@@ -205,8 +204,6 @@ public class QueueImpl implements Queue {
    private final SimpleString address;
 
    private Redistributor redistributor;
-
-   private final Set<ScheduledFuture<?>> futures = new ConcurrentHashSet<>();
 
    private ScheduledFuture<?> redistributorFuture;
 
@@ -887,8 +884,6 @@ public class QueueImpl implements Queue {
             DelayedAddRedistributor dar = new DelayedAddRedistributor(executor);
 
             redistributorFuture = scheduledExecutor.schedule(dar, delay, TimeUnit.MILLISECONDS);
-
-            futures.add(redistributorFuture);
          }
       } else {
          internalAddRedistributor(executor);
@@ -900,8 +895,6 @@ public class QueueImpl implements Queue {
       redistributorFuture = null;
       if (future != null) {
          future.cancel(false);
-
-         futures.remove(future);
       }
    }
 
