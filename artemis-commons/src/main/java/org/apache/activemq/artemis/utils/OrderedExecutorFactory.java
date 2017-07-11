@@ -31,6 +31,7 @@ import org.jboss.logging.Logger;
  */
 public final class OrderedExecutorFactory implements ExecutorFactory {
 
+   private static final boolean FORCE_UNBOUNDED_EXECUTOR = Boolean.getBoolean("force.unbounded.executor");
    private static final Logger logger = Logger.getLogger(OrderedExecutorFactory.class);
 
    private final Executor parent;
@@ -66,7 +67,11 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
     */
    @Override
    public Executor getExecutor() {
-      return new OrderedExecutor(parent);
+      if (FORCE_UNBOUNDED_EXECUTOR) {
+         return new OrderedExecutor(parent);
+      } else {
+         return BoundedOrderedExecutorFactory.createGrowableExecutor(BoundedOrderedExecutorFactory.ProducerType.Multi, BoundedOrderedExecutorFactory.DEFAULT_INITIAL_CAPACITY, BoundedOrderedExecutorFactory.DEFAULT_MAX_CAPACITY, BoundedOrderedExecutorFactory.DEFAULT_MAX_BURST_SIZE, this.parent);
+      }
    }
 
    /**

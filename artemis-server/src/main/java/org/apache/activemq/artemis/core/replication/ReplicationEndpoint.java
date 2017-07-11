@@ -469,13 +469,28 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       if (logger.isTraceEnabled()) {
          logger.trace("handleStartReplicationSynchronization:: nodeID = " + packet);
       }
-      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
-      if (!started)
-         return replicationResponseMessage;
 
       if (packet.isSynchronizationFinished()) {
-         finishSynchronization(packet.getNodeID());
-         replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
+         executor.execute(() -> {
+            try {
+               // this is a long running process, we cannot block the reading thread from netty
+               finishSynchronization(packet.getNodeID());
+               if (logger.isTraceEnabled()) {
+                  logger.trace("returning completion on synchronization catchup");
+               }
+               channel.send(new ReplicationResponseMessageV2().setSynchronizationIsFinishedAcknowledgement(true));
+            } catch (Exception e) {
+               logger.warn(e.getMessage());
+               channel.send(new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e)));
+            }
+
+         });
+         // the write will happen through an executor
+         return null;
+      }
+
+      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
+      if (!started) {
          return replicationResponseMessage;
       }
 
