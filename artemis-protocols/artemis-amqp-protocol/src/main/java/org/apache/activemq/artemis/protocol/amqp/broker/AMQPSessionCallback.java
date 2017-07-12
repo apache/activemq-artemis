@@ -129,7 +129,7 @@ public class AMQPSessionCallback implements SessionCallback {
                @Override
                public void run() {
                   try {
-                     plugSender.getSender().drained();
+                     plugSender.reportDrained();
                   } finally {
                      draining.set(false);
                   }
