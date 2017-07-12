@@ -131,6 +131,9 @@ public final class Page implements Comparable<Page> {
 
       if (this.canBeMapped) {
          readFromMapped(storage, messages);
+         // if the file is open to be written
+         // it needs to updated the position
+         file.position(file.size());
       } else {
          readFromSequentialFile(storage, messages);
       }
