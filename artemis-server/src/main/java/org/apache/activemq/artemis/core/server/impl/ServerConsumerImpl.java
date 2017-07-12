@@ -579,10 +579,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                            forceDelivery(sequence, r);
                         }
                      });
-                  } else {
-                     r.run();
+                     return;
                   }
                }
+               r.run();
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorSendingForcedDelivery(e);
             }

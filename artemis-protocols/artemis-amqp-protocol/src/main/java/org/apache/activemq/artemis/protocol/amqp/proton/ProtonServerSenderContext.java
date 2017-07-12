@@ -775,4 +775,18 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          return queue;
       }
    }
+
+   /**
+    * Update link state to reflect that the previous drain attempt has completed.
+    */
+   public void reportDrained() {
+      connection.lock();
+      try {
+         sender.drained();
+      } finally {
+         connection.unlock();
+      }
+
+      connection.flush();
+   }
 }
