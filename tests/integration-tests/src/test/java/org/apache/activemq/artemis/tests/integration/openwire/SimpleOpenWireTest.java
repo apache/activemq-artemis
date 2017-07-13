@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -1478,7 +1479,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          TopicSession topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic notificationsTopic = topicSession.createTopic("activemq.notifications");
          TopicSubscriber subscriber = topicSession.createSubscriber(notificationsTopic);
-         List<Message> receivedMessages = new ArrayList<>();
+         List<Message> receivedMessages = new CopyOnWriteArrayList<>();
          subscriber.setMessageListener(receivedMessages::add);
          topicConnection.start();
 
