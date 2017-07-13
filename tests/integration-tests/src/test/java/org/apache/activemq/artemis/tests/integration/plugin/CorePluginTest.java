@@ -82,6 +82,7 @@ public class CorePluginTest extends JMSTestBase {
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
       Configuration config = super.createDefaultConfig(netty);
       config.registerBrokerPlugin(verifier);
+      config.setMessageExpiryScanPeriod(0); // disable expiry scan so it's alwyas through delivery
       return config;
    }
 
