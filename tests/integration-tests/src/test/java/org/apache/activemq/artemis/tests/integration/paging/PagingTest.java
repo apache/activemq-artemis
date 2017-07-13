@@ -85,6 +85,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -4908,6 +4909,7 @@ public class PagingTest extends ActiveMQTestBase {
       producer.send(message);
 
       Queue q = (Queue) server.getPostOffice().getBinding(ADDRESS).getBindable();
+      Wait.waitFor(() -> 3 == getMessageCount(q));
       Assert.assertEquals(3, getMessageCount(q));
 
       // send a message with a dup ID that should fail b/c the address is full
