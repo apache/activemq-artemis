@@ -81,9 +81,6 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String BEFORE_DEPLOY_BRIDGE = "beforeDeployBridge";
    public static final String AFTER_DEPLOY_BRIDGE = "afterDeployBridge";
 
-   /**
-    * @param methods
-    */
    public MethodCalledVerifier(Map<String, AtomicInteger> methodCalls) {
       super();
       this.methodCalls = methodCalls;
@@ -266,6 +263,10 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
 
    public void validatePluginMethodsEquals(int count, String... names) {
       Arrays.asList(names).forEach(name -> {
+         try {
+            Wait.waitFor(() -> count == methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         } catch (Throwable ignored) {
+         }
          assertEquals("validating method " + name, count, methodCalls.getOrDefault(name, new AtomicInteger()).get());
       });
    }
