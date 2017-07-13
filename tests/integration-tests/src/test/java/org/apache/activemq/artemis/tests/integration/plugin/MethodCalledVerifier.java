@@ -278,7 +278,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
          } catch (Exception e) {
             e.printStackTrace();
          }
-         assertTrue("validating method " + name, count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
+         assertTrue("validating method " + name + " expected less than " + count, count <= methodCalls.getOrDefault(name, new AtomicInteger()).get());
       });
    }
 
