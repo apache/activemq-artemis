@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncoderPersister;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
@@ -39,7 +40,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
-   protected static final String FILE_COMPACT_CONTROL = "journal-rename-control.ctr";
+   public static final String FILE_COMPACT_CONTROL = "journal-rename-control.ctr";
 
    protected final JournalImpl journal;
 
@@ -148,6 +149,60 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
          controlFile.close();
       }
    }
+
+   public static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
+                                                final List<String> dataFiles,
+                                                final List<String> newFiles,
+                                                final List<Pair<String, String>> renameFile) throws Exception {
+      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
+
+      if (controlFile.exists()) {
+         JournalFile file = new JournalFileImpl(controlFile, 0, JournalImpl.FORMAT_VERSION);
+
+         final ArrayList<RecordInfo> records = new ArrayList<>();
+
+
+         JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallbackAbstract() {
+            @Override
+            public void onReadAddRecord(final RecordInfo info) throws Exception {
+               records.add(info);
+            }
+         });
+
+         if (records.size() == 0) {
+            // the record is damaged
+            controlFile.delete();
+            return null;
+         } else {
+            ActiveMQBuffer input = ActiveMQBuffers.wrappedBuffer(records.get(0).data);
+
+            int numberDataFiles = input.readInt();
+
+            for (int i = 0; i < numberDataFiles; i++) {
+               dataFiles.add(input.readUTF());
+            }
+
+            int numberNewFiles = input.readInt();
+
+            for (int i = 0; i < numberNewFiles; i++) {
+               newFiles.add(input.readUTF());
+            }
+
+            int numberRenames = input.readInt();
+            for (int i = 0; i < numberRenames; i++) {
+               String from = input.readUTF();
+               String to = input.readUTF();
+               renameFile.add(new Pair<>(from, to));
+            }
+
+         }
+
+         return controlFile;
+      } else {
+         return null;
+      }
+   }
+
 
    /**
     * Write pending output into file
