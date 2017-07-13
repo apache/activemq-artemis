@@ -109,6 +109,10 @@ public class StompPluginTest extends StompTestBase {
       System.out.println("received " + frame);
       Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
+      verifier.validatePluginMethodsAtLeast(1, MESSAGE_ACKED, BEFORE_SEND, AFTER_SEND, BEFORE_MESSAGE_ROUTE, AFTER_MESSAGE_ROUTE, BEFORE_DELIVER,
+                                            AFTER_DELIVER);
+
+
       // unsub
       unsubscribe(newConn, "a-sub");
 

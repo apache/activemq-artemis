@@ -176,8 +176,10 @@ public class CorePluginTest extends JMSTestBase {
       prod.setTimeToLive(500);
       MessageConsumer cons = sess.createConsumer(queue);
 
-      TextMessage msg1 = sess.createTextMessage("test");
-      prod.send(msg1);
+      for (int i = 0; i < 10; i++) {
+         TextMessage msg1 = sess.createTextMessage("test");
+         prod.send(msg1);
+      }
       Thread.sleep(500);
       assertNull(cons.receive(500));
 
