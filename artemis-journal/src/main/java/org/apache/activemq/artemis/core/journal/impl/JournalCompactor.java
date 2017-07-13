@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,10 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
@@ -64,56 +59,6 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
     * we cache those updates. As soon as we are done we take the right account.
     */
    private final LinkedList<CompactCommand> pendingCommands = new LinkedList<>();
-
-   public static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
-                                                final List<String> dataFiles,
-                                                final List<String> newFiles,
-                                                final List<Pair<String, String>> renameFile) throws Exception {
-      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
-
-      if (controlFile.exists()) {
-         JournalFile file = new JournalFileImpl(controlFile, 0, JournalImpl.FORMAT_VERSION);
-
-         final ArrayList<RecordInfo> records = new ArrayList<>();
-
-         JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallbackAbstract() {
-            @Override
-            public void onReadAddRecord(final RecordInfo info) throws Exception {
-               records.add(info);
-            }
-         });
-
-         if (records.size() == 0) {
-            return null;
-         } else {
-            ActiveMQBuffer input = ActiveMQBuffers.wrappedBuffer(records.get(0).data);
-
-            int numberDataFiles = input.readInt();
-
-            for (int i = 0; i < numberDataFiles; i++) {
-               dataFiles.add(input.readUTF());
-            }
-
-            int numberNewFiles = input.readInt();
-
-            for (int i = 0; i < numberNewFiles; i++) {
-               newFiles.add(input.readUTF());
-            }
-
-            int numberRenames = input.readInt();
-            for (int i = 0; i < numberRenames; i++) {
-               String from = input.readUTF();
-               String to = input.readUTF();
-               renameFile.add(new Pair<>(from, to));
-            }
-
-         }
-
-         return controlFile;
-      } else {
-         return null;
-      }
-   }
 
    public List<JournalFile> getNewDataFiles() {
       return newDataFiles;

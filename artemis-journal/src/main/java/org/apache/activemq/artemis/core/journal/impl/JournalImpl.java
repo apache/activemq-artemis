@@ -435,6 +435,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       try {
          final int filesize = (int) file.getFile().size();
 
+         if (filesize < JournalImpl.SIZE_HEADER) {
+            // the file is damaged or the system crash before it was able to write
+            return -1;
+         }
+
          wholeFileBuffer = fileFactory.newBuffer(filesize);
 
          final int journalFileSize = file.getFile().read(wholeFileBuffer);
@@ -2398,8 +2403,19 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          cleanupList = new ArrayList<>();
          cleanupList.add(cleanupRename);
       }
-      return AbstractJournalUpdateTask.writeControlFile(fileFactory, files, newFiles, cleanupList);
+      return writeControlFile(fileFactory, files, newFiles, cleanupList);
    }
+
+
+   protected SequentialFile writeControlFile(final SequentialFileFactory fileFactory,
+                                                 final List<JournalFile> files,
+                                                 final List<JournalFile> newFiles,
+                                                 final List<Pair<String, String>> renames) throws Exception {
+
+      return JournalCompactor.writeControlFile(fileFactory, files, newFiles, renames);
+   }
+
+
 
    protected void deleteControlFile(final SequentialFile controlFile) throws Exception {
       controlFile.delete();
