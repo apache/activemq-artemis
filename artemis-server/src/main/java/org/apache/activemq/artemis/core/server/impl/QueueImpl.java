@@ -1462,11 +1462,11 @@ public class QueueImpl implements Queue {
       Transaction tx = new BindingsTransactionImpl(storageManager);
 
       try {
-         postOffice.removeBinding(name, tx, true);
-
          deleteAllReferences();
 
          destroyPaging();
+
+         postOffice.removeBinding(name, tx, true);
 
          if (removeConsumers) {
             for (ConsumerHolder consumerHolder : consumerList) {
