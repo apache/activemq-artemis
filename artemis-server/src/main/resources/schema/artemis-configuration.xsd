@@ -486,13 +486,15 @@
                               </xsd:annotation>
                            </xsd:element>
                         </xsd:all>
-                        <xsd:attribute name="name" type="xsd:ID" use="required">
+                        <xsd:attribute name="name" type="xsd:string" use="required">
                            <xsd:annotation>
                               <xsd:documentation>
                                  unique name of this queue
                               </xsd:documentation>
                            </xsd:annotation>
                         </xsd:attribute>
+                        <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
+                        <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
                      </xsd:complexType>
                   </xsd:element>
                </xsd:sequence>
@@ -1187,7 +1189,7 @@
    <!-- BRIDGE CONFIGURATION -->
    <xsd:complexType name="bridgeType">
       <xsd:sequence>
-         <xsd:element name="queue-name" type="xsd:IDREF" maxOccurs="1" minOccurs="1">
+         <xsd:element name="queue-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   name of queue that this bridge consumes from
@@ -2842,7 +2844,7 @@
          <xsd:element ref="filter" maxOccurs="1" minOccurs="0"/>
          <xsd:element name="durable" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0" />
       </xsd:all>
-      <xsd:attribute name="name" type="xsd:ID" use="required"/>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
       <xsd:attribute name="max-consumers" type="xsd:integer" use="optional"/>
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
    </xsd:complexType>
