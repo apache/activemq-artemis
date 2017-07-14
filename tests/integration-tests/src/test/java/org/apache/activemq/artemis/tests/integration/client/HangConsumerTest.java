@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
@@ -151,6 +152,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
          // a flush to guarantee any pending task is finished on flushing out delivery and pending msgs
          queue.flushExecutor();
+         Wait.waitFor(() -> getMessageCount(queue) == 2);
          Assert.assertEquals(2, getMessageCount(queue));
          Assert.assertEquals(2, getMessagesAdded(queue));
 

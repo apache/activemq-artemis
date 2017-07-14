@@ -190,7 +190,10 @@ final class PageSubscriptionImpl implements PageSubscription {
     * cursor/subscription.
     */
    @Override
-   public void reloadPageCompletion(PagePosition position) throws Exception {
+   public boolean reloadPageCompletion(PagePosition position) throws Exception {
+      if (!pageStore.checkPageFileExists((int)position.getPageNr())) {
+         return false;
+      }
       // if the current page is complete, we must move it out of the way
       if (pageStore != null && pageStore.getCurrentPage() != null &&
           pageStore.getCurrentPage().getPageId() == position.getPageNr()) {
@@ -201,6 +204,8 @@ final class PageSubscriptionImpl implements PageSubscription {
       synchronized (consumedPages) {
          consumedPages.put(Long.valueOf(position.getPageNr()), info);
       }
+
+      return true;
    }
 
    @Override
