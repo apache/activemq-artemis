@@ -1085,7 +1085,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
 
                   if (sub != null) {
-                     sub.reloadPageCompletion(encoding.position);
+                     if (!sub.reloadPageCompletion(encoding.position)) {
+                        if (logger.isDebugEnabled()) {
+                           logger.debug("Complete page " + encoding.position.getPageNr() + " doesn't exist on page manager " + sub.getPagingStore().getAddress());
+                        }
+                        messageJournal.appendDeleteRecord(record.id, false);
+                     }
                   } else {
                      ActiveMQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);

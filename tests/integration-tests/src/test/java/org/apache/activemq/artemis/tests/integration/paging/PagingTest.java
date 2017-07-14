@@ -1430,14 +1430,14 @@ public class PagingTest extends ActiveMQTestBase {
 
       producer = session.createProducer(PagingTest.ADDRESS);
 
-      for (int i = 0; i < numberOfMessages; i++) {
+      for (int i = 0; i < numberOfMessages * 2; i++) {
          message = session.createMessage(true);
 
          ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
-         message.putIntProperty(new SimpleString("id"), i);
+         message.putIntProperty(new SimpleString("theid"), i);
 
          producer.send(message);
          if (i % 1000 == 0) {
@@ -1466,12 +1466,13 @@ public class PagingTest extends ActiveMQTestBase {
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
          log.info("Received " + msgCount);
          msgReceived++;
-         ClientMessage msg = consumer.receiveImmediate();
+         ClientMessage msg = consumer.receive(5000);
          if (msg == null) {
             log.info("It's null. leaving now");
             sessionConsumer.commit();
             fail("Didn't receive a message");
          }
+         System.out.println("Message " + msg.getIntProperty(SimpleString.toSimpleString("theid")));
          msg.acknowledge();
 
          if (msgCount % 5 == 0) {
