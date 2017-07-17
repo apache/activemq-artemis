@@ -435,6 +435,9 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipActiveMQ5Tests}</skipTests>
+               <systemPropertyVariables>
+                  <org.apache.activemq.AutoFailTestSupport.disableSystemExit>true</org.apache.activemq.AutoFailTestSupport.disableSystemExit>
+               </systemPropertyVariables>
 <!--
                <additionalClasspathElements>
                   <additionalClasspathElement>src/main/resources/stomp</additionalClasspathElement>
