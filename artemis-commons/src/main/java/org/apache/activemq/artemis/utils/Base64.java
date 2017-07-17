@@ -10,6 +10,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.jboss.logging.Logger;
 
 import java.nio.charset.Charset;
@@ -543,7 +544,7 @@ public class Base64 {
 
          oos.writeObject(serializableObject);
       } catch (java.io.IOException e) {
-         logger.warn("Object cannot be serialized", e.getMessage(), e);
+         ActiveMQUtilLogger.LOGGER.failedToSerializeObject(e);
          return null;
       } finally {
          try {
@@ -661,7 +662,7 @@ public class Base64 {
             gzos.write(source, off, len);
             gzos.close();
          } catch (java.io.IOException e) {
-            logger.warn("Unable to encode byte array into Base64 notation", e.getMessage(), e);
+            ActiveMQUtilLogger.LOGGER.failedToEncodeByteArrayToBase64Notation(e);
             return null;
          } finally {
             try {
@@ -950,7 +951,7 @@ public class Base64 {
 
          obj = ois.readObject();
       } catch (java.io.IOException | java.lang.ClassNotFoundException e) {
-         logger.warn("Unable to deserialize object", e.getMessage(), e);
+         ActiveMQUtilLogger.LOGGER.failedToDeserializeObject(e);
          obj = null;
       } finally {
          try {
