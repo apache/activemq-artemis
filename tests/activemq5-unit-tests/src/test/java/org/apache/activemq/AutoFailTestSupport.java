@@ -89,6 +89,7 @@ public abstract class AutoFailTestSupport extends TestCase {
                      System.exit(EXIT_ERROR);
                   } else {
                      LOG.error("No system.exit as it kills surefire - forkedProcessTimeoutInSeconds (surefire.timeout) will kick in eventually see pom.xml surefire plugin config");
+                     fail("Timeout in AutoFailTestSupport class has been exceeded");
                   }
                }
             }
