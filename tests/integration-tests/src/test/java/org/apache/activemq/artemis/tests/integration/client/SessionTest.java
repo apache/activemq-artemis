@@ -21,7 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -32,6 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -59,8 +62,11 @@ public class SessionTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      locator = createInVMNonHALocator();
-      server = createServer(false);
+      locator = createNettyNonHALocator();
+      Configuration configuration = createDefaultNettyConfig();
+      configuration.addAcceptorConfiguration("prefixed", "tcp://localhost:61617?multicastPrefix=multicast://;anycastPrefix=anycast://");
+      server = createServer(configuration);
+      createServer(false);
       server.start();
       waitForServerToStart(server);
    }
@@ -203,6 +209,24 @@ public class SessionTest extends ActiveMQTestBase {
       Assert.assertEquals(2, resp.getConsumerCount());
       Assert.assertEquals(2, resp.getMessageCount());
       Assert.assertEquals(null, resp.getFilterString());
+      clientSession.close();
+   }
+
+   @Test
+   public void testQueueQueryWithAddressPrefix() throws Exception {
+      String address = new String("testAddress");
+
+      cf = ActiveMQClient.createServerLocator("tcp://localhost:61617").createSessionFactory();
+      ClientSession clientSession = cf.createSession(false, true, true);
+
+      clientSession.createQueue(address, RoutingType.ANYCAST, queueName + "1", false);
+      clientSession.createQueue(address, RoutingType.MULTICAST, queueName + "2", false);
+
+      QueueQuery respA = clientSession.queueQuery(new SimpleString(queueName + "1"));
+      QueueQuery respM = clientSession.queueQuery(new SimpleString(queueName + "2"));
+
+      Assert.assertEquals(new SimpleString("anycast://" + address), respA.getAddress());
+      Assert.assertEquals(new SimpleString("multicast://" + address), respM.getAddress());
       clientSession.close();
    }
 
