@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.jboss.logging.Logger;
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
@@ -35,8 +35,6 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 public class FileUtil {
-
-   private static final Logger logger = Logger.getLogger(FileUtil.class);
 
    public static void makeExec(File file) throws IOException {
       try {
@@ -61,12 +59,12 @@ public class FileUtil {
          }
 
          if (files == null) {
-            logger.warn("Could not list files to clean up in: " + directory.getAbsolutePath());
+            ActiveMQUtilLogger.LOGGER.failedListFilesToCleanup(directory.getAbsolutePath());
          } else {
             for (String file : files) {
                File f = new File(directory, file);
                if (!deleteDirectory(f)) {
-                  logger.warn("Failed to clean up file: " + f.getAbsolutePath());
+                  ActiveMQUtilLogger.LOGGER.failedToCleanupFile(f.getAbsolutePath());
                }
             }
          }

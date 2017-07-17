@@ -84,7 +84,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             netToUse = null;
          }
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQUtilLogger.LOGGER.failedToSetNIC(e, nicName == null ? " " : nicName);
          netToUse = null;
       }
 
@@ -126,7 +126,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                try {
                   this.addAddress(InetAddress.getByName(address.trim()));
                } catch (Exception e) {
-                  logger.warn(e.getMessage(), e);
+                  ActiveMQUtilLogger.LOGGER.failedToParseAddressList(e, addressList);
                }
             }
          }
@@ -144,7 +144,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                try {
                   this.addURL(new URL(address.trim()));
                } catch (Exception e) {
-                  logger.warn(e.getMessage(), e);
+                  ActiveMQUtilLogger.LOGGER.failedToParseUrlList(e, addressList);
                }
             }
          }
@@ -203,7 +203,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    public NetworkHealthCheck addAddress(InetAddress address) {
       if (!check(address)) {
-         logger.warn("Ping Address " + address + " wasn't reacheable");
+         ActiveMQUtilLogger.LOGGER.addressWasntReacheable(address.toString());
       }
 
       if (!ignoreLoopback && address.isLoopbackAddress()) {
@@ -227,7 +227,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    public NetworkHealthCheck addURL(URL url) {
       if (!check(url)) {
-         logger.warn("Ping url " + url + " wasn't reacheable");
+         ActiveMQUtilLogger.LOGGER.urlWasntReacheable(url.toString());
       }
       urls.add(url);
       checkStart();
@@ -276,10 +276,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          for (ActiveMQComponent component : componentList) {
             if (!component.isStarted()) {
                try {
-                  logger.info("Network is healthy, starting service " + component);
+                  ActiveMQUtilLogger.LOGGER.startingService(component.toString());
                   component.start();
                } catch (Exception e) {
-                  logger.warn("Error starting component " + component, e);
+                  ActiveMQUtilLogger.LOGGER.errorStartingComponent(e, component.toString());
                }
             }
          }
@@ -287,10 +287,10 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          for (ActiveMQComponent component : componentList) {
             if (component.isStarted()) {
                try {
-                  logger.info("Network is unhealthy, stopping service " + component);
+                  ActiveMQUtilLogger.LOGGER.stoppingService(component.toString());
                   component.stop();
                } catch (Exception e) {
-                  logger.warn("Error stopping component " + component, e);
+                  ActiveMQUtilLogger.LOGGER.errorStoppingComponent(e, component.toString());
                }
             }
          }
@@ -332,7 +332,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             return purePing(address);
          }
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQUtilLogger.LOGGER.failedToCheckAddress(e, address == null ? " " : address.toString());
          return false;
       }
    }
@@ -378,7 +378,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       String inputLine;
       while ((inputLine = reader.readLine()) != null) {
          if (error) {
-            logger.warn(inputLine);
+            ActiveMQUtilLogger.LOGGER.failedToReadFromStream(inputLine == null ? " " : inputLine);
          } else {
             logger.trace(inputLine);
          }
@@ -395,7 +395,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          is.close();
          return true;
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQUtilLogger.LOGGER.failedToCheckURL(e, url == null ? " " : url.toString());
          return false;
       }
    }
