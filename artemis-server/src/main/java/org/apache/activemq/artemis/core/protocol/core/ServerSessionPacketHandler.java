@@ -180,8 +180,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       this.callExecutor = server.getExecutorFactory().getExecutor();
 
-      // TODO: I wish I could figure out how to create this through OrderedExecutor
-      this.packetActor = new Actor<>(server.getThreadPool(), this::onMessagePacket);
+      // In an optimized way packetActor should use the threadPool as the parent executor
+      // directly from server.getThreadPool();
+      // However due to how transferConnection is handled we need to
+      // use the same executor
+      this.packetActor = new Actor<>(callExecutor, this::onMessagePacket);
 
       if (conn instanceof NettyConnection) {
          direct = ((NettyConnection) conn).isDirectDeliver();
