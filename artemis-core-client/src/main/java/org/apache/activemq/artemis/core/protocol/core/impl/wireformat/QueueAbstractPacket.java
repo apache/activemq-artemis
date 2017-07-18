@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -107,5 +108,13 @@ public abstract class QueueAbstractPacket extends PacketImpl {
 
    public QueueAbstractPacket(byte type) {
       super(type);
+   }
+
+   public static SimpleString getOldPrefixedAddress(SimpleString address, RoutingType routingType) {
+      switch (routingType) {
+         case MULTICAST: return OLD_TOPIC_PREFIX.concat(address);
+         case ANYCAST: return OLD_QUEUE_PREFIX.concat(address);
+         default: return address;
+      }
    }
 }
