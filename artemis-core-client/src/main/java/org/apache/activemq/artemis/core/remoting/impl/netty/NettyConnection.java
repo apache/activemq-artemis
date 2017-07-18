@@ -294,8 +294,15 @@ public class NettyConnection implements Connection {
       write(buffer, flush, batched, null);
    }
 
+   private void checkConnectionState() {
+      if (this.closed || !this.channel.isActive()) {
+         throw new IllegalStateException("Connection " + getID() + " closed or disconnected");
+      }
+   }
+
    @Override
    public final boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
+      checkConnectionState();
       final boolean isAllowedToBlock = isAllowedToBlock();
       if (!isAllowedToBlock) {
 
@@ -324,6 +331,8 @@ public class NettyConnection implements Connection {
          }
          boolean canWrite;
          while (!(canWrite = canWrite(requiredCapacity)) && System.nanoTime() < deadline) {
+            //periodically check the connection state
+            checkConnectionState();
             LockSupport.parkNanos(parkNanos);
          }
          return canWrite;
@@ -361,9 +370,7 @@ public class NettyConnection implements Connection {
       if (logger.isDebugEnabled()) {
          final int remainingBytes = this.writeBufferHighWaterMark - readableBytes;
          if (remainingBytes < 0) {
-            logger.debug("a write request is exceeding by " + (-remainingBytes) +
-                            " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark +
-                            " ] : consider to set it at least of " + readableBytes + " bytes");
+            logger.debug("a write request is exceeding by " + (-remainingBytes) + " bytes the writeBufferHighWaterMark size [ " + this.writeBufferHighWaterMark + " ] : consider to set it at least of " + readableBytes + " bytes");
          }
       }
       //no need to lock because the Netty's channel is thread-safe
