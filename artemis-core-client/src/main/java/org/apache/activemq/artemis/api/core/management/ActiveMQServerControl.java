@@ -439,6 +439,8 @@ public interface ActiveMQServerControl {
    long getGlobalMaxSize();
 
    // Operations ----------------------------------------------------
+   @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
+   boolean freezeReplication();
 
    @Operation(desc = "create an address", impact = MBeanOperationInfo.ACTION)
    String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,

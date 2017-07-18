@@ -133,6 +133,7 @@ public final class SharedNothingBackupActivation extends Activation {
                return;
             backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool(), networkHealthCheck, replicaPolicy.getQuorumSize());
             activeMQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
+            activeMQServer.getClusterManager().getQuorumManager().registerQuorumHandler(new ServerConnectVoteHandler(activeMQServer));
          }
 
          //use a Node Locator to connect to the cluster
