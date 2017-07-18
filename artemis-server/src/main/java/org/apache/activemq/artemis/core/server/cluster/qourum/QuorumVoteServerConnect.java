@@ -21,15 +21,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.Topology;
-import org.apache.activemq.artemis.core.persistence.StorageManager;
 
 /**
  * A Qourum Vote for deciding if a replicated backup should become live.
  */
-public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
+public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
-   private static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LIVE_FAILOVER)VOTE");
+   public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LIVE_FAILOVER_VOTE");
    private final CountDownLatch latch;
+   private final String targetNodeId;
 
    private int votesNeeded;
 
@@ -47,8 +47,9 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
     * 5      |       4         |     3.5     |      3
     * 6      |       5         |      4      |      4
     */
-   public QuorumVoteServerConnect(int size, StorageManager storageManager) {
+   public QuorumVoteServerConnect(int size, String targetNodeId) {
       super(LIVE_FAILOVER_VOTE);
+      this.targetNodeId = targetNodeId;
       double majority;
       if (size <= 2) {
          majority = ((double) size) / 2;
@@ -71,7 +72,7 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
     */
    @Override
    public Vote connected() {
-      return new BooleanVote(true);
+      return new ServerConnectVote(targetNodeId);
    }
 
    /**
@@ -97,7 +98,7 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
     * @param vote the vote to make.
     */
    @Override
-   public synchronized void vote(BooleanVote vote) {
+   public synchronized void vote(ServerConnectVote vote) {
       if (decision)
          return;
       if (vote.getVote()) {
@@ -111,17 +112,14 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
 
    @Override
    public void allVotesCast(Topology voteTopology) {
-      latch.countDown();
+      while (latch.getCount() > 0) {
+         latch.countDown();
+      }
    }
 
    @Override
    public Boolean getDecision() {
       return decision;
-   }
-
-   @Override
-   public SimpleString getName() {
-      return null;
    }
 
    public void await(int latchTimeout, TimeUnit unit) throws InterruptedException {
