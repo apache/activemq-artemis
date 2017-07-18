@@ -728,16 +728,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception {
-      QueueQueryResult result = server.queueQuery(removePrefix(name));
-      if (prefixEnabled) {
-         for (Map.Entry<SimpleString, RoutingType> entry : prefixes.entrySet()) {
-            if (entry.getValue() == result.getRoutingType()) {
-               result.setAddress(entry.getKey().concat(result.getAddress()));
-               break;
-            }
-         }
-      }
-      return result;
+      return server.queueQuery(removePrefix(name));
    }
 
    @Override
