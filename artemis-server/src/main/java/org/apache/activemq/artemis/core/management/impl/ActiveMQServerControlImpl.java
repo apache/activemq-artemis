@@ -94,7 +94,9 @@ import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -565,6 +567,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       } finally {
          blockOnIO();
       }
+   }
+
+   @Override
+   public boolean freezeReplication() {
+      Activation activation = server.getActivation();
+      if (activation instanceof SharedNothingLiveActivation) {
+         SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) activation;
+         liveActivation.freezeReplication();
+         return true;
+      }
+      return false;
    }
 
    private enum AddressInfoTextFormatter {

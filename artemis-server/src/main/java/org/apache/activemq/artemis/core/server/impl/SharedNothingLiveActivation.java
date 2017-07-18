@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -89,6 +90,10 @@ public class SharedNothingLiveActivation extends LiveActivation {
       }
    }
 
+   public void freezeReplication() {
+      replicationManager.getBackupTransportConnection().fail(new ActiveMQDisconnectedException());
+   }
+
    @Override
    public void run() {
       try {
@@ -105,6 +110,8 @@ public class SharedNothingLiveActivation extends LiveActivation {
          logger.trace("@@@ did not do it now");
 
          activeMQServer.initialisePart1(false);
+
+         activeMQServer.getClusterManager().getQuorumManager().registerQuorumHandler(new ServerConnectVoteHandler(activeMQServer));
 
          activeMQServer.initialisePart2(false);
 
@@ -248,7 +255,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                            QuorumManager quorumManager = activeMQServer.getClusterManager().getQuorumManager();
                            int size = replicatedPolicy.getQuorumSize() == -1 ? quorumManager.getMaxClusterSize() : replicatedPolicy.getQuorumSize();
 
-                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getStorageManager());
+                           QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, activeMQServer.getNodeID().toString());
 
                            quorumManager.vote(quorumVote);
 
