@@ -92,10 +92,10 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.actors.Actor;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
+import org.apache.activemq.artemis.utils.actors.Actor;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
@@ -387,6 +387,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName(remotingConnection.getClientVersion()));
+
+                  if (remotingConnection.getClientVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
+                     result.setAddress(SessionQueueQueryMessage.getOldPrefixedAddress(result.getAddress(), result.getRoutingType()));
+                  }
+
                   if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V3)) {
                      response = new SessionQueueQueryResponseMessage_V3(result);
                   } else if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
