@@ -148,7 +148,7 @@ group:
           <jgroups-file>test-jgroups-file_ping.xml</jgroups-file>
           <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
           <broadcast-period>2000</broadcast-period>
-        <connector-ref connector-name="netty-connector"/>
+          <connector-ref>netty-connector</connector-ref>
        </broadcast-group>
     </broadcast-groups>
 
