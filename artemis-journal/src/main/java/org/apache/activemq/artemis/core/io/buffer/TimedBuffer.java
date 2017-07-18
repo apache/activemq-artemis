@@ -23,7 +23,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.LockSupport;
 
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -48,7 +47,7 @@ public final class TimedBuffer {
    // prevent that
    private final Semaphore spinLimiter = new Semaphore(1);
 
-   private CheckTimer timerRunnable = null;
+   private CheckTimer timerRunnable;
 
    private final int bufferSize;
 
@@ -371,6 +370,9 @@ public final class TimedBuffer {
       int failedChecks = 0;
       long timeBefore = 0;
 
+      final int sleepMillis = timeout / 1000000; // truncates
+      final int sleepNanos = timeout % 1000000;
+
       @Override
       public void run() {
          long lastFlushTime = 0;
@@ -419,7 +421,14 @@ public final class TimedBuffer {
                timeBefore = System.nanoTime();
             }
 
-            LockSupport.parkNanos(timeout);
+            try {
+               sleep(sleepMillis, sleepNanos);
+            } catch (InterruptedException e) {
+               throw new ActiveMQInterruptedException(e);
+            } catch (Exception e) {
+               useSleep = false;
+               ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
+            }
 
             if (checks < MAX_CHECKS_ON_SLEEP) {
                long realTimeSleep = System.nanoTime() - timeBefore;
@@ -442,6 +451,17 @@ public final class TimedBuffer {
       public void close() {
          closed = true;
       }
+   }
+
+   /**
+    * Sub classes (tests basically) can use this to override how the sleep is being done
+    *
+    * @param sleepMillis
+    * @param sleepNanos
+    * @throws InterruptedException
+    */
+   protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
+      Thread.sleep(sleepMillis, sleepNanos);
    }
 
    /**
