@@ -596,6 +596,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public boolean freezeReplication() {
+
+            return false;
+         }
+
+         @Override
          public String createAddress(String name, String routingTypes) throws Exception {
             return (String) proxy.invokeOperation("createAddress", name, routingTypes);
          }
