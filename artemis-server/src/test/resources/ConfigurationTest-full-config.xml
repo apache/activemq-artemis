@@ -226,7 +226,7 @@
       <journal-buffer-size>10000</journal-buffer-size>
       <journal-sync-transactional>false</journal-sync-transactional>
       <journal-sync-non-transactional>true</journal-sync-non-transactional>
-      <log-journal-write-rate>true</log-journal-write-rate>
+      <journal-profiler>true</journal-profiler>
       <journal-file-size>12345678</journal-file-size>
       <journal-min-files>100</journal-min-files>
       <journal-compact-percentage>33</journal-compact-percentage>

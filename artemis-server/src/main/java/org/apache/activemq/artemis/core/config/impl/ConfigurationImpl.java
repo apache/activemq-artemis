@@ -201,7 +201,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected int journalBufferSize_NIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeNio();
 
-   protected boolean logJournalWriteRate = ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate();
+   protected boolean journalProfiler = ActiveMQDefaultConfiguration.getDefaultJournalProfiler();
 
    private WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
 
@@ -868,13 +868,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public boolean isLogJournalWriteRate() {
-      return logJournalWriteRate;
+   public boolean journalProfiler() {
+      return journalProfiler;
    }
 
    @Override
-   public ConfigurationImpl setLogJournalWriteRate(final boolean logJournalWriteRate) {
-      this.logJournalWriteRate = logJournalWriteRate;
+   public ConfigurationImpl journalProfiler(final boolean enable) {
+      this.journalProfiler = enable;
       return this;
    }
 
@@ -1609,7 +1609,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (journalSyncTransactional ? 1231 : 1237);
       result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
       result = prime * result + ((largeMessagesDirectory == null) ? 0 : largeMessagesDirectory.hashCode());
-      result = prime * result + (logJournalWriteRate ? 1231 : 1237);
+      result = prime * result + (journalProfiler ? 1231 : 1237);
       result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
       result = prime * result + ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
       result = prime * result + (maskPassword ? 1231 : 1237);
@@ -1781,7 +1781,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return false;
       } else if (!largeMessagesDirectory.equals(other.largeMessagesDirectory))
          return false;
-      if (logJournalWriteRate != other.logJournalWriteRate)
+      if (journalProfiler != other.journalProfiler)
          return false;
       if (managementAddress == null) {
          if (other.managementAddress != null)

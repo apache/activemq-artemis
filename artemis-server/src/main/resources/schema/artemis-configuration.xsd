@@ -637,10 +637,10 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="log-journal-write-rate" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+         <xsd:element name="journal-profiler" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Whether to log messages about the journal write rate
+                  Whether to profile the journal flushes
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

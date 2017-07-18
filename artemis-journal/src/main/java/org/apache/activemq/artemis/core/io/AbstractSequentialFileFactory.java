@@ -70,12 +70,12 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
                                            final int bufferSize,
                                            final int bufferTimeout,
                                            final int maxIO,
-                                           final boolean logRates,
+                                           final boolean enableProfiler,
                                            final IOCriticalErrorListener criticalErrorListener) {
       this.journalDir = journalDir;
 
       if (buffered && bufferTimeout > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
+         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, enableProfiler);
       } else {
          timedBuffer = null;
       }

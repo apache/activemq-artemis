@@ -250,7 +250,7 @@ public final class ActiveMQDefaultConfiguration {
    private static boolean DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL = true;
 
    // Whether to log messages about the journal write rate
-   private static boolean DEFAULT_JOURNAL_LOG_WRITE_RATE = false;
+   private static boolean DEFAULT_JOURNAL_PROFILER = false;
 
    // the size (in bytes) of each journal file
    private static int DEFAULT_JOURNAL_FILE_SIZE = 10485760;
@@ -765,8 +765,8 @@ public final class ActiveMQDefaultConfiguration {
    /**
     * Whether to log messages about the journal write rate
     */
-   public static boolean isDefaultJournalLogWriteRate() {
-      return DEFAULT_JOURNAL_LOG_WRITE_RATE;
+   public static boolean getDefaultJournalProfiler() {
+      return DEFAULT_JOURNAL_PROFILER;
    }
 
    /**

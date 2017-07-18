@@ -76,7 +76,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, conf.getJournalBufferTimeout_NIO());
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, conf.getJournalBufferSize_AIO());
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, conf.getJournalBufferSize_NIO());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate(), conf.isLogJournalWriteRate());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalProfiler(), conf.journalProfiler());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory(), conf.getMessageCounterMaxDayHistory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod(), conf.getMessageCounterSamplePeriod());
@@ -228,8 +228,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          Assert.assertEquals(i, conf.getJournalBufferTimeout_NIO());
 
          b = RandomUtil.randomBoolean();
-         conf.setLogJournalWriteRate(b);
-         Assert.assertEquals(b, conf.isLogJournalWriteRate());
+         conf.journalProfiler(b);
+         Assert.assertEquals(b, conf.journalProfiler());
 
          l = RandomUtil.randomLong();
          conf.setServerDumpInterval(l);
@@ -426,8 +426,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(i, conf.getJournalBufferTimeout_NIO());
 
       b = RandomUtil.randomBoolean();
-      conf.setLogJournalWriteRate(b);
-      Assert.assertEquals(b, conf.isLogJournalWriteRate());
+      conf.journalProfiler(b);
+      Assert.assertEquals(b, conf.journalProfiler());
 
       l = RandomUtil.randomLong();
       conf.setServerDumpInterval(l);

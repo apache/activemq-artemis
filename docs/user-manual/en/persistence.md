@@ -323,6 +323,11 @@ The message journal is configured using the following attributes in
     process failure durability on journal writes (OS guaranteed).
     This is particular effective for `NIO` and `MAPPED` journals, which rely on 
      *fsync*/*msync* to force write changes to disk.
+     
+-   `journal-profiler` (default: false)
+    
+    This will allow the journal to emit performance counters events. 
+    A sampling profiler of the events is provided via [Artemis CLI](tools.md). 
 
 ### An important note on disabling `journal-datasync`.
 

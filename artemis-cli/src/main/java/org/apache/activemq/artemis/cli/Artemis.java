@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.journal.PerfJournal;
+import org.apache.activemq.artemis.cli.commands.tools.journal.ProfileJournal;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
@@ -86,7 +87,11 @@ public class Artemis {
       return execute(false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, ActionContext context, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled,
+                                File artemisHome,
+                                File artemisInstance,
+                                ActionContext context,
+                                String... args) throws Exception {
 
       if (inputEnabled) {
          InputAbstract.enableInput();
@@ -118,7 +123,10 @@ public class Artemis {
       }
    }
 
-   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled,
+                                File artemisHome,
+                                File artemisInstance,
+                                String... args) throws Exception {
       return execute(inputEnabled, artemisHome, artemisInstance, ActionContext.system(), args);
    }
 
@@ -130,7 +138,10 @@ public class Artemis {
       return internalExecute(artemisHome, artemisInstance, args, ActionContext.system());
    }
 
-   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args, ActionContext context) throws Exception {
+   public static Object internalExecute(File artemisHome,
+                                        File artemisInstance,
+                                        String[] args,
+                                        ActionContext context) throws Exception {
 
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
@@ -162,8 +173,8 @@ public class Artemis {
          builder.withGroup("data").withDescription("data tools group (print|imp|exp|encode|decode|compact) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
          builder.withGroup("user").withDescription("default file-based user management (add|rm|list|reset) (example ./artemis user list)").
-                 withDefaultCommand(HelpUser.class).withCommands(ListUser.class, AddUser.class, RemoveUser.class, ResetUser.class);
-         builder = builder.withCommands(Run.class, Stop.class, Kill.class, PerfJournal.class);
+            withDefaultCommand(HelpUser.class).withCommands(ListUser.class, AddUser.class, RemoveUser.class, ResetUser.class);
+         builder = builder.withCommands(Run.class, Stop.class, Kill.class, PerfJournal.class, ProfileJournal.class);
       } else {
          builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class);

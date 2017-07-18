@@ -70,9 +70,9 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferSize,
                                    final int bufferTimeout,
                                    final int maxIO,
-                                   final boolean logRates,
+                                   final boolean enableProfiler,
                                    final IOCriticalErrorListener listener) {
-      super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener);
+      super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, enableProfiler, listener);
       this.bufferPooling = true;
       this.bytesPool = new ThreadLocal<>();
    }

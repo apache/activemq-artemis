@@ -767,9 +767,9 @@ public interface Configuration {
 
    // Undocumented attributes
 
-   boolean isLogJournalWriteRate();
+   boolean journalProfiler();
 
-   Configuration setLogJournalWriteRate(boolean rate);
+   Configuration journalProfiler(boolean enable);
 
    long getServerDumpInterval();
 

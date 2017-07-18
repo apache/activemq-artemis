@@ -73,9 +73,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferSize,
                                    final int bufferTimeout,
                                    final int maxIO,
-                                   final boolean logRates,
+                                   final boolean enableProfiler,
                                    final IOCriticalErrorListener listener) {
-      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener);
+      super(journalDir, true, bufferSize, bufferTimeout, maxIO, enableProfiler, listener);
       callbackPool = new CallbackCache<>(maxIO);
    }
 

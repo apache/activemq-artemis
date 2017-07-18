@@ -82,6 +82,7 @@ Name | Description
 [journal-sync-transactional](persistence.md)                                          |  if true wait for transaction data to be synchronized to the journal before returning response to client. Default=true
 [journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
 [journal-datasync](persistence.md)                                                        |  It will use msync/fsync on journal operations. Default=true.
+[journal-profiler](persistence.md#)                                                        |  It will allow the journal to emit performance counters events. Default=false
 [large-messages-directory](large-messages.md "Configuring the server")          |  the directory to store large messages. Default=data/largemessages
 [management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it. Default=jms.queue.activemq.management
 [management-notification-address](management.md "Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications

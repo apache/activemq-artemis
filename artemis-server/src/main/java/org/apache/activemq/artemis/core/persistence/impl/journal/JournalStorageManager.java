@@ -129,15 +129,15 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          case NIO:
             ActiveMQServerLogger.LOGGER.journalUseNIO();
-            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.journalProfiler(), criticalErrorListener);
             break;
          case ASYNCIO:
             ActiveMQServerLogger.LOGGER.journalUseAIO();
-            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.journalProfiler(), criticalErrorListener);
             break;
          case MAPPED:
             ActiveMQServerLogger.LOGGER.journalUseMAPPED();
-            journalFF = MappedSequentialFileFactory.buffered(config.getJournalLocation(), config.getJournalFileSize(), config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), criticalErrorListener);
+            journalFF = MappedSequentialFileFactory.buffered(config.getJournalLocation(), config.getJournalFileSize(), config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.journalProfiler(), criticalErrorListener);
             break;
          default:
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
