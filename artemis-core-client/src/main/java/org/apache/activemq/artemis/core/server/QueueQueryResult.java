@@ -138,8 +138,4 @@ public class QueueQueryResult {
    public int getMaxConsumers() {
       return maxConsumers;
    }
-
-   public void setAddress(SimpleString address) {
-      this.address = address;
-   }
 }
