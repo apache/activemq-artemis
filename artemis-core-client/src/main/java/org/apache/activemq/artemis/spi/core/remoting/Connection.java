@@ -53,6 +53,7 @@ public interface Connection {
     * @param timeout          the maximum time to wait
     * @param timeUnit         the time unit of the timeout argument
     * @return {@code true} if the connection can enqueue {@code requiredCapacity} bytes, {@code false} otherwise
+    * @throws IllegalStateException if the connection is closed
     */
    default boolean blockUntilWritable(final int requiredCapacity, final long timeout, final TimeUnit timeUnit) {
       return true;
