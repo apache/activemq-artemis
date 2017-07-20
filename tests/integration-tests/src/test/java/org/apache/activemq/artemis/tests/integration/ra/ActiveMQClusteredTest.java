@@ -192,7 +192,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       spec.setRebalanceConnections(true);
       spec.setMaxSession(CONSUMER_COUNT);
       spec.setSetupAttempts(5);
-      spec.setSetupInterval(200);
+      spec.setSetupInterval(200L);
       spec.setReconnectAttempts(reconnectAttempts);
       spec.setHA(true); // if this isn't true then the topology listener won't get nodeDown notifications
       spec.setCallTimeout(500L); // if this isn't set then it may take a long time for tearDown to occur on the MDB connection

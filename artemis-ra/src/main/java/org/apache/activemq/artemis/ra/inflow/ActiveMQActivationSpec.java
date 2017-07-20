@@ -53,7 +53,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public String strConnectorClassName;
 
    public String strConnectionParameters;
-   protected boolean allowLocalTransactions;
+   protected Boolean allowLocalTransactions;
 
    /**
     * The resource adapter
@@ -83,12 +83,12 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * The acknowledgement mode
     */
-   private int acknowledgeMode;
+   private Integer acknowledgeMode;
 
    /**
     * The subscription durability
     */
-   private boolean subscriptionDurability;
+   private Boolean subscriptionDurability;
 
    /**
     * The subscription name
@@ -98,7 +98,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * If this is true, a durable subscription could be shared by multiple MDB instances
     */
-   private boolean shareSubscriptions;
+   private Boolean shareSubscriptions;
 
    /**
     * The user
@@ -175,7 +175,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @return the useJNDI
     */
-   public boolean isUseJNDI() {
+   public Boolean isUseJNDI() {
       if (useJNDI == null) {
          return ra.isUseJNDI();
       }
@@ -185,7 +185,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @param value the useJNDI to set
     */
-   public void setUseJNDI(final boolean value) {
+   public void setUseJNDI(final Boolean value) {
       useJNDI = value;
    }
 
@@ -392,7 +392,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @return the acknowledgement mode
     */
-   public int getAcknowledgeModeInt() {
+   public Integer getAcknowledgeModeInt() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("getAcknowledgeMode()");
       }
@@ -435,7 +435,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     *
     * @return The value
     */
-   public boolean isSubscriptionDurable() {
+   public Boolean isSubscriptionDurable() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("isSubscriptionDurable()");
       }
@@ -472,7 +472,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @return the shareDurableSubscriptions
     */
-   public boolean isShareSubscriptions() {
+   public Boolean isShareSubscriptions() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("isShareSubscriptions() = " + shareSubscriptions);
       }
@@ -483,7 +483,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @param shareSubscriptions the shareDurableSubscriptions to set
     */
-   public void setShareSubscriptions(boolean shareSubscriptions) {
+   public void setShareSubscriptions(final Boolean shareSubscriptions) {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("setShareSubscriptions(" + shareSubscriptions + ")");
       }
@@ -623,15 +623,15 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       this.localTx = localTx;
    }
 
-   public boolean isRebalanceConnections() {
+   public Boolean isRebalanceConnections() {
       return rebalanceConnections;
    }
 
-   public void setRebalanceConnections(boolean rebalanceConnections) {
+   public void setRebalanceConnections(final Boolean rebalanceConnections) {
       this.rebalanceConnections = rebalanceConnections;
    }
 
-   public int getSetupAttempts() {
+   public Integer getSetupAttempts() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("getSetupAttempts()");
       }
@@ -643,7 +643,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   public void setSetupAttempts(int setupAttempts) {
+   public void setSetupAttempts(final Integer setupAttempts) {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("setSetupAttempts(" + setupAttempts + ")");
       }
@@ -651,7 +651,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       this.setupAttempts = setupAttempts;
    }
 
-   public long getSetupInterval() {
+   public Long getSetupInterval() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("getSetupInterval()");
       }
@@ -663,7 +663,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   public void setSetupInterval(long setupInterval) {
+   public void setSetupInterval(final Long setupInterval) {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("setSetupInterval(" + setupInterval + ")");
       }
@@ -783,7 +783,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    }
 
    // here for backwards compatibility
-   public void setUseDLQ(final boolean b) {
+   public void setUseDLQ(final Boolean b) {
    }
 
    public void setDLQJNDIName(final String name) {
@@ -792,7 +792,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public void setDLQHandler(final String handler) {
    }
 
-   public void setDLQMaxResent(final int maxResent) {
+   public void setDLQMaxResent(final Integer maxResent) {
    }
 
    public void setProviderAdapterJNDI(final String jndi) {
@@ -801,16 +801,16 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * @param keepAlive the keepAlive to set
     */
-   public void setKeepAlive(boolean keepAlive) {
+   public void setKeepAlive(Boolean keepAlive) {
    }
 
    /**
     * @param keepAliveMillis the keepAliveMillis to set
     */
-   public void setKeepAliveMillis(long keepAliveMillis) {
+   public void setKeepAliveMillis(Long keepAliveMillis) {
    }
 
-   public void setReconnectInterval(long interval) {
+   public void setReconnectInterval(Long interval) {
    }
 
    public void setMinSession(final Integer value) {
@@ -819,11 +819,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public void setMaxMessages(final Integer value) {
    }
 
-   public boolean isAllowLocalTransactions() {
+   public Boolean isAllowLocalTransactions() {
       return allowLocalTransactions;
    }
 
-   public void setAllowLocalTransactions(boolean allowLocalTransactions) {
+   public void setAllowLocalTransactions(final Boolean allowLocalTransactions) {
       this.allowLocalTransactions = allowLocalTransactions;
    }
 
