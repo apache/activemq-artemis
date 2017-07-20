@@ -139,7 +139,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       spec.setTransactionTimeout(1);
       spec.setMaxSession(NUMBER_OF_SESSIONS);
       spec.setSetupAttempts(-1);
-      spec.setSetupInterval(100);
+      spec.setSetupInterval(100L);
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
