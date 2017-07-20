@@ -129,6 +129,13 @@ public class AMQSession implements SessionCallback {
 
    }
 
+
+   @Override
+   public boolean supportsDirectDelivery() {
+      return false;
+   }
+
+
    @Override
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
       if (consumer.getProtocolData() != null) {

@@ -336,6 +336,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return refs;
    }
 
+   /** i
+    *
+    * @see SessionCallback#supportsDirectDelivery()
+    */
+   @Override
+   public boolean supportsDirectDelivery() {
+      return callback.supportsDirectDelivery();
+   }
+
+
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (callback != null && !callback.hasCredits(this) || availableCredits != null && availableCredits.get() <= 0) {

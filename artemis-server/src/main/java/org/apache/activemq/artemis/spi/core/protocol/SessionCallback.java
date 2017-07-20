@@ -24,6 +24,17 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 public interface SessionCallback {
 
+   /** A requirement to do direct delivery is:
+    *  no extra locking required at the protocol layer.
+    *  which cannot be guaranteed at AMQP as proton will need the locking.
+    *  So, disable this on AMQP or any other protocol requiring extra lock.
+    * @return
+    */
+   default boolean supportsDirectDelivery() {
+      return true;
+   }
+
+
    /**
     * This one gives a chance for Proton to have its own flow control.
     */
