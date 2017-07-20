@@ -117,6 +117,7 @@ public interface CoreRemotingConnection extends RemotingConnection {
     * @param size size we are trying to write
     * @param timeout
     * @return
+    * @throws IllegalStateException if the connection is closed
     */
    boolean blockUntilWritable(int size, long timeout);
 }
