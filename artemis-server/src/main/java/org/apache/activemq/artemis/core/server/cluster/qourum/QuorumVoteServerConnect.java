@@ -21,13 +21,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 /**
- * A Qourum Vote for deciding if a replicated backup should become live.
+ * A Quorum Vote for deciding if a replicated backup should become live.
  */
 public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
-   public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LIVE_FAILOVER_VOTE");
+   public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LiveFailoverQuorumVote");
    private final CountDownLatch latch;
    private final String targetNodeId;
 
@@ -123,6 +124,10 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    }
 
    public void await(int latchTimeout, TimeUnit unit) throws InterruptedException {
-      latch.await(latchTimeout, unit);
+      ActiveMQServerLogger.LOGGER.waitingForQuorumVoteResults(latchTimeout, unit.toString().toLowerCase());
+      if (latch.await(latchTimeout, unit))
+         ActiveMQServerLogger.LOGGER.receivedAllQuorumVotes();
+      else
+         ActiveMQServerLogger.LOGGER.timeoutWaitingForQuorumVoteResponses();
    }
 }

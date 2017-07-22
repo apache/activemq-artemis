@@ -67,4 +67,20 @@ public class QuorumVoteMessage extends PacketImpl {
    public void decode(QuorumVoteHandler voteHandler) {
       vote = voteHandler.decode(voteBuffer);
    }
+
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
+   public String getParentString() {
+      StringBuffer buff = new StringBuffer(super.getParentString());
+      buff.append(", vote=" + vote);
+      buff.append(", handler=" + handler);
+      return buff.toString();
+   }
 }

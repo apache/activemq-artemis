@@ -102,9 +102,11 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
          }
          if (!isLiveDown()) {
             //lost connection but don't know if live is down so restart as backup as we can't replicate any more
+            ActiveMQServerLogger.LOGGER.restartingAsBackupBasedOnQuorumVoteResults();
             signal = BACKUP_ACTIVATION.FAILURE_REPLICATING;
          } else {
             // live is assumed to be down, backup fails-over
+            ActiveMQServerLogger.LOGGER.failingOverBasedOnQuorumVoteResults();
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
 
