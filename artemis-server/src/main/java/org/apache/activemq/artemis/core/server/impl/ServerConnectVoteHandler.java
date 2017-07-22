@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
 import org.apache.activemq.artemis.core.server.cluster.qourum.ServerConnectVote;
@@ -37,8 +38,10 @@ public class ServerConnectVoteHandler implements QuorumVoteHandler {
       String nodeid = serverConnectVote.getNodeId();
       TopologyMemberImpl member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeid);
       if (member != null && member.getLive() != null) {
+         ActiveMQServerLogger.LOGGER.nodeFoundInClusterTopology(nodeid);
          return new ServerConnectVote(nodeid, false);
       }
+      ActiveMQServerLogger.LOGGER.nodeNotFoundInClusterTopology(nodeid);
       return new ServerConnectVote(nodeid, true);
    }
 

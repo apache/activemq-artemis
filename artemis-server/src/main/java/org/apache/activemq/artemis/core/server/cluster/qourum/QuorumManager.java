@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 
@@ -181,6 +182,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
          if (!started)
             return;
          //send a vote to each node
+         ActiveMQServerLogger.LOGGER.initiatingQuorumVote(quorumVote.getName());
          for (TopologyMemberImpl tm : clusterController.getDefaultClusterTopology().getMembers()) {
             //but not ourselves
             if (!tm.getNodeId().equals(clusterController.getNodeID().toString())) {
