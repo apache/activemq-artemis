@@ -90,6 +90,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       }
       SimpleString dla = new SimpleString("ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
+      commonSettings.setExpiryAddress(dla);
       commonSettings.setAutoCreateQueues(true);
       commonSettings.setAutoCreateAddresses(true);
 
