@@ -379,7 +379,9 @@ public class ClusterController implements ActiveMQComponent {
                QuorumVoteMessage quorumVoteMessage = (QuorumVoteMessage) packet;
                QuorumVoteHandler voteHandler = quorumManager.getVoteHandler(quorumVoteMessage.getHandler());
                quorumVoteMessage.decode(voteHandler);
+               ActiveMQServerLogger.LOGGER.receivedQuorumVoteRequest(quorumVoteMessage.getVote().toString());
                Vote vote = quorumManager.vote(quorumVoteMessage.getHandler(), quorumVoteMessage.getVote());
+               ActiveMQServerLogger.LOGGER.sendingQuorumVoteResponse(vote.toString());
                clusterChannel.send(new QuorumVoteReplyMessage(quorumVoteMessage.getHandler(), vote));
             } else if (packet.getType() == PacketImpl.SCALEDOWN_ANNOUNCEMENT) {
                ScaleDownAnnounceMessage message = (ScaleDownAnnounceMessage) packet;
