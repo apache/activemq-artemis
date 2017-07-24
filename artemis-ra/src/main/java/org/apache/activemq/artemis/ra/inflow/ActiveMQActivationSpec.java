@@ -897,7 +897,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       result = 31 * result + acknowledgeMode;
       result = 31 * result + (subscriptionDurability ? 1 : 0);
       result = 31 * result + (subscriptionName != null ? subscriptionName.hashCode() : 0);
-      result = 31 * result + (shareSubscriptions ? 1 : 0);
+      result = 31 * result + (shareSubscriptions != null && shareSubscriptions ? 1 : 0);
       result = 31 * result + (user != null ? user.hashCode() : 0);
       result = 31 * result + (password != null ? password.hashCode() : 0);
       result = 31 * result + (maxSession != null ? maxSession.hashCode() : 0);
