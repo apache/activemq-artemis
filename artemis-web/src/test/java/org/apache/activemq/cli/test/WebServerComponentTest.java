@@ -78,13 +78,14 @@ public class WebServerComponentTest extends Assert {
    @Test
    public void simpleServer() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.bind = "http://localhost:8161";
+      webServerDTO.bind = "http://localhost:0";
       webServerDTO.path = "webapps";
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
+      final int port = webServerComponent.getPort();
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
@@ -95,7 +96,7 @@ public class WebServerComponentTest extends Assert {
             ch.pipeline().addLast(clientHandler);
          }
       });
-      Channel ch = bootstrap.connect("localhost", 8161).sync().channel();
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
 
       URI uri = new URI(URL);
       // Prepare the HTTP request.
@@ -116,12 +117,13 @@ public class WebServerComponentTest extends Assert {
    @Test
    public void testComponentStopBehavior() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.bind = "http://localhost:8161";
+      webServerDTO.bind = "http://localhost:0";
       webServerDTO.path = "webapps";
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       webServerComponent.start();
+      final int port = webServerComponent.getPort();
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
@@ -132,7 +134,7 @@ public class WebServerComponentTest extends Assert {
             ch.pipeline().addLast(clientHandler);
          }
       });
-      Channel ch = bootstrap.connect("localhost", 8161).sync().channel();
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
 
       URI uri = new URI(URL);
       // Prepare the HTTP request.
@@ -158,7 +160,7 @@ public class WebServerComponentTest extends Assert {
    @Test
    public void simpleSecureServer() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.bind = "https://localhost:8448";
+      webServerDTO.bind = "https://localhost:0";
       webServerDTO.path = "webapps";
       webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
       webServerDTO.keyStorePassword = "password";
@@ -168,6 +170,7 @@ public class WebServerComponentTest extends Assert {
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
+      final int port = webServerComponent.getPort();
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
@@ -188,7 +191,7 @@ public class WebServerComponentTest extends Assert {
             ch.pipeline().addLast(clientHandler);
          }
       });
-      Channel ch = bootstrap.connect("localhost", 8448).sync().channel();
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
 
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
@@ -209,7 +212,7 @@ public class WebServerComponentTest extends Assert {
    @Test
    public void simpleSecureServerWithClientAuth() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.bind = "https://localhost:8448";
+      webServerDTO.bind = "https://localhost:0";
       webServerDTO.path = "webapps";
       webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
       webServerDTO.keyStorePassword = "password";
@@ -222,6 +225,7 @@ public class WebServerComponentTest extends Assert {
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
+      final int port = webServerComponent.getPort();
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
@@ -242,7 +246,7 @@ public class WebServerComponentTest extends Assert {
             ch.pipeline().addLast(clientHandler);
          }
       });
-      Channel ch = bootstrap.connect("localhost", 8448).sync().channel();
+      Channel ch = bootstrap.connect("localhost", port).sync().channel();
 
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
