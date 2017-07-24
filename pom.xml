@@ -155,14 +155,10 @@
 
       -->
       
-      <!-- Property set by Jacoco plugin -->
-      <jacoco.agent></jacoco.agent>
-
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
-         @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
@@ -986,6 +982,18 @@
                <artifactId>org.jacoco.core</artifactId>
             </dependency>
          </dependencies>
+         <properties>
+
+            <!-- Property set by Jacoco plugin -->
+            <jacoco.agent></jacoco.agent>
+
+            <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
+               -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
+               -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+               -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
+               @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
+            </activemq-surefire-argline>
+         </properties>
          <build>
             <plugins>
                <plugin>
