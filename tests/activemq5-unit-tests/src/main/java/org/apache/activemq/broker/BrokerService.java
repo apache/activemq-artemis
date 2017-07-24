@@ -46,6 +46,7 @@ import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.broker.region.DestinationInterceptor;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.apache.activemq.broker.region.policy.RegionBrokerProxy;
 import org.apache.activemq.broker.scheduler.JobSchedulerStore;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.BrokerId;
@@ -250,14 +251,14 @@ public class BrokerService implements Service {
    }
 
    //below are methods called directly by tests
-   //we don't actually implement any of these for now,
+   //we don't actually implement many of these for now,
    //just to make test compile pass.
-
-   //we may get class cast exception as in TestSupport it
-   //casts the broker to RegionBroker, which we didn't
-   //implement (wrap) yet. Consider solving it later.
    public Broker getRegionBroker() {
-      return broker;
+      try {
+         return RegionBrokerProxy.newRegionBroker((ArtemisBrokerWrapper) getBroker());
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public void setPersistenceAdapter(PersistenceAdapter persistenceAdapter) throws IOException {
