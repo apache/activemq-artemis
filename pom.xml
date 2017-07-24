@@ -105,6 +105,8 @@
       <owb.version>1.7.0</owb.version>
       <arquillian.version>1.1.11.Final</arquillian.version>
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
+      <version.org.jacoco>0.7.9</version.org.jacoco>
+      <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
 
       <owasp.version>1.4.3</owasp.version>
 
@@ -151,11 +153,15 @@
            -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=30s,duration=120s,filename=/tmp/myrecording.jfr
 
       -->
+      
+      <!-- Property set by Jacoco plugin -->
+      <jacoco.agent></jacoco.agent>
 
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
+         @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
@@ -661,6 +667,18 @@
             <scope>test</scope>
          </dependency>
          <dependency>
+             <groupId>org.jacoco</groupId>
+             <artifactId>org.jacoco.ant</artifactId>
+             <version>${version.org.jacoco}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.jacoco</groupId>
+             <artifactId>org.jacoco.core</artifactId>
+             <version>${version.org.jacoco}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <version>${cdi-api.version}</version>
@@ -950,6 +968,169 @@
             <skipTests>true</skipTests>
          </properties>
       </profile>
+      <!-- This profile generates jacoco coverage files. To generate html report use "-Pjacoco-generate-report" -->
+      <profile>
+         <id>jacoco</id>
+         <dependencies>
+            <dependency>
+               <groupId>org.jacoco</groupId>
+               <artifactId>org.jacoco.core</artifactId>
+            </dependency>
+         </dependencies>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.jacoco</groupId>
+                  <artifactId>jacoco-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>jacoco-prepare</id>
+                        <phase>validate</phase>
+                        <goals>
+                           <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                           <destFile>${project.build.directory}/jacoco.exec</destFile>
+                           <!-- Jacoco sets this property with agent configuration.
+                           This property is passed to maven-surefire-plugin -->
+                           <propertyName>jacoco.agent</propertyName>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>merge</id>
+                        <phase>none</phase>
+                        <goals>
+                           <goal>merge</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+                  <configuration>
+                     <fileSets>
+                        <fileSet implementation="org.apache.maven.shared.model.fileset.FileSet">
+                           <directory>${activemq.basedir}</directory>
+                           <includes>
+                              <include>**/*.exec</include>
+                           </includes>
+                        </fileSet>
+                     </fileSets>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <!-- This profile generates html report from jacoco coverage files. Use "-Pjacoco" profile to generate coverage. -->
+      <profile>
+         <id>jacoco-generate-report</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <executions>
+                     <!-- Copy jacoco ant jar. This is needed to generate jacoco report with maven-antrun-plugin -->
+                     <execution>
+                        <goals>
+                           <goal>copy</goal>
+                        </goals>
+                        <phase>process-test-resources</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                           <artifactItems>
+                              <artifactItem>
+                                 <groupId>org.jacoco</groupId>
+                                 <artifactId>org.jacoco.ant</artifactId>
+                                 <version>${version.org.jacoco.plugin}</version>
+                              </artifactItem>
+                           </artifactItems>
+                           <stripVersion>true</stripVersion>
+                           <outputDirectory>${project.build.directory}/jacoco-jars</outputDirectory>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <phase>post-integration-test</phase>
+                        <goals><goal>run</goal></goals>
+                        <inherited>false</inherited>
+                        <configuration>
+                           <target>
+                              <property name="result.report.dir" location="target/jacoco-report"/>
+                              <taskdef name="report" classname="org.jacoco.ant.ReportTask">
+                                 <classpath path="${project.build.directory}/jacoco-jars/org.jacoco.ant.jar"/>
+                              </taskdef>
+                              <echo>Creating JaCoCo ActiveMQ Artemis test coverage reports...</echo>
+                              <report>
+                                 <executiondata>
+                                    <fileset dir="${basedir}">
+                                       <include name="**/target/jacoco.exec"/>
+                                    </fileset>
+                                 </executiondata>
+                                 <structure name="JaCoCo ActiveMQ Artemis">
+                                    <classfiles>
+                                       <fileset dir="${activemq.basedir}/artemis-boot/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-cdi-client/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-cli/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-commons/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-core-client/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-dto/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jdbc-store/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jms-client/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jms-server/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-journal/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-native/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-ra/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-rest/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-selector/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-server/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-server-osgi/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-service-extensions/target"/>
+                                       <fileset dir="${activemq.basedir}/artemis-tools/target/classes"/>
+                                       <fileset dir="${activemq.basedir}/artemis-web/target/classes"/>
+                                    </classfiles>
+                                    <sourcefiles encoding="UTF-8">
+                                       <fileset dir="${activemq.basedir}/artemis-boot/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-cdi-client/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-cli/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-commons/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-core-client/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-dto/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jdbc-store/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jms-client/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-jms-server/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-journal/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-native/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-ra/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-rest/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-selector/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-server/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-server-osgi/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-service-extensions/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-tools/src/main/java"/>
+                                       <fileset dir="${activemq.basedir}/artemis-web/src/main/java"/>
+                                    </sourcefiles>
+                                 </structure>
+                                 <html destdir="\${result.report.dir}"/>
+                                 <xml destfile="\${result.report.dir}/report.xml"/>
+                              </report>
+                           </target>
+                        </configuration>
+                     </execution>
+                  </executions>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${version.org.jacoco.plugin}</version>
+                     </dependency>
+                  </dependencies>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 
    <build>
@@ -1194,6 +1375,11 @@
                <groupId>org.apache.activemq</groupId>
                <artifactId>artemis-maven-plugin</artifactId>
                <version>${project.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.jacoco</groupId>
+               <artifactId>jacoco-maven-plugin</artifactId>
+               <version>${version.org.jacoco.plugin}</version>
             </plugin>
          </plugins>
       </pluginManagement>
