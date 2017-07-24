@@ -56,6 +56,7 @@ public class WebServerComponent implements ExternalComponent {
    private URI uri;
    private String jolokiaUrl;
    private List<WebAppContext> webContexts;
+   private ServerConnector connector;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
@@ -63,7 +64,6 @@ public class WebServerComponent implements ExternalComponent {
       uri = new URI(webServerConfig.bind);
       server = new Server();
       String scheme = uri.getScheme();
-      ServerConnector connector = null;
 
       if ("https".equals(scheme)) {
          SslContextFactory sslFactory = new SslContextFactory();
@@ -170,6 +170,13 @@ public class WebServerComponent implements ExternalComponent {
    @Override
    public boolean isStarted() {
       return server != null && server.isStarted();
+   }
+
+   /**
+    * @return started server's port number; useful if it was specified as 0 (to use a random port)
+    */
+   public int getPort() {
+      return (connector != null) ? connector.getLocalPort() : -1;
    }
 
    private WebAppContext deployWar(String url, String warFile, Path warDirectory) throws IOException {
