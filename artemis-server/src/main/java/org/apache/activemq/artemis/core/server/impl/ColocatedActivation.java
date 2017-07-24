@@ -278,5 +278,10 @@ public class ColocatedActivation extends LiveActivation {
       public Pair<String, Integer> getVote() {
          return new Pair<>(nodeID, backupsSize);
       }
+
+      @Override
+      public String toString() {
+         return "RequestBackupVote [backupsSize=" + backupsSize + ", nodeID=" + nodeID + ", backupAvailable=" + backupAvailable + "]";
+      }
    }
 }

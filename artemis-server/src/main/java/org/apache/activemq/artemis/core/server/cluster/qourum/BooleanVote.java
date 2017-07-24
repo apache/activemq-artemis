@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
  */
 public class BooleanVote extends Vote<Boolean> {
 
-   private boolean vote;
+   protected boolean vote;
 
    public BooleanVote(boolean vote) {
       this.vote = vote;
@@ -56,4 +56,8 @@ public class BooleanVote extends Vote<Boolean> {
       vote = buff.readBoolean();
    }
 
+   @Override
+   public String toString() {
+      return "BooleanVote [vote=" + vote + "]";
+   }
 }

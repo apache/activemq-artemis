@@ -346,6 +346,54 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221059, value = "Deleting old data directory {0} as the max folders is set to 0", format = Message.Format.MESSAGE_FORMAT)
    void backupDeletingData(String oldPath);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221060, value = "Sending quorum vote request to {0}: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void sendingQuorumVoteRequest(String remoteAddress, String vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221061, value = "Received quorum vote response from {0}: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void receivedQuorumVoteResponse(String remoteAddress, String vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221062, value = "Received quorum vote request: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void receivedQuorumVoteRequest(String vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221063, value = "Sending quorum vote response: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void sendingQuorumVoteResponse(String vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221064, value = "Node {0} found in cluster topology", format = Message.Format.MESSAGE_FORMAT)
+   void nodeFoundInClusterTopology(String nodeId);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221065, value = "Node {0} not found in cluster topology", format = Message.Format.MESSAGE_FORMAT)
+   void nodeNotFoundInClusterTopology(String nodeId);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221066, value = "Initiating quorum vote: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void initiatingQuorumVote(SimpleString vote);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221067, value = "Waiting {0} {1} for quorum vote results.", format = Message.Format.MESSAGE_FORMAT)
+   void waitingForQuorumVoteResults(int timeout, String unit);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221068, value = "Received all quorum votes.", format = Message.Format.MESSAGE_FORMAT)
+   void receivedAllQuorumVotes();
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221069, value = "Timeout waiting for quorum vote responses.", format = Message.Format.MESSAGE_FORMAT)
+   void timeoutWaitingForQuorumVoteResponses();
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221070, value = "Restarting as backup based on quorum vote results.", format = Message.Format.MESSAGE_FORMAT)
+   void restartingAsBackupBasedOnQuorumVoteResults();
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221071, value = "Failing over based on quorum vote results.", format = Message.Format.MESSAGE_FORMAT)
+   void failingOverBasedOnQuorumVoteResults();
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)

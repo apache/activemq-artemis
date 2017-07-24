@@ -63,4 +63,9 @@ public class ServerConnectVote extends BooleanVote {
    public String getNodeId() {
       return nodeId;
    }
+
+   @Override
+   public String toString() {
+      return "ServerConnectVote [nodeId=" + nodeId + ", vote=" + vote + "]";
+   }
 }
