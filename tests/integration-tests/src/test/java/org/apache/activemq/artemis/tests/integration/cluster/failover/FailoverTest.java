@@ -402,7 +402,7 @@ public class FailoverTest extends FailoverTestBase {
       final ClientSession session = createSession(sf1, false, false, false);
 
 
-      session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
+      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
 
       final CountDownLatch connectionFailed = new CountDownLatch(1);
 
