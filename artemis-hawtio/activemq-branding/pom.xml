@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.activemq</groupId>
         <artifactId>artemis-hawtio-pom</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
+        <version>2.3.0-SNAPSHOT</version>
     </parent>
     
     <artifactId>activemq-branding</artifactId>
@@ -51,10 +51,10 @@
 
         <!-- this lets this plugin deploy nicely into karaf, these get used
           for the ImportPackage directive for maven-bundle-plugin -->
-        <fuse.osgi.import>
+        <osgi.import>
             javax.servlet,
             *;resolution:=optional
-        </fuse.osgi.import>
+        </osgi.import>
 
         <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
         <webapp-outdir>${basedir}/target/${webapp-dir}</webapp-outdir>
@@ -208,10 +208,10 @@
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
 
-                        <Export-Package>${fuse.osgi.export}</Export-Package>
-                        <Import-Package>${fuse.osgi.import}</Import-Package>
-                        <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
-                        <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
+                        <Export-Package>${osgi.export}</Export-Package>
+                        <Import-Package>${osgi.import}</Import-Package>
+                        <DynamicImport-Package>${osgi.dynamic}</DynamicImport-Package>
+                        <Private-Package>${osgi.private.pkg}</Private-Package>
 
                         <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
 

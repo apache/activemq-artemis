@@ -17,8 +17,8 @@
 
 /* fonts */
 
-@import url("../../../hawtio/app/themes/fonts/Open-Sans/stylesheet.css");
-@import url("../../../hawtio/app/themes/fonts/Droid-Sans-Mono/stylesheet.css");
+@import url("../../../console/app/themes/fonts/Open-Sans/stylesheet.css");
+@import url("../../../console/app/themes/fonts/Droid-Sans-Mono/stylesheet.css");
 
 * {
   font-family: OpenSans;
@@ -1421,7 +1421,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: #6C2D58;
+  color: #B21054;
   text-decoration: none;
 }
 
@@ -1476,8 +1476,8 @@ a:hover {
 
 #main-nav > .main-nav-upper {
   filter: none;
-  border-top: 3px solid #6C2D58;
-  background: #B2577A !important;
+  border-top: 3px solid #B21054;
+  background: #FFFFFF !important;
   border-bottom: none;
   height: 44px !important;
   min-height: 44px !important;
@@ -1535,11 +1535,11 @@ a:hover {
 
 .prefs > .row-fluid > .tabbable > .nav.nav-tabs > li.active a {
   border: none;
-  border-bottom: 1px solid #6C2D58 !important;
+  border-bottom: 1px solid #B21054 !important;
 }
 
 #main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand {
-  color: #fff;
+  color: #333333;
   text-shadow: none;
 }
 
@@ -1640,10 +1640,12 @@ a:hover {
   border: none;
   height: 44px;
   max-height: 44px;
+  color: #333333;
 }
 
 #main-nav .navbar-inner.main-nav-upper .nav > li:hover a {
-
+  color: #ffffff;
+  text-shadow: none;
 }
 
 #main-nav .navbar-inner.main-nav-upper .nav li a i:before {
@@ -1687,6 +1689,7 @@ a:hover {
 
 #main-nav .navbar-inner.main-nav-upper .nav li.active a {
   border-top: none;
+  color: #ffffff
 }
 
 .navbar .nav > li > .dropdown-menu:before {
@@ -1738,7 +1741,7 @@ a:hover {
 
 #main.container-fluid div .nav li.overflow a:hover  {
   background-image: none;
-  background-color: #6C2D58;
+  background-color: #B21054;
   color: #4d5258
 }
 
@@ -1756,18 +1759,18 @@ div#main div ul.nav li a:hover[disabled] {
   border-radius: 0;
   background-color: inherit;
   background-image: none;
-  color: #6C2D58;
+  color: #B21054;
   box-shadow: none;
-  border-bottom: 1px solid #6C2D58;
+  border-bottom: 1px solid #B21054;
 }
 
 #main.container-fluid div .nav li.active a:hover {
   border-radius: 0;
   background-color: inherit;
   background-image: none;
-  color: #6C2D58;
+  color: #B21054;
   box-shadow: none;
-  border-bottom: 1px solid #6C2D58;
+  border-bottom: 1px solid #B21054;
   padding-top: 6px;
   padding-bottom: 5px;
 }
@@ -2145,19 +2148,19 @@ li.dropdown.open > a.dropdown-toggle {
 
 .ngRow.selected {
   color: #ffffff !important;
-  background-color: #6C2D58 !important;
+  background-color: #B21054 !important;
   border-bottom: 1px solid #d4d4d4;
 }
 
 .ngRow.selected .ngCell {
   color: #ffffff !important;
-  background-color: #6C2D58 !important;
+  background-color: #B21054 !important;
   border-bottom: 1px solid #d4d4d4;
 }
 
 .ngRow.selected .ngCellText a {
   color: #ffffff !important;
-  background-color: #6C2D58 !important;
+  background-color: #B21054 !important;
 }
 
 .dropdown-menu > .divider:hover {
@@ -2179,8 +2182,8 @@ li.dropdown.open > a.dropdown-toggle {
 }
 
 li.dropdown.open > a.dropdown-toggle {
-  color: #6C2D58;
-  border-bottom: 1px solid #6C2D58;
+  color: #B21054;
+  border-bottom: 1px solid #B21054;
 }
 
 .main-nav-upper .container .pull-right .nav.nav-tabs .dropdown .caret:before {

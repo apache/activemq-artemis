@@ -30,7 +30,7 @@ var activemqBranding = (function (self) {
         Themes.definitions['activemq'] = {
             label: 'activemq',
             file: self.context + 'plugin/css/activemq.css',
-            loginBg: self.context + 'plugin/img/apache-login-background.jpg'
+            loginBg: self.context + 'plugin/img/login-screen-background.jpg'
         };
         var localStorage = Core.getLocalStorage();
         if (!('theme' in localStorage)) {
@@ -39,7 +39,7 @@ var activemqBranding = (function (self) {
         Themes.brandings['activemq'] = {
             label: 'activemq',
             setFunc: function(branding) {
-                branding.appName = 'Management Console';
+                branding.appName = 'MANAGEMENT CONSOLE';
                 branding.appLogo = self.context + 'plugin/img/activemq.png';
                 branding.logoOnly = false;
                 branding.fullscreenLogin = true;

@@ -160,6 +160,8 @@
                         </configuration>
                      </execution>
                   </executions>
+                  <configuration>
+                  </configuration>
                </plugin>
                <plugin>
                   <artifactId>maven-antrun-plugin</artifactId>
