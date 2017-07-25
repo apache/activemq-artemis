@@ -785,7 +785,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       try {
          sessionContext.simpleCommit();
       } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || rollbackOnly) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT || rollbackOnly) {
             // The call to commit was unlocked on failover, we therefore rollback the tx,
             // and throw a transaction rolled back exception instead
             //or
@@ -1573,7 +1573,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       } catch (XAException xae) {
          throw xae;
       } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT) {
             // Unblocked on failover
             try {
                // will retry once after failover & unblock
@@ -1666,7 +1666,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       } catch (XAException xae) {
          throw xae;
       } catch (ActiveMQException e) {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT) {
             // Unblocked on failover
             throw new XAException(XAException.XA_RETRY);
          }
@@ -1699,7 +1699,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          throw xae;
       } catch (ActiveMQException e) {
          // we can retry this only because we know for sure that no work would have been done
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT) {
             try {
                sessionContext.xaStart(xid, flags);
             } catch (XAException xae) {
