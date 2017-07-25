@@ -638,7 +638,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param cacheDestinations The value
     */
    public void setCacheDestinations(final Boolean cacheDestinations) {
-      if (ActiveMQResourceAdapter.trace) {
+      if (logger.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("setCacheDestinations(" + cacheDestinations + ")");
       }
 
@@ -651,7 +651,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean isCacheDestinations() {
-      if (ActiveMQResourceAdapter.trace) {
+      if (logger.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("isCacheDestinations()");
       }
 
