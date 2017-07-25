@@ -243,3 +243,193 @@ Notice from author (Robert Harder, rob@iharder.net):
 
 See: http://iharder.sourceforge.net/current/java/base64/
 
+
+==============================================================================
+Apache ActiveMQ Artemis Subcomponents:
+
+The Apache ActiveMQ Artemis project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
+
+==============================================================================
+Subcomponent: Apache ActiveMQ Artemis Management Console
+
+The next section covers the Apache ActiveMQ Artemis Management Console war.
+The management console is based on HAWTIO, which itself is ASL V2.
+This subcomponent is bundled by default but is optional.
+It bundles the below declared packages not covered by ASL V2.
+
+==============================================================================
+For Angular:
+==============================================================================
+This product bundles Angular from data tables, which is available under a
+"MIT" license.  For details, see
+https://angular.io/license
+
+==============================================================================
+For ColReorder:
+==============================================================================
+This product bundles ColReorder, which is available under a
+"MIT" license.  For details, see
+https://github.com/DataTables/Dist-DataTables-ColReorder/blob/master/License.txt
+
+==============================================================================
+For Dagre:
+==============================================================================
+This product bundles Dagre, which is available under a
+"MIT" license.  For details, see
+https://github.com/cpettitt/dagre/blob/master/LICENSE
+
+==============================================================================
+For Dangle:
+==============================================================================
+This product bundles Dangle, which is available under a
+"MIT" license.  For details, see
+https://github.com/fullscale/dangle/blob/master/LICENSE.txt
+
+==============================================================================
+For Elastic:
+==============================================================================
+This product bundles Dangle, which is available under a
+"MIT" license.  For details, see
+https://github.com/fullscale/elastic.js/blob/master/LICENSE-MIT
+
+
+==============================================================================
+For html5shiv:
+==============================================================================
+This product bundles html5shiv, which is available under a
+"MIT" license and "GPL v2".  For details, see
+https://github.com/aFarkas/html5shiv/blob/master/MIT%20and%20GPL2%20licenses.md
+
+
+==============================================================================
+For jQuery:
+==============================================================================
+This product bundles jQuery, which is available under a
+"MIT" license.  For details, see
+https://jquery.org/license/
+
+==============================================================================
+For JSONSchema.js:
+==============================================================================
+This product bundles JSONSchema.js, which is available under a
+"MIT" license.  For details, see
+https://github.com/tdegrunt/jsonschema/blob/master/LICENSE
+
+==============================================================================
+For jsUri:
+==============================================================================
+This product bundles jsUri, which is available under a
+"MIT" license.  For details, see
+https://github.com/derek-watson/jsUri/blob/master/LICENSE
+
+
+==============================================================================
+For KeyTable:
+==============================================================================
+This product bundles KeyTable, which is available under a
+"MIT" license.  For details, see
+https://github.com/DataTables/KeyTable/blob/master/License.txt
+
+==============================================================================
+For Marked:
+==============================================================================
+This product bundles Marked, which is available under a
+"MIT" license.  For details, see
+https://github.com/chjj/marked
+
+==============================================================================
+For PrefixFree:
+==============================================================================
+This product bundles PrefixFree, which is available under a
+"MIT" license.  For details, see
+https://github.com/LeaVerou/prefixfree/blob/gh-pages/LICENSE
+
+==============================================================================
+For Sugar:
+==============================================================================
+This product bundles Sugar, which is available under a
+"MIT" license.  For details, see
+https://github.com/andrewplummer/Sugar/blob/master/LICENSE
+
+==============================================================================
+For Angular-Toastr:
+==============================================================================
+This product bundles Angular-Toastr, which is available under a
+"MIT" license.  For details, see
+https://github.com/Foxandxss/angular-toastr/blob/master/LICENSE
+
+==============================================================================
+For Bootstrap:
+==============================================================================
+This product bundles Bootstrap, which is available under a
+"MIT" license.  For details, see
+https://github.com/twbs/bootstrap/blob/master/LICENSE
+
+==============================================================================
+For URI.js:
+==============================================================================
+This product bundles URI.js, which is available under a
+"MIT" license.  For details, see
+https://github.com/medialize/URI.js/blob/gh-pages/LICENSE.txt
+
+==============================================================================
+For ZeroClipboard:
+==============================================================================
+This product bundles ZeroClipboard, which is available under a
+"MIT" license.  For details, see
+https://github.com/zeroclipboard/zeroclipboard/blob/master/LICENSE
+
+==============================================================================
+For ZeroClipboard:
+==============================================================================
+This product bundles ZeroClipboard, which is available under a
+"MIT" license.  For details, see
+https://github.com/zeroclipboard/zeroclipboard/blob/master/LICENSE
+
+==============================================================================
+For CodeMirror:
+==============================================================================
+This product bundles CodeMirror, which is available under a
+"MIT" license.  For details, see
+https://github.com/codemirror/CodeMirror/blob/master/LICENSE
+
+==============================================================================
+For CodeMirror:
+==============================================================================
+This product bundles CodeMirror, which is available under a
+"MIT" license.  For details, see
+https://github.com/codemirror/CodeMirror/blob/master/LICENSE
+
+==============================================================================
+For D3:
+==============================================================================
+This product bundles D3, which is available under a
+"BSD 3-clause" license.  For details, see
+https://github.com/d3/d3/blob/master/LICENSE
+
+==============================================================================
+For Font-Awesome:
+==============================================================================
+This product bundles Font-Awesome code, which is available under a
+"MIT" license.  
+This product bundles Font-Awesome fonts, which is available under a
+"SIL OFL 1.1" license.
+For details, see
+http://fontawesome.io/license/
+
+==============================================================================
+For JS-Logger:
+==============================================================================
+This product bundles JS-Logger, which is available under a
+"MIT" license.  For details, see
+https://github.com/jonnyreeves/js-logger/blob/master/MIT-LICENSE.txt
+
+==============================================================================
+For Underscore:
+==============================================================================
+This product bundles Underscore, which is available under a
+"MIT" license.  For details, see
+https://github.com/jashkenas/underscore/blob/master/LICENSE

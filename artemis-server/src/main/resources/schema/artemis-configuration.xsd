@@ -22,17 +22,8 @@
             elementFormDefault="qualified"
             version="1.0">
 
-   <xsd:element name="imports">
-      <xsd:complexType>
-         <xsd:sequence>
-            <xsd:element name="import" maxOccurs="unbounded" type="xsd:string"/>
-         </xsd:sequence>
-         <xsd:attribute name="type"/>
-      </xsd:complexType>
-   </xsd:element>
-   
    <xsd:element name="core" type="configurationType"/>
-   
+
    <xsd:complexType name="configurationType">
       <xsd:all>
          <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="0">

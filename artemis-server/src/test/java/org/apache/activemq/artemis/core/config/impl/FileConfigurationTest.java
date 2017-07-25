@@ -58,7 +58,7 @@ import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
-   private final String fullConfigurationName = "configurationImport.xml";
+   private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
 
    @Override
    @Test
