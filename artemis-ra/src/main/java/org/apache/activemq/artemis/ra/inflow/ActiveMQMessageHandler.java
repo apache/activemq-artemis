@@ -47,16 +47,15 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jboss.logging.Logger;
 
 /**
  * The message handler
  */
 public class ActiveMQMessageHandler implements MessageHandler, FailoverEventListener {
 
-   /**
-    * Trace enabled
-    */
-   private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ActiveMQMessageHandler.class);
+
    /**
     * The session
     */
@@ -102,8 +101,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
    }
 
    public void setup() throws Exception {
-      if (ActiveMQMessageHandler.trace) {
-         ActiveMQRALogger.LOGGER.trace("setup()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setup()");
       }
 
       ActiveMQActivationSpec spec = activation.getActivationSpec();
@@ -125,7 +124,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                if (!spec.isShareSubscriptions()) {
                   throw new javax.jms.IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
                } else if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQRALogger.LOGGER.debug("the mdb on destination " + queueName + " already had " +
+                  logger.debug("the mdb on destination " + queueName + " already had " +
                                                    subResponse.getConsumerCount() +
                                                    " consumers but the MDB is configured to share subscriptions, so no exceptions are thrown");
                }
@@ -214,8 +213,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
     * Stop the handler
     */
    public void teardown() {
-      if (ActiveMQMessageHandler.trace) {
-         ActiveMQRALogger.LOGGER.trace("teardown()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("teardown()");
       }
 
       try {
@@ -224,7 +223,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             endpoint = null;
          }
       } catch (Throwable t) {
-         ActiveMQRALogger.LOGGER.debug("Error releasing endpoint " + endpoint, t);
+         logger.debug("Error releasing endpoint " + endpoint, t);
       }
 
       //only do this if we haven't been disconnected at some point whilst failing over
@@ -242,7 +241,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                }
             }
          } catch (Throwable t) {
-            ActiveMQRALogger.LOGGER.debug("Error closing core-queue consumer", t);
+            logger.debug("Error closing core-queue consumer", t);
          }
 
          try {
@@ -250,14 +249,14 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                session.close();
             }
          } catch (Throwable t) {
-            ActiveMQRALogger.LOGGER.debug("Error releasing session " + session, t);
+            logger.debug("Error releasing session " + session, t);
          }
          try {
             if (cf != null) {
                cf.close();
             }
          } catch (Throwable t) {
-            ActiveMQRALogger.LOGGER.debug("Error releasing session factory " + session, t);
+            logger.debug("Error releasing session factory " + session, t);
          }
       } else {
          //otherwise we just clean up
@@ -266,7 +265,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                cf.cleanup();
             }
          } catch (Throwable t) {
-            ActiveMQRALogger.LOGGER.debug("Error releasing session factory " + session, t);
+            logger.debug("Error releasing session factory " + session, t);
          }
 
       }
@@ -274,8 +273,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    @Override
    public void onMessage(final ClientMessage message) {
-      if (ActiveMQMessageHandler.trace) {
-         ActiveMQRALogger.LOGGER.trace("onMessage(" + message + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("onMessage(" + message + ")");
       }
 
       ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session, options);
@@ -286,8 +285,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             tm.setTransactionTimeout(activation.getActivationSpec().getTransactionTimeout());
          }
 
-         if (trace) {
-            ActiveMQRALogger.LOGGER.trace("HornetQMessageHandler::calling beforeDelivery on message " + message);
+         if (logger.isTraceEnabled()) {
+            logger.trace("HornetQMessageHandler::calling beforeDelivery on message " + message);
          }
 
          endpoint.beforeDelivery(ActiveMQActivation.ONMESSAGE);
@@ -306,8 +305,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             message.individualAcknowledge();
          }
 
-         if (trace) {
-            ActiveMQRALogger.LOGGER.trace("HornetQMessageHandler::calling afterDelivery on message " + message);
+         if (logger.isTraceEnabled()) {
+            logger.trace("HornetQMessageHandler::calling afterDelivery on message " + message);
          }
 
          try {
@@ -324,8 +323,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             session.commit();
          }
 
-         if (trace) {
-            ActiveMQRALogger.LOGGER.trace("finished onMessage on " + message);
+         if (logger.isTraceEnabled()) {
+            logger.trace("finished onMessage on " + message);
          }
       } catch (Throwable e) {
          ActiveMQRALogger.LOGGER.errorDeliveringMessage(e);
