@@ -268,7 +268,13 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       session = sendAndConsume(sf, false);
    }
 
-   //invalid tests for Live to Live failover
+
+   @Override
+   public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
+   }
+
+
+      //invalid tests for Live to Live failover
    //all the timeout ones aren't as we don't migrate timeouts, any failback or server restart
    //or replicating tests aren't either
    @Override
