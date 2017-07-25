@@ -1538,6 +1538,9 @@
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
                   <exclude>**/npm-shrinkwrap.json</exclude>
+                  
+                  <!-- Build time overlay folder -->
+                  <exclude>**/overlays/**</exclude>
 
                   <!-- things from cmake on the native build -->
                   <exclude>**/CMakeFiles/</exclude>

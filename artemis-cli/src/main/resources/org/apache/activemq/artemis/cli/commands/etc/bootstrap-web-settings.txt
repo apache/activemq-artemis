@@ -3,5 +3,5 @@
        <app url="jolokia" war="jolokia.war"/>
        <app url="activemq-branding" war="activemq-branding.war"/>
        <app url="artemis-plugin" war="artemis-plugin.war"/>
-       <app url="hawtio" war="hawtio.war"/>
+       <app url="console" war="console.war"/>
    </web>

@@ -146,11 +146,11 @@
       <!-- Management Console Dependencies -->
       <dependencySet>
          <includes>
-            <include>io.hawt:hawtio-no-slf4j:war</include>
+            <include>org.apache.activemq:artemis-console:war</include>
          </includes>
          <outputDirectory>web</outputDirectory>
          <unpack>false</unpack>
-         <outputFileNameMapping>hawtio.war</outputFileNameMapping>
+         <outputFileNameMapping>console.war</outputFileNameMapping>
       </dependencySet>
       <dependencySet>
          <includes>

@@ -30,10 +30,10 @@
 }
 
 #main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand > strong {
-  font-weight: normal;
-  font-size: 18px;
+  font-weight: bold;
+  font-size: 17px;
   position: relative;
-  top: 2px;
+  top: 6px;
   left: 0;
 }
 
