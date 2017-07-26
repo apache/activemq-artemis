@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -26,17 +28,9 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class FailoverTestWithDivert extends FailoverTestBase {
 
@@ -58,41 +52,6 @@ public class FailoverTestWithDivert extends FailoverTestBase {
    @Override
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
-   }
-
-   @Override
-   protected void createConfigs() throws Exception {
-      createReplicatedConfigs();
-
-      liveConfig.setJournalFileSize(10240000);
-      backupConfig.setJournalFileSize(10240000);
-      addQueue(liveConfig, DIVERT_ADDRESS, DIVERT_ADDRESS);
-      addQueue(liveConfig, DIVERT_FORWARD_ADDRESS, DIVERT_FORWARD_ADDRESS);
-      addDivert(liveConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
-      addDivert(backupConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
-   }
-
-   private void addQueue(Configuration serverConfig, String address, String name) {
-
-      List<CoreAddressConfiguration> addrConfigs = serverConfig.getAddressConfigurations();
-      CoreAddressConfiguration addrCfg = new CoreAddressConfiguration();
-      addrCfg.setName(address);
-      addrCfg.addRoutingType(RoutingType.ANYCAST);
-      CoreQueueConfiguration qConfig = new CoreQueueConfiguration();
-      qConfig.setName(name);
-      qConfig.setAddress(address);
-      addrCfg.addQueueConfiguration(qConfig);
-      addrConfigs.add(addrCfg);
-   }
-
-   private void addDivert(Configuration serverConfig, String source, String target, boolean exclusive) {
-      List<DivertConfiguration> divertConfigs = serverConfig.getDivertConfigurations();
-      DivertConfiguration newDivert = new DivertConfiguration();
-      newDivert.setName("myDivert");
-      newDivert.setAddress(source);
-      newDivert.setForwardingAddress(target);
-      newDivert.setExclusive(exclusive);
-      divertConfigs.add(newDivert);
    }
 
    @Test
