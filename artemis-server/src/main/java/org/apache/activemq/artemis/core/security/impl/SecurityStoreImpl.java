@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.security.impl;
 
+import javax.security.cert.X509Certificate;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -142,7 +143,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser();
+            String certSubjectDN = "unavailable";
+            X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
+            if (certs != null && certs.length > 0 && certs[0] != null) {
+               certSubjectDN = certs[0].getSubjectDN().getName();
+            }
+
+            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(connection.getRemoteAddress(), user, certSubjectDN);
          }
 
          return validatedUser;
