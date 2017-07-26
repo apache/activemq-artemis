@@ -1362,7 +1362,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
       for (ClientSessionFactory factory : clonedFactory) {
          if (sendClose) {
-            factory.close();
+            try {
+               factory.close();
+            } catch (Throwable e) {
+               logger.debug(e.getMessage(), e);
+               factory.cleanup();
+            }
          } else {
             factory.cleanup();
          }
