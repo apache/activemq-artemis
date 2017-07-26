@@ -64,7 +64,7 @@ import org.jboss.logging.Logger;
  * The activation.
  */
 public class ActiveMQActivation {
-   
+
    private static final Logger logger = Logger.getLogger(ActiveMQActivation.class);
 
    /**
