@@ -1605,7 +1605,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     *
     * @return The properties
     */
-   protected ActiveMQRAProperties getProperties() {
+   public ActiveMQRAProperties getProperties() {
       if (logger.isTraceEnabled()) {
          logger.trace("getProperties()");
       }
