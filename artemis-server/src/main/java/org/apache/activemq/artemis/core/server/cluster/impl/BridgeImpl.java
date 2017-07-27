@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.FutureLatch;
@@ -515,7 +516,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          // We keep our own DuplicateID for the Bridge, so bouncing back and forth will work fine
          byte[] bytes = getDuplicateBytes(nodeUUID, message.getMessageID());
 
-         message.putBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
+         message.putExtraBytesProperty(Message.HDR_BRIDGE_DUPLICATE_ID, bytes);
       }
 
       if (transformer != null) {
@@ -528,9 +529,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                                " as transformedMessage");
             }
          }
-         return transformedMessage;
+         return EmbedMessageUtil.embedAsCoreMessage(transformedMessage);
       } else {
-         return message;
+         return EmbedMessageUtil.embedAsCoreMessage(message);
       }
    }
 
@@ -575,7 +576,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             dest = forwardingAddress;
          } else {
             // Preserve the original address
-            dest = message.getAddressSimpleString();
+            dest = ref.getMessage().getAddressSimpleString();
          }
 
          pendingAcks.countUp();

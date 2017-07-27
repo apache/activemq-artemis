@@ -25,8 +25,15 @@ import static org.junit.Assert.assertTrue;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersisterV2;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
+import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
@@ -34,6 +41,7 @@ import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+import org.junit.Assert;
 import org.junit.Test;
 
 import io.netty.buffer.ByteBuf;
@@ -205,6 +213,42 @@ public class AMQPMessageTest {
       AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
 
       assertEquals(0L, decoded.getTimestamp());
+   }
+
+   @Test
+   public void testExtraProperty() {
+      MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
+
+      byte[] original = RandomUtil.randomBytes();
+      SimpleString name = SimpleString.toSimpleString("myProperty");
+      AMQPMessage decoded = encodeAndDecodeMessage(protonMessage);
+      decoded.setAddress("someAddress");
+      decoded.setMessageID(33);
+      decoded.putExtraBytesProperty(name, original);
+
+      ICoreMessage coreMessage = decoded.toCore();
+      Assert.assertEquals(original, coreMessage.getBytesProperty(name));
+
+      ActiveMQBuffer buffer = ActiveMQBuffers.pooledBuffer(10 * 1024);
+      try {
+         decoded.getPersister().encode(buffer, decoded);
+         Assert.assertEquals(AMQPMessagePersisterV2.getInstance().getID(), buffer.readByte()); // the journal reader will read 1 byte to find the persister
+         AMQPMessage readMessage = (AMQPMessage)decoded.getPersister().decode(buffer, null);
+         Assert.assertEquals(33, readMessage.getMessageID());
+         Assert.assertEquals("someAddress", readMessage.getAddress());
+         Assert.assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
+      } finally {
+         buffer.release();
+      }
+
+      {
+         ICoreMessage embeddedMessage = EmbedMessageUtil.embedAsCoreMessage(decoded);
+         AMQPMessage readMessage = (AMQPMessage) EmbedMessageUtil.extractEmbedded(embeddedMessage);
+         Assert.assertEquals(33, readMessage.getMessageID());
+         Assert.assertEquals("someAddress", readMessage.getAddress());
+         Assert.assertArrayEquals(original, readMessage.getExtraBytesProperty(name));
+      }
+
    }
 
    private AMQPMessage encodeAndDecodeMessage(MessageImpl message) {
