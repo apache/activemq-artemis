@@ -51,14 +51,12 @@ import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
-import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
@@ -75,8 +73,8 @@ import org.junit.Test;
 public class PagingStoreImplTest extends ActiveMQTestBase {
 
    static {
-      MessagePersister.registerPersister(CoreProtocolManagerFactory.ID, CoreMessagePersister.getInstance());
-      MessagePersister.registerPersister(ProtonProtocolManagerFactory.ID, AMQPMessagePersister.getInstance());
+      MessagePersister.registerPersister(CoreMessagePersister.getInstance());
+      MessagePersister.registerPersister(AMQPMessagePersister.getInstance());
    }
 
    private static final SimpleString destinationTestName = new SimpleString("test");

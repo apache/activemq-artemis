@@ -90,6 +90,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
@@ -686,7 +687,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionSendMessage message = (SessionSendMessage) packet;
             requiresResponse = message.isRequiresResponse();
-            this.session.send(message.getMessage(), this.direct);
+            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage()), this.direct);
             if (requiresResponse) {
                response = new NullResponseMessage();
             }
