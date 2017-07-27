@@ -25,18 +25,23 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class AMQPMessagePersister extends MessagePersister {
 
-   public static AMQPMessagePersister theInstance = new AMQPMessagePersister();
+   public static final byte ID = 2;
+
+   public static AMQPMessagePersister theInstance;
 
    public static AMQPMessagePersister getInstance() {
+      if (theInstance == null) {
+         theInstance = new AMQPMessagePersister();
+      }
       return theInstance;
    }
 
-   private AMQPMessagePersister() {
+   protected AMQPMessagePersister() {
    }
 
    @Override
-   protected byte getID() {
-      return ProtonProtocolManagerFactory.ID;
+   public byte getID() {
+      return ID;
    }
 
    @Override

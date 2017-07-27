@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -93,6 +94,10 @@ public class AMQPMessage extends RefCountMessage {
    private String connectionID;
 
    Set<Object> rejectedConsumers;
+
+   /** These are properties set at the broker level..
+    *  these are properties created by the broker only */
+   private volatile TypedProperties extraProperties;
 
    public AMQPMessage(long messageFormat, byte[] data) {
       this.data = Unpooled.wrappedBuffer(data);
@@ -331,7 +336,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Persister<org.apache.activemq.artemis.api.core.Message> getPersister() {
-      return AMQPMessagePersister.getInstance();
+      return AMQPMessagePersisterV2.getInstance();
    }
 
    @Override
@@ -483,7 +488,7 @@ public class AMQPMessage extends RefCountMessage {
       System.arraycopy(origin, messagePaylodStart, newData, headerEnds, data.array().length - messagePaylodStart);
 
       AMQPMessage newEncode = new AMQPMessage(this.messageFormat, newData);
-      newEncode.setDurable(isDurable());
+      newEncode.setDurable(isDurable()).setMessageID(this.getMessageID());
       return newEncode;
    }
 
@@ -697,6 +702,50 @@ public class AMQPMessage extends RefCountMessage {
 
       buffer.writeBytes(data, messagePaylodStart, data.writerIndex() - messagePaylodStart);
    }
+
+   public TypedProperties createExtraProperties() {
+      if (extraProperties == null) {
+         extraProperties = new TypedProperties();
+      }
+      return extraProperties;
+   }
+
+   public TypedProperties getExtraProperties() {
+      return extraProperties;
+   }
+
+   public AMQPMessage setExtraProperties(TypedProperties extraProperties) {
+      this.extraProperties = extraProperties;
+      return this;
+   }
+
+   @Override
+   public org.apache.activemq.artemis.api.core.Message putExtraBytesProperty(SimpleString key, byte[] value) {
+      createExtraProperties().putBytesProperty(key, value);
+      return this;
+   }
+
+
+   @Override
+   public byte[] getExtraBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
+      if (extraProperties == null) {
+         return null;
+      } else {
+         return extraProperties.getBytesProperty(key);
+      }
+   }
+
+
+   @Override
+   public byte[] removeExtraBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
+      if (extraProperties == null) {
+         return null;
+      } else {
+         return (byte[])extraProperties.removeProperty(key);
+      }
+   }
+
+
 
    @Override
    public org.apache.activemq.artemis.api.core.Message putBooleanProperty(String key, boolean value) {

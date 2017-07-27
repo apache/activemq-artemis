@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.message.impl;
+package org.apache.activemq.artemis.protocol.amqp.broker;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
-public class CoreMessagePersister implements Persister<Message> {
-   public static final byte ID = 1;
+public class AMQPMessagePersisterV2 extends AMQPMessagePersister {
+   public static final byte ID = 3;
 
-   public static CoreMessagePersister theInstance;
+   public static AMQPMessagePersisterV2 theInstance;
 
-   public static CoreMessagePersister getInstance() {
+   public static AMQPMessagePersisterV2 getInstance() {
       if (theInstance == null) {
-         theInstance = new CoreMessagePersister();
+         theInstance = new AMQPMessagePersisterV2();
       }
       return theInstance;
-   }
-
-   protected CoreMessagePersister() {
    }
 
    @Override
@@ -43,32 +39,47 @@ public class CoreMessagePersister implements Persister<Message> {
       return ID;
    }
 
+   public AMQPMessagePersisterV2() {
+      super();
+   }
+
+
    @Override
    public int getEncodeSize(Message record) {
-      return DataConstants.SIZE_BYTE + record.getPersistSize() +
-         SimpleString.sizeofNullableString(record.getAddressSimpleString()) + DataConstants.SIZE_LONG;
+      int encodeSize = super.getEncodeSize(record) + DataConstants.SIZE_INT;
+
+      TypedProperties properties = ((AMQPMessage)record).getExtraProperties();
+
+      return encodeSize + (properties != null ? properties.getEncodeSize() : 0);
    }
 
 
    /** Sub classes must add the first short as the protocol-id */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
-      buffer.writeByte((byte)1);
-      buffer.writeLong(record.getMessageID());
-      buffer.writeNullableSimpleString(record.getAddressSimpleString());
-      record.persist(buffer);
+      super.encode(buffer, record);
+
+      TypedProperties properties = ((AMQPMessage)record).getExtraProperties();
+      if (properties == null) {
+         buffer.writeInt(0);
+      } else {
+         buffer.writeInt(properties.getEncodeSize());
+         properties.encode(buffer.byteBuf());
+      }
    }
 
 
    @Override
    public Message decode(ActiveMQBuffer buffer, Message record) {
-      // the caller must consume the first byte already, as that will be used to decide what persister (protocol) to use
-      long id = buffer.readLong();
-      SimpleString address = buffer.readNullableSimpleString();
-      record = new CoreMessage();
-      record.reloadPersistence(buffer);
-      record.setMessageID(id);
-      record.setAddress(address);
-      return record;
+      AMQPMessage message = (AMQPMessage)super.decode(buffer, record);
+      int size = buffer.readInt();
+
+      if (size != 0) {
+         TypedProperties properties = new TypedProperties();
+         properties.decode(buffer.byteBuf());
+         message.setExtraProperties(properties);
+      }
+      return message;
    }
+
 }

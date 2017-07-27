@@ -315,7 +315,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
     * @param message
     */
    private void addRouteContextToMessage(final Message message) {
-      byte[] ids = message.getBytesProperty(idsHeaderName);
+      byte[] ids = message.getExtraBytesProperty(idsHeaderName);
 
       if (ids == null) {
          ids = new byte[8];
@@ -331,7 +331,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
       buff.putLong(remoteQueueID);
 
-      message.putBytesProperty(idsHeaderName, ids);
+      message.putExtraBytesProperty(idsHeaderName, ids);
 
       if (logger.isTraceEnabled()) {
          logger.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
