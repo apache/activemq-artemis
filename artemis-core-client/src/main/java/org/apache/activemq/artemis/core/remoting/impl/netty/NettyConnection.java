@@ -194,7 +194,7 @@ public class NettyConnection implements Connection {
                final ReadyListener readyListener = readyToCall.get(i);
                readyListener.readyForWriting();
             } catch (Throwable logOnly) {
-               ActiveMQClientLogger.LOGGER.warn(logOnly.getMessage(), logOnly);
+               ActiveMQClientLogger.LOGGER.failedToSetChannelReadyForWriting(logOnly);
             }
          }
       } finally {
@@ -208,7 +208,7 @@ public class NettyConnection implements Connection {
          try {
             channel.close();
          } catch (Throwable e) {
-            ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQClientLogger.LOGGER.failedForceClose(e);
          }
       }
    }

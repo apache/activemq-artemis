@@ -201,7 +201,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       try {
          transportConnection.forceClose();
       } catch (Throwable e) {
-         ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQClientLogger.LOGGER.failedForceClose(e);
       }
 
       // Then call the listeners
