@@ -474,7 +474,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          return latchFinalTopology.await(timeout, unit);
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
-         ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
          return false;
       }
    }
@@ -506,7 +506,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // this is just a debug, since an interrupt is an expected event (in case of a shutdown)
          logger.debug(e1.getMessage(), e1);
       } catch (Throwable t) {
-         logger.warn(t.getMessage(), t);
+         ActiveMQClientLogger.LOGGER.unableToHandleConnectionFailure(t);
          //for anything else just close so clients are un blocked
          close();
          throw t;

@@ -155,7 +155,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
                continue;
             } catch (IOException e) {
                if (open) {
-                  ActiveMQClientLogger.LOGGER.warn(this + " getting exception when receiving broadcasting.", e);
+                  ActiveMQClientLogger.LOGGER.unableToReceiveBroadcast(e, this.toString());
                }
             }
             break;
@@ -262,7 +262,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          }
          return tmp;
       } catch (Throwable t) {
-         ActiveMQClientLogger.LOGGER.warn(t);
+         ActiveMQClientLogger.LOGGER.unableToGetProperty(t);
          return defaultValue;
       }
    }
@@ -273,7 +273,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       try {
          return Integer.parseInt(value);
       } catch (Throwable t) {
-         ActiveMQClientLogger.LOGGER.warn(t.getMessage(), t);
+         ActiveMQClientLogger.LOGGER.unableToParseValue(t);
          return Integer.parseInt(defaultValue);
       }
 

@@ -57,7 +57,7 @@ public final class VersionLoader {
                }
             });
          } catch (Throwable e) {
-            ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQClientLogger.LOGGER.unableToInitVersionLoader(e);
             PROP_FILE_NAME = null;
          }
 
@@ -68,7 +68,7 @@ public final class VersionLoader {
          VersionLoader.versions = VersionLoader.load();
       } catch (Throwable e) {
          VersionLoader.versions = null;
-         ActiveMQClientLogger.LOGGER.error(e.getMessage(), e);
+         ActiveMQClientLogger.LOGGER.unableToInitVersionLoaderError(e);
       }
 
    }
