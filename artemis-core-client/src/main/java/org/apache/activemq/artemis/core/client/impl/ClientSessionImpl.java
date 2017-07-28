@@ -761,6 +761,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void commit() throws ActiveMQException {
+      commit(true);
+   }
+
+   @Override
+   public void commit(boolean block) throws ActiveMQException {
       checkClosed();
 
       if (logger.isTraceEnabled()) {
@@ -782,8 +787,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if (rollbackOnly) {
          rollbackOnFailover(true);
       }
+      startCall();
       try {
-         sessionContext.simpleCommit();
+         sessionContext.simpleCommit(block);
       } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.UNBLOCKED || e.getType() == ActiveMQExceptionType.CONNECTION_TIMEDOUT || rollbackOnly) {
             // The call to commit was unlocked on failover, we therefore rollback the tx,
@@ -794,6 +800,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          } else {
             throw e;
          }
+      } finally {
+         endCall();
       }
 
       //oops, we have failed over during the commit and don't know what happened

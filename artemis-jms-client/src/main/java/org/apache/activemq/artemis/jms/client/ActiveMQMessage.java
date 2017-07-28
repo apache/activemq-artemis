@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -199,6 +200,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    private String jmsType;
 
    private boolean individualAck;
+
+   private boolean clientAck;
 
    private long jmsDeliveryTime;
 
@@ -710,11 +713,15 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void acknowledge() throws JMSException {
       if (session != null) {
          try {
+            if (session.isClosed()) {
+               throw ActiveMQClientMessageBundle.BUNDLE.sessionClosed();
+            }
             if (individualAck) {
                message.individualAcknowledge();
             }
-
-            session.commit();
+            if (clientAck || individualAck) {
+               session.commit(session.isBlockOnAcknowledge());
+            }
          } catch (ActiveMQException e) {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
@@ -775,6 +782,10 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    public void setIndividualAcknowledge() {
       this.individualAck = true;
+   }
+
+   public void setClientAcknowledge() {
+      this.clientAck = true;
    }
 
    public void resetMessageID(final String newMsgID) {

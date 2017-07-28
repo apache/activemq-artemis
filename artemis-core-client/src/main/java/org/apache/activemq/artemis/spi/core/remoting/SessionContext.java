@@ -214,6 +214,9 @@ public abstract class SessionContext {
 
    public abstract void simpleCommit() throws ActiveMQException;
 
+   public abstract void simpleCommit(boolean block) throws ActiveMQException;
+
+
    /**
     * If we are doing a simple rollback on the RA, we need to ack the last message sent to the consumer,
     * otherwise DLQ won't work.
