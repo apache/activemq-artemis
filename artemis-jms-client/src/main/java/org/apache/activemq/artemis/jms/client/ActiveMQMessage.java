@@ -710,11 +710,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void acknowledge() throws JMSException {
       if (session != null) {
          try {
-            if (individualAck) {
-               message.individualAcknowledge();
-            }
-
-            session.commit();
+            message.acknowledge();
          } catch (ActiveMQException e) {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
