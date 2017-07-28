@@ -21,7 +21,7 @@ import io.airlift.airline.Option;
 
 public class DestAbstract extends ConnectionAbstract {
 
-   @Option(name = "--destination", description = "Destination to be used. it could be prefixed with queue:// or topic:: (Default: queue://TEST")
+   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// (Default: queue://TEST)")
    String destination = "queue://TEST";
 
    @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
