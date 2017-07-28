@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
+import org.apache.activemq.artemis.protocol.amqp.sasl.MechanismFinder;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
@@ -62,6 +63,12 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    private int amqpCredits = 100;
 
    private int amqpLowCredits = 30;
+
+   private int initialRemoteMaxFrameSize = 4 * 1024;
+
+   private String[] saslMechanisms = MechanismFinder.getKnownMechanisms();
+
+   private String saslLoginConfigScope = "amqp-sasl-gssapi";
 
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
@@ -197,6 +204,23 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       this.maxFrameSize = maxFrameSize;
    }
 
+   public String[] getSaslMechanisms() {
+      return saslMechanisms;
+   }
+
+   public void setSaslMechanisms(String[] saslMechanisms) {
+      this.saslMechanisms = saslMechanisms;
+   }
+
+   public String getSaslLoginConfigScope() {
+      return saslLoginConfigScope;
+   }
+
+   public void setSaslLoginConfigScope(String saslLoginConfigScope) {
+      this.saslLoginConfigScope = saslLoginConfigScope;
+   }
+
+
    @Override
    public void setAnycastPrefix(String anycastPrefix) {
       for (String prefix : anycastPrefix.split(",")) {
@@ -223,4 +247,13 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
       super.invokeInterceptors(this.outgoingInterceptors, message, connection);
    }
+
+   public int getInitialRemoteMaxFrameSize() {
+      return initialRemoteMaxFrameSize;
+   }
+
+   public void setInitialRemoteMaxFrameSize(int initialRemoteMaxFrameSize) {
+      this.initialRemoteMaxFrameSize = initialRemoteMaxFrameSize;
+   }
+
 }

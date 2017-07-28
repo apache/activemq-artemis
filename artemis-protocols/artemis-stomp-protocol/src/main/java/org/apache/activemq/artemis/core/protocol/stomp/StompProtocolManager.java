@@ -320,16 +320,16 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
       return "activemq";
    }
 
-   public boolean validateUser(String login, String passcode, Connection connection) {
+   public boolean validateUser(String login, String passcode, RemotingConnection remotingConnection) {
       boolean validated = true;
 
       ActiveMQSecurityManager sm = server.getSecurityManager();
 
       if (sm != null && server.getConfiguration().isSecurityEnabled()) {
          if (sm instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, connection) != null;
+            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, remotingConnection) != null;
          } else if (sm instanceof ActiveMQSecurityManager2) {
-            validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, CertificateUtil.getCertsFromConnection(connection));
+            validated = ((ActiveMQSecurityManager2) sm).validateUser(login, passcode, CertificateUtil.getCertsFromConnection(remotingConnection));
          } else {
             validated = sm.validateUser(login, passcode);
          }

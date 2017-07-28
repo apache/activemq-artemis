@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
+import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
@@ -103,6 +104,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          transport.setIdleTimeout(idleTimeout);
       }
       transport.setChannelMax(channelMax);
+      transport.setInitialRemoteMaxFrameSize(protocolManager.getInitialRemoteMaxFrameSize());
       transport.setMaxFrameSize(maxFrameSize);
    }
 
@@ -321,7 +323,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    @Override
    public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
       if (sasl) {
-         handler.createServerSASL(connectionCallback.getSASLMechnisms());
+         // configured mech in decreasing order of preference
+         String[] mechanisms = connectionCallback.getSaslMechanisms();
+         if (mechanisms == null || mechanisms.length == 0) {
+            mechanisms = AnonymousServerSASL.ANONYMOUS_MECH;
+         }
+         handler.createServerSASL(mechanisms);
       } else {
          if (!connectionCallback.isSupportsAnonymous()) {
             connectionCallback.sendSASLSupported();
@@ -329,6 +336,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             handler.close(null);
          }
       }
+   }
+
+   @Override
+   public void onSaslRemoteMechanismChosen(ProtonHandler handler, String mech) {
+      handler.setChosenMechanism(connectionCallback.getServerSASL(mech));
    }
 
    @Override

@@ -31,6 +31,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
+import javax.security.auth.Subject;
+
 public class MQTTConnection implements RemotingConnection {
 
    private final Connection transportConnection;
@@ -225,5 +227,10 @@ public class MQTTConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return false;
+   }
+
+   @Override
+   public Subject getSubject() {
+      return null;
    }
 }
