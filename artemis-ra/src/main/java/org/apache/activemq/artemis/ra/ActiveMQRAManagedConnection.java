@@ -221,6 +221,14 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          ActiveMQRALogger.LOGGER.trace("destroyHandles()");
       }
 
+      try {
+         if (connection != null) {
+            connection.stop();
+         }
+      } catch (Throwable t) {
+         logger.trace("Ignored error stopping connection", t);
+      }
+
       for (ActiveMQRASession session : handles) {
          session.destroy();
       }
@@ -255,7 +263,10 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
 
       try {
-         connectionFactory.close();
+         // we must close the ActiveMQConnectionFactory because it contains a ServerLocator
+         if (connectionFactory != null) {
+            ra.closeConnectionFactory(mcf.getProperties());
+         }
       } catch (Exception e) {
          logger.debug(e.getMessage(), e);
       }
@@ -263,10 +274,32 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       destroyHandles();
 
       try {
-         // we must close the ActiveMQConnectionFactory because it contains a ServerLocator
-         if (connectionFactory != null) {
-            ra.closeConnectionFactory(mcf.getProperties());
+         // The following calls should not be necessary, as the connection should close the
+         // ClientSessionFactory, which will close the sessions.
+         try {
+            /**
+             * (xa|nonXA)Session.close() may NOT be called BEFORE connection.close()
+             * <p>
+             * If the ClientSessionFactory is trying to fail-over or reconnect with -1 attempts, and
+             * one calls session.close() it may effectively dead-lock.
+             * <p>
+             * connection close will close the ClientSessionFactory which will close all sessions.
+             */
+            if (connection != null) {
+               connection.close();
+            }
+
+            if (nonXAsession != null) {
+               nonXAsession.close();
+            }
+
+            if (xaSession != null) {
+               xaSession.close();
+            }
+         } catch (JMSException e) {
+            ActiveMQRALogger.LOGGER.debug("Error closing session " + this, e);
          }
+
       } catch (Throwable e) {
          throw new ResourceException("Could not properly close the session and connection", e);
       }
