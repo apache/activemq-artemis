@@ -637,6 +637,23 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       assertTrue(endpoint.released);
    }
 
+   @Test
+   public void testConnectionParameterStringParsing() throws Exception {
+      ActiveMQResourceAdapter resourceAdapter = new ActiveMQResourceAdapter();
+      resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true");
+      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
+      resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true,enabledProtocols=TLS1.3\\,TLS1.4\\,TLS1.5;sslEnabled=true");
+      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
+      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(1).get("enabledProtocols"), "TLS1.3,TLS1.4,TLS1.5");
+
+      try {
+         resourceAdapter.setConnectionParameters("enabledProtocols=TLS1,TLS1.2;sslEnabled=true,enabledProtocols=TLS1,TLS1.2;sslEnabled=true");
+         fail("This should have failed");
+      } catch (Exception e) {
+         // ignore
+      }
+   }
+
    @Override
    public boolean useSecurity() {
       return false;

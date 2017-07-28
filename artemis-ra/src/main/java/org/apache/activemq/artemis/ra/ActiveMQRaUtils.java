@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jgroups.JChannel;
 
@@ -190,7 +191,15 @@ public final class ActiveMQRaUtils {
    public static List<Map<String, Object>> parseConfig(final String config) {
       List<Map<String, Object>> result = new ArrayList<>();
 
-      String[] topElements = config.split(",");
+      /**
+       * Some configuration values can contain commas (e.g. enabledProtocols, enabledCipherSuites, etc.).
+       * To support config values with commas, the commas in the values must be escaped (e.g. "\\,") so that
+       * the commas used to separate configs for different connectors can still function as designed.
+       */
+      String commaPlaceHolder = UUID.randomUUID().toString();
+      String replaced = config.replace("\\,", commaPlaceHolder);
+
+      String[] topElements = replaced.split(",");
 
       for (String topElement : topElements) {
          HashMap<String, Object> map = new HashMap<>();
@@ -205,7 +214,8 @@ public final class ActiveMQRaUtils {
                throw new IllegalArgumentException("Invalid expression " + element + " at " + config);
             }
 
-            map.put(expression[0].trim(), expression[1].trim());
+            // put the commas back
+            map.put(expression[0].trim(), expression[1].trim().replace(commaPlaceHolder, ","));
          }
       }
 
