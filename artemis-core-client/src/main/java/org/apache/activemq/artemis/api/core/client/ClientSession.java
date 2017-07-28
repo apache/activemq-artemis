@@ -894,11 +894,19 @@ public interface ClientSession extends XAResource, AutoCloseable {
    boolean isXA();
 
    /**
-    * Commits the current transaction.
+    * Commits the current transaction, blocking.
     *
     * @throws ActiveMQException if an exception occurs while committing the transaction
     */
    void commit() throws ActiveMQException;
+
+   /**
+    * Commits the current transaction.
+    *
+    * @param block if the commit will be blocking or not.
+    * @throws ActiveMQException if an exception occurs while committing the transaction
+    */
+   void commit(boolean block) throws ActiveMQException;
 
    /**
     * Rolls back the current transaction.
