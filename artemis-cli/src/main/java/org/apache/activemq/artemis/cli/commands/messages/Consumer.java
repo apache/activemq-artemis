@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "consumer", description = "It will send consume messages from an instance")
+@Command(name = "consumer", description = "It will consume messages from an instance")
 public class Consumer extends DestAbstract {
 
    @Option(name = "--durable", description = "It will use durable subscription in case of client")

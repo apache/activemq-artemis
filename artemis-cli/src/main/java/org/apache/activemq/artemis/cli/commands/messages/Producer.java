@@ -36,7 +36,7 @@ public class Producer extends DestAbstract {
    @Option(name = "--message-size", description = "Size of each byteMessage (The producer will use byte message on this case)")
    int messageSize = 0;
 
-   @Option(name = "--text-size", description = "Size of each textNessage (The producer will use text message on this case)")
+   @Option(name = "--text-size", description = "Size of each textMessage (The producer will use text message on this case)")
    int textMessageSize;
 
    @Option(name = "--msgttl", description = "TTL for each message")
