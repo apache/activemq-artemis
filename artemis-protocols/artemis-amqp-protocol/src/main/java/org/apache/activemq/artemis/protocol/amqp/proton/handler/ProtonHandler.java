@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -63,11 +62,11 @@ public class ProtonHandler extends ProtonInitializable {
 
    private Sasl serverSasl;
 
+   private ServerSASL chosenMechanism;
+
    private final ReentrantLock lock = new ReentrantLock();
 
    private final long creationTime;
-
-   private Map<String, ServerSASL> saslHandlers;
 
    private SASLResult saslResult;
 
@@ -157,17 +156,10 @@ public class ProtonHandler extends ProtonInitializable {
       return this;
    }
 
-   public void createServerSASL(ServerSASL[] handlers) {
+   public void createServerSASL(String[] mechanisms) {
       this.serverSasl = transport.sasl();
-      saslHandlers = new HashMap<>();
-      String[] names = new String[handlers.length];
-      int count = 0;
-      for (ServerSASL handler : handlers) {
-         saslHandlers.put(handler.getName(), handler);
-         names[count++] = handler.getName();
-      }
       this.serverSasl.server();
-      serverSasl.setMechanisms(names);
+      serverSasl.setMechanisms(mechanisms);
    }
 
    public void flushBytes() {
@@ -292,9 +284,14 @@ public class ProtonHandler extends ProtonInitializable {
 
    protected void checkServerSASL() {
       if (serverSasl != null && serverSasl.getRemoteMechanisms().length > 0) {
-         // TODO: should we look at the first only?
-         ServerSASL mechanism = saslHandlers.get(serverSasl.getRemoteMechanisms()[0]);
-         if (mechanism != null) {
+
+         if (chosenMechanism == null) {
+            if (log.isTraceEnabled()) {
+               log.trace("SASL chosenMechanism: " + serverSasl.getRemoteMechanisms()[0]);
+            }
+            dispatchRemoteMechanismChosen(serverSasl.getRemoteMechanisms()[0]);
+         }
+         if (chosenMechanism != null) {
 
             byte[] dataSASL = new byte[serverSasl.pending()];
             serverSasl.recv(dataSASL, 0, dataSASL.length);
@@ -303,27 +300,43 @@ public class ProtonHandler extends ProtonInitializable {
                log.trace("Working on sasl::" + (dataSASL != null && dataSASL.length > 0 ? ByteUtil.bytesToHex(dataSASL, 2) : "Anonymous"));
             }
 
-            saslResult = mechanism.processSASL(dataSASL);
-
-            if (saslResult != null && saslResult.isSuccess()) {
-               serverSasl.done(Sasl.SaslOutcome.PN_SASL_OK);
-               serverSasl = null;
-               saslHandlers.clear();
-               saslHandlers = null;
-            } else {
-               serverSasl.done(Sasl.SaslOutcome.PN_SASL_AUTH);
+            byte[] response = chosenMechanism.processSASL(dataSASL);
+            if (response != null) {
+               serverSasl.send(response, 0, response.length);
             }
-            serverSasl = null;
+            saslResult = chosenMechanism.result();
+
+            if (saslResult != null) {
+               if (saslResult.isSuccess()) {
+                  saslComplete(Sasl.SaslOutcome.PN_SASL_OK);
+               } else {
+                  saslComplete(Sasl.SaslOutcome.PN_SASL_AUTH);
+               }
+            }
          } else {
             // no auth available, system error
-            serverSasl.done(Sasl.SaslOutcome.PN_SASL_SYS);
+            saslComplete(Sasl.SaslOutcome.PN_SASL_SYS);
          }
+      }
+   }
+
+   private void saslComplete(Sasl.SaslOutcome saslOutcome) {
+      serverSasl.done(saslOutcome);
+      serverSasl = null;
+      if (chosenMechanism != null) {
+         chosenMechanism.done();
       }
    }
 
    private void dispatchAuth(boolean sasl) {
       for (EventHandler h : handlers) {
          h.onAuthInit(this, getConnection(), sasl);
+      }
+   }
+
+   private void dispatchRemoteMechanismChosen(final String mech) {
+      for (EventHandler h : handlers) {
+         h.onSaslRemoteMechanismChosen(this, mech);
       }
    }
 
@@ -375,5 +388,9 @@ public class ProtonHandler extends ProtonInitializable {
       this.connection.setProperties(connectionProperties);
       this.connection.open();
       flush();
+   }
+
+   public void setChosenMechanism(ServerSASL chosenMechanism) {
+      this.chosenMechanism = chosenMechanism;
    }
 }

@@ -31,6 +31,8 @@ public interface EventHandler {
 
    void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl);
 
+   void onSaslRemoteMechanismChosen(ProtonHandler handler, String mech);
+
    void onInit(Connection connection) throws Exception;
 
    void onLocalOpen(Connection connection) throws Exception;

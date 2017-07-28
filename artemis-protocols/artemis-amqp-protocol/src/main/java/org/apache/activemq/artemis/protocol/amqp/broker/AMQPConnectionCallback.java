@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
@@ -76,6 +77,8 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    private ActiveMQServer server;
 
+   private final String[] saslMechanisms;
+
    public AMQPConnectionCallback(ProtonProtocolManager manager,
                                  Connection connection,
                                  Executor closeExecutor,
@@ -84,25 +87,40 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       this.connection = connection;
       this.closeExecutor = closeExecutor;
       this.server = server;
+      saslMechanisms = manager.getSaslMechanisms();
    }
 
-   public ServerSASL[] getSASLMechnisms() {
+   public String[] getSaslMechanisms() {
+      return saslMechanisms;
+   }
 
-      ServerSASL[] result;
+   public ServerSASL getServerSASL(final String mechanism) {
+      ServerSASL result = null;
+      switch (mechanism) {
+         case PlainSASL.NAME:
+            result = new PlainSASL(server.getSecurityStore());
+            break;
 
-      if (isSupportsAnonymous()) {
-         result = new ServerSASL[]{new PlainSASL(manager.getServer().getSecurityStore()), new AnonymousServerSASL()};
-      } else {
-         result = new ServerSASL[]{new PlainSASL(manager.getServer().getSecurityStore())};
+         case AnonymousServerSASL.NAME:
+            result = new AnonymousServerSASL();
+            break;
+
+         case GSSAPIServerSASL.NAME:
+            GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
+            gssapiServerSASL.setLoginConfigScope(manager.getSaslLoginConfigScope());
+            result = gssapiServerSASL;
+            break;
+
+         default:
+            break;
       }
-
       return result;
    }
 
    public boolean isSupportsAnonymous() {
       boolean supportsAnonymous = false;
       try {
-         manager.getServer().getSecurityStore().authenticate(null, null, null);
+         server.getSecurityStore().authenticate(null, null, null);
          supportsAnonymous = true;
       } catch (Exception e) {
          // authentication failed so no anonymous support

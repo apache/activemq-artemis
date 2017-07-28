@@ -18,17 +18,29 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 public class AnonymousServerSASL implements ServerSASL {
 
+   public static final String NAME = "ANONYMOUS";
+   public static final String[] ANONYMOUS_MECH = new String[] {NAME};
+
    public AnonymousServerSASL() {
    }
 
    @Override
    public String getName() {
-      return "ANONYMOUS";
+      return NAME;
    }
 
    @Override
-   public SASLResult processSASL(byte[] bytes) {
+   public byte[] processSASL(byte[] bytes) {
+      return null;
+   }
+
+   @Override
+   public SASLResult result() {
       return new PlainSASLResult(true, null, null);
+   }
+
+   @Override
+   public void done() {
    }
 }
 

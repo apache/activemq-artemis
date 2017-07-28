@@ -32,6 +32,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.jboss.logging.Logger;
 
+import javax.security.auth.Subject;
+
 public abstract class AbstractRemotingConnection implements RemotingConnection {
 
    private static final Logger logger = Logger.getLogger(AbstractRemotingConnection.class);
@@ -218,5 +220,10 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return true;
+   }
+
+   @Override
+   public Subject getSubject() {
+      return null;
    }
 }
