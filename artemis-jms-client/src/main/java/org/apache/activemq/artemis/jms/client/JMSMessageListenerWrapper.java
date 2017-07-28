@@ -41,6 +41,8 @@ public class JMSMessageListenerWrapper implements MessageHandler {
 
    private final boolean individualACK;
 
+   private final boolean clientACK;
+
    protected JMSMessageListenerWrapper(final ConnectionFactoryOptions options,
                                        final ActiveMQConnection connection,
                                        final ActiveMQSession session,
@@ -60,6 +62,8 @@ public class JMSMessageListenerWrapper implements MessageHandler {
       transactedOrClientAck = (ackMode == Session.SESSION_TRANSACTED || ackMode == Session.CLIENT_ACKNOWLEDGE) || session.isXA();
 
       individualACK = (ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+
+      clientACK = (ackMode == Session.CLIENT_ACKNOWLEDGE);
    }
 
    /**
@@ -74,11 +78,14 @@ public class JMSMessageListenerWrapper implements MessageHandler {
          msg.setIndividualAcknowledge();
       }
 
+      if (clientACK) {
+         msg.setClientAcknowledge();
+      }
+
       try {
          msg.doBeforeReceive();
       } catch (Exception e) {
          ActiveMQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(msg.getCoreMessage().toString(), e);
-
          return;
       }
 
