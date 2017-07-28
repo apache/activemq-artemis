@@ -221,14 +221,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          ActiveMQRALogger.LOGGER.trace("destroyHandles()");
       }
 
-      try {
-         if (connection != null) {
-            connection.stop();
-         }
-      } catch (Throwable t) {
-         logger.trace("Ignored error stopping connection", t);
-      }
-
       for (ActiveMQRASession session : handles) {
          session.destroy();
       }
