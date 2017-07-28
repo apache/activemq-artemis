@@ -1394,7 +1394,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       String validatedUser = "";
 
       if (securityStore != null) {
-         validatedUser = securityStore.authenticate(username, password, connection.getTransportConnection());
+         validatedUser = securityStore.authenticate(username, password, connection);
       }
 
       checkSessionLimit(validatedUser);

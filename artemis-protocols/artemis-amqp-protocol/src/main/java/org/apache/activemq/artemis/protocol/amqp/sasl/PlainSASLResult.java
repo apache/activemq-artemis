@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
+import javax.security.auth.Subject;
+
 public class PlainSASLResult implements SASLResult {
 
    private boolean success;
@@ -26,6 +28,11 @@ public class PlainSASLResult implements SASLResult {
       this.success = success;
       this.user = user;
       this.password = password;
+   }
+
+   @Override
+   public Subject getSubject() {
+      return null;
    }
 
    @Override
@@ -41,4 +48,5 @@ public class PlainSASLResult implements SASLResult {
    public boolean isSuccess() {
       return success;
    }
+
 }

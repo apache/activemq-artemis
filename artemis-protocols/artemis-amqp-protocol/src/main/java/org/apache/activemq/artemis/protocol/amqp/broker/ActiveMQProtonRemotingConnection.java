@@ -25,9 +25,12 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+
+import javax.security.auth.Subject;
 
 /**
  * This is a Server's Connection representation used by ActiveMQ Artemis.
@@ -147,5 +150,14 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    @Override
    public void killMessage(SimpleString nodeID) {
       //unsupported
+   }
+
+   @Override
+   public Subject getSubject() {
+      SASLResult saslResult = amqpConnection.getSASLResult();
+      if (saslResult != null) {
+         return saslResult.getSubject();
+      }
+      return null;
    }
 }

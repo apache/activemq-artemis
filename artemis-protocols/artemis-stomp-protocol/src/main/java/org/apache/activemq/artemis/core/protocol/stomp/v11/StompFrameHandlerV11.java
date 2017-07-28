@@ -68,7 +68,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       String requestID = headers.get(Stomp.Headers.Connect.REQUEST_ID);
 
       try {
-         if (connection.validateUser(login, passcode, connection.getTransportConnection())) {
+         if (connection.validateUser(login, passcode, connection)) {
             connection.setClientID(clientID);
             connection.setValid(true);
 

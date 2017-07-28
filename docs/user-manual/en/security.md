@@ -649,6 +649,25 @@ like the following:
 The simplest way to make the login configuration available to JAAS is to add the directory containing the file,
 `login.config`, to your CLASSPATH.
 
+### Kerberos Authentication
+
+The [https://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html]
+can be used with JAAS on both the client and server to authenticate with Kerberos.
+
+Using SASL over AMQP, Kerberos authentication is supported using the `GSSAPI` SASL mechanism. By default the server will use a
+JAAS login configuration scope named `amqp-sasl-gssapi` to obtain it acceptor Kerberos credentials. The config scope can be
+specified explicitly on the amqp acceptor url using the parameter: `saslLoginConfigScope=<some other scope>`.
+
+On the server, the Kerberos authenticated peer Principal can be extracted from the calling context as a UserPrincipal
+using a dedicated login module:
+
+   org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule
+
+The legacy [http://www.ietf.org/rfc/rfc2712.txt] defines TLS Kerberos cipher suites that can be used by TLS to negotiate
+Kerberos authentication. The cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been superseded by
+SASL GSSAPI. However, for clients that don't support SASL (core client), using TLS can provide Kerberos authentication
+over an *unsecure* channel.
+
 
 ## Changing the username/password for clustering
 
