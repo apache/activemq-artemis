@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "browser", description = "It will send consume messages from an instance")
+@Command(name = "browser", description = "It will browse messages on an instance")
 public class Browse extends DestAbstract {
 
    @Option(name = "--filter", description = "filter to be used with the consumer")
