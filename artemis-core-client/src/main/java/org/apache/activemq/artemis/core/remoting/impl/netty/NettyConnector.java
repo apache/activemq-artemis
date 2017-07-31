@@ -1111,7 +1111,7 @@ public class NettyConnector extends AbstractConnector {
 
          result = ip1.equals(ip2);
       } catch (UnknownHostException e) {
-         ActiveMQClientLogger.LOGGER.error("Cannot resolve host", e);
+         ActiveMQClientLogger.LOGGER.unableToResolveHost(e);
       }
 
       return result;

@@ -255,9 +255,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                   data = endpoint.receiveBroadcast();
                   if (data == null) {
                      if (started) {
-                        // This is totally unexpected, so I'm not even bothering on creating
-                        // a log entry for that
-                        ActiveMQClientLogger.LOGGER.warn("Unexpected null data received from DiscoveryEndpoint");
+                        ActiveMQClientLogger.LOGGER.unexpectedNullDataReceived();
                      }
                      break;
                   }
