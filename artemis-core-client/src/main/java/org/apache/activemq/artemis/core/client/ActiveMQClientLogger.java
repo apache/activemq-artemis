@@ -27,6 +27,8 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 import org.w3c.dom.Node;
 
+import java.net.UnknownHostException;
+
 /**
  * Logger Code 21
  * <p>
@@ -320,6 +322,76 @@ public interface ActiveMQClientLogger extends BasicLogger {
            format = Message.Format.MESSAGE_FORMAT)
    void unableToGetMessage(@Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212059, value = "Failed to clean up: {0} ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void failedCleaningUp(String target);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212060, value = "Unexpected null data received from DiscoveryEndpoint ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unexpectedNullDataReceived();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212061, value = "Failed to perform force close ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void failedForceClose(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212062, value = "Failed to perform post actions on message processing ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void failedPerformPostActionsOnMessage(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212063, value = "Unable to handle connection failure ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToHandleConnectionFailure(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212064, value = "Unable to receive cluster topology ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToReceiveClusterTopology(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212065, value = "{0} getting exception when receiving broadcasting ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToReceiveBroadcast(@Cause Exception e, String target);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212066, value = "failed to parse int property ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToParseValue(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212067, value = "failed to get system property ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToGetProperty(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212068, value = "Couldn't finish the client globalThreadPool in less than 10 seconds, interrupting it now ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToProcessGlobalThreadPoolIn10Sec();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212069, value = "Couldn't finish the client scheduled in less than 10 seconds, interrupting it now ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToProcessScheduledlIn10Sec();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212070, value = "Unable to initialize VersionLoader ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToInitVersionLoader(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212071, value = "Unable to check Epoll availability ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToCheckEpollAvailability(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212072, value = "Failed to change channel state to ReadyForWriting ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void failedToSetChannelReadyForWriting(@Cause Throwable e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)
    void onMessageError(@Cause Throwable e);
@@ -454,4 +526,14 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214031, value = "Failed to decode buffer, disconnect immediately.", format = Message.Format.MESSAGE_FORMAT)
    void disconnectOnErrorDecoding(@Cause Throwable cause);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214032, value = "Unable to initialize VersionLoader ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToInitVersionLoaderError(@Cause Throwable e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214033, value = "Cannot resolve host ",
+           format = Message.Format.MESSAGE_FORMAT)
+   void unableToResolveHost(@Cause UnknownHostException e);
 }

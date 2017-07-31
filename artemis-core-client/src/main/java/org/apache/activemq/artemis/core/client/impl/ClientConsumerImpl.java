@@ -470,7 +470,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       try {
          doCleanUp(false);
       } catch (ActiveMQException e) {
-         ActiveMQClientLogger.LOGGER.warn("problem cleaning up: " + this);
+         ActiveMQClientLogger.LOGGER.failedCleaningUp(this.toString());
       }
    }
 
@@ -1005,7 +1005,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                         }
                      });
                   } catch (Exception e) {
-                     ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+                     ActiveMQClientLogger.LOGGER.failedPerformPostActionsOnMessage(e);
                   }
 
                   onMessageThread = null;
