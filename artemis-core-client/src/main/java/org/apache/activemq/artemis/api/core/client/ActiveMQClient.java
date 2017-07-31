@@ -165,7 +165,7 @@ public final class ActiveMQClient {
          try {
             if (!globalThreadPool.awaitTermination(time, unit)) {
                globalThreadPool.shutdownNow();
-               ActiveMQClientLogger.LOGGER.warn("Couldn't finish the client globalThreadPool in less than 10 seconds, interrupting it now");
+               ActiveMQClientLogger.LOGGER.unableToProcessGlobalThreadPoolIn10Sec();
             }
          } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
@@ -179,7 +179,7 @@ public final class ActiveMQClient {
          try {
             if (!globalScheduledThreadPool.awaitTermination(time, unit)) {
                globalScheduledThreadPool.shutdownNow();
-               ActiveMQClientLogger.LOGGER.warn("Couldn't finish the client scheduled in less than 10 seconds, interrupting it now");
+               ActiveMQClientLogger.LOGGER.unableToProcessScheduledlIn10Sec();
             }
          } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
