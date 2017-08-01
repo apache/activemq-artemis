@@ -385,7 +385,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
    @Test
    public void timeoutShouldMatchFlushIOPSWithNotBlockingFlush() {
       //use a large timeout in order to be reactive
-      final long timeout = TimeUnit.SECONDS.toNanos(2);
+      final long timeout = TimeUnit.MILLISECONDS.toNanos(100);
       assert ((int) timeout) > 0;
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
@@ -426,7 +426,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
    @Test
    public void timeoutShouldMatchFlushIOPSWithBlockingFlush() {
       //use a large timeout in order to be reactive
-      final long timeout = TimeUnit.SECONDS.toNanos(2);
+      final long timeout = TimeUnit.MILLISECONDS.toNanos(100);
       assert ((int) timeout) > 0;
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
