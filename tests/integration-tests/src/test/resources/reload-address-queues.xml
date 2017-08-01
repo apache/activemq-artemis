@@ -127,6 +127,10 @@ under the License.
                <queue name="config_test_address_removal_queue"/>
             </multicast>
          </address>
+         <address name="config_test_address_removal_no_queue">
+            <multicast>
+            </multicast>
+         </address>
          <address name="permanent_test_queue_removal">
             <multicast>
                <queue name="permanent_test_queue_removal_queue_1"/>
