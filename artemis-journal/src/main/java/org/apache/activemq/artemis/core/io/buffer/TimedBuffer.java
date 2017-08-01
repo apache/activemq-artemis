@@ -23,6 +23,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -368,14 +369,10 @@ public final class TimedBuffer {
 
       int checks = 0;
       int failedChecks = 0;
-      long timeBefore = 0;
-
-      final int sleepMillis = timeout / 1000000; // truncates
-      final int sleepNanos = timeout % 1000000;
 
       @Override
       public void run() {
-         long lastFlushTime = 0;
+         long lastFlushTime = System.nanoTime();
 
          while (!closed) {
             // We flush on the timer if there are pending syncs there and we've waited at least one
@@ -386,17 +383,22 @@ public final class TimedBuffer {
             if (pendingSync) {
                if (useSleep) {
                   // if using sleep, we will always flush
-                  flush();
                   lastFlushTime = System.nanoTime();
+                  flush();
+
                } else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
+                  lastFlushTime = System.nanoTime();
                   // if not using flush we will spin and do the time checks manually
                   flush();
-                  lastFlushTime = System.nanoTime();
                }
 
             }
-
-            sleepIfPossible();
+            //it could wait until the timeout is expired
+            final long timeFromTheLastFlush = System.nanoTime() - lastFlushTime;
+            final long timeToSleep = timeFromTheLastFlush - timeout;
+            if (timeToSleep > 0) {
+               sleepIfPossible(timeToSleep);
+            }
 
             try {
                spinLimiter.acquire();
@@ -415,35 +417,28 @@ public final class TimedBuffer {
        * we will on that case verify up to MAX_CHECKS if nano sleep is behaving well.
        * if more than 50% of the checks have failed we will cancel the sleep and just use regular spin
        */
-      private void sleepIfPossible() {
+      private void sleepIfPossible(long nanosToSleep) {
          if (useSleep) {
-            if (checks < MAX_CHECKS_ON_SLEEP) {
-               timeBefore = System.nanoTime();
-            }
-
             try {
-               sleep(sleepMillis, sleepNanos);
-            } catch (InterruptedException e) {
-               throw new ActiveMQInterruptedException(e);
+               final long startSleep = System.nanoTime();
+               sleep(nanosToSleep);
+               final long elapsedSleep = System.nanoTime() - startSleep;
+               if (checks < MAX_CHECKS_ON_SLEEP) {
+                  // I'm letting the real time to be up to 50% than the requested sleep.
+                  if (elapsedSleep > nanosToSleep * 1.5) {
+                     failedChecks++;
+                  }
+
+                  if (++checks >= MAX_CHECKS_ON_SLEEP) {
+                     if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
+                        ActiveMQJournalLogger.LOGGER.debug("LockSupport.parkNanos with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
+                        useSleep = false;
+                     }
+                  }
+               }
             } catch (Exception e) {
                useSleep = false;
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
-            }
-
-            if (checks < MAX_CHECKS_ON_SLEEP) {
-               long realTimeSleep = System.nanoTime() - timeBefore;
-
-               // I'm letting the real time to be up to 50% than the requested sleep.
-               if (realTimeSleep > timeout * 1.5) {
-                  failedChecks++;
-               }
-
-               if (++checks >= MAX_CHECKS_ON_SLEEP) {
-                  if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
-                     ActiveMQJournalLogger.LOGGER.debug("Thread.sleep with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
-                     useSleep = false;
-                  }
-               }
             }
          }
       }
@@ -456,12 +451,11 @@ public final class TimedBuffer {
    /**
     * Sub classes (tests basically) can use this to override how the sleep is being done
     *
-    * @param sleepMillis
     * @param sleepNanos
     * @throws InterruptedException
     */
-   protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
-      Thread.sleep(sleepMillis, sleepNanos);
+   protected void sleep(long sleepNanos) {
+      LockSupport.parkNanos(sleepNanos);
    }
 
    /**
