@@ -54,6 +54,7 @@
       <module>artemis-jdbc-store</module>
       <module>artemis-maven-plugin</module>
       <module>artemis-server-osgi</module>
+      <module>artemis-hawtio</module>
       <module>integration/activemq-spring-integration</module>
       <module>artemis-distribution</module>
       <module>artemis-tools</module>
@@ -1537,6 +1538,9 @@
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
                   <exclude>**/npm-shrinkwrap.json</exclude>
+                  
+                  <!-- Build time overlay folder -->
+                  <exclude>**/overlays/**</exclude>
 
                   <!-- things from cmake on the native build -->
                   <exclude>**/CMakeFiles/</exclude>
