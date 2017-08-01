@@ -395,7 +395,7 @@ public final class TimedBuffer {
             }
             //it could wait until the timeout is expired
             final long timeFromTheLastFlush = System.nanoTime() - lastFlushTime;
-            final long timeToSleep = timeFromTheLastFlush - timeout;
+            final long timeToSleep = timeout - timeFromTheLastFlush;
             if (timeToSleep > 0) {
                sleepIfPossible(timeToSleep);
             }
