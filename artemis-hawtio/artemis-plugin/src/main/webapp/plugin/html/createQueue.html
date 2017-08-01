@@ -1,0 +1,77 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<form class="form-horizontal" ng-controller="ARTEMIS.QueueController">
+
+    <div class="control-group">
+        <label class="control-label" for="queueName"
+               title="The routing name of this address">Queue name</label>
+        <div class="controls">
+            <input id="queueName" type="text" maxlength="300" ng-model="queueName" placeholder="Queue Name"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="routingType">Routing type</label>
+
+        <div class="controls">
+            <select id="routingType" ng-model="routingType">
+                <option value='0'>Multicast</option>
+                <option value='1'>Anycast</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="control-group">
+        <label class="control-label" for="durable"
+               title="Whether the queue will be durable">Durable</label>
+        <div class="controls">
+            <input id="durable" type="checkbox" ng-model="durable" value="false">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="filter"
+               title="The user name to be used when connecting to the broker">Filter</label>
+        <div class="controls">
+            <input id="filter" type="text" maxlength="300" ng-model="filter" placeholder="Filter"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="maxConsumers"
+               title="The maximum consumers the queue can have">Max Consumers</label>
+        <div class="controls">
+            <input id="maxConsumers" type="number" ng-model="maxConsumers" placeholder="maxConsumers"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="purgeWhenNoConsumers"
+               title="Whether or not this queue should be purged (emptied and paused) when there are no consumers">Purge when no consumers</label>
+        <div class="controls">
+            <input id="purgeWhenNoConsumers" type="checkbox" ng-model="purgeWhenNoConsumers" value="false"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <button type="submit" class="btn btn-info" ng-click="createQueue(queueName, routingType, durable, filter, maxConsumers, purgeWhenNoConsumers)" ng-disabled="!queueName">Create Queue</button>
+        </div>
+    </div>
+</form>

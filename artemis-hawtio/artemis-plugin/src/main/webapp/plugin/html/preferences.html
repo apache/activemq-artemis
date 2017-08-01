@@ -1,0 +1,69 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<div ng-controller="ARTEMIS.PreferencesController">
+  <form class="form-horizontal">
+
+    <div class="control-group">
+      <label class="control-label" for="artemisUserName"
+             title="The user name to be used when connecting to the broker">User name</label>
+
+      <div class="controls">
+        <input id="artemisUserName" type="text" placeholder="username" ng-model="artemisUserName" autofill/>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="artemisPassword" title="Password to be used when connecting to the broker">Password</label>
+
+      <div class="controls">
+        <input id="artemisPassword" type="password" placeholder="password" ng-model="artemisPassword" autofill/>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label" for="artemisDLQ" title="The DLQ of the Broker">DLQ</label>
+
+      <div class="controls">
+        <input id="artemisDLQ" type="text" placeholder="DLQ" ng-model="artemisDLQ" autofill/>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label" for="artemisExpiryQueue" title="The Expiry Queue of the Broker">Expiry Queue</label>
+
+      <div class="controls">
+        <input id="artemisExpiryQueue" type="text" placeholder="ExpiryQueue" ng-model="artemisExpiryQueue" autofill/>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label" for="byteMessages">Browse byte messages</label>
+
+      <div class="controls">
+        <select id="byteMessages" ng-model="activemqBrowseBytesMessages">
+          <option value='99'>Off</option>
+          <option value='8'>Decimal</option>
+          <option value='4'>Hex</option>
+          <option value='2'>Decimal and text</option>
+          <option value='1'>Hex and text</option>
+        </select>
+        <span class="help-block">Browsing byte messages should display the message body as</span>
+      </div>
+    </div>
+
+  </form>
+</div>
