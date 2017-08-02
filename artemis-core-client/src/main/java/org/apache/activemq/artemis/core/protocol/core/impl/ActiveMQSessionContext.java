@@ -690,7 +690,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException {
+   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal, long consumerId, boolean isSessionStarted) throws ActiveMQException {
       ClientSession.QueueQuery queueInfo = consumerInternal.getQueueInfo();
 
       // We try and recreate any non durable queues, since they probably won't be there unless
@@ -716,6 +716,19 @@ public class ActiveMQSessionContext extends SessionContext {
          // https://jira.jboss.org/browse/HORNETQ-522
          SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal), 1);
          sendPacketWithoutLock(sessionChannel, packet);
+      }
+
+      //force a delivery to avoid a infinite waiting
+      //it can happen when the consumer sends a 'forced delivery' then
+      //waiting forever, while the connection is broken and the server's
+      //'forced delivery' message never gets to consumer. If session
+      //is reconnected, its consumer never knows and stays waiting.
+      //note this message will either be ignored by consumer (forceDeliveryCount
+      //doesn't match, which is fine) or be caught by consumer
+      //(in which case the consumer will wake up, thus avoid the infinite waiting).
+      if (isSessionStarted && consumerInternal.getForceDeliveryCount() > 0) {
+         SessionForceConsumerDelivery forceDel = new SessionForceConsumerDelivery(consumerId, consumerInternal.getForceDeliveryCount() - 1);
+         sendPacketWithoutLock(sessionChannel, forceDel);
       }
    }
 
