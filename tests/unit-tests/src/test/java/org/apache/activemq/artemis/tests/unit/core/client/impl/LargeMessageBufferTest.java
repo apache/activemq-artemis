@@ -786,6 +786,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          return null;
       }
 
+      @Override
+      public long getForceDeliveryCount() {
+         return 0;
+      }
+
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#getNonXAsession()
        */
