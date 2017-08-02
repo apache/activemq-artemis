@@ -136,6 +136,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
          latch.await(10, TimeUnit.SECONDS);
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_address_removal_no_queue"));
          Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
          Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));
@@ -153,6 +154,7 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedJMS.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
 
+         Assert.assertNull(getAddressInfo(embeddedJMS, "config_test_address_removal_no_queue"));
          Assert.assertNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
          Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
          Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));

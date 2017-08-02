@@ -169,7 +169,7 @@ public class SimpleAddressManager implements AddressManager {
    @Override
    public Set<SimpleString> getAddresses() {
       Set<SimpleString> addresses = new HashSet<>();
-      addresses.addAll(mappings.keySet());
+      addresses.addAll(addressInfoMap.keySet());
       return addresses;
    }
 
