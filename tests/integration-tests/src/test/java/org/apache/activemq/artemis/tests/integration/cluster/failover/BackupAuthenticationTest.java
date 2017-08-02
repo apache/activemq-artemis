@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,7 +52,7 @@ public class BackupAuthenticationTest extends FailoverTestBase {
        * can't intercept the message at the backup, so we intercept the registration message at the
        * live.
        */
-      Thread.sleep(2000);
+      Wait.waitFor(() -> !backupServer.isStarted());
       assertFalse("backup should have stopped", backupServer.isStarted());
       backupConfig.setClusterPassword(CLUSTER_PASSWORD);
       backupServer.start();
