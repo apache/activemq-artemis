@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.hadoop.minikdc.MiniKdc;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -36,6 +27,15 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.hadoop.minikdc.MiniKdc;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
@@ -85,7 +85,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
    protected void configureBrokerSecurity(ActiveMQServer server) {
       server.getConfiguration().setSecurityEnabled(isSecurityEnabled());
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.setConfigurationName("Krb5SslPlus");
+      securityManager.setConfigurationName("Krb5Plus");
       securityManager.setConfiguration(null);
 
       final String roleName = "ALLOW_ALL";
