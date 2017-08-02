@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 /**
  * A joint interface for JMS sessions
  */
-public final class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession {
+public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession {
 
    /**
     * Trace enabled
