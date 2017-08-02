@@ -68,4 +68,6 @@ public interface ClientConsumerInternal extends ClientConsumer {
    void start();
 
    ClientSession.QueueQuery getQueueInfo();
+
+   long getForceDeliveryCount();
 }
