@@ -18,4 +18,5 @@ package org.apache.activemq.artemis.spi.core.remoting;
 
 public abstract class ConsumerContext {
 
+   public abstract long getId();
 }

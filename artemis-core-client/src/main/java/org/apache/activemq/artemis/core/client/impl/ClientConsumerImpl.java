@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -123,7 +124,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private boolean stopped = false;
 
-   private long forceDeliveryCount;
+   private AtomicLong forceDeliveryCount = new AtomicLong(0);
 
    private final ClientSession.QueueQuery queueInfo;
 
@@ -295,7 +296,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   logger.trace(this + "::Forcing delivery");
                }
                // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
-               sessionContext.forceDelivery(this, forceDeliveryCount++);
+               sessionContext.forceDelivery(this, forceDeliveryCount.getAndIncrement());
                callForceDelivery = false;
                deliveryForced = true;
                continue;
@@ -309,7 +310,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
                   // Need to check if forceDelivery was called at this call
                   // As we could be receiving a message that came from a previous call
-                  if (forcingDelivery && deliveryForced && seq == forceDeliveryCount - 1) {
+                  if (forcingDelivery && deliveryForced && seq == forceDeliveryCount.get() - 1) {
                      // forced delivery messages are discarded, nothing has been delivered by the queue
                      resetIfSlowConsumer();
 
@@ -536,6 +537,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    @Override
    public ClientSession.QueueQuery getQueueInfo() {
       return queueInfo;
+   }
+
+   @Override
+   public long getForceDeliveryCount() {
+      return forceDeliveryCount.get();
    }
 
    @Override

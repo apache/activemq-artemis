@@ -286,7 +286,7 @@ public abstract class SessionContext {
                                         boolean autoCommitAcks,
                                         boolean preAcknowledge) throws ActiveMQException;
 
-   public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException;
+   public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal, long consumerId, boolean isSessionStarted) throws ActiveMQException;
 
    public abstract void xaFailed(Xid xid) throws ActiveMQException;
 
