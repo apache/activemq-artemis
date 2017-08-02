@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 public class MechanismFinder {
 
-   public static String[] KNOWN_MECHANISMS = new String[]{PlainSASL.NAME, GSSAPIServerSASL.NAME, AnonymousServerSASL.NAME};
+   public static String[] KNOWN_MECHANISMS = new String[]{PlainSASL.NAME, AnonymousServerSASL.NAME};
 
    public static String[] getKnownMechanisms() {
       return KNOWN_MECHANISMS;
