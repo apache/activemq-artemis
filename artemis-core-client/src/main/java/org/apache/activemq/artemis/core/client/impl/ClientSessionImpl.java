@@ -1242,7 +1242,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                      ClientConsumerInternal consumerInternal = entryx.getValue();
 
-                     sessionContext.recreateConsumerOnServer(consumerInternal);
+                     sessionContext.recreateConsumerOnServer(consumerInternal, entryx.getKey().getId(), started);
                   }
 
                   if ((!autoCommitAcks || !autoCommitSends) && workDone) {
