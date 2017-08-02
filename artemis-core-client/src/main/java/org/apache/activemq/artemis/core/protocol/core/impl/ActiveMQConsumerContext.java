@@ -26,6 +26,7 @@ public class ActiveMQConsumerContext extends ConsumerContext {
       this.id = id;
    }
 
+   @Override
    public long getId() {
       return id;
    }
