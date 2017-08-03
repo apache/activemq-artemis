@@ -298,8 +298,9 @@ public class AMQConsumer {
          }
       }
       if (ack.isExpiredAck()) {
-         //adjust delivering count for expired messages
-         this.serverConsumer.getQueue().decDelivering(ackList.size());
+         for (MessageReference ref : ackList) {
+            ref.getQueue().expire(ref);
+         }
       }
    }
 
