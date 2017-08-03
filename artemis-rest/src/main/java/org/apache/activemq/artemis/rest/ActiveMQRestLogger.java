@@ -72,6 +72,10 @@ public interface ActiveMQRestLogger extends BasicLogger {
    @Message(id = 182003, value = "Failed to build Message from object", format = Message.Format.MESSAGE_FORMAT)
    void failedToBuildMessageFromObject(@Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 182004, value = "REST configuration parameter ''{0}'' is deprecated. Use ''{1}'' instead.", format = Message.Format.MESSAGE_FORMAT)
+   void deprecatedConfiguration(String oldConfigParameter, String newConfigParameter);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 184000, value = "Failed to load push store {0}, it is probably corrupted", format = Message.Format.MESSAGE_FORMAT)
    void errorLoadingStore(@Cause Exception e, String name);

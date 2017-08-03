@@ -208,7 +208,7 @@ file. Below is the format of the XML configuration file and the default
 values for each.
 
     <rest-messaging>
-       <server-in-vm-id>0</server-in-vm-id>
+       <server-in-vm-id>0</server-in-vm-id> <!-- deprecated, use "url" -->
        <use-link-headers>false</use-link-headers>
        <default-durable-send>false</default-durable-send>
        <dups-ok>true</dups-ok>
@@ -218,14 +218,17 @@ values for each.
        <producer-session-pool-size>10</producer-session-pool-size>
        <session-timeout-task-interval>1</session-timeout-task-interval>
        <consumer-session-timeout-seconds>300</consumer-session-timeout-seconds>
-       <consumer-window-size>-1</consumer-window-size>
+       <consumer-window-size>-1</consumer-window-size> <!-- deprecated, use "url" -->
+       <url>vm://0</url>
     </rest-messaging>
 
 Let's give an explanation of each config option.
 
--   `server-in-vm-id`. The Apache ActiveMQ Artemis REST impl uses the IN-VM transport
-    to communicate with Apache ActiveMQ Artemis. It uses the default server id, which
-    is "0".
+-   `server-in-vm-id`. The Apache ActiveMQ Artemis REST implementation was formerly hard-coded
+    to use the in-vm transport to communicate with the embedded Apache ActiveMQ Artemis instance.
+    This is the id of the embedded instance. It is "0" by default. Note: this is deprecated in
+    favor of `url` which can be used to connect to an arbitrary instance of Apache ActiveMQ
+    Artemis (including one over the network).
 
 -   `use-link-headers`. By default, all links (URLs) are published using
     custom headers. You can instead have the Apache ActiveMQ Artemis REST
@@ -265,6 +268,11 @@ Let's give an explanation of each config option.
 -   `consumer-window-size`. For consumers, this config option is the
     same as the Apache ActiveMQ Artemis one of the same name. It will be used by
     sessions created by the Apache ActiveMQ Artemis REST implementation.
+    This is deprecated in favor of `url` as it can be specified as a URL
+    parameter.
+
+-   `url`. The URL the Apache ActiveMQ Artemis REST implementation should use
+    to connect to the Apache ActiveMQ Artemis instance. Default to "vm://0".
 
 ## Apache ActiveMQ Artemis REST Interface Basics
 

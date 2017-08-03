@@ -21,17 +21,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.DestinationSettings;
 import org.apache.activemq.artemis.rest.queue.QueueServiceManager;
@@ -143,20 +139,18 @@ public class MessageServiceManager {
       defaultSettings.setDuplicatesAllowed(configuration.isDupsOk());
       defaultSettings.setDurableSend(configuration.isDefaultDurableSend());
 
-      HashMap<String, Object> transportConfig = new HashMap<>();
-      transportConfig.put(TransportConstants.SERVER_ID_PROP_NAME, configuration.getInVmId());
-
-      ServerLocator consumerLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
-      ActiveMQRestLogger.LOGGER.debug("Created ServerLocator: " + consumerLocator);
+      ServerLocator consumerLocator = ActiveMQClient.createServerLocator(configuration.getUrl());
 
       if (configuration.getConsumerWindowSize() != -1) {
          consumerLocator.setConsumerWindowSize(configuration.getConsumerWindowSize());
       }
 
+      ActiveMQRestLogger.LOGGER.debug("Created ServerLocator: " + consumerLocator);
+
       consumerSessionFactory = consumerLocator.createSessionFactory();
       ActiveMQRestLogger.LOGGER.debug("Created ClientSessionFactory: " + consumerSessionFactory);
 
-      ServerLocator defaultLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
+      ServerLocator defaultLocator = ActiveMQClient.createServerLocator(configuration.getUrl());
 
       ClientSessionFactory sessionFactory = defaultLocator.createSessionFactory();
 
