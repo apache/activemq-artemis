@@ -31,12 +31,12 @@ under the License.
    <addresses>
          <address name="shipping">
             <anycast>
-               <queue name="jms.queue.shipping"/>
+               <queue name="shipping"/>
             </anycast>
          </address>
          <address name="orders">
             <anycast>
-               <queue name="jms.queue.orders"/>
+               <queue name="orders"/>
             </anycast>
          </address>
       </addresses>

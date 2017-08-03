@@ -17,7 +17,7 @@
 import httplib, urlparse
 
 conn = httplib.HTTPConnection("localhost:8080")
-conn.request("HEAD", "/queues/jms.queue.orders")
+conn.request("HEAD", "/queues/orders")
 res = conn.getresponse()
 consumersLink = res.getheader("msg-pull-consumers")
 consumersParsed = urlparse.urlparse(consumersLink)
