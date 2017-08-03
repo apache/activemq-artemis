@@ -24,7 +24,7 @@ As you can see, we're just posting some arbitrary XML document to a URL.
 When the XML is received on the server is it processed within Apache ActiveMQ Artemis
 as a JMS message and distributed through core Apache ActiveMQ Artemis. Simple and easy.
 Consuming messages from a queue or topic looks very similar. We'll
-discuss the entire interface in detail later in this docbook.
+discuss the entire interface in detail later.
 
 ## Goals of REST Interface
 
@@ -57,11 +57,11 @@ of the REST interface?
 
 ## Installation and Configuration
 
-Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ Artemis REST WAR to startup and manage the Apache ActiveMQ Artemis server (e.g. you're deploying within something like Apache Tomcat).
+Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already embedded (e.g. you're deploying within Wildfly) or configured on the network somewhere, or you want the ActiveMQ Artemis REST WAR itself to startup and manage the Apache ActiveMQ Artemis server.
 
 ### Installing Within Pre-configured Environment
 
-This section should be used when you want to use the Apache ActiveMQ Artemis REST interface in an environment that already has Apache ActiveMQ Artemis installed and running, e.g. the Wildfly application server. You must create a Web archive (.WAR) file with the following web.xml settings:
+This section should be used when you want to use the Apache ActiveMQ Artemis REST interface in an environment that already has Apache ActiveMQ Artemis installed and running. You must create a Web archive (.WAR) file with the following web.xml settings:
 
     <web-app>
        <listener>
@@ -89,7 +89,7 @@ This section should be used when you want to use the Apache ActiveMQ Artemis RES
        </filter-mapping>
     </web-app>
 
-Within your WEB-INF/lib directory you must have the Apache ActiveMQ Artemis-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the Apache ActiveMQ Artemis REST library.
+Within your WEB-INF/lib directory you must have the artemis-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the Apache ActiveMQ Artemis REST library.
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -131,7 +131,7 @@ It is worth noting that when deploying a WAR in a Java EE application server lik
 
 ### Bootstrapping ActiveMQ Artemis Along with REST
 
-You can bootstrap Apache ActiveMQ Artemis within your WAR as well. To do this, you must have the Apache ActiveMQ Artemis core and JMS jars along with Netty, RESTEasy, and the Apache ActiveMQ Artemis REST jar within your WEB-INF/lib. You must also have an Apache ActiveMQ Artemis-configuration.xml config file within WEB-INF/classes. The examples that come with the Apache ActiveMQ Artemis REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
+You can bootstrap Apache ActiveMQ Artemis within your WAR as well. To do this, you must have the Apache ActiveMQ Artemis core and JMS jars along with Netty, RESTEasy, and the Apache ActiveMQ Artemis REST jar within your WEB-INF/lib. You must also have a broker.xml config file within WEB-INF/classes. The examples that come with the Apache ActiveMQ Artemis REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
 
     <web-app>
        <listener>
@@ -279,7 +279,7 @@ Let's give an explanation of each config option.
 The Apache ActiveMQ Artemis REST interface publishes a variety of REST resources to
 perform various tasks on a queue or topic. Only the top-level queue and
 topic URI schemes are published to the outside world. You must discover
-all over resources to interact with by looking for and traversing links.
+all other resources to interact with by looking for and traversing links.
 You'll find published links within custom response headers and embedded
 in published XML representations. Let's look at how this works.
 
@@ -295,12 +295,8 @@ The base of the URI is the base URL of the WAR you deployed the Apache ActiveMQ 
 REST server within as defined in the [Installation and
 Configuration](#install) section of this document. Replace the `{name}`
 string within the above URI pattern with the name of the queue or topic
-you are interested in interacting with. For example if you have
-configured a named "foo" within your `activemq-jms.xml` file,
-the URI name should be "foo". If you have configured a JMS
-queue name "bar" within your `activemq-jms.xml` file, the URI name
-should be "bar". Next, perform your HEAD or GET request on this URI.
-Here's what a request/response would look like.
+you are interested in interacting with. Next, perform your HEAD or GET
+request on this URI. Here's what a request/response would look like.
 
     HEAD /queues/bar HTTP/1.1
     Host: example.com
@@ -317,7 +313,7 @@ Here's what a request/response would look like.
 > You can use the "curl" utility to test this easily. Simply execute a
 > command like this:
 >
->     curl --head http://example.com/queues/.bar
+>     curl --head http://example.com/queues/bar
 
 The HEAD or GET response contains a number of custom response headers
 that are URLs to additional REST resources that allow you to interact
@@ -1346,9 +1342,7 @@ headers might look like:
 You can create a durable queue or topic through the REST interface.
 Currently you cannot create a temporary queue or topic. To create a
 queue you do a POST to the relative URL /queues with an XML
-representation of the queue. The XML syntax is the same queue syntax
-that you would specify in activemq-jms.xml if you were creating a queue
-there. For example:
+representation of the queue. For example:
 
     POST /queues
     Host: example.com
