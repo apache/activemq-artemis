@@ -26,11 +26,8 @@ import javax.jms.TextMessage;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
@@ -46,7 +43,8 @@ public final class EmbeddedExample {
 
    public static void main(final String[] args) throws Exception {
       // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
-      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal").setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName())).addConnectorConfiguration("connector", new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal").setSecurityEnabled(false).addAcceptorConfiguration("tcp", "tcp://localhost:61616").
+         addConnectorConfiguration("connector", "tcp://localhost:61616");
 
       // Step 2. Create the JMS configuration
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
