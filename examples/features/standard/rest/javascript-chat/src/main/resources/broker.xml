@@ -27,7 +27,7 @@ under the License.
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
-   <addresses>
+      <addresses>
          <address name="chat">
             <multicast/>
          </address>
