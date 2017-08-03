@@ -27,10 +27,10 @@ under the License.
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
-   <addresses>
+      <addresses>
          <address name="orders">
             <anycast>
-               <queue name="jms.queue.orders"/>
+               <queue name="orders"/>
             </anycast>
          </address>
       </addresses>
