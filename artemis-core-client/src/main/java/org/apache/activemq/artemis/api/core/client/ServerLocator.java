@@ -729,6 +729,16 @@ public interface ServerLocator extends AutoCloseable {
    void close();
 
    /**
+    *
+    *
+    * @param useTopologyForLoadBalancing
+    * @return
+    */
+   ServerLocator setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing);
+
+   boolean getUseTopologyForLoadBalancing();
+
+   /**
     * Exposes the Topology used by this ServerLocator.
     *
     * @return topology
