@@ -207,6 +207,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private TransportConfiguration clusterTransportConfiguration;
 
+   private boolean useTopologyForLoadBalancing;
+
    private final Exception traceException = new Exception();
 
    // To be called when there are ServerLocator being finalized.
@@ -393,6 +395,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
 
       clusterConnection = false;
+
+      useTopologyForLoadBalancing = ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
    }
 
    public static ServerLocator newLocator(String uri) {
@@ -524,6 +528,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       groupID = locator.groupID;
       nodeID = locator.nodeID;
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
+      useTopologyForLoadBalancing = locator.useTopologyForLoadBalancing;
    }
 
    private TransportConfiguration selectConnector() {
@@ -534,8 +539,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       synchronized (this) {
-         // if the topologyArray is null, we will use the initialConnectors
-         if (usedTopology != null) {
+         if (usedTopology != null && useTopologyForLoadBalancing) {
             if (logger.isTraceEnabled()) {
                logger.trace("Selecting connector from topology.");
             }
@@ -544,7 +548,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
             return pair.getA();
          } else {
-            // Get from initialconnectors
             if (logger.isTraceEnabled()) {
                logger.trace("Selecting connector from initial connectors.");
             }
@@ -1562,6 +1565,17 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          receivedTopology = false;
          topologyArray = null;
       }
+   }
+
+   @Override
+   public ServerLocator setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing) {
+      this.useTopologyForLoadBalancing = useTopologyForLoadBalancing;
+      return this;
+   }
+
+   @Override
+   public boolean getUseTopologyForLoadBalancing() {
+      return useTopologyForLoadBalancing;
    }
 
    @Override
