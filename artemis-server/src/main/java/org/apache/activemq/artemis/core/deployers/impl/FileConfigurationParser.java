@@ -608,6 +608,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setNetworkCheckPingCommand(getString(e, "network-check-ping-command", config.getNetworkCheckPingCommand(), Validators.NO_CHECK));
 
+      config.setCriticalAnalyzer(getBoolean(e, "critical-analyzer", config.isCriticalAnalyzer()));
+
+      config.setCriticalAnalyzerTimeout(getLong(e, "critical-analyzer-timeout", config.getCriticalAnalyzerTimeout(), Validators.GE_ZERO));
+
+      config.setCriticalAnalyzerCheckPeriod(getLong(e, "critical-analyzer-check-period", config.getCriticalAnalyzerCheckPeriod(), Validators.GE_ZERO));
+
+      config.setCriticalAnalyzerHalt(getBoolean(e, "critical-analyzer-halt", config.isCriticalAnalyzerHalt()));
+
       parseAddressSettings(e, config);
 
       parseResourceLimits(e, config);

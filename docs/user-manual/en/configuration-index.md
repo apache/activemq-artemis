@@ -118,6 +118,11 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 [network-check-list](network-isolation.md) | The list of pings to be used on ping or InetAddress.isReacheable
 [network-check-ping-command](network-isolation.md) | The command used to oping IPV4 addresses
 [network-check-ping6-command](network-isolation.md) | The command used to oping IPV6 addresses
+[critical-analyzer](critical-analysis.md) | Enable or disable the critical analysis (default true)
+[critical-analyzer-timeout](critical-analysis.md) | Timeout used to do the critical analysis (default 120000 milliseconds)
+[critical-analyzer-check-period](critical-analysis.md) | Time used to check the response times (default half of critical-analyzer-timeout)
+[critical-analyzer-halt](critical-analysis.md) | Should the VM be halted upon failures (default false)
+
 
 #address-setting type
 

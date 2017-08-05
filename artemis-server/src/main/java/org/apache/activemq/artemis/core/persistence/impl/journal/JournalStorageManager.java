@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
@@ -85,29 +86,32 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    private ReplicationManager replicator;
 
    public JournalStorageManager(final Configuration config,
+                                final CriticalAnalyzer analyzer,
                                 final ExecutorFactory executorFactory,
                                 final ScheduledExecutorService scheduledExecutorService,
                                 final ExecutorFactory ioExecutors) {
-      this(config, executorFactory, scheduledExecutorService, ioExecutors, null);
+      this(config, analyzer, executorFactory, scheduledExecutorService, ioExecutors, null);
    }
 
-   public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ExecutorFactory ioExecutors) {
-      this(config, executorFactory, null, ioExecutors, null);
+   public JournalStorageManager(final Configuration config, CriticalAnalyzer analyzer, final ExecutorFactory executorFactory, final ExecutorFactory ioExecutors) {
+      this(config, analyzer, executorFactory, null, ioExecutors, null);
    }
 
    public JournalStorageManager(final Configuration config,
+                                final CriticalAnalyzer analyzer,
                                 final ExecutorFactory executorFactory,
                                 final ScheduledExecutorService scheduledExecutorService,
                                 final ExecutorFactory ioExecutors,
                                 final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, scheduledExecutorService, ioExecutors, criticalErrorListener);
+      super(config, analyzer, executorFactory, scheduledExecutorService, ioExecutors, criticalErrorListener);
    }
 
    public JournalStorageManager(final Configuration config,
+                                final CriticalAnalyzer analyzer,
                                 final ExecutorFactory executorFactory,
                                 final ExecutorFactory ioExecutors,
                                 final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, null, ioExecutors, criticalErrorListener);
+      super(config, analyzer, executorFactory, null, ioExecutors, criticalErrorListener);
    }
 
    @Override

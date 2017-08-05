@@ -477,6 +477,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int DEFAULT_QUORUM_SIZE = -1;
 
+   public static final boolean DEFAULT_ANALYZE_CRITICAL = true;
+
+   public static final long DEFAULT_ANALYZE_CRITICAL_TIMEOUT = 120000;
+
+   public static final boolean DEFAULT_ANALYZE_CRITICAL_HALT = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1282,4 +1288,24 @@ public final class ActiveMQDefaultConfiguration {
    public static int getDefaultQuorumSize() {
       return DEFAULT_QUORUM_SIZE;
    }
+
+
+   public static boolean getCriticalAnalyzer() {
+      return DEFAULT_ANALYZE_CRITICAL;
+   }
+
+   public static long getCriticalAnalyzerTimeout() {
+      return DEFAULT_ANALYZE_CRITICAL_TIMEOUT;
+   }
+
+   public static long getCriticalAnalyzerCheckPeriod(long timeout) {
+      // this will be 0, the implementation should return 1/2 of the configured critical timeout
+      return timeout / 2;
+   }
+
+   public static boolean getCriticalAnalyzerHalt() {
+      return DEFAULT_ANALYZE_CRITICAL_HALT;
+   }
+
+
 }

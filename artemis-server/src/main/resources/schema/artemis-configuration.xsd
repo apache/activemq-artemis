@@ -768,6 +768,38 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="critical-analyzer" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  should analyze response time on critical paths and decide for broker shutdown or halt.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="critical-analyzer-timeout" type="xsd:long" default="120000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The default timeout used on analyzing timeouts on the critical path.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="critical-analyzer-check-period" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The timeout here will be defaulted to half critical-analyzer-timeout, calculation happening at runtime
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="critical-analyzer-halt" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Should the server be shutdown or halted upon critical analysis failure.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

@@ -172,6 +172,10 @@ import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerImpl;
+import org.apache.activemq.artemis.utils.critical.CriticalComponent;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
 
 /**
@@ -316,6 +320,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final ActiveMQServer parentServer;
 
+
+   private final CriticalAnalyzer analyzer;
+
    //todo think about moving this to the activation
    private final List<SimpleString> scaledDownNodeIDs = new ArrayList<>();
 
@@ -426,6 +433,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.parentServer = parentServer;
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
+
+      if (configuration.isCriticalAnalyzer()) {
+         this.analyzer = new CriticalAnalyzerImpl();
+      } else {
+         this.analyzer = EmptyCriticalAnalyzer.getInstance();
+      }
    }
 
    @Override
@@ -479,11 +492,78 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   @Override
+   public CriticalAnalyzer getCriticalAnalyzer() {
+      return this.analyzer;
+   }
+
    private void internalStart() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
          logger.debug("Server already started!");
          return;
       }
+
+      /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
+      this.analyzer.clear();
+
+      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod()).setTimeout(configuration.getCriticalAnalyzerTimeout());
+
+      if (configuration.isCriticalAnalyzer()) {
+         this.getCriticalAnalyzer().start();
+      }
+
+      this.getCriticalAnalyzer().addAction((CriticalComponent c) -> {
+
+         if (configuration.isCriticalAnalyzerHalt()) {
+            ActiveMQServerLogger.LOGGER.criticalSystemHalt(c);
+         } else {
+            ActiveMQServerLogger.LOGGER.criticalSystemShutdown(c);
+         }
+
+         threadDump();
+
+         // on the case of a critical failure, -1 cannot simply means forever.
+         // in case graceful is -1, we will set it to 30 seconds
+         long timeout = configuration.getGracefulShutdownTimeout() < 0 ? 30000 : configuration.getGracefulShutdownTimeout();
+
+         Thread notificationSender = new Thread() {
+            @Override
+            public void run() {
+               try {
+                  callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.criticalFailure(c) : null);
+               } catch (Throwable e) {
+                  logger.warn(e.getMessage(), e);
+               }
+            }
+         };
+
+         // I'm using a different thread here as we need to manage timeouts
+         notificationSender.start();
+
+         try {
+            notificationSender.join(timeout);
+         } catch (InterruptedException ignored) {
+         }
+
+         if (configuration.isCriticalAnalyzerHalt()) {
+            Runtime.getRuntime().halt(70); // Linux systems will have /usr/include/sysexits.h showing 70 as internal software error
+         } else {
+            // you can't stop from the check thread,
+            // nor can use an executor
+            Thread stopThread = new Thread() {
+               @Override
+               public void run() {
+                  try {
+                     ActiveMQServerImpl.this.stop();
+                  } catch (Throwable e) {
+                     logger.warn(e.getMessage(), e);
+                  }
+               }
+            };
+            stopThread.start();
+
+         }
+      });
 
       configuration.parseSystemProperties();
 
@@ -1059,6 +1139,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(e, externalComponent.getClass().getName());
          }
+      }
+
+      try {
+         this.getCriticalAnalyzer().stop();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
       }
 
       if (identity != null) {
@@ -2015,10 +2101,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
-            return new JDBCJournalStorageManager(configuration, getScheduledPool(), executorFactory, ioExecutorFactory, shutdownOnCriticalIO);
+            JDBCJournalStorageManager journal = new JDBCJournalStorageManager(configuration, getCriticalAnalyzer(), getScheduledPool(), executorFactory, ioExecutorFactory, shutdownOnCriticalIO);
+            this.getCriticalAnalyzer().add(journal);
+            return journal;
          } else {
             // Default to File Based Storage Manager, (Legacy default configuration).
-            return new JournalStorageManager(configuration, executorFactory, scheduledPool, ioExecutorFactory, shutdownOnCriticalIO);
+            JournalStorageManager journal = new JournalStorageManager(configuration, getCriticalAnalyzer(), executorFactory, scheduledPool, ioExecutorFactory, shutdownOnCriticalIO);
+            this.getCriticalAnalyzer().add(journal);
+            return journal;
          }
       }
       return new NullStorageManager();

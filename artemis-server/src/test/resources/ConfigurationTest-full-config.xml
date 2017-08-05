@@ -57,6 +57,10 @@
       <global-max-size>1234567</global-max-size>
       <max-disk-usage>37</max-disk-usage>
       <disk-scan-period>123</disk-scan-period>
+      <critical-analyzer-halt>true</critical-analyzer-halt>
+      <critical-analyzer-check-period>333</critical-analyzer-check-period>
+      <critical-analyzer-timeout>777</critical-analyzer-timeout>
+      <critical-analyzer>false</critical-analyzer>
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>

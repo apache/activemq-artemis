@@ -83,6 +83,7 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends OptionalLocking {
@@ -134,7 +135,7 @@ public final class XmlDataExporter extends OptionalLocking {
       final ExecutorService executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
       ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
 
-      storageManager = new JournalStorageManager(config, executorFactory, executorFactory);
+      storageManager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), executorFactory, executorFactory);
 
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
