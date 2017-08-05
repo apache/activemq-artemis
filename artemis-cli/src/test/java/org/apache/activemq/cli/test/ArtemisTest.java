@@ -541,10 +541,11 @@ public class ArtemisTest extends CliTestBase {
       Artemis.main("create", instanceFolder.getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--addresses", addresses, "--no-autotune", "--require-login");
       System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
 
-      // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
-      Artemis.internalExecute("run");
 
       try {
+         // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
+         Artemis.internalExecute("run");
+
          try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
               ClientSessionFactory factory = locator.createSessionFactory();
               ClientSession coreSession = factory.createSession("admin", "admin", false, true, true, false, 0)) {

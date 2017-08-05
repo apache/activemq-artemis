@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournal
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,7 +67,7 @@ public class RestartSMTest extends ActiveMQTestBase {
 
       PostOffice postOffice = new FakePostOffice();
 
-      final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), execFactory, execFactory);
+      final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory);
 
       try {
 

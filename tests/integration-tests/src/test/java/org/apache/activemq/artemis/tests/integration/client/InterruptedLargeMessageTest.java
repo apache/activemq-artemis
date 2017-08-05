@@ -520,7 +520,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
                         Executor executor) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
-                  postOffice, storageManager, addressSettingsRepository, executor, null);
+                  postOffice, storageManager, addressSettingsRepository, executor, null, null);
          }
 
          @Override

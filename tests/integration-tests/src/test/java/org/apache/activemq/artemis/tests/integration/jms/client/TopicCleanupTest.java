@@ -87,7 +87,7 @@ public class TopicCleanupTest extends JMSTestBase {
                                               FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null,
                                               true, false, false, server.getScheduledPool(), server.getPostOffice(),
                                               storage, server.getAddressSettingsRepository(),
-                                              server.getExecutorFactory().getExecutor(), server);
+                                              server.getExecutorFactory().getExecutor(), server, null);
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());
 

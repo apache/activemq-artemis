@@ -32,24 +32,27 @@ import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
 
    private Connection connection;
 
    public JDBCJournalStorageManager(Configuration config,
+                                    CriticalAnalyzer analyzer,
                                     ExecutorFactory executorFactory,
                                     ExecutorFactory ioExecutorFactory,
                                     ScheduledExecutorService scheduledExecutorService) {
-      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory);
+      super(config, analyzer, executorFactory, scheduledExecutorService, ioExecutorFactory);
    }
 
    public JDBCJournalStorageManager(final Configuration config,
+                                    final CriticalAnalyzer analyzer,
                                     final ScheduledExecutorService scheduledExecutorService,
                                     final ExecutorFactory executorFactory,
                                     final ExecutorFactory ioExecutorFactory,
                                     final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, scheduledExecutorService, ioExecutorFactory, criticalErrorListener);
+      super(config, analyzer, executorFactory, scheduledExecutorService, ioExecutorFactory, criticalErrorListener);
    }
 
    @Override

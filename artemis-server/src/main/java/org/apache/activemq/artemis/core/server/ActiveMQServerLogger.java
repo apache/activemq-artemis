@@ -1631,6 +1631,14 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224075, value = "Cannot find pageTX id = {0}", format = Message.Format.MESSAGE_FORMAT)
    void journalCannotFindPageTX(Long id);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224079, value = "The process for the virtual machine will be killed, as component {0} is not responsive", format = Message.Format.MESSAGE_FORMAT)
+   void criticalSystemHalt(Object component);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224080, value = "The server process will now be stopped, as component {0} is not responsive", format = Message.Format.MESSAGE_FORMAT)
+   void criticalSystemShutdown(Object component);
+
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224076, value = "UnDeploying address {0}", format = Message.Format.MESSAGE_FORMAT)
    void undeployAddress(SimpleString addressName);

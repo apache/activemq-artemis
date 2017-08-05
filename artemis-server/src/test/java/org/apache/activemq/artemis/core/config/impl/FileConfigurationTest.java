@@ -382,6 +382,11 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(37, conf.getMaxDiskUsage());
       assertEquals(123, conf.getDiskScanPeriod());
 
+      assertEquals(333, conf.getCriticalAnalyzerCheckPeriod());
+      assertEquals(777, conf.getCriticalAnalyzerTimeout());
+      assertEquals(false, conf.isCriticalAnalyzer());
+      assertEquals(true, conf.isCriticalAnalyzerHalt());
+
       assertEquals(false, conf.isJournalDatasync());
    }
 
