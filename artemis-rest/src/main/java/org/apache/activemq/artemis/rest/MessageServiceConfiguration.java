@@ -26,12 +26,15 @@ public class MessageServiceConfiguration {
    private long producerTimeToLive = -1;
    private int timeoutTaskInterval = 1;
    private int consumerSessionTimeoutSeconds = 300;
+   @Deprecated
    private int consumerWindowSize = -1;
    private boolean defaultDurableSend = false;
    private boolean dupsOk = true;
    private String topicPushStoreDirectory = "topic-push-store";
    private String queuePushStoreDirectory = "queue-push-store";
+   @Deprecated
    private String inVmId = "0";
+   private String url = "vm://0";
    private boolean useLinkHeaders = false;
 
    private String deserializationWhiteList;
@@ -43,6 +46,7 @@ public class MessageServiceConfiguration {
    }
 
    public void setInVmId(String inVmId) {
+      ActiveMQRestLogger.LOGGER.deprecatedConfiguration("server-in-vm-id", "url");
       this.inVmId = inVmId;
    }
 
@@ -133,7 +137,17 @@ public class MessageServiceConfiguration {
    }
 
    public void setConsumerWindowSize(int consumerWindowSize) {
+      ActiveMQRestLogger.LOGGER.deprecatedConfiguration("consumer-window-size", "url");
       this.consumerWindowSize = consumerWindowSize;
+   }
+
+   @XmlElement(name = "url")
+   public String getUrl() {
+      return url;
+   }
+
+   public void setUrl(String url) {
+      this.url = url;
    }
 
    public String getDeserializationWhiteList() {
