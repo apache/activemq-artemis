@@ -47,7 +47,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param connection The newly created connection
     */
-   default void afterCreateConnection(RemotingConnection connection) {
+   default void afterCreateConnection(RemotingConnection connection) throws Exception {
 
    }
 
@@ -56,7 +56,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param connection
     */
-   default void afterDestroyConnection(RemotingConnection connection) {
+   default void afterDestroyConnection(RemotingConnection connection) throws Exception {
 
    }
 
@@ -80,7 +80,7 @@ public interface ActiveMQServerPlugin {
    default void beforeCreateSession(String name, String username, int minLargeMessageSize,
          RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge,
          boolean xa, String defaultAddress, SessionCallback callback, boolean autoCreateQueues, OperationContext context,
-         Map<SimpleString, RoutingType> prefixes) {
+         Map<SimpleString, RoutingType> prefixes) throws Exception {
 
    }
 
@@ -89,7 +89,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param session The newly created session
     */
-   default void afterCreateSession(ServerSession session) {
+   default void afterCreateSession(ServerSession session) throws Exception {
 
    }
 
@@ -99,7 +99,7 @@ public interface ActiveMQServerPlugin {
     * @param session
     * @param failed
     */
-   default void beforeCloseSession(ServerSession session, boolean failed) {
+   default void beforeCloseSession(ServerSession session, boolean failed) throws Exception {
 
    }
 
@@ -109,7 +109,7 @@ public interface ActiveMQServerPlugin {
     * @param session
     * @param failed
     */
-   default void afterCloseSession(ServerSession session, boolean failed) {
+   default void afterCloseSession(ServerSession session, boolean failed) throws Exception {
 
    }
 
@@ -120,7 +120,7 @@ public interface ActiveMQServerPlugin {
     * @param key
     * @param data
     */
-   default void beforeSessionMetadataAdded(ServerSession session, String key, String data) {
+   default void beforeSessionMetadataAdded(ServerSession session, String key, String data) throws Exception {
 
    }
 
@@ -131,7 +131,7 @@ public interface ActiveMQServerPlugin {
     * @param key
     * @param data
     */
-   default void afterSessionMetadataAdded(ServerSession session, String key, String data) {
+   default void afterSessionMetadataAdded(ServerSession session, String key, String data) throws Exception {
 
    }
 
@@ -145,7 +145,7 @@ public interface ActiveMQServerPlugin {
     * @param supportLargeMessage
     */
    default void beforeCreateConsumer(long consumerID, SimpleString queueName, SimpleString filterString,
-         boolean browseOnly, boolean supportLargeMessage) {
+         boolean browseOnly, boolean supportLargeMessage) throws Exception {
 
    }
 
@@ -154,7 +154,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param consumer the created consumer
     */
-   default void afterCreateConsumer(ServerConsumer consumer) {
+   default void afterCreateConsumer(ServerConsumer consumer) throws Exception {
 
    }
 
@@ -164,7 +164,7 @@ public interface ActiveMQServerPlugin {
     * @param consumer
     * @param failed
     */
-   default void beforeCloseConsumer(ServerConsumer consumer, boolean failed) {
+   default void beforeCloseConsumer(ServerConsumer consumer, boolean failed) throws Exception {
 
    }
 
@@ -174,7 +174,7 @@ public interface ActiveMQServerPlugin {
     * @param consumer
     * @param failed
     */
-   default void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
+   default void afterCloseConsumer(ServerConsumer consumer, boolean failed) throws Exception {
 
    }
 
@@ -183,7 +183,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param queueConfig
     */
-   default void beforeCreateQueue(QueueConfig queueConfig) {
+   default void beforeCreateQueue(QueueConfig queueConfig) throws Exception {
 
    }
 
@@ -192,7 +192,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param queue The newly created queue
     */
-   default void afterCreateQueue(Queue queue) {
+   default void afterCreateQueue(Queue queue) throws Exception {
 
    }
 
@@ -206,7 +206,7 @@ public interface ActiveMQServerPlugin {
     * @param autoDeleteAddress
     */
    default void beforeDestroyQueue(SimpleString queueName, final SecurityAuth session, boolean checkConsumerCount,
-         boolean removeConsumers, boolean autoDeleteAddress) {
+         boolean removeConsumers, boolean autoDeleteAddress) throws Exception {
 
    }
 
@@ -221,7 +221,7 @@ public interface ActiveMQServerPlugin {
     * @param autoDeleteAddress
     */
    default void afterDestroyQueue(Queue queue, SimpleString address, final SecurityAuth session, boolean checkConsumerCount,
-         boolean removeConsumers, boolean autoDeleteAddress) {
+         boolean removeConsumers, boolean autoDeleteAddress) throws Exception {
 
    }
 
@@ -234,7 +234,7 @@ public interface ActiveMQServerPlugin {
     * @param direct
     * @param noAutoCreateQueue
     */
-   default void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) {
+   default void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) throws Exception {
       //by default call the old method for backwards compatibility
       this.beforeSend(tx, message, direct, noAutoCreateQueue);
    }
@@ -250,7 +250,7 @@ public interface ActiveMQServerPlugin {
     * @param result
     */
    default void afterSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
-         RoutingStatus result) {
+         RoutingStatus result) throws Exception {
       //by default call the old method for backwards compatibility
       this.afterSend(tx, message, direct, noAutoCreateQueue, result);
    }
@@ -264,10 +264,10 @@ public interface ActiveMQServerPlugin {
     * @param direct
     * @param noAutoCreateQueue
     *
-    * @deprecated use {@link #beforeSend(ServerSession, Transaction, Message, boolean, boolean)}
+    * @deprecated use throws Exception {@link #beforeSend(ServerSession, Transaction, Message, boolean, boolean)}
     */
    @Deprecated
-   default void beforeSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) {
+   default void beforeSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) throws Exception {
 
    }
 
@@ -280,11 +280,11 @@ public interface ActiveMQServerPlugin {
     * @param noAutoCreateQueue
     * @param result
     *
-    * @deprecated use {@link #afterSend(ServerSession, Transaction, Message, boolean, boolean, RoutingStatus)}
+    * @deprecated use throws Exception {@link #afterSend(ServerSession, Transaction, Message, boolean, boolean, RoutingStatus)}
     */
    @Deprecated
    default void afterSend(Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
-         RoutingStatus result) {
+         RoutingStatus result) throws Exception {
 
    }
 
@@ -296,7 +296,7 @@ public interface ActiveMQServerPlugin {
     * @param direct
     * @param rejectDuplicates
     */
-   default void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) {
+   default void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws Exception {
 
    }
 
@@ -310,7 +310,7 @@ public interface ActiveMQServerPlugin {
     * @param result
     */
    default void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
-         RoutingStatus result) {
+         RoutingStatus result) throws Exception {
 
    }
 
@@ -320,7 +320,7 @@ public interface ActiveMQServerPlugin {
     * @param consumer the consumer the message will be delivered to
     * @param reference message reference
     */
-   default void beforeDeliver(ServerConsumer consumer, MessageReference reference) {
+   default void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws Exception {
       //by default call the old method for backwards compatibility
       this.beforeDeliver(reference);
    }
@@ -331,7 +331,7 @@ public interface ActiveMQServerPlugin {
     * @param consumer the consumer the message was delivered to
     * @param reference message reference
     */
-   default void afterDeliver(ServerConsumer consumer, MessageReference reference) {
+   default void afterDeliver(ServerConsumer consumer, MessageReference reference) throws Exception {
       //by default call the old method for backwards compatibility
       this.afterDeliver(reference);
    }
@@ -341,10 +341,10 @@ public interface ActiveMQServerPlugin {
     *
     * @param reference
     *
-    * @deprecated use {@link #beforeDeliver(ServerConsumer, MessageReference)}
+    * @deprecated use throws Exception {@link #beforeDeliver(ServerConsumer, MessageReference)}
     */
    @Deprecated
-   default void beforeDeliver(MessageReference reference) {
+   default void beforeDeliver(MessageReference reference) throws Exception {
 
    }
 
@@ -353,10 +353,10 @@ public interface ActiveMQServerPlugin {
     *
     * @param reference
     *
-    * @deprecated use {@link #afterDeliver(ServerConsumer, MessageReference)}
+    * @deprecated use throws Exception {@link #afterDeliver(ServerConsumer, MessageReference)}
     */
    @Deprecated
-   default void afterDeliver(MessageReference reference) {
+   default void afterDeliver(MessageReference reference) throws Exception {
 
    }
 
@@ -366,7 +366,7 @@ public interface ActiveMQServerPlugin {
     * @param message The expired message
     * @param messageExpiryAddress The message expiry address if exists
     */
-   default void messageExpired(MessageReference message, SimpleString messageExpiryAddress) {
+   default void messageExpired(MessageReference message, SimpleString messageExpiryAddress) throws Exception {
 
    }
 
@@ -376,7 +376,7 @@ public interface ActiveMQServerPlugin {
     * @param ref The acked message
     * @param reason The ack reason
     */
-   default void messageAcknowledged(MessageReference ref, AckReason reason) {
+   default void messageAcknowledged(MessageReference ref, AckReason reason) throws Exception {
 
    }
 
@@ -385,7 +385,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param config The bridge configuration
     */
-   default void beforeDeployBridge(BridgeConfiguration config) {
+   default void beforeDeployBridge(BridgeConfiguration config) throws Exception {
 
    }
 
@@ -394,7 +394,7 @@ public interface ActiveMQServerPlugin {
     *
     * @param bridge The newly deployed bridge
     */
-   default void afterDeployBridge(Bridge bridge) {
+   default void afterDeployBridge(Bridge bridge) throws Exception {
 
    }
 
