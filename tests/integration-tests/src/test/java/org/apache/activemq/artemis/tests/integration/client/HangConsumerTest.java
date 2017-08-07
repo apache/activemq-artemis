@@ -239,7 +239,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                              final Executor executor, final ActiveMQServer server) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
                   maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager,
-                  addressSettingsRepository, executor, server);
+                  addressSettingsRepository, executor, server, null);
          }
 
          @Override
@@ -375,7 +375,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
       LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE,
                                                            new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false,
-                                                                         false, null, null, null, null, null, null),
+                                                                         false, null, null, null, null, null, null, null),
                                                            server.getNodeID());
       server.getStorageManager().addQueueBinding(txID, newBinding);
       server.getStorageManager().commitBindings(txID);

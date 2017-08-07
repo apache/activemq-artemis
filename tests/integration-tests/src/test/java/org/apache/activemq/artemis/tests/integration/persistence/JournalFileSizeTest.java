@@ -1,4 +1,5 @@
-/** * Licensed to the Apache Software Foundation (ASF) under one or more
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -15,13 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-
 import java.io.File;
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,9 +44,7 @@ public class JournalFileSizeTest {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2 - 1));
-      JournalStorageManager manager = new JournalStorageManager(config,
-            new OrderedExecutorFactory(null),
-            new OrderedExecutorFactory(null));
+      JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
       Assert.assertEquals(origFileSize, fileSize);
    }
@@ -55,9 +54,7 @@ public class JournalFileSizeTest {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2 + 1));
-      JournalStorageManager manager = new JournalStorageManager(config,
-            new OrderedExecutorFactory(null),
-            new OrderedExecutorFactory(null));
+      JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
       Assert.assertEquals(origFileSize + align, fileSize);
    }
@@ -67,9 +64,7 @@ public class JournalFileSizeTest {
       ConfigurationImpl config = new ConfigurationImpl();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2));
-      JournalStorageManager manager = new JournalStorageManager(config,
-            new OrderedExecutorFactory(null),
-            new OrderedExecutorFactory(null));
+      JournalStorageManager manager = new JournalStorageManager(config,EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
       Assert.assertEquals(origFileSize + align, fileSize);
    }

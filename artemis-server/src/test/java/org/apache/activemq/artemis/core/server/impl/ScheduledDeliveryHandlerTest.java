@@ -51,6 +51,8 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -763,7 +765,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   public class FakeQueueForScheduleUnitTest implements Queue {
+   public class FakeQueueForScheduleUnitTest extends CriticalComponentImpl implements Queue {
 
       @Override
       public void setPurgeOnNoConsumers(boolean value) {
@@ -781,6 +783,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       public FakeQueueForScheduleUnitTest(final int expectedElements) {
+         super(EmptyCriticalAnalyzer.getInstance(), 1);
          this.expectedElements = new CountDownLatch(expectedElements);
       }
 

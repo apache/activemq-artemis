@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
 /**
  * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components
@@ -107,6 +108,8 @@ public interface ActiveMQServer extends ServiceComponent {
    Version getVersion();
 
    NodeManager getNodeManager();
+
+   CriticalAnalyzer getCriticalAnalyzer();
 
    /**
     * @return

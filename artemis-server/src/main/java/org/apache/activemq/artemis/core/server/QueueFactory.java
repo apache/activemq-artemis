@@ -51,4 +51,8 @@ public interface QueueFactory {
     * @param postOffice
     */
    void setPostOffice(PostOffice postOffice);
+
+   default void queueRemoved(Queue queue) {
+
+   }
 }
