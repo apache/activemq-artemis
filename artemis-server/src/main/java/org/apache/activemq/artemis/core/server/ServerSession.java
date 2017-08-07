@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import javax.json.JsonArrayBuilder;
-import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Set;
+
+import javax.json.JsonArrayBuilder;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.core.Message;
@@ -208,9 +209,9 @@ public interface ServerSession extends SecurityAuth {
 
    Set<ServerConsumer> getServerConsumers();
 
-   void addMetaData(String key, String data);
+   void addMetaData(String key, String data) throws Exception;
 
-   boolean addUniqueMetaData(String key, String data);
+   boolean addUniqueMetaData(String key, String data) throws Exception;
 
    String getMetaData(String key);
 
