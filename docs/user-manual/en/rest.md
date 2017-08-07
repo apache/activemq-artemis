@@ -1014,7 +1014,7 @@ resource.
         acknowledge=true
 
         --- Response ---
-        Http/1.1 200 Ok
+        Http/1.1 204 Ok
         msg-acknowledge-next:
         http://example.com/queues/bar/pull-consumers/333/acknowledge-next-2
 
