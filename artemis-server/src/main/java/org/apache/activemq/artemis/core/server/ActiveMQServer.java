@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -198,7 +199,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    List<ActiveMQServerPlugin> getBrokerPlugins();
 
-   void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws Exception;
+   void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws ActiveMQException;
 
    boolean hasBrokerPlugins();
 

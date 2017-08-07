@@ -51,6 +51,7 @@ import javax.management.MBeanServer;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -1844,10 +1845,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws Exception {
+   public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws ActiveMQException {
       if (pluginRun != null) {
          for (ActiveMQServerPlugin plugin : getBrokerPlugins()) {
-            pluginRun.run(plugin);
+            try {
+               pluginRun.run(plugin);
+            } catch (Throwable e) {
+               if (e instanceof ActiveMQException) {
+                  logger.debug("plugin " + plugin + " is throwing ActiveMQException");
+                  throw (ActiveMQException) e;
+               } else {
+                  logger.warn("Internal error on plugin " + pluginRun, e.getMessage(), e);
+               }
+            }
          }
       }
    }
