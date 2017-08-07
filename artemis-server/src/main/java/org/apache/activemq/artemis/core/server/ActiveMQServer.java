@@ -198,7 +198,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    List<ActiveMQServerPlugin> getBrokerPlugins();
 
-   void callBrokerPlugins(ActiveMQPluginRunnable pluginRun);
+   void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws Exception;
 
    boolean hasBrokerPlugins();
 
