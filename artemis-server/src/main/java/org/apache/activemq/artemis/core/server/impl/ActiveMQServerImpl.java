@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -48,8 +47,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.management.MBeanServer;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -164,11 +166,11 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
@@ -1843,9 +1845,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) {
+   public void callBrokerPlugins(final ActiveMQPluginRunnable pluginRun) throws ActiveMQException {
       if (pluginRun != null) {
-         getBrokerPlugins().forEach(plugin -> pluginRun.run(plugin));
+         for (ActiveMQServerPlugin plugin : getBrokerPlugins()) {
+            try {
+               pluginRun.run(plugin);
+            } catch (Throwable e) {
+               if (e instanceof ActiveMQException) {
+                  logger.debug("plugin " + plugin + " is throwing ActiveMQException");
+                  throw (ActiveMQException) e;
+               } else {
+                  logger.warn("Internal error on plugin " + pluginRun, e.getMessage(), e);
+               }
+            }
+         }
       }
    }
 
