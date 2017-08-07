@@ -1383,7 +1383,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void addMetaData(String key, String data) {
+   public void addMetaData(String key, String data) throws Exception {
       server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSessionMetadataAdded(this, key, data) : null);
       if (metaData == null) {
          metaData = new HashMap<>();
@@ -1393,7 +1393,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public boolean addUniqueMetaData(String key, String data) {
+   public boolean addUniqueMetaData(String key, String data) throws Exception {
       ServerSession sessionWithMetaData = server.lookupSession(key, data);
       if (sessionWithMetaData != null && sessionWithMetaData != this) {
          // There is a duplication of this property
