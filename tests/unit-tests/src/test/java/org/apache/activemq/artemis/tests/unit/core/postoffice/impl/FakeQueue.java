@@ -35,8 +35,10 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 
-public class FakeQueue implements Queue {
+public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public void setPurgeOnNoConsumers(boolean value) {
@@ -175,6 +177,7 @@ public class FakeQueue implements Queue {
    }
 
    public FakeQueue(final SimpleString name, final long id) {
+      super(EmptyCriticalAnalyzer.getInstance(), 1);
       this.name = name;
       this.id = id;
    }

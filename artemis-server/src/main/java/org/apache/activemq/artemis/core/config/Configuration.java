@@ -75,6 +75,23 @@ public interface Configuration {
 
    Configuration parseSystemProperties(Properties properties) throws Exception;
 
+   boolean isCriticalAnalyzer();
+
+   Configuration setCriticalAnalyzer(boolean CriticalAnalyzer);
+
+   long getCriticalAnalyzerTimeout();
+
+   Configuration setCriticalAnalyzerTimeout(long timeout);
+
+   long getCriticalAnalyzerCheckPeriod();
+
+   Configuration setCriticalAnalyzerCheckPeriod(long checkPeriod);
+
+   boolean isCriticalAnalyzerHalt();
+
+   Configuration setCriticalAnalyzerHalt(boolean halt);
+
+
    /**
     * Returns whether this server is clustered. <br>
     * {@code true} if {@link #getClusterConfigurations()} is not empty.

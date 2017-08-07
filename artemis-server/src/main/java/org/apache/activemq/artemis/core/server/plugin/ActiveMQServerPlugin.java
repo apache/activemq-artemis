@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-
+import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
 public interface ActiveMQServerPlugin {
 
@@ -397,6 +397,15 @@ public interface ActiveMQServerPlugin {
     */
    default void afterDeployBridge(Bridge bridge) throws ActiveMQException {
 
+   }
+
+   /**
+    * A Critical failure has been detected.
+    * This will be called before the broker is stopped
+    * @param components
+    * @throws ActiveMQException
+    */
+   default void criticalFailure(CriticalComponent components) throws ActiveMQException {
    }
 
 }

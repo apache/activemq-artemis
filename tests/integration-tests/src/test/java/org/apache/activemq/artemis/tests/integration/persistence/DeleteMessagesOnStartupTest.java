@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
@@ -90,7 +91,7 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
    @Override
    protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
-      return new JournalStorageManager(configuration, execFactory, execFactory) {
+      return new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory) {
          @Override
          public void deleteMessage(final long messageID) throws Exception {
             deletedMessage.add(messageID);

@@ -23,6 +23,7 @@
 * [Detecting Dead Connections](connection-ttl.md)
 * [Detecting Slow Consumers](slow-consumers.md)
 * [Avoiding Network Isolation](network-isolation.md)
+* [Detecting Broker Issues (Critical Analysis)](critical-analysis.md)
 * [Resource Manager Configuration](transaction-config.md)
 * [Flow Control](flow-control.md)
 * [Guarantees of sends and commits](send-guarantees.md)
