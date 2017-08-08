@@ -36,7 +36,7 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
    public void testSimpleShutdown() throws Exception {
 
       Configuration configuration = createDefaultConfig(false);
-      configuration.setCriticalAnalyzerCheckPeriod(10).setCriticalAnalyzerHalt(true);
+      configuration.setCriticalAnalyzerCheckPeriod(10);
       ActiveMQServer server = createServer(false, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
       server.start();
 
