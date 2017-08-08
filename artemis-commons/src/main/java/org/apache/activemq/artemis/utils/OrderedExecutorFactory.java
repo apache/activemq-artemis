@@ -75,7 +75,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
     * More specifically, any call B to the {@link #execute(Runnable)} method that happens-after another call A to the
     * same method, will result in B's task running after A's.
     */
-   private static class OrderedExecutor implements Executor {
+   public static class OrderedExecutor implements Executor {
 
       private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
       private final Executor delegate;
@@ -102,6 +102,10 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
             //this is not an issue as the CAS will mean that the second (and subsequent) execution is ignored
             delegate.execute(task);
          }
+      }
+
+      public boolean isFlushed() {
+         return stateUpdater.get(this) == STATE_NOT_RUNNING;
       }
 
       private final class ExecutorTask implements Runnable {
