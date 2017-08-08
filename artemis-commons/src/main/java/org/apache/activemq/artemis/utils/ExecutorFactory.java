@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.util.concurrent.Executor;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 public interface ExecutorFactory {
 
-   Executor getExecutor();
+   ArtemisExecutor getExecutor();
 }

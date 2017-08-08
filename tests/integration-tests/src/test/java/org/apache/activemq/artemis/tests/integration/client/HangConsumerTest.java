@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import javax.management.MBeanServer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -74,6 +72,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -236,7 +235,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                              final PostOffice postOffice,
                              final StorageManager storageManager,
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                             final Executor executor, final ActiveMQServer server) {
+                             final ArtemisExecutor executor, final ActiveMQServer server) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, deliveryMode,
                   maxConsumers, purgeOnNoConsumers, scheduledExecutor, postOffice, storageManager,
                   addressSettingsRepository, executor, server, null);

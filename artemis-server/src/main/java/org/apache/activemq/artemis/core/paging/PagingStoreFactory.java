@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * The integration point between the PagingManger and the File System (aka SequentialFiles)
@@ -38,7 +39,7 @@ public interface PagingStoreFactory {
    PageCursorProvider newCursorProvider(PagingStore store,
                                         StorageManager storageManager,
                                         AddressSettings addressSettings,
-                                        Executor executor);
+                                        ArtemisExecutor executor);
 
    void stop() throws InterruptedException;
 
