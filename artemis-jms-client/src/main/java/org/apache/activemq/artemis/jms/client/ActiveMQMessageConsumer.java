@@ -237,6 +237,9 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             // https://issues.jboss.org/browse/JBPAPP-6110
             if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
                jmsMsg.setIndividualAcknowledge();
+            } else if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {
+               jmsMsg.setClientAcknowledge();
+               coreMessage.acknowledge();
             } else {
                coreMessage.acknowledge();
             }

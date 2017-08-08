@@ -1276,6 +1276,10 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       }
 
       @Override
+      public void commit(boolean block) throws ActiveMQException {
+      }
+
+      @Override
       public boolean isRollbackOnly() {
 
          return false;
