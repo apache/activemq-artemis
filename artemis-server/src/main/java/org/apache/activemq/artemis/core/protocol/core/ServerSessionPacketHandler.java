@@ -584,6 +584,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   break;
                }
                case PacketImpl.SESS_ADD_METADATA2: {
+                  requiresResponse = true;
                   SessionAddMetaDataMessageV2 message = (SessionAddMetaDataMessageV2) packet;
                   if (message.isRequiresConfirmations()) {
                      response = new NullResponseMessage();
@@ -592,6 +593,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   break;
                }
                case PacketImpl.SESS_UNIQUE_ADD_METADATA: {
+                  requiresResponse = true;
                   SessionUniqueAddMetaDataMessage message = (SessionUniqueAddMetaDataMessage) packet;
                   if (session.addUniqueMetaData(message.getKey(), message.getData())) {
                      response = new NullResponseMessage();
