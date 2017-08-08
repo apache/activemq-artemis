@@ -14,7 +14,7 @@ All interceptors are protocol specific.
 An interceptor for the core protocol must implement the interface `Interceptor`:
 
 ``` java
-package org.apache.artemis.activemq.api.core.interceptor;
+package org.apache.activemq.artemis.api.core.interceptor;
 
 public interface Interceptor
 {

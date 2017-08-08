@@ -1,32 +1,37 @@
 # Management
 
-Apache ActiveMQ Artemis has an extensive management API that allows a user to modify a
+Apache ActiveMQ Artemis has an extensive *management API* that allows a user to modify a
 server configuration, create new resources (e.g. addresses and queues),
 inspect these resources (e.g. how many messages are currently held in a
-queue) and interact with it (e.g. to remove messages from a queue). All
-the operations allows a client to *manage* Apache ActiveMQ Artemis. It also allows
-clients to subscribe to management notifications.
+queue) and interact with it (e.g. to remove messages from a queue). Apache ActiveMQ Artemis 
+also allows clients to subscribe to management notifications.
 
-There are 3 ways to manage Apache ActiveMQ Artemis:
+There are four ways to access Apache ActiveMQ Artemis management API:
 
--   Using JMX -- JMX is the standard way to manage Java applications
+-   Using JMX -- *JMX* is the standard way to manage Java applications
 
--   Using the core API -- management operations are sent to Apache ActiveMQ Artemis
-    server using *core messages*
+-   Using Jolokia -- Jolokia exposes the JMX API of an application through a *REST interface*
 
--   Using the JMS API -- management operations are sent to Apache ActiveMQ Artemis
-    server using *JMS messages*
+-   Using the Core Client -- management operations are sent to Apache ActiveMQ Artemis
+    server using *Core Client messages*
 
-Although there are 3 different ways to manage Apache ActiveMQ Artemis each API supports
+-   Using the Core JMS Client -- management operations are sent to Apache ActiveMQ Artemis
+    server using *Core JMS Client messages*
+
+Although there are four different ways to manage Apache ActiveMQ Artemis, each API supports
 the same functionality. If it is possible to manage a resource using JMX
-it is also possible to achieve the same result using Core.
+it is also possible to achieve the same result using Core messages.
 
-This choice depends on your requirements, your application settings and
+Besides the programmatic management interfaces, a *Web Console* and a Command Line
+*management utility* are also available to administrators of ActiveMQ Artemis.
+
+The choice depends on your requirements, your application settings and
 your environment to decide which way suits you best.
 
-
-In version 2 of Apache ActiveMQ Artemis the syntax used for MBean Object names has changed significantly due to changes
-in the addressing scheme. See the documentation for each individual resource for details on the new sytanx.
+> **Note**
+>
+> In version 2 of Apache ActiveMQ Artemis the syntax used for MBean Object names has changed significantly due to changes
+> in the addressing scheme. See the documentation for each individual resource for details on the new syntax.
 
 ## The Management API
 
@@ -34,47 +39,34 @@ Regardless of the way you *invoke* management operations, the management
 API is the same.
 
 For each *managed resource*, there exists a Java interface describing
-what can be invoked for this type of resource.
+what operations can be invoked for this type of resource.
 
-Apache ActiveMQ Artemis exposes its managed resources in the `org.apache.activemq.artemis.api.core.management` package
+To learn about available *management operations*, see the Javadoc
+for these interfaces. They are located in the
+`org.apache.activemq.artemis.api.core.management` package and they are named
+with the word `Control` at the end.
 
-The way to invoke a *management operations* depends whether JMX, core
-messages, or JMS messages are used.
-
-> **Note**
->
-> A few management operations requires a `filter` parameter to chose
-> which messages are involved by the operation. Passing `null` or an
-> empty string means that the management operation will be performed on
-> *all messages*.
+The way to invoke management operations depends on whether JMX, Core
+messages, or Core JMS messages are used.
 
 ### Apache ActiveMQ Artemis Management API
 
-Apache ActiveMQ Artemis defines a core management API to manage core resources. For
-full details of the API please consult the javadoc. In summary:
+For full details of the API please consult the Javadoc. In summary:
 
 #### Apache ActiveMQ Artemis Server Management
 
+The `ActiveMQServerControl` interface is the entry point for broker management.
+
 -   Listing, creating, deploying and destroying queues
 
-    A list of deployed core queues can be retrieved using the
+    A list of deployed queues can be retrieved using the
     `getQueueNames()` method.
 
-    Core queues can be created or destroyed using the management
-    operations `createQueue()` or `deployQueue()` or `destroyQueue()`)on
-    the `ActiveMQServerControl` (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>"` or the resource name
-    `broker`)
+    Queues can be created or destroyed using the management
+    operations `createQueue()` or `deployQueue()` or `destroyQueue()`
 
     `createQueue` will fail if the queue already exists while
     `deployQueue` will do nothing.
-
--   Pausing and resuming Queues
-
-    The `QueueControl` can pause and resume the underlying queue. When a
-    queue is paused, it will receive messages but will not deliver them.
-    When it's resumed, it'll begin delivering the queued messages, if
-    any.
 
 -   Listing and closing remote connections
 
@@ -121,17 +113,12 @@ full details of the API please consult the javadoc. In summary:
 
     Core bridges (resp. diverts) can be created or destroyed using the
     management operations `createBridge()` and `destroyBridge()` (resp.
-    `createDivert()` and `destroyDivert()`) on the
-    `ActiveMQServerControl` (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>"` or the resource name
-    `broker`).
+    `createDivert()` and `destroyDivert()`).
 
 -   It is possible to stop the server and force failover to occur with
     any currently attached clients.
 
-    to do this use the `forceFailover()` on the `ActiveMQServerControl`
-    (with the ObjectName `org.apache.activemq.artemis:broker="<brokerName>"`
-    or the resource name `broker`)
+    To do this use the `forceFailover()` operation. 
 
     > **Note**
     >
@@ -141,9 +128,7 @@ full details of the API please consult the javadoc. In summary:
 
 #### Address Management
 
-Core addresses can be managed using the `AddressControl` class (with the
-ObjectName `org.apache.activemq.artemis:broker="<brokerName>",component=addresses,address="<addressName>"` or the resource name
-`address.<addressName>`).
+Individual addresses can be managed using the `AddressControl` interface.
 
 -   Modifying roles and permissions for an address
 
@@ -153,15 +138,17 @@ ObjectName `org.apache.activemq.artemis:broker="<brokerName>",component=addresse
 
 #### Queue Management
 
-The bulk of the core management API deals with core queues. The
-`QueueControl` class defines the Core queue management operations (with
-the ObjectName
-`org.apache.activemq.artemis:broker="<brokerName>",component=addresses,address="<addressName>",subcomponent=queues,routing-type="<routingType>",queue="<queueName>"`
-or the resource name `queue.<queueName>`).
+The bulk of the management API deals with queues. The
+`QueueControl` interface defines the queue management operations.
 
 Most of the management operations on queues take either a single message
 ID (e.g. to remove a single message) or a filter (e.g. to expire all
 messages with a given property.)
+
+> **Note**
+>
+> Passing `null` or an empty string in the `filter` parameter means that
+> the management operation will be performed on *all messages* in a queue.
 
 -   Expiring, sending to a dead letter address and moving messages
 
@@ -197,7 +184,7 @@ messages with a given property.)
     The number of messages in a queue is returned by the
     `getMessageCount()` method. Alternatively, the `countMessages()`
     will return the number of messages in the queue which *match a given
-    filter*
+    filter*.
 
 -   Changing message priority
 
@@ -224,7 +211,7 @@ messages with a given property.)
 
     The `QueueControl` can pause and resume the underlying queue. When a
     queue is paused, it will receive messages but will not deliver them.
-    When it's resume, it'll begin delivering the queued messages, if
+    When it's resumed, it'll begin delivering the queued messages, if
     any.
 
 #### Other Resources Management
@@ -238,45 +225,33 @@ transactions). These resources are:
 -   Acceptors
 
     They can be started or stopped using the `start()` or. `stop()`
-    method on the `AcceptorControl` class (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>",component=acceptor,name="<acceptorName>"`
-    or the resource name
-    `acceptor.<acceptorName>`). The acceptors parameters
+    method on the `AcceptorControl` interface. The acceptors parameters
     can be retrieved using the `AcceptorControl` attributes (see [Understanding Acceptors](configuring-transports.md))
 
 -   Diverts
 
     They can be started or stopped using the `start()` or `stop()`
-    method on the `DivertControl` class (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>",component=addresses,address="<addressName>",subcomponent=diverts,divert="<divertName>"`
-    or the resource name `divert.<divertName>`). Diverts
+    method on the `DivertControl` interface. Diverts
     parameters can be retrieved using the `DivertControl` attributes
     (see [Diverting and Splitting Message Flows)](diverts.md))
 
 -   Bridges
 
     They can be started or stopped using the `start()` (resp. `stop()`)
-    method on the `BridgeControl` class (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>",component=bridges,name="<bridgeName>"`
-    or the resource name
-    `bridge.<the bridge name>`). Bridges parameters can be retrieved
+    method on the `BridgeControl` interface. Bridges parameters can be retrieved
     using the `BridgeControl` attributes (see [Core bridges](core-bridges.md))
 
 -   Broadcast groups
 
     They can be started or stopped using the `start()` or `stop()`
-    method on the `BroadcastGroupControl` class (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>",component=broadcast-groups,name="<broadcastgroupName>"` or the resource name
-    `broadcastgroup.<the broadcast group name>`). Broadcast groups
+    method on the `BroadcastGroupControl` interface. Broadcast groups
     parameters can be retrieved using the `BroadcastGroupControl`
     attributes (see [Clusters](clusters.md))
 
 -   Cluster connections
 
     They can be started or stopped using the `start()` or `stop()`
-    method on the `ClusterConnectionControl` class (with the ObjectName
-    `org.apache.activemq.artemis:broker="<brokerName>",component=cluster-connections,name="<clusterconnectionName>"` or the resource name
-    `clusterconnection.<the cluster connection name>`). Cluster
+    method on the `ClusterConnectionControl` interface. Cluster
     connections parameters can be retrieved using the
     `ClusterConnectionControl` attributes (see [Clusters](clusters.md))
 
@@ -296,10 +271,18 @@ and the MBean is:
 
     org.apache.activemq.artemis.api.core.management.QueueControl
 
-The MBean's `ObjectName` are built using the helper class
+The MBean `ObjectName`'s are built using the helper class
 `org.apache.activemq.artemis.api.core.management.ObjectNameBuilder`. You can
-also use `jconsole` to find the `ObjectName` of the MBeans you want to
+also use `jconsole` to find the `ObjectName` of the MBean you want to
 manage.
+
+Example usage of the `ObjectNameBuilder` to obtain `ActiveMQServerControl`'s name:
+
+``` java
+brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
+objectNameBuilder = ObjectNameBuilder.create(ArtemisResolver.DEFAULT_DOMAIN, brokerName, true);
+serverObjectName = objectNameBuilder.getActiveMQServerObjectName()
+```
 
 Managing Apache ActiveMQ Artemis using JMX is identical to management of any Java
 Applications using JMX. It can be done by reflection or by creating
@@ -335,22 +318,22 @@ domain can be configured for each individual Apache ActiveMQ Artemis server by s
 #### MBeanServer configuration
 
 When Apache ActiveMQ Artemis is run in standalone, it uses the Java Virtual Machine's
-`Platform MBeanServer` to register its MBeans. By default [Jolokia](http://www.jolokia.org/)
-is also deployed to allow access to the mbean server via rest.
+`Platform MBeanServer` to register its MBeans. By default, [Jolokia](http://www.jolokia.org/)
+is also deployed to allow access to the MBean server via [REST](https://en.wikipedia.org/wiki/Representational_state_transfer).
 
 ### Example
 
-See the [chapters](examples.md) chapter for an example which shows how to use a remote connection to JMX
+See the [Examples](examples.md) chapter for an example which shows how to use a remote connection to JMX
 and MBean proxies to manage Apache ActiveMQ Artemis.
 
 ### Exposing JMX using Jolokia
 
 The default Broker configuration ships with the [Jolokia](http://www.jolokia.org)
-http agent deployed as a Web Application. Jolokia is a remote
-JMX over HTTP bridge that exposed mBeans, for a full guids as
-to how to use refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
+HTTP agent deployed as a Web Application. Jolokia is a remote
+JMX-over-HTTP bridge that exposes MBeans. For a full guide as
+to how to use it refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
 however a simple example to query the broker's version would
-be to use a browser and go to the URL http://localhost:8161/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version.
+be to use a browser and go to the URL [http://localhost:8161/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version]().
 
 This would give you back something like the following:
 
@@ -358,7 +341,7 @@ This would give you back something like the following:
 
 ## Using Management Via Apache ActiveMQ Artemis API
 
-The management API in ActiveMQ Artemis is called by sending Core Client messages
+The management API in ActiveMQ Artemis is accessed by sending Core Client messages
 to a special address, the *management address*.
 
 *Management messages* are regular Core Client messages with well-known
@@ -402,7 +385,7 @@ operations using Core messages:
     `org.apache.activemq.artemis.api.core.management.ManagementHelper` to
     retrieve the operation result from the management reply
 
-For example, to find out the number of messages in the core queue
+For example, to find out the number of messages in the queue
 `exampleQueue`:
 
 ``` java
@@ -421,8 +404,13 @@ interfaces defined in the `management` packages.
 
 Names of the resources are built using the helper class
 `org.apache.activemq.artemis.api.core.management.ResourceNames` and are
-straightforward (e.g. `queue.exampleQueue` for the Core Queue
-`exampleQueue`.
+straightforward (e.g. `queue.exampleQueue` for `QueueControl` of the Queue
+`exampleQueue`, or `broker` for the `ActiveMQServerControl`).
+
+> *NOTE*
+>
+> The `ManagementHelper` class can be used only with Core JMS messages.
+> When called with a message from a different JMS library, an exception will be thrown.
 
 ### Configuring Management
 
@@ -445,7 +433,7 @@ configured in broker.xml:
 
 ### Example
 
-See the [examples](examples.md) chapter for an example which shows
+See the [Examples](examples.md) chapter for an example which shows
 how to use JMS messages to manage the Apache ActiveMQ Artemis server.
 
 ## Management Notifications
@@ -454,13 +442,11 @@ Apache ActiveMQ Artemis emits *notifications* to inform listeners of potentially
 interesting events (creation of new resources, security violation,
 etc.).
 
-These notifications can be received by 3 different ways:
+These notifications can be received by two different ways:
 
 -   JMX notifications
 
--   Core messages
-
--   JMS messages
+-   Notification messages
 
 ### JMX Notifications
 
@@ -468,25 +454,25 @@ If JMX is enabled (see Configuring JMX section), JMX notifications can be receiv
 subscribing to `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Server` for
 notifications on resources.
 
-### Core Messages Notifications
+### Notification Messages
 
-Apache ActiveMQ Artemis defines a special *management notification address*. Core
-queues can be bound to this address so that clients will receive
-management notifications as Core messages
+Apache ActiveMQ Artemis defines a special *management notification address*. 
+Queues can be bound to this address so that clients will receive
+management notifications as messages.
 
-A Core client which wants to receive management notifications must
-create a core queue bound to the management notification address. It can
+A client which wants to receive management notifications must
+create a queue bound to the management notification address. It can
 then receive the notifications from its queue.
 
-Notifications messages are regular core messages with additional
+Notifications messages are regular messages with additional
 properties corresponding to the notification (its type, when it
 occurred, the resources which were concerned, etc.).
 
-Since notifications are regular core messages, it is possible to use
+Since notifications are regular messages, it is possible to use
 message selectors to filter out notifications and receives only a subset
 of all the notifications emitted by the server.
 
-#### Configuring The Core Management Notification Address
+#### Configuring The Management Notification Address
 
 The management notification address to receive management notifications
 is configured in `broker.xml`:
@@ -495,14 +481,12 @@ is configured in `broker.xml`:
 
 By default, the address is `activemq.notifications`.
 
-### JMS Messages Notifications
+#### Receiving Notification Messages
 
-Apache ActiveMQ Artemis's notifications can also be received using JMS messages.
-
-It is similar to receiving notifications using Core API:
+Apache ActiveMQ Artemis's Core JMS Client can be used to receive notifications:
 
 ``` java
-Topic notificationsTopic = ActiveMQJMSClient.createTopic("notificationsTopic");
+Topic notificationsTopic = ActiveMQJMSClient.createTopic("activemq.notifications");
 
 Session session = ...
 MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
@@ -530,7 +514,7 @@ notificationConsumer.setMessageListener(new MessageListener()
 ```
 ### Example
 
-See the [examples](examples.md) chapter for an example which shows how to use a JMS `MessageListener` to receive management notifications from ActiveMQ Artemis server.
+See the [Examples](examples.md) chapter for an example which shows how to use a JMS `MessageListener` to receive management notifications from ActiveMQ Artemis server.
 
 ### Notification Types and Headers
 
@@ -641,7 +625,7 @@ are as many messages sent to the queue than messages consumed from it.
 The number of messages in the queue remains the same in both cases but
 its use is widely different.
 
-Message counters gives additional information about the queues:
+Message counters give additional information about the queues:
 
 -   `count`
 
@@ -688,8 +672,8 @@ To enable message counters, you can set it to `true` in
 
     <message-counter-enabled>true</message-counter-enabled>
 
-Message counters keeps a history of the queue metrics (10 days by
-default) and samples all the queues at regular interval (10 seconds by
+Message counters keep a history of the queue metrics (10 days by
+default) and sample all the queues at regular interval (10 seconds by
 default). If message counters are enabled, these values should be
 configured to suit your messaging use case in
 `broker.xml`:
@@ -720,4 +704,4 @@ messageCounter.getMessageCountDelta());
 
 ### Example
 
-See the [examples](examples.md) chapter for an example which shows how to use message counters to retrieve information on a JMS `Queue`.
+See the [Examples](examples.md) chapter for an example which shows how to use message counters to retrieve information on a queue.
