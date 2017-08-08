@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -41,6 +40,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 
 /**
@@ -68,7 +68,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    protected final StorageManager storageManager;
 
    // This is the same executor used at the PageStoreImpl. One Executor per pageStore
-   private final Executor executor;
+   private final ArtemisExecutor executor;
 
    private final SoftValueHashMap<Long, PageCache> softCache;
 
@@ -80,7 +80,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    public PageCursorProviderImpl(final PagingStore pagingStore,
                                  final StorageManager storageManager,
-                                 final Executor executor,
+                                 final ArtemisExecutor executor,
                                  final int maxCacheSize) {
       this.pagingStore = pagingStore;
       this.storageManager = storageManager;
