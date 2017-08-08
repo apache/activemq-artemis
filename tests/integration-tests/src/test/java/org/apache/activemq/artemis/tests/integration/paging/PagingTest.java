@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,6 +85,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -3056,7 +3056,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          InterruptedCursorProvider(PagingStore pagingStore,
                                    StorageManager storageManager,
-                                   Executor executor,
+                                   ArtemisExecutor executor,
                                    int maxCacheSize) {
             super(pagingStore, storageManager, executor, maxCacheSize);
          }
@@ -3082,7 +3082,7 @@ public class PagingTest extends ActiveMQTestBase {
                public PageCursorProvider newCursorProvider(PagingStore store,
                                                            StorageManager storageManager,
                                                            AddressSettings addressSettings,
-                                                           Executor executor) {
+                                                           ArtemisExecutor executor) {
                   return new InterruptedCursorProvider(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
                }
             };

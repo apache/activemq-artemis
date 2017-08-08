@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOff
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.After;
 import org.junit.Assert;
@@ -1310,6 +1311,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
       return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor,
-                           new FakePostOffice(), null, null, executor, null, null);
+                           new FakePostOffice(), null, null, ArtemisExecutor.delegate(executor), null, null);
    }
 }

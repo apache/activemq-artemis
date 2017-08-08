@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import java.util.concurrent.Executor;
-
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public interface PageSubscription {
@@ -155,7 +154,7 @@ public interface PageSubscription {
    /**
     * @return executor used by the PageSubscription
     */
-   Executor getExecutor();
+   ArtemisExecutor getExecutor();
 
    /**
     * @param deletedPage

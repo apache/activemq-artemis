@@ -16,19 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -64,6 +62,7 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -518,7 +517,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         PostOffice postOffice,
                         StorageManager storageManager,
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                        Executor executor) {
+                        ArtemisExecutor executor) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
                   postOffice, storageManager, addressSettingsRepository, executor, null, null);
          }
