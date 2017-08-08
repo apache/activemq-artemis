@@ -51,6 +51,8 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
+import javax.security.auth.Subject;
+
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public final class StompConnection implements RemotingConnection {
@@ -560,7 +562,7 @@ public final class StompConnection implements RemotingConnection {
       manager.sendReply(this, frame);
    }
 
-   public boolean validateUser(final String login, final String pass, final Connection connection) {
+   public boolean validateUser(final String login, final String pass, final RemotingConnection connection) {
       this.valid = manager.validateUser(login, pass, connection);
       if (valid) {
          this.login = login;
@@ -778,5 +780,10 @@ public final class StompConnection implements RemotingConnection {
    @Override
    public boolean isSupportsFlowControl() {
       return false;
+   }
+
+   @Override
+   public Subject getSubject() {
+      return null;
    }
 }

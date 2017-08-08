@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
@@ -88,9 +88,9 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
    }
 
    @Override
-   public String validateUser(final String user, final String password, Connection connection) {
+   public String validateUser(final String user, final String password, RemotingConnection remotingConnection) {
       try {
-         return getUserFromSubject(getAuthenticatedSubject(user, password, connection));
+         return getUserFromSubject(getAuthenticatedSubject(user, password, remotingConnection));
       } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
@@ -121,10 +121,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
                                      final Set<Role> roles,
                                      final CheckType checkType,
                                      final String address,
-                                     final Connection connection) {
+                                     final RemotingConnection remotingConnection) {
       Subject localSubject;
       try {
-         localSubject = getAuthenticatedSubject(user, password, connection);
+         localSubject = getAuthenticatedSubject(user, password, remotingConnection);
       } catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
@@ -170,7 +170,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
    private Subject getAuthenticatedSubject(final String user,
                                            final String password,
-                                           final Connection connection) throws LoginException {
+                                           final RemotingConnection remotingConnection) throws LoginException {
       LoginContext lc;
       ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
       ClassLoader thisLoader = this.getClass().getClassLoader();
@@ -178,10 +178,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          if (thisLoader != currentLoader) {
             Thread.currentThread().setContextClassLoader(thisLoader);
          }
-         if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && getCertsFromConnection(connection) != null) {
-            lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, connection), certificateConfiguration);
+         if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && getCertsFromConnection(remotingConnection) != null) {
+            lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, remotingConnection), certificateConfiguration);
          } else {
-            lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, connection), configuration);
+            lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, remotingConnection), configuration);
          }
          lc.login();
          return lc.getSubject();

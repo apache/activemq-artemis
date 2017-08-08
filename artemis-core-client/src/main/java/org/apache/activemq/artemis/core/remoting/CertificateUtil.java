@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.core.remoting;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -28,24 +29,30 @@ import java.security.Principal;
 
 public class CertificateUtil {
 
-   public static X509Certificate[] getCertsFromConnection(Connection connection) {
+   public static X509Certificate[] getCertsFromConnection(RemotingConnection remotingConnection) {
       X509Certificate[] certificates = null;
-      if (connection instanceof NettyConnection) {
-         certificates = org.apache.activemq.artemis.utils.CertificateUtil.getCertsFromChannel(((NettyConnection) connection).getChannel());
+      if (remotingConnection != null) {
+         Connection transportConnection = remotingConnection.getTransportConnection();
+         if (transportConnection instanceof NettyConnection) {
+            certificates = org.apache.activemq.artemis.utils.CertificateUtil.getCertsFromChannel(((NettyConnection) transportConnection).getChannel());
+         }
       }
       return certificates;
    }
 
-   public static Principal getPeerPrincipalFromConnection(Connection connection) {
+   public static Principal getPeerPrincipalFromConnection(RemotingConnection remotingConnection) {
       Principal result = null;
-      if (connection instanceof NettyConnection) {
-         NettyConnection nettyConnection = (NettyConnection) connection;
-         ChannelHandler channelHandler = nettyConnection.getChannel().pipeline().get("ssl");
-         if (channelHandler != null && channelHandler instanceof SslHandler) {
-            SslHandler sslHandler = (SslHandler) channelHandler;
-            try {
-               result = sslHandler.engine().getSession().getPeerPrincipal();
-            } catch (SSLPeerUnverifiedException ignored) {
+      if (remotingConnection != null) {
+         Connection transportConnection = remotingConnection.getTransportConnection();
+         if (transportConnection instanceof NettyConnection) {
+            NettyConnection nettyConnection = (NettyConnection) transportConnection;
+            ChannelHandler channelHandler = nettyConnection.getChannel().pipeline().get("ssl");
+            if (channelHandler != null && channelHandler instanceof SslHandler) {
+               SslHandler sslHandler = (SslHandler) channelHandler;
+               try {
+                  result = sslHandler.engine().getSession().getPeerPrincipal();
+               } catch (SSLPeerUnverifiedException ignored) {
+               }
             }
          }
       }

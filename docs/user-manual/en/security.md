@@ -649,6 +649,31 @@ like the following:
 The simplest way to make the login configuration available to JAAS is to add the directory containing the file,
 `login.config`, to your CLASSPATH.
 
+### Kerberos Authentication
+
+The [Krb5LoginModule](https://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html)
+can be used with JAAS to authenticate using the Kerberos protocol.
+
+Using SASL over [AMQP](using-AMQP.md), Kerberos authentication is supported using the `GSSAPI` SASL mechanism. With SASL doing Kerberos
+authentication, TLS can be used to provide integrity and confidentially to the communications channel in the normal way.
+The `GSSAPI` SASL mechanism must be enabled on the amqp acceptor by adding it to the `saslMechanisms` list url parameter:
+`saslMechanisms="GSSAPI<,PLAIN, etc>`.
+
+By default the server will use a JAAS login configuration scope named `amqp-sasl-gssapi` to obtain acceptor Kerberos
+credentials. An alternative configuration scope can be specified on the amqp acceptor url using the parameter: `saslLoginConfigScope=<some other scope>`.
+
+On the server, the Kerberos authenticated Peer Principal can be associated with a JAAS Subject as an Apache ActiveMQ Artemis UserPrincipal
+using the Apache ActiveMQ Artemis Krb5LoginModule login module. The [PropertiesLoginModule](#propertiesloginmodule) can be used to map
+the peer principal to a role.
+Note: the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user.
+
+    org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule optional;
+
+The legacy [rfc2712](http://www.ietf.org/rfc/rfc2712.txt) defines TLS Kerberos cipher suites that can be used by TLS to negotiate
+Kerberos authentication. The cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been superseded by
+SASL GSSAPI. However, for clients that don't support SASL (core client), using TLS can provide Kerberos authentication
+over an *unsecure* channel.
+
 
 ## Changing the username/password for clustering
 

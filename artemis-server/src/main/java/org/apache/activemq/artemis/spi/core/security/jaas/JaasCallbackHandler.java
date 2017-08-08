@@ -16,14 +16,17 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import java.io.IOException;
+import java.security.Principal;
 
 import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
 import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
@@ -35,12 +38,12 @@ public class JaasCallbackHandler implements CallbackHandler {
 
    private final String username;
    private final String password;
-   final Connection connection;
+   final RemotingConnection remotingConnection;
 
-   public JaasCallbackHandler(String username, String password, Connection connection) {
+   public JaasCallbackHandler(String username, String password, RemotingConnection remotingConnection) {
       this.username = username;
       this.password = password;
-      this.connection = connection;
+      this.remotingConnection = remotingConnection;
    }
 
    @Override
@@ -63,11 +66,19 @@ public class JaasCallbackHandler implements CallbackHandler {
          } else if (callback instanceof CertificateCallback) {
             CertificateCallback certCallback = (CertificateCallback) callback;
 
-            certCallback.setCertificates(getCertsFromConnection(connection));
-         } else if (callback instanceof Krb5SslCallback) {
-            Krb5SslCallback krb5SslCallback = (Krb5SslCallback) callback;
+            certCallback.setCertificates(getCertsFromConnection(remotingConnection));
+         } else if (callback instanceof Krb5Callback) {
+            Krb5Callback krb5Callback = (Krb5Callback) callback;
 
-            krb5SslCallback.setPeerPrincipal(getPeerPrincipalFromConnection(connection));
+            Subject peerSubject = remotingConnection.getSubject();
+            if (peerSubject != null) {
+               for (Principal principal : peerSubject.getPrivateCredentials(KerberosPrincipal.class)) {
+                  krb5Callback.setPeerPrincipal(principal);
+                  return;
+               }
+            }
+
+            krb5Callback.setPeerPrincipal(getPeerPrincipalFromConnection(remotingConnection));
          } else {
             throw new UnsupportedCallbackException(callback);
          }

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 public class ServerSASLPlain implements ServerSASL {
 
    public static final String NAME = "PLAIN";
+   private SASLResult result = null;
 
    @Override
    public String getName() {
@@ -26,7 +27,7 @@ public class ServerSASLPlain implements ServerSASL {
    }
 
    @Override
-   public SASLResult processSASL(byte[] data) {
+   public byte[] processSASL(byte[] data) {
       String username = null;
       String password = null;
       String bytes = new String(data);
@@ -47,7 +48,18 @@ public class ServerSASLPlain implements ServerSASL {
 
       boolean success = authenticate(username, password);
 
-      return new PlainSASLResult(success, username, password);
+      result = new PlainSASLResult(success, username, password);
+
+      return null;
+   }
+
+   @Override
+   public SASLResult result() {
+      return result;
+   }
+
+   @Override
+   public void done() {
    }
 
    /**

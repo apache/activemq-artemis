@@ -27,9 +27,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
-
 /**
  * Stores static mappings of class names to ConnectorFactory instances to act as a central repo for ConnectorFactory
  * objects.
@@ -99,28 +96,4 @@ public class TransportConfigurationUtil {
       return false;
    }
 
-   public static Configuration kerb5Config(String principal, boolean initiator) {
-      final Map<String, String> krb5LoginModuleOptions = new HashMap<>();
-      krb5LoginModuleOptions.put("isInitiator", String.valueOf(initiator));
-      krb5LoginModuleOptions.put("principal", principal);
-      krb5LoginModuleOptions.put("useKeyTab", "true");
-      krb5LoginModuleOptions.put("storeKey", "true");
-      krb5LoginModuleOptions.put("doNotPrompt", "true");
-      krb5LoginModuleOptions.put("renewTGT", "true");
-      krb5LoginModuleOptions.put("refreshKrb5Config", "true");
-      krb5LoginModuleOptions.put("useTicketCache", "true");
-      String ticketCache = System.getenv("KRB5CCNAME");
-      if (ticketCache != null) {
-         krb5LoginModuleOptions.put("ticketCache", ticketCache);
-      }
-      return new Configuration() {
-         @Override
-         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-            return new AppConfigurationEntry[]{
-               new AppConfigurationEntry("com.sun.security.auth.module.Krb5LoginModule",
-                       AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                       krb5LoginModuleOptions)};
-         }
-      };
-   }
 }

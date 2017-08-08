@@ -14,33 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.spi.core.security.jaas;
+package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import javax.security.auth.callback.Callback;
+import javax.security.auth.Subject;
 import java.security.Principal;
 
-/**
- * A Callback for SSL kerberos peer principal.
- */
-public class Krb5SslCallback implements Callback {
+public class GSSAPISASLResult implements SASLResult {
 
-   Principal peerPrincipal;
+   private final boolean success;
+   private final Subject identity = new Subject();
+   private String user;
 
-   /**
-    * Setter for peer Principal.
-    *
-    * @param principal The certificates to be returned.
-    */
-   public void setPeerPrincipal(Principal principal) {
-      peerPrincipal = principal;
+
+   public GSSAPISASLResult(boolean success, Principal peer) {
+      this.success = success;
+      if (success) {
+         this.identity.getPrivateCredentials().add(peer);
+         this.user = peer.getName();
+      }
    }
 
-   /**
-    * Getter for peer Principal.
-    *
-    * @return The principal being carried.
-    */
-   public Principal getPeerPrincipal() {
-      return peerPrincipal;
+   @Override
+   public String getUser() {
+      return user;
+   }
+
+   @Override
+   public Subject getSubject() {
+      return identity;
+   }
+
+   @Override
+   public boolean isSuccess() {
+      return success;
    }
 }
