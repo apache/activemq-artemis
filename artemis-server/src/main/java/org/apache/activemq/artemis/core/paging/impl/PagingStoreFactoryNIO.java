@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * Integration point between Paging and NIO
@@ -115,7 +116,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    public PageCursorProvider newCursorProvider(PagingStore store,
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
-                                               Executor executor) {
+                                               ArtemisExecutor executor) {
       return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
    }
 

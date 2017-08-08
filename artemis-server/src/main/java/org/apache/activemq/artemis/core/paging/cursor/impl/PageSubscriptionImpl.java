@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,6 +55,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
@@ -92,14 +92,14 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    private final PageSubscriptionCounter counter;
 
-   private final Executor executor;
+   private final ArtemisExecutor executor;
 
    private final AtomicLong deliveredCount = new AtomicLong(0);
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
                         final StorageManager store,
-                        final Executor executor,
+                        final ArtemisExecutor executor,
                         final Filter filter,
                         final long cursorId,
                         final boolean persistent) {
@@ -743,7 +743,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
-   public Executor getExecutor() {
+   public ArtemisExecutor getExecutor() {
       return executor;
    }
 

@@ -100,6 +100,10 @@ public abstract class ProcessorBase<T> {
       return stateUpdater.get(this) == STATE_NOT_RUNNING;
    }
 
+   public final boolean isFlushed() {
+      return stateUpdater.get(this) == STATE_NOT_RUNNING;
+   }
+
    protected void task(T command) {
       tasks.add(command);
       startPoller();
