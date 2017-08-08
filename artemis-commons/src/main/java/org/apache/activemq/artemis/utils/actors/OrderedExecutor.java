@@ -28,7 +28,7 @@ import org.jboss.logging.Logger;
  * More specifically, any call B to the {@link #execute(Runnable)} method that happens-after another call A to the
  * same method, will result in B's task running after A's.
  */
-public class OrderedExecutor extends ProcessorBase<Runnable> implements Executor {
+public class OrderedExecutor extends ProcessorBase<Runnable> implements ArtemisExecutor {
 
    public OrderedExecutor(Executor delegate) {
       super(delegate);

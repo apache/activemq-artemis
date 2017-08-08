@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -89,6 +88,7 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
@@ -118,7 +118,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    public static final int MAX_DELIVERIES_IN_LOOP = 1000;
 
-   public static final int CHECK_QUEUE_SIZE_PERIOD = 100;
+   public static final int CHECK_QUEUE_SIZE_PERIOD = 1000;
 
    /**
     * If The system gets slow for any reason, this is the maximum time a Delivery or
@@ -228,7 +228,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private int pos;
 
-   private final Executor executor;
+   private final ArtemisExecutor executor;
 
    private boolean internalQueue;
 
@@ -342,7 +342,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final PostOffice postOffice,
                     final StorageManager storageManager,
                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final Executor executor,
+                    final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
       this(id, address, name, filter, null, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
@@ -361,7 +361,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final PostOffice postOffice,
                     final StorageManager storageManager,
                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final Executor executor,
+                    final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
       this(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, RoutingType.MULTICAST, null, null, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
@@ -383,7 +383,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final PostOffice postOffice,
                     final StorageManager storageManager,
                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                    final Executor executor,
+                    final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
@@ -654,19 +654,27 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return;
          }
 
-         synchronized (directDeliveryGuard) {
-            // The checkDirect flag is periodically set to true, if the delivery is specified as direct then this causes the
-            // directDeliver flag to be re-computed resulting in direct delivery if the queue is empty
-            // We don't recompute it on every delivery since executing isEmpty is expensive for a ConcurrentQueue
-            if (supportsDirectDeliver && !directDeliver && direct && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
-               lastDirectDeliveryCheck = System.currentTimeMillis();
+         if (supportsDirectDeliver && !directDeliver && direct && System.currentTimeMillis() - lastDirectDeliveryCheck > CHECK_QUEUE_SIZE_PERIOD) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("Checking to re-enable direct deliver on queue " + this.getName());
+            }
+            lastDirectDeliveryCheck = System.currentTimeMillis();
+            synchronized (directDeliveryGuard) {
+               // The checkDirect flag is periodically set to true, if the delivery is specified as direct then this causes the
+               // directDeliver flag to be re-computed resulting in direct delivery if the queue is empty
+               // We don't recompute it on every delivery since executing isEmpty is expensive for a ConcurrentQueue
 
-               if (intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() && !pageIterator.hasNext() && !pageSubscription.isPaging()) {
+               if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() && intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() && !pageIterator.hasNext() && !pageSubscription.isPaging()) {
                   // We must block on the executor to ensure any async deliveries have completed or we might get out of order
                   // deliveries
-                  if (flushExecutor() && flushDeliveriesInTransit()) {
-                     // Go into direct delivery mode
-                     directDeliver = supportsDirectDeliver;
+                  // Go into direct delivery mode
+                  directDeliver = supportsDirectDeliver;
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Setting direct deliverer to " + supportsDirectDeliver);
+                  }
+               } else {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Couldn't set direct deliver back");
                   }
                }
             }
@@ -773,7 +781,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public Executor getExecutor() {
+   public ArtemisExecutor getExecutor() {
       if (pageSubscription != null && pageSubscription.isPaging()) {
          // When in page mode, we don't want to have concurrent IO on the same PageStore
          return pageSubscription.getExecutor();
@@ -791,7 +799,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean flushExecutor() {
-      boolean ok = internalFlushExecutor(10000);
+      boolean ok = internalFlushExecutor(10000, true);
 
       if (!ok) {
          ActiveMQServerLogger.LOGGER.errorFlushingExecutorsOnQueue();
@@ -800,14 +808,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return ok;
    }
 
-   private boolean internalFlushExecutor(long timeout) {
+   private boolean internalFlushExecutor(long timeout, boolean log) {
       FutureLatch future = new FutureLatch();
 
       getExecutor().execute(future);
 
       boolean result = future.await(timeout);
 
-      if (!result) {
+      if (log && !result) {
          ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
       }
       return result;
@@ -2344,7 +2352,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private void internalAddRedistributor(final Executor executor) {
+   private void internalAddRedistributor(final ArtemisExecutor executor) {
       // create the redistributor only once if there are no local consumers
       if (consumerSet.isEmpty() && redistributor == null) {
          if (logger.isTraceEnabled()) {
@@ -2745,9 +2753,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void proceedDeliver(Consumer consumer, MessageReference reference) {
       try {
          consumer.proceedDeliver(reference);
-         deliveriesInTransit.countDown();
       } catch (Throwable t) {
-         deliveriesInTransit.countDown();
          ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
          synchronized (this) {
@@ -2761,6 +2767,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // The message failed to be delivered, hence we try again
             addHead(reference, false);
          }
+      } finally {
+         deliveriesInTransit.countDown();
       }
    }
 
@@ -2949,9 +2957,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private class DelayedAddRedistributor implements Runnable {
 
-      private final Executor executor1;
+      private final ArtemisExecutor executor1;
 
-      DelayedAddRedistributor(final Executor executor) {
+      DelayedAddRedistributor(final ArtemisExecutor executor) {
          this.executor1 = executor;
       }
 

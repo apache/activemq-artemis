@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriv
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * Integration point between Paging and JDBC
@@ -153,7 +154,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
    public PageCursorProvider newCursorProvider(PagingStore store,
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
-                                               Executor executor) {
+                                               ArtemisExecutor executor) {
       return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
    }
 
