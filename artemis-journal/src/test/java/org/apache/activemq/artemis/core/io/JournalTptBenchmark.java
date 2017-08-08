@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.core.io;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +37,7 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * To benchmark Type.Aio you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
@@ -91,7 +91,7 @@ public class JournalTptBenchmark {
       } else {
          final ArrayList<MpscArrayQueue<Runnable>> tasks = new ArrayList<>();
          service = Executors.newSingleThreadExecutor();
-         journal = new JournalImpl(() -> new Executor() {
+         journal = new JournalImpl(() -> new ArtemisExecutor() {
 
             private final MpscArrayQueue<Runnable> taskQueue = new MpscArrayQueue<>(1024);
 

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -67,6 +66,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -743,8 +743,8 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       return new ExecutorFactory() {
 
          @Override
-         public Executor getExecutor() {
-            return executor;
+         public ArtemisExecutor getExecutor() {
+            return ArtemisExecutor.delegate(executor);
          }
       };
    }
@@ -818,7 +818,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       public PageCursorProvider newCursorProvider(PagingStore store,
                                                   StorageManager storageManager,
                                                   AddressSettings addressSettings,
-                                                  Executor executor) {
+                                                  ArtemisExecutor executor) {
          return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
       }
 

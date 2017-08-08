@@ -57,7 +57,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
     * @return an ordered executor
     */
    @Override
-   public Executor getExecutor() {
+   public ArtemisExecutor getExecutor() {
       return new OrderedExecutor(parent);
    }
 

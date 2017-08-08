@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 public final class FakeQueueFactory implements QueueFactory {
 
@@ -42,7 +43,7 @@ public final class FakeQueueFactory implements QueueFactory {
    public Queue createQueueWith(final QueueConfig config) {
       return new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(),
                            config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(),
-                           scheduledExecutor, postOffice, null, null, executor, null, this);
+                           scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
    }
 
    @Deprecated
@@ -57,7 +58,7 @@ public final class FakeQueueFactory implements QueueFactory {
                             final boolean temporary,
                             final boolean autoCreated) {
       return new QueueImpl(persistenceID, address, name, filter, subscription, user, durable, temporary, autoCreated,
-                           scheduledExecutor, postOffice, null, null, executor, null, this);
+                           scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
    }
 
    @Override
