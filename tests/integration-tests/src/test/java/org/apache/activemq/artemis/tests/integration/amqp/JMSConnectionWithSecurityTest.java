@@ -36,6 +36,11 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
       return true;
    }
 
+   @Override
+   protected String getJmsConnectionURIOptions() {
+      return "amqp.saslMechanisms=PLAIN";
+   }
+
    @Test(timeout = 10000)
    public void testNoUserOrPassword() throws Exception {
       Connection connection = null;

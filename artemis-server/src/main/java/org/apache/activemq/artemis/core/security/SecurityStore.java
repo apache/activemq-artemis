@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.core.security;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public interface SecurityStore {
 
-   String authenticate(String user, String password, Connection transportConnection) throws Exception;
+   String authenticate(String user, String password, RemotingConnection remotingConnection) throws Exception;
 
    void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
 

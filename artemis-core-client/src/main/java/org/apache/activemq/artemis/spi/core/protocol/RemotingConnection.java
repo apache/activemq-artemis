@@ -27,6 +27,8 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
+import javax.security.auth.Subject;
+
 /**
  * A RemotingConnection is a connection between a client and a server.
  *
@@ -206,4 +208,10 @@ public interface RemotingConnection extends BufferHandler {
     * @return
     */
    boolean isSupportsFlowControl();
+
+   /**
+    * the possibly null identity associated with this connection
+    * @return
+    */
+   Subject getSubject();
 }

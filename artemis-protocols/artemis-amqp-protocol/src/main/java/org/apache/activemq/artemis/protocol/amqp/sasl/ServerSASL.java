@@ -20,5 +20,9 @@ public interface ServerSASL {
 
    String getName();
 
-   SASLResult processSASL(byte[] bytes);
+   byte[] processSASL(byte[] bytes);
+
+   SASLResult result();
+
+   void done();
 }
