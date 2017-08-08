@@ -179,9 +179,10 @@ public class JmsConsumerTest extends JMSTestBase {
       }
 
       SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      conn.close();
+
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
-      conn.close();
    }
 
    @Test
@@ -225,9 +226,10 @@ public class JmsConsumerTest extends JMSTestBase {
       }
 
       SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      context.close();
+
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
-      context.close();
    }
 
    @Test
@@ -299,9 +301,10 @@ public class JmsConsumerTest extends JMSTestBase {
       }
 
       SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
+      conn.close();
+
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
-      conn.close();
    }
 
    @Test

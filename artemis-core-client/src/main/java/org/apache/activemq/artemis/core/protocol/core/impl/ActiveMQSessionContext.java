@@ -349,6 +349,15 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
+   public void simpleCommit(boolean block) throws ActiveMQException {
+      if (block) {
+         sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_COMMIT), PacketImpl.NULL_RESPONSE);
+      } else {
+         sessionChannel.sendBatched(new PacketImpl(PacketImpl.SESS_COMMIT));
+      }
+   }
+
+   @Override
    public void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException {
       sessionChannel.sendBlocking(new RollbackMessage(lastMessageAsDelivered), PacketImpl.NULL_RESPONSE);
    }
