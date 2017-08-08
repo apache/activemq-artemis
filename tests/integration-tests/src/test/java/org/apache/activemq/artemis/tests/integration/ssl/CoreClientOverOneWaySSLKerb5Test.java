@@ -88,7 +88,7 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getSuitableCipherSuite());
       tc.getParams().put(TransportConstants.SNIHOST_PROP_NAME, SNI_HOST); // static service name rather than dynamic machine name
-      tc.getParams().put(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, "client"); // lower case used as principal with default keytab
+      tc.getParams().put(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, "core-tls-krb5-client");
       final ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
 
       ClientSessionFactory sf = null;
@@ -171,7 +171,7 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
 
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getSuitableCipherSuite());
-      params.put(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, SERVICE_PRINCIPAL);
+      params.put(TransportConstants.SSL_KRB5_CONFIG_PROP_NAME, "core-tls-krb5-server");
 
       ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "nettySSL"));
       config.setPopulateValidatedUser(true); // so we can verify the kerb5 id is present
@@ -179,7 +179,7 @@ public class CoreClientOverOneWaySSLKerb5Test extends ActiveMQTestBase {
 
       config.addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
-      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager("Krb5SslPlus");
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager("Krb5Plus");
       server = addServer(ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
 

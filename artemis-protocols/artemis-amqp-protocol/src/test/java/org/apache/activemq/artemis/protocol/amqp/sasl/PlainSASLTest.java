@@ -27,7 +27,8 @@ public class PlainSASLTest {
       byte[] bytesResult = plainSASL.getBytes();
 
       ServerSASLPlain serverSASLPlain = new ServerSASLPlain();
-      PlainSASLResult result = (PlainSASLResult) serverSASLPlain.processSASL(bytesResult);
+      serverSASLPlain.processSASL(bytesResult);
+      PlainSASLResult result = (PlainSASLResult) serverSASLPlain.result();
       Assert.assertEquals("user-me", result.getUser());
       Assert.assertEquals("password-secret", result.getPassword());
    }

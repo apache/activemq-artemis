@@ -54,7 +54,6 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
@@ -1936,7 +1935,7 @@ public class SecurityTest extends ActiveMQTestBase {
          @Override
          public String validateUser(final String username,
                                     final String password,
-                                    final Connection connection) {
+                                    final RemotingConnection remotingConnection) {
             if ((username.equals("foo") || username.equals("bar") || username.equals("all")) && password.equals("frobnicate")) {
                return username;
             } else {
@@ -1960,9 +1959,9 @@ public class SecurityTest extends ActiveMQTestBase {
                                            final Set<Role> requiredRoles,
                                            final CheckType checkType,
                                            final String address,
-                                           final Connection connection) {
+                                           final RemotingConnection connection) {
 
-            if (!(connection instanceof InVMConnection)) {
+            if (!(connection.getTransportConnection() instanceof InVMConnection)) {
                return null;
             }
 

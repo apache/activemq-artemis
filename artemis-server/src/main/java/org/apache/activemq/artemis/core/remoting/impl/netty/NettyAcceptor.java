@@ -71,7 +71,6 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
-import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -442,17 +441,9 @@ public class NettyAcceptor extends AbstractAcceptor {
          throw ise;
       }
       Subject subject = null;
-      if (kerb5Config != null && kerb5Config.length() > 0) {
-         LoginContext loginContext = null;
-         if (Character.isUpperCase(kerb5Config.charAt(0))) {
-            // use as login.config scope
-            loginContext = new LoginContext(kerb5Config);
-         } else {
-            loginContext = new LoginContext("", null, null,
-                    TransportConfigurationUtil.kerb5Config(kerb5Config, false));
-         }
+      if (kerb5Config != null) {
+         LoginContext loginContext = new LoginContext(kerb5Config);
          loginContext.login();
-
          subject = loginContext.getSubject();
       }
 

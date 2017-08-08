@@ -98,7 +98,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
-import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
@@ -523,18 +522,8 @@ public class NettyConnector extends AbstractConnector {
             if (sslEnabled && !useServlet) {
 
                Subject subject = null;
-               if (kerb5Config != null && kerb5Config.length() > 0) {
-
-                  LoginContext loginContext = null;
-                  if (Character.isUpperCase(kerb5Config.charAt(0))) {
-                     // use as login.config scope
-                     loginContext = new LoginContext(kerb5Config);
-                  } else {
-                     // inline keytab config using kerb5Config as principal
-                     loginContext = new LoginContext("", null, null,
-                             TransportConfigurationUtil.kerb5Config(kerb5Config, true));
-                  }
-
+               if (kerb5Config != null) {
+                  LoginContext loginContext = new LoginContext(kerb5Config);
                   loginContext.login();
                   subject = loginContext.getSubject();
                   verifyHost = true;

@@ -459,7 +459,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    }
 
    public void validateUser(String login, String passcode, OpenWireConnection connection) throws Exception {
-      server.getSecurityStore().authenticate(login, passcode, connection.getTransportConnection());
+      server.getSecurityStore().authenticate(login, passcode, connection);
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) throws Exception {

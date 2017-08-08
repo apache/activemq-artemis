@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * populate a subject with kerberos and UserPrincipal from SSLContext peerPrincipal
+ * populate a subject with kerberos credential from the handler
  */
-public class Krb5SslLoginModule implements LoginModule {
+public class Krb5LoginModule implements LoginModule {
 
-   private static final Logger logger = Logger.getLogger(Krb5SslLoginModule.class);
+   private static final Logger logger = Logger.getLogger(Krb5LoginModule.class);
 
    private Subject subject;
    private final List<Principal> principals = new LinkedList<>();
@@ -55,7 +55,7 @@ public class Krb5SslLoginModule implements LoginModule {
    public boolean login() throws LoginException {
       Callback[] callbacks = new Callback[1];
 
-      callbacks[0] = new Krb5SslCallback();
+      callbacks[0] = new Krb5Callback();
       try {
          callbackHandler.handle(callbacks);
       } catch (IOException ioe) {
@@ -63,7 +63,7 @@ public class Krb5SslLoginModule implements LoginModule {
       } catch (UnsupportedCallbackException uce) {
          throw new LoginException(uce.getMessage() + " not available to obtain information from user");
       }
-      principals.add(((Krb5SslCallback)callbacks[0]).getPeerPrincipal());
+      principals.add(((Krb5Callback)callbacks[0]).getPeerPrincipal());
       if (!principals.isEmpty()) {
          loginSucceeded = true;
       }
