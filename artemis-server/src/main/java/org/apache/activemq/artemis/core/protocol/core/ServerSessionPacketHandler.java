@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol.core;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -95,7 +94,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.actors.Actor;
-import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
@@ -150,7 +149,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final Actor<Packet> packetActor;
 
-   private final Executor callExecutor;
+   private final ArtemisExecutor callExecutor;
 
    private final CoreProtocolManager manager;
 
@@ -214,19 +213,20 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    public void connectionFailed(final ActiveMQException exception, boolean failedOver) {
       ActiveMQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
+      flushExecutor();
+
       try {
          session.close(true);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
-      flushExecutor();
 
       ActiveMQServerLogger.LOGGER.clearingUpSession(session.getName());
    }
 
-   private void flushExecutor() {
+   public void flushExecutor() {
       packetActor.flush();
-      OrderedExecutorFactory.flushExecutor(callExecutor);
+      callExecutor.flush();
    }
 
    public void close() {
@@ -247,7 +247,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    @Override
    public void handlePacket(final Packet packet) {
-      channel.confirm(packet);
 
       // This method will call onMessagePacket through an actor
       packetActor.act(packet);
@@ -838,6 +837,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                      final boolean flush,
                                      final boolean closeChannel) {
       if (confirmPacket != null) {
+         channel.confirm(confirmPacket);
+
          if (flush) {
             channel.flushConfirmations();
          }

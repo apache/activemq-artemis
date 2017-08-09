@@ -787,7 +787,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if (rollbackOnly) {
          rollbackOnFailover(true);
       }
-      startCall();
       try {
          sessionContext.simpleCommit(block);
       } catch (ActiveMQException e) {
@@ -800,8 +799,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          } else {
             throw e;
          }
-      } finally {
-         endCall();
       }
 
       //oops, we have failed over during the commit and don't know what happened

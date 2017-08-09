@@ -345,6 +345,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void doClose(final boolean failed) throws Exception {
+      callback.close(failed);
       synchronized (this) {
          if (!closed) {
             server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseSession(this, failed) : null);
@@ -1238,6 +1239,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public void close(final boolean failed) {
       if (closed)
          return;
+
+      if (failed) {
+
+      }
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
