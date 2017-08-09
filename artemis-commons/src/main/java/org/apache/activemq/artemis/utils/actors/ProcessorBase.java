@@ -91,6 +91,11 @@ public abstract class ProcessorBase<T> {
       long timeLimit = System.currentTimeMillis() + unit.toMillis(timeout);
       try {
          while (stateUpdater.get(this) == STATE_RUNNING && timeLimit > System.currentTimeMillis()) {
+
+            if (tasks.isEmpty()) {
+               return true;
+            }
+
             Thread.sleep(10);
          }
       } catch (InterruptedException e) {

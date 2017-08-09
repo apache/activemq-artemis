@@ -47,6 +47,15 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    public void testScaleDownWithConnector() throws Exception {
    }
 
+
+   // it doesn't make sense through the core
+   // the pool will be shutdown while a connection is being used
+   // makes no sense!
+   @Override
+   public void testForceFailover() throws Exception {
+   }
+
+
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
       return new ActiveMQServerControl() {
