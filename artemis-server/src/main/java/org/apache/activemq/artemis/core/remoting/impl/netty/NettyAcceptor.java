@@ -55,6 +55,8 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -96,6 +98,7 @@ public class NettyAcceptor extends AbstractAcceptor {
    public static String INVM_ACCEPTOR_TYPE = "IN-VM";
    public static String NIO_ACCEPTOR_TYPE = "NIO";
    public static String EPOLL_ACCEPTOR_TYPE = "EPOLL";
+   public static String KQUEUE_ACCEPTOR_TYPE = "KQUEUE";
 
    static {
       // Disable default Netty leak detection if the Netty leak detection level system properties are not in use
@@ -129,6 +132,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final boolean useInvm;
 
    private final boolean useEpoll;
+
+   private final boolean useKQueue;
 
    private final ProtocolHandler protocolHandler;
 
@@ -228,6 +233,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
+      useKQueue = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_KQUEUE_PROP_NAME, TransportConstants.DEFAULT_USE_KQUEUE, configuration);
 
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
@@ -318,6 +324,17 @@ public class NettyAcceptor extends AbstractAcceptor {
             acceptorType = EPOLL_ACCEPTOR_TYPE;
 
             logger.debug("Acceptor using native epoll");
+         } else if (useKQueue && KQueue.isAvailable()) {
+            channelClazz = KQueueServerSocketChannel.class;
+            eventLoopGroup = new KQueueEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+               @Override
+               public ActiveMQThreadFactory run() {
+                  return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+               }
+            }));
+            acceptorType = KQUEUE_ACCEPTOR_TYPE;
+
+            logger.debug("Acceptor using native kqueue");
          } else {
             channelClazz = NioServerSocketChannel.class;
             eventLoopGroup = new NioEventLoopGroup(remotingThreads, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
