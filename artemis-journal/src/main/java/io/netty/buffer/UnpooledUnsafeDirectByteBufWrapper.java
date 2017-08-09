@@ -36,6 +36,7 @@ import io.netty.util.internal.PlatformDependent;
  */
 public final class UnpooledUnsafeDirectByteBufWrapper extends AbstractReferenceCountedByteBuf {
 
+   private static final byte ZERO = 0;
    private ByteBuffer buffer;
    private int arrayOffset;
    private byte[] array;
@@ -563,7 +564,11 @@ public final class UnpooledUnsafeDirectByteBufWrapper extends AbstractReferenceC
    @Override
    public ByteBuf setZero(int index, int length) {
       if (hasMemoryAddress()) {
-         UnsafeByteBufUtil.setZero(this, addr(index), index, length);
+         if (length == 0) {
+            return this;
+         }
+         this.checkIndex(index, length);
+         PlatformDependent.setMemory(addr(index), length, ZERO);
       } else {
          //prefer Arrays::fill here?
          UnsafeByteBufUtil.setZero(array, idx(index), length);
