@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -158,6 +159,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final boolean direct;
 
+   private static final ThreadLocal<AtomicBoolean> inHandler = ThreadLocal.withInitial(AtomicBoolean::new);
+
    public ServerSessionPacketHandler(final ActiveMQServer server,
                                      final CoreProtocolManager manager,
                                      final ServerSession session,
@@ -225,8 +228,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    public void flushExecutor() {
-      packetActor.flush();
-      callExecutor.flush();
+      if (!inHandler.get().get()) {
+         packetActor.flush();
+         callExecutor.flush();
+      }
    }
 
    public void close() {
@@ -256,28 +261,33 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       if (logger.isTraceEnabled()) {
          logger.trace("ServerSessionPacketHandler::handlePacket," + packet);
       }
-      final byte type = packet.getType();
-      switch (type) {
-         case SESS_SEND: {
-            onSessionSend(packet);
-            break;
+      inHandler.get().set(true);
+      try {
+         final byte type = packet.getType();
+         switch (type) {
+            case SESS_SEND: {
+               onSessionSend(packet);
+               break;
+            }
+            case SESS_ACKNOWLEDGE: {
+               onSessionAcknowledge(packet);
+               break;
+            }
+            case SESS_PRODUCER_REQUEST_CREDITS: {
+               onSessionRequestProducerCredits(packet);
+               break;
+            }
+            case SESS_FLOWTOKEN: {
+               onSessionConsumerFlowCredit(packet);
+               break;
+            }
+            default:
+               // separating a method for everything else as JIT was faster this way
+               slowPacketHandler(packet);
+               break;
          }
-         case SESS_ACKNOWLEDGE: {
-            onSessionAcknowledge(packet);
-            break;
-         }
-         case SESS_PRODUCER_REQUEST_CREDITS: {
-            onSessionRequestProducerCredits(packet);
-            break;
-         }
-         case SESS_FLOWTOKEN: {
-            onSessionConsumerFlowCredit(packet);
-            break;
-         }
-         default:
-            // separating a method for everything else as JIT was faster this way
-            slowPacketHandler(packet);
-            break;
+      } finally {
+         inHandler.get().set(false);
       }
    }
 
