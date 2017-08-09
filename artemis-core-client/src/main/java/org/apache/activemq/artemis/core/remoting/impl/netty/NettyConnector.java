@@ -65,6 +65,8 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.base64.Base64;
@@ -232,6 +234,8 @@ public class NettyConnector extends AbstractConnector {
 
    private boolean useEpoll;
 
+   private boolean useKQueue;
+
    private int remotingThreads;
 
    private boolean useGlobalWorkerPool;
@@ -309,6 +313,7 @@ public class NettyConnector extends AbstractConnector {
       useGlobalWorkerPool = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_GLOBAL_WORKER_POOL_PROP_NAME, useGlobalWorkerPool, configuration);
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
+      useKQueue = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_KQUEUE_PROP_NAME, TransportConstants.DEFAULT_USE_KQUEUE, configuration);
 
       useServlet = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_SERVLET_PROP_NAME, TransportConstants.DEFAULT_USE_SERVLET, configuration);
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
@@ -415,6 +420,15 @@ public class NettyConnector extends AbstractConnector {
 
          channelClazz = EpollSocketChannel.class;
          logger.debug("Connector " + this + " using native epoll");
+      } else if (useKQueue && KQueue.isAvailable()) {
+         if (useGlobalWorkerPool) {
+            group = SharedEventLoopGroup.getInstance((threadFactory -> new KQueueEventLoopGroup(remotingThreads, threadFactory)));
+         } else {
+            group = new KQueueEventLoopGroup(remotingThreads);
+         }
+
+         channelClazz = KQueueSocketChannel.class;
+         logger.debug("Connector " + this + " using native kqueue");
       } else {
          if (useGlobalWorkerPool) {
             channelClazz = NioSocketChannel.class;
