@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
@@ -44,6 +45,8 @@ public final class CoreSessionCallback implements SessionCallback {
 
    private String name;
 
+   private ServerSessionPacketHandler handler;
+
    public CoreSessionCallback(String name,
                               ProtocolManager protocolManager,
                               Channel channel,
@@ -52,6 +55,21 @@ public final class CoreSessionCallback implements SessionCallback {
       this.protocolManager = protocolManager;
       this.channel = channel;
       this.connection = connection;
+   }
+
+   public CoreSessionCallback setSessionHandler(ServerSessionPacketHandler handler) {
+      this.handler = handler;
+      return this;
+   }
+
+   @Override
+   public void close(boolean failed) {
+      ServerSessionPacketHandler localHandler = handler;
+      if (failed && localHandler != null) {
+         // We wait any pending tasks before we make this as closed
+         localHandler.flushExecutor();
+      }
+      this.handler = null;
    }
 
    @Override
