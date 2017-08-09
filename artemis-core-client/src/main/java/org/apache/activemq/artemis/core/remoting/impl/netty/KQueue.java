@@ -21,31 +21,31 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.utils.Env;
 
 /**
- * Tells if <a href="http://netty.io/wiki/native-transports.html">{@code netty-transport-native-epoll}</a> is supported.
+ * Tells if <a href="http://netty.io/wiki/native-transports.html">{@code netty-transport-native-kqueue}</a> is supported.
  */
-public final class Epoll {
+public final class KQueue {
 
-   private static final boolean IS_EPOLL_AVAILABLE = isEpollAvailable();
+   private static final boolean IS_KQUEUE_AVAILABLE = isKQueueAvailable();
 
-   private static boolean isEpollAvailable() {
+   private static boolean isKQueueAvailable() {
       try {
-         if (Env.is64BitJvm() && Env.isLinuxOs()) {
-            return io.netty.channel.epoll.Epoll.isAvailable();
+         if (Env.is64BitJvm() && Env.isMacOs()) {
+            return io.netty.channel.kqueue.KQueue.isAvailable();
          } else {
             return false;
          }
       } catch (Throwable e) {
-         ActiveMQClientLogger.LOGGER.unableToCheckEpollAvailability(e);
+         ActiveMQClientLogger.LOGGER.unableToCheckKQueueAvailability(e);
          return false;
       }
 
    }
 
-   private Epoll() {
+   private KQueue() {
 
    }
 
    public static boolean isAvailable() {
-      return IS_EPOLL_AVAILABLE;
+      return IS_KQUEUE_AVAILABLE;
    }
 }

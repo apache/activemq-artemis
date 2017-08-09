@@ -61,6 +61,7 @@ public final class Env {
 
    private static final String OS = System.getProperty("os.name").toLowerCase();
    private static final boolean IS_LINUX = OS.startsWith("linux");
+   private static final boolean IS_MAC = OS.startsWith("mac");
    private static final boolean IS_64BIT = checkIs64bit();
 
    private Env() {
@@ -85,6 +86,10 @@ public final class Env {
 
    public static boolean isLinuxOs() {
       return IS_LINUX == true;
+   }
+
+   public static boolean isMacOs() {
+      return IS_MAC == true;
    }
 
    public static boolean is64BitJvm() {
