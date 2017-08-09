@@ -41,7 +41,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    private long millisecondsPeriod;
    private TimeUnit timeUnit;
    private final Executor executor;
-   private ScheduledFuture future;
+   private volatile ScheduledFuture future;
    private final boolean onDemand;
 
    long lastTime = 0;
@@ -144,7 +144,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    @Override
-   public synchronized void stop() {
+   public void stop() {
       if (future != null) {
          future.cancel(false);
          future = null;

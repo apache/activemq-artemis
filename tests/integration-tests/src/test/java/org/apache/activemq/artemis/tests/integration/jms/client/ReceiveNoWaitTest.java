@@ -52,7 +52,7 @@ public class ReceiveNoWaitTest extends JMSTestBase {
    public void testReceiveNoWait() throws Exception {
       assertNotNull(queue);
 
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 1000; i++) {
          Connection connection = cf.createConnection();
 
          Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);

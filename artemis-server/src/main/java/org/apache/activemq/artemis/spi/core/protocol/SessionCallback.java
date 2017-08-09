@@ -89,4 +89,8 @@ public interface SessionCallback {
     * Some protocols (Openwire) needs a special message with the browser is finished.
     */
    void browserFinished(ServerConsumer consumer);
+
+   default void close(boolean failed) {
+
+   }
 }
