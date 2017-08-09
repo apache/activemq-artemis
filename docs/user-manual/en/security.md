@@ -659,8 +659,20 @@ authentication, TLS can be used to provide integrity and confidentially to the c
 The `GSSAPI` SASL mechanism must be enabled on the amqp acceptor by adding it to the `saslMechanisms` list url parameter:
 `saslMechanisms="GSSAPI<,PLAIN, etc>`.
 
-By default the server will use a JAAS login configuration scope named `amqp-sasl-gssapi` to obtain acceptor Kerberos
-credentials. An alternative configuration scope can be specified on the amqp acceptor url using the parameter: `saslLoginConfigScope=<some other scope>`.
+The server will use a JAAS login configuration scope named `amqp-sasl-gssapi` to obtain Kerberos acceptor credentials.
+An alternative configuration scope can be specified on the amqp acceptor using the url parameter: `saslLoginConfigScope=<some other scope>`.
+
+A sample configuration scope in 'login.config' that will pick up a Kerberos keyTab for the Kerberos acceptor Principal
+'amqp/localhost' is as follows:
+
+    amqp-sasl-gssapi {
+        com.sun.security.auth.module.Krb5LoginModule required
+        isInitiator=false
+        storeKey=true
+        useKeyTab=true
+        principal="amqp/localhost"
+        debug=true;
+    };
 
 On the server, the Kerberos authenticated Peer Principal can be associated with a JAAS Subject as an Apache ActiveMQ Artemis UserPrincipal
 using the Apache ActiveMQ Artemis Krb5LoginModule login module. The [PropertiesLoginModule](#propertiesloginmodule) can be used to map
