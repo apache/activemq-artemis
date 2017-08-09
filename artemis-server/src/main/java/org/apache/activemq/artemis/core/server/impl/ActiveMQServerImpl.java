@@ -1859,7 +1859,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    /**
     * This method is protected as it may be used as a hook for creating a custom storage manager (on tests for instance)
     */
-   private StorageManager createStorageManager() {
+   protected StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
             return new JDBCJournalStorageManager(configuration, getScheduledPool(), executorFactory, ioExecutorFactory, shutdownOnCriticalIO);
