@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
+import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 /**
- * MQTTConnectionMananager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
+ * MQTTConnectionManager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
  * events.
  */
 public class MQTTConnectionManager {
@@ -65,9 +65,9 @@ public class MQTTConnectionManager {
     */
    synchronized void connect(String cId,
                              String username,
-                             String password,
+                             byte[] passwordInBytes,
                              boolean will,
-                             String willMessage,
+                             byte[] willMessage,
                              String willTopic,
                              boolean willRetain,
                              int willQosLevel,
@@ -80,6 +80,7 @@ public class MQTTConnectionManager {
       }
 
       session.setSessionState(getSessionState(clientId));
+      String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
       ServerSessionImpl serverSession = createServerSession(username, password);
       serverSession.start();
 
@@ -88,9 +89,8 @@ public class MQTTConnectionManager {
 
       if (will) {
          isWill = true;
-         byte[] payload = willMessage.getBytes(Charset.forName("UTF-8"));
-         this.willMessage = ByteBufAllocator.DEFAULT.buffer(payload.length);
-         this.willMessage.writeBytes(payload);
+         this.willMessage = ByteBufAllocator.DEFAULT.buffer(willMessage.length);
+         this.willMessage.writeBytes(willMessage);
          this.willQoSLevel = willQosLevel;
          this.willRetain = willRetain;
          this.willTopic = willTopic;
