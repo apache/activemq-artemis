@@ -269,7 +269,10 @@ Netty for simple TCP:
     willing to take some small extra hit on latency but want the highest
     throughput set `directDeliver` to `false`.
 
--   `nioRemotingThreads`. When configured to use NIO, Apache ActiveMQ Artemis will,
+-   `nioRemotingThreads` This is deprecated. It is replaced by `remotingThreads`, 
+    if you are using this please update your configuration
+
+-   `remotingThreads`. Apache ActiveMQ Artemis will,
     by default, use a number of threads equal to three times the number
     of cores (or hyper-threads) as reported by
     `Runtime.getRuntime().availableProcessors()` for processing incoming
@@ -300,7 +303,43 @@ Netty for simple TCP:
     the connection is refused. In the case of a `core` client, it will
     result in a `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`.
 
+## Configuring Netty Native Transport
 
+Netty Native Transport support exists for selected OS platforms.
+This allows Apache ActiveMQ Artemis to use native sockets/io instead of Java NIO.
+
+These Native transports add features specific to a particular platform, 
+generate less garbage, and generally improve performance when compared to Java NIO based transport.
+
+Both Clients and Server can benefit from this.
+ 
+Current Supported Platforms.
+-    Linux running 64bit JVM
+-    MacOS running 64bit JVM
+
+Apache ActiveMQ Artemis will by default enable the corresponding native transport if a supported platform is detected.
+
+If running on an unsupported platform or any issues loading native libs, Apache ActiveMQ Artemis will fallback onto Java NIO.
+
+#### Linux Native Transport
+
+On supported Linux platforms Epoll is used, @see https://en.wikipedia.org/wiki/Epoll. 
+
+The following properties are specific to this native transport:
+
+-  `useEpoll` enables the use of epoll if a supported linux platform is running a 64bit JVM is detected. 
+    Setting this to `false` will force the use of Java NIO instead of epoll. Default is `true`
+
+#### MacOS Native Transport
+
+On supported MacOS platforms KQueue is used, @see https://en.wikipedia.org/wiki/Kqueue. 
+
+The following properties are specific to this native transport:
+
+-  `useKQueue` enables the use of kqueue if a supported MacOS platform running a 64bit JVM is detected. 
+    Setting this to `false` will force the use of Java NIO instead of kqueue. Default is `true`
+
+    
 ## Configuring Netty SSL
 
 Netty SSL is similar to the Netty TCP transport but it provides
