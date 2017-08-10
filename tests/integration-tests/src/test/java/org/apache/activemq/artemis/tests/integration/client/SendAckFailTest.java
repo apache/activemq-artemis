@@ -96,7 +96,6 @@ public class SendAckFailTest extends ActiveMQTestBase {
 
    @Override
    public String getJournalDir(final int index, final boolean backup) {
-      new Exception("trace").printStackTrace(System.out);
       return "./target/send-ack/journal";
    }
 
