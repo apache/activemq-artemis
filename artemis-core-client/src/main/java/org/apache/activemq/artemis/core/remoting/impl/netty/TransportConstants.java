@@ -137,7 +137,7 @@ public class TransportConstants {
 
    public static final String WRITE_BUFFER_HIGH_WATER_MARK_PROPNAME = "writeBufferHighWaterMark";
 
-   public static final String REMOTING_THREADS_PROPNAME = "RemotingThreads";
+   public static final String REMOTING_THREADS_PROPNAME = "remotingThreads";
 
    public static final String BATCH_DELAY = "batchDelay";
 
