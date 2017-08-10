@@ -665,7 +665,7 @@ channel in the normal way.
 The `GSSAPI` SASL mechanism must be enabled  on the AMQP acceptor in `broker.xml` by adding it to the `saslMechanisms` list url parameter:
 `saslMechanisms="GSSAPI<,PLAIN, etc>`.
 
-    <acceptor name="amqp">tcp://0.0.0.0:5672?saslMechanisms=GSSAPI</acceptor>
+    <acceptor name="amqp">tcp://0.0.0.0:5672?protocols=AMQP;saslMechanisms=GSSAPI</acceptor>
 
 The GSSAPI mechanism implementation on the server will use a JAAS configuration scope named `amqp-sasl-gssapi` to
 obtain it's Kerberos acceptor credentials. An alternative configuration scope can be specified on the AMQP acceptor
