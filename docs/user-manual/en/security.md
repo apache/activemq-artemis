@@ -266,8 +266,9 @@ with several login modules which will be discussed further down. This is the def
 
 ### JAAS Security Manager
 
-When using JAAS much of the configuration depends on which login module is used. However, there are a few commonalities
-for every case. The first place to look is in `bootstrap.xml`. Here is an example using the `PropertiesLogin` JAAS login
+When using the Java Authentication and Authorization Service (JAAS) much of the configuration depends on which login
+module is used. However, there are a few commonalities for every case.
+The first place to look is in `bootstrap.xml`. Here is an example using the `PropertiesLogin` JAAS login
 module which reads user, password, and role information from properties files:
 
     <jaas-security domain="PropertiesLogin"/>
@@ -651,19 +652,27 @@ The simplest way to make the login configuration available to JAAS is to add the
 
 ### Kerberos Authentication
 
-The [Krb5LoginModule](https://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html)
-can be used with JAAS to authenticate using the Kerberos protocol.
+You must have the Kerberos infrastructure set up in your deployment environment before the server can accept Kerberos credentials.
+The server can acquire its Kerberos acceptor credentials by using JAAS and a Kerberos login module. The JDK provides the
+[Krb5LoginModule](https://docs.oracle.com/javase/8/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html)
+which executes the necessary Kerberos protocol steps to authenticate and obtain Kerberos credentials.
 
-Using SASL over [AMQP](using-AMQP.md), Kerberos authentication is supported using the `GSSAPI` SASL mechanism. With SASL doing Kerberos
-authentication, TLS can be used to provide integrity and confidentially to the communications channel in the normal way.
-The `GSSAPI` SASL mechanism must be enabled on the amqp acceptor by adding it to the `saslMechanisms` list url parameter:
+#### GSSAPI SASL Mechanism
+
+Using SASL over [AMQP](using-AMQP.md), Kerberos authentication is supported using the `GSSAPI` SASL mechanism.
+With SASL doing Kerberos authentication, TLS can be used to provide integrity and confidentially to the communications
+channel in the normal way.
+The `GSSAPI` SASL mechanism must be enabled  on the AMQP acceptor in `broker.xml` by adding it to the `saslMechanisms` list url parameter:
 `saslMechanisms="GSSAPI<,PLAIN, etc>`.
 
-The server will use a JAAS login configuration scope named `amqp-sasl-gssapi` to obtain Kerberos acceptor credentials.
-An alternative configuration scope can be specified on the amqp acceptor using the url parameter: `saslLoginConfigScope=<some other scope>`.
+    <acceptor name="amqp">tcp://0.0.0.0:5672?saslMechanisms=GSSAPI</acceptor>
 
-A sample configuration scope in 'login.config' that will pick up a Kerberos keyTab for the Kerberos acceptor Principal
-'amqp/localhost' is as follows:
+The GSSAPI mechanism implementation on the server will use a JAAS configuration scope named `amqp-sasl-gssapi` to
+obtain it's Kerberos acceptor credentials. An alternative configuration scope can be specified on the AMQP acceptor
+using the url parameter: `saslLoginConfigScope=<some other scope>`.
+
+An example configuration scope for `login.config` that will pick up a Kerberos keyTab for the Kerberos acceptor Principal
+`amqp/localhost` is as follows:
 
     amqp-sasl-gssapi {
         com.sun.security.auth.module.Krb5LoginModule required
@@ -674,12 +683,17 @@ A sample configuration scope in 'login.config' that will pick up a Kerberos keyT
         debug=true;
     };
 
-On the server, the Kerberos authenticated Peer Principal can be associated with a JAAS Subject as an Apache ActiveMQ Artemis UserPrincipal
-using the Apache ActiveMQ Artemis Krb5LoginModule login module. The [PropertiesLoginModule](#propertiesloginmodule) can be used to map
-the peer principal to a role.
+#### Role Mapping
+
+On the server, the Kerberos authenticated Peer Principal can be added to the Subject's principal set as an Apache ActiveMQ Artemis UserPrincipal
+using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) can then be used to map
+the authenticated Kerberos Peer Principal to a [Role](#role-based-security-for-addresses).
+
 Note: the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user.
 
     org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule optional;
+
+#### TLS Kerberos Cipher Suites
 
 The legacy [rfc2712](http://www.ietf.org/rfc/rfc2712.txt) defines TLS Kerberos cipher suites that can be used by TLS to negotiate
 Kerberos authentication. The cypher suites offered by rfc2712 are dated and insecure and rfc2712 has been superseded by
