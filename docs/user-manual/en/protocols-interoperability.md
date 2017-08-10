@@ -87,15 +87,15 @@ does not exist then an exception will be sent
 > but for now you will have to add them via the configuration
 
 ### AMQP and Multicast Queues (Topics)
- 
-Although amqp has no notion of topics it is still possible to treat amqp consumers or receivers as subscriptions rather 
+
+Although amqp has no notion of topics it is still possible to treat amqp consumers or receivers as subscriptions rather
 than just consumers on a queue. By default any receiving link that attaches to an address that has only multicast enabled
 will be treated as a subscription and a subscription queue will be created. If the Terminus Durability is either UNSETTLED_STATE
-or CONFIGURATION then the queue will be made durable, similar to a JMS durable subscription and given a name made up from 
-the container id and the link name, something like `my-container-id:my-link-name`. if the Terminus Durability is configured 
+or CONFIGURATION then the queue will be made durable, similar to a JMS durable subscription and given a name made up from
+the container id and the link name, something like `my-container-id:my-link-name`. if the Terminus Durability is configured
 as NONE then a volatile multicast queue will be created.
 
-Artemis also supports the qpid-jms client and will respect its use of topics regardless of the prefix used for the address. 
+Artemis also supports the qpid-jms client and will respect its use of topics regardless of the prefix used for the address.
 
 ### AMQP and Coordinations - Handling Transactions
 
@@ -109,6 +109,24 @@ or committed via the coordinator.
 > AMQP allows the use of multiple transactions per session,
 > `amqp:multi-txns-per-ssn`, however in this version Apache ActiveMQ Artemis will only
 > support single transactions per session
+
+### AMQP scheduling message delivery
+
+An AMQP message can provide scheduling information that controls the time in the future when the
+message will be delivered at the earliest.  This information is provided by adding a message annotation
+to the sent message.
+
+There are two different message annotations that can be used to schedule a message for later delivery:
+
+* `x-opt-delivery-time`
+The specified value must be a positive long corresponding to the time the message should be made available
+for delivery (in milliseconds).
+
+* `x-opt-delivery-delay`
+The specified value must be a positive long corresponding to the amount of milliseconds after the broker
+receives the given message before it should be made available for delivery.
+
+if both annotations are present in the same message then the broker will prefer the more specific `x-opt-delivery-time` value.
 
 ## OpenWire
 
@@ -141,21 +159,21 @@ It specifies the time (milliseconds) after which the connection is closed by the
 Default value is 30000.
 
 * maxInactivityDurationInitalDelay:
-It specifies the maximum delay (milliseconds) before inactivity monitoring is started on the connection. 
+It specifies the maximum delay (milliseconds) before inactivity monitoring is started on the connection.
 It can be useful if a broker is under load with many connections being created concurrently.
 Default value is 10000.
 
 * useInactivityMonitor:
-A value of false disables the InactivityMonitor completely and connections will never time out. 
-By default it is enabled. On broker side you don't neet set this. Instead you can set the 
+A value of false disables the InactivityMonitor completely and connections will never time out.
+By default it is enabled. On broker side you don't neet set this. Instead you can set the
 connection-ttl to -1.
 
 * useKeepAlive:
-Whether or not to send a KeepAliveInfo on an idle connection to prevent it from timing out. 
-Enabled by default. Disabling the keep alive will still make connections time out if no data 
+Whether or not to send a KeepAliveInfo on an idle connection to prevent it from timing out.
+Enabled by default. Disabling the keep alive will still make connections time out if no data
 was received on the connection for the specified amount of time.
 
-Note at the beginning the InactivityMonitor negotiates the appropriate maxInactivityDuration and 
+Note at the beginning the InactivityMonitor negotiates the appropriate maxInactivityDuration and
 maxInactivityDurationInitalDelay. The shortest duration is taken for the connection.
 
 More details please see [ActiveMQ InactivityMonitor](http://activemq.apache.org/activemq-inactivitymonitor.html).
@@ -338,10 +356,10 @@ they crash the server will have no way of knowing immediately whether
 the client is still alive or not. STOMP connections therefore default to
 a connection-ttl value of 1 minute (see chapter on
 [connection-ttl](#connection-ttl) for more information. This value can
-be overridden using the `connection-ttl-override` property or if you 
+be overridden using the `connection-ttl-override` property or if you
 need a specific connectionTtl for your stomp connections without
-affecting the broker-wide `connection-ttl-override` setting, you can 
-configure your stomp acceptor with the "connectionTtl" property, which 
+affecting the broker-wide `connection-ttl-override` setting, you can
+configure your stomp acceptor with the "connectionTtl" property, which
 is used to set the ttl for connections that are created from that acceptor.
 For example:
 
@@ -358,7 +376,7 @@ Since Stomp 1.0 does not support heart-beating then all connections from
 Stomp 1.0 clients will have a connection TTL imposed upon them by the broker
 based on the aforementioned configuration options. Likewise, any Stomp 1.1
 or 1.2 clients that don't specify a `heart-beat` header or disable client-to-server
-heart-beating (e.g. by sending `0,X` in the `heart-beat` header) will have 
+heart-beating (e.g. by sending `0,X` in the `heart-beat` header) will have
 a connection TTL imposed upon them by the broker.
 
 For Stomp 1.1 and 1.2 clients which send a non-zero client-to-server `heart-beat`
@@ -404,7 +422,7 @@ The minimum server-to-client heart-beat value is 500ms.
 
 Stomp subscribers can specify an expression used to select or filter
 what the subscriber receives using the `selector` header. The filter
-expression syntax follows the *core filter syntax* described in the 
+expression syntax follows the *core filter syntax* described in the
 [Filter Expressions](filter-expressions.md) documentation.
 
 ### Stomp and JMS interoperability
