@@ -1240,9 +1240,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (closed)
          return;
 
-      if (failed) {
-
-      }
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
