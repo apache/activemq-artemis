@@ -18,6 +18,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -142,9 +143,9 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    }
 
    @Override
-   public void beforeCreateConsumer(long consumerID, SimpleString queueName, SimpleString filterString,
+   public void beforeCreateConsumer(long consumerID, QueueBinding queueBinding, SimpleString filterString,
                                     boolean browseOnly, boolean supportLargeMessage) {
-      Preconditions.checkNotNull(queueName);
+      Preconditions.checkNotNull(queueBinding);
       methodCalled(BEFORE_CREATE_CONSUMER);
    }
 
