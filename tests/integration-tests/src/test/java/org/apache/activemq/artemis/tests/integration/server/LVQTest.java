@@ -618,18 +618,39 @@ public class LVQTest extends ActiveMQTestBase {
       clientSessionTxReceives.commit();
    }
 
+   @Test
+   public void testLargeMessage() throws Exception {
+      ClientProducer producer = clientSessionTxReceives.createProducer(address);
+      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
+      SimpleString rh = new SimpleString("SMID1");
+
+      for (int i = 0; i < 50; i++) {
+         ClientMessage message = clientSession.createMessage(true);
+         message.setBodyInputStream(createFakeLargeStream(300 * 1024));
+         message.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+         producer.send(message);
+         clientSession.commit();
+      }
+      clientSessionTxReceives.start();
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertNull(consumer.receiveImmediate());
+      clientSessionTxReceives.commit();
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig(), true));
       // start the server
       server.start();
 
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       // then we create a client as normalServer
-      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
+      ServerLocator locator = createNettyNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       clientSession = addClientSession(sf.createSession(false, true, true));
