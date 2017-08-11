@@ -455,7 +455,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCreateConsumer(consumerID, unPrefixedQueueName,
+      server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCreateConsumer(consumerID, (QueueBinding) binding,
             filterString, browseOnly, supportLargeMessage) : null);
 
       ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
