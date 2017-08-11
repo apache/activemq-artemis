@@ -335,6 +335,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void doClose(final boolean failed) throws Exception {
+      callback.close(failed);
       synchronized (this) {
          this.setStarted(false);
          if (closed)

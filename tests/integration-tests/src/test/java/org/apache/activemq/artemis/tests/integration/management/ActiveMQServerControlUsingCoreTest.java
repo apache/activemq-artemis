@@ -38,6 +38,13 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       return names;
    }
 
+   // it doesn't make sense through the core
+   // the pool will be shutdown while a connection is being used
+   // makes no sense!
+   @Override
+   public void testForceFailover() throws Exception {
+   }
+
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
