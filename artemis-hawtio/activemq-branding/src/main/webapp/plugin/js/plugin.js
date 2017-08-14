@@ -20,6 +20,8 @@
  * @module activemqBranding
  * @main activemq
  */
+var localStorage = Core.getLocalStorage();
+localStorage['showWelcomePage'] = false;
 var activemqBranding = (function (self) {
 
     self.log = Logger.get("activemq");
@@ -30,18 +32,18 @@ var activemqBranding = (function (self) {
         Themes.definitions['activemq'] = {
             label: 'activemq',
             file: self.context + 'plugin/css/activemq.css',
-            loginBg: self.context + 'plugin/img/login-screen-background.jpg'
+            loginBg: self.context + 'plugin/img/login-screen-background.png'
         };
-        var localStorage = Core.getLocalStorage();
         if (!('theme' in localStorage)) {
             localStorage['theme'] = 'activemq';
         }
+        localStorage['showWelcomePage'] = false;
         Themes.brandings['activemq'] = {
             label: 'activemq',
             setFunc: function(branding) {
-                branding.appName = 'MANAGEMENT CONSOLE';
+                branding.appName = 'ActiveMQ Management Console';
                 branding.appLogo = self.context + 'plugin/img/activemq.png';
-                branding.logoOnly = false;
+                branding.logoOnly = true;
                 branding.fullscreenLogin = true;
                 branding.css = self.context + 'plugin/css/branding.css';
                 branding.favicon = self.context + 'plugin/img/favicon.png';
