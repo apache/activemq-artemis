@@ -1,0 +1,54 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  Architecture
+-->
+<div ng-controller="ARTEMIS.AddressesController">
+
+    <!-- TODO This should be templated and included -->
+    <div class="row-fluid">
+        <div class="span24">
+            <div class="control-group inline-block">
+                <form class="form-inline no-bottom-margin">
+                    &nbsp;<span class="label label-default">Filter</span>
+                    &nbsp;&nbsp;
+                    <select ng-model="filter.values.field" id="filter.values.field">
+                        <option ng-repeat="option in filter.fieldOptions" value="{{option.id}}">{{option.name}}
+                        </option>
+                    </select>
+                    <select ng-model="filter.values.operation" id="filter.values.operation">
+                        <option ng-repeat="option in filter.operationOptions" value="{{option.id}}">{{option.name}}
+                        </option>
+                    </select>
+                    <input class="search-query" type="text" ng-model="filter.values.value" placeholder="Value">
+                    <button class="btn" ng-click="refresh()"
+                            title="Filter">
+                        <i class="icon-search">&nbsp;&nbsp;</i>
+                    </button>
+                    &nbsp;&nbsp;
+                    <button class="btn pull-right" ng-click="reset()"
+                            title="Reset">
+                        <i class="icon-refresh">&nbsp;&nbsp;Reset</i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="gridStyle" ng-grid="gridOptions" ui-grid-resize-columns></div>
+    </div>
+
+</div>
