@@ -41,20 +41,20 @@ public class InterceptorExample {
       System.out.println("Connected to Artemis");
 
       // Subscribe to a topic
-      Topic[] topics = {new Topic("mqtt/example/interceptor", QoS.AT_LEAST_ONCE)};
+      Topic[] topics = {new Topic("mqtt/example/interceptor", QoS.EXACTLY_ONCE)};
       connection.subscribe(topics);
       System.out.println("Subscribed to topics.");
 
       // Publish message
       String payload1 = "This is message 1";
 
-      connection.publish("mqtt/example/interceptor", payload1.getBytes(), QoS.AT_LEAST_ONCE, false);
+      connection.publish("mqtt/example/interceptor", payload1.getBytes(), QoS.EXACTLY_ONCE, false);
 
       System.out.println("Sent message");
 
       // Receive the sent message
       Message message1 = connection.receive(5, TimeUnit.SECONDS);
-
+      
       String messagePayload = new String(message1.getPayload(), StandardCharsets.UTF_8);
 
       System.out.println("Received message: " + messagePayload);
