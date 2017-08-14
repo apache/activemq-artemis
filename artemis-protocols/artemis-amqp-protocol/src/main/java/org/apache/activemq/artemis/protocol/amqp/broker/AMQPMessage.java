@@ -62,6 +62,7 @@ import io.netty.buffer.Unpooled;
 // see https://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#section-message-format
 public class AMQPMessage extends RefCountMessage {
 
+   public static final String HDR_LAST_VALUE_NAME = org.apache.activemq.artemis.api.core.Message.HDR_LAST_VALUE_NAME.toString();
    public static final int DEFAULT_MESSAGE_PRIORITY = 4;
    public static final int MAX_MESSAGE_PRIORITY = 9;
 
@@ -998,6 +999,11 @@ public class AMQPMessage extends RefCountMessage {
       } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
+   }
+
+   @Override
+   public SimpleString getLastValueProperty() {
+      return getSimpleStringProperty(HDR_LAST_VALUE_NAME);
    }
 
    @Override

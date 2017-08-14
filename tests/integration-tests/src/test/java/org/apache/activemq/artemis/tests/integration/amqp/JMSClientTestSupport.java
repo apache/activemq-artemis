@@ -23,6 +23,7 @@ import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.jboss.logging.Logger;
@@ -186,6 +187,58 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
    private Connection createCoreConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
       ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
+
+      Connection connection = trackJMSConnection(factory.createConnection(username, password));
+
+      connection.setExceptionListener(new ExceptionListener() {
+         @Override
+         public void onException(JMSException exception) {
+            exception.printStackTrace();
+         }
+      });
+
+      if (clientId != null && !clientId.isEmpty()) {
+         connection.setClientID(clientId);
+      }
+
+      if (start) {
+         connection.start();
+      }
+
+      return connection;
+   }
+
+   protected String getBrokerOpenWireJMSConnectionString() {
+
+      try {
+         int port = AMQP_PORT;
+
+         String uri = null;
+
+         if (isUseSSL()) {
+            uri = "tcp://127.0.0.1:" + port;
+         } else {
+            uri = "tcp://127.0.0.1:" + port;
+         }
+
+         if (!getJmsConnectionURIOptions().isEmpty()) {
+            uri = uri + "?" + getJmsConnectionURIOptions();
+         } else {
+            uri = uri + "?wireFormat.cacheEnabled=true";
+         }
+
+         return uri;
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected Connection createOpenWireConnection() throws JMSException {
+      return createCoreConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
+   }
+
+   private Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionString);
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
 
