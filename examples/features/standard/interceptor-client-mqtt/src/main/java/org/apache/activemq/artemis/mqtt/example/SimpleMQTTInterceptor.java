@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.mqtt.example;
 import java.nio.charset.Charset;
 
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
+import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 
 
@@ -36,7 +37,9 @@ public class SimpleMQTTInterceptor implements MQTTInterceptor {
    public boolean intercept(final MqttMessage mqttMessage, RemotingConnection connection) {
       System.out.println("MQTT Interceptor gets called ");
 
+      System.out.println("A MQTT control packet was intercepted " + mqttMessage.fixedHeader().messageType());
 
+      // If you need to handle an specific packet type:
       if (mqttMessage instanceof MqttPublishMessage) {
          MqttPublishMessage message = (MqttPublishMessage) mqttMessage;
 
@@ -48,6 +51,12 @@ public class SimpleMQTTInterceptor implements MQTTInterceptor {
          String modifiedMessage = "Modified message ";
 
          message.payload().setBytes(0, modifiedMessage.getBytes());
+      }
+      else {
+         if (mqttMessage instanceof MqttConnectMessage) {
+            MqttConnectMessage connectMessage = (MqttConnectMessage) mqttMessage;
+            System.out.println("A MQTT CONNECT control packet was intercepted " + connectMessage);
+         }
       }
 
 
