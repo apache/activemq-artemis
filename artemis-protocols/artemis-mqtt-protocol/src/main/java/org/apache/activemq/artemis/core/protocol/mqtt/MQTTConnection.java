@@ -45,6 +45,8 @@ public class MQTTConnection implements RemotingConnection {
 
    private boolean connected;
 
+   private String clientID;
+
    private final List<FailureListener> failureListeners = Collections.synchronizedList(new ArrayList<FailureListener>());
 
    private final List<CloseListener> closeListeners = Collections.synchronizedList(new ArrayList<CloseListener>());
@@ -232,5 +234,36 @@ public class MQTTConnection implements RemotingConnection {
    @Override
    public Subject getSubject() {
       return null;
+   }
+
+   /**
+    * Returns the name of the protocol for this Remoting Connection
+    *
+    * @return
+    */
+   @Override
+   public String getProtocolName() {
+      return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
+   }
+
+   /**
+    * Sets the client ID associated with this connection
+    *
+    * @param cID
+    * @return
+    */
+   @Override
+   public void setClientID(String cID) {
+      this.clientID = cID;
+   }
+
+   /**
+    * Returns the Client ID associated with this connection
+    *
+    * @return
+    */
+   @Override
+   public String getClientID() {
+      return clientID;
    }
 }

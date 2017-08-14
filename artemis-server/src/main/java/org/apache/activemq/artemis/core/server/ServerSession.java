@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.json.JsonArrayBuilder;
@@ -292,4 +293,12 @@ public interface ServerSession extends SecurityAuth {
     */
    Pair<SimpleString, Set<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
                                                                   Set<RoutingType> defaultRoutingTypes);
+
+   void addProducer(ServerProducer serverProducer);
+
+   void removeProducer(String ID);
+
+   Map<String, ServerProducer> getServerProducers();
+
+   String getDefaultAddress();
 }

@@ -160,4 +160,19 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       }
       return null;
    }
+
+   /**
+    * Returns the name of the protocol for this Remoting Connection
+    *
+    * @return
+    */
+   @Override
+   public String getProtocolName() {
+      return ProtonProtocolManagerFactory.AMQP_PROTOCOL_NAME;
+   }
+
+   @Override
+   public String getClientID() {
+      return amqpConnection.getContainer();
+   }
 }

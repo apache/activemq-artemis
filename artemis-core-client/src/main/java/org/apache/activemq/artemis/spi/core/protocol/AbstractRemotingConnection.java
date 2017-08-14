@@ -44,6 +44,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    protected final Executor executor;
    protected final long creationTime;
    protected volatile boolean dataReceived;
+   private String clientId;
 
    public AbstractRemotingConnection(final Connection transportConnection, final Executor executor) {
       this.transportConnection = transportConnection;
@@ -225,5 +226,15 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public Subject getSubject() {
       return null;
+   }
+
+   @Override
+   public void setClientID(String clientId) {
+      this.clientId = clientId;
+   }
+
+   @Override
+   public String getClientID() {
+      return clientId;
    }
 }

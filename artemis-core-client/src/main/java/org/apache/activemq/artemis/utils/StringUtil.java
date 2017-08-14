@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class StringUtil {
     * @param delimit the delimiter used to separate each string entry in the list
     * @return the converted string
     */
-   public static String joinStringList(List<String> strList, String delimit) {
+   public static String joinStringList(Collection<String> strList, String delimit) {
       Iterator<String> entries = strList.iterator();
       StringBuilder builder = new StringBuilder();
 
