@@ -39,6 +39,10 @@ under the License.
          <class-name>org.apache.activemq.artemis.mqtt.example.SimpleMQTTInterceptor</class-name>
       </remoting-incoming-interceptors>
 
+      <remoting-outgoing-interceptors>
+         <class-name>org.apache.activemq.artemis.mqtt.example.SimpleMQTTInterceptor</class-name>
+      </remoting-outgoing-interceptors>
+
       <bindings-directory>./data/bindings</bindings-directory>
 
       <journal-directory>./data/journal</journal-directory>
