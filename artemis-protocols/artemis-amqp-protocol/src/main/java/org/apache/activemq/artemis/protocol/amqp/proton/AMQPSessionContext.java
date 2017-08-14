@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.artemis.core.server.ServerProducer;
+import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
@@ -138,6 +140,7 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void removeReceiver(Receiver receiver) {
+      sessionSPI.removeProducer(receiver.getName());
       receivers.remove(receiver);
    }
 
@@ -200,6 +203,8 @@ public class AMQPSessionContext extends ProtonInitializable {
          ProtonServerReceiverContext protonReceiver = new ProtonServerReceiverContext(sessionSPI, connection, this, receiver);
          protonReceiver.initialise();
          receivers.put(receiver, protonReceiver);
+         ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
+         sessionSPI.addProducer(serverProducer);
          receiver.setContext(protonReceiver);
          connection.lock();
          try {

@@ -1075,5 +1075,35 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "List Addresses on the broker", impact = MBeanOperationInfo.INFO)
    String listAddresses(@Parameter(name = "separator", desc = "Separator used on the string listing") String separator) throws Exception;
+
+   @Operation(desc = "Search for Connections", impact = MBeanOperationInfo.INFO)
+   String listConnections(@Parameter(name = "Options") String options,
+                          @Parameter(name = "Page Number") int page,
+                          @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   @Operation(desc = "Search for Sessions", impact = MBeanOperationInfo.INFO)
+   String listSessions(@Parameter(name = "Options") String options,
+                       @Parameter(name = "Page Number") int page,
+                       @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   @Operation(desc = "Search for Consumers", impact = MBeanOperationInfo.INFO)
+   String listConsumers(@Parameter(name = "Options") String options,
+                       @Parameter(name = "Page Number") int page,
+                       @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   @Operation(desc = "Search for Consumers", impact = MBeanOperationInfo.INFO)
+   String listProducers(@Parameter(name = "Options") String options,
+                        @Parameter(name = "Page Number") int page,
+                        @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   @Operation(desc = "Search for Addresses", impact = MBeanOperationInfo.INFO)
+   String listAddresses(@Parameter(name = "Options") String options,
+                        @Parameter(name = "Page Number") int page,
+                        @Parameter(name = "Page Size") int pageSize) throws Exception;
+
+   @Operation(desc = "Search for Queues", impact = MBeanOperationInfo.INFO)
+   String listQueues(@Parameter(name = "Options") String options,
+                     @Parameter(name = "Page Number") int page,
+                     @Parameter(name = "Page Size") int pageSize) throws Exception;
 }
 

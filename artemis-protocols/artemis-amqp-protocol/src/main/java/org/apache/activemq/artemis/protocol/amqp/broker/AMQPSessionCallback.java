@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
@@ -672,5 +673,13 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public void invokeOutgoing(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {
       protonSPI.invokeOutgoingInterceptors(message, connection);
+   }
+
+   public void addProducer(ServerProducer serverProducer) {
+      serverSession.addProducer(serverProducer);
+   }
+
+   public void removeProducer(String name) {
+      serverSession.removeProducer(name);
    }
 }

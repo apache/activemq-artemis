@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
@@ -347,6 +348,16 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return false;
    }
 
+   /**
+    * Returns the name of the protocol for this Remoting Connection
+    *
+    * @return
+    */
+   @Override
+   public String getProtocolName() {
+      return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
+   }
+
    // Buffer Handler implementation
    // ----------------------------------------------------
    @Override
@@ -398,14 +409,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       for (Channel channel : channels.values()) {
          channel.close();
       }
-   }
-
-   public void setClientID(String cID) {
-      clientID = cID;
-   }
-
-   public String getClientID() {
-      return clientID;
    }
 
    @Override

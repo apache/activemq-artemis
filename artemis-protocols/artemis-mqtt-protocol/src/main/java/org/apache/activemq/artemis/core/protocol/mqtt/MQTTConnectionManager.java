@@ -98,6 +98,7 @@ public class MQTTConnectionManager {
 
       session.getConnection().setConnected(true);
       session.start();
+      session.getConnection().setClientID(clientId);
       session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_ACCEPTED);
    }
 

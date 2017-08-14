@@ -34,7 +34,7 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
 
    public static final byte ID = 2;
 
-   private static final String AMQP_PROTOCOL_NAME = "AMQP";
+   public static final String AMQP_PROTOCOL_NAME = "AMQP";
 
    private static final String MODULE_NAME = "artemis-amqp-protocol";
 

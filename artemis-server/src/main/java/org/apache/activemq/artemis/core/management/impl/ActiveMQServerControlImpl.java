@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
@@ -64,6 +65,12 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.management.impl.view.AddressView;
+import org.apache.activemq.artemis.core.management.impl.view.ConnectionView;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerView;
+import org.apache.activemq.artemis.core.management.impl.view.ProducerView;
+import org.apache.activemq.artemis.core.management.impl.view.QueueView;
+import org.apache.activemq.artemis.core.management.impl.view.SessionView;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -86,6 +93,7 @@ import org.apache.activemq.artemis.core.server.DivertConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
@@ -1573,6 +1581,109 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       return producers.build().toString();
+   }
+
+   @Override
+   public String listConnections(String options, int page, int pageSize) throws Exception {
+      checkStarted();
+      clearIO();
+      try {
+         server.getPostOffice().getAddresses();
+         ConnectionView view = new ConnectionView(server);
+         view.setCollection(server.getRemotingService().getConnections());
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listSessions(String options, int page, int pageSize) throws Exception {
+      checkStarted();
+      clearIO();
+      try {
+         SessionView view = new SessionView();
+         view.setCollection(server.getSessions());
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listConsumers(String options, int page, int pageSize) throws Exception {
+      checkStarted();
+      clearIO();
+      try {
+         Set<ServerConsumer> consumers = new HashSet();
+         for (ServerSession session : server.getSessions()) {
+            consumers.addAll(session.getServerConsumers());
+         }
+         ConsumerView view = new ConsumerView(server);
+         view.setCollection(consumers);
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listAddresses(String options, int page, int pageSize) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
+         AddressView view = new AddressView(server);
+         view.setCollection(addresses);
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listQueues(String options, int page, int pageSize) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         List<QueueControl> queues = new ArrayList<>();
+         Object[] qs = server.getManagementService().getResources(QueueControl.class);
+         for (int i = 0; i < qs.length; i++) {
+            queues.add((QueueControl) qs[i]);
+         }
+         QueueView view = new QueueView(server);
+         view.setCollection(queues);
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listProducers(@Parameter(name = "Options") String options,
+                               @Parameter(name = "Page Number") int page,
+                               @Parameter(name = "Page Size") int pageSize) throws Exception {
+      checkStarted();
+      clearIO();
+      try {
+         Set<ServerProducer> producers = new HashSet<>();
+         for (ServerSession session : server.getSessions()) {
+            producers.addAll(session.getServerProducers().values());
+         }
+         ProducerView view = new ProducerView(server);
+         view.setCollection(producers);
+         view.setOptions(options);
+         return view.getResultsAsJson(page, pageSize);
+      } finally {
+         blockOnIO();
+      }
    }
 
    @Override
