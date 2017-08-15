@@ -427,7 +427,7 @@ div#main div ul.nav li a:hover {
   border-bottom-right-radius: 5px;
   border-left: 1px solid #d4d4d4;
   border-right: 1px solid #d4d4d4;
-  top: 90px;
+  top: 106px;
 }
 
 .ui-resizable-se {
@@ -1627,7 +1627,7 @@ a:hover {
 }
 
 #main-nav .navbar-inner.main-nav-upper .nav > li {
-  height: 44px;
+  height: 60px;
   border-left: 1px solid #585b5e;
 }
 
@@ -1637,8 +1637,8 @@ a:hover {
   padding-top: 1px;
   border-radius: 0;
   border: none;
-  height: 44px;
-  max-height: 44px;
+  height: 60px;
+  max-height: 60px;
   color: #ffffff;
 }
 
@@ -1710,8 +1710,8 @@ a:hover {
   border-radius: 0;
   line-height: 18px;
   padding: 0;
-  max-height: 45px;
-  min-height: 45px;
+  max-height: 31px;
+  min-height: 31px;
   border-top: none;
   border-bottom: 1px solid #cecdcd;
 }
@@ -2169,9 +2169,9 @@ li.dropdown.open > a.dropdown-toggle {
 .dropdown-menu > li {
   padding-left: 10px !important;
   padding-right: 10px !important;
-  line-height: 44px !important;
+  line-height: 60px !important;
   border-top: none;
-  max-height: 44px;
+  max-height: 60px;
 }
 
 li.dropdown.open > a.dropdown-toggle {
@@ -2415,7 +2415,7 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
 .pane {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
   background: #fff;
-  top: 90px;
+  top: 106px;
 }
 
 .pane-header-wrapper {
