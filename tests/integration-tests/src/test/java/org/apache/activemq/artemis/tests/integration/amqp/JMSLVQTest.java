@@ -133,7 +133,6 @@ public class JMSLVQTest extends JMSClientTestSupport {
          message2.setText("how are you");
          p.send(queue1, message2);
 
-         
          Session consumerSession = consumerConnection.createSession();
          Queue consumerQueue = consumerSession.createQueue(LVQ_QUEUE_NAME);
          MessageConsumer consumer = consumerSession.createConsumer(consumerQueue);
@@ -143,7 +142,6 @@ public class JMSLVQTest extends JMSClientTestSupport {
          assertTrue(msg instanceof TextMessage);
          assertEquals("how are you", ((TextMessage)msg).getText());
          consumer.close();
-         
       } finally {
          producerConnection.close();
          consumerConnection.close();
