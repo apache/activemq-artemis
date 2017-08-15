@@ -69,7 +69,7 @@ public class ConsumerThread extends Thread {
       running = true;
       QueueBrowser consumer = null;
       String threadName = Thread.currentThread().getName();
-      System.out.println(threadName + " wait until " + messageCount + " messages are consumed");
+      System.out.println(threadName + " trying to browse " + messageCount + " messages");
       try {
          if (filter != null) {
             consumer = session.createBrowser((Queue) destination, filter);
@@ -81,7 +81,7 @@ public class ConsumerThread extends Thread {
          while (enumBrowse.hasMoreElements()) {
             Message msg = enumBrowse.nextElement();
             if (msg != null) {
-               System.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+               System.out.println(threadName + " browsing " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
 
                if (verbose) {
                   System.out.println("..." + msg);
@@ -115,7 +115,7 @@ public class ConsumerThread extends Thread {
             finished.countDown();
          }
          if (consumer != null) {
-            System.out.println(threadName + " Consumed: " + this.getReceived() + " messages");
+            System.out.println(threadName + " browsed: " + this.getReceived() + " messages");
             try {
                consumer.close();
             } catch (JMSException e) {
@@ -124,7 +124,7 @@ public class ConsumerThread extends Thread {
          }
       }
 
-      System.out.println(threadName + " Consumer thread finished");
+      System.out.println(threadName + " Browser thread finished");
    }
 
    public void consume() {
