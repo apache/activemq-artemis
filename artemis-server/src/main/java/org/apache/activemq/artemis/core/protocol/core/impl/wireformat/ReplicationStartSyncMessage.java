@@ -18,10 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -70,44 +68,22 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       super(REPLICATION_START_FINISH_SYNC);
    }
 
-   public ReplicationStartSyncMessage(List<Long> filenames) {
-      this();
-      ids = new long[filenames.size()];
-      for (int i = 0; i < filenames.size(); i++) {
-         ids[i] = filenames.get(i);
-      }
-      dataType = SyncDataType.LargeMessages;
-      nodeID = ""; // this value will be ignored
-   }
-
    public ReplicationStartSyncMessage(String nodeID) {
       this();
       synchronizationIsFinished = true;
       this.nodeID = nodeID;
    }
 
-   public ReplicationStartSyncMessage(JournalFile[] datafiles,
-                                      AbstractJournalStorageManager.JournalContent contentType,
+   public ReplicationStartSyncMessage(long[] ids,
+                                      SyncDataType dataType,
                                       String nodeID,
                                       boolean allowsAutoFailBack) {
       this();
       this.nodeID = nodeID;
       this.allowsAutoFailBack = allowsAutoFailBack;
-      synchronizationIsFinished = false;
-      ids = new long[datafiles.length];
-      for (int i = 0; i < datafiles.length; i++) {
-         ids[i] = datafiles[i].getFileID();
-      }
-      switch (contentType) {
-         case MESSAGES:
-            dataType = SyncDataType.JournalMessages;
-            break;
-         case BINDINGS:
-            dataType = SyncDataType.JournalBindings;
-            break;
-         default:
-            throw new IllegalArgumentException();
-      }
+      this.synchronizationIsFinished = false;
+      this.ids = ids;
+      this.dataType = dataType;
    }
 
 

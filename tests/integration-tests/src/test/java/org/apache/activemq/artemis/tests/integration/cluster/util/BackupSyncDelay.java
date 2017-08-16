@@ -170,7 +170,7 @@ public class BackupSyncDelay implements Interceptor {
                   receivedUpToDate = true;
                   assert onHold == null;
                   onHold = packet;
-                  PacketImpl response = new ReplicationResponseMessageV2(true);
+                  PacketImpl response = new ReplicationResponseMessageV2().setSynchronizationIsFinishedAcknowledgement(true);
                   channel.send(response);
                   return;
                }
