@@ -29,7 +29,7 @@ import org.junit.Test;
 public class SessionTest extends JMSTestBase {
 
    @Test
-   public void testIillegalStateException() throws Exception {
+   public void testIllegalStateException() throws Exception {
       Connection defaultConn = null;
       QueueConnection qConn = null;
       Connection connClientID = null;
@@ -47,36 +47,42 @@ public class SessionTest extends JMSTestBase {
          QueueSession qSess = qConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          try {
             qSess.createDurableConsumer(topic, "mySub1");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             qSess.createDurableConsumer(topic, "mySub1", "TEST = 'test'", false);
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             qSess.createSharedConsumer(topic, "mySub1");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             qSess.createSharedConsumer(topic, "mySub1", "TEST = 'test'");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             qSess.createSharedDurableConsumer(topic, "mySub1");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             qSess.createSharedDurableConsumer(topic, "mySub1", "TEST = 'test'");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
@@ -85,24 +91,28 @@ public class SessionTest extends JMSTestBase {
 
          try {
             defaultSess.createDurableSubscriber(topic, "mySub1");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             defaultSess.createDurableSubscriber(topic, "mySub1", "TEST = 'test'", true);
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             defaultSess.createDurableConsumer(topic, "mySub1");
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          try {
             defaultSess.createDurableConsumer(topic, "mySub1", "TEST = 'test'", true);
+            fail("exception expected");
          } catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
