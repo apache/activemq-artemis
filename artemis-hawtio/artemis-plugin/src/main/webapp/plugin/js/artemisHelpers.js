@@ -123,4 +123,27 @@ var ARTEMIS;
         });
     }
     ARTEMIS.decorate = decorate;
+
+    function getAddressNid(address, $location) {
+       var rootNID = getRootNid($location);
+       var targetNID = rootNID + "-addresses-\"" + address.name + "\"";
+       ARTEMIS.log.info("targetNID=" + targetNID);
+       return targetNID;
+    }
+    ARTEMIS.getAddressNid = getAddressNid;
+
+    function getQueueNid(queue, $location) {
+       var rootNID = getRootNid($location);
+       var targetNID = rootNID + "-addresses-\"" + queue.address + "\"-queues-\"" + queue.routingType.toLowerCase() + "\"-\"" + queue.name + "\"";
+         return targetNID;
+    }
+    ARTEMIS.getQueueNid = getQueueNid;
+
+    function getRootNid($location) {
+       var currentNid = $location.search()['nid'];
+       var firstQoute = currentNid.indexOf('"');
+       var secondQuote = currentNid.indexOf('"', firstQoute + 1);
+       var rootNID = currentNid.substring(0, secondQuote + 1);
+    return rootNID;
+}
 })(ARTEMIS || (ARTEMIS = {}));
