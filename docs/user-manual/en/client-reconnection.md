@@ -108,7 +108,7 @@ Client reconnection is configured using the following parameters:
 -   `reconnectAttempts`. This optional parameter determines the total
     number of reconnect attempts to make before giving up and shutting
     down. A value of `-1` signifies an unlimited number of attempts. The
-    default value is `-1`.
+    default value is `0`.
 
 If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
