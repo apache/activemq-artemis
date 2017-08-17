@@ -305,6 +305,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
             libaioFile.write(position, bytes, buffer, this);
          } catch (IOException e) {
             callback.onError(-1, e.getMessage());
+            onIOError(e, "Failed to write to file", sequentialFile);
          }
       }
 
