@@ -427,7 +427,7 @@ div#main div ul.nav li a:hover {
   border-bottom-right-radius: 5px;
   border-left: 1px solid #d4d4d4;
   border-right: 1px solid #d4d4d4;
-  top: 90px;
+  top: 106px;
 }
 
 .ui-resizable-se {
@@ -762,6 +762,7 @@ td.adding {
 
 .login-form form fieldset .control-group label {
   color: white;
+  font-weight: bolder;
 }
 
 .login-logo {
@@ -1435,23 +1436,23 @@ a:hover {
 
 
 #main {
-  margin-top: 90px!important;
+  margin-top: 106px!important;
 }
 
 #main-nav {
-  max-height: 90px !important;
+  max-height: 106px !important;
 }
 
 #main-nav .main-nav-upper .nav {
-  max-height: 45px !important;
+  max-height: 106px !important;
 }
 
 #main-nav .main-nav-upper .nav li {
-  max-height: 45px !important;
+  max-height: 106px !important;
 }
 
 #main-nav .main-nav-upper .nav li a {
-  max-height: 45px !important;
+  max-height: 106px !important;
 }
 
 #main-nav .main-nav-upper .nav li a i.fixme:before {
@@ -1477,10 +1478,9 @@ a:hover {
 #main-nav > .main-nav-upper {
   filter: none;
   border-top: 3px solid #B21054;
-  background: #FFFFFF !important;
   border-bottom: none;
-  height: 44px !important;
-  min-height: 44px !important;
+  height: 60px !important;
+  min-height: 60px !important;
   box-shadow: none;
 }
 
@@ -1539,7 +1539,6 @@ a:hover {
 }
 
 #main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand {
-  color: #333333;
   text-shadow: none;
 }
 
@@ -1628,7 +1627,7 @@ a:hover {
 }
 
 #main-nav .navbar-inner.main-nav-upper .nav > li {
-  height: 44px;
+  height: 60px;
   border-left: 1px solid #585b5e;
 }
 
@@ -1638,9 +1637,9 @@ a:hover {
   padding-top: 1px;
   border-radius: 0;
   border: none;
-  height: 44px;
-  max-height: 44px;
-  color: #333333;
+  height: 60px;
+  max-height: 60px;
+  color: #ffffff;
 }
 
 #main-nav .navbar-inner.main-nav-upper .nav > li:hover a {
@@ -1711,8 +1710,8 @@ a:hover {
   border-radius: 0;
   line-height: 18px;
   padding: 0;
-  max-height: 45px;
-  min-height: 45px;
+  max-height: 31px;
+  min-height: 31px;
   border-top: none;
   border-bottom: 1px solid #cecdcd;
 }
@@ -1804,10 +1803,8 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 }
 
 div[ng-controller='Core.LoginController']:after {
-  position: absolute;
-  top: 50px;
-  right: 64px;
-  content: url('../img/login-screen-logo.png');
+  position: relative;
+  horiz-align: center;
 }
 
 
@@ -1823,16 +1820,16 @@ div[ng-controller='Core.LoginController']:after {
   min-width: 850px;
   border-top: 1px rgba(255, 255, 255, 0.05) solid;
   border-bottom: 1px rgba(255, 255, 255, 0.05) solid;
-  background-color: rgba(178, 97, 130, 0.75);
+  background-color: rgba(255, 255, 255, 0.1);
 
 }
 
 .login-logo>img {
-  height: 80px;
+  height: 150px;
 }
 
 .login-logo {
-  top: -100px;
+  top: -200px;
   /* with no app title */
   /* left: 183px; */
   left: 45px;
@@ -1858,10 +1855,6 @@ div[ng-controller='Core.LoginController']:after {
   padding-top: 40px;
   padding-bottom: 40px;
   width: 344px;
-}
-
-.login-wrapper form fieldset .control-group label {
-  padding-top: 12px;
 }
 
 .login-wrapper form fieldset input[type="text"],
@@ -2176,9 +2169,9 @@ li.dropdown.open > a.dropdown-toggle {
 .dropdown-menu > li {
   padding-left: 10px !important;
   padding-right: 10px !important;
-  line-height: 44px !important;
+  line-height: 60px !important;
   border-top: none;
-  max-height: 44px;
+  max-height: 60px;
 }
 
 li.dropdown.open > a.dropdown-toggle {
@@ -2327,10 +2320,9 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
 }
 
 .help-header {
-  background-color: #B2577A;
-  color: white;
-  padding-left: 10px;
-  padding-right: 10px;
+  background-color: #43484D;
+  padding-left: 20px;
+  padding-right: 20px;
   border-radius: 4px;
 }
 
@@ -2338,7 +2330,7 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
   position: relative;
   margin-right: 7px;
   margin-left: 3px;
-  height: 22px;
+  height: 50px;
   top: -2px;
 }
 
@@ -2423,7 +2415,7 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
 .pane {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
   background: #fff;
-  top: 90px;
+  top: 106px;
 }
 
 .pane-header-wrapper {
