@@ -107,7 +107,7 @@ public final class ActiveMQClient {
 
    public static final long DEFAULT_MAX_RETRY_INTERVAL = ActiveMQDefaultConfiguration.getDefaultMaxRetryInterval();
 
-   public static final int DEFAULT_RECONNECT_ATTEMPTS = 0;
+   public static final int DEFAULT_RECONNECT_ATTEMPTS = -1;
 
    public static final int INITIAL_CONNECT_ATTEMPTS = 1;
 
