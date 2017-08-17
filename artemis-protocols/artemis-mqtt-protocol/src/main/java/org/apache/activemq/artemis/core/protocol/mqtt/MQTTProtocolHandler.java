@@ -172,6 +172,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
       String clientId = connect.payload().clientIdentifier();
       session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().passwordInBytes(), connect.variableHeader().isWillFlag(), connect.payload().willMessageInBytes(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
+
+      this.protocolManager.invokeIncoming(connect, this.connection);
    }
 
    void disconnect(boolean error) {
@@ -183,6 +185,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttConnAckVariableHeader varHeader = new MqttConnAckVariableHeader(returnCode, true);
       MqttConnAckMessage message = new MqttConnAckMessage(fixedHeader, varHeader);
 
+      this.protocolManager.invokeOutgoing(message, this.connection);
       ctx.write(message);
       ctx.flush();
    }
@@ -225,30 +228,43 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttFixedHeader fixedHeader = new MqttFixedHeader(messageType, false, qos, // Spec requires 01 in header for rel
                                                         false, 0);
       MqttPubAckMessage rel = new MqttPubAckMessage(fixedHeader, MqttMessageIdVariableHeader.from(messageId));
+
+      this.protocolManager.invokeOutgoing(rel, this.connection);
+
       ctx.write(rel);
       ctx.flush();
    }
 
    void handlePuback(MqttPubAckMessage message) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       session.getMqttPublishManager().handlePubAck(message.variableHeader().messageId());
    }
 
    void handlePubrec(MqttMessage message) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       int messageId = ((MqttMessageIdVariableHeader) message.variableHeader()).messageId();
       session.getMqttPublishManager().handlePubRec(messageId);
    }
 
    void handlePubrel(MqttMessage message) {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       int messageId = ((MqttMessageIdVariableHeader) message.variableHeader()).messageId();
       session.getMqttPublishManager().handlePubRel(messageId);
    }
 
    void handlePubcomp(MqttMessage message) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       int messageId = ((MqttMessageIdVariableHeader) message.variableHeader()).messageId();
       session.getMqttPublishManager().handlePubComp(messageId);
    }
 
    void handleSubscribe(MqttSubscribeMessage message, ChannelHandlerContext ctx) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       MQTTSubscriptionManager subscriptionManager = session.getSubscriptionManager();
       int[] qos = subscriptionManager.addSubscriptions(message.payload().topicSubscriptions());
 
@@ -264,6 +280,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleUnsubscribe(MqttUnsubscribeMessage message) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       session.getSubscriptionManager().removeSubscriptions(message.payload().topics());
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttUnsubAckMessage m = new MqttUnsubAckMessage(header, message.variableHeader());
@@ -273,10 +291,14 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleUnsuback(MqttUnsubAckMessage message) {
+      this.protocolManager.invokeOutgoing(message, this.connection);
+
       disconnect(true);
    }
 
    void handlePingreq(MqttMessage message, ChannelHandlerContext ctx) {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       MqttMessage pingResp = new MqttMessage(new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0));
       MQTTUtil.logMessage(session.getSessionState(), pingResp, false);
       ctx.write(pingResp);
@@ -288,6 +310,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleDisconnect(MqttMessage message) {
+      this.protocolManager.invokeIncoming(message, this.connection);
+
       disconnect(false);
    }
 
@@ -296,6 +320,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qosLevel), isRetain, 0);
       MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topicName, messageId);
       MqttMessage publish = new MqttPublishMessage(header, varHeader, payload);
+
       this.protocolManager.invokeOutgoing(publish, connection);
 
       MQTTUtil.logMessage(session.getSessionState(), publish, false);
