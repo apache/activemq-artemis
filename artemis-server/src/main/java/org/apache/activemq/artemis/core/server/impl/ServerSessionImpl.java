@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -125,6 +126,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    protected final RemotingConnection remotingConnection;
 
    protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
+
+   protected final Map<String, ServerProducer> producers = new ConcurrentHashMap<>();
 
    protected Transaction tx;
 
@@ -383,6 +386,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       consumers.clear();
+      producers.clear();
 
       if (closeables != null) {
          for (Closeable closeable : closeables) {
@@ -1728,5 +1732,27 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          return PrefixUtil.getAddressAndRoutingTypes(address, defaultRoutingTypes, prefixes);
       }
       return new Pair<>(address, defaultRoutingTypes);
+   }
+
+   @Override
+   public void addProducer(ServerProducer serverProducer) {
+      serverProducer.setSessionID(getName());
+      serverProducer.setConnectionID(getConnectionID().toString());
+      producers.put(serverProducer.getID(), serverProducer);
+   }
+
+   @Override
+   public void removeProducer(String ID) {
+      producers.remove(ID);
+   }
+
+   @Override
+   public Map<String, ServerProducer> getServerProducers() {
+      return Collections.unmodifiableMap(new HashMap(producers));
+   }
+
+   @Override
+   public String getDefaultAddress() {
+      return defaultAddress != null ? defaultAddress.toString() : null;
    }
 }

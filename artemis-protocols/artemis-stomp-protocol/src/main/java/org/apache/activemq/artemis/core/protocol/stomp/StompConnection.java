@@ -421,10 +421,12 @@ public final class StompConnection implements RemotingConnection {
       return passcode;
    }
 
+   @Override
    public void setClientID(String clientID) {
       this.clientID = clientID;
    }
 
+   @Override
    public String getClientID() {
       return clientID;
    }
@@ -785,5 +787,15 @@ public final class StompConnection implements RemotingConnection {
    @Override
    public Subject getSubject() {
       return null;
+   }
+
+   /**
+    * Returns the name of the protocol for this Remoting Connection
+    *
+    * @return
+    */
+   @Override
+   public String getProtocolName() {
+      return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
    }
 }

@@ -68,6 +68,7 @@ public class MQTTPublishManager {
    }
 
    synchronized void stop() throws Exception {
+      session.getServerSession().removeProducer(session.getServerSession().getName());
       if (managementConsumer != null) {
          managementConsumer.removeItself();
          managementConsumer.setStarted(false);
