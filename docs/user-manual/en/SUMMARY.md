@@ -37,6 +37,7 @@
 * [Message Grouping](message-grouping.md)
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
+* [Management Console](management-console.md)
 * [Security](security.md)
 * [Broker Plugins](broker-plugins.md)
 * [Resource Limits](resource-limits.md)
