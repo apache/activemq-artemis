@@ -23,12 +23,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public final class ReplicationResponseMessageV2 extends ReplicationResponseMessage {
 
    boolean synchronizationIsFinishedAcknowledgement = false;
-
-   public ReplicationResponseMessageV2(final boolean synchronizationIsFinishedAcknowledgement) {
-      super(REPLICATION_RESPONSE_V2);
-
-      this.synchronizationIsFinishedAcknowledgement = synchronizationIsFinishedAcknowledgement;
-   }
+   boolean synchronizationIsStartedAcknowledgement = false;
 
    public ReplicationResponseMessageV2() {
       super(PacketImpl.REPLICATION_RESPONSE_V2);
@@ -43,28 +38,41 @@ public final class ReplicationResponseMessageV2 extends ReplicationResponseMessa
       return this;
    }
 
+   public boolean isSynchronizationIsStartedAcknowledgement() {
+      return synchronizationIsStartedAcknowledgement;
+   }
+
+   public ReplicationResponseMessageV2 setSynchronizationIsStartedAcknowledgement(boolean synchronizationIsStartedAcknowledgement) {
+      this.synchronizationIsStartedAcknowledgement = synchronizationIsStartedAcknowledgement;
+      return this;
+   }
+
    @Override
    public int expectedEncodeSize() {
       return PACKET_HEADERS_SIZE +
-         DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(synchronizationIsFinishedAcknowledgement);
+         DataConstants.SIZE_BOOLEAN + // buffer.writeBoolean(synchronizationIsFinishedAcknowledgement);
+         DataConstants.SIZE_BOOLEAN;  // buffer.writeBoolean(synchronizationIsStartedAcknowledgement);
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(synchronizationIsFinishedAcknowledgement);
+      buffer.writeBoolean(synchronizationIsStartedAcknowledgement);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       synchronizationIsFinishedAcknowledgement = buffer.readBoolean();
+      synchronizationIsStartedAcknowledgement = buffer.readBoolean();
    }
 
    @Override
    public String toString() {
       StringBuffer buf = new StringBuffer(getParentString());
       buf.append(", synchronizationIsFinishedAcknowledgement=" + synchronizationIsFinishedAcknowledgement);
+      buf.append(", synchronizationIsStartedAcknowledgement=" + synchronizationIsStartedAcknowledgement);
       buf.append("]");
       return buf.toString();
    }

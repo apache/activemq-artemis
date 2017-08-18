@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -515,10 +516,27 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    private JournalFile[] prepareJournalForCopy(Journal journal,
                                                JournalContent contentType,
                                                String nodeID,
-                                               boolean autoFailBack) throws Exception {
+                                               boolean autoFailBack,
+                                               long initialReplicationSyncTimeout) throws Exception {
       journal.forceMoveNextFile();
       JournalFile[] datafiles = journal.getDataFiles();
-      replicator.sendStartSyncMessage(datafiles, contentType, nodeID, autoFailBack);
+      long[] ids = new long[datafiles.length];
+      for (int i = 0; i < datafiles.length; i++) {
+         ids[i] = datafiles[i].getFileID();
+      }
+      ReplicationStartSyncMessage.SyncDataType dataType;
+      switch (contentType) {
+         case MESSAGES:
+            dataType = ReplicationStartSyncMessage.SyncDataType.JournalMessages;
+            break;
+         case BINDINGS:
+            dataType = ReplicationStartSyncMessage.SyncDataType.JournalBindings;
+            break;
+         default:
+            throw new IllegalArgumentException();
+      }
+
+      replicator.sendStartSyncMessage(ids, dataType, nodeID, autoFailBack, initialReplicationSyncTimeout);
       return datafiles;
    }
 
@@ -568,8 +586,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                pagingManager.lock();
                try {
                   pagingManager.disableCleanup();
-                  messageFiles = prepareJournalForCopy(originalMessageJournal, JournalContent.MESSAGES, nodeID, autoFailBack);
-                  bindingsFiles = prepareJournalForCopy(originalBindingsJournal, JournalContent.BINDINGS, nodeID, autoFailBack);
+                  messageFiles = prepareJournalForCopy(originalMessageJournal, JournalContent.MESSAGES, nodeID, autoFailBack, initialReplicationSyncTimeout);
+                  bindingsFiles = prepareJournalForCopy(originalBindingsJournal, JournalContent.BINDINGS, nodeID, autoFailBack, initialReplicationSyncTimeout);
                   pageFilesToSync = getPageInformationForSync(pagingManager);
                   pendingLargeMessages = recoverPendingLargeMessages();
                } finally {
@@ -584,7 +602,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
             // We need to send the list while locking otherwise part of the body might get sent too soon
             // it will send a list of IDs that we are allocating
-            replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
+            ArrayList<Long> idsToSend = new ArrayList<>(pendingLargeMessages.keySet());
+            long[] ids = new long[idsToSend.size()];
+            for (int i = 0; i < idsToSend.size(); i++) {
+               ids[i] = idsToSend.get(i);
+            }
+            replicator.sendStartSyncMessage(ids, ReplicationStartSyncMessage.SyncDataType.LargeMessages, "", false, initialReplicationSyncTimeout);
          } finally {
             storageManagerLock.writeLock().unlock();
          }

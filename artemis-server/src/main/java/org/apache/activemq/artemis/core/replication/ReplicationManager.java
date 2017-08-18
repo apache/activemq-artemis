@@ -19,9 +19,8 @@ package org.apache.activemq.artemis.core.replication;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -33,7 +32,6 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -133,6 +131,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    private volatile boolean inSync = true;
 
    private final ReusableLatch synchronizationIsFinishedAcknowledgement = new ReusableLatch(0);
+
+   private final ReusableLatch synchronizationIsStartedAcknowledgement = new ReusableLatch(0);
 
    /**
     * @param remotingConnection
@@ -459,6 +459,9 @@ public final class ReplicationManager implements ActiveMQComponent {
                if (replicationResponseMessage.isSynchronizationIsFinishedAcknowledgement()) {
                   synchronizationIsFinishedAcknowledgement.countDown();
                }
+               if (replicationResponseMessage.isSynchronizationIsStartedAcknowledgement()) {
+                  synchronizationIsStartedAcknowledgement.countDown();
+               }
             }
          }
       }
@@ -576,16 +579,32 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Reserve the following fileIDs in the backup server.
     *
-    * @param datafiles
+    * @param ids
     * @param contentType
     * @throws ActiveMQException
     */
-   public void sendStartSyncMessage(JournalFile[] datafiles,
-                                    AbstractJournalStorageManager.JournalContent contentType,
+   public void sendStartSyncMessage(long[] ids,
+                                    ReplicationStartSyncMessage.SyncDataType contentType,
                                     String nodeID,
-                                    boolean allowsAutoFailBack) throws ActiveMQException {
-      if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(datafiles, contentType, nodeID, allowsAutoFailBack));
+                                    boolean allowsAutoFailBack,
+                                    long initialReplicationSyncTimeout) throws ActiveMQException {
+      if (enabled) {
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("sendStartSyncMessage ::" + Arrays.toString(ids) + ", " + contentType + ", " + nodeID + ", " + allowsAutoFailBack + ", " + initialReplicationSyncTimeout);
+         }
+
+         synchronizationIsStartedAcknowledgement.countUp();
+         sendReplicatePacket(new ReplicationStartSyncMessage(ids, contentType, nodeID, allowsAutoFailBack));
+         try {
+            if (!synchronizationIsStartedAcknowledgement.await(initialReplicationSyncTimeout)) {
+               logger.trace("sendStartSyncMessage wasn't finished in time");
+               throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
+            }
+         } catch (InterruptedException e) {
+            logger.debug(e);
+         }
+      }
    }
 
    /**
@@ -617,22 +636,6 @@ public final class ReplicationManager implements ActiveMQComponent {
 
          logger.trace("sendSynchronizationDone finished");
       }
-   }
-
-   /**
-    * Reserves several LargeMessage IDs in the backup.
-    * <p>
-    * Doing this before hand removes the need of synchronizing large-message deletes with the
-    * largeMessageSyncList.
-    *
-    * @param largeMessages
-    */
-   public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
-      ArrayList<Long> idsToSend;
-      idsToSend = new ArrayList<>(largeMessages.keySet());
-
-      if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(idsToSend));
    }
 
    /**
