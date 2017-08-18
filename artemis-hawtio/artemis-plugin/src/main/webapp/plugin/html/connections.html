@@ -42,10 +42,29 @@
                     </button>
                 </form>
             </div>
+
+            <div class="pull-right">
+              <form class="form-inline">
+                <button class="btn-danger" ng-disabled="gridOptions.selectedItems.length == 0"
+                        ng-click="deleteDialog = true"
+                        title="Close the selected Connection">
+                  <i class="icon-remove"></i> Close
+                </button>
+                &nbsp;&nbsp;&nbsp;
+              </form>
+            </div>
         </div>
     </div>
 
-
+    <div hawtio-confirm-dialog="deleteDialog"
+           ok-button-text="Close"
+           on-ok="closeConnection()">
+        <div class="dialog-body">
+          <p>You are about to close the selected connection: {{gridOptions.selectedItems[0].connectionID}}
+          </p>
+          <p>Are you sure you want to continue.</p>
+        </div>
+    </div>
     <div class="row-fluid">
         <div class="gridStyle" ng-grid="gridOptions" ui-grid-resize-columns></div>
     </div>
