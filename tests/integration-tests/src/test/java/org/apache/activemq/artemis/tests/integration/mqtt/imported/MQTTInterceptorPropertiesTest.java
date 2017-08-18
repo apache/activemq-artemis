@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
@@ -96,7 +97,12 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
          @Override
          public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
             System.out.println("incoming");
-            return checkMessageProperties(packet, expectedProperties);
+            if (packet.getClass() == MqttPublishMessage.class) {
+               return checkMessageProperties(packet, expectedProperties);
+            } else {
+               return true;
+            }
+
          }
       };
 
@@ -104,7 +110,11 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
          @Override
          public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
             System.out.println("outgoing");
-            return checkMessageProperties(packet, expectedProperties);
+            if (packet.getClass() == MqttPublishMessage.class) {
+               return checkMessageProperties(packet, expectedProperties);
+            } else {
+               return true;
+            }
          }
       };
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
