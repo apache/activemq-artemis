@@ -159,6 +159,16 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       if (dataSize > 0) {
          buffer.writeBytes(byteBuffer, 0, byteBuffer.writerIndex());
       }
+
+      release();
+   }
+
+   @Override
+   public void release() {
+      if (byteBuffer != null) {
+         byteBuffer.release();
+         byteBuffer = null;
+      }
    }
 
    @Override
