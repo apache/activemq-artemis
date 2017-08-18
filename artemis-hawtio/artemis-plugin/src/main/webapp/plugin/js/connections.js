@@ -108,7 +108,22 @@ var ARTEMIS = (function(ARTEMIS) {
             artemisConnection.connection = connection.entity;
             $location.path("artemis/sessions");
         };
-
+        $scope.closeConnection = function () {
+            var connectionID = $scope.gridOptions.selectedItems[0].connectionID
+           ARTEMIS.log.info("closing connection: " + connectionID);
+           if (workspace.selection) {
+              var mbean = getBrokerMBean(jolokia);
+              if (mbean) {
+                  jolokia.request({ type: 'exec',
+                     mbean: mbean,
+                     operation: 'closeConnectionWithID(java.lang.String)',
+                     arguments: [connectionID] },
+                     onSuccess($scope.loadTable(), { error: function (response) {
+                        Core.defaultJolokiaErrorHandler("Could not close connection: " + response);
+                     }}));
+              }
+           }
+        };
         /**
          *  Below here is utility.
          *
@@ -128,7 +143,6 @@ var ARTEMIS = (function(ARTEMIS) {
             directions: ["asc"]
         };
         var refreshed = false;
-
         $scope.gridOptions = {
             selectedItems: [],
             data: 'objects',
@@ -177,6 +191,7 @@ var ARTEMIS = (function(ARTEMIS) {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
         }
         function populateTable(response) {
+            $scope.gridOptions.selectedItems.length = 0;
             var data = JSON.parse(response.value);
             $scope.objects = [];
             angular.forEach(data["data"], function (value, idx) {
