@@ -131,7 +131,6 @@ public class TimedBufferTest extends ActiveMQTestBase {
    @Test
    public void testTimeOnTimedBuffer() throws Exception {
       final ReusableLatch latchFlushed = new ReusableLatch(0);
-      final AtomicInteger flushes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver {
 
          @Override
@@ -195,24 +194,22 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.addBytes(buff, true, callback);
          Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
          latchFlushed.setCount(5);
-
-
-         flushes.set(0);
-
-         // Sending like crazy... still some wait (1 millisecond) between each send..
+         //Sending like crazy... still some wait (1 millisecond) between each send..
+         //The writes will be performed during a timeout interval (it can take < timeout time to do that!)
          long time = System.currentTimeMillis();
          for (int i = 0; i < 5; i++) {
             timedBuffer.addBytes(buff, true, callback);
             Thread.sleep(1);
          }
          Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
-
+         //The TimedBuffer will wait until timeout expiration to perform any additional write
+         latchFlushed.setCount(1);
+         timedBuffer.addBytes(buff, true, callback);
+         Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
+         final long endBurst = System.currentTimeMillis();
+         final long elapsedBurstTime = endBurst - time;
          // The purpose of the timed buffer is to batch writes up to a millisecond.. or up to the size of the buffer.
-         Assert.assertTrue("Timed Buffer is not batching accordingly, it was expected to take at least 500 seconds batching multiple writes while it took " + (System.currentTimeMillis() - time) + " milliseconds", System.currentTimeMillis() - time >= 500);
-
-         // it should be in fact only writing once..
-         // i will set for 3 just in case there's a GC or anything else happening on the test
-         Assert.assertTrue("Too many writes were called", flushes.get() <= 3);
+         Assert.assertTrue("Timed Buffer is not batching accordingly, it was expected to take at least 500 seconds batching multiple writes while it took " + elapsedBurstTime + " milliseconds", elapsedBurstTime >= 500);
       } finally {
          timedBuffer.stop();
       }
