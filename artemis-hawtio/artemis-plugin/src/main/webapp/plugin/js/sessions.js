@@ -127,7 +127,23 @@ var ARTEMIS = (function(ARTEMIS) {
         artemisSession.connection = null;
         artemisConsumer.consumer = null;
         artemisProducer.producer = null;
-
+        $scope.closeSession = function () {
+           var sessionID = $scope.gridOptions.selectedItems[0].id;
+           var connectionID = $scope.gridOptions.selectedItems[0].connectionID;
+           ARTEMIS.log.info("closing session: " + sessionID);
+           if (workspace.selection) {
+              var mbean = getBrokerMBean(jolokia);
+              if (mbean) {
+                 jolokia.request({ type: 'exec',
+                    mbean: mbean,
+                    operation: 'closeSessionWithID(java.lang.String, java.lang.String)',
+                    arguments: [connectionID, sessionID] },
+                    onSuccess($scope.loadTable(), { error: function (response) {
+                       Core.defaultJolokiaErrorHandler("Could not close session: " + response);
+                    }}));
+             }
+          }
+        };
         /**
          *  Below here is utility.
          *
@@ -196,6 +212,7 @@ var ARTEMIS = (function(ARTEMIS) {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
         }
         function populateTable(response) {
+            $scope.gridOptions.selectedItems.length = 0;
             var data = JSON.parse(response.value);
             $scope.objects = [];
             angular.forEach(data["data"], function (value, idx) {
