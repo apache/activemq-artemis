@@ -773,6 +773,24 @@ public interface ActiveMQServerControl {
    boolean closeConnectionsForUser(@Parameter(desc = "a user name", name = "userName") String address) throws Exception;
 
    /**
+    * Closes the connection with the given id.
+    */
+   @Operation(desc = "Closes all the connection with the id", impact = MBeanOperationInfo.INFO)
+   boolean closeConnectionWithID(@Parameter(desc = "The connection ID", name = "ID") String ID) throws Exception;
+
+   /**
+    * Closes the session with the given id.
+    */
+   @Operation(desc = "Closes the session with the id", impact = MBeanOperationInfo.INFO)
+   boolean closeSessionWithID(String connectionID, String ID) throws Exception;
+
+   /**
+    * Closes the consumer with the given id.
+    */
+   @Operation(desc = "Closes the consumer with the id", impact = MBeanOperationInfo.INFO)
+   boolean closeConsumerWithID(String sessionID, String ID) throws Exception;
+
+   /**
     * Lists all the IDs of the connections connected to this server.
     */
    @Operation(desc = "List all the connection IDs", impact = MBeanOperationInfo.INFO)

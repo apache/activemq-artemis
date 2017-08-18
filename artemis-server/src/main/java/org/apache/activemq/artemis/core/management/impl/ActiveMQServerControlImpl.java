@@ -1534,6 +1534,70 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public boolean closeConnectionWithID(final String ID) {
+      checkStarted();
+
+      clearIO();
+      try {
+         for (RemotingConnection connection : remotingService.getConnections()) {
+            if (connection.getID().toString().equals(ID)) {
+               remotingService.removeConnection(connection.getID());
+               connection.fail(ActiveMQMessageBundle.BUNDLE.connectionWithIDClosedByManagement(ID));
+               return true;
+            }
+         }
+      } finally {
+         blockOnIO();
+      }
+      return false;
+   }
+
+   @Override
+   public boolean closeSessionWithID(final String connectionID, final String ID) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         List<ServerSession> sessions = server.getSessions(connectionID);
+         for (ServerSession session : sessions) {
+            if (session.getName().equals(ID.toString())) {
+               session.close(true);
+               return true;
+            }
+         }
+
+      } finally {
+         blockOnIO();
+      }
+      return false;
+   }
+
+   @Override
+   public boolean closeConsumerWithID(final String sessionID, final String ID) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         Set<ServerSession> sessions = server.getSessions();
+         for (ServerSession session : sessions) {
+            if (session.getName().equals(sessionID.toString())) {
+               Set<ServerConsumer> serverConsumers = session.getServerConsumers();
+               for (ServerConsumer serverConsumer : serverConsumers) {
+                  if (serverConsumer.sequentialID() == Long.valueOf(ID)) {
+                     serverConsumer.close(true);
+                     return true;
+                  }
+               }
+            }
+         }
+
+      } finally {
+         blockOnIO();
+      }
+      return false;
+   }
+
+   @Override
    public String[] listConnectionIDs() {
       checkStarted();
 
