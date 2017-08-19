@@ -58,7 +58,14 @@ public class SessionMetadataAddExceptionTest extends JMSTestBase {
    @Test(timeout = 5000, expected = JMSException.class)
    public void testInvalidClientIdSetConnection() throws Exception {
       Connection con = cf.createConnection();
-      con.setClientID("invalid");
+      try {
+         con.setClientID("invalid");
+      } finally {
+         try {
+            con.close();
+         } catch (Exception ignored) {
+         }
+      }
    }
 
    @Test(timeout = 5000, expected = JMSException.class)
