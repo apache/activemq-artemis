@@ -80,16 +80,6 @@ Let's take a look at all the parameters in turn:
     The queue must already exist by the time the bridge is instantiated
     at start-up.
 
-    > **Note**
-    >
-    > If you're using JMS then normally the JMS configuration
-    > `activemq-jms.xml` is loaded after the core configuration file
-    > `broker.xml` is loaded. If your bridge is
-    > consuming from a JMS queue then you'll need to make sure the JMS
-    > queue is also deployed as a core queue in the core configuration.
-    > Take a look at the bridge example for an example of how this is
-    > done.
-
 -   `forwarding-address`. This is the address on the target server that
     the message will be forwarded to. If a forwarding address is not
     specified, then the original address of the message will be
