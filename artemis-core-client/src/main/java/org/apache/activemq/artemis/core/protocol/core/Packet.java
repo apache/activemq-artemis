@@ -93,4 +93,11 @@ public interface Packet {
     * @return true if confirmation is required
     */
    boolean isRequiresConfirmations();
+
+
+
+   /** The packe wasn't used because the stream is closed,
+    * this gives a chance to sub classes to cleanup anything that won't be used. */
+   default void release() {
+   }
 }
