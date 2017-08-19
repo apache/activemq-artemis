@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -369,7 +370,9 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-         messageCount++;
+         if (packet.getClass() == MqttPublishMessage.class) {
+            messageCount++;
+         }
          return true;
       }
 
@@ -388,7 +391,9 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
-         messageCount++;
+         if (packet.getClass() == MqttPublishMessage.class) {
+            messageCount++;
+         }
          return true;
       }
 

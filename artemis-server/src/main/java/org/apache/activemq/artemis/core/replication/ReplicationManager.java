@@ -26,6 +26,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
@@ -93,8 +94,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          public boolean toBoolean() {
             return true;
          }
-      },
-      ADD {
+      }, ADD {
          @Override
          public boolean toBoolean() {
             return false;
@@ -130,6 +130,8 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    private final long timeout;
 
+   private final long initialReplicationSyncTimeout;
+
    private volatile boolean inSync = true;
 
    private final ReusableLatch synchronizationIsFinishedAcknowledgement = new ReusableLatch(0);
@@ -139,8 +141,10 @@ public final class ReplicationManager implements ActiveMQComponent {
     */
    public ReplicationManager(CoreRemotingConnection remotingConnection,
                              final long timeout,
+                             final long initialReplicationSyncTimeout,
                              final ExecutorFactory executorFactory) {
       this.executorFactory = executorFactory;
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
       this.replicationStream = executorFactory.getExecutor();
@@ -181,7 +185,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                   boolean sync,
                                   final boolean lineUp) throws Exception {
       if (enabled) {
-         sendReplicatePacket(new ReplicationCommitMessage(journalID, false, txID), lineUp, true);
+         sendReplicatePacket(new ReplicationCommitMessage(journalID, false, txID), lineUp);
       }
    }
 
@@ -342,10 +346,10 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private OperationContext sendReplicatePacket(final Packet packet) {
-      return sendReplicatePacket(packet, true, true);
+      return sendReplicatePacket(packet, true);
    }
 
-   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp, boolean useExecutor) {
+   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
       if (!enabled)
          return null;
       boolean runItNow = false;
@@ -356,22 +360,17 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
 
       if (enabled) {
-         if (useExecutor) {
-            replicationStream.execute(() -> {
-               if (enabled) {
-                  pendingTokens.add(repliToken);
-                  flowControl(packet.expectedEncodeSize());
-                  replicatingChannel.send(packet);
-               }
-            });
-         } else {
-            pendingTokens.add(repliToken);
-            flowControl(packet.expectedEncodeSize());
-            replicatingChannel.send(packet);
-         }
+         replicationStream.execute(() -> {
+            if (enabled) {
+               pendingTokens.add(repliToken);
+               flowControl(packet.expectedEncodeSize());
+               replicatingChannel.send(packet);
+            }
+         });
       } else {
          // Already replicating channel failed, so just play the action now
          runItNow = true;
+         packet.release();
       }
 
       // Execute outside lock
@@ -398,7 +397,6 @@ public final class ReplicationManager implements ActiveMQComponent {
             logger.warn(e.getMessage(), e);
          }
       }
-
 
       return flowWorked;
    }
@@ -514,6 +512,24 @@ public final class ReplicationManager implements ActiveMQComponent {
          sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
    }
 
+   private class FlushAction implements Runnable {
+
+      ReusableLatch latch = new ReusableLatch(1);
+
+      public void reset() {
+         latch.setCount(1);
+      }
+
+      public boolean await(long timeout, TimeUnit unit) throws Exception {
+         return latch.await(timeout, unit);
+      }
+
+      @Override
+      public void run() {
+         latch.countDown();
+      }
+   }
+
    /**
     * Sends large files in reasonably sized chunks to the backup during replication synchronization.
     *
@@ -535,15 +551,20 @@ public final class ReplicationManager implements ActiveMQComponent {
          file.open();
       }
       int size = 32 * 1024;
-      final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(size, size);
+
+      int flowControlSize = 10;
+
+      int packetsSent = 0;
+      FlushAction action = new FlushAction();
 
       try {
-         try (FileInputStream fis = new FileInputStream(file.getJavaFile());
-              FileChannel channel = fis.getChannel()) {
+         try (FileInputStream fis = new FileInputStream(file.getJavaFile()); FileChannel channel = fis.getChannel()) {
+
             // We can afford having a single buffer here for this entire loop
             // because sendReplicatePacket will encode the packet as a NettyBuffer
             // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy
             while (true) {
+               final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.directBuffer(size, size);
                buffer.clear();
                ByteBuffer byteBuffer = buffer.writerIndex(size).readerIndex(0).nioBuffer();
                final int bytesRead = channel.read(byteBuffer);
@@ -561,15 +582,28 @@ public final class ReplicationManager implements ActiveMQComponent {
                // We cannot simply send everything of a file through the executor,
                // otherwise we would run out of memory.
                // so we don't use the executor here
-               sendReplicatePacket(new ReplicationSyncFileMessage(content, pageStore, id, toSend, buffer), true, false);
+               sendReplicatePacket(new ReplicationSyncFileMessage(content, pageStore, id, toSend, buffer), true);
+               packetsSent++;
+
+               if (packetsSent % flowControlSize == 0) {
+                  flushReplicationStream(action);
+               }
                if (bytesRead == -1 || bytesRead == 0 || maxBytesToSend == 0)
                   break;
             }
          }
+         flushReplicationStream(action);
       } finally {
-         buffer.release();
          if (file.isOpen())
             file.close();
+      }
+   }
+
+   private void flushReplicationStream(FlushAction action) throws Exception {
+      action.reset();
+      replicationStream.execute(action);
+      if (!action.await(this.timeout, TimeUnit.MILLISECONDS)) {
+         throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
       }
    }
 
