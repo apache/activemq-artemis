@@ -484,13 +484,13 @@ appropriate chapter if available.
 
 `max-delivery-attempts` defines how many time a cancelled message can be
 redelivered before sending to the `dead-letter-address`. A full
-explanation can be found [here](#undelivered-messages.configuring).
+explanation can be found <A href="undelivered-messages.md#dead-letter-addresses">[here]</A>.
 
 `redelivery-delay` defines how long to wait before attempting redelivery
-of a cancelled message. see [here](#undelivered-messages.delay).
+of a cancelled message. see <A href="undelivered-messages.md#delayed-redelivery">[here]</A>.
 
 `expiry-address` defines where to send a message that has expired. see
-[here](#message-expiry.configuring).
+<A href="message-expiry.md#configuring-expiry-addresses">[here]</A>.
 
 `expiry-delay` defines the expiration time that will be used for
 messages which are using the default expiration time (i.e. 0). For
