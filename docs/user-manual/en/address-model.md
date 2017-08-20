@@ -275,7 +275,7 @@ The example below configures an address-setting to be automatically deleted by t
     ...
     <address-settings>
        <address-setting match="/news/politics/#">
-          <auto-create-addresses>true</auto-create-addresses>
+          <auto-delete-addresses>true</auto-delete-addresses>
           <default-address-routing-type>MULTICAST</default-address-routing-type>
        </address-setting>
     </address-settings>
