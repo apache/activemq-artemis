@@ -484,12 +484,12 @@ appropriate chapter if available.
 
 `max-delivery-attempts` defines how many time a cancelled message can be
 redelivered before sending to the `dead-letter-address`. A full
-explanation can be found [here](undelivered-messages.md#dead-letter-addresses)
+explanation can be found [here](undelivered-messages.md#dead-letter-addresses).
 
 `redelivery-delay` defines how long to wait before attempting redelivery
-of a cancelled message. see [here](undelivered-messages.md#delayed-redelivery).
+of a cancelled message. See [here](undelivered-messages.md#delayed-redelivery).
 
-`expiry-address` defines where to send a message that has expired. see
+`expiry-address` defines where to send a message that has expired. See
 [here](message-expiry.md#configuring-expiry-addresses).
 
 `expiry-delay` defines the expiration time that will be used for
@@ -502,7 +502,7 @@ unchanged. Setting `expiry-delay` to "-1" will disable this feature. The
 default is "-1".
 
 `last-value-queue` defines whether a queue only uses last values or not.
-see [here](last-value-queues.md#user-content-last-value-queue).
+See [here](last-value-queues.md#user-content-last-value-queue).
 
 `max-size-bytes` and `page-size-bytes` are used to set paging on an
 address. This is explained [here](#paging).
