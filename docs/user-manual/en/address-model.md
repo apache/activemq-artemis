@@ -508,7 +508,7 @@ See [here](last-value-queues.md#user-content-last-value-queue).
 address. This is explained [here](paging.md#user-content-configuration-1).
 
 `redistribution-delay` defines how long to wait when the last consumer
-is closed on a queue before redistributing any messages. see
+is closed on a queue before redistributing any messages. See
 [here](#clusters).
 
 `send-to-dla-on-no-route`. If a message is sent to an address, but the
