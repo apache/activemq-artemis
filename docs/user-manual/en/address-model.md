@@ -509,7 +509,7 @@ address. This is explained [here](#paging).
 
 `redistribution-delay` defines how long to wait when the last consumer
 is closed on a queue before redistributing any messages. see
-[here](#clusters).
+[here](clusters.md#user-content-message-redistribution).
 
 `send-to-dla-on-no-route`. If a message is sent to an address, but the
 server does not route it to any queues, for example, there might be no
