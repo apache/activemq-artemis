@@ -99,7 +99,8 @@ public class MQTTTest extends MQTTTestSupport {
             mqtt.setVersion(version);
             connection = mqtt.blockingConnection();
             connection.connect();
-            assertTrue(connection.isConnected());
+            BlockingConnection finalConnection = connection;
+            assertTrue("Should be connected", Wait.waitFor(() -> finalConnection.isConnected(), 5000, 100));
          } finally {
             if (connection != null && connection.isConnected()) connection.disconnect();
          }
