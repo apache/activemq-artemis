@@ -90,7 +90,7 @@ public class MQTTSession {
    // TODO ensure resources are cleaned up for GC.
    synchronized void stop() throws Exception {
       if (!stopped) {
-         protocolHandler.stop(false);
+         protocolHandler.stop();
          subscriptionManager.stop();
          mqttPublishManager.stop();
 
