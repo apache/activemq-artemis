@@ -54,7 +54,7 @@ public class InterceptorExample {
 
       // Receive the sent message
       Message message1 = connection.receive(5, TimeUnit.SECONDS);
-      
+
       String messagePayload = new String(message1.getPayload(), StandardCharsets.UTF_8);
 
       System.out.println("Received message: " + messagePayload);
