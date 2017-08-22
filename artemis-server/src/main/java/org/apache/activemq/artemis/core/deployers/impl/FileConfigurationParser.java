@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -614,7 +615,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setCriticalAnalyzerCheckPeriod(getLong(e, "critical-analyzer-check-period", config.getCriticalAnalyzerCheckPeriod(), Validators.GE_ZERO));
 
-      config.setCriticalAnalyzerHalt(getBoolean(e, "critical-analyzer-halt", config.isCriticalAnalyzerHalt()));
+      config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.valueOf(getString(e, "critical-analyzer-policy", config.getCriticalAnalyzerPolicy().name(), Validators.NOT_NULL_OR_EMPTY)));
 
       parseAddressSettings(e, config);
 

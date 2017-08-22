@@ -771,7 +771,7 @@
          <xsd:element name="critical-analyzer" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  should analyze response time on critical paths and decide for broker shutdown or halt.
+                  should analyze response time on critical paths and decide for broker log, shutdown or halt.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -792,12 +792,19 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="critical-analyzer-halt" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+         <xsd:element name="critical-analyzer-policy" default="LOG" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Should the server be shutdown or halted upon critical analysis failure.
+                  Should the server log, be shutdown or halted upon critical analysis failure.
                </xsd:documentation>
             </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="LOG"/>
+                  <xsd:enumeration value="HALT"/>
+                  <xsd:enumeration value="SHUTDOWN"/>
+               </xsd:restriction>
+            </xsd:simpleType>
          </xsd:element>
 
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">

@@ -121,7 +121,7 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 [critical-analyzer](critical-analysis.md) | Enable or disable the critical analysis (default true)
 [critical-analyzer-timeout](critical-analysis.md) | Timeout used to do the critical analysis (default 120000 milliseconds)
 [critical-analyzer-check-period](critical-analysis.md) | Time used to check the response times (default half of critical-analyzer-timeout)
-[critical-analyzer-halt](critical-analysis.md) | Should the VM be halted upon failures (default false)
+[critical-analyzer-policy](critical-analysis.md) | Should the server log, be halted or shutdown upon failures (default `LOG`)
 
 
 #address-setting type

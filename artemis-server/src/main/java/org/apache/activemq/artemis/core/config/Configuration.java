@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.config.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -87,9 +88,9 @@ public interface Configuration {
 
    Configuration setCriticalAnalyzerCheckPeriod(long checkPeriod);
 
-   boolean isCriticalAnalyzerHalt();
+   CriticalAnalyzerPolicy getCriticalAnalyzerPolicy();
 
-   Configuration setCriticalAnalyzerHalt(boolean halt);
+   Configuration setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy policy);
 
 
    /**

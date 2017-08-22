@@ -1639,6 +1639,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224080, value = "The server process will now be stopped, as component {0} is not responsive", format = Message.Format.MESSAGE_FORMAT)
    void criticalSystemShutdown(Object component);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224081, value = "The component {0} is not responsive", format = Message.Format.MESSAGE_FORMAT)
+   void criticalSystemLog(Object component);
+
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224076, value = "UnDeploying address {0}", format = Message.Format.MESSAGE_FORMAT)
    void undeployAddress(SimpleString addressName);
