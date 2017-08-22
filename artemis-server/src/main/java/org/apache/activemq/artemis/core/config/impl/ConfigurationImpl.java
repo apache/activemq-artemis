@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -296,7 +297,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean criticalAnalyzer = ActiveMQDefaultConfiguration.getCriticalAnalyzer();
 
-   private boolean criticalAnalyzerHalt = ActiveMQDefaultConfiguration.getCriticalAnalyzerHalt();
+   private CriticalAnalyzerPolicy criticalAnalyzerPolicy = ActiveMQDefaultConfiguration.getCriticalAnalyzerPolicy();
 
    private long criticalAnalyzerTimeout = ActiveMQDefaultConfiguration.getCriticalAnalyzerTimeout();
 
@@ -2109,13 +2110,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public boolean isCriticalAnalyzerHalt() {
-      return criticalAnalyzerHalt;
+   public CriticalAnalyzerPolicy getCriticalAnalyzerPolicy() {
+      return criticalAnalyzerPolicy;
    }
 
    @Override
-   public Configuration setCriticalAnalyzerHalt(boolean halt) {
-      this.criticalAnalyzerHalt = halt;
+   public Configuration setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy policy) {
+      this.criticalAnalyzerPolicy = policy;
       return this;
    }
 
