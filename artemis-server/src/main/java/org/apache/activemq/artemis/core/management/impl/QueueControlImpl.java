@@ -744,7 +744,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              final String user,
                              final String password) throws Exception {
       try {
-         securityStore.check(queue.getAddress(), CheckType.SEND, new SecurityAuth() {
+         securityStore.check(queue.getAddress(), queue.getName(), CheckType.SEND, new SecurityAuth() {
             @Override
             public String getUsername() {
                return user;

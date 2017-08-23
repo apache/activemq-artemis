@@ -433,4 +433,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119212, value = "Invalid deletion policy type {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidDeletionPolicyType(String val);
 
+   @Message(id = 119213, value = "User: {0} does not have permission=''{1}'' for queue {2} on address {3}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQSecurityException userNoPermissionsQueue(String username, CheckType checkType, String squeue, String saddress);
+
 }

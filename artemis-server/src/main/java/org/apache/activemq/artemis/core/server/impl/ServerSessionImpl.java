@@ -415,6 +415,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   private void securityCheck(SimpleString address, SimpleString queue, CheckType checkType, SecurityAuth auth) throws Exception {
+      if (securityEnabled) {
+         securityStore.check(address, queue, checkType, auth);
+      }
+   }
+
    @Override
    public ServerConsumer createConsumer(final long consumerID,
                                         final SimpleString queueName,
@@ -441,15 +447,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       SimpleString address = removePrefix(binding.getAddress());
       if (browseOnly) {
          try {
-            securityCheck(address, CheckType.BROWSE, this);
+            securityCheck(address, queueName, CheckType.BROWSE, this);
          } catch (Exception e) {
-            securityCheck(address.concat(".").concat(unPrefixedQueueName), CheckType.BROWSE, this);
+            securityCheck(address.concat(".").concat(unPrefixedQueueName), queueName, CheckType.BROWSE, this);
          }
       } else {
          try {
-            securityCheck(address, CheckType.CONSUME, this);
+            securityCheck(address, queueName, CheckType.CONSUME, this);
          } catch (Exception e) {
-            securityCheck(address.concat(".").concat(unPrefixedQueueName), CheckType.CONSUME, this);
+            securityCheck(address.concat(".").concat(unPrefixedQueueName), queueName, CheckType.CONSUME, this);
          }
       }
 
@@ -553,9 +559,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       if (durable) {
          // make sure the user has privileges to create this queue
-         securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
+         securityCheck(address, name, CheckType.CREATE_DURABLE_QUEUE, this);
       } else {
-         securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+         securityCheck(address, name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
       server.checkQueueCreationLimit(getUsername());
@@ -631,7 +637,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       address = removePrefix(address);
 
-      securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+      securityCheck(address, name, CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
       server.checkQueueCreationLimit(getUsername());
 
