@@ -89,17 +89,17 @@ public class TypedProperties {
 
    public void putBooleanProperty(final SimpleString key, final boolean value) {
       checkCreateProperties();
-      doPutValue(key, new BooleanValue(value));
+      doPutValue(key, BooleanValue.of(value));
    }
 
    public void putByteProperty(final SimpleString key, final byte value) {
       checkCreateProperties();
-      doPutValue(key, new ByteValue(value));
+      doPutValue(key, ByteValue.valueOf(value));
    }
 
    public void putBytesProperty(final SimpleString key, final byte[] value) {
       checkCreateProperties();
-      doPutValue(key, value == null ? new NullValue() : new BytesValue(value));
+      doPutValue(key, value == null ? NullValue.INSTANCE : new BytesValue(value));
    }
 
    public void putShortProperty(final SimpleString key, final short value) {
@@ -129,12 +129,12 @@ public class TypedProperties {
 
    public void putSimpleStringProperty(final SimpleString key, final SimpleString value) {
       checkCreateProperties();
-      doPutValue(key, value == null ? new NullValue() : new StringValue(value));
+      doPutValue(key, value == null ? NullValue.INSTANCE : new StringValue(value));
    }
 
    public void putNullValue(final SimpleString key) {
       checkCreateProperties();
-      doPutValue(key, new NullValue());
+      doPutValue(key, NullValue.INSTANCE);
    }
 
    public void putCharProperty(final SimpleString key, final char value) {
@@ -337,7 +337,8 @@ public class TypedProperties {
       } else {
          int numHeaders = buffer.readInt();
 
-         properties = new HashMap<>(numHeaders);
+         //optimize the case of no collisions to avoid any resize (it doubles the map size!!!) when load factor is reached
+         properties = new HashMap<>(numHeaders, 1.0f);
          size = 0;
 
          for (int i = 0; i < numHeaders; i++) {
@@ -352,7 +353,7 @@ public class TypedProperties {
 
             switch (type) {
                case NULL: {
-                  val = new NullValue();
+                  val = NullValue.INSTANCE;
                   doPutValue(key, val);
                   break;
                }
@@ -362,12 +363,12 @@ public class TypedProperties {
                   break;
                }
                case BOOLEAN: {
-                  val = new BooleanValue(buffer);
+                  val = BooleanValue.of(buffer.readBoolean());
                   doPutValue(key, val);
                   break;
                }
                case BYTE: {
-                  val = new ByteValue(buffer);
+                  val = ByteValue.valueOf(buffer.readByte());
                   doPutValue(key, val);
                   break;
                }
@@ -422,14 +423,13 @@ public class TypedProperties {
 
          buffer.writeInt(properties.size());
 
-         for (Map.Entry<SimpleString, PropertyValue> entry : properties.entrySet()) {
-            SimpleString s = entry.getKey();
-            byte[] data = s.getData();
+         //uses internal iteration to allow inlining/loop unrolling
+         properties.forEach((key, value) -> {
+            final byte[] data = key.getData();
             buffer.writeInt(data.length);
             buffer.writeBytes(data);
-
-            entry.getValue().write(buffer);
-         }
+            value.write(buffer);
+         });
       }
    }
 
@@ -567,6 +567,8 @@ public class TypedProperties {
 
    private static final class NullValue extends PropertyValue {
 
+      private static final NullValue INSTANCE = new NullValue();
+
       private NullValue() {
       }
 
@@ -589,19 +591,29 @@ public class TypedProperties {
 
    private static final class BooleanValue extends PropertyValue {
 
-      final boolean val;
+      private static final int ENCODE_SIZE = DataConstants.SIZE_BYTE + DataConstants.SIZE_BOOLEAN;
+      private static final BooleanValue TRUE = new BooleanValue(true);
+      private static final BooleanValue FALSE = new BooleanValue(false);
+
+      private final boolean val;
+      private final Boolean objVal;
 
       private BooleanValue(final boolean val) {
          this.val = val;
+         this.objVal = val;
       }
 
-      private BooleanValue(final ByteBuf buffer) {
-         val = buffer.readBoolean();
+      private static BooleanValue of(final boolean val) {
+         if (val) {
+            return TRUE;
+         } else {
+            return FALSE;
+         }
       }
 
       @Override
       public Object getValue() {
-         return val;
+         return objVal;
       }
 
       @Override
@@ -612,26 +624,41 @@ public class TypedProperties {
 
       @Override
       public int encodeSize() {
-         return DataConstants.SIZE_BYTE + DataConstants.SIZE_BOOLEAN;
+         return ENCODE_SIZE;
       }
 
    }
 
    private static final class ByteValue extends PropertyValue {
 
-      final byte val;
+      private static final int ENCODE_SIZE = DataConstants.SIZE_BYTE + DataConstants.SIZE_BYTE;
+
+      //LAZY CACHE that uses a benign race condition to avoid too many allocations of ByteValue if contended and to allocate upfront unneeded instances.
+      //the Java spec doesn't allow tearing while reading/writing from arrays of references
+      private static final ByteValue[] VALUES = new ByteValue[-(-128) + 127 + 1];
+
+      private static ByteValue valueOf(byte b) {
+         final int offset = 128;
+         final int index = (int) b + offset;
+         ByteValue value = VALUES[index];
+         if (value == null) {
+            return VALUES[index] = new ByteValue(b);
+         } else {
+            return value;
+         }
+      }
+
+      private final byte val;
+      private final Byte objectVal;
 
       private ByteValue(final byte val) {
          this.val = val;
-      }
-
-      private ByteValue(final ByteBuf buffer) {
-         val = buffer.readByte();
+         this.objectVal = val;
       }
 
       @Override
       public Object getValue() {
-         return val;
+         return objectVal;
       }
 
       @Override
@@ -642,7 +669,7 @@ public class TypedProperties {
 
       @Override
       public int encodeSize() {
-         return DataConstants.SIZE_BYTE + DataConstants.SIZE_BYTE;
+         return ENCODE_SIZE;
       }
    }
 
