@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.critical;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.config.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -36,7 +37,7 @@ public class CriticalSimpleTest extends ActiveMQTestBase {
    public void testSimpleShutdown() throws Exception {
 
       Configuration configuration = createDefaultConfig(false);
-      configuration.setCriticalAnalyzerCheckPeriod(10);
+      configuration.setCriticalAnalyzerCheckPeriod(10).setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.SHUTDOWN);
       ActiveMQServer server = createServer(false, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
       server.start();
 
