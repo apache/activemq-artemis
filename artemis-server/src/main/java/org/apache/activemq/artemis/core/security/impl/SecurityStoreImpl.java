@@ -162,6 +162,14 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    public void check(final SimpleString address,
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
+      check(address, null, checkType, session);
+   }
+
+   @Override
+   public void check(final SimpleString address,
+                     final SimpleString queue,
+                     final CheckType checkType,
+                     final SecurityAuth session) throws Exception {
       if (securityEnabled) {
          if (logger.isTraceEnabled()) {
             logger.trace("checking access permissions to " + address);
@@ -206,7 +214,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
+            if (queue == null) {
+               throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
+            } else {
+               throw ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, queue.toString(), saddress);
+            }
          }
          // if we get here we're granted, add to the cache
          ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<>();
