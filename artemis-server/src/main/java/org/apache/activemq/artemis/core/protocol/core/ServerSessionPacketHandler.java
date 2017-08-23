@@ -231,7 +231,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private static void onStartMessagePacketHandler() {
-      assert inHandler.get() != null : "recursion on packet handling is not supported";
+      assert inHandler.get() == null : "recursion on packet handling is not supported";
       inHandler.set(DUMMY);
    }
 
@@ -243,7 +243,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private static void onExitMessagePacketHandler() {
-      assert inHandler.get() == null : "marker not set";
+      assert inHandler.get() != null : "marker not set";
       inHandler.set(null);
    }
 
