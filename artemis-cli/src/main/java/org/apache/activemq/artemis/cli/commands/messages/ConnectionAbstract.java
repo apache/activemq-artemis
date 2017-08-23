@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 public class ConnectionAbstract extends InputAbstract {
+
    @Option(name = "--url", description = "URL towards the broker. (default: tcp://localhost:61616)")
    protected String brokerURL = "tcp://localhost:61616";
 
@@ -38,11 +39,10 @@ public class ConnectionAbstract extends InputAbstract {
    @Option(name = "--clientID", description = "ClientID to be associated with connection")
    String clientID;
 
-
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(brokerURL, user, password);
 
-      if(clientID!=null){
+      if (clientID != null) {
          System.out.println("Consumer:: clientID = " + clientID);
          cf.setClientID(clientID);
       }
@@ -58,7 +58,7 @@ public class ConnectionAbstract extends InputAbstract {
       } catch (JMSException e) {
          // if a connection exception will ask for the URL, user and password
          context.err.println("Connection failed::" + e.getMessage());
-         brokerURL = input("--url",  "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);
+         brokerURL = input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);
          userPassword();
          return new ActiveMQConnectionFactory(brokerURL, user, password);
       }
