@@ -481,7 +481,7 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_ANALYZE_CRITICAL_TIMEOUT = 120000;
 
-   public static final boolean DEFAULT_ANALYZE_CRITICAL_HALT = false;
+   public static final CriticalAnalyzerPolicy DEFAULT_ANALYZE_CRITICAL_POLICY = CriticalAnalyzerPolicy.LOG;
 
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
@@ -1303,8 +1303,8 @@ public final class ActiveMQDefaultConfiguration {
       return timeout / 2;
    }
 
-   public static boolean getCriticalAnalyzerHalt() {
-      return DEFAULT_ANALYZE_CRITICAL_HALT;
+   public static CriticalAnalyzerPolicy getCriticalAnalyzerPolicy() {
+      return DEFAULT_ANALYZE_CRITICAL_POLICY;
    }
 
 

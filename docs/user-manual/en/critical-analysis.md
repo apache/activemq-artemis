@@ -26,26 +26,32 @@ Name | Description
 critical-analyzer | Enable or disable the critical analysis (default true)
 critical-analyzer-timeout | Timeout used to do the critical analysis (default 120000 milliseconds)
 critical-analyzer-check-period | Time used to check the response times (default half of critical-analyzer-timeout)
-critical-analyzer-halt | Should the VM be halted upon failures (default false)
+critical-analyzer-policy | Should the server log, be halted or shutdown upon failures (default `LOG`)
 
-The default for critical-analyzer-halt is false, however the generated broker.xml will have it set to true. That is because we cannot halt the VM if you are embedding ActiveMQ Artemis into an application server or on a multi tenant environment.
+The default for critical-analyzer-policy is `LOG`, however the generated broker.xml will have it set to `HALT`. That is because we cannot halt the VM if you are embedding ActiveMQ Artemis into an application server or on a multi tenant environment.
 
-The broker on the distribution will then have it set to true, but if you use it in any other way the default will be false.
+The broker on the distribution will then have it set to `HALT`, but if you use it in any other way the default will be `LOG`.
 
 ## What would you expect
 
 - You will see some logs
 
-If you have critical-analyzer-halt=true
+If you have critical-analyzer-policy=HALT
 
 ```
 [Artemis Critical Analyzer] 18:10:00,831 ERROR [org.apache.activemq.artemis.core.server] AMQ224079: The process for the virtual machine will be killed, as component org.apache.activemq.artemis.tests.integration.critical.CriticalSimpleTest$2@5af97850 is not responsive
 ```
 
-Or if you have critical-analyzer-halt=false
+While if you have critical-analyzer-policy=SHUTDOWN
 
 ```
 [Artemis Critical Analyzer] 18:07:53,475 ERROR [org.apache.activemq.artemis.core.server] AMQ224080: The server process will now be stopped, as component org.apache.activemq.artemis.tests.integration.critical.CriticalSimpleTest$2@5af97850 is not responsive
+```
+
+Or if you have critical-analyzer-policy=LOG
+
+```
+[Artemis Critical Analyzer] 18:11:52,145 WARN [org.apache.activemq.artemis.core.server] AMQ224081: The component org.apache.activemq.artemis.tests.integration.critical.CriticalSimpleTest$2@5af97850 is not responsive
 ```
 
 You will see a simple thread dump of the server
@@ -77,9 +83,9 @@ AMQ119003: End Thread dump
 
 ```
 
-- The Server will be halted if configured to halt
+- The Server will be halted if configured to `HALT`
 
-- The system will be stopped if no halt is used:
+- The system will be stopped if `SHUTDOWN` is used:
 * Notice that if the system is not behaving well, there is no guarantees the stop will work.
 
 
