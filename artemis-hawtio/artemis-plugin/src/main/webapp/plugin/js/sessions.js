@@ -163,7 +163,7 @@ var ARTEMIS = (function(ARTEMIS) {
             directions: ["asc"]
         };
         var refreshed = false;
-
+        $scope.showClose = false;
         $scope.gridOptions = {
             selectedItems: [],
             data: 'objects',
@@ -208,11 +208,15 @@ var ARTEMIS = (function(ARTEMIS) {
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [filter, $scope.pagingOptions.currentPage, $scope.pagingOptions.pageSize] }, onSuccess(populateTable, { error: onError }));
             }
         };
+        $scope.selectGridRow = function () { 
+            $scope.showClose =  $scope.gridOptions.selectedItems.length > 0;
+        };
         function onError() {
             Core.notification("error", "Could not retrieve " + objectType + " list from Artemis.");
         }
         function populateTable(response) {
             $scope.gridOptions.selectedItems.length = 0;
+            $scope.showClose =  false;
             var data = JSON.parse(response.value);
             $scope.objects = [];
             angular.forEach(data["data"], function (value, idx) {
