@@ -59,7 +59,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       sender.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Should be one message on Queue.", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
@@ -86,7 +86,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       connection.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertEquals(1, queue.getMessageCount());
+      assertTrue("Should be one message on Queue.", Wait.waitFor(() -> queue.getMessageCount() == 1));
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(getBrokerOpenWireConnectionURI());
       Connection jmsConnection = factory.createConnection();
