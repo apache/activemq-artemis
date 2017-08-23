@@ -1697,38 +1697,15 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       ActiveMQConnectionFactory cf;
       List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
 
-      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
-
       Boolean ha = overrideProperties.isHA() != null ? overrideProperties.isHA() : getHA();
-
-      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
-
-      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
-
-      String jgroupsLocatorClassName = raProperties.getJgroupsChannelLocatorClass();
 
       if (ha == null) {
          ha = ActiveMQClient.DEFAULT_IS_HA;
       }
 
-      if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null) {
-         BroadcastEndpointFactory endpointFactory = null;
+      BroadcastEndpointFactory endpointFactory = this.createBroadcastEndpointFactory(overrideProperties);
 
-         if (jgroupsLocatorClassName != null) {
-            String jchannelRefName = raProperties.getJgroupsChannelRefName();
-            JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
-            endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
-         } else if (discoveryAddress != null) {
-            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
-            if (discoveryPort == null) {
-               discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
-            }
-
-            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
-         } else if (jgroupsFileName != null) {
-            endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
-         }
+      if (endpointFactory != null) {
          Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
          if (refreshTimeout == null) {
             refreshTimeout = ActiveMQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
@@ -1795,34 +1772,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       ActiveMQConnectionFactory cf;
       List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
 
-      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
-
-      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
-
-      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
-
       if (connectorClassName == null) {
-         BroadcastEndpointFactory endpointFactory = null;
-         if (discoveryAddress != null) {
-            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
-            if (discoveryPort == null) {
-               discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
-            }
-
-            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
-         } else if (jgroupsFileName != null) {
-            endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
-         } else {
-            String jgroupsLocatorClass = raProperties.getJgroupsChannelLocatorClass();
-            if (jgroupsLocatorClass != null) {
-               String jgroupsChannelRefName = raProperties.getJgroupsChannelRefName();
-               JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClass, jgroupsChannelRefName);
-               endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
-            }
-            if (endpointFactory == null) {
-               throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
-            }
+         BroadcastEndpointFactory endpointFactory = this.createBroadcastEndpointFactory(overrideProperties);
+         if (endpointFactory == null) {
+            throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
          }
 
          Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
@@ -1878,6 +1831,36 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       cf.setReconnectAttempts(0);
       cf.setInitialConnectAttempts(0);
       return cf;
+   }
+
+   protected BroadcastEndpointFactory createBroadcastEndpointFactory(final ConnectionFactoryProperties overrideProperties) {
+
+      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
+      if (discoveryAddress != null) {
+         Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
+         if (discoveryPort == null) {
+            discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
+         }
+
+         String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
+         return new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
+      }
+
+      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
+
+      String jgroupsLocatorClassName = raProperties.getJgroupsChannelLocatorClass();
+      if (jgroupsLocatorClassName != null) {
+         String jchannelRefName = raProperties.getJgroupsChannelRefName();
+         JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
+         return new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
+      }
+
+      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
+      if (jgroupsFileName != null) {
+         return new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
+      }
+
+      return null;
    }
 
    public Map<String, Object> overrideConnectionParameters(final Map<String, Object> connectionParams,
