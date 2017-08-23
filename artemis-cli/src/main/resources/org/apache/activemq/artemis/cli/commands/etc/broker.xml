@@ -66,7 +66,7 @@ ${ping-config.settings}${journal-buffer.settings}${connector-config.settings}
 
       <critical-analyzer-check-period>60000</critical-analyzer-check-period>
 
-      <critical-analyzer-halt>true</critical-analyzer-halt>
+      <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
 ${global-max-section}
       <acceptors>
