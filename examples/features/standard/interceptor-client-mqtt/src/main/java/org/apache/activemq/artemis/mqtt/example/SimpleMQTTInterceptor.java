@@ -51,8 +51,7 @@ public class SimpleMQTTInterceptor implements MQTTInterceptor {
          String modifiedMessage = "Modified message ";
 
          message.payload().setBytes(0, modifiedMessage.getBytes());
-      }
-      else {
+      } else {
          if (mqttMessage instanceof MqttConnectMessage) {
             MqttConnectMessage connectMessage = (MqttConnectMessage) mqttMessage;
             System.out.println("A MQTT CONNECT control packet was intercepted " + connectMessage);
