@@ -35,9 +35,17 @@ public class ConnectionAbstract extends InputAbstract {
    @Option(name = "--password", description = "Password used to connect")
    protected String password;
 
+   @Option(name = "--clientID", description = "ClientID to be associated with connection")
+   String clientID;
+
 
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(brokerURL, user, password);
+
+      if(clientID!=null){
+         System.out.println("Consumer:: clientID = " + clientID);
+         cf.setClientID(clientID);
+      }
       try {
          Connection connection = cf.createConnection();
          connection.close();
