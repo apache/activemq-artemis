@@ -259,6 +259,14 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       ClientProducer producer0 = sess0.createProducer("queues.testaddress");
 
+      waitForBindings(0, "queues.testaddress", 1, 1, true);
+      waitForBindings(1, "queues.testaddress", 1, 1, true);
+      waitForBindings(2, "queues.testaddress", 1, 1, true);
+
+      waitForBindings(0, "queues.testaddress", 2, 2, false);
+      waitForBindings(1, "queues.testaddress", 2, 2, false);
+      waitForBindings(2, "queues.testaddress", 2, 2, false);
+
       final int NUMBER_OF_MESSAGES = 1000;
 
       for (int i = 0; i < 1000; i++) {
