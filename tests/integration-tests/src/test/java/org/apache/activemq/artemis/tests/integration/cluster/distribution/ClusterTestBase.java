@@ -1375,11 +1375,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          serverTotc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
       }
 
-      if (ha) {
-         locators[node] = ActiveMQClient.createServerLocatorWithHA(serverTotc);
-      } else {
-         locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
-      }
+      setSessionFactoryCreateLocator(node, ha, serverTotc);
 
       locators[node].setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locators[node]));
 
@@ -1390,6 +1386,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ClientSession session = sf.createSession(user, password, false, true, true, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
       session.close();
       sfs[node] = sf;
+   }
+
+   protected void setSessionFactoryCreateLocator(int node, boolean ha, TransportConfiguration serverTotc) {
+      if (ha) {
+         locators[node] = ActiveMQClient.createServerLocatorWithHA(serverTotc);
+      } else {
+         locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
+      }
    }
 
    protected void setupSessionFactory(final int node, final boolean netty, int reconnectAttempts) throws Exception {
