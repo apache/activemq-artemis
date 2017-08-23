@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jgroups.JChannel;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 
 /**
  * Various utility functions
@@ -236,19 +236,19 @@ public final class ActiveMQRaUtils {
 
    /**
     * Within AS7 the RA is loaded by JCA. properties can only be passed in String form. However if
-    * RA is configured using jgroups stack, we need to pass a Channel object. As is impossible with
-    * JCA, we use this method to allow a JChannel object to be located.
+    * RA is configured using jgroups stack, we need to pass a BroadcastEndpointFactory object. As is impossible with
+    * JCA, we use this method to allow a BroadcastEndpointFactory object to be located.
     */
-   public static JChannel locateJGroupsChannel(final String locatorClass, final String name) {
-      return AccessController.doPrivileged(new PrivilegedAction<JChannel>() {
+   public static BroadcastEndpointFactory locateBroadcastEndpointFactory(final String locatorClass, final String name) {
+      return AccessController.doPrivileged(new PrivilegedAction<BroadcastEndpointFactory>() {
          @Override
-         public JChannel run() {
+         public BroadcastEndpointFactory run() {
             try {
                ClassLoader loader = Thread.currentThread().getContextClassLoader();
                Class<?> aClass = loader.loadClass(locatorClass);
                Object o = aClass.newInstance();
-               Method m = aClass.getMethod("locateChannel", new Class[]{String.class});
-               return (JChannel) m.invoke(o, name);
+               Method m = aClass.getMethod("locateBroadcastEndpointFactory", new Class[]{String.class});
+               return (BroadcastEndpointFactory) m.invoke(o, name);
             } catch (Throwable e) {
                ActiveMQRALogger.LOGGER.debug(e.getMessage(), e);
                return null;
