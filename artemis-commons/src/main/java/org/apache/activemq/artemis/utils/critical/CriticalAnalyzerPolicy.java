@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.api.config;
+package org.apache.activemq.artemis.utils.critical;
 
 public enum CriticalAnalyzerPolicy {
    HALT, SHUTDOWN, LOG;
