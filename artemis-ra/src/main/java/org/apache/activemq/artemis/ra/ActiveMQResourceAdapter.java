@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -60,6 +61,7 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.jboss.logging.Logger;
+import org.jgroups.JChannel;
 
 /**
  * The resource adapter for ActiveMQ
@@ -1714,7 +1716,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          if (jgroupsLocatorClassName != null) {
             String jchannelRefName = raProperties.getJgroupsChannelRefName();
-            endpointFactory = ActiveMQRaUtils.locateBroadcastEndpointFactory(jgroupsLocatorClassName, jchannelRefName);
+            JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
+            endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
          } else if (discoveryAddress != null) {
             Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
             if (discoveryPort == null) {
@@ -1814,7 +1817,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             String jgroupsLocatorClass = raProperties.getJgroupsChannelLocatorClass();
             if (jgroupsLocatorClass != null) {
                String jgroupsChannelRefName = raProperties.getJgroupsChannelRefName();
-               endpointFactory = ActiveMQRaUtils.locateBroadcastEndpointFactory(jgroupsLocatorClass, jgroupsChannelRefName);
+               JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClass, jgroupsChannelRefName);
+               endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
             }
             if (endpointFactory == null) {
                throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
