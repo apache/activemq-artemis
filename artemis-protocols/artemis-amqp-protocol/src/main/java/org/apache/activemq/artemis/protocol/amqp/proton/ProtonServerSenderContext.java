@@ -618,7 +618,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
                }
             }
-            // todo add tag caching
+
             if (!preSettle) {
                protonSession.replaceTag(delivery.getTag());
             }
