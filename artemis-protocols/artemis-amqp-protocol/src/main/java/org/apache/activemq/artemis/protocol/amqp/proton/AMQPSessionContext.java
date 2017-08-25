@@ -45,13 +45,13 @@ public class AMQPSessionContext extends ProtonInitializable {
 
    protected final Session session;
 
-   private long currentTag = 0;
-
    protected Map<Receiver, ProtonServerReceiverContext> receivers = new ConcurrentHashMap<>();
 
    protected Map<Sender, ProtonServerSenderContext> senders = new ConcurrentHashMap<>();
 
    protected boolean closed = false;
+
+   protected final AmqpTransferTagGenerator tagCache = new AmqpTransferTagGenerator();
 
    public AMQPSessionContext(AMQPSessionCallback sessionSPI, AMQPConnectionContext connection, Session session) {
       this.connection = connection;
@@ -93,11 +93,11 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public byte[] getTag() {
-      return Long.toHexString(currentTag++).getBytes();
+      return tagCache.getNextTag();
    }
 
    public void replaceTag(byte[] tag) {
-      // TODO: do we need to reuse this?
+      tagCache.returnTag(tag);
    }
 
    public void close() {
