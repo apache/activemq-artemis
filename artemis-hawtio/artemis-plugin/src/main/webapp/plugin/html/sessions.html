@@ -45,7 +45,7 @@
             </div>
             <div class="pull-right">
                 <form class="form-inline">
-                    <button class="btn-danger" ng-show="gridOptions.selectedItems.length == 0"
+                    <button class="btn-danger" ng-show="showClose"
                             ng-click="deleteDialog = true"
                             title="Close the selected Session">
                         <i class="icon-remove"></i> Close
@@ -65,7 +65,7 @@
        </div>
     </div>
     <div class="row-fluid">
-        <div class="gridStyle" ng-grid="gridOptions" ui-grid-resize-columns></div>
+        <div class="gridStyle" ng-grid="gridOptions" ui-grid-resize-columns ng-click="selectGridRow()"></div>
     </div>
 
 </div>
