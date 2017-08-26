@@ -2511,10 +2511,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         ActiveMQServerLogger.LOGGER.deployQueue(SimpleString.toSimpleString(config.getName()));
-
-         createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), null, config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getPurgeOnNoConsumers(), true);
+         addOrUpdateQueue(config);
       }
+   }
+
+   private Queue addOrUpdateQueue(CoreQueueConfiguration config) throws Exception {
+      SimpleString queueName = SimpleString.toSimpleString(config.getName());
+      ActiveMQServerLogger.LOGGER.deployQueue(queueName);
+      Queue queue = updateQueue(config.getName(), config.getRoutingType(), config.getMaxConsumers(), config.getPurgeOnNoConsumers());
+      if (queue == null) {
+         queue = createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
+            queueName, SimpleString.toSimpleString(config.getFilterString()), null,
+            config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getPurgeOnNoConsumers(), true);
+      }
+      return queue;
    }
 
    private void deployQueuesFromConfiguration() throws Exception {

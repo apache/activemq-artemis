@@ -123,6 +123,11 @@ under the License.
                <queue name="permanent_test_queue_removal_queue_1"/>
             </multicast>
          </address>
+         <address name="config_test_queue_change">
+            <multicast>
+               <queue name="config_test_queue_change_queue" max-consumers="1" purge-on-no-consumers="true" />
+            </multicast>
+         </address>
       </addresses>
    </core>
 </configuration>

@@ -142,6 +142,11 @@ under the License.
                <queue name="permanent_test_address_removal_queue"/>
             </multicast>
          </address>
+         <address name="config_test_queue_change">
+            <multicast>
+               <queue name="config_test_queue_change_queue" max-consumers="10" purge-on-no-consumers="false" />
+            </multicast>
+         </address>
       </addresses>
    </core>
 </configuration>
