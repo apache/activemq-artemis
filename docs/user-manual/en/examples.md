@@ -289,7 +289,7 @@ consumer.
 Clustered Queue
 ---------------
 
-The `clustered-queue` example demonstrates a JMS queue deployed on two
+The `clustered-queue` example demonstrates a queue deployed on two
 different nodes. The two nodes are configured to form a cluster. We then
 create a consumer for the queue on each node, and we create a producer
 on only one of the nodes. We then send some messages via the producer,
@@ -487,8 +487,8 @@ standalone Apache ActiveMQ Artemis servers.
 JMS Context
 -----------
 
-The `jms-context` example shows how to send and receive a message to a
-JMS Queue using Apache ActiveMQ Artemis by using a JMS Context.
+The `jms-context` example shows how to send and receive a message to/from an
+address/queue using Apache ActiveMQ Artemis by using a JMS Context.
 
 A JMSContext is part of JMS 2.0 and combines the JMS Connection and
 Session Objects into a simple Interface.
@@ -550,7 +550,7 @@ Message Counter
 ---------------
 
 The `message-counters` example shows you how to use message counters to
-obtain message information for a JMS queue.
+obtain message information for a queue.
 
 Message Group
 -------------
@@ -676,7 +676,7 @@ send messages.
 Queue
 -----
 
-A simple example demonstrating a JMS queue.
+A simple example demonstrating a queue.
 
 Message Redistribution
 ----------------------
@@ -741,7 +741,7 @@ Scheduled Message
 -----------------
 
 The `scheduled-message` example shows you how to send a scheduled
-message to a JMS Queue with Apache ActiveMQ Artemis. Scheduled messages won't get
+message to an address/queue with Apache ActiveMQ Artemis. Scheduled messages won't get
 delivered until a specified time in the future.
 
 Security

@@ -29,7 +29,7 @@ Another important part of clustering is *server discovery* where servers
 can broadcast their connection details so clients or other servers can
 connect to them with the minimum of configuration.
 
-> **Warning**
+> <a id="copy-warning"></a>**Warning**
 >
 > Once a cluster node has been configured it is common to simply copy
 > that configuration to other nodes to produce a symmetric cluster.
@@ -555,7 +555,7 @@ server.
 
     <cluster-connections>
        <cluster-connection name="my-cluster">
-          <address>jms</address>
+          <address></address>
           <connector-ref>netty-connector</connector-ref>
           <check-period>1000</check-period>
           <connection-ttl>5000</connection-ttl>
@@ -589,9 +589,7 @@ specified. The following shows all the available configuration options
     connection address string with '!'.
 
     In the case shown above the cluster connection will load balance
-    messages sent to addresses that start with `jms`. This cluster
-    connection, will, in effect apply to all JMS queues and topics since
-    they map to core queues that start with the substring "jms".
+    messages sent to all addresses (since it's empty).
 
     The address can be any value and you can have many cluster
     connections with different values of `address`, simultaneously
@@ -608,16 +606,16 @@ specified. The following shows all the available configuration options
 
     Examples:
 
-    -   'jms.eu'
-        matches all addresses starting with 'jms.eu'
-    -   '!jms.eu'
-        matches all address except for those starting with 'jms.eu'
-    -   'jms.eu.uk,jms.eu.de'
-        matches all addresses starting with either 'jms.eu.uk' or
-        'jms.eu.de'
-    -   'jms.eu,!jms.eu.uk'
-        matches all addresses starting with 'jms.eu' but not those
-        starting with 'jms.eu.uk'
+    -   'eu'
+        matches all addresses starting with 'eu'
+    -   '!eu'
+        matches all address except for those starting with 'eu'
+    -   'eu.uk,eu.de'
+        matches all addresses starting with either 'eu.uk' or
+        'eu.de'
+    -   'eu,!eu.uk'
+        matches all addresses starting with 'eu' but not those
+        starting with 'eu.uk'
 
     Notes:
 
@@ -935,16 +933,14 @@ Here's an address settings snippet from `broker.xml`
 showing how message redistribution is enabled for a set of queues:
 
     <address-settings>
-       <address-setting match="jms.#">
+       <address-setting match="#">
           <redistribution-delay>0</redistribution-delay>
        </address-setting>
     </address-settings>
 
 The above `address-settings` block would set a `redistribution-delay` of
-`0` for any queue which is bound to an address that starts with "jms.".
-All JMS queues and topic subscriptions are bound to addresses that start
-with "jms.", so the above would enable instant (no delay) redistribution
-for all JMS queues and topic subscriptions.
+`0` for any queue which is bound to any address. So the above would enable
+instant (no delay) redistribution for all addresses.
 
 The attribute `match` can be an exact match or it can be a string that
 conforms to the Apache ActiveMQ Artemis wildcard syntax (described in [Wildcard Syntax](wildcard-syntax.md)).

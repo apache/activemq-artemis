@@ -130,7 +130,7 @@ Add an address configuration with Anycast routing type element and its associate
 
 It is possible to define an address with both point-to-point and publish-subscribe semantics enabled. While not typically recommend, this can be useful when you want, for example, a JMS Queue say orders and a JMS Topic named orders. The different routing types make the addresses appear to be distinct.
 
-Using an example of JMS Clients, the messages sent by a JMS queue producer will be routed using the anycast routing type. Messages sent by a JMS topic producer will use the multicast routing type. In addition when a JMS topic consumer attaches, it will be attached to it’s own subscription queue. JMS queue consumer will be attached to the anycast queue.
+Using an example of JMS Clients, the messages sent by a JMS message producer will be routed using the anycast routing type. Messages sent by a JMS topic producer will use the multicast routing type. In addition when a JMS topic consumer attaches, it will be attached to it’s own subscription queue. JMS queue consumer will be attached to the anycast queue.
 
 ![Point to Point](images/addressing-model-p2p-pubsub.png)
 Figure 4. [Point-to-Point and Publish-Subscribe
@@ -156,7 +156,7 @@ The XML snippet below is an example of what the configuration for an address usi
 
 ## How to filter messages
 
-Apache ActiveMQ Artemis supports the ability to filter messages using Apache Artemis [Filter Expressions](#filter-expressions).
+Apache ActiveMQ Artemis supports the ability to filter messages using Apache Artemis [Filter Expressions](filter-expressions.md).
 
 Filters can be applied in two places, on a queue and on a consumer.
 
@@ -275,7 +275,7 @@ The example below configures an address-setting to be automatically deleted by t
     ...
     <address-settings>
        <address-setting match="/news/politics/#">
-          <auto-create-addresses>true</auto-create-addresses>
+          <auto-delete-addresses>true</auto-delete-addresses>
           <default-address-routing-type>MULTICAST</default-address-routing-type>
        </address-setting>
     </address-settings>
@@ -362,7 +362,7 @@ In <broker-instance>/etc/broker.xml, add the anycastPrefix to the URL of the des
 
 In most cases it’s not necessary to pre-create subscription queues. The relevant protocol managers take care of creating subscription queues when clients request to subscribe to an address.  The type of subscription queue created, depends on what properties the client request.  E.g. durable, non-shared, shared etc...  Protocol managers uses special queue names to identify which queues below to which consumers and users need not worry about the details.
 
-However, there are scenarios where a user may want to use broker side configuration to pre-configure a subscription.  And later connect to that queue directly using a [Fully Qualified Queue name](#fully-qualified-queue-names)..  The examples below show how to use broker side configuration to pre-configure a queue with publish subscribe behavior for shared, non-shared, durable and non-durable subscription behavior.
+However, there are scenarios where a user may want to use broker side configuration to pre-configure a subscription.  And later connect to that queue directly using a [Fully Qualified Queue name](#fully-qualified-queue-names).  The examples below show how to use broker side configuration to pre-configure a queue with publish subscribe behavior for shared, non-shared, durable and non-durable subscription behavior.
 
 #### Configuring a shared durable subscription queue with up to 10 concurrent consumers
 
@@ -472,11 +472,10 @@ The idea with address settings, is you can provide a block of settings
 which will be applied against any addresses that match the string in the
 `match` attribute. In the above example the settings would only be
 applied to the address "order.foo" address but you can also use wildcards
-to apply settings.  See: [The chapter on the wild card syntax](#wildcard-syntax).
+to apply settings.  See: [The chapter on the wild card syntax](wildcard-syntax.md).
 
-For example, if you used the `match` string `jms.queue.#` the settings
-would be applied to all addresses which start with `jms.queue.` which
-would be all JMS queues.
+For example, if you used the `match` string `queue.#` the settings
+would be applied to all addresses which start with `queue.`
 
 The meaning of the specific settings are explained fully throughout the
 user manual, however here is a brief description with a link to the
@@ -484,13 +483,13 @@ appropriate chapter if available.
 
 `max-delivery-attempts` defines how many time a cancelled message can be
 redelivered before sending to the `dead-letter-address`. A full
-explanation can be found [here](#undelivered-messages.configuring).
+explanation can be found [here](undelivered-messages.md#Configuring-Dead-Letter-Addresses).
 
 `redelivery-delay` defines how long to wait before attempting redelivery
-of a cancelled message. see [here](#undelivered-messages.delay).
+of a cancelled message. see [here](undelivered-messages.md#Configuring-Delayed-Redelivery).
 
 `expiry-address` defines where to send a message that has expired. see
-[here](#message-expiry.configuring).
+[here](message-expiry.md#Configuring-Expiry-Addresses).
 
 `expiry-delay` defines the expiration time that will be used for
 messages which are using the default expiration time (i.e. 0). For
@@ -502,14 +501,14 @@ unchanged. Setting `expiry-delay` to "-1" will disable this feature. The
 default is "-1".
 
 `last-value-queue` defines whether a queue only uses last values or not.
-see [here](#last-value-queues).
+see [here](last-value-queues.md).
 
 `max-size-bytes` and `page-size-bytes` are used to set paging on an
-address. This is explained [here](#paging).
+address. This is explained [here](paging.md#Configuration).
 
 `redistribution-delay` defines how long to wait when the last consumer
 is closed on a queue before redistributing any messages. see
-[here](#clusters).
+[here](clusters.md#Message-Redistribution).
 
 `send-to-dla-on-no-route`. If a message is sent to an address, but the
 server does not route it to any queues, for example, there might be no
