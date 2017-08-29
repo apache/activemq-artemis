@@ -212,7 +212,7 @@ It is therefore possible to go over the address limit by approximately:
 
  '''total number of producers on address * producer window size'''
 
-For example, if I have a JMS queue called "myqueue", I could set the
+For example, if I have a queue called "myqueue", I could set the
 maximum memory size to 10MiB, and the the server will control the number
 of credits sent to any producers which are sending any messages to
 myqueue such that the total messages in the queue never exceeds 10MiB.
@@ -242,13 +242,13 @@ memory of all subscriptions in the topic won't exceed max-size-bytes.
 Here's an example:
 
     <address-settings>
-       <address-setting match="jms.queue.exampleQueue">
+       <address-setting match="exampleQueue">
           <max-size-bytes>100000</max-size-bytes>
           <address-full-policy>BLOCK</address-full-policy>
        </address-setting>
     </address-settings>
 
-The above example would set the max size of the JMS queue "exampleQueue"
+The above example would set the max size of the queue "exampleQueue"
 to be 100000 bytes and would block any producers sending to that address
 to prevent that max size being exceeded.
 

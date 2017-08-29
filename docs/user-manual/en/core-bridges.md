@@ -42,8 +42,8 @@ Bridges are configured in `broker.xml`. Let's kick off
 with an example (this is actually from the bridge example):
 
     <bridge name="my-bridge">
-       <queue-name>jms.queue.sausage-factory</queue-name>
-       <forwarding-address>jms.queue.mincing-machine</forwarding-address>
+       <queue-name>sausage-factory</queue-name>
+       <forwarding-address>mincing-machine</forwarding-address>
        <filter string="name='aardvark'"/>
        <transformer-class-name>
           org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
