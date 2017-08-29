@@ -47,8 +47,8 @@ following properties:
 Expiry address are defined in the address-setting configuration:
 
     <!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
-    <address-setting match="jms.queue.exampleQueue">
-       <expiry-address>jms.queue.expiryQueue</expiry-address>
+    <address-setting match="exampleQueue">
+       <expiry-address>expiryQueue</expiry-address>
     </address-setting>
 
 If messages are expired and no expiry address is specified, messages are

@@ -10,10 +10,9 @@ Server Configuration
 broker.xml
 --------------------------
 
-This is the main core server configuration file which contains to elements
-'core' and 'jms'.
-The 'core' element contains the main server configuration while the 'jms'
-element is used by the server side JMS service to load JMS Queues, Topics
+This is the main core server configuration file which contains the 'core'
+element.
+The 'core' element contains the main server configuration.
 
 # System properties
 
@@ -83,7 +82,7 @@ Name | Description
 [journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
 [journal-datasync](persistence.md)                                                        |  It will use msync/fsync on journal operations. Default=true.
 [large-messages-directory](large-messages.md "Configuring the server")          |  the directory to store large messages. Default=data/largemessages
-[management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it. Default=jms.queue.activemq.management
+[management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. Default=activemq.management
 [management-notification-address](management.md "Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications
 [mask-password](configuration-index.md "Using Masked Passwords in Configuration Files")  |  This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. Default=false
 [max-saved-replicated-journals-size](ha.md#data-replication)                                                                |    This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. -1 Means no Limit, 0 don't keep a copy at all, Default=2
@@ -256,18 +255,6 @@ Name | Description
 [permission.type ](security.md "Role based security for addresses")                     |  the type of permission
 [permission.roles ](security.md "Role based security for addresses")                    |  a comma-separated list of roles to apply the permission to
 
-----------------------------
-
-##The jms configuration
-
-Name | Type | Description
-:--- | :--- | :---
-[queue](using-jms.md "JMS Server Configuration")                  | Queue     |   a queue
-[queue.name (attribute)](using-jms.md "JMS Server Configuration") | String    |   unique name of the queue
-[queue.durable](using-jms.md "JMS Server Configuration")          | Boolean   |   is the queue durable?. Default=true
-[queue.filter](using-jms.md "JMS Server Configuration")           | String    |   optional filter expression for the queue
-[topic](using-jms.md "JMS Server Configuration")                  | Topic     |   a topic
-[topic.name (attribute)](using-jms.md "JMS Server Configuration") | String    |   unique name of the topic
 
 
 Using Masked Passwords in Configuration Files

@@ -222,10 +222,7 @@ Here is an example of the plugin's configuration:
     and update the broker's authorization configuration in real-time. The default value is `true`.
 
 The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value
-will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is. It's worth noting that
-since the name of queue or topic coming from LDAP will server as the "match" for the security-setting the security-setting
-may not be applied as expected to JMS destinations since Artemis always prefixes JMS destinations with "jms.queue." or
-"jms.topic." as necessary.
+will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is.
 
 ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
 [website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 7 permission

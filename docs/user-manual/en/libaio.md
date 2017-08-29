@@ -17,7 +17,7 @@ This is the native libraries distributed by Apache ActiveMQ Artemis:
 -   We used to distributed libActiveMQAIO32.so until early 2017. While it's not available on the distribution it should still be possible to compile to a 32 bits environment if needed.
 
 When using libaio, Apache ActiveMQ Artemis will always try loading these files as long
-as they are on the [library path](using-server.html#library-path)
+as they are on the [library path](using-server.md#library-path)
 
 
 ## Runtime dependencies

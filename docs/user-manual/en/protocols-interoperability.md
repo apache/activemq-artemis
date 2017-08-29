@@ -355,7 +355,7 @@ However if STOMP clients exit without sending a DISCONNECT frame or if
 they crash the server will have no way of knowing immediately whether
 the client is still alive or not. STOMP connections therefore default to
 a connection-ttl value of 1 minute (see chapter on
-[connection-ttl](#connection-ttl) for more information. This value can
+[connection-ttl](connection-ttl.md) for more information. This value can
 be overridden using the `connection-ttl-override` property or if you
 need a specific connectionTtl for your stomp connections without
 affecting the broker-wide `connection-ttl-override` setting, you can
@@ -524,7 +524,7 @@ message to a normal message, before sending it to the client.
 If a large message is compressed, the server will uncompressed it before
 sending it to stomp clients. The default value of
 `stompMinLargeMessageSize` is the same as the default value of
-[min-large-message-size](#large-messages.core.config).
+[min-large-message-size](large-messages.md#Configuring-Parameters).
 
 ### Stomp Over Web Sockets
 
