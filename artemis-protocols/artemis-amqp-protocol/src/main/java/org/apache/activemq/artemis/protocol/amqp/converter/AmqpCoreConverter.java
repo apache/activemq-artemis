@@ -31,12 +31,14 @@ import java.util.Set;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
 import org.apache.qpid.proton.amqp.Decimal32;
@@ -168,6 +170,13 @@ public class AmqpCoreConverter {
          }
       } else {
          throw new RuntimeException("Unexpected body type: " + body.getClass());
+      }
+
+      TypedProperties properties = message.getExtraProperties();
+      if (properties != null) {
+         for (SimpleString str : properties.getPropertyNames()) {
+            result.getInnerMessage().putBytesProperty(str, properties.getBytesProperty(str));
+         }
       }
 
       populateMessage(result, message.getProtonMessage());
