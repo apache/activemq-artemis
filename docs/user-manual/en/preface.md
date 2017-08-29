@@ -28,7 +28,7 @@ Why use Apache ActiveMQ Artemis? Here are just a few of the reasons:
     messaging system, and others you won't find anywhere else.
 
 -   Elegant, clean-cut design with minimal third party dependencies. Run
-    ActiveMQ Artemis stand-alone, run it in integrated in your favourite JEE
+    ActiveMQ Artemis stand-alone, run it in integrated in your favourite Java EE
     application server, or run it embedded inside your own product. It's
     up to you.
 

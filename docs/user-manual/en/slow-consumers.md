@@ -1,4 +1,4 @@
-#Detecting Slow Consumers
+# Detecting Slow Consumers
 
 In this section we will discuss how Apache ActiveMQ Artemis can be configured to deal
 with slow consumers. A slow consumer with a server-side queue (e.g. JMS

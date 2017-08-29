@@ -106,20 +106,6 @@ The standard Apache ActiveMQ Artemis core server uses two instances of the journ
     file has a `bindings` extension. File size is `1048576`, and it is
     located at the bindings folder.
 
--   JMS journal.
-
-    This journal instance stores all JMS related data, This is basically
-    any JMS Queues, Topics and Connection Factories and any JNDI
-    bindings for these resources.
-
-    Any JMS Resources created via the management API will be persisted
-    to this journal. Any resources configured via configuration files
-    will not. The JMS Journal will only be created if JMS is being used.
-
-    The files on this journal are prefixed as `activemq-jms`. Each file
-    has a `jms` extension. File size is `1048576`, and it is located at
-    the bindings folder.
-
 -   Message journal.
 
     This journal instance stores all message related data, including the

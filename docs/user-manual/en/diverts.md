@@ -59,8 +59,8 @@ Here's some example xml configuration for an exclusive divert, it's
 taken from the divert example:
 
     <divert name="prices-divert">
-       <address>jms.topic.priceUpdates</address>
-       <forwarding-address>jms.queue.priceForwarding</forwarding-address>
+       <address>priceUpdates</address>
+       <forwarding-address>priceForwarding</forwarding-address>
        <filter string="office='New York'"/>
        <transformer-class-name>
           org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
@@ -68,11 +68,9 @@ taken from the divert example:
        <exclusive>true</exclusive>
     </divert>
 
-We define a divert called '`prices-divert`' that will divert any
-messages sent to the address '`jms.topic.priceUpdates`' (this
-corresponds to any messages sent to a JMS Topic called '`priceUpdates`')
-to another local address '`jms.queue.priceForwarding`' (this corresponds
-to a local JMS queue called '`priceForwarding`'
+We define a divert called `prices-divert` that will divert any
+messages sent to the address `priceUpdates` to another local address 
+`priceForwarding`.
 
 We also specify a message filter string so only messages with the
 message property `office` with value `New York` will get diverted, all
@@ -106,13 +104,11 @@ diverts with an optional filter and transformer, here's an example
 non-exclusive divert, again from the divert example:
 
     <divert name="order-divert">
-        <address>jms.queue.orders</address>
-        <forwarding-address>jms.topic.spyTopic</forwarding-address>
+        <address>orders</address>
+        <forwarding-address>spyTopic</forwarding-address>
         <exclusive>false</exclusive>
     </divert>
 
 The above divert example takes a copy of every message sent to the
-address '`jms.queue.orders`' (Which corresponds to a JMS Queue called
-'`orders`') and sends it to a local address called
-'`jms.topic.SpyTopic`' (which corresponds to a JMS Topic called
-'`SpyTopic`').
+address '`orders`' and sends it to a local address called
+'`spyTopic`'.
