@@ -164,6 +164,9 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
+   /** The message will contain another message persisted through {@link org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
+   byte EMBEDDED_TYPE = 7;
+
    default void cleanupInternalProperties() {
       // only on core
    }
@@ -436,6 +439,19 @@ public interface Message {
             return (byte[]) duplicateID;
          }
       }
+   }
+
+
+   default org.apache.activemq.artemis.api.core.Message putExtraBytesProperty(SimpleString key, byte[] value) {
+      return putBytesProperty(key, value);
+   }
+
+   default byte[] getExtraBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
+      return getBytesProperty(key);
+   }
+
+   default byte[] removeExtraBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
+      return (byte[])removeProperty(key);
    }
 
    default Object getDuplicateProperty() {

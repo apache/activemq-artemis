@@ -32,8 +32,6 @@ import org.osgi.service.component.annotations.Component;
 @Component(service = ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<AmqpInterceptor> {
 
-   public static final byte ID = 2;
-
    public static final String AMQP_PROTOCOL_NAME = "AMQP";
 
    private static final String MODULE_NAME = "artemis-amqp-protocol";
@@ -41,13 +39,10 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
 
    @Override
-   public byte getStoreID() {
-      return ID;
-   }
+   public Persister<Message>[] getPersister() {
 
-   @Override
-   public Persister<Message> getPersister() {
-      return AMQPMessagePersister.getInstance();
+      Persister[] persisters = new Persister[]{AMQPMessagePersister.getInstance(), AMQPMessagePersisterV2.getInstance()};
+      return persisters;
    }
 
    @Override
