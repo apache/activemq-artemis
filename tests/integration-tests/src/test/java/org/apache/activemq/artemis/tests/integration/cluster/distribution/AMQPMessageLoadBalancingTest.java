@@ -67,6 +67,13 @@ public class AMQPMessageLoadBalancingTest extends ClusterTestBase {
       createQueue(0, "queues.0", "queues.0", null, true, null, null, RoutingType.ANYCAST);
       createQueue(1, "queues.0", "queues.0", null, true, null, null, RoutingType.ANYCAST);
 
+      waitForBindings(0, "queues.0", 1, 0, true);
+      waitForBindings(1, "queues.0", 1, 0, true);
+
+      waitForBindings(0, "queues.0", 1, 0, false);
+      waitForBindings(1, "queues.0", 1, 0, false);
+
+
       final int NUMBER_OF_MESSAGES = 100;
 
       // sending AMQP Messages.. they should be load balanced
