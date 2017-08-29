@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
@@ -52,8 +51,8 @@ public class PageTest extends ActiveMQTestBase {
 
    @Before
    public void registerProtocols() {
-      MessagePersister.registerPersister(CoreProtocolManagerFactory.ID, CoreMessagePersister.getInstance());
-      MessagePersister.registerPersister((byte)2, AMQPMessagePersister.getInstance());
+      MessagePersister.registerPersister(CoreMessagePersister.getInstance());
+      MessagePersister.registerPersister(AMQPMessagePersister.getInstance());
    }
 
    @Test

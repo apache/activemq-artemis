@@ -32,19 +32,13 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 
 public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
-   public static final byte ID = 1;
    private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};
 
    private static final String MODULE_NAME = "artemis-server";
 
    @Override
-   public byte getStoreID() {
-      return ID;
-   }
-
-   @Override
-   public Persister<Message> getPersister() {
-      return CoreMessagePersister.getInstance();
+   public Persister<Message>[] getPersister() {
+      return new Persister[]{CoreMessagePersister.getInstance()};
    }
 
    /**

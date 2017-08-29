@@ -17,15 +17,12 @@
 
 package org.apache.activemq.artemis.spi.core.protocol;
 
-import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
-import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.jboss.logging.Logger;
 
 public class MessagePersister implements Persister<Message> {
@@ -35,33 +32,47 @@ public class MessagePersister implements Persister<Message> {
    private static final MessagePersister theInstance = new MessagePersister();
 
    /** This will be used for reading messages */
-   private static Map<Byte, Persister<Message>> protocols = new ConcurrentHashMap<>();
+   private static final int MAX_PERSISTERS = 3;
+   private static final Persister<Message>[] persisters = new Persister[MAX_PERSISTERS];
 
    static {
-      MessagePersister.registerPersister(CoreProtocolManagerFactory.ID, CoreMessagePersister.getInstance());
+      CoreMessagePersister persister = CoreMessagePersister.getInstance();
+      MessagePersister.registerPersister(persister);
 
       Iterable<ProtocolManagerFactory> protocols  = ServiceLoader.load(ProtocolManagerFactory.class, MessagePersister.class.getClassLoader());
       for (ProtocolManagerFactory next : protocols) {
-         MessagePersister.registerPersister(next.getStoreID(), next.getPersister());
+         registerProtocol(next);
       }
    }
 
    public static void registerProtocol(ProtocolManagerFactory manager) {
-      Persister<Message> messagePersister = manager.getPersister();
-      if (messagePersister == null) {
+      Persister<Message>[] messagePersisters = manager.getPersister();
+      if (messagePersisters == null || messagePersisters.length == 0) {
          logger.debug("Cannot find persister for " + manager);
       } else {
-         registerPersister(manager.getStoreID(), manager.getPersister());
+         for (Persister p : messagePersisters) {
+            registerPersister(p);
+         }
       }
    }
 
    public static void clearPersisters() {
-      protocols.clear();
+      for (int i = 0; i < persisters.length; i++) {
+         persisters[i] = null;
+      }
    }
 
-   public static void registerPersister(byte recordType, Persister<Message> persister) {
+   public static Persister getPersister(byte id) {
+      if (id == 0 || id > MAX_PERSISTERS) {
+         return null;
+      }
+      return persisters[id - 1];
+   }
+
+   public static void registerPersister(Persister<Message> persister) {
       if (persister != null) {
-         protocols.put(recordType, persister);
+         assert persister.getID() <= MAX_PERSISTERS : "You must update MessagePersister::MAX_PERSISTERS to a higher number";
+         persisters[persister.getID() - 1] = persister;
       }
    }
 
@@ -71,10 +82,6 @@ public class MessagePersister implements Persister<Message> {
 
 
    protected MessagePersister() {
-   }
-
-   protected byte getID() {
-      return (byte)0;
    }
 
    @Override
@@ -92,7 +99,7 @@ public class MessagePersister implements Persister<Message> {
    @Override
    public Message decode(ActiveMQBuffer buffer, Message record) {
       byte protocol = buffer.readByte();
-      Persister<Message> persister = protocols.get(protocol);
+      Persister<Message> persister = getPersister(protocol);
       if (persister == null) {
          throw new NullPointerException("couldn't find factory for type=" + protocol);
       }

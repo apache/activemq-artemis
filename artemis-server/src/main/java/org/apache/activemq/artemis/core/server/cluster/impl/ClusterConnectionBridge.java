@@ -166,7 +166,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       Set<SimpleString> propNames = new HashSet<>(messageCopy.getPropertyNames());
 
-      byte[] queueIds = message.getBytesProperty(idsHeaderName);
+      byte[] queueIds = message.getExtraBytesProperty(idsHeaderName);
 
       if (queueIds == null) {
          // Sanity check only
@@ -180,7 +180,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          }
       }
 
-      messageCopy.putBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
+      messageCopy.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
       messageCopy = super.beforeForward(messageCopy);
 
