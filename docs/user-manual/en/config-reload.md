@@ -204,8 +204,8 @@ Operation | Add | Delete | Update
 `<queues>` | X(no more than one is present) | Deleting it means delete  (undeploy) all queues from running broker. | N/A
 `<queue>` | A new queue is deployed after reloading | The queue will be undeployed after reloading. | N/A
 attribute `name` | N/A | X | A queue with new name will be deployed and the queue with old name will be updeployed after reloading (see Note above).
-attribute `max-consumers` | N/A | No effect unless starting broker | No effect unless starting broker
-attribute `purge-on-no-consumers` | N/A | No effect unless starting broker | No effect unless starting broker
+attribute `max-consumers` | If max-consumers > current consumers max-consumers will update on reload | max-consumers will be set back to the default `-1` | If max-consumers > current consumers max-consumers will update on reload
+attribute `purge-on-no-consumers` | On reload purge-on-no-consumers will be updated | Will be set back to the default `false` | On reload purge-on-no-consumers will be updated
 attribute `address` | N/A | No effect unless starting broker | No effect unless starting broker
 attribute `filter` | N/A | No effect unless starting broker | No effect unless starting broker
 attribute `durable` | N/A | No effect unless starting broker | No effect unless starting broker
