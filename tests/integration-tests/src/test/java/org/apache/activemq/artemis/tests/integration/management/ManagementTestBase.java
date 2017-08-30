@@ -20,6 +20,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -100,6 +101,14 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    protected QueueControl createManagementControl(final SimpleString address,
                                                   final SimpleString queue) throws Exception {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);
+
+      return queueControl;
+   }
+
+   protected QueueControl createManagementControl(final SimpleString address,
+                                                  final SimpleString queue,
+                                                  final RoutingType routingType) throws Exception {
+      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, routingType, mbeanServer);
 
       return queueControl;
    }
