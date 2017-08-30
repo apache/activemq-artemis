@@ -1221,7 +1221,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    // BindingsImpl operations
 
    @Override
+   public void updateQueueBinding(long tx, Binding binding) throws Exception {
+      internalQueueBinding(true, tx, binding);
+   }
+
+   @Override
    public void addQueueBinding(final long tx, final Binding binding) throws Exception {
+      internalQueueBinding(false, tx, binding);
+   }
+
+   private void internalQueueBinding(boolean update, final long tx, final Binding binding) throws Exception {
       Queue queue = (Queue) binding.getBindable();
 
       Filter filter = queue.getFilter();
@@ -1232,7 +1241,14 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-         bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+
+         if (update) {
+            System.out.println("Update " + binding.getID());
+            bindingsJournal.appendUpdateRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+         } else {
+            System.out.println("Adding " + binding.getID());
+            bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+         }
       } finally {
          readUnLock();
       }
@@ -1402,7 +1418,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          if (rec == JournalRecordIds.QUEUE_BINDING_RECORD) {
             PersistentQueueBindingEncoding bindingEncoding = newQueueBindingEncoding(id, buffer);
-            queueBindingInfos.add(bindingEncoding);
             mapBindings.put(bindingEncoding.getId(), bindingEncoding);
          } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
             idGenerator.loadState(record.id, buffer);
@@ -1432,6 +1447,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             // unlikely to happen
             logger.warn("Invalid record type " + rec, new Exception("invalid record type " + rec));
          }
+      }
+
+      for (PersistentQueueBindingEncoding queue : mapBindings.values()) {
+         queueBindingInfos.add(queue);
       }
 
       mapBindings.clear(); // just to give a hand to GC

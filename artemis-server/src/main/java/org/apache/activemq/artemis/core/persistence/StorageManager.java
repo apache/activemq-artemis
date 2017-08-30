@@ -283,6 +283,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void addQueueBinding(long tx, Binding binding) throws Exception;
 
+   void updateQueueBinding(long tx, Binding binding) throws Exception;
+
    void deleteQueueBinding(long tx, long queueBindingID) throws Exception;
 
    /**
