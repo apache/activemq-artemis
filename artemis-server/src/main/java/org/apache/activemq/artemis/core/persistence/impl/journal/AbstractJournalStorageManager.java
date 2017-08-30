@@ -1241,12 +1241,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-
          if (update) {
-            System.out.println("Update " + binding.getID());
             bindingsJournal.appendUpdateRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
          } else {
-            System.out.println("Adding " + binding.getID());
             bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
          }
       } finally {
