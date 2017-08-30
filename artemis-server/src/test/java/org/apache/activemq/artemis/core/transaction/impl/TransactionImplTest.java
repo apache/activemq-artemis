@@ -230,6 +230,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void updateQueueBinding(long tx, Binding binding) throws Exception {
+
+      }
+
+      @Override
       public void stop(boolean ioCriticalError, boolean sendFailover) throws Exception {
 
       }

@@ -92,6 +92,10 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
+   public void updateQueueBinding(long tx, Binding binding) throws Exception {
+   }
+
+   @Override
    public void deleteQueueStatus(long recordID) throws Exception {
 
    }
