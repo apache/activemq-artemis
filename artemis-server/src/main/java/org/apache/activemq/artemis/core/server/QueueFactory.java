@@ -43,7 +43,7 @@ public interface QueueFactory {
                      SimpleString user,
                      boolean durable,
                      boolean temporary,
-                     boolean autoCreated);
+                     boolean autoCreated) throws Exception;
 
    /**
     * This is required for delete-all-reference to work correctly with paging

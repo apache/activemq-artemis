@@ -42,7 +42,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenario() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake());
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));
@@ -72,7 +72,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    @Test
    public void testUnitOnWildCardFailingScenarioFQQN() throws Exception {
       int errors = 0;
-      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake());
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null);
       ad.addBinding(new BindingFake("Topic1", "Topic1"));
       ad.addBinding(new BindingFake("Topic1", "one"));
       ad.addBinding(new BindingFake("*", "two"));

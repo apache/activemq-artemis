@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -48,6 +50,8 @@ public class SimpleAddressManager implements AddressManager {
 
    private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new ConcurrentHashMap<>();
 
+   private final StorageManager storageManager;
+
    /**
     * HashMap<Address, Binding>
     */
@@ -62,13 +66,16 @@ public class SimpleAddressManager implements AddressManager {
 
    protected final WildcardConfiguration wildcardConfiguration;
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory) {
-      this(bindingsFactory, new WildcardConfiguration());
+   public SimpleAddressManager(final BindingsFactory bindingsFactory, final StorageManager storageManager) {
+      this(bindingsFactory, new WildcardConfiguration(), storageManager);
    }
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration) {
+   public SimpleAddressManager(final BindingsFactory bindingsFactory,
+                               final WildcardConfiguration wildcardConfiguration,
+                               final StorageManager storageManager) {
       this.wildcardConfiguration = wildcardConfiguration;
       this.bindingsFactory = bindingsFactory;
+      this.storageManager = storageManager;
    }
 
    @Override
@@ -134,8 +141,7 @@ public class SimpleAddressManager implements AddressManager {
 
       Binding binding = getBinding(address);
 
-      if (binding == null || !(binding instanceof  LocalQueueBinding)
-            || !binding.getAddress().equals(address)) {
+      if (binding == null || !(binding instanceof LocalQueueBinding) || !binding.getAddress().equals(address)) {
          Bindings bindings = mappings.get(address);
          if (bindings != null) {
             for (Binding theBinding : bindings.getBindings()) {
@@ -151,7 +157,9 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public SimpleString getMatchingQueue(final SimpleString address, final SimpleString queueName, RoutingType routingType) throws Exception {
+   public SimpleString getMatchingQueue(final SimpleString address,
+                                        final SimpleString queueName,
+                                        RoutingType routingType) throws Exception {
       Binding binding = getBinding(queueName);
 
       if (binding != null && !binding.getAddress().equals(address) && !address.toString().isEmpty()) {
@@ -225,23 +233,80 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public boolean addAddressInfo(AddressInfo addressInfo) {
+   public boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception {
       return addressInfoMap.putIfAbsent(addressInfo.getName(), addressInfo) == null;
    }
 
    @Override
-   public AddressInfo updateAddressInfo(SimpleString addressName,
-                                        Collection<RoutingType> routingTypes) {
-      if (routingTypes == null || routingTypes.isEmpty()) {
-         return this.addressInfoMap.get(addressName);
-      } else {
-         return this.addressInfoMap.computeIfPresent(addressName, (name, oldAddressInfo) -> {
-            validateRoutingTypes(name, routingTypes);
-            final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
-            oldAddressInfo.setRoutingTypes(updatedRoutingTypes);
-            return oldAddressInfo;
-         });
+   public boolean addAddressInfo(AddressInfo addressInfo) throws Exception {
+      boolean added = reloadAddressInfo(addressInfo);
+      if (added && storageManager != null) {
+         long txID = storageManager.generateID();
+         try {
+            storageManager.addAddressBinding(txID, addressInfo);
+            storageManager.commitBindings(txID);
+         } catch (Exception e) {
+            try {
+               storageManager.rollbackBindings(txID);
+            } catch (Exception ignored) {
+            }
+            throw e;
+         }
       }
+      return added;
+   }
+
+   @Override
+   public AddressInfo updateAddressInfo(SimpleString addressName,
+                                        Collection<RoutingType> routingTypes) throws Exception {
+
+      AddressInfo info = addressInfoMap.get(addressName);
+
+      if (info == null) {
+         throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(addressName);
+      }
+
+      if (routingTypes == null || isEquals(routingTypes, info.getRoutingTypes())) {
+         // there are no changes.. we just give up now
+         return info;
+      }
+
+      validateRoutingTypes(addressName, routingTypes);
+      final Set<RoutingType> updatedRoutingTypes = EnumSet.copyOf(routingTypes);
+      info.setRoutingTypes(updatedRoutingTypes);
+
+
+      if (storageManager != null) {
+         //it change the address info without any lock!
+         final long txID = storageManager.generateID();
+         try {
+            storageManager.deleteAddressBinding(txID, info.getId());
+            storageManager.addAddressBinding(txID, info);
+            storageManager.commitBindings(txID);
+         } catch (Exception e) {
+            try {
+               storageManager.rollbackBindings(txID);
+            } catch (Throwable ignored) {
+            }
+            throw e;
+         }
+      }
+      return info;
+   }
+
+   private boolean isEquals(Collection<RoutingType> set1, Collection<RoutingType> set2) {
+      Set<RoutingType> eset1 = set1 == null || set1.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set1);
+      Set<RoutingType> eset2 = set2 == null || set2.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set2);
+
+      if (eset1.size() == 0 && eset2.size() == 0) {
+         return true;
+      }
+
+      if (eset1.size() != eset2.size()) {
+         return false;
+      }
+
+      return eset2.containsAll(eset1);
    }
 
    private void validateRoutingTypes(SimpleString addressName, Collection<RoutingType> routingTypes) {
