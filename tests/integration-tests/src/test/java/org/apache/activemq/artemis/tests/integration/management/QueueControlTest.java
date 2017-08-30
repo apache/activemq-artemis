@@ -24,11 +24,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -48,7 +51,6 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManage
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.utils.Base64;
@@ -603,6 +605,81 @@ public class QueueControlTest extends ManagementTestBase {
 
       consumer.close();
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testMessagesAddedAndMessagesAcknowledged() throws Exception {
+      final int THREAD_COUNT = 5;
+      final int MSG_COUNT = 1000;
+
+      CountDownLatch producerCountDown = new CountDownLatch(THREAD_COUNT);
+      CountDownLatch consumerCountDown = new CountDownLatch(THREAD_COUNT);
+
+      ExecutorService producerExecutor = Executors.newFixedThreadPool(THREAD_COUNT);
+      ExecutorService consumerExecutor = Executors.newFixedThreadPool(THREAD_COUNT);
+
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      try {
+         session.createQueue(address, RoutingType.ANYCAST, queue, null, false);
+
+         for (int i = 0; i < THREAD_COUNT; i++) {
+            producerExecutor.submit(() -> {
+               try (ClientSessionFactory sf = locator.createSessionFactory(); ClientSession session = sf.createSession(false, true, false); ClientProducer producer = session.createProducer(address)) {
+                  for (int j = 0; j < MSG_COUNT; j++) {
+                     producer.send(session.createMessage(false));
+                     Thread.sleep(5);
+                  }
+                  producerCountDown.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+            });
+         }
+
+         for (int i = 0; i < THREAD_COUNT; i++) {
+            consumerExecutor.submit(() -> {
+               try (ClientSessionFactory sf = locator.createSessionFactory(); ClientSession session = sf.createSession(false, true, false); ClientConsumer consumer = session.createConsumer(queue)) {
+                  session.start();
+                  for (int j = 0; j < MSG_COUNT; j++) {
+                     ClientMessage message = consumer.receive(500);
+                     Assert.assertNotNull(message);
+                     message.acknowledge();
+                  }
+                  session.commit();
+                  consumerCountDown.countDown();
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+            });
+         }
+
+         producerCountDown.await(30, TimeUnit.SECONDS);
+         consumerCountDown.await(30, TimeUnit.SECONDS);
+
+         QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+         Assert.assertEquals(0, queueControl.getMessageCount());
+         Assert.assertEquals(0, queueControl.getConsumerCount());
+         Assert.assertEquals(0, queueControl.getDeliveringCount());
+         Assert.assertEquals(THREAD_COUNT * MSG_COUNT, queueControl.getMessagesAdded());
+         Assert.assertEquals(THREAD_COUNT * MSG_COUNT, queueControl.getMessagesAcknowledged());
+
+         session.deleteQueue(queue);
+      } finally {
+         shutdownExecutor(producerExecutor);
+         shutdownExecutor(consumerExecutor);
+      }
+   }
+
+   private void shutdownExecutor(ExecutorService executor) {
+      try {
+         executor.shutdown();
+         executor.awaitTermination(5, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+      } finally {
+         executor.shutdownNow();
+      }
    }
 
    @Test
@@ -2151,14 +2228,6 @@ public class QueueControlTest extends ManagementTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
-   }
-
-   @Override
-   protected QueueControl createManagementControl(final SimpleString address,
-                                                  final SimpleString queue) throws Exception {
-      QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);
-
-      return queueControl;
    }
 
    protected long getFirstMessageId(final QueueControl queueControl) throws Exception {
