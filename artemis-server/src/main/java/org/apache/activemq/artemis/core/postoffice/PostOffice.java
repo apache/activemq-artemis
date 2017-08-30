@@ -49,7 +49,11 @@ public interface PostOffice extends ActiveMQComponent {
     * @param addressInfo
     * @return true if the address was added, false if it wasn't added
     */
-   boolean addAddressInfo(AddressInfo addressInfo);
+   boolean addAddressInfo(AddressInfo addressInfo) throws Exception;
+
+   default void reloadAddressInfo(AddressInfo addressInfo) throws Exception {
+      addAddressInfo(addressInfo);
+   }
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;
 
