@@ -770,20 +770,15 @@ A `*` means 'match-all' in a black or white list.
 
 ### Specifying black list and white list via Connection Factories
 
-To specify the white and black lists one can append properties `deserializationBlackList` and `deserializationWhiteList` respectively
-to a Connection Factory's url string. For example:
+To specify the white and black lists one can use the URL parameters
+`deserializationBlackList` and `deserializationWhiteList`. For example,
+using JMS:
 
      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0?deserializationBlackList=org.apache.pkg1,org.some.pkg2");
 
-The above statement creates a factory that has a black list contains two forbidden packages, "org.apache.pkg1" and "org.some.pkg2",
-separated by a comma.
-
-You can also set the values via ActiveMQConnectionFactory's API:
-
-    public void setDeserializationBlackList(String blackList);
-    public void setDeserializationWhiteList(String whiteList);
-
-Again the parameters are comma separated list of package/class names.
+The above statement creates a factory that has a black list contains two
+forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a
+comma.
 
 ### Specifying black list and white list via system properties
 

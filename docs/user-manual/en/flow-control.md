@@ -72,10 +72,10 @@ thus preventing them being processed by the fast consumer. The fast
 consumer is therefore sitting idle when it could be processing the
 other messages.
 
-To allow slow consumers, set the `consumerWindowSize` to 0 (for no
-buffer at all). This will prevent the slow consumer from buffering
-any messages on the client side. Messages will remain on the server
-side ready to be consumed by other consumers.
+To allow slow consumers, set `consumerWindowSize` on the URI to 0
+(for no buffer at all). This will prevent the slow consumer from
+buffering any messages on the client side. Messages will remain on
+the server side ready to be consumed by other consumers.
 
 Setting this to 0 can give deterministic distribution between
 multiple consumers on a queue.
@@ -86,63 +86,25 @@ consumers but are in-between. In that case, setting the value of
 use case and requires benchmarks to find the optimal value, but a value
 of 1MiB is fine in most cases.
 
-### Using Core API
-
-If Apache ActiveMQ Artemis Core API is used, the consumer window size is specified by
-`ServerLocator.setConsumerWindowSize()` method and some of the
-`ClientSession.createConsumer()` methods.
-
-### Using JMS
-
-If JNDI is used on the client to instantiate and look up the connection
-factory the consumer window size is configured in the JNDI context
-environment, e.g. `jndi.properties`. Here's a simple example using the
-"ConnectionFactory" connection factory which is available in the context
-by default:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=tcp://localhost:61616?consumerWindowSize=0
-
-If the connection factory is directly instantiated, the consumer window
-size is specified by `ActiveMQConnectionFactory.setConsumerWindowSize()`
-method.
-
-Please see the examples for an example which shows how to configure Apache ActiveMQ Artemis to
-prevent consumer buffering when dealing with slow consumers.
+Please see [the examples chapter](examples.md) for an example which shows
+how to configure ActiveMQ Artemis to prevent consumer buffering when dealing
+with slow consumers.
 
 ## Rate limited flow control
 
 It is also possible to control the *rate* at which a consumer can
 consume messages. This is a form of throttling and can be used to make
 sure that a consumer never consumes messages at a rate faster than the
-rate specified.
+rate specified. This is configured using the `consumerMaxRate` URI
+parameter.
 
 The rate must be a positive integer to enable this functionality and is
 the maximum desired message consumption rate specified in units of
 messages per second. Setting this to `-1` disables rate limited flow
 control. The default value is `-1`.
 
-Please see [the examples chapter](examples.md) for a working example of limiting consumer rate.
-
-### Using Core API
-
-If the Apache ActiveMQ Artemis core API is being used the rate can be set via the
-`ServerLocator.setConsumerMaxRate(int consumerMaxRate)` method or
-alternatively via some of the `ClientSession.createConsumer()` methods.
-
-### Using JMS
-
-If JNDI is used to instantiate and look up the connection factory, the
-max rate can be configured in the JNDI context environment, e.g.
-`jndi.properties`. Here's a simple example using the "ConnectionFactory"
-connection factory which is available in the context by default:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616?consumerMaxRate=10
-
-If the connection factory is directly instantiated, the max rate size
-can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
-                  consumerMaxRate)` method.
+Please see [the examples chapter](examples.md) for a working example of
+limiting consumer rate.
 
 > **Note**
 >
@@ -151,9 +113,6 @@ can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
 > a client can consume in a second and not how many messages are in its
 > buffer. So if you had a slow rate limit and a high window based limit
 > the clients internal buffer would soon fill up with messages.
-
-Please see [the examples chapter](examples.md) for an example which shows how to configure ActiveMQ Artemis to
-prevent consumer buffering when dealing with slow consumers.
 
 ## Producer flow control
 
@@ -171,32 +130,12 @@ As producers run low on credits they request more from the server, when
 the server sends them more credits they can send more messages.
 
 The amount of credits a producer requests in one go is known as the
-*window size*.
+*window size* and it is controlled by the `producerWindowSize` URI
+parameter.
 
 The window size therefore determines the amount of bytes that can be
 in-flight at any one time before more need to be requested - this
 prevents the remoting connection from getting overloaded.
-
-#### Using Core API
-
-If the Apache ActiveMQ Artemis core API is being used, window size can be set via the
-`ServerLocator.setProducerWindowSize(int producerWindowSize)` method.
-
-#### Using JMS
-
-If JNDI is used to instantiate and look up the connection factory, the
-producer window size can be configured in the JNDI context environment,
-e.g. `jndi.properties`. Here's a simple example using the
-"ConnectionFactory" connection factory which is available in the context
-by default:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=tcp://localhost:61616?producerWindowSize=10
-
-If the connection factory is directly instantiated, the producer window
-size can be set via the
-`ActiveMQConnectionFactory.setProducerWindowSize(int
-                  producerWindowSize)` method.
 
 #### Blocking producer window based flow control using CORE protocol
 
@@ -300,31 +239,12 @@ rejecting messages once the address size is reached.
 Apache ActiveMQ Artemis also allows the rate a producer can emit message to be limited,
 in units of messages per second. By specifying such a rate, Apache ActiveMQ Artemis
 will ensure that producer never produces messages at a rate higher than
-that specified.
+that specified. This is controlled by the `producerMaxRate` URL parameter.
 
-The rate must be a positive integer to enable this functionality and is
-the maximum desired message consumption rate specified in units of
+The `producerMaxRate` must be a positive integer to enable this functionality and is
+the maximum desired message production rate specified in units of
 messages per second. Setting this to `-1` disables rate limited flow
 control. The default value is `-1`.
 
-Please see [the examples chapter](examples.md) for a working example of limiting producer rate.
-
-#### Using Core API
-
-If the Apache ActiveMQ Artemis core API is being used the rate can be set via the
-`ServerLocator.setProducerMaxRate(int producerMaxRate)` method or
-alternatively via some of the `ClientSession.createProducer()` methods.
-
-#### Using JMS
-
-If JNDI is used to instantiate and look up the connection factory, the
-max rate size can be configured in the JNDI context environment, e.g.
-`jndi.properties`. Here's a simple example using the "ConnectionFactory"
-connection factory which is available in the context by default:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=tcp://localhost:61616?producerMaxRate=10
-
-If the connection factory is directly instantiated, the max rate size
-can be set via the `ActiveMQConnectionFactory.setProducerMaxRate(int
-                  producerMaxRate)` method.
+Please see [the examples chapter](examples.md) for a working example of limiting 
+producer rate.

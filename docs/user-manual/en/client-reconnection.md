@@ -29,21 +29,11 @@ If the client has sent more commands than were received before failover
 it can replay any sent commands from its buffer so that the client and
 server can reconcile their states.Ac
 
-The size of this buffer is configured by the `ConfirmationWindowSize`
-parameter, when the server has received `ConfirmationWindowSize` bytes
-of commands and processed them it will send back a command confirmation
-to the client, and the client can then free up space in the buffer.
-
-If you are using JMS and you're using the JMS service on the server to
-load your JMS connection factory instances into JNDI then this parameter
-can be configured in the jms configuration using the element
-`confirmationWindowSize` a. If you're using JMS but not using JNDI
-then you can set these values directly on the
-`ActiveMQConnectionFactory` instance using the appropriate setter
-method.
-
-If you're using the core API you can set these values directly on the
-`ServerLocator` instance using the appropriate setter method.
+The size of this buffer is configured with the `confirmationWindowSize`
+parameter on the connection URL. When the server has received
+`confirmationWindowSize` bytes of commands and processed them it will
+send back a command confirmation to the client, and the client can then
+free up space in the buffer.
 
 The window is specified in bytes.
 
@@ -110,22 +100,7 @@ Client reconnection is configured using the following parameters:
     down. A value of `-1` signifies an unlimited number of attempts. The
     default value is `0`.
 
-If you're using JMS and you're using JNDI on the client to look up your
-JMS connection factory instances then you can specify these parameters
-in the JNDI context environment in, e.g. `jndi.properties`:
-
-    java.naming.factory.initial = ActiveMQInitialContextFactory
-    connection.ConnectionFactory=tcp://localhost:61616?retryInterval=1000&retryIntervalMultiplier=1.5&maxRetryInterval=60000&reconnectAttempts=1000
-
-If you're using JMS, but instantiating your JMS connection factory
-directly, you can specify the parameters using the appropriate setter
-methods on the `ActiveMQConnectionFactory` immediately after creating
-it.
-
-If you're using the core API and instantiating the `ServerLocator`
-instance directly you can also specify the parameters using the
-appropriate setter methods on the `ServerLocator` immediately after
-creating it.
+All of these parameters are set on the URL used to connect to the broker.
 
 If your client does manage to reconnect but the session is no longer
 available on the server, for instance if the server has been restarted
