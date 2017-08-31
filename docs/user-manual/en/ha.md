@@ -840,11 +840,9 @@ Since the client does not learn about the full topology until after the
 first connection is made there is a window where it does not know about
 the backup. If a failure happens at this point the client can only try
 reconnecting to the original live server. To configure how many attempts
-the client will make you can set the property `initialConnectAttempts`
-on the `ClientSessionFactoryImpl` or `ActiveMQConnectionFactory` or
-`initial-connect-attempts` in xml. The default for this is `0`, that is
-try only once. Once the number of attempts has been made an exception
-will be thrown.
+the client will make you can set the URL parameter `initialConnectAttempts`.
+The default for this is `0`, that is try only once. Once the number of
+attempts has been made an exception will be thrown.
 
 For examples of automatic failover with transacted and non-transacted
 JMS sessions, please see [the examples](examples.md) chapter.
