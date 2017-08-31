@@ -86,56 +86,19 @@ ActiveMQ-AIO-writer-pool.
 
 ## Client-Side Thread Management
 
-On the client side, Apache ActiveMQ Artemis maintains a single static scheduled thread
-pool and a single static general thread pool for use by all clients
-using the same classloader in that JVM instance.
+On the client side, Apache ActiveMQ Artemis maintains a single, "global"
+static scheduled thread pool and a single, "global" static general thread
+pool for use by all clients using the same classloader in that JVM instance.
 
-The static scheduled thread pool has a maximum size of `5` threads, and
-the general purpose thread pool has an unbounded maximum size.
+The static scheduled thread pool has a maximum size of `5` threads by
+default.  This can be changed using the `scheduledThreadPoolMaxSize` URI
+parameter.
+
+The general purpose thread pool has an unbounded maximum size. This is
+changed using the `threadPoolMaxSize` URL parameter.
 
 If required Apache ActiveMQ Artemis can also be configured so that each
-`ClientSessionFactory` instance does not use these static pools but
+`ClientSessionFactory` instance does not use these "global" static pools but
 instead maintains its own scheduled and general purpose pool. Any
 sessions created from that `ClientSessionFactory` will use those pools
-instead.
-
-To configure a `ClientSessionFactory` instance to use its own pools,
-simply use the appropriate setter methods immediately after creation,
-for example:
-
-``` java
-ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(...)
-
-ClientSessionFactory myFactory = locator.createClientSessionFactory();
-
-myFactory.setUseGlobalPools(false);
-
-myFactory.setScheduledThreadPoolMaxSize(10);
-
-myFactory.setThreadPoolMaxSize(-1);
-```
-
-If you're using the JMS API, you can set the same parameters on the
-ClientSessionFactory and use it to create the `ConnectionFactory`
-instance, for example:
-
-``` java
-ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);
-```
-
-If you're using JNDI to instantiate `ActiveMQConnectionFactory`
-instances, you can also set these parameters in the JNDI context
-environment, e.g. `jndi.properties`. Here's a simple example using the
-"ConnectionFactory" connection factory which is available in the context
-by default:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-
-    java.naming.provider.url=tcp://localhost:61616
-
-    connection.ConnectionFactory.useGlobalPools=false
-
-    connection.ConnectionFactory.scheduledThreadPoolMaxSize=10
-
-    connection.ConnectionFactory.threadPoolMaxSize=-1
-
+instead. This is configured using the `useGlobalPools` boolean URL parameter.
