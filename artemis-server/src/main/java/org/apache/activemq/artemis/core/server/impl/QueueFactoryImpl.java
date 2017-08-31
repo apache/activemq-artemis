@@ -94,7 +94,7 @@ public class QueueFactoryImpl implements QueueFactory {
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
-                            final boolean autoCreated) {
+                            final boolean autoCreated) throws Exception {
 
       // Add default address info if one doesn't exist
       postOffice.addAddressInfo(new AddressInfo(address));

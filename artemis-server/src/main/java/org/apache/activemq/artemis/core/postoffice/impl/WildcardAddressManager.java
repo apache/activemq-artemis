@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -42,12 +43,13 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration) {
-      super(bindingsFactory, wildcardConfiguration);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory, final WildcardConfiguration wildcardConfiguration, final
+                                 StorageManager storageManager) {
+      super(bindingsFactory, wildcardConfiguration, storageManager);
    }
 
-   public WildcardAddressManager(final BindingsFactory bindingsFactory) {
-      super(bindingsFactory);
+   public WildcardAddressManager(final BindingsFactory bindingsFactory, StorageManager storageManager) {
+      super(bindingsFactory, storageManager);
    }
 
    @Override

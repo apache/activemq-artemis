@@ -158,9 +158,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.reaperPriority = reaperPriority;
 
       if (wildcardConfiguration.isEnabled()) {
-         addressManager = new WildcardAddressManager(this, wildcardConfiguration);
+         addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager);
       } else {
-         addressManager = new SimpleAddressManager(this, wildcardConfiguration);
+         addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager);
       }
 
       this.idCacheSize = idCacheSize;
@@ -422,9 +422,23 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    // PostOffice implementation -----------------------------------------------
 
    @Override
-   public boolean addAddressInfo(AddressInfo addressInfo) {
+   public void reloadAddressInfo(AddressInfo addressInfo) throws Exception {
+      internalAddressInfo(addressInfo, true);
+   }
+
+   @Override
+   public boolean addAddressInfo(AddressInfo addressInfo) throws Exception {
+      return internalAddressInfo(addressInfo, false);
+   }
+
+   private boolean internalAddressInfo(AddressInfo addressInfo, boolean reload) throws Exception {
       synchronized (addressLock) {
-         boolean result = addressManager.addAddressInfo(addressInfo);
+         boolean result;
+         if (reload) {
+            result = addressManager.reloadAddressInfo(addressInfo);
+         } else {
+            result = addressManager.addAddressInfo(addressInfo);
+         }
          // only register address if it is new
          if (result) {
             try {
@@ -434,24 +448,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          }
          return result;
-      }
-   }
-
-   /** used on update queue, to validate when a value needs update */
-   private static int replaceNull(Integer value) {
-      if (value == null) {
-         return -1;
-      } else {
-         return value.intValue();
-      }
-   }
-
-   /** used on update queue, to validate when a value needs update */
-   private static boolean replaceNull(Boolean value) {
-      if (value == null) {
-         return false;
-      } else {
-         return value.booleanValue();
       }
    }
 
@@ -468,13 +464,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          final Queue queue = queueBinding.getQueue();
 
-         if (queue.getRoutingType() == routingType && replaceNull(maxConsumers) == replaceNull(queue.getMaxConsumers()) && queue.isPurgeOnNoConsumers() == replaceNull(purgeOnNoConsumers)) {
-
-            if (logger.isTraceEnabled()) {
-               logger.tracef("Queue " + name + " didn't need to be updated");
-            }
-            return queueBinding;
-         }
+         boolean changed = false;
 
          //validate update
          if (maxConsumers != null && maxConsumers.intValue() != Queue.MAX_CONSUMERS_UNLIMITED) {
@@ -493,24 +483,29 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
 
          //atomic update
-         if (maxConsumers != null) {
+         if (maxConsumers != null && queue.getMaxConsumers() != maxConsumers.intValue()) {
+            changed = true;
             queue.setMaxConsumer(maxConsumers);
          }
-         if (routingType != null) {
+         if (routingType != null && queue.getRoutingType() != routingType) {
+            changed = true;
             queue.setRoutingType(routingType);
          }
-         if (purgeOnNoConsumers != null) {
+         if (purgeOnNoConsumers != null && queue.isPurgeOnNoConsumers() != purgeOnNoConsumers.booleanValue()) {
+            changed = true;
             queue.setPurgeOnNoConsumers(purgeOnNoConsumers);
          }
 
-         final long txID = storageManager.generateID();
-         try {
-            storageManager.updateQueueBinding(txID, queueBinding);
-            storageManager.commitBindings(txID);
-         } catch (Throwable throwable) {
-            storageManager.rollback(txID);
-            logger.warn(throwable.getMessage(), throwable);
-            throw throwable;
+         if (changed) {
+            final long txID = storageManager.generateID();
+            try {
+               storageManager.updateQueueBinding(txID, queueBinding);
+               storageManager.commitBindings(txID);
+            } catch (Throwable throwable) {
+               storageManager.rollback(txID);
+               logger.warn(throwable.getMessage(), throwable);
+               throw throwable;
+            }
          }
 
          return queueBinding;
@@ -520,9 +515,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public AddressInfo updateAddressInfo(SimpleString addressName,
                                         Collection<RoutingType> routingTypes) throws Exception {
+
       synchronized (addressLock) {
          return addressManager.updateAddressInfo(addressName, routingTypes);
       }
+
+
    }
 
    @Override
