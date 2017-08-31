@@ -308,6 +308,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public int removeAllMessages() throws Exception {
+            return (Integer) proxy.invokeOperation( "removeAllMessages");
+         }
+
+         @Override
          public boolean removeMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("removeMessage", messageID);
          }

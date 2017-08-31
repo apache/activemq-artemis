@@ -595,6 +595,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public int removeAllMessages() throws Exception {
+      return removeMessages(FLUSH_LIMIT, null);
+   }
+
+   @Override
    public boolean expireMessage(final long messageID) throws Exception {
       checkStarted();
 
