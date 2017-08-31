@@ -62,9 +62,13 @@ public interface AddressManager {
     * @param addressInfo
     * @return true if the address was added, false if it wasn't added
     */
-   boolean addAddressInfo(AddressInfo addressInfo);
+   boolean addAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes);
+   boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception;
+
+   /** it will return null if there are no updates.
+    *  it will throw an exception if the address doesn't exist */
+   AddressInfo updateAddressInfo(SimpleString addressName, Collection<RoutingType> routingTypes) throws Exception;
 
    AddressInfo removeAddressInfo(SimpleString address);
 

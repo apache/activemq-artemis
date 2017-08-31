@@ -1715,6 +1715,19 @@ public abstract class ActiveMQTestBase extends Assert {
       return recordsType;
    }
 
+   protected HashMap<Integer, AtomicInteger> countBindingJournal(Configuration config) throws Exception {
+      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<>();
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getBindingsLocation(), null, 1);
+
+      JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), config.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-bindings", "bindings", 1);
+      List<JournalFile> filesToRead = messagesJournal.orderFiles();
+
+      for (JournalFile file : filesToRead) {
+         JournalImpl.readJournalFile(messagesFF, file, new RecordTypeCounter(recordsType));
+      }
+      return recordsType;
+   }
+
    /**
     * This method will load a journal and count the living records
     *
