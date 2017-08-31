@@ -5,7 +5,7 @@ creating a plugin. Multiple plugins can be registered at the same time and they 
 together and executed in the order they are registered.  (i.e. the first plugin registered 
 is always executed first).
 
-Creating a plugin is very simple. It requires implementing the [`ActiveMQServerPlugin`](../../../artemis-server/src/main/java/org/apache/activemq/artemis/core/server/plugin/ActiveMQServerPlugin.java)
+Creating a plugin is very simple. It requires implementing the [`ActiveMQServerPlugin`](https://github.com/apache/activemq-artemis/blob/master/artemis-server/src/main/java/org/apache/activemq/artemis/core/server/plugin/ActiveMQServerPlugin.java)
 interface, making sure the plugin is on the classpath, and registering it with the broker.  Only the methods that you want to add behavior for need to be implemented as all of the interface methods are default methods.
 
 ## Adding the plugin to the classpath
