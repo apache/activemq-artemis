@@ -348,88 +348,28 @@ Let's discuss how to configure an Apache ActiveMQ Artemis client to use discover
 discover a list of servers to which it can connect. The way to do this
 differs depending on whether you're using JMS or the core API.
 
-##### Configuring client discovery using JMS
+##### Configuring client discovery
 
-If you're using JMS and you're using JNDI on the client to look up your
-JMS connection factory instances then you can specify these parameters
-in the JNDI context environment. e.g. in `jndi.properties`. Simply
-ensure the host:port combination matches the group-address and
-group-port from the corresponding `broadcast-group` on the server. Let's
-take a look at an example:
+Use the `udp` URL scheme and a host:port combination matches the group-address and
+group-port from the corresponding `broadcast-group` on the server:
 
-    java.naming.factory.initial = ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=udp://231.7.7.7:9876
+    udp://231.7.7.7:9876
 
 The element `discovery-group-ref` specifies the name of a discovery
 group defined in `broker.xml`.
 
-When this connection factory is downloaded from JNDI by a client
-application and JMS connections are created from it, those connections
-will be load-balanced across the list of servers that the discovery
-group maintains by listening on the multicast address specified in the
-discovery group configuration.
+Connections created using this URI will be load-balanced across the
+list of servers that the discovery group maintains by listening on
+the multicast address specified in the discovery group configuration.
 
-If you're using JMS, but you're not using JNDI to lookup a connection
-factory - you're instantiating the JMS connection factory directly then
-you can specify the discovery group parameters directly when creating
-the JMS connection factory. Here's an example:
+The aforementioned `refreshTimeout` parameter can be set directly in the URI.
 
-``` java
-final String groupAddress = "231.7.7.7";
-
-final int groupPort = 9876;
-
-ConnectionFactory jmsConnectionFactory =
-ActiveMQJMSClient.createConnectionFactory(new DiscoveryGroupConfiguration(groupAddress, groupPort,
-                       new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1)), JMSFactoryType.CF);
-
-Connection jmsConnection1 = jmsConnectionFactory.createConnection();
-
-Connection jmsConnection2 = jmsConnectionFactory.createConnection();
-```
-
-The `refresh-timeout` can be set directly on the
-DiscoveryGroupConfiguration by using the setter method
-`setDiscoveryRefreshTimeout()` if you want to change the default value.
-
-There is also a further parameter settable on the
-DiscoveryGroupConfiguration using the setter method
-`setDiscoveryInitialWaitTimeout()`. If the connection factory is used
-immediately after creation then it may not have had enough time to
-received broadcasts from all the nodes in the cluster. On first usage,
-the connection factory will make sure it waits this long since creation
-before creating the first connection. The default value for this
-parameter is `10000` milliseconds.
-
-##### Configuring client discovery using Core
-
-If you're using the core API to directly instantiate
-`ClientSessionFactory` instances, then you can specify the discovery
-group parameters directly when creating the session factory. Here's an
-example:
-
-``` java
-final String groupAddress = "231.7.7.7";
-final int groupPort = 9876;
-ServerLocator factory = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration(groupAddress, groupPort,
-                           new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1))));
-ClientSessionFactory factory = locator.createSessionFactory();
-ClientSession session1 = factory.createSession();
-ClientSession session2 = factory.createSession();
-```
-
-The `refresh-timeout` can be set directly on the
-DiscoveryGroupConfiguration by using the setter method
-`setDiscoveryRefreshTimeout()` if you want to change the default value.
-
-There is also a further parameter settable on the
-DiscoveryGroupConfiguration using the setter method
-`setDiscoveryInitialWaitTimeout()`. If the session factory is used
-immediately after creation then it may not have had enough time to
-received broadcasts from all the nodes in the cluster. On first usage,
-the session factory will make sure it waits this long since creation
-before creating the first session. The default value for this parameter
-is `10000` milliseconds.
+There is also a URL parameter named `initialWaitTimeout`. If the corresponding
+JMS connection factory or core session factory is used immediately after
+creation then it may not have had enough time to received broadcasts from
+all the nodes in the cluster. On first usage, the connection factory will
+make sure it waits this long since creation before creating the first
+connection. The default value for this parameter is `10000` milliseconds.
 
 ### Discovery using static Connectors
 
@@ -455,57 +395,15 @@ the cluster connection configuration.
 
 A static list of possible servers can also be used by a normal client.
 
-##### Configuring client discovery using JMS
+##### Configuring client discovery
 
-If you're using JMS and you're using JNDI on the client to look up your
-JMS connection factory instances then you can specify these parameters
-in the JNDI context environment in, e.g. `jndi.properties`:
+A list of servers to be used for the initial connection attempt can be
+specified in the connection URI using a syntax with `()`, e.g.:
 
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=(tcp://myhost:61616,tcp://myhost2:61616)
+    (tcp://myhost:61616,tcp://myhost2:61616)?reconnectAttempts=5
 
-The `connectionFactory.myConnectionFactory` contains a list of servers to use for the
-connection factory. When this connection factory used client application
-and JMS connections are created from it, those connections will be
-load-balanced across the list of servers defined within the brackets `()`.
-The brackets are expanded so the same query cab be appended after the last bracket for ease.
-
-If you're using JMS, but you're not using JNDI to lookup a connection
-factory - you're instantiating the JMS connection factory directly then
-you can specify the connector list directly when creating the JMS
-connection factory. Here's an example:
-
-``` java
-HashMap<String, Object> map = new HashMap<String, Object>();
-map.put("host", "myhost");
-map.put("port", "61616");
-TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
-HashMap<String, Object> map2 = new HashMap<String, Object>();
-map2.put("host", "myhost2");
-map2.put("port", "61617");
-TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
-
-ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);
-```
-
-##### Configuring client discovery using Core
-
-If you are using the core API then the same can be done as follows:
-
-``` java
-HashMap<String, Object> map = new HashMap<String, Object>();
-map.put("host", "myhost");
-map.put("port", "61616");
-TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
-HashMap<String, Object> map2 = new HashMap<String, Object>();
-map2.put("host", "myhost2");
-map2.put("port", "61617");
-TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
-
-ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
-ClientSessionFactory factory = locator.createSessionFactory();
-ClientSession session = factory.createSession();
-```
+The brackets are expanded so the same query can be appended after the last
+bracket for ease.
 
 ## Server-Side Message Load Balancing
 
@@ -841,40 +739,18 @@ using JMS or the core API. If you don't specify a policy then the
 default will be used which is
 `org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`.
 
-If you're using JMS and you're using JNDI on the client to look up your
-JMS connection factory instances then you can specify these parameters
-in the JNDI context environment in, e.g. `jndi.properties`, to specify
-the load balancing policy directly:
+The parameter `loadBalancingPolicyClassName` can be set on the URI to
+configure what load balancing policy to use:
 
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
-
-The above example would instantiate a JMS connection factory that uses
-the random connection load balancing policy.
-
-If you're using JMS but you're instantiating your connection factory
-directly on the client side then you can set the load balancing policy
-using the setter on the `ActiveMQConnectionFactory` before using it:
-
-``` java
-ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
-jmsConnectionFactory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
-```
-
-If you're using the core API, you can set the load balancing policy
-directly on the `ServerLocator` instance you are using:
-
-``` java
-ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
-locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
-```
+    tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The set of servers over which the factory load balances can be
 determined in one of two ways:
 
--   Specifying servers explicitly
+-   Specifying servers explicitly in the URL. This also requires setting
+    the `useTopologyForLoadBalancing` parameter to `false` on the URL.
 
--   Using discovery.
+-   Using discovery. This is the default behavior.
 
 ## Specifying Members of a Cluster Explicitly
 
