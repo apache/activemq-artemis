@@ -30,14 +30,14 @@ If you are sending messages to a server using a non transacted session,
 Apache ActiveMQ Artemis can be configured to block the call to send until the message
 has definitely reached the server, and a response has been sent back to
 the client. This can be configured individually for durable and
-non-durable messages, and is determined by the following two parameters:
+non-durable messages, and is determined by the following two URL parameters:
 
--   `BlockOnDurableSend`. If this is set to `true` then all calls to
+-   `blockOnDurableSend`. If this is set to `true` then all calls to
     send for durable messages on non transacted sessions will block
     until the message has reached the server, and a response has been
     sent back. The default value is `true`.
 
--   `BlockOnNonDurableSend`. If this is set to `true` then all calls to
+-   `blockOnNonDurableSend`. If this is set to `true` then all calls to
     send for non-durable messages on non transacted sessions will block
     until the message has reached the server, and a response has been
     sent back. The default value is `false`.
@@ -51,15 +51,6 @@ many messages sends together in a transaction since with a transactional
 session, only the commit / rollback blocks not every send, or, using
 Apache ActiveMQ Artemis's advanced *asynchronous send acknowledgements feature*
 described in Asynchronous Send Acknowledgements.
-
-If you are using JMS and JNDI then using the elements
-`blockOnDurableSend` and `blockOnNonDurableSend`. If you're using
-JMS but not using JNDI then you can set these values directly on the
-`ActiveMQConnectionFactory` instance using the appropriate setter
-methods.
-
-If you're using core you can set these values directly on the
-`ClientSessionFactory` instance using the appropriate setter methods.
 
 When the server receives a message sent from a non transactional
 session, and that message is durable and the message is routed to at

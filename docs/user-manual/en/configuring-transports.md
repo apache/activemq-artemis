@@ -24,29 +24,27 @@ In the above example we're defining an acceptor that uses
 [Netty](http://netty.io/) to listen for connections at port
 `61617`.
 
-The `acceptor` element contains a `URI` that defines the kind of Acceptor
-to create along with its configuration. The `schema` part of the `URI`
+The `acceptor` element contains a `URL` that defines the kind of Acceptor
+to create along with its configuration. The `schema` part of the `URL`
 defines the Acceptor type which can either be `tcp` or `vm` which is
 `Netty` or an In VM Acceptor respectively. For `Netty` the host and the
-port of the `URI` define what host and port the Acceptor will bind to. For
-In VM the `Authority` part of the `URI` defines a unique server id.
+port of the `URL` define what host and port the `acceptor` will bind to. For
+In VM the `Authority` part of the `URL` defines a unique server id.
 
-The `acceptor` can also be configured with a set of key, value pairs
+The `acceptor` can also be configured with a set of key=value pairs
 used to configure the specific transport, the set of
-valid key-value pairs depends on the specific transport be used and are
+valid key=value pairs depends on the specific transport be used and are
 passed straight through to the underlying transport. These are set on the
-`URI` as part of the query, like so:
+`URL` as part of the query, like so:
 
     <acceptor name="netty">tcp://localhost:61617?sslEnabled=true&keyStorePath=/path</acceptor>
 
 ## Understanding Connectors
 
 Whereas acceptors are used on the server to define how we accept
-connections, connectors are used by a client to define how it connects
-to a server.
+connections, connectors are used to define how to connect to a server.
 
-Let's look at a connector defined in our `broker.xml`
-file:
+Let's look at a connector defined in our `broker.xml` file:
 
     <connectors>
        <connector name="netty">tcp://localhost:61617</connector>
@@ -56,40 +54,23 @@ Connectors can be defined inside a `connectors` element. There can be
 one or more connectors defined in the `connectors` element. There's no
 upper limit to the number of connectors per server.
 
-You make ask yourself, if connectors are used by the *client* to make
-connections then why are they defined on the *server*? There are a
-couple of reasons for this:
+A `connector` is used when the server acts as a client itself, e.g.:
 
--   Sometimes the server acts as a client itself when it connects to
-    another server, for example when one server is bridged to another,
-    or when a server takes part in a cluster. In this cases the server
-    needs to know how to connect to other servers. That's defined by
-    *connectors*.
+-   When one server is bridged to another
+-   When a server takes part in a cluster
 
--   If you're using JMS and you're using JNDI on the client to look up
-    your JMS connection factory instances then when creating the
-    `ActiveMQConnectionFactory` it needs to know what server that
-    connection factory will create connections to.
-
-    That's defined by the `java.naming.provider.url` element in the JNDI
-    context environment, e.g. `jndi.properties`. Behind the scenes, the
-    `ActiveMQInitialContextFactory` uses the
-    `java.naming.provider.url` to construct the transport. Here's a
-    simple example:
-
-        java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-        connectionFactory.MyConnectionFactory=tcp://myhost:61616
+In these cases the server needs to know how to connect to other servers.
+That's defined by `connectors`.
 
 ## Configuring the transport directly from the client side.
 
 How do we configure a core `ClientSessionFactory` with the information
 that it needs to connect with a server?
 
-Connectors are also used indirectly when directly configuring a core
+Connectors are also used indirectly when configuring a core
 `ClientSessionFactory` to directly talk to a server. Although in this
 case there's no need to define such a connector in the server side
-configuration, instead we just create the parameters and tell the
-`ClientSessionFactory` which connector factory to use.
+configuration, instead we just specify the appropriate URI.
 
 Here's an example of creating a `ClientSessionFactory` which will
 connect directly to the acceptor we defined earlier in this chapter, it
@@ -97,43 +78,20 @@ uses the standard Netty TCP transport and will try and connect on port
 61617 to localhost (default):
 
 ``` java
-Map<String, Object> connectionParams = new HashMap<String, Object>();
-
-connectionParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    61617);
-
-TransportConfiguration transportConfiguration =
-    new TransportConfiguration(
-    "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory",
-    connectionParams);
-
-ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfiguration);
+ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61617");
 
 ClientSessionFactory sessionFactory = locator.createClientSessionFactory();
 
 ClientSession session = sessionFactory.createSession(...);
-
-etc
 ```
 
 Similarly, if you're using JMS, you can configure the JMS connection
 factory directly on the client side:
 
 ``` java
-Map<String, Object> connectionParams = new HashMap<String, Object>();
-
-connectionParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 61617);
-
-TransportConfiguration transportConfiguration =
-    new TransportConfiguration(
-    "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory",
-    connectionParams);
-
-ConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
 Connection jmsConnection = connectionFactory.createConnection();
-
-etc
 ```
 
 ## Configuring the Netty transport
@@ -162,25 +120,19 @@ It is possible to limit which protocols are supported by using the
 
 ## Configuring Netty TCP
 
-Netty TCP is a simple unencrypted TCP sockets based transport. Netty TCP
-can be configured to use old blocking Java IO or non blocking Java NIO.
-We recommend you use the Java NIO on the server side for better
-scalability with many concurrent connections. However using Java old IO
-can sometimes give you better latency than NIO when you're not so
-worried about supporting many thousands of concurrent connections.
-
-If you're running connections across an untrusted network please bear in
+Netty TCP is a simple unencrypted TCP sockets based transport. If you're
+running connections across an untrusted network please bear in
 mind this transport is unencrypted. You may want to look at the SSL or
 HTTPS configurations.
 
 With the Netty TCP transport all connections are initiated from the
-client side. I.e. the server does not initiate any connections to the
-client. This works well with firewall policies that typically only allow
+client side (i.e. the server does not initiate any connections to the
+client). This works well with firewall policies that typically only allow
 connections to be initiated in one direction.
 
-All the valid Netty transport keys are defined in the class
-`org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants`. Most
-parameters can be used either with acceptors or connectors, some only
+All the valid keys for the `tcp` URL scheme used for Netty are defined in the
+class `org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants`.
+Most parameters can be used either with acceptors or connectors, some only
 work with acceptors. The following parameters can be used to configure
 Netty for simple TCP:
 
@@ -474,9 +426,9 @@ Please see the examples for a full working example of using Netty HTTP.
 Netty HTTP uses the same properties as Netty TCP but adds the following
 additional properties:
 
--   `httpEnabled`. This is now no longer needed as of version 2.4. With
-    single port support Apache ActiveMQ Artemis will now automatically detect if http
-    is being used and configure itself.
+-   `httpEnabled`. This is now no longer needed. With single port support
+    Apache ActiveMQ Artemis will now automatically detect if http is being
+    used and configure itself.
 
 -   `httpClientIdleTime`. How long a client can be idle before
     sending an empty http request to keep the connection alive
