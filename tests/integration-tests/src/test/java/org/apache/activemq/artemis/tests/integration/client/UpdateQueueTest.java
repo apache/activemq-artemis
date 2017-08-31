@@ -22,10 +22,17 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -41,11 +48,9 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       server.start();
 
-
       SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
 
-      server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null,
-                         null, true, false);
+      long originalID = server.createQueue(ADDRESS, RoutingType.ANYCAST, ADDRESS, null, null, true, false).getID();
 
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -61,8 +66,9 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       factory.close();
 
       server.stop();
-
       server.start();
+
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
 
       Queue queue = server.locateQueue(ADDRESS);
 
@@ -86,7 +92,59 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       conn.close();
 
+      Assert.assertEquals(originalID, server.locateQueue(ADDRESS).getID());
+
+      // stopping, restarting to make sure the system will not create an extra record without an udpate
+      server.stop();
+      server.start();
+      validateBindingRecords(server, JournalRecordIds.QUEUE_BINDING_RECORD, 2);
       server.stop();
 
+   }
+
+   private void validateBindingRecords(ActiveMQServer server, byte type, int expected) throws Exception {
+      HashMap<Integer, AtomicInteger> counts = countBindingJournal(server.getConfiguration());
+      // if this fails, don't ignore it.. it means something is sending a new record on the journal
+      // something is creating new records upon restart of the server.
+      // I really meant to have this fix, so don't ignore it if it fails
+      Assert.assertEquals(expected, counts.get((int) type).intValue());
+   }
+
+   @Test
+   public void testUpdateAddress() throws Exception {
+      ActiveMQServer server = createServer(true, true);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+
+      server.start();
+
+      SimpleString ADDRESS = SimpleString.toSimpleString("queue.0");
+
+      AddressInfo infoAdded = new AddressInfo(ADDRESS, RoutingType.ANYCAST);
+
+      server.addAddressInfo(infoAdded);
+
+      server.updateAddressInfo(ADDRESS, infoAdded.getRoutingTypes());
+
+      server.stop();
+      server.start();
+
+      AddressInfo infoAfterRestart = server.getPostOffice().getAddressInfo(ADDRESS);
+
+      Assert.assertEquals(infoAdded.getId(), infoAfterRestart.getId());
+
+      Set<RoutingType> completeSet = new HashSet<>();
+      completeSet.add(RoutingType.ANYCAST);
+      completeSet.add(RoutingType.MULTICAST);
+
+      server.updateAddressInfo(ADDRESS, completeSet);
+
+      server.stop();
+      server.start();
+
+      infoAfterRestart = server.getPostOffice().getAddressInfo(ADDRESS);
+
+      // it was changed.. so new ID
+      Assert.assertNotEquals(infoAdded.getId(), infoAfterRestart.getId());
    }
 }
