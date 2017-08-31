@@ -15,15 +15,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.activemq</groupId>
         <artifactId>artemis-hawtio-pom</artifactId>
-        <version>2.3.0-SNAPSHOT</version>
+        <version>2.3.0</version>
     </parent>
     
     <artifactId>activemq-branding</artifactId>
@@ -47,7 +46,7 @@
 
         <!-- plugin-domain is currently unused, we just define it to an empty
           string -->
-        <plugin-domain/>
+        <plugin-domain />
 
         <!-- this lets this plugin deploy nicely into karaf, these get used
           for the ImportPackage directive for maven-bundle-plugin -->
@@ -139,13 +138,13 @@
                                 <!-- javascript-files will contain all of the javascript in
                                   our project -->
                                 <fileset id="javascript-files" dir="${basedir}/src/main/webapp">
-                                    <include name="**/*.js"/>
+                                    <include name="**/*.js" />
                                 </fileset>
                                 <!-- we need to strip out the top level path which is
                                    our source directory and be sure to change the directory
                                    separators to forward slashes -->
                                 <pathconvert pathsep="," dirsep="/" property="plugin-scripts" refid="javascript-files">
-                                    <map from="${basedir}/src/main/webapp/" to=""/>
+                                    <map from="${basedir}/src/main/webapp/" to="" />
                                 </pathconvert>
                                 <echo>Files: ${plugin-scripts}</echo>
 
