@@ -58,7 +58,9 @@
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
    <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_URI%/etc/logging.properties</argument>
    <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config</argument>
-
+   <argument>-Dhawtio.realm=activemq</argument>
+   <argument>-Dhawtio.role=${role}</argument>
+   <argument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</argument>
 
    <!-- Debug args: Uncomment to enable debug
    <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
