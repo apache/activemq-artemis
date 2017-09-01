@@ -50,6 +50,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
    MiniKdc kdc = null;
+   private final boolean debug = false;
 
    @Before
    public void setUpKerberos() throws Exception {
@@ -60,13 +61,14 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       File userKeyTab = new File("target/test.krb5.keytab");
       kdc.createPrincipal(userKeyTab, "client", "amqp/localhost");
 
-      java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
-      logger.setLevel(java.util.logging.Level.FINEST);
-      logger.addHandler(new java.util.logging.ConsoleHandler());
-      for (java.util.logging.Handler handler: logger.getHandlers()) {
-         handler.setLevel(java.util.logging.Level.FINEST);
+      if (debug) {
+         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
+         logger.setLevel(java.util.logging.Level.FINEST);
+         logger.addHandler(new java.util.logging.ConsoleHandler());
+         for (java.util.logging.Handler handler : logger.getHandlers()) {
+            handler.setLevel(java.util.logging.Level.FINEST);
+         }
       }
-
    }
 
    @After
