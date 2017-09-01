@@ -59,10 +59,14 @@ var activemqBranding = (function (self) {
 
     self.module = angular.module(self.pluginName, ['hawtioCore']);
     self.module.run(function (branding) {
-        self.log.debug("ActivMQ theme loaded");
+        self.log.info("ActiveMQ theme loaded");
+        if (localStorage['theme'] != 'activemq' || localStorage['branding'] != 'activemq') {
+            localStorage['theme'] = 'activemq';
+            localStorage['branding'] = 'activemq';
+            location.reload();
+        }
     });
-
-    hawtioPluginLoader.addModule(self.pluginName);
     return self;
 })(activemqBranding || {});
 
+hawtioPluginLoader.addModule(activemqBranding.pluginName);
