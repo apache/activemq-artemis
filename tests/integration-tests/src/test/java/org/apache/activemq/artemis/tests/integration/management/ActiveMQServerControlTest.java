@@ -1435,6 +1435,66 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testListQueues() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false);
+
+      //test with filter that matches 2 queues
+      HashMap<String, Object> optionMap = new HashMap<>();
+      optionMap.put("field", "name");
+      optionMap.put("operation", "CONTAINS");
+      optionMap.put("value", "my_queue");
+      JsonObject optionjsonObject = JsonUtil.toJsonObject(optionMap);
+      String optionString = optionjsonObject.toString();
+
+      String queuesAsJsonString = serverControl.listQueues(optionString, 1, 50);
+
+      JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 2, array.size());
+      Assert.assertTrue(array.getJsonObject(0).getString("name").contains("my_queue"));
+      Assert.assertTrue(array.getJsonObject(1).getString("name").contains("my_queue"));
+
+      //test with an empty filter
+      optionMap = new HashMap<>();
+      optionMap.put("field", "");
+      optionMap.put("operation", "");
+      optionMap.put("value", "");
+      optionjsonObject = JsonUtil.toJsonObject(optionMap);
+      optionString = optionjsonObject.toString();
+
+      queuesAsJsonString = serverControl.listQueues(optionString, 1, 50);
+
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      // at least 3 queues or more
+      Assert.assertTrue("number of queues returned from query", 3 <= array.size());
+
+      //test with small page size
+      queuesAsJsonString = serverControl.listQueues(optionString, 1, 1);
+
+      queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+      array = (JsonArray) queuesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+
+   }
+
+   @Test
    public void testConnectorServiceManagement() throws Exception {
       ActiveMQServerControl managementControl = createManagementControl();
       managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
