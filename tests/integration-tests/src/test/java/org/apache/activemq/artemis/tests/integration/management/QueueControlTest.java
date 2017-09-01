@@ -1271,6 +1271,29 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testRemoveAllMessages() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+      ClientProducer producer = session.createProducer(address);
+
+      // send on queue
+      producer.send(session.createMessage(false));
+      producer.send(session.createMessage(false));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(2, getMessageCount(queueControl));
+
+      // removed matching messages to otherQueue
+      int removedMatchedMessagesCount = queueControl.removeAllMessages();
+      Assert.assertEquals(2, removedMatchedMessagesCount);
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testRemoveMessagesWithEmptyFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
