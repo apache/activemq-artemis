@@ -83,6 +83,7 @@ public class LDAPLoginModule implements LoginModule {
    private LDAPLoginProperty[] config;
    private String username;
    private final Set<RolePrincipal> groups = new HashSet<>();
+   private boolean userAuthenticated = false;
 
    @Override
    public void initialize(Subject subject,
@@ -122,6 +123,7 @@ public class LDAPLoginModule implements LoginModule {
       // authenticate will throw LoginException
       // in case of failed authentication
       authenticate(username, password);
+      userAuthenticated = true;
       return true;
    }
 
@@ -134,7 +136,24 @@ public class LDAPLoginModule implements LoginModule {
    @Override
    public boolean commit() throws LoginException {
       Set<Principal> principals = subject.getPrincipals();
-      principals.add(new UserPrincipal(username));
+      if (userAuthenticated) {
+         principals.add(new UserPrincipal(username));
+      } else {
+         // assign roles to any other UserPrincipal
+         Set<UserPrincipal> authenticatedUsers = subject.getPrincipals(UserPrincipal.class);
+         for (UserPrincipal authenticatedUser : authenticatedUsers) {
+            List<String> roles = new ArrayList<>();
+            try {
+               String dn = resolveDN(username, roles);
+               resolveRolesForDN(context, dn, username, roles);
+            } catch (NamingException e) {
+               closeContext();
+               FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
+               ex.initCause(e);
+               throw ex;
+            }
+         }
+      }
       for (RolePrincipal gp : groups) {
          principals.add(gp);
       }
@@ -160,6 +179,45 @@ public class LDAPLoginModule implements LoginModule {
 
    protected boolean authenticate(String username, String password) throws LoginException {
 
+      List<String> roles = new ArrayList<>();
+      try {
+         String dn = resolveDN(username, roles);
+
+         // check the credentials by binding to server
+         if (bindUser(context, dn, password)) {
+            // if authenticated add more roles
+            resolveRolesForDN(context, dn, username, roles);
+         } else {
+            throw new FailedLoginException("Password does not match for user: " + username);
+         }
+      } catch (CommunicationException e) {
+         closeContext();
+         FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
+         ex.initCause(e);
+         throw ex;
+      } catch (NamingException e) {
+         closeContext();
+         FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
+         ex.initCause(e);
+         throw ex;
+      }
+
+      return true;
+   }
+
+   private void resolveRolesForDN(DirContext context, String dn, String username, List<String> roles) throws NamingException {
+      addRoles(context, dn, username, roles);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Roles " + roles + " for user " + username);
+      }
+      for (String role : roles) {
+         groups.add(new RolePrincipal(role));
+      }
+   }
+
+   private String resolveDN(String username, List<String> roles) throws FailedLoginException {
+      String dn = null;
+
       MessageFormat userSearchMatchingFormat;
       boolean userSearchSubtreeBool;
 
@@ -175,7 +233,7 @@ public class LDAPLoginModule implements LoginModule {
       }
 
       if (!isLoginPropertySet(USER_SEARCH_MATCHING))
-         return false;
+         return dn;
 
       userSearchMatchingFormat = new MessageFormat(getLDAPPropertyValue(USER_SEARCH_MATCHING));
       userSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(USER_SEARCH_SUBTREE)).booleanValue();
@@ -218,7 +276,6 @@ public class LDAPLoginModule implements LoginModule {
             // ignore for now
          }
 
-         String dn;
          if (result.isRelative()) {
             logger.debug("LDAP returned a relative name: " + result.getName());
 
@@ -257,23 +314,8 @@ public class LDAPLoginModule implements LoginModule {
          if (attrs == null) {
             throw new FailedLoginException("User found, but LDAP entry malformed: " + username);
          }
-         List<String> roles = null;
          if (isLoginPropertySet(USER_ROLE_NAME)) {
-            roles = addAttributeValues(getLDAPPropertyValue(USER_ROLE_NAME), attrs, roles);
-         }
-
-         // check the credentials by binding to server
-         if (bindUser(context, dn, password)) {
-            // if authenticated add more roles
-            roles = getRoles(context, dn, username, roles);
-            if (logger.isDebugEnabled()) {
-               logger.debug("Roles " + roles + " for user " + username);
-            }
-            for (String role : roles) {
-               groups.add(new RolePrincipal(role));
-            }
-         } else {
-            throw new FailedLoginException("Password does not match for user: " + username);
+            addAttributeValues(getLDAPPropertyValue(USER_ROLE_NAME), attrs, roles);
          }
       } catch (CommunicationException e) {
          closeContext();
@@ -287,14 +329,13 @@ public class LDAPLoginModule implements LoginModule {
          throw ex;
       }
 
-      return true;
+      return dn;
    }
 
-   protected List<String> getRoles(DirContext context,
+   protected void addRoles(DirContext context,
                                    String dn,
                                    String username,
                                    List<String> currentRoles) throws NamingException {
-      List<String> list = currentRoles;
       MessageFormat roleSearchMatchingFormat;
       boolean roleSearchSubtreeBool;
       boolean expandRolesBool;
@@ -302,11 +343,8 @@ public class LDAPLoginModule implements LoginModule {
       roleSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(ROLE_SEARCH_SUBTREE)).booleanValue();
       expandRolesBool = Boolean.valueOf(getLDAPPropertyValue(EXPAND_ROLES)).booleanValue();
 
-      if (list == null) {
-         list = new ArrayList<>();
-      }
       if (!isLoginPropertySet(ROLE_NAME)) {
-         return list;
+         return;
       }
       String filter = roleSearchMatchingFormat.format(new String[]{doRFC2254Encoding(dn), doRFC2254Encoding(username)});
 
@@ -335,7 +373,7 @@ public class LDAPLoginModule implements LoginModule {
          if (attrs == null) {
             continue;
          }
-         list = addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, list);
+         addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, currentRoles);
       }
       if (expandRolesBool) {
          MessageFormat expandRolesMatchingFormat = new MessageFormat(getLDAPPropertyValue(EXPAND_ROLES_MATCHING));
@@ -348,14 +386,13 @@ public class LDAPLoginModule implements LoginModule {
                name = result.getNameInNamespace();
                if (!haveSeenNames.contains(name)) {
                   Attributes attrs = result.getAttributes();
-                  list = addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, list);
+                  addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, currentRoles);
                   haveSeenNames.add(name);
                   pendingNameExpansion.add(name);
                }
             }
          }
       }
-      return list;
    }
 
    protected String doRFC2254Encoding(String inputString) {
@@ -421,26 +458,22 @@ public class LDAPLoginModule implements LoginModule {
       return isValid;
    }
 
-   private List<String> addAttributeValues(String attrId,
+   private void addAttributeValues(String attrId,
                                            Attributes attrs,
                                            List<String> values) throws NamingException {
 
       if (attrId == null || attrs == null) {
-         return values;
-      }
-      if (values == null) {
-         values = new ArrayList<>();
+         return;
       }
       Attribute attr = attrs.get(attrId);
       if (attr == null) {
-         return values;
+         return;
       }
       NamingEnumeration<?> e = attr.getAll();
       while (e.hasMore()) {
          String value = (String) e.next();
          values.add(value);
       }
-      return values;
    }
 
    protected void openContext() throws NamingException {
