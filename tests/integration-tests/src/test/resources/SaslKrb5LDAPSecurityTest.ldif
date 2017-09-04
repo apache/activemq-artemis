@@ -29,7 +29,7 @@ objectClass: top
 dn: cn=admins,ou=system
 cn: admins
 member: uid=first,ou=system
-member: uid=client,dc=example,dc=com
+member: uid=client,ou=users,dc=example,dc=com
 objectClass: groupOfNames
 objectClass: top
 
@@ -58,17 +58,4 @@ sn: Service
 uid: krbtgt
 userPassword: secret
 krb5PrincipalName: krbtgt/EXAMPLE.COM@EXAMPLE.COM
-krb5KeyVersionNumber: 0
-
-dn: uid=ldap,ou=users,dc=example,dc=com
-objectClass: top
-objectClass: person
-objectClass: inetOrgPerson
-objectClass: krb5principal
-objectClass: krb5kdcentry
-cn: LDAP
-sn: Service
-uid: ldap
-userPassword: secret
-krb5PrincipalName: ldap/localhost@EXAMPLE.COM
 krb5KeyVersionNumber: 0
