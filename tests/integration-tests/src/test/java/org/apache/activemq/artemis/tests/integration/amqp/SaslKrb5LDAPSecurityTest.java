@@ -26,6 +26,8 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -36,6 +38,8 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +62,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
@@ -70,6 +75,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -82,6 +88,7 @@ import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.keytab.Keytab;
 import org.apache.directory.server.kerberos.shared.keytab.KeytabEntry;
+import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -98,15 +105,18 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY;
 
-@RunWith(FrameworkRunner.class)
-@CreateDS(name = "Example",
+@RunWith(FrameworkRunner.class) @CreateDS(name = "Example",
    partitions = {@CreatePartition(name = "example", suffix = "dc=example,dc=com",
       contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n" + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"),
       indexes = {@CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou")})},
       additionalInterceptors = { KeyDerivationInterceptor.class })
 
-@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
-@CreateKdcServer(searchBaseDn = "dc=example,dc=com", transports = {@CreateTransport(protocol = "TCP", port = 0)})
+@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)},
+   saslHost = "localhost",
+   saslPrincipal = "ldap/localhost@EXAMPLE.COM",
+   saslMechanisms = {@SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class)})
+
+@CreateKdcServer(transports = {@CreateTransport(protocol = "TCP", port = 0)})
 @ApplyLdifFiles("SaslKrb5LDAPSecurityTest.ldif")
 public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
@@ -165,7 +175,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
       // hard coded match, default_keytab_name in minikdc-krb5.conf template
       File userKeyTab = new File("target/test.krb5.keytab");
-      createPrincipal(userKeyTab, "client", "amqp/localhost");
+      createPrincipal(userKeyTab, "client", "amqp/localhost", "ldap/localhost");
 
       if (debug) {
          dumpLdapContents();
@@ -307,6 +317,43 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       Assert.assertTrue(set.contains("prefNodeName=sysPrefRoot"));
 
       ctx.close();
+   }
+
+   @Test
+   public void testSaslGssapiLdapAuth() throws Exception {
+
+      final Hashtable<String, String> env = new Hashtable<>();
+      env.put(Context.PROVIDER_URL, "ldap://localhost:1024");
+      env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+      env.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
+
+      LoginContext loginContext = new LoginContext("broker-sasl-gssapi");
+      loginContext.login();
+      try {
+         Subject.doAs(loginContext.getSubject(), (PrivilegedExceptionAction<Object>) () -> {
+
+            HashSet<String> set = new HashSet<>();
+
+            DirContext ctx = new InitialDirContext(env);
+            NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
+
+            while (list.hasMore()) {
+               NameClassPair ncp = list.next();
+               set.add(ncp.getName());
+            }
+
+            Assert.assertTrue(set.contains("uid=first"));
+            Assert.assertTrue(set.contains("cn=users"));
+            Assert.assertTrue(set.contains("ou=configuration"));
+            Assert.assertTrue(set.contains("prefNodeName=sysPrefRoot"));
+
+            ctx.close();
+            return null;
+
+         });
+      } catch (PrivilegedActionException e) {
+         throw e.getException();
+      }
    }
 
    @Test
