@@ -309,7 +309,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public int removeAllMessages() throws Exception {
-            return (Integer) proxy.invokeOperation( "removeAllMessages");
+            return (Integer) proxy.invokeOperation(Integer.class, "removeAllMessages");
          }
 
          @Override
