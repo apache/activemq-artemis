@@ -44,7 +44,15 @@ public class TestActionContext extends ActionContext {
       return stdout.toString();
    }
 
+   public byte[] getStdoutBytes() {
+      return stdout.toByteArray();
+   }
+
    public String getStderr() {
       return stderr.toString();
+   }
+
+   public byte[] getStdErrBytes() {
+      return stderr.toByteArray();
    }
 }
