@@ -112,7 +112,7 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 [transaction-timeout](transaction-config.md "Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000
 [transaction-timeout-scan-period](transaction-config.md "Resource Manager Configuration")  |  how often (in ms) to scan for timeout transactions. Default=1000
 [wild-card-routing-enabled](wildcard-routing.md "Routing Messages With Wild Cards")        |  true means that the server supports wild card routing. Default=true
-[network-check-NIC](network-isolation.md) | The network internet card to be used on InetAddress.isReacheable
+[network-check-NIC](network-isolation.md) | The NIC (Network Interface Controller) to be used on InetAddress.isReacheable
 [network-check-URL](network-isolation.md) | The list of http URIs to be used to validate the network
 [network-check-list](network-isolation.md) | The list of pings to be used on ping or InetAddress.isReacheable
 [network-check-ping-command](network-isolation.md) | The command used to oping IPV4 addresses
