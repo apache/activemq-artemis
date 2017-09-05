@@ -54,7 +54,7 @@ public final class PasswordMaskingUtil {
       static {
          HashProcessor processor = null;
          Exception exception = null;
-         final String codecDesc = "org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;algorithm=one-way";
+         final String codecDesc = new StringBuilder().append(DefaultSensitiveStringCodec.class.getName()).append(";").append(DefaultSensitiveStringCodec.ALGORITHM).append("=").append(DefaultSensitiveStringCodec.ONE_WAY).toString();
          try {
             final DefaultSensitiveStringCodec codec = (DefaultSensitiveStringCodec) PasswordMaskingUtil.getCodec(codecDesc);
             processor = new SecureHashProcessor(codec);
@@ -83,7 +83,7 @@ public final class PasswordMaskingUtil {
    }
 
    private static boolean isEncoded(String storedPassword) {
-      return storedPassword == null || (storedPassword.startsWith("ENC(") && storedPassword.endsWith(")"));
+      return storedPassword == null || (storedPassword.startsWith(SecureHashProcessor.BEGIN_HASH) && storedPassword.endsWith(SecureHashProcessor.END_HASH));
    }
 
    public static HashProcessor getHashProcessor() {
