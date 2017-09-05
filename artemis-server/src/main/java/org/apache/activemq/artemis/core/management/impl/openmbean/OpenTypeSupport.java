@@ -137,7 +137,7 @@ public final class OpenTypeSupport {
          } else {
             rc.put(CompositeDataConstants.USER_ID, "");
          }
-         rc.put(CompositeDataConstants.ADDRESS, m.getAddress().toString());
+         rc.put(CompositeDataConstants.ADDRESS, m.getAddress() == null ? "" : m.getAddress().toString());
          rc.put(CompositeDataConstants.TYPE, m.getType());
          rc.put(CompositeDataConstants.DURABLE, m.isDurable());
          rc.put(CompositeDataConstants.EXPIRATION, m.getExpiration());
