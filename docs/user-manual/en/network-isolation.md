@@ -73,8 +73,8 @@ This XML part will be added to your broker.xml:
 
 ```xml
 <!--
-You can specify the NIC you want to use to verify if the network
- <network-check-NIC>theNickName</network-check-NIC>
+You can verify the network health of a particular NIC by specifying the <network-check-NIC> element.
+ <network-check-NIC>theNicName</network-check-NIC>
 -->
 
 <!--
