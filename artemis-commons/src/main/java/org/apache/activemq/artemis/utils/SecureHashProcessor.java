@@ -16,13 +16,10 @@
  */
 package org.apache.activemq.artemis.utils;
 
-/**
- * Hash function
- */
 public class SecureHashProcessor implements HashProcessor {
 
-   private static final String BEGIN_HASH = "ENC(";
-   private static final String END_HASH = ")";
+   public static final String BEGIN_HASH = "ENC(";
+   public static final String END_HASH = ")";
 
    private DefaultSensitiveStringCodec codec;
 
