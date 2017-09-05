@@ -84,6 +84,10 @@ public class MQTTUtil {
    private static final MQTTLogger logger = MQTTLogger.LOGGER;
 
    public static String convertCoreAddressFilterToMQTT(String filter, WildcardConfiguration wildcardConfiguration) {
+      if (filter == null) {
+         return "";
+      }
+
       if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          filter = filter.substring(MQTT_RETAIN_ADDRESS_PREFIX.length(), filter.length());
       }

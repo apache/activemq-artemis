@@ -24,12 +24,12 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.EmptyByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -112,7 +112,7 @@ public class MQTTPublishManager {
     * to original ID and consumer in the Session state.  This way we can look up the consumer Id and the message Id from
     * the PubAck or PubRec message id. *
     */
-   protected void sendMessage(CoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
+   protected void sendMessage(ICoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
       // This is to allow retries of PubRel.
       if (isManagementConsumer(consumer)) {
          sendPubRelMessage(message);
@@ -257,8 +257,8 @@ public class MQTTPublishManager {
       }
    }
 
-   private void sendServerMessage(int messageId, CoreMessage message, int deliveryCount, int qos) {
-      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString(), session.getWildcardConfiguration());
+   private void sendServerMessage(int messageId, ICoreMessage message, int deliveryCount, int qos) {
+      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress() == null ? "" : message.getAddress().toString(), session.getWildcardConfiguration());
       boolean isRetain = message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY);
 
       ByteBuf payload;
