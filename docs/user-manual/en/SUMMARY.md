@@ -39,6 +39,7 @@
 * [Management](management.md)
 * [Management Console](management-console.md)
 * [Security](security.md)
+* [Masking Passwords](masking-passwords.md)
 * [Broker Plugins](broker-plugins.md)
 * [Resource Limits](resource-limits.md)
 * [The JMS Bridge](jms-bridge.md)
