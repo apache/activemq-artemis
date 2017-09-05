@@ -17,15 +17,22 @@
 package org.apache.activemq.cli.test;
 
 import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +45,7 @@ import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Mask;
+import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.user.AddUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
@@ -628,6 +636,341 @@ public class ArtemisTest extends CliTestBase {
 
       Assert.assertEquals("127.0.0.1", fc.getNetworkCheckList());
 
+   }
+
+   @Test
+   public void testQstat() throws Exception {
+
+      File instanceQstat = new File(temporaryFolder.getRoot(), "instanceQStat");
+      setupAuth(instanceQstat);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceQstat.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
+      Artemis.internalExecute("run");
+
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+
+         //set up some queues with messages and consumers
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         connection.start();
+         sendMessages(session, "Test1", 15);
+         sendMessages(session, "Test11", 1);
+         sendMessages(session, "Test12", 1);
+         sendMessages(session, "Test20", 20);
+         MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createDestination("queue://Test1", ActiveMQDestination.TYPE.QUEUE));
+         MessageConsumer consumer2 = session.createConsumer(ActiveMQDestination.createDestination("queue://Test1", ActiveMQDestination.TYPE.QUEUE));
+
+         for (int i = 0; i < 5; i++) {
+            Message message = consumer.receive(100);
+         }
+
+         //check all queues containing "Test1" are displayed
+         TestActionContext context = new TestActionContext();
+         StatQueue statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test1");
+         statQueue.execute(context);
+         ArrayList<String> lines = getOutputLines(context, false);
+         // Header line + 3 queues
+         Assert.assertEquals("rows returned using queueName=Test1", 4, lines.size());
+
+         //check all queues are displayed when no Filter set
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 4 queues (at least - possibly other infra queues as well)
+         Assert.assertTrue("rows returned filtering no name ", 5 <= lines.size());
+
+         //check all queues containing "Test1" are displayed using Filter field NAME
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("NAME");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.setValue("Test1");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 3 queues
+         Assert.assertEquals("rows returned filtering by NAME ", 4, lines.size());
+
+         //check only queue named "Test1" is displayed using Filter field NAME and operation EQUALS
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("NAME");
+         statQueue.setOperationName("EQUALS");
+         statQueue.setValue("Test1");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         //Header line + 1 queue only
+         Assert.assertEquals("rows returned filtering by NAME operation EQUALS", 2, lines.size());
+         //verify contents of queue stat line is correct
+         String queueTest1 = lines.get(1);
+         String[] parts = queueTest1.split("\\|");
+         Assert.assertEquals("queue name", "Test1", parts[1].trim());
+         Assert.assertEquals("address name", "Test1", parts[2].trim());
+         Assert.assertEquals("Consumer count", "2", parts[3].trim());
+         Assert.assertEquals("Message count", "10", parts[4].trim());
+         Assert.assertEquals("Added count", "15", parts[5].trim());
+         Assert.assertEquals("Delivering count", "10", parts[6].trim());
+         Assert.assertEquals("Acked count", "5", parts[7].trim());
+
+         //check all queues containing address "Test1" are displayed using Filter field ADDRESS
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("ADDRESS");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.setValue("Test1");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 3 queues
+         Assert.assertEquals("rows returned filtering by ADDRESS", 4, lines.size());
+
+         //check all queues containing address "Test1" are displayed using Filter field MESSAGE_COUNT
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGE_COUNT");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.setValue("10");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by MESSAGE_COUNT", 2, lines.size());
+         String[] columns = lines.get(1).split("\\|");
+         Assert.assertEquals("queue name filtering by MESSAGE_COUNT ", "Test1", columns[2].trim());
+
+         //check all queues containing address "Test1" are displayed using Filter field MESSAGE_ADDED
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGES_ADDED");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.setValue("20");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 2, lines.size());
+         columns = lines.get(1).split("\\|");
+         Assert.assertEquals("queue name filtered by MESSAGE_ADDED", "Test20", columns[2].trim());
+
+         //check all queues containing address "Test1" are displayed using Filter field DELIVERING_COUNT
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("DELIVERING_COUNT");
+         statQueue.setOperationName("EQUALS");
+         statQueue.setValue("10");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         columns = lines.get(1).split("\\|");
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by DELIVERING_COUNT", 2, lines.size());
+         Assert.assertEquals("queue name filtered by DELIVERING_COUNT ", "Test1", columns[2].trim());
+
+         //check all queues containing address "Test1" are displayed using Filter field CONSUMER_COUNT
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("CONSUMER_COUNT");
+         statQueue.setOperationName("EQUALS");
+         statQueue.setValue("2");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         columns = lines.get(1).split("\\|");
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by CONSUMER_COUNT ", 2, lines.size());
+         Assert.assertEquals("queue name filtered by CONSUMER_COUNT ", "Test1", columns[2].trim());
+
+         //check all queues containing address "Test1" are displayed using Filter field MESSAGE_ACKED
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGES_ACKED");
+         statQueue.setOperationName("EQUALS");
+         statQueue.setValue("5");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         columns = lines.get(1).split("\\|");
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by MESSAGE_ACKED ", 2, lines.size());
+         Assert.assertEquals("queue name filtered by MESSAGE_ACKED", "Test1", columns[2].trim());
+
+         //check no queues  are displayed when name does not match
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("no_queue_name");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 0 queues
+         Assert.assertEquals("rows returned by queueName for no Matching queue ", 1, lines.size());
+
+         //check maxrows is taking effect"
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("Test1");
+         statQueue.setMaxRows(1);
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 1 queue only
+         Assert.assertEquals("rows returned by maxRows=1", 2, lines.size());
+
+      } finally {
+         stopServer();
+      }
+
+   }
+
+   @Test
+   public void testQstatErrors() throws Exception {
+
+      File instanceQstat = new File(temporaryFolder.getRoot(), "instanceQStatErrors");
+      setupAuth(instanceQstat);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceQstat.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
+      Artemis.internalExecute("run");
+      try {
+
+         //check err when FIELD wrong"
+         TestActionContext context = new TestActionContext();
+         StatQueue statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("WRONG_FILE");
+         statQueue.setOperationName("EQUALS");
+         statQueue.setValue("5");
+         statQueue.execute(context);
+         ArrayList<String> lines = getOutputLines(context, false);
+         // Header line + 0 queue
+         Assert.assertEquals("No stdout for wrong FIELD", 0, lines.size());
+
+         lines = getOutputLines(context, true);
+         // 1 error line
+         Assert.assertEquals("stderr for wrong FIELD", 1, lines.size());
+         Assert.assertTrue("'FIELD incorrect' error messsage", lines.get(0).contains("'--field' must be set to one of the following"));
+
+         //Test err when OPERATION wrong
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGE_COUNT");
+         statQueue.setOperationName("WRONG_OPERATION");
+         statQueue.setValue("5");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 0 queue
+         Assert.assertEquals("No stdout for wrong OPERATION", 0, lines.size());
+
+         lines = getOutputLines(context, true);
+         // 1 error line
+         Assert.assertEquals("stderr for wrong OPERATION", 1, lines.size());
+         Assert.assertTrue("'OPERATION incorrect' error message", lines.get(0).contains("'--operation' must be set to one of the following"));
+
+         //Test err when queueName and field set together
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setQueueName("DLQ");
+         statQueue.setFieldName("MESSAGE_COUNT");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.setValue("5");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 0 queue
+         Assert.assertEquals("No stdout for --field and --queueName both set", 0, lines.size());
+
+         lines = getOutputLines(context, true);
+         // 1 error line
+         Assert.assertEquals("stderr for  --field and --queueName both set", 1, lines.size());
+         Assert.assertTrue("field and queueName error message", lines.get(0).contains("'--field' and '--queueName' cannot be specified together"));
+
+         //Test err when field set but no value
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGE_COUNT");
+         statQueue.setOperationName("CONTAINS");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 0 queue
+         Assert.assertEquals("No stdout for --field set BUT no --value", 0, lines.size());
+         lines = getOutputLines(context, true);
+         // 1 error line
+         Assert.assertEquals("stderr for --field set BUT no --value", 1, lines.size());
+         Assert.assertTrue("NO VALUE error message", lines.get(0).contains("'--value' needs to be set when '--field' is specified"));
+
+         //Test err when field set but no operation
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGE_COUNT");
+         statQueue.setValue("5");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+         // Header line + 0 queue
+         Assert.assertEquals("No stdout for --field set BUT no --operation", 0, lines.size());
+         lines = getOutputLines(context, true);
+         // 1 error line
+         Assert.assertEquals("stderr for --field set BUT no --operation", 1, lines.size());
+         Assert.assertTrue("OPERATION incorrect error message", lines.get(0).contains("'--operation' must be set when '--field' is specified "));
+
+      } finally {
+         stopServer();
+      }
+
+   }
+
+   //read individual lines from byteStream
+   private ArrayList<String> getOutputLines(TestActionContext context, boolean errorOutput) throws IOException {
+      byte[] bytes;
+
+      if (errorOutput) {
+         bytes = context.getStdErrBytes();
+      } else {
+         bytes = context.getStdoutBytes();
+      }
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
+      ArrayList<String> lines = new ArrayList<>();
+
+      String currentLine = bufferedReader.readLine();
+      while (currentLine != null) {
+         lines.add(currentLine);
+         currentLine = bufferedReader.readLine();
+      }
+
+      return lines;
+   }
+
+   private void sendMessages(Session session, String queueName, int messageCount) throws JMSException {
+      MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://" + queueName, ActiveMQDestination.TYPE.QUEUE));
+
+      TextMessage message = session.createTextMessage("sample message");
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(message);
+      }
    }
 
    private void testCli(String... args) {
