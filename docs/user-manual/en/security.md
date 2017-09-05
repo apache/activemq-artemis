@@ -427,6 +427,17 @@ the following:
     user=password
     guest=password
 
+Passwords in `artemis-users.properties` can be hashed. Such passwords should follow the syntax `ENC(<hash>)`. Hashed
+passwords can easily be added to `artemis-users.properties` using the `user` CLI command, e.g.:
+
+
+```sh
+    ./artemis user add --username guest --password guest --role admin
+```
+
+This will use the default `org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec` to perform a "one-way" hash of
+the password and alter both the `artemis-users.properties` and `artemis-roles.properties` files with the specified values. 
+
 The `artemis-roles.properties` file consists of a list of properties of the form, `Role=UserList`, where UserList is a
 comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file
 like the following:
@@ -821,3 +832,7 @@ You need to put the black/white lists in its web.xml, as context parameters, as 
     </web-app>
 
 The param-value for each list is a comma separated string value representing the list.
+
+## Masking Passwords
+
+For details about masking passwords in broker.xml please see the [Masking Passwords](masking-passwords.md) chapter.
