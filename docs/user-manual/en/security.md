@@ -459,7 +459,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     tree. For example, ldap://ldapserver:10389/ou=system.
 
 -   `authentication` - specifies the authentication method used when binding to the LDAP server. Can take either of
-    the values, `simple` (username and password) or `none` (anonymous).
+    the values, `simple` (username and password), `GSSAPI` (Kerberos SASL) or `none` (anonymous).
 
 -   `connectionUsername` - the DN of the user that opens the connection to the directory server. For example,
     `uid=admin,ou=system`. Directory servers generally require clients to present username/password credentials in order
@@ -467,6 +467,9 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 
 -   `connectionPassword` - the password that matches the DN from `connectionUsername`. In the directory server,
     in the DIT, the password is normally stored as a `userPassword` attribute in the corresponding directory entry.
+
+-   `saslLoginConfigScope` - the scope in JAAS configuration (login.config) to use to obtain Kerberos initiator credentials
+    when the `authentication` method is SASL `GSSAPI`. The default value is `broker-sasl-gssapi`.
 
 -   `connectionProtocol` - currently, the only supported value is a blank string. In future, this option will allow
     you to select the Secure Socket Layer (SSL) for the connection to the directory server. This option must be set
@@ -535,6 +538,9 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 
     -   `true` — try to match any entry belonging to the subtree of the roleBase node (maps to
         `javax.naming.directory.SearchControls.SUBTREE_SCOPE`).
+
+-   `authenticateUser` - boolean flag to disable authentication. Useful as an optimisation when this module is used just for
+    role mapping of a Subject's existing authenticated principals; default is `false`.
 
 -   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
     should be set to `false`, or omitted; default is `false`
@@ -694,8 +700,9 @@ An example configuration scope for `login.config` that will pick up a Kerberos k
 #### Role Mapping
 
 On the server, the Kerberos authenticated Peer Principal can be added to the Subject's principal set as an Apache ActiveMQ Artemis UserPrincipal
-using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) can then be used to map
-the authenticated Kerberos Peer Principal to a [Role](#role-based-security-for-addresses).
+using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) or
+ [LDAPLoginModule](#ldaploginmodule) can then be used to map
+the authenticated Kerberos Peer Principal to an Apache ActiveMQ Artemis [Role](#role-based-security-for-addresses).
 
 Note: the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user.
 

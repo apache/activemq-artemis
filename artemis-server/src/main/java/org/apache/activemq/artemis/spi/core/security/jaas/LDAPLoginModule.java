@@ -78,7 +78,7 @@ public class LDAPLoginModule implements LoginModule {
    private static final String USER_ROLE_NAME = "userRoleName";
    private static final String EXPAND_ROLES = "expandRoles";
    private static final String EXPAND_ROLES_MATCHING = "expandRolesMatching";
-   private static final String LOGIN_CONFIG_SCOPE = "loginConfigScope";
+   private static final String SASL_LOGIN_CONFIG_SCOPE = "saslLoginConfigScope";
    private static final String AUTHENTICATE_USER = "authenticateUser";
 
    protected DirContext context;
@@ -100,7 +100,7 @@ public class LDAPLoginModule implements LoginModule {
       this.subject = subject;
       this.handler = callbackHandler;
 
-      config = new LDAPLoginProperty[]{new LDAPLoginProperty(INITIAL_CONTEXT_FACTORY, (String) options.get(INITIAL_CONTEXT_FACTORY)), new LDAPLoginProperty(CONNECTION_URL, (String) options.get(CONNECTION_URL)), new LDAPLoginProperty(CONNECTION_USERNAME, (String) options.get(CONNECTION_USERNAME)), new LDAPLoginProperty(CONNECTION_PASSWORD, (String) options.get(CONNECTION_PASSWORD)), new LDAPLoginProperty(CONNECTION_PROTOCOL, (String) options.get(CONNECTION_PROTOCOL)), new LDAPLoginProperty(AUTHENTICATION, (String) options.get(AUTHENTICATION)), new LDAPLoginProperty(USER_BASE, (String) options.get(USER_BASE)), new LDAPLoginProperty(USER_SEARCH_MATCHING, (String) options.get(USER_SEARCH_MATCHING)), new LDAPLoginProperty(USER_SEARCH_SUBTREE, (String) options.get(USER_SEARCH_SUBTREE)), new LDAPLoginProperty(ROLE_BASE, (String) options.get(ROLE_BASE)), new LDAPLoginProperty(ROLE_NAME, (String) options.get(ROLE_NAME)), new LDAPLoginProperty(ROLE_SEARCH_MATCHING, (String) options.get(ROLE_SEARCH_MATCHING)), new LDAPLoginProperty(ROLE_SEARCH_SUBTREE, (String) options.get(ROLE_SEARCH_SUBTREE)), new LDAPLoginProperty(USER_ROLE_NAME, (String) options.get(USER_ROLE_NAME)), new LDAPLoginProperty(EXPAND_ROLES, (String) options.get(EXPAND_ROLES)), new LDAPLoginProperty(EXPAND_ROLES_MATCHING, (String) options.get(EXPAND_ROLES_MATCHING)), new LDAPLoginProperty(LOGIN_CONFIG_SCOPE, (String) options.get(LOGIN_CONFIG_SCOPE)), new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER))};
+      config = new LDAPLoginProperty[]{new LDAPLoginProperty(INITIAL_CONTEXT_FACTORY, (String) options.get(INITIAL_CONTEXT_FACTORY)), new LDAPLoginProperty(CONNECTION_URL, (String) options.get(CONNECTION_URL)), new LDAPLoginProperty(CONNECTION_USERNAME, (String) options.get(CONNECTION_USERNAME)), new LDAPLoginProperty(CONNECTION_PASSWORD, (String) options.get(CONNECTION_PASSWORD)), new LDAPLoginProperty(CONNECTION_PROTOCOL, (String) options.get(CONNECTION_PROTOCOL)), new LDAPLoginProperty(AUTHENTICATION, (String) options.get(AUTHENTICATION)), new LDAPLoginProperty(USER_BASE, (String) options.get(USER_BASE)), new LDAPLoginProperty(USER_SEARCH_MATCHING, (String) options.get(USER_SEARCH_MATCHING)), new LDAPLoginProperty(USER_SEARCH_SUBTREE, (String) options.get(USER_SEARCH_SUBTREE)), new LDAPLoginProperty(ROLE_BASE, (String) options.get(ROLE_BASE)), new LDAPLoginProperty(ROLE_NAME, (String) options.get(ROLE_NAME)), new LDAPLoginProperty(ROLE_SEARCH_MATCHING, (String) options.get(ROLE_SEARCH_MATCHING)), new LDAPLoginProperty(ROLE_SEARCH_SUBTREE, (String) options.get(ROLE_SEARCH_SUBTREE)), new LDAPLoginProperty(USER_ROLE_NAME, (String) options.get(USER_ROLE_NAME)), new LDAPLoginProperty(EXPAND_ROLES, (String) options.get(EXPAND_ROLES)), new LDAPLoginProperty(EXPAND_ROLES_MATCHING, (String) options.get(EXPAND_ROLES_MATCHING)), new LDAPLoginProperty(SASL_LOGIN_CONFIG_SCOPE, (String) options.get(SASL_LOGIN_CONFIG_SCOPE)), new LDAPLoginProperty(AUTHENTICATE_USER, (String) options.get(AUTHENTICATE_USER))};
       if (isLoginPropertySet(AUTHENTICATE_USER)) {
          authenticateUser = Boolean.valueOf(getLDAPPropertyValue(AUTHENTICATE_USER));
       }
@@ -526,7 +526,7 @@ public class LDAPLoginModule implements LoginModule {
 
             if ("GSSAPI".equalsIgnoreCase(getLDAPPropertyValue(AUTHENTICATION))) {
 
-               final String configScope = isLoginPropertySet(LOGIN_CONFIG_SCOPE) ? getLDAPPropertyValue(LOGIN_CONFIG_SCOPE) : "broker-sasl-gssapi";
+               final String configScope = isLoginPropertySet(SASL_LOGIN_CONFIG_SCOPE) ? getLDAPPropertyValue(SASL_LOGIN_CONFIG_SCOPE) : "broker-sasl-gssapi";
                try {
                   LoginContext loginContext = new LoginContext(configScope);
                   loginContext.login();

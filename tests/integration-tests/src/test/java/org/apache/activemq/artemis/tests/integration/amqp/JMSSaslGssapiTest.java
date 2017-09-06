@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
+import javax.jms.JMSSecurityException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.hadoop.minikdc.MiniKdc;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -148,6 +150,18 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 600000)
+   public void testSaslPlainConnectionDenied() throws Exception {
+
+      JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
+      try {
+         factory.createConnection("plain", "secret");
+         fail("Expect sasl failure");
+      } catch (JMSSecurityException expected) {
+         assertTrue(expected.getMessage().contains("SASL"));
       }
    }
 }
