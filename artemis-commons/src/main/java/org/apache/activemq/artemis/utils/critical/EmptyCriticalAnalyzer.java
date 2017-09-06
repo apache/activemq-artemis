@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
+import java.util.concurrent.TimeUnit;
+
 public class EmptyCriticalAnalyzer implements CriticalAnalyzer {
 
    private static final EmptyCriticalAnalyzer instance = new EmptyCriticalAnalyzer();
@@ -59,22 +61,22 @@ public class EmptyCriticalAnalyzer implements CriticalAnalyzer {
    }
 
    @Override
-   public CriticalAnalyzer setCheckTime(long timeout) {
-      return this;
+   public CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit) {
+      return null;
    }
 
    @Override
-   public long getCheckTime() {
+   public long getCheckTimeNanoSeconds() {
       return 0;
    }
 
    @Override
-   public CriticalAnalyzer setTimeout(long timeout) {
-      return this;
+   public CriticalAnalyzer setTimeout(long timeout, TimeUnit unit) {
+      return null;
    }
 
    @Override
-   public long getTimeout() {
+   public long getTimeout(TimeUnit unit) {
       return 0;
    }
 
