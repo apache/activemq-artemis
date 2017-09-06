@@ -506,7 +506,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       this.analyzer.clear();
 
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod()).setTimeout(configuration.getCriticalAnalyzerTimeout());
+      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
 
       if (configuration.isCriticalAnalyzer()) {
          this.getCriticalAnalyzer().start();
@@ -1437,7 +1437,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       checkSessionLimit(validatedUser);
 
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeCreateSession(name, username, minLargeMessageSize, connection,
-            autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes) : null);
+                                                                                  autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes) : null);
 
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes);
 
@@ -1838,7 +1838,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.beforeDestroyQueue(queueName, session, checkConsumerCount,
-            removeConsumers, autoDeleteAddress) : null);
+                                                                                 removeConsumers, autoDeleteAddress) : null);
 
       addressSettingsRepository.clearCache();
 
@@ -1882,7 +1882,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       callPostQueueDeletionCallbacks(address, queueName);
 
       callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount,
-            removeConsumers, autoDeleteAddress) : null);
+                                                                                removeConsumers, autoDeleteAddress) : null);
    }
 
    @Override
@@ -2456,13 +2456,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void undeployAddressesAndQueueNotInConfiguration(Configuration configuration) throws Exception {
       Set<String> addressesInConfig = configuration.getAddressConfigurations().stream()
-                                                   .map(CoreAddressConfiguration::getName)
-                                                   .collect(Collectors.toSet());
+         .map(CoreAddressConfiguration::getName)
+         .collect(Collectors.toSet());
 
       Set<String> queuesInConfig = configuration.getAddressConfigurations().stream()
-                                                .map(CoreAddressConfiguration::getQueueConfigurations)
-                                                .flatMap(List::stream).map(CoreQueueConfiguration::getName)
-                                                .collect(Collectors.toSet());
+         .map(CoreAddressConfiguration::getQueueConfigurations)
+         .flatMap(List::stream).map(CoreQueueConfiguration::getName)
+         .collect(Collectors.toSet());
 
       for (SimpleString addressName : listAddressNames()) {
          AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
@@ -2521,8 +2521,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       Queue queue = updateQueue(config.getName(), config.getRoutingType(), config.getMaxConsumers(), config.getPurgeOnNoConsumers());
       if (queue == null) {
          queue = createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
-            queueName, SimpleString.toSimpleString(config.getFilterString()), null,
-            config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getPurgeOnNoConsumers(), true);
+                             queueName, SimpleString.toSimpleString(config.getFilterString()), null,
+                             config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getPurgeOnNoConsumers(), true);
       }
       return queue;
    }

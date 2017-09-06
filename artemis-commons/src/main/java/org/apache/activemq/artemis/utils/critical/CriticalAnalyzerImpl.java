@@ -29,9 +29,9 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
    private final Logger logger = Logger.getLogger(CriticalAnalyzer.class);
 
-   private volatile long timeout;
+   private volatile long timeoutNanoSeconds;
 
-   private volatile long checkTime;
+   private volatile long checkTimeNanoSeconds;
 
    @Override
    public void clear() {
@@ -63,31 +63,31 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    }
 
    @Override
-   public CriticalAnalyzer setCheckTime(long timeout) {
-      this.checkTime = timeout;
+   public CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit) {
+      this.checkTimeNanoSeconds = timeout;
       return this;
    }
 
    @Override
-   public long getCheckTime() {
-      if (checkTime == 0) {
-         checkTime = getTimeout() / 2;
+   public long getCheckTimeNanoSeconds() {
+      if (checkTimeNanoSeconds == 0) {
+         checkTimeNanoSeconds = getTimeout(TimeUnit.NANOSECONDS) / 2;
       }
-      return checkTime;
+      return checkTimeNanoSeconds;
    }
 
    @Override
-   public CriticalAnalyzer setTimeout(long timeout) {
-      this.timeout = timeout;
+   public CriticalAnalyzer setTimeout(long timeout, TimeUnit unit) {
+      this.timeoutNanoSeconds = unit.toNanos(timeout);
       return this;
    }
 
    @Override
-   public long getTimeout() {
-      if (timeout == 0) {
-         timeout = TimeUnit.MINUTES.toMillis(2);
+   public long getTimeout(TimeUnit unit) {
+      if (timeoutNanoSeconds == 0) {
+         timeoutNanoSeconds = TimeUnit.MINUTES.toNanos(2);
       }
-      return timeout;
+      return unit.convert(timeoutNanoSeconds, TimeUnit.NANOSECONDS);
    }
 
    @Override
@@ -103,7 +103,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          try {
             for (CriticalComponent component : components) {
 
-               if (component.isExpired(timeout)) {
+               if (component.isExpired(timeoutNanoSeconds)) {
                   fireAction(component);
                   // no need to keep running if there's already a component failed
                   return;
@@ -142,7 +142,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          public void run() {
             try {
                while (true) {
-                  if (running.tryAcquire(getCheckTime(), TimeUnit.MILLISECONDS)) {
+                  if (running.tryAcquire(getCheckTimeNanoSeconds(), TimeUnit.NANOSECONDS)) {
                      running.release();
                      // this means that the server has been stopped as we could acquire the semaphore... returning now
                      break;

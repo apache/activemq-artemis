@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils.critical;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
 public interface CriticalAnalyzer extends ActiveMQComponent {
@@ -29,13 +31,13 @@ public interface CriticalAnalyzer extends ActiveMQComponent {
 
    void remove(CriticalComponent component);
 
-   CriticalAnalyzer setCheckTime(long timeout);
+   CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit);
 
-   long getCheckTime();
+   long getCheckTimeNanoSeconds();
 
-   CriticalAnalyzer setTimeout(long timeout);
+   CriticalAnalyzer setTimeout(long timeout, TimeUnit unit);
 
-   long getTimeout();
+   long getTimeout(TimeUnit unit);
 
    CriticalAnalyzer addAction(CriticalAction action);
 
