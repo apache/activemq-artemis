@@ -68,6 +68,27 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
    }
 
+   @Test
+   public void testFQQNTopicWhenQueueDoesNotExist() throws Exception {
+      Exception e = null;
+      String queueName = "testQueue";
+
+      Connection connection = createConnection(false);
+      try {
+         connection.setClientID("FQQNconn");
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic(multicastAddress.toString() + "::" + queueName);
+         session.createConsumer(topic);
+      } catch (InvalidDestinationException ide) {
+         e = ide;
+      } finally {
+         connection.close();
+      }
+      assertNotNull(e);
+      assertTrue(e.getMessage().contains("Queue: '" + queueName + "' does not exist"));
+   }
+
    @Test(timeout = 60000)
    //there isn't much use of FQQN for topics
    //however we can test query functionality
@@ -78,7 +99,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          connection.setClientID("FQQNconn");
          connection.start();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Topic topic = session.createTopic(multicastAddress.toString());
+         Topic topic = session.createTopic(multicastAddress.toString() + "::someaddress");
 
          MessageConsumer consumer1 = session.createConsumer(topic);
          MessageConsumer consumer2 = session.createConsumer(topic);
