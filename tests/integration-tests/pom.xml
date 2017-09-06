@@ -33,17 +33,6 @@
      <paho.client.mqttv3.version>1.1.0</paho.client.mqttv3.version>
    </properties>
 
-   <repositories>
-       <!-- for the paho dependency -->
-       <repository>
-           <id>eclipse.m2</id>
-           <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
-           <releases><enabled>true</enabled></releases>
-           <snapshots><enabled>false</enabled></snapshots>
-       </repository>
-   </repositories>
-
-
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
