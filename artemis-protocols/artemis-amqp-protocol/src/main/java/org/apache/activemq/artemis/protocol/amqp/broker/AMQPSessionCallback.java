@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -276,15 +277,23 @@ public class AMQPSessionCallback implements SessionCallback {
       return queueQueryResult;
    }
 
-   public boolean bindingQuery(String address) throws Exception {
-      BindingQueryResult bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
-      if (!bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
+   public boolean bindingQuery(String address, RoutingType routingType) throws Exception {
+      SimpleString simpleAddress = SimpleString.toSimpleString(address);
+      BindingQueryResult bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
+      if (routingType == RoutingType.MULTICAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateAddresses()) {
          try {
-            serverSession.createQueue(new SimpleString(address), new SimpleString(address), RoutingType.ANYCAST, null, false, true);
+            serverSession.createAddress(simpleAddress, routingType, true);
+         } catch (ActiveMQAddressExistsException e) {
+            // The address may have been created by another thread in the mean time.  Catch and do nothing.
+         }
+         bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
+      } else if (routingType == RoutingType.ANYCAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
+         try {
+            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
-         bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
+         bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       }
       return bindingQueryResult.isExists();
    }
@@ -406,7 +415,7 @@ public class AMQPSessionCallback implements SessionCallback {
             return;
          }
 
-         if (!bindingQuery(message.getAddress().toString())) {
+         if (!bindingQuery(message.getAddress().toString(), RoutingType.ANYCAST)) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
          }
       }
@@ -660,7 +669,7 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public RoutingType getDefaultRoutingType(String address) {
-      return manager.getServer().getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType();
+      return manager.getServer().getAddressSettingsRepository().getMatch(address).getDefaultAddressRoutingType();
    }
 
    public void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception {
