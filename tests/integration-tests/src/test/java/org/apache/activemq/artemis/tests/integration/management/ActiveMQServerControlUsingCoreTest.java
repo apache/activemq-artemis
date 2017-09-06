@@ -916,36 +916,35 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public String listSessions(@Parameter(name = "Filter String") String filter,
                                     @Parameter(name = "Page Number") int page,
                                     @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listSessions", filter, page, pageSize);
          }
 
          @Override
          public String listConsumers(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listConsumers", options, page, pageSize);
          }
-
 
          @Override
          public String listProducers(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listProducers", options, page, pageSize);
          }
 
          @Override
          public String listAddresses(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listAddresses", options, page, pageSize);
          }
 
          @Override
          public String listQueues(@Parameter(name = "Options") String options,
                                   @Parameter(name = "Page Number") int page,
                                   @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listQueues", options, page, pageSize);
          }
       };
    }
