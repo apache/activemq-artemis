@@ -59,6 +59,7 @@
    <argument>-Dlogging.configuration=%ARTEMIS_INSTANCE_URI%/etc/logging.properties</argument>
    <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config</argument>
    <argument>-Dhawtio.realm=activemq</argument>
+   <argument>-Dhawtio.offline="true"</argument>
    <argument>-Dhawtio.role=${role}</argument>
    <argument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</argument>
 
