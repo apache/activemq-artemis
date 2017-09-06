@@ -25,6 +25,7 @@ import javax.jms.Session;
 import java.io.EOFException;
 import java.lang.reflect.Field;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,6 +49,11 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.MQTTException;
@@ -70,6 +76,8 @@ import org.slf4j.LoggerFactory;
 public class MQTTTest extends MQTTTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTest.class);
+
+   private static final String AMQP_URI = "tcp://localhost:61616";
 
    @Override
    @Before
@@ -1160,6 +1168,35 @@ public class MQTTTest extends MQTTTestSupport {
    @Test(timeout = 60 * 1000)
    public void testSendMQTTReceiveJMS() throws Exception {
       doTestSendMQTTReceiveJMS("foo.*", "foo/bar");
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testLinkRouteAmqpReceiveMQTT() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(AMQP_URI), null, null);
+      AmqpConnection connection = client.connect();
+
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender("test", true);
+         AmqpMessage message = new AmqpMessage();
+         message.setText("Test-Message");
+         sender.send(message);
+         sender.close();
+      } finally {
+         connection.close();
+      }
+
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId("TestClient");
+      BlockingConnection blockingConnection = mqtt.blockingConnection();
+      try {
+         blockingConnection.connect();
+         Topic t = new Topic("test", QoS.AT_LEAST_ONCE);
+         blockingConnection.subscribe(new Topic[] {t});
+         assertNotNull(blockingConnection.receive(5, TimeUnit.SECONDS));
+      } finally {
+         blockingConnection.kill();
+      }
    }
 
    public void doTestSendMQTTReceiveJMS(String jmsTopicAddress, String mqttAddress) throws Exception {

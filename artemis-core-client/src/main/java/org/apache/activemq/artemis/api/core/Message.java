@@ -616,7 +616,7 @@ public interface Message {
          map.put("userID", "ID:" + userID.toString());
       }
 
-      map.put("address", getAddress());
+      map.put("address", getAddress() == null ? "" : getAddress());
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());
       map.put("timestamp", getTimestamp());
