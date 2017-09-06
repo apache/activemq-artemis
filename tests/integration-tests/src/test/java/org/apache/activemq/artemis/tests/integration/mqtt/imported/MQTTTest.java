@@ -1973,12 +1973,20 @@ public class MQTTTest extends MQTTTestSupport {
 
    }
 
-   @Test
+   @Test(timeout = 60 * 1000)
    public void testDuplicateIDReturnsError() throws Exception {
+
+      /*
+       * According to MQTT-3.1.4-2, connection with the same client id
+       * must disconnect the previous connection. 
+       */
+
       String clientId = "clientId";
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId(clientId);
-      mqtt.blockingConnection().connect();
+
+      BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
 
       MQTTException e = null;
       try {
@@ -1988,6 +1996,8 @@ public class MQTTTest extends MQTTTestSupport {
       } catch (MQTTException mqttE) {
          e = mqttE;
       }
-      assertTrue(e.getMessage().contains("CONNECTION_REFUSED_IDENTIFIER_REJECTED"));
+
+      assertNull(e);
+      assertTrue("First connection should be disconnected", Wait.waitFor(() -> !connection.isConnected()));
    }
 }
