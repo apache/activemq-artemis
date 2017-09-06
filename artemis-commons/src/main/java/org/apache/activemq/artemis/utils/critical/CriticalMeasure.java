@@ -17,28 +17,39 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
-import org.jboss.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-public class CriticalMeasure {
+final class CriticalMeasure {
 
-   private static final Logger logger = Logger.getLogger(CriticalMeasure.class);
+   //uses updaters to avoid creates many AtomicLong instances
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
 
-   private volatile long timeEnter;
-   private volatile long timeLeft;
+   //System::nanoTime can't reach this value so it's the best candidate to have a NULL semantic
+   private static final long NIL = Long.MAX_VALUE;
+   private volatile long timeEnter = NIL;
+   private volatile long timeLeft = NIL;
 
    public void enterCritical() {
-      timeEnter = System.currentTimeMillis();
+      //prefer lazySet in order to avoid heavy-weight full barriers
+      TIME_ENTER_UPDATER.lazySet(this, System.nanoTime());
    }
 
    public void leaveCritical() {
-      timeLeft = System.currentTimeMillis();
+      final long now = System.nanoTime();
+      assert TIME_ENTER_UPDATER.get(this) <= now : "Must call enterCritical first";
+      TIME_LEFT_UPDATER.lazySet(this, now);
    }
 
    public boolean isExpired(long timeout) {
-      if (timeEnter > timeLeft) {
-         return System.currentTimeMillis() - timeEnter > timeout;
+      final long timeLeft = TIME_LEFT_UPDATER.get(this);
+      final long timeEnter = TIME_ENTER_UPDATER.get(this);
+      //timeLeft has never been called or is before the current timeEnter
+      if (timeEnter != NIL && ((timeLeft != NIL && timeEnter > timeLeft) || timeLeft == NIL)) {
+         final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
+         return System.nanoTime() - timeEnter > timeoutNanos;
       }
-
       return false;
    }
 
