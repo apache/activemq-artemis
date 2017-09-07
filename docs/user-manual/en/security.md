@@ -709,7 +709,6 @@ that the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis us
     org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule required
         ;
     org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule optional
-        debug=true
         initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
         connectionURL="ldap://localhost:1024"
         authentication=GSSAPI
@@ -720,6 +719,7 @@ that the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis us
         userSearchSubtree=true
         authenticateUser=false
         roleBase="ou=system"
+        roleName=cn
         roleSearchMatching="(member={0})"
         roleSearchSubtree=false
         ;
