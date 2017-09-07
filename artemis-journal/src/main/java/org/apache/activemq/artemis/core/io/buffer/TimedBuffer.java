@@ -386,7 +386,7 @@ public final class TimedBuffer {
                   lastFlushTime = System.nanoTime();
                   flush();
 
-               } else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
+               } else if (bufferObserver != null && System.nanoTime() - lastFlushTime > timeout) {
                   lastFlushTime = System.nanoTime();
                   // if not using flush we will spin and do the time checks manually
                   flush();
