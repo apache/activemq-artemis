@@ -24,10 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,10 +42,6 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
       sessions.setAccessible(true);
       sessions.set(null, new ConcurrentHashMap<>());
-
-      Field connectedClients = MQTTConnectionManager.class.getDeclaredField("CONNECTED_CLIENTS");
-      connectedClients.setAccessible(true);
-      connectedClients.set(null, new ConcurrentHashSet<>());
       super.setUp();
 
    }
