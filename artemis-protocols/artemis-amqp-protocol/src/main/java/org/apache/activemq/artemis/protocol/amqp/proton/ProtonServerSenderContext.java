@@ -332,13 +332,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                supportedFilters.put(filter.getKey(), filter.getValue());
             }
 
-            if (queueNameToUse != null) {
-               SimpleString matchingQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.MULTICAST);
-               if (matchingQueue == null) {
-                  throw new ActiveMQAMQPNotFoundException("Queue: '" + queueNameToUse + "' does not exist");
-               }
-               queue = matchingQueue.toString();
-            }
+            queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST);
+
             //if the address specifies a broker configured queue then we always use this, treat it as a queue
             if (queue != null) {
                multicast = false;
@@ -392,7 +387,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          } else {
             if (queueNameToUse != null) {
-               SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.ANYCAST);
+               SimpleString matchingAnycastQueue = SimpleString.toSimpleString(getMatchingQueue(queueNameToUse, addressToUse, RoutingType.ANYCAST));
                if (matchingAnycastQueue != null) {
                   queue = matchingAnycastQueue.toString();
                } else {
@@ -440,6 +435,21 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
       }
+   }
+
+   private String getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
+      if (queueName != null) {
+         QueueQueryResult result = sessionSPI.queueQuery(queueName.toString(), routingType, false);
+         if (!result.isExists()) {
+            throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
+         } else {
+            if (!result.getAddress().equals(address)) {
+               throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist for address '" + address + "'");
+            }
+            return sessionSPI.getMatchingQueue(address, queueName, routingType).toString();
+         }
+      }
+      return null;
    }
 
    protected String getClientId() {
