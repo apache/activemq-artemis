@@ -506,7 +506,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       this.analyzer.clear();
 
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod()).setTimeout(configuration.getCriticalAnalyzerTimeout());
+      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
 
       if (configuration.isCriticalAnalyzer()) {
          this.getCriticalAnalyzer().start();
