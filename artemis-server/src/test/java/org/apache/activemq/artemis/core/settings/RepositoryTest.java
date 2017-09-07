@@ -59,6 +59,9 @@ public class RepositoryTest extends ActiveMQTestBase {
       Assert.assertEquals("ab#", repo.getMatch("a.b.c"));
       Assert.assertEquals("abd#", repo.getMatch("a.b.d.lll"));
       Assert.assertEquals("root", repo.getMatch("z.z.z.z.z"));
+      Assert.assertEquals("root", repo.getMatch("a.babc"));
+      Assert.assertEquals("ab#", repo.getMatch("a.b.dabc"));
+      Assert.assertEquals("abd#", repo.getMatch("a.b.d"));
    }
 
    @Test
