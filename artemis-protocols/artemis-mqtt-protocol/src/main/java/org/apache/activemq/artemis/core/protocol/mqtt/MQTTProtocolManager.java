@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -38,6 +39,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 /**
  * MQTTProtocolManager
@@ -51,6 +53,9 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
    private MQTTLogger log = MQTTLogger.LOGGER;
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
+
+   //TODO Read in a list of existing client IDs from stored Sessions.
+   private Set<String> connectedClients = new ConcurrentHashSet<>();
 
    MQTTProtocolManager(ActiveMQServer server,
                        List<BaseInterceptor> incomingInterceptors,
@@ -171,5 +176,9 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
 
    public void invokeOutgoing(MqttMessage mqttMessage, MQTTConnection connection) {
       super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
+   }
+
+   public Set<String> getConnectedClients() {
+      return connectedClients;
    }
 }

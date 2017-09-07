@@ -40,15 +40,15 @@ import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -85,12 +85,7 @@ public class MQTTTest extends MQTTTestSupport {
       Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
       sessions.setAccessible(true);
       sessions.set(null, new ConcurrentHashMap<>());
-
-      Field connectedClients = MQTTConnectionManager.class.getDeclaredField("CONNECTED_CLIENTS");
-      connectedClients.setAccessible(true);
-      connectedClients.set(null, new ConcurrentHashSet<>());
       super.setUp();
-
    }
 
    @Test
@@ -1989,5 +1984,50 @@ public class MQTTTest extends MQTTTestSupport {
          e = mqttE;
       }
       assertTrue(e.getMessage().contains("CONNECTION_REFUSED_IDENTIFIER_REJECTED"));
+   }
+
+   @Test
+   public void testDoubleBroker() throws Exception {
+      /*
+       * Start two embedded server instances for MQTT and connect to them
+       * with the same MQTT client id. As those are two different instances
+       * connecting to them with the same client ID must succeed.
+       */
+
+      final int port1 = 1884;
+      final int port2 = 1885;
+
+      final Configuration cfg1 = createDefaultConfig(1, false);
+      cfg1.addAcceptorConfiguration("mqtt1", "tcp://localhost:" + port1 + "?protocols=MQTT");
+
+      final Configuration cfg2 = createDefaultConfig(2, false);
+      cfg2.addAcceptorConfiguration("mqtt2", "tcp://localhost:" + port2 + "?protocols=MQTT");
+
+      final ActiveMQServer server1 = createServer(cfg1);
+      server1.start();
+      final ActiveMQServer server2 = createServer(cfg2);
+      server2.start();
+
+      final String clientId = "client1";
+      final MQTT mqtt1 = createMQTTConnection(clientId, true);
+      final MQTT mqtt2 = createMQTTConnection(clientId, true);
+
+      mqtt1.setHost("localhost", port1);
+      mqtt2.setHost("localhost", port2);
+
+      final BlockingConnection connection1 = mqtt1.blockingConnection();
+      final BlockingConnection connection2 = mqtt2.blockingConnection();
+
+      try {
+         connection1.connect();
+         connection2.connect();
+      } catch (Exception e) {
+         fail("Connections should have worked.");
+      } finally {
+         if (connection1.isConnected())
+            connection1.disconnect();
+         if (connection2.isConnected())
+            connection2.disconnect();
+      }
    }
 }
