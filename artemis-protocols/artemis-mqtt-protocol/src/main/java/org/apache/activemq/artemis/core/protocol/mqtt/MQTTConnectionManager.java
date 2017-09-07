@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.Set;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
@@ -29,7 +28,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 /**
  * MQTTConnectionManager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
@@ -38,9 +36,6 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 public class MQTTConnectionManager {
 
    private MQTTSession session;
-
-   //TODO Read in a list of existing client IDs from stored Sessions.
-   public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<>();
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
@@ -149,7 +144,7 @@ public class MQTTConnectionManager {
             session.getSessionState().setAttached(false);
             String clientId = session.getSessionState().getClientId();
             if (clientId != null) {
-               CONNECTED_CLIENTS.remove(clientId);
+               session.getProtocolManager().getConnectedClients().remove(clientId);
             }
          }
       }
@@ -181,7 +176,7 @@ public class MQTTConnectionManager {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
             return null;
          }
-      } else if (!CONNECTED_CLIENTS.add(clientId)) {
+      } else if (!session.getProtocolManager().getConnectedClients().add(clientId)) {
          // ^^^ If the client ID is not unique (i.e. it has already registered) then do not accept it.
 
 
