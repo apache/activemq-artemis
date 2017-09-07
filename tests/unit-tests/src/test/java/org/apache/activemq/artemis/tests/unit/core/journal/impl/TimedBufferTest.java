@@ -227,7 +227,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
    private static void spinSleep(long timeout) {
       if (timeout > 0) {
          final long deadline = System.nanoTime() + timeout;
-         while (System.nanoTime() < deadline) {
+         while (System.nanoTime() - deadline < 0) {
             //spin wait
          }
       }

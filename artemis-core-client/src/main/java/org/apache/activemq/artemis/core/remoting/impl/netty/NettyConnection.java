@@ -330,7 +330,7 @@ public class NettyConnection implements Connection {
             parkNanos = 1000L;
          }
          boolean canWrite;
-         while (!(canWrite = canWrite(requiredCapacity)) && System.nanoTime() < deadline) {
+         while (!(canWrite = canWrite(requiredCapacity)) && (System.nanoTime() - deadline) < 0) {
             //periodically check the connection state
             checkConnectionState();
             LockSupport.parkNanos(parkNanos);
