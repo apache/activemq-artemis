@@ -48,7 +48,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -105,7 +104,8 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY;
 
-@RunWith(FrameworkRunner.class) @CreateDS(name = "Example",
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "Example",
    partitions = {@CreatePartition(name = "example", suffix = "dc=example,dc=com",
       contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n" + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"),
       indexes = {@CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou")})},
@@ -160,7 +160,19 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
       testDir = temporaryFolder.getRoot().getAbsolutePath();
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("Krb5PlusLdap");
+      // hard coded match, default_keytab_name in minikdc-krb5.conf template
+      File userKeyTab = new File("target/test.krb5.keytab");
+      createPrincipal(userKeyTab, "client", "amqp/localhost", "ldap/localhost");
+
+      if (debug) {
+         dumpLdapContents();
+      }
+
+      rewriteKerb5Conf();
+   }
+
+   private void createArtemisServer(String securityConfigScope) {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(securityConfigScope);
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(5672));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
@@ -171,17 +183,6 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
       Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "netty-amqp", amqpParams)).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
-
-
-      // hard coded match, default_keytab_name in minikdc-krb5.conf template
-      File userKeyTab = new File("target/test.krb5.keytab");
-      createPrincipal(userKeyTab, "client", "amqp/localhost", "ldap/localhost");
-
-      if (debug) {
-         dumpLdapContents();
-      }
-
-      rewriteKerb5Conf();
    }
 
    private void rewriteKerb5Conf() throws Exception {
@@ -257,7 +258,14 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
    public synchronized void createPrincipal(String principal, String password) throws Exception {
       String baseDn = getKdcServer().getSearchBaseDn();
-      String content = "dn: uid=" + principal + "," + baseDn + "\n" + "objectClass: top\n" + "objectClass: person\n" + "objectClass: inetOrgPerson\n" + "objectClass: krb5principal\n" + "objectClass: krb5kdcentry\n" + "cn: " + principal + "\n" + "sn: " + principal + "\n" + "uid: " + principal + "\n" + "userPassword: " + password + "\n" + "krb5PrincipalName: " + principal + "@" + getRealm() + "\n" + "krb5KeyVersionNumber: 0";
+      String content = "dn: uid=" + principal + "," + baseDn + "\n" + "objectClass: top\n" + "objectClass: person\n" + "objectClass: inetOrgPerson\n" + "objectClass: krb5principal\n"
+         + "objectClass: krb5kdcentry\n" + "cn: " + principal + "\n" + "sn: " + principal + "\n"
+         + "uid: " + principal + "\n" + "userPassword: " + password + "\n"
+         // using businessCategory as a proxy for memberoOf attribute pending: https://issues.apache.org/jira/browse/DIRSERVER-1844
+         + "businessCategory: " + "cn=admins,ou=system" + "\n"
+         + "businessCategory: " + "cn=bees,ou=system" + "\n"
+         + "krb5PrincipalName: " + principal + "@" + getRealm() + "\n"
+         + "krb5KeyVersionNumber: 0";
 
       for (LdifEntry ldifEntry : new LdifReader(new StringReader(content))) {
          service.getAdminSession().add(new DefaultEntry(service.getSchemaManager(), ldifEntry.getEntry()));
@@ -265,7 +273,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
    }
 
    public void createPrincipal(File keytabFile, String... principals) throws Exception {
-      String generatedPassword = UUID.randomUUID().toString();
+      String generatedPassword = "notSecret!";
       Keytab keytab = new Keytab();
       List<KeytabEntry> entries = new ArrayList<>();
       for (String principal : principals) {
@@ -288,7 +296,9 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
    @After
    public void tearDown() throws Exception {
-      server.stop();
+      if (server != null) {
+         server.stop();
+      }
    }
 
    @Test
@@ -358,9 +368,31 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
+      dotestJAASSecurityManagerAuthorizationPositive("Krb5PlusLdap", "admins");
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveMemberOf() throws Exception {
+      // using businessCategory as a proxy for memberoOf attribute pending: https://issues.apache.org/jira/browse/DIRSERVER-1844
+      dotestJAASSecurityManagerAuthorizationPositive("Krb5PlusLdapMemberOf", "bees");
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveNoRoleName() throws Exception {
+      dotestJAASSecurityManagerAuthorizationPositive("Krb5PlusLdapNoRoleName", "cn=admins,ou=system");
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveMemberOfNoRoleName() throws Exception {
+      dotestJAASSecurityManagerAuthorizationPositive("Krb5PlusLdapMemberOfNoRoleName", "cn=bees,ou=system");
+   }
+
+   public void dotestJAASSecurityManagerAuthorizationPositive(String jaasConfigScope, String artemisRoleName) throws Exception {
+
+      createArtemisServer(jaasConfigScope);
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("admins", true, true, true, true, true, true, true, true, true, true));
+      roles.add(new Role(artemisRoleName, true, true, true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles(QUEUE_NAME, roles);
       server.start();
 

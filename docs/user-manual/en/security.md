@@ -510,7 +510,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     the `ou=Group,ou=ActiveMQ,ou=system` node.
 
 -   `roleName` - specifies the attribute type of the role entry that contains the name of the role/group (e.g. C, O,
-    OU, etc.). If you omit this option, the role search feature is effectively disabled.
+    OU, etc.). If you omit this option the full DN of the role is used.
 
 -   `roleSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `roleBase`.
     This works in a similar manner to the `userSearchMatching` option, except that it supports two substitution strings,
@@ -526,7 +526,8 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     search filter is applied to the subtree selected by the role base, `ou=Group,ou=ActiveMQ,ou=system`, it matches all
     role entries that have a `member` attribute equal to `uid=jdoe` (the value of a `member` attribute is a DN).
 
-    This option must always be set, even if role searching is disabled, because it has no default value.
+    This option must always be set to enable role searching because it has no default value. Leaving it unset disables
+    role searching and the role information must come from `userRoleName`.
 
     If you use OpenLDAP, the syntax of the search filter is `(member:=uid=jdoe)`.
 
@@ -702,11 +703,26 @@ An example configuration scope for `login.config` that will pick up a Kerberos k
 On the server, the Kerberos authenticated Peer Principal can be added to the Subject's principal set as an Apache ActiveMQ Artemis UserPrincipal
 using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) or
  [LDAPLoginModule](#ldaploginmodule) can then be used to map
-the authenticated Kerberos Peer Principal to an Apache ActiveMQ Artemis [Role](#role-based-security-for-addresses).
-
-Note: the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user.
-
-    org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule optional;
+the authenticated Kerberos Peer Principal to an Apache ActiveMQ Artemis [Role](#role-based-security-for-addresses). Note
+that the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user, only as a role member.
+ 
+    org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule required
+        ;
+    org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule optional
+        debug=true
+        initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
+        connectionURL="ldap://localhost:1024"
+        authentication=GSSAPI
+        saslLoginConfigScope=broker-sasl-gssapi
+        connectionProtocol=s
+        userBase="ou=users,dc=example,dc=com"
+        userSearchMatching="(krb5PrincipalName={0})"
+        userSearchSubtree=true
+        authenticateUser=false
+        roleBase="ou=system"
+        roleSearchMatching="(member={0})"
+        roleSearchSubtree=false
+        ;
 
 #### TLS Kerberos Cipher Suites
 

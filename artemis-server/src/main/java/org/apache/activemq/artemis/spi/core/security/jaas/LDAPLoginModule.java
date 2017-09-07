@@ -29,6 +29,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -91,6 +93,8 @@ public class LDAPLoginModule implements LoginModule {
    private boolean userAuthenticated = false;
    private boolean authenticateUser = true;
    private Subject brokerGssapiIdentity = null;
+   private boolean isRoleAttributeSet = false;
+   private String roleAttributeName = null;
 
    @Override
    public void initialize(Subject subject,
@@ -104,6 +108,8 @@ public class LDAPLoginModule implements LoginModule {
       if (isLoginPropertySet(AUTHENTICATE_USER)) {
          authenticateUser = Boolean.valueOf(getLDAPPropertyValue(AUTHENTICATE_USER));
       }
+      isRoleAttributeSet = isLoginPropertySet(ROLE_NAME);
+      roleAttributeName = getLDAPPropertyValue(ROLE_NAME);
    }
 
    @Override
@@ -338,7 +344,25 @@ public class LDAPLoginModule implements LoginModule {
             throw new FailedLoginException("User found, but LDAP entry malformed: " + username);
          }
          if (isLoginPropertySet(USER_ROLE_NAME)) {
-            addAttributeValues(getLDAPPropertyValue(USER_ROLE_NAME), attrs, roles);
+            Attribute roleNames = attrs.get(getLDAPPropertyValue(USER_ROLE_NAME));
+            if (roleNames != null) {
+               NamingEnumeration<?> e = roleNames.getAll();
+               while (e.hasMore()) {
+                  String roleDnString = (String) e.next();
+                  if (isRoleAttributeSet) {
+                     // parse out the attribute from the group Dn
+                     LdapName ldapRoleName = new LdapName(roleDnString);
+                     for (int i = 0; i < ldapRoleName.size(); i++) {
+                        Rdn candidate = ldapRoleName.getRdn(i);
+                        if (roleAttributeName.equals(candidate.getType())) {
+                           roles.add((String) candidate.getValue());
+                        }
+                     }
+                  } else {
+                     roles.add(roleDnString);
+                  }
+               }
+            }
          }
       } catch (CommunicationException e) {
          closeContext();
@@ -359,6 +383,11 @@ public class LDAPLoginModule implements LoginModule {
                                    String dn,
                                    String username,
                                    List<String> currentRoles) throws NamingException {
+
+      if (!isLoginPropertySet(ROLE_SEARCH_MATCHING)) {
+         return;
+      }
+
       MessageFormat roleSearchMatchingFormat;
       boolean roleSearchSubtreeBool;
       boolean expandRolesBool;
@@ -366,9 +395,6 @@ public class LDAPLoginModule implements LoginModule {
       roleSearchSubtreeBool = Boolean.valueOf(getLDAPPropertyValue(ROLE_SEARCH_SUBTREE)).booleanValue();
       expandRolesBool = Boolean.valueOf(getLDAPPropertyValue(EXPAND_ROLES)).booleanValue();
 
-      if (!isLoginPropertySet(ROLE_NAME)) {
-         return;
-      }
       final String filter = roleSearchMatchingFormat.format(new String[]{doRFC2254Encoding(dn), doRFC2254Encoding(username)});
 
       SearchControls constraints = new SearchControls();
@@ -397,15 +423,11 @@ public class LDAPLoginModule implements LoginModule {
 
       while (results.hasMore()) {
          SearchResult result = results.next();
-         Attributes attrs = result.getAttributes();
          if (expandRolesBool) {
             haveSeenNames.add(result.getNameInNamespace());
             pendingNameExpansion.add(result.getNameInNamespace());
          }
-         if (attrs == null) {
-            continue;
-         }
-         addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, currentRoles);
+         addRoleAttribute(result, currentRoles);
       }
       if (expandRolesBool) {
          MessageFormat expandRolesMatchingFormat = new MessageFormat(getLDAPPropertyValue(EXPAND_ROLES_MATCHING));
@@ -424,8 +446,7 @@ public class LDAPLoginModule implements LoginModule {
                SearchResult result = results.next();
                name = result.getNameInNamespace();
                if (!haveSeenNames.contains(name)) {
-                  Attributes attrs = result.getAttributes();
-                  addAttributeValues(getLDAPPropertyValue(ROLE_NAME), attrs, currentRoles);
+                  addRoleAttribute(result, currentRoles);
                   haveSeenNames.add(name);
                   pendingNameExpansion.add(name);
                }
@@ -497,23 +518,17 @@ public class LDAPLoginModule implements LoginModule {
       return isValid;
    }
 
-   private void addAttributeValues(String attrId,
-                                           Attributes attrs,
-                                           List<String> values) throws NamingException {
-
-      if (attrId == null || attrs == null) {
-         return;
-      }
-      Attribute attr = attrs.get(attrId);
-      if (attr == null) {
-         return;
-      }
-      NamingEnumeration<?> e = attr.getAll();
-      while (e.hasMore()) {
-         String value = (String) e.next();
-         values.add(value);
+   private void addRoleAttribute(SearchResult searchResult, List<String> roles) throws NamingException {
+      if (isRoleAttributeSet) {
+         Attribute roleAttribute = searchResult.getAttributes().get(roleAttributeName);
+         if (roleAttribute != null) {
+            roles.add((String) roleAttribute.get());
+         }
+      } else {
+         roles.add(searchResult.getNameInNamespace());
       }
    }
+
 
    protected void openContext() throws Exception {
       if (context == null) {
