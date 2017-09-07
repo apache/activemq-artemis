@@ -42,7 +42,7 @@ public class CriticalAnalyzerTest {
 
    @Test
    public void testAction() throws Exception {
-      analyzer = new CriticalAnalyzerImpl().setTimeout(100).setCheckTime(50);
+      analyzer = new CriticalAnalyzerImpl().setTimeout(100, TimeUnit.MILLISECONDS).setCheckTime(50, TimeUnit.MILLISECONDS);
       analyzer.add(new CriticalComponent() {
          @Override
          public boolean isExpired(long timeout) {
@@ -66,7 +66,7 @@ public class CriticalAnalyzerTest {
 
    @Test
    public void testActionOnImpl() throws Exception {
-      analyzer = new CriticalAnalyzerImpl().setTimeout(10).setCheckTime(5);
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
       CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
       analyzer.add(component);
 
@@ -89,8 +89,29 @@ public class CriticalAnalyzerTest {
    }
 
    @Test
+   public void testEnterNoLeaveNoExpire() throws Exception {
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
+      component.enterCritical(0);
+      Assert.assertFalse(component.isExpired(TimeUnit.MINUTES.toNanos(1)));
+      analyzer.stop();
+
+   }
+
+   @Test
+   public void testEnterNoLeaveExpire() throws Exception {
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
+      CriticalComponent component = new CriticalComponentImpl(analyzer, 2);
+      component.enterCritical(0);
+      Thread.sleep(50);
+      Assert.assertTrue(component.isExpired(0));
+      analyzer.stop();
+
+   }
+
+   @Test
    public void testNegative() throws Exception {
-      analyzer = new CriticalAnalyzerImpl().setTimeout(10).setCheckTime(5);
+      analyzer = new CriticalAnalyzerImpl().setTimeout(10, TimeUnit.MILLISECONDS).setCheckTime(5, TimeUnit.MILLISECONDS);
       CriticalComponent component = new CriticalComponentImpl(analyzer, 1);
       analyzer.add(component);
 

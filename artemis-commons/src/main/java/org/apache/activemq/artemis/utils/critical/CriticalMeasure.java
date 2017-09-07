@@ -17,28 +17,33 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
-import org.jboss.logging.Logger;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 public class CriticalMeasure {
 
-   private static final Logger logger = Logger.getLogger(CriticalMeasure.class);
+   //uses updaters to avoid creates many AtomicLong instances
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
 
+   //System::nanoTime can't reach this value so it's the best candidate to have a NULL semantic
    private volatile long timeEnter;
    private volatile long timeLeft;
 
    public void enterCritical() {
-      timeEnter = System.currentTimeMillis();
+      //prefer lazySet in order to avoid heavy-weight full barriers
+      TIME_ENTER_UPDATER.lazySet(this, System.nanoTime());
    }
 
    public void leaveCritical() {
-      timeLeft = System.currentTimeMillis();
+      TIME_LEFT_UPDATER.lazySet(this, System.nanoTime());
    }
 
    public boolean isExpired(long timeout) {
+      final long timeLeft = TIME_LEFT_UPDATER.get(this);
+      final long timeEnter = TIME_ENTER_UPDATER.get(this);
       if (timeEnter > timeLeft) {
-         return System.currentTimeMillis() - timeEnter > timeout;
+         return System.nanoTime() - timeEnter > timeout;
       }
-
       return false;
    }
 
