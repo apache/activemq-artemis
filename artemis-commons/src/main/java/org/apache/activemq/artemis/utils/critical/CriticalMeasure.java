@@ -17,36 +17,48 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
-import org.jboss.logging.Logger;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 public class CriticalMeasure {
 
-   private static final Logger logger = Logger.getLogger(CriticalMeasure.class);
+   //uses updaters to avoid creates many AtomicLong instances
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_ENTER_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeEnter");
+   private static final AtomicLongFieldUpdater<CriticalMeasure> TIME_LEFT_UPDATER = AtomicLongFieldUpdater.newUpdater(CriticalMeasure.class, "timeLeft");
 
    private volatile long timeEnter;
    private volatile long timeLeft;
 
+   public CriticalMeasure() {
+      //prefer this approach instead of using some fixed value because System::nanoTime could change sign
+      //with long running processes
+      enterCritical();
+      leaveCritical();
+   }
+
    public void enterCritical() {
-      timeEnter = System.currentTimeMillis();
+      //prefer lazySet in order to avoid heavy-weight full barriers on x86
+      TIME_ENTER_UPDATER.lazySet(this, System.nanoTime());
    }
 
    public void leaveCritical() {
-      timeLeft = System.currentTimeMillis();
+      TIME_LEFT_UPDATER.lazySet(this, System.nanoTime());
    }
 
    public boolean isExpired(long timeout) {
-      if (timeEnter > timeLeft) {
-         return System.currentTimeMillis() - timeEnter > timeout;
+      final long timeLeft = TIME_LEFT_UPDATER.get(this);
+      final long timeEnter = TIME_ENTER_UPDATER.get(this);
+      //due to how System::nanoTime works is better to use differences to prevent numerical overflow while comparing
+      if (timeLeft - timeEnter < 0) {
+         return System.nanoTime() - timeEnter > timeout;
       }
-
       return false;
    }
 
    public long enterTime() {
-      return timeEnter;
+      return TIME_ENTER_UPDATER.get(this);
    }
 
    public long leaveTime() {
-      return timeLeft;
+      return TIME_LEFT_UPDATER.get(this);
    }
 }
