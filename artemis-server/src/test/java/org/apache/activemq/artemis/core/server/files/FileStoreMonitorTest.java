@@ -96,7 +96,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       };
 
       final AtomicBoolean fakeReturn = new AtomicBoolean(false);
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999) {
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null) {
          @Override
          protected double calculateUsage(FileStore store) throws IOException {
             if (fakeReturn.get()) {
@@ -127,7 +127,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
    @Test
    public void testScheduler() throws Exception {
 
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 0.9);
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 0.9, null);
 
       final ReusableLatch latch = new ReusableLatch(5);
       storeMonitor.addStore(getTestDirfile());
