@@ -92,14 +92,14 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
    private boolean equals(Object field, Object value) {
       if (field == null) {
-         return (value.equals("") || value == null);
+         return (value == null || value.equals(""));
       }
       return field.toString().equals(value);
    }
 
    private boolean contains(Object field, Object value) {
       if (field == null) {
-         return (value.equals("") || value == null);
+         return (value == null || value.equals(""));
       }
       return field.toString().contains(value.toString());
    }
