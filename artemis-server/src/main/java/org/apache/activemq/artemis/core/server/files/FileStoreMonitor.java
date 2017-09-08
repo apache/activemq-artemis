@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.jboss.logging.Logger;
 
@@ -45,14 +46,17 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    private final Set<FileStore> stores = new HashSet<>();
    private double maxUsage;
    private final Object monitorLock = new Object();
+   private final IOCriticalErrorListener ioCriticalErrorListener;
 
    public FileStoreMonitor(ScheduledExecutorService scheduledExecutorService,
                            Executor executor,
                            long checkPeriod,
                            TimeUnit timeUnit,
-                           double maxUsage) {
+                           double maxUsage,
+                           IOCriticalErrorListener ioCriticalErrorListener) {
       super(scheduledExecutorService, executor, checkPeriod, timeUnit, false);
       this.maxUsage = maxUsage;
+      this.ioCriticalErrorListener = ioCriticalErrorListener;
    }
 
    public FileStoreMonitor addCallback(Callback callback) {
@@ -99,6 +103,8 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
                if (over) {
                   break;
                }
+            } catch (IOException ioe) {
+               ioCriticalErrorListener.onIOException(ioe, "IO Error while calculating disk usage", null);
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
             }
