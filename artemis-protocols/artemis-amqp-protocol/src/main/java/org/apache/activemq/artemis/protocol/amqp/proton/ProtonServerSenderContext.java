@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -72,9 +74,6 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
 import org.jboss.logging.Logger;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 
 /**
  * TODO: Merge {@link ProtonServerSenderContext} and {@link org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext} once we support 'global' link names. The split is a workaround for outgoing links
@@ -333,10 +332,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                supportedFilters.put(filter.getKey(), filter.getValue());
             }
 
-            if (queueNameToUse != null) {
-               SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.MULTICAST);
-               queue = matchingAnycastQueue.toString();
-            }
+            queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST);
+
             //if the address specifies a broker configured queue then we always use this, treat it as a queue
             if (queue != null) {
                multicast = false;
@@ -390,7 +387,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          } else {
             if (queueNameToUse != null) {
-               SimpleString matchingAnycastQueue = sessionSPI.getMatchingQueue(addressToUse, queueNameToUse, RoutingType.ANYCAST);
+               SimpleString matchingAnycastQueue = SimpleString.toSimpleString(getMatchingQueue(queueNameToUse, addressToUse, RoutingType.ANYCAST));
                if (matchingAnycastQueue != null) {
                   queue = matchingAnycastQueue.toString();
                } else {
@@ -438,6 +435,21 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
       }
+   }
+
+   private String getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
+      if (queueName != null) {
+         QueueQueryResult result = sessionSPI.queueQuery(queueName.toString(), routingType, false);
+         if (!result.isExists()) {
+            throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
+         } else {
+            if (!result.getAddress().equals(address)) {
+               throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist for address '" + address + "'");
+            }
+            return sessionSPI.getMatchingQueue(address, queueName, routingType).toString();
+         }
+      }
+      return null;
    }
 
    protected String getClientId() {
