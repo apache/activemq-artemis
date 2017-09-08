@@ -62,7 +62,7 @@ public class EmptyCriticalAnalyzer implements CriticalAnalyzer {
 
    @Override
    public CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit) {
-      return null;
+      return this;
    }
 
    @Override
@@ -72,7 +72,7 @@ public class EmptyCriticalAnalyzer implements CriticalAnalyzer {
 
    @Override
    public CriticalAnalyzer setTimeout(long timeout, TimeUnit unit) {
-      return null;
+      return this;
    }
 
    @Override
