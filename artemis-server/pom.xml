@@ -117,7 +117,12 @@
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
-
+      <!-- db test -->
+      <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derby</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <profiles>
