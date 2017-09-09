@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.jdbc.store.sql;
 public interface SQLProvider {
 
    enum DatabaseStoreType {
-      PAGE, MESSAGE_JOURNAL, BINDINGS_JOURNAL, LARGE_MESSAGE
+      PAGE, MESSAGE_JOURNAL, BINDINGS_JOURNAL, LARGE_MESSAGE, NODE_MANAGER
    }
 
    long getMaxBlobSize();
@@ -62,7 +62,44 @@ public interface SQLProvider {
 
    boolean closeConnectionOnShutdown();
 
+   String createNodeManagerStoreTableSQL();
+
+   String createStateSQL();
+
+   String createNodeIdSQL();
+
+   String createLiveLockSQL();
+
+   String createBackupLockSQL();
+
+   String tryAcquireLiveLockSQL();
+
+   String tryAcquireBackupLockSQL();
+
+   String tryReleaseLiveLockSQL();
+
+   String tryReleaseBackupLockSQL();
+
+   String isLiveLockedSQL();
+
+   String isBackupLockedSQL();
+
+   String renewLiveLockSQL();
+
+   String renewBackupLockSQL();
+
+   String currentTimestampSQL();
+
+   String writeStateSQL();
+
+   String readStateSQL();
+
+   String writeNodeIdSQL();
+
+   String readNodeIdSQL();
+
    interface Factory {
+
       SQLProvider create(String tableName, DatabaseStoreType dbStoreType);
    }
 }

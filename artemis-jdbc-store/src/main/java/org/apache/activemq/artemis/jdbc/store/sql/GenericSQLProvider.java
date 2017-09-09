@@ -18,6 +18,14 @@ package org.apache.activemq.artemis.jdbc.store.sql;
 
 public class GenericSQLProvider implements SQLProvider {
 
+   /**
+    * The JDBC Node Manager shared state is contained in these 4 rows: each one is used exclusively for a specific purpose.
+    */
+   private static final int STATE_ROW_ID = 0;
+   private static final int LIVE_LOCK_ROW_ID = 1;
+   private static final int BACKUP_LOCK_ROW_ID = 2;
+   private static final int NODE_ID_ROW_ID = 3;
+
    // Default to lowest (MYSQL = 64k)
    private static final long MAX_BLOB_SIZE = 64512;
 
@@ -57,6 +65,42 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String countJournalRecordsSQL;
 
+   private final String createNodeManagerStoreTableSQL;
+
+   private final String createStateSQL;
+
+   private final String createNodeIdSQL;
+
+   private final String createLiveLockSQL;
+
+   private final String createBackupLockSQL;
+
+   private final String tryAcquireLiveLockSQL;
+
+   private final String tryAcquireBackupLockSQL;
+
+   private final String tryReleaseLiveLockSQL;
+
+   private final String tryReleaseBackupLockSQL;
+
+   private final String isLiveLockedSQL;
+
+   private final String isBackupLockedSQL;
+
+   private final String renewLiveLockSQL;
+
+   private final String renewBackupLockSQL;
+
+   private final String currentTimestampSQL;
+
+   private final String writeStateSQL;
+
+   private final String readStateSQL;
+
+   private final String writeNodeIdSQL;
+
+   private final String readNodeIdSQL;
+
    protected final DatabaseStoreType databaseStoreType;
 
    protected GenericSQLProvider(String tableName, DatabaseStoreType databaseStoreType) {
@@ -64,8 +108,7 @@ public class GenericSQLProvider implements SQLProvider {
 
       this.databaseStoreType = databaseStoreType;
 
-      createFileTableSQL = "CREATE TABLE " + tableName +
-         "(ID BIGINT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
+      createFileTableSQL = "CREATE TABLE " + tableName + "(ID BIGINT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
 
       insertFileSQL = "INSERT INTO " + tableName + " (FILENAME, EXTENSION, DATA) VALUES (?,?,?)";
 
@@ -81,17 +124,13 @@ public class GenericSQLProvider implements SQLProvider {
 
       updateFileNameByIdSQL = "UPDATE " + tableName + " SET FILENAME=? WHERE ID=?";
 
-      cloneFileRecordSQL = "INSERT INTO " + tableName + "(FILENAME, EXTENSION, DATA) " +
-         "(SELECT FILENAME, EXTENSION, DATA FROM " + tableName + " WHERE ID=?)";
+      cloneFileRecordSQL = "INSERT INTO " + tableName + "(FILENAME, EXTENSION, DATA) " + "(SELECT FILENAME, EXTENSION, DATA FROM " + tableName + " WHERE ID=?)";
 
       copyFileRecordByIdSQL = "UPDATE " + tableName + " SET DATA = (SELECT DATA FROM " + tableName + " WHERE ID=?) WHERE ID=?";
 
       dropFileTableSQL = "DROP TABLE " + tableName;
 
-      createJournalTableSQL = new String[] {
-         "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT NOT NULL, PRIMARY KEY(seq))",
-         "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (id)"
-      };
+      createJournalTableSQL = new String[]{"CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT NOT NULL, PRIMARY KEY(seq))", "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (id)"};
 
       insertJournalRecordsSQL = "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -102,6 +141,43 @@ public class GenericSQLProvider implements SQLProvider {
       deleteJournalTxRecordsSQL = "DELETE FROM " + tableName + " WHERE txId=?";
 
       countJournalRecordsSQL = "SELECT COUNT(*) FROM " + tableName;
+
+      createNodeManagerStoreTableSQL = "CREATE TABLE " + tableName + " ( ID INT NOT NULL, HOLDER_ID VARCHAR(128), HOLDER_EXPIRATION_TIME TIMESTAMP, NODE_ID CHAR(36),STATE CHAR(1), PRIMARY KEY(ID))";
+
+      createStateSQL = "INSERT INTO " + tableName + " (ID) VALUES (" + STATE_ROW_ID + ")";
+
+      createNodeIdSQL = "INSERT INTO " + tableName + " (ID) VALUES (" + NODE_ID_ROW_ID + ")";
+
+      createLiveLockSQL = "INSERT INTO " + tableName + " (ID) VALUES (" + LIVE_LOCK_ROW_ID + ")";
+
+      createBackupLockSQL = "INSERT INTO " + tableName + " (ID) VALUES (" + BACKUP_LOCK_ROW_ID + ")";
+
+      tryAcquireLiveLockSQL = "UPDATE " + tableName + " SET HOLDER_ID = ?, HOLDER_EXPIRATION_TIME = ? WHERE (HOLDER_EXPIRATION_TIME IS NULL OR HOLDER_EXPIRATION_TIME < CURRENT_TIMESTAMP) AND ID = " + LIVE_LOCK_ROW_ID;
+
+      tryAcquireBackupLockSQL = "UPDATE " + tableName + " SET HOLDER_ID = ?, HOLDER_EXPIRATION_TIME = ? WHERE (HOLDER_EXPIRATION_TIME IS NULL OR HOLDER_EXPIRATION_TIME < CURRENT_TIMESTAMP) AND ID = " + BACKUP_LOCK_ROW_ID;
+
+      tryReleaseLiveLockSQL = "UPDATE " + tableName + " SET HOLDER_ID = NULL, HOLDER_EXPIRATION_TIME = NULL WHERE HOLDER_ID = ? AND ID = " + LIVE_LOCK_ROW_ID;
+
+      tryReleaseBackupLockSQL = "UPDATE " + tableName + " SET HOLDER_ID = NULL, HOLDER_EXPIRATION_TIME = NULL WHERE HOLDER_ID = ? AND ID = " + BACKUP_LOCK_ROW_ID;
+
+      isLiveLockedSQL = "SELECT HOLDER_ID, HOLDER_EXPIRATION_TIME FROM " + tableName + " WHERE ID = " + LIVE_LOCK_ROW_ID;
+
+      isBackupLockedSQL = "SELECT HOLDER_ID, HOLDER_EXPIRATION_TIME FROM " + tableName + " WHERE ID = " + BACKUP_LOCK_ROW_ID;
+
+      renewLiveLockSQL = "UPDATE " + tableName + " SET HOLDER_EXPIRATION_TIME = ? WHERE HOLDER_ID = ? AND ID = " + LIVE_LOCK_ROW_ID;
+
+      renewBackupLockSQL = "UPDATE " + tableName + " SET HOLDER_EXPIRATION_TIME = ? WHERE HOLDER_ID = ? AND ID = " + BACKUP_LOCK_ROW_ID;
+
+      currentTimestampSQL = "SELECT CURRENT_TIMESTAMP FROM " + tableName;
+
+      writeStateSQL = "UPDATE " + tableName + " SET STATE = ? WHERE ID = " + STATE_ROW_ID;
+
+      readStateSQL = "SELECT STATE FROM " + tableName + " WHERE ID = " + STATE_ROW_ID;
+
+      writeNodeIdSQL = "UPDATE " + tableName + " SET NODE_ID = ? WHERE ID = " + NODE_ID_ROW_ID;
+
+      readNodeIdSQL = "SELECT NODE_ID FROM " + tableName + " WHERE ID = " + NODE_ID_ROW_ID;
+
    }
 
    @Override
@@ -199,6 +275,96 @@ public class GenericSQLProvider implements SQLProvider {
    @Override
    public String getDropFileTableSQL() {
       return dropFileTableSQL;
+   }
+
+   @Override
+   public String createNodeManagerStoreTableSQL() {
+      return createNodeManagerStoreTableSQL;
+   }
+
+   @Override
+   public String createStateSQL() {
+      return createStateSQL;
+   }
+
+   @Override
+   public String createNodeIdSQL() {
+      return createNodeIdSQL;
+   }
+
+   @Override
+   public String createLiveLockSQL() {
+      return createLiveLockSQL;
+   }
+
+   @Override
+   public String createBackupLockSQL() {
+      return createBackupLockSQL;
+   }
+
+   @Override
+   public String tryAcquireLiveLockSQL() {
+      return tryAcquireLiveLockSQL;
+   }
+
+   @Override
+   public String tryAcquireBackupLockSQL() {
+      return tryAcquireBackupLockSQL;
+   }
+
+   @Override
+   public String tryReleaseLiveLockSQL() {
+      return tryReleaseLiveLockSQL;
+   }
+
+   @Override
+   public String tryReleaseBackupLockSQL() {
+      return tryReleaseBackupLockSQL;
+   }
+
+   @Override
+   public String isLiveLockedSQL() {
+      return isLiveLockedSQL;
+   }
+
+   @Override
+   public String isBackupLockedSQL() {
+      return isBackupLockedSQL;
+   }
+
+   @Override
+   public String renewLiveLockSQL() {
+      return renewLiveLockSQL;
+   }
+
+   @Override
+   public String renewBackupLockSQL() {
+      return renewBackupLockSQL;
+   }
+
+   @Override
+   public String currentTimestampSQL() {
+      return currentTimestampSQL;
+   }
+
+   @Override
+   public String writeStateSQL() {
+      return writeStateSQL;
+   }
+
+   @Override
+   public String readStateSQL() {
+      return readStateSQL;
+   }
+
+   @Override
+   public String writeNodeIdSQL() {
+      return writeNodeIdSQL;
+   }
+
+   @Override
+   public String readNodeIdSQL() {
+      return readNodeIdSQL;
    }
 
    @Override

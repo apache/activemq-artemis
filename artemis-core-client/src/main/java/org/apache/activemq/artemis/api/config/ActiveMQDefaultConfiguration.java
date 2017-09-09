@@ -437,8 +437,17 @@ public final class ActiveMQDefaultConfiguration {
    // Default Page Store table name, used with Database storage type
    private static final String DEFAULT_PAGE_STORE_TABLE_NAME = "PAGE_STORE";
 
+   // Default node manager store table name, used with Database storage type
+   private static final String DEFAULT_NODE_MANAGER_STORE_TABLE_NAME = "NODE_MANAGER_STORE";
+
 
    private static final int DEFAULT_JDBC_NETWORK_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(20);
+
+   private static final long DEFAULT_JDBC_LOCK_RENEW_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(4);
+
+   private static final long DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS = TimeUnit.SECONDS.toMillis(20);
+
+   private static final long DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(60);
 
    // Default JMS Bingings table name, used with Database storage type
    private static final String DEFAULT_JMS_BINDINGS_TABLE_NAME = "JMS_BINDINGS";
@@ -1197,8 +1206,24 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_PAGE_STORE_TABLE_NAME;
    }
 
+   public static String getDefaultNodeManagerStoreTableName() {
+      return DEFAULT_NODE_MANAGER_STORE_TABLE_NAME;
+   }
+
    public static int getDefaultJdbcNetworkTimeout() {
       return DEFAULT_JDBC_NETWORK_TIMEOUT;
+   }
+
+   public static long getDefaultJdbcLockRenewPeriodMillis() {
+      return DEFAULT_JDBC_LOCK_RENEW_PERIOD_MILLIS;
+   }
+
+   public static long getDefaultJdbcLockExpirationMillis() {
+      return DEFAULT_JDBC_LOCK_EXPIRATION_MILLIS;
+   }
+
+   public static long getDefaultJdbcLockAcquisitionTimeoutMillis() {
+      return DEFAULT_JDBC_LOCK_ACQUISITION_TIMEOUT_MILLIS;
    }
 
    public static String getDefaultJMSBindingsTableName() {

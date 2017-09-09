@@ -436,6 +436,21 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
     The JDBC network connection timeout in milliseconds. The default value
     is 20000 milliseconds (ie 20 seconds).
+    
+-   `jdbc-lock-acquisition-timeout`
+
+    The max allowed time in milliseconds while trying to acquire a JDBC lock. The default value
+    is 60000 milliseconds (ie 60 seconds).
+        
+-   `jdbc-lock-renew-period`
+
+    The period in milliseconds of the keep alive service of a JDBC lock. The default value
+    is 2000 milliseconds (ie 2 seconds).
+    
+-   `jdbc-lock-expiration`
+
+    The time in milliseconds a JDBC lock is considered valid without keeping it alive. The default value
+    is 20000 milliseconds (ie 20 seconds).
 
 ## Configuring Apache ActiveMQ Artemis for Zero Persistence
 
