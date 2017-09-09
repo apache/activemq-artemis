@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Set;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -42,6 +41,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.ByteBuf;
 
 /** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
  *  consumers */
@@ -1066,15 +1067,12 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       initBuffer(size);
       buffer.setIndex(0, 0).writeBytes(record.byteBuf(), size);
       decode();
-
    }
 
    @Override
    public CoreMessage toCore() {
       return this;
    }
-
-
 
    @Override
    public String toString() {
@@ -1084,12 +1082,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
             ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
             ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties + "]@" + System.identityHashCode(this);
       } catch (Throwable e) {
-         e.printStackTrace();
-         System.exit(-1);
+         logger.warn("Error creating String for message: ", e);
          return "ServerMessage[messageID=" + messageID + "]";
       }
    }
-
 
    private static String toDate(long timestamp) {
       if (timestamp == 0) {
@@ -1097,8 +1093,5 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       } else {
          return new java.util.Date(timestamp).toString();
       }
-
    }
-
-
 }
