@@ -155,7 +155,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    @Override
    public boolean isPurgeOnNoConsumers() {
-      return false;
+      return purgeOnNoConsumers;
    }
 
    @Override

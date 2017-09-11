@@ -1699,9 +1699,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             boolean temporary,
                             boolean autoCreated,
                             Integer maxConsumers,
-                            Boolean deleteOnNoConsumers,
+                            Boolean purgeOnNoConsumers,
                             boolean autoCreateAddress) throws Exception {
-      return createQueue(address, routingType, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, deleteOnNoConsumers, autoCreateAddress);
+      return createQueue(address, routingType, queueName, filter, user, durable, temporary, false, false, autoCreated, maxConsumers, purgeOnNoConsumers, autoCreateAddress);
    }
 
    @Deprecated
