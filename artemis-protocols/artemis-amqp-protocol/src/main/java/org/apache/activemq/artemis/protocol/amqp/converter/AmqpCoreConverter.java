@@ -181,6 +181,8 @@ public class AmqpCoreConverter {
 
       populateMessage(result, message.getProtonMessage());
       result.getInnerMessage().setReplyTo(message.getReplyTo());
+      result.getInnerMessage().setDurable(message.isDurable());
+      result.getInnerMessage().setPriority(message.getPriority());
 
       result.encode();
 
