@@ -378,7 +378,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       String inputLine;
       while ((inputLine = reader.readLine()) != null) {
          if (error) {
-            ActiveMQUtilLogger.LOGGER.failedToReadFromStream(inputLine == null ? " " : inputLine);
+            ActiveMQUtilLogger.LOGGER.failedToReadFromStream(inputLine);
          } else {
             logger.trace(inputLine);
          }
