@@ -1452,14 +1452,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false);
 
       //test with filter that matches 2 queues
-      HashMap<String, Object> optionMap = new HashMap<>();
-      optionMap.put("field", "name");
-      optionMap.put("operation", "CONTAINS");
-      optionMap.put("value", "my_queue");
-      JsonObject optionjsonObject = JsonUtil.toJsonObject(optionMap);
-      String optionString = optionjsonObject.toString();
+      String filterString = createJsonFilter("name", "CONTAINS", "my_queue");
 
-      String queuesAsJsonString = serverControl.listQueues(optionString, 1, 50);
+      String queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
 
       JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
@@ -1469,14 +1464,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue(array.getJsonObject(1).getString("name").contains("my_queue"));
 
       //test with an empty filter
-      optionMap = new HashMap<>();
-      optionMap.put("field", "");
-      optionMap.put("operation", "");
-      optionMap.put("value", "");
-      optionjsonObject = JsonUtil.toJsonObject(optionMap);
-      optionString = optionjsonObject.toString();
+      filterString = createJsonFilter("", "", "");
 
-      queuesAsJsonString = serverControl.listQueues(optionString, 1, 50);
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
 
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
@@ -1485,12 +1475,152 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertTrue("number of queues returned from query", 3 <= array.size());
 
       //test with small page size
-      queuesAsJsonString = serverControl.listQueues(optionString, 1, 1);
+      queuesAsJsonString = serverControl.listQueues(filterString, 1, 1);
 
       queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
       array = (JsonArray) queuesAsJsonObject.get("data");
 
       Assert.assertEquals("number of queues returned from query", 1, array.size());
+
+   }
+
+   @Test
+   public void testListAddresses() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+
+      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString addressName2 = new SimpleString("my_address_two");
+      SimpleString addressName3 = new SimpleString("other_address_three");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, false, false);
+      server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false);
+
+      //test with CONTAINS filter
+      String filterString = createJsonFilter("name", "CONTAINS", "my_address");
+      String addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      JsonObject addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      JsonArray array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses returned from query", 2, array.size());
+      Assert.assertTrue("address name check", array.getJsonObject(0).getString("name").contains("my_address"));
+      Assert.assertTrue("address name check", array.getJsonObject(1).getString("name").contains("my_address"));
+
+      //test with EQUALS filter
+      filterString = createJsonFilter("name", "EQUALS", addressName1.toString());
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses returned from query", 1, array.size());
+      Assert.assertEquals("address name check", addressName1.toString(), array.getJsonObject(0).getString("name"));
+
+      //test with empty filter - all addresses should be returned
+      filterString = createJsonFilter("", "", "");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertTrue("number of addresses returned from query", 3 <= array.size());
+
+      //test with small page size
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 1);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of queues returned from query", 1, array.size());
+
+   }
+
+   @Test
+   public void testListConsumers() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString addressName1 = new SimpleString("my_address_one");
+      SimpleString addressName2 = new SimpleString("my_address_two");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
+      server.createQueue(addressName2, RoutingType.ANYCAST, queueName2, null, false, false);
+      server.createQueue(addressName2, RoutingType.ANYCAST, queueName3, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+
+         ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
+         ClientConsumer consumer2_q1 = session.createConsumer(queueName1);
+         ClientConsumer consumer1_q2 = session.createConsumer(queueName2);
+         ClientConsumer consumer1_q3 = session.createConsumer(queueName3);
+
+         //test with filter  EQUALS
+         String filterString = createJsonFilter("queue", "EQUALS", queueName1.toString());
+         String consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         JsonArray array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertEquals("number of consumers returned from query", 2, array.size());
+         Assert.assertEquals("check consumer's queue", queueName1.toString(), array.getJsonObject(0).getString("queue"));
+         Assert.assertEquals("check consumer's queue", queueName1.toString(), array.getJsonObject(0).getString("queue"));
+
+         // test with a CONTAINS operation
+         filterString = createJsonFilter("queue", "CONTAINS", "my_queue");
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertEquals("number of consumers returned from query", 3, array.size());
+
+         // filter by address
+         filterString = createJsonFilter("address", "EQUALS", addressName1.toString());
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertEquals("number of consumers returned from query", 2, array.size());
+         Assert.assertEquals("check consumers address", addressName1.toString(), array.getJsonObject(0).getString("address"));
+         Assert.assertEquals("check consumers address", addressName1.toString(), array.getJsonObject(1).getString("address"));
+
+         //test with empty filter - all consumers should be returned
+         filterString = createJsonFilter("", "", "");
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertTrue("at least 4 consumers returned from query", 4 <= array.size());
+
+         //test with small page size
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 1);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertEquals("number of consumers returned from query", 1, array.size());
+
+         //test contents of returned consumer
+         filterString = createJsonFilter("queue", "EQUALS", queueName3.toString());
+         consumersAsJsonString = serverControl.listConsumers(filterString, 1, 50);
+         consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);
+         array = (JsonArray) consumersAsJsonObject.get("data");
+
+         Assert.assertEquals("number of consumers returned from query", 1, array.size());
+         JsonObject jsonConsumer = array.getJsonObject(0);
+         Assert.assertEquals("queue name in consumer", queueName3.toString(), jsonConsumer.getString("queue"));
+         Assert.assertEquals("address name in consumer", addressName2.toString(), jsonConsumer.getString("address"));
+         Assert.assertEquals("consumer protocol ", "CORE", jsonConsumer.getString("protocol"));
+         Assert.assertEquals("queue type", "anycast", jsonConsumer.getString("queueType"));
+
+      }
 
    }
 
@@ -1583,6 +1713,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    // Private -------------------------------------------------------
+
+   private String createJsonFilter(String fieldName, String operationName, String value) {
+      HashMap<String, Object> filterMap = new HashMap<>();
+      filterMap.put("field", fieldName);
+      filterMap.put("operation", operationName);
+      filterMap.put("value", value);
+      JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
+      return jsonFilterObject.toString();
+   }
 
    // Inner classes -------------------------------------------------
 
