@@ -2413,7 +2413,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       try {
-         injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, getCriticalIOErrorListener()));
+         injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, shutdownOnCriticalIO));
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
       }
