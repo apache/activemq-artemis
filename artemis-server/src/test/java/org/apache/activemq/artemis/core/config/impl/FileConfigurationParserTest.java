@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
@@ -70,6 +72,18 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
+   }
+
+   @Test
+   public void testDuplicateQueue() throws Exception {
+      String filename = "duplicateQueue.xml";
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null).get("core"));
+      server.start();
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString("q")).getMaxConsumers());
    }
 
    @Test
