@@ -94,8 +94,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void serverStopped(String version, SimpleString nodeId, String uptime);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221003, value = "Deploying queue {0}", format = Message.Format.MESSAGE_FORMAT)
-   void deployQueue(SimpleString queueName);
+   @Message(id = 221003, value = "Deploying queue {0} on address {1}", format = Message.Format.MESSAGE_FORMAT)
+   void deployQueue(String queueName, String addressName);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221004, value = "{0}", format = Message.Format.MESSAGE_FORMAT)
