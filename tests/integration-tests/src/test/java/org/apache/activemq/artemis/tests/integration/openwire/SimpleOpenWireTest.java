@@ -1604,20 +1604,19 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          }
 
          Object[] addressResources = server.getManagementService().getResources(AddressControl.class);
-         AddressControl addressControl = null;
 
          for (Object addressResource : addressResources) {
 
             if (((AddressControl) addressResource).getAddress().equals("ActiveMQ.Advisory.TempQueue")) {
-               addressControl = (AddressControl) addressResource;
+               AddressControl addressControl = (AddressControl) addressResource;
+               Wait.waitFor(() -> addressControl.getMessageCount() == 0);
+               assertNotNull("addressControl for temp advisory", addressControl);
+               assertEquals(0, addressControl.getMessageCount());
             }
          }
 
-         assertNotNull("addressControl for temp advisory", addressControl);
 
          //sleep a bit to allow message count to go down.
-         Thread.sleep(50);
-         assertEquals(0, addressControl.getMessageCount());
       } finally {
          for (Connection conn : connections) {
             if (conn != null) {
