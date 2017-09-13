@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -2511,20 +2512,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void deployQueuesFromListCoreQueueConfiguration(List<CoreQueueConfiguration> queues) throws Exception {
       for (CoreQueueConfiguration config : queues) {
-         addOrUpdateQueue(config);
-      }
-   }
+         SimpleString queueName = SimpleString.toSimpleString(config.getName());
+         ActiveMQServerLogger.LOGGER.deployQueue(config.getName(), config.getAddress());
 
-   private Queue addOrUpdateQueue(CoreQueueConfiguration config) throws Exception {
-      SimpleString queueName = SimpleString.toSimpleString(config.getName());
-      ActiveMQServerLogger.LOGGER.deployQueue(queueName);
-      Queue queue = updateQueue(config.getName(), config.getRoutingType(), config.getMaxConsumers(), config.getPurgeOnNoConsumers());
-      if (queue == null) {
-         queue = createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
-                             queueName, SimpleString.toSimpleString(config.getFilterString()), null,
-                             config.isDurable(), false, true, false, false, config.getMaxConsumers(), config.getPurgeOnNoConsumers(), true);
+         // determine if there is an address::queue match; update it if so
+         if (locateQueue(queueName) != null && locateQueue(queueName).getAddress().toString().equals(config.getAddress())) {
+            updateQueue(config.getName(), config.getRoutingType(), config.getMaxConsumers(), config.getPurgeOnNoConsumers());
+         } else {
+            // if the address::queue doesn't exist then create it
+            try {
+               createQueue(SimpleString.toSimpleString(config.getAddress()), config.getRoutingType(),
+                           queueName, SimpleString.toSimpleString(config.getFilterString()),null,
+                           config.isDurable(),false,false,false,false,config.getMaxConsumers(),config.getPurgeOnNoConsumers(),true);
+            } catch (ActiveMQQueueExistsException e) {
+               // the queue may exist on a *different* address
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage());
+            }
+         }
       }
-      return queue;
    }
 
    private void deployQueuesFromConfiguration() throws Exception {
@@ -2701,7 +2706,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (ignoreIfExists) {
             return binding.getQueue();
          } else {
-            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueName);
+            throw ActiveMQMessageBundle.BUNDLE.queueAlreadyExists(queueName, binding.getAddress());
          }
       }
 

@@ -121,8 +121,8 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119018, value = "Binding already exists {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQQueueExistsException bindingAlreadyExists(Binding binding);
 
-   @Message(id = 119019, value = "Queue already exists {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQQueueExistsException queueAlreadyExists(SimpleString queueName);
+   @Message(id = 119019, value = "Queue {0} already exists on address {1}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQQueueExistsException queueAlreadyExists(SimpleString queueName, SimpleString addressName);
 
    @Message(id = 119020, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
