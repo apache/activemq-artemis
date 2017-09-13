@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.ArtemisConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -77,6 +79,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final IOCriticalErrorListener listener) {
       super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener);
       callbackPool = new CallbackCache<>(maxIO);
+      if (logger.isTraceEnabled()) {
+         logger.trace("New AIO File Created");
+      }
    }
 
    public AIOSequentialCallback getCallback() {
@@ -304,7 +309,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          try {
             libaioFile.write(position, bytes, buffer, this);
          } catch (IOException e) {
-            callback.onError(-1, e.getMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
             onIOError(e, "Failed to write to file", sequentialFile);
          }
       }
@@ -337,6 +342,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       @Override
       public void onError(int errno, String message) {
+         if (logger.isDebugEnabled()) {
+            logger.trace("AIO on error issued. Error(code: " + errno + " msg: " + message + ")");
+         }
          this.error = true;
          this.errorCode = errno;
          this.errorMessage = message;
@@ -357,6 +365,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          if (error) {
             callback.onError(errorCode, errorMessage);
+            onIOError(new ActiveMQException(errorCode, errorMessage), errorMessage, null);
             errorMessage = null;
          } else {
             if (callback != null) {
@@ -385,6 +394,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                libaioContext.poll();
             } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+               onIOError(new ActiveMQException("Error on libaio poll"), e.getMessage(), null);
             }
          }
       }

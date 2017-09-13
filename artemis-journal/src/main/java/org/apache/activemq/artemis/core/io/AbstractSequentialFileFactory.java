@@ -33,11 +33,14 @@ import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.jboss.logging.Logger;
 
 /**
  * An abstract SequentialFileFactory containing basic functionality for both AIO and NIO SequentialFactories
  */
 public abstract class AbstractSequentialFileFactory implements SequentialFileFactory {
+
+   private static final Logger logger = Logger.getLogger(AbstractSequentialFileFactory.class);
 
    // Timeout used to wait executors to shutdown
    protected static final int EXECUTOR_TIMEOUT = 60;
@@ -161,6 +164,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    public void onIOError(Exception exception, String message, SequentialFile file) {
       if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
+      } else {
+         logger.warn("Critical IO Error Called.  No Critical IO Error Handler Registered");
       }
    }
 
