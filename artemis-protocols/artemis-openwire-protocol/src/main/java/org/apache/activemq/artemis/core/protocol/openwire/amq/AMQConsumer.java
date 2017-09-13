@@ -99,33 +99,24 @@ public class AMQConsumer {
          }
       }
 
-      String physicalName = session.convertWildcard(openwireDestination.getPhysicalName());
-
-      SimpleString address;
+      SimpleString destinationName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
 
       if (openwireDestination.isTopic()) {
-         if (openwireDestination.isTemporary()) {
-            address = new SimpleString(physicalName);
-         } else {
-            address = new SimpleString(physicalName);
-         }
-
-         SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), physicalName, info.getSubscriptionName(), selector, address);
+         SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), destinationName.toString(), info.getSubscriptionName(), selector, destinationName);
 
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
          //only advisory topic consumers need this.
          ((ServerConsumerImpl)serverConsumer).setPreAcknowledge(preAck);
       } else {
-         SimpleString queueName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
          try {
-            session.getCoreServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+            session.getCoreServer().createQueue(destinationName, RoutingType.ANYCAST, destinationName, null, true, false);
          } catch (ActiveMQQueueExistsException e) {
             // ignore
          }
-         serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
+         serverConsumer = session.getCoreSession().createConsumer(nativeId, destinationName, selector, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
-         AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(queueName.toString());
+         AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(destinationName.toString());
          if (addrSettings != null) {
             //see PolicyEntry
             if (info.getPrefetchSize() != 0 && addrSettings.getQueuePrefetch() == 0) {
@@ -136,7 +127,6 @@ public class AMQConsumer {
                session.getConnection().dispatch(cc);
             }
          }
-
       }
 
       serverConsumer.setProtocolData(this);
