@@ -137,7 +137,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final SessionCallback callback;
 
-   private final boolean preAcknowledge;
+   private boolean preAcknowledge;
 
    private final ManagementService managementService;
 
@@ -1138,6 +1138,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
       }
    };
+
+   public void setPreAcknowledge(boolean preAcknowledge) {
+      this.preAcknowledge = preAcknowledge;
+   }
 
    /**
     * Internal encapsulation of the logic on sending LargeMessages.
