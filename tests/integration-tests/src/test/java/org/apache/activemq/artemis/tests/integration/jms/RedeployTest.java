@@ -137,21 +137,21 @@ public class RedeployTest extends ActiveMQTestBase {
 
       try {
          latch.await(10, TimeUnit.SECONDS);
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_address_removal_no_queue"));
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_2"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.address.removal.no.queue"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.address.removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.queue.removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.removal").contains("config.test.queue.removal.queue.1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.removal").contains("config.test.queue.removal.queue.2"));
 
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_address_removal"));
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_queue_removal"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_1"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_2"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent.test.address.removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent.test.queue.removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent.test.queue.removal").contains("permanent.test.queue.removal.queue.1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent.test.queue.removal").contains("permanent.test.queue.removal.queue.2"));
 
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_change"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_change").contains("config_test_queue_change_queue"));
-         Assert.assertEquals(10, getQueue(embeddedJMS, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(false, getQueue(embeddedJMS, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.queue.change"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.change").contains("config.test.queue.change.queue"));
+         Assert.assertEquals(10, getQueue(embeddedJMS, "config.test.queue.change.queue").getMaxConsumers());
+         Assert.assertEquals(false, getQueue(embeddedJMS, "config.test.queue.change.queue").isPurgeOnNoConsumers());
 
          Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
          brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
@@ -159,21 +159,21 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedJMS.getActiveMQServer().getReloadManager().setTick(tick);
          latch.await(10, TimeUnit.SECONDS);
 
-         Assert.assertNull(getAddressInfo(embeddedJMS, "config_test_address_removal_no_queue"));
-         Assert.assertNull(getAddressInfo(embeddedJMS, "config_test_address_removal"));
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_removal"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_1"));
-         Assert.assertFalse(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_removal").contains("config_test_queue_removal_queue_2"));
+         Assert.assertNull(getAddressInfo(embeddedJMS, "config.test.address.removal.no.queue"));
+         Assert.assertNull(getAddressInfo(embeddedJMS, "config.test.address.removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.queue.removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.removal").contains("config.test.queue.removal.queue.1"));
+         Assert.assertFalse(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.removal").contains("config.test.queue.removal.queue.2"));
 
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_address_removal"));
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent_test_queue_removal"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_1"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent_test_queue_removal").contains("permanent_test_queue_removal_queue_2"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent.test.address.removal"));
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "permanent.test.queue.removal"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent.test.queue.removal").contains("permanent.test.queue.removal.queue.1"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "permanent.test.queue.removal").contains("permanent.test.queue.removal.queue.2"));
 
-         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config_test_queue_change"));
-         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config_test_queue_change").contains("config_test_queue_change_queue"));
-         Assert.assertEquals(1, getQueue(embeddedJMS, "config_test_queue_change_queue").getMaxConsumers());
-         Assert.assertEquals(true, getQueue(embeddedJMS, "config_test_queue_change_queue").isPurgeOnNoConsumers());
+         Assert.assertNotNull(getAddressInfo(embeddedJMS, "config.test.queue.change"));
+         Assert.assertTrue(listQueuesNamesForAddress(embeddedJMS, "config.test.queue.change").contains("config.test.queue.change.queue"));
+         Assert.assertEquals(1, getQueue(embeddedJMS, "config.test.queue.change.queue").getMaxConsumers());
+         Assert.assertEquals(true, getQueue(embeddedJMS, "config.test.queue.change.queue").isPurgeOnNoConsumers());
       } finally {
          embeddedJMS.stop();
       }
