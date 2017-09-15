@@ -32,7 +32,7 @@ It's possible to further configure the syntax of the wildcard addresses using th
 For that, the `<wildcard-addresses>` configuration tag is used.
 
       <wildcard-addresses>
-        <enabled>true</enabled>
+        <routing-enabled>true</routing-enabled>
         <delimiter>.</delimiter>
         <any-words>#</any-words>
         <single-word>*</single-word>

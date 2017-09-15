@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.settings.impl;
 
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 /**
@@ -25,66 +26,52 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
  */
 public class Match<T> {
 
-   public static final String WORD_WILDCARD = "*";
-
-   private static final String WORD_WILDCARD_REPLACEMENT = "[^.]+";
-
-   public static final String WILDCARD = "#";
-
-   public static final String DOT_WILDCARD = ".#";
-
    private static final String WILDCARD_REPLACEMENT = ".*";
 
-   private static final String WILDCARD_CHILD_REPLACEMENT = "(\\..+)*";
+   private static final String WORD_WILDCARD_REPLACEMENT_FORMAT = "[^%s]+";
+
+   private static final String WILDCARD_CHILD_REPLACEMENT_FORMAT = "(%s.+)*";
 
    private static final String DOT = ".";
 
    private static final String DOT_REPLACEMENT = "\\.";
 
-   private String match;
+   private final String match;
 
    private final Pattern pattern;
 
-   private T value;
+   private final T value;
 
-   public Match(final String match) {
+   public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration) {
       this.match = match;
+      this.value = value;
       String actMatch = match;
-      // replace any regex characters
-      if (Match.WILDCARD.equals(match)) {
+
+      if (wildcardConfiguration.getAnyWordsString().equals(match)) {
+         // replace any regex characters
          actMatch = Match.WILDCARD_REPLACEMENT;
       } else {
          // this is to match with what's documented
-         actMatch = actMatch.replace(DOT_WILDCARD, WILDCARD);
-
+         actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
          actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
-         actMatch = actMatch.replace(Match.WORD_WILDCARD, Match.WORD_WILDCARD_REPLACEMENT);
+         actMatch = actMatch.replace(wildcardConfiguration.getSingleWordString(), String.format(WORD_WILDCARD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
 
-         // this one has to be done by last as we are using .* and it could be replaced wrongly
-         actMatch = actMatch.replace(Match.WILDCARD, Match.WILDCARD_CHILD_REPLACEMENT);
+         // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
+         actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
       }
       pattern = Pattern.compile(actMatch);
-
    }
 
-   public String getMatch() {
+   public final String getMatch() {
       return match;
    }
 
-   public void setMatch(final String match) {
-      this.match = match;
-   }
-
-   public Pattern getPattern() {
+   public final Pattern getPattern() {
       return pattern;
    }
 
-   public T getValue() {
+   public final T getValue() {
       return value;
-   }
-
-   public void setValue(final T value) {
-      this.value = value;
    }
 
    @Override
@@ -114,11 +101,12 @@ public class Match<T> {
     * @param match the match to validate
     * @throws IllegalArgumentException if a match isn't valid
     */
-   public static void verify(final String match) throws IllegalArgumentException {
+   public static void verify(final String match, final WildcardConfiguration wildcardConfiguration) throws IllegalArgumentException {
       if (match == null) {
          throw ActiveMQMessageBundle.BUNDLE.nullMatch();
       }
-      if (match.contains("#") && match.indexOf("#") < match.length() - 1) {
+      final String anyWords = wildcardConfiguration.getAnyWordsString();
+      if (match.contains(anyWords) && match.indexOf(anyWords) < match.length() - 1) {
          throw ActiveMQMessageBundle.BUNDLE.invalidMatch();
       }
    }
