@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -56,7 +57,6 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
-import org.fusesource.mqtt.client.MQTTException;
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
@@ -1350,11 +1350,8 @@ public class MQTTTest extends MQTTTestSupport {
       connection.disconnect();
    }
 
-   @Ignore
    @Test(timeout = 60 * 1000)
-   // TODO We currently do not support link stealing.  This needs to be enabled for this test to pass.
    public void testDuplicateClientId() throws Exception {
-      // test link stealing enabled by default
       final String clientId = "duplicateClient";
       MQTT mqtt = createMQTTConnection(clientId, false);
       mqtt.setKeepAlive((short) 2);
@@ -1384,31 +1381,45 @@ public class MQTTTest extends MQTTTestSupport {
 
       connection1.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
       connection1.disconnect();
+   }
 
-      // disable link stealing
-      stopBroker();
-      protocolConfig = "allowLinkStealing=false";
-      startBroker();
+   @Test(timeout = 60 * 1000)
+   public void testRepeatedLinkStealing() throws Exception {
+      final String clientId = "duplicateClient";
+      final AtomicReference<BlockingConnection> oldConnection = new AtomicReference<>();
+      final String TOPICA = "TopicA";
 
-      mqtt = createMQTTConnection(clientId, false);
-      mqtt.setKeepAlive((short) 2);
-      final BlockingConnection connection2 = mqtt.blockingConnection();
-      connection2.connect();
-      connection2.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
+      for (int i = 1; i <= 10; ++i) {
 
-      mqtt1 = createMQTTConnection(clientId, false);
-      mqtt1.setKeepAlive((short) 2);
-      final BlockingConnection connection3 = mqtt1.blockingConnection();
-      try {
-         connection3.connect();
-         fail("Duplicate client connected");
-      } catch (Exception e) {
-         // ignore
+         LOG.info("Creating MQTT Connection {}", i);
+
+         MQTT mqtt = createMQTTConnection(clientId, false);
+         mqtt.setKeepAlive((short) 2);
+         final BlockingConnection connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
+
+         assertTrue("Client connect failed for attempt: " + i, Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return connection.isConnected();
+            }
+         }, TimeUnit.SECONDS.toMillis(3), TimeUnit.MILLISECONDS.toMillis(200)));
+
+         if (oldConnection.get() != null) {
+            assertTrue("Old client still connected on attempt: " + i, Wait.waitFor(new Wait.Condition() {
+               @Override
+               public boolean isSatisfied() throws Exception {
+                  return !oldConnection.get().isConnected();
+               }
+            }, TimeUnit.SECONDS.toMillis(3), TimeUnit.MILLISECONDS.toMillis(200)));
+         }
+
+         oldConnection.set(connection);
       }
 
-      assertTrue("Old client disconnected", connection2.isConnected());
-      connection2.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
-      connection2.disconnect();
+      oldConnection.get().publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
+      oldConnection.get().disconnect();
    }
 
    @Test(timeout = 30 * 10000)
@@ -1966,24 +1977,6 @@ public class MQTTTest extends MQTTTestSupport {
       }
 
 
-   }
-
-   @Test
-   public void testDuplicateIDReturnsError() throws Exception {
-      String clientId = "clientId";
-      MQTT mqtt = createMQTTConnection();
-      mqtt.setClientId(clientId);
-      mqtt.blockingConnection().connect();
-
-      MQTTException e = null;
-      try {
-         MQTT mqtt2 = createMQTTConnection();
-         mqtt2.setClientId(clientId);
-         mqtt2.blockingConnection().connect();
-      } catch (MQTTException mqttE) {
-         e = mqttE;
-      }
-      assertTrue(e.getMessage().contains("CONNECTION_REFUSED_IDENTIFIER_REJECTED"));
    }
 
    @Test
