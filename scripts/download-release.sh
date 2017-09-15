@@ -50,8 +50,14 @@ doDownload () {
   echo "Downloading $theFile.md5"
   curl $completeURL.md5 > $theFile.md5
 
-  echo "Downloading $theFile.sha1"
-  curl $completeURL.sha1 > $theFile.sha1
+  echo "Verifying signature $theFile.asc"
+  gpg --verify $theFile.asc
+
+  echo "Augmenting $theFile.md5 with filename details"
+  echo "  $theFile" >> $theFile.md5
+
+  echo "Generating SHA512 checksum file $theFile.sha512"
+  sha512sum $theFile > $theFile.sha512
 }
 
 if [ "$#" != 3 ]; then
@@ -72,4 +78,10 @@ doDownload apache-artemis-$release-bin.tar.gz
 doDownload apache-artemis-$release-bin.zip
 doDownload apache-artemis-$release-source-release.tar.gz
 doDownload apache-artemis-$release-source-release.zip
+
+echo "Validating all MD5 checksum files"
+md5sum -c *.md5
+
+echo "Validating all SHA512 checksum files"
+sha512sum -c *.sha512
 
