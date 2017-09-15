@@ -745,10 +745,8 @@ public class ArtemisTest extends CliTestBase {
          statQueue.execute(context);
          lines = getOutputLines(context, false);
 
-         // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by MESSAGE_COUNT", 2, lines.size());
-         String[] columns = lines.get(1).split("\\|");
-         Assert.assertEquals("queue name filtering by MESSAGE_COUNT ", "Test1", columns[2].trim());
+         // Header line + 0 queues
+         Assert.assertEquals("rows returned filtering by MESSAGE_COUNT", 1, lines.size());
 
          //check all queues containing address "Test1" are displayed using Filter field MESSAGE_ADDED
          context = new TestActionContext();
@@ -760,10 +758,8 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("20");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         // Header line + 1 queues
-         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 2, lines.size());
-         columns = lines.get(1).split("\\|");
-         Assert.assertEquals("queue name filtered by MESSAGE_ADDED", "Test20", columns[2].trim());
+         // Header line + 0 queues
+         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 1, lines.size());
 
          //check all queues containing address "Test1" are displayed using Filter field DELIVERING_COUNT
          context = new TestActionContext();
@@ -775,7 +771,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("10");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         columns = lines.get(1).split("\\|");
+         String[] columns = lines.get(1).split("\\|");
          // Header line + 1 queues
          Assert.assertEquals("rows returned filtering by DELIVERING_COUNT", 2, lines.size());
          Assert.assertEquals("queue name filtered by DELIVERING_COUNT ", "Test1", columns[2].trim());
@@ -880,7 +876,6 @@ public class ArtemisTest extends CliTestBase {
          lines = getOutputLines(context, false);
          // Header line + 0 queue
          Assert.assertEquals("No stdout for wrong OPERATION", 0, lines.size());
-
          lines = getOutputLines(context, true);
          // 1 error line
          Assert.assertEquals("stderr for wrong OPERATION", 1, lines.size());
