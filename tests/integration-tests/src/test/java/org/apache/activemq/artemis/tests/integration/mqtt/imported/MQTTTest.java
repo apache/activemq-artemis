@@ -842,26 +842,14 @@ public class MQTTTest extends MQTTTestSupport {
       // publish non-retained message
       connection.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return publishList.size() == 2;
-         }
-      }, 5000);
-      assertEquals(2, publishList.size());
+      assertTrue(Wait.waitFor(() -> publishList.size() == 2, 5000));
 
       connection.disconnect();
 
       connection = mqtt.blockingConnection();
       connection.connect();
 
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return publishList.size() == 4;
-         }
-      }, 5000);
-      assertEquals(4, publishList.size());
+      assertTrue(Wait.waitFor(() -> publishList.size() == 4, 5000));
 
       // TODO Investigate if receiving the same ID for overlapping subscriptions is actually spec compliant.
       // In Artemis we send a new ID for every copy of the message.
@@ -1018,12 +1006,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      });
+      Wait.waitFor(() -> connection.isConnected());
 
       final String TOPIC = "TopicA";
       final byte[] qos = connection.subscribe(new Topic[]{new Topic(TOPIC, QoS.EXACTLY_ONCE)});
@@ -1037,12 +1020,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       final BlockingConnection newConnection = mqtt.blockingConnection();
       newConnection.connect();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return newConnection.isConnected();
-         }
-      });
+      Wait.waitFor(() -> newConnection.isConnected());
 
       assertEquals(QoS.EXACTLY_ONCE.ordinal(), qos[0]);
       Message msg = newConnection.receive(1000, TimeUnit.MILLISECONDS);
@@ -1064,12 +1042,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      });
+      Wait.waitFor(() -> connection.isConnected());
 
       MQTT mqtt2 = createMQTTConnection("2", false);
       BlockingConnection connection2 = mqtt2.blockingConnection();
@@ -1098,12 +1071,7 @@ public class MQTTTest extends MQTTTestSupport {
 
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      });
+      Wait.waitFor(() -> connection.isConnected());
 
       // kill transport
       connection.kill();
@@ -1276,13 +1244,7 @@ public class MQTTTest extends MQTTTestSupport {
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      }));
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(() -> connection.isConnected()));
 
       connection.disconnect();
    }
@@ -1299,13 +1261,7 @@ public class MQTTTest extends MQTTTestSupport {
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      }));
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(() -> connection.isConnected()));
 
       connection.disconnect();
    }
@@ -1365,19 +1321,9 @@ public class MQTTTest extends MQTTTestSupport {
       final BlockingConnection connection1 = mqtt1.blockingConnection();
       connection1.connect();
 
-      assertTrue("Duplicate client disconnected", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection1.isConnected();
-         }
-      }));
+      assertTrue("Duplicate client disconnected", Wait.waitFor(() -> connection1.isConnected()));
 
-      assertTrue("Old client still connected", Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return !connection.isConnected();
-         }
-      }));
+      assertTrue("Old client still connected", Wait.waitFor(() -> !connection.isConnected()));
 
       connection1.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
       connection1.disconnect();
@@ -1399,20 +1345,10 @@ public class MQTTTest extends MQTTTestSupport {
          connection.connect();
          connection.publish(TOPICA, TOPICA.getBytes(), QoS.EXACTLY_ONCE, true);
 
-         assertTrue("Client connect failed for attempt: " + i, Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisfied() throws Exception {
-               return connection.isConnected();
-            }
-         }, TimeUnit.SECONDS.toMillis(3), TimeUnit.MILLISECONDS.toMillis(200)));
+         assertTrue("Client connect failed for attempt: " + i, Wait.waitFor(() -> connection.isConnected(), 3000, 200));
 
          if (oldConnection.get() != null) {
-            assertTrue("Old client still connected on attempt: " + i, Wait.waitFor(new Wait.Condition() {
-               @Override
-               public boolean isSatisfied() throws Exception {
-                  return !oldConnection.get().isConnected();
-               }
-            }, TimeUnit.SECONDS.toMillis(3), TimeUnit.MILLISECONDS.toMillis(200)));
+            assertTrue("Old client still connected on attempt: " + i, Wait.waitFor(() -> !oldConnection.get().isConnected(), 3000, 200));
          }
 
          oldConnection.set(connection);
@@ -1575,13 +1511,7 @@ public class MQTTTest extends MQTTTestSupport {
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      }));
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(() -> connection.isConnected()));
    }
 
    @Test(timeout = 60 * 1000)
@@ -1773,13 +1703,7 @@ public class MQTTTest extends MQTTTestSupport {
       mqtt.setKeepAlive((short) 2);
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return connection.isConnected();
-         }
-      }));
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(() -> connection.isConnected()));
 
       connection.disconnect();
    }
