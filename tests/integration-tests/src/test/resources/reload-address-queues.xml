@@ -115,6 +115,10 @@ under the License.
          </address-setting>
       </address-settings>
 
+      <wildcard-addresses>
+         <delimiter>_</delimiter>
+      </wildcard-addresses>
+
       <addresses>
          <address name="config_test_queue_removal">
             <multicast>

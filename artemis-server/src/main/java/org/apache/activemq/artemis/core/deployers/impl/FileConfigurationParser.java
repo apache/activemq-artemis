@@ -1764,14 +1764,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
     * @return
     */
    protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {
-      WildcardConfiguration conf = new WildcardConfiguration();
+      WildcardConfiguration conf = mainConfig.getWildcardConfiguration();
 
       conf.setDelimiter(getString(e, "delimiter", Character.toString(conf.getDelimiter()), Validators.NO_CHECK).charAt(0));
       conf.setAnyWords(getString(e, "any-words", Character.toString(conf.getAnyWords()), Validators.NO_CHECK).charAt(0));
       conf.setSingleWord(getString(e, "single-word", Character.toString(conf.getSingleWord()), Validators.NO_CHECK).charAt(0));
-      conf.setEnabled(getBoolean(e, "enabled", conf.isEnabled()));
-
-      mainConfig.setWildCardConfiguration(conf);
+      conf.setRoutingEnabled(getBoolean(e, "enabled", conf.isRoutingEnabled()));
+      conf.setRoutingEnabled(getBoolean(e, "routing-enabled", conf.isRoutingEnabled()));
    }
 
    private ConnectorServiceConfiguration parseConnectorService(final Element e) {

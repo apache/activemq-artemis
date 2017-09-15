@@ -157,7 +157,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       this.reaperPriority = reaperPriority;
 
-      if (wildcardConfiguration.isEnabled()) {
+      if (wildcardConfiguration.isRoutingEnabled()) {
          addressManager = new WildcardAddressManager(this, wildcardConfiguration, storageManager);
       } else {
          addressManager = new SimpleAddressManager(this, wildcardConfiguration, storageManager);

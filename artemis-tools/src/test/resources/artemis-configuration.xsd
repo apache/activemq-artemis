@@ -861,6 +861,14 @@
          </xsd:element>
 
          <xsd:element name="addresses" type="addressesType" maxOccurs="1" minOccurs="0" />
+
+         <xsd:element name="wildcard-addresses" type="wildcardType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Wildcard addresses format
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
    </xsd:complexType>
 
@@ -2664,4 +2672,48 @@
       </xsd:sequence>
    </xsd:complexType>
 
+   <xsd:complexType name="wildcardType">
+      <xsd:annotation>
+         <xsd:documentation>
+            Complex type element to configure wildcard address format.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:all>
+         <xsd:element maxOccurs="1" minOccurs="0" name="enabled" type="xsd:boolean">
+            <xsd:annotation>
+               <xsd:documentation>
+                  deprecated please use routing-enabled. 
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="routing-enabled" type="xsd:boolean">
+            <xsd:annotation>
+               <xsd:documentation>
+                  is wildcard addresses routing enabled.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="delimiter" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>
+                  wildcard address parts delimiter. Default '.'
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="any-words" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>
+                  wildcard address any words character. Default '#'
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="single-word" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>
+                  wildcard address single word character. Default '*'
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:all>
+   </xsd:complexType>
 </xsd:schema>
