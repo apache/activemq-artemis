@@ -423,11 +423,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.securityManager = securityManager;
 
-      addressSettingsRepository = new HierarchicalObjectRepository<>();
+      addressSettingsRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
 
       addressSettingsRepository.setDefault(new AddressSettings());
 
-      securityRepository = new HierarchicalObjectRepository<>();
+      securityRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
 
       securityRepository.setDefault(new HashSet<Role>());
 
