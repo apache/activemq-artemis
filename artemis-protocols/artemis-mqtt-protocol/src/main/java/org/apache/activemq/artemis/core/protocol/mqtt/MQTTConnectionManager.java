@@ -143,8 +143,12 @@ public class MQTTConnectionManager {
          if (session.getSessionState() != null) {
             session.getSessionState().setAttached(false);
             String clientId = session.getSessionState().getClientId();
-            if (clientId != null) {
-               session.getProtocolManager().getConnectedClients().remove(clientId);
+            /**
+             *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
+             *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
+             */
+            if (clientId != null && session.getProtocolManager().isClientConnected(clientId, session.getConnection())) {
+               session.getProtocolManager().removeConnectedClient(clientId);
             }
          }
       }
@@ -176,12 +180,13 @@ public class MQTTConnectionManager {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
             return null;
          }
-      } else if (!session.getProtocolManager().getConnectedClients().add(clientId)) {
-         // ^^^ If the client ID is not unique (i.e. it has already registered) then do not accept it.
+      } else {
+         MQTTConnection connection = session.getProtocolManager().addConnectedClient(clientId, session.getConnection());
 
-
-         // [MQTT-3.1.3-9] Return ID Rejected if server rejects the client ID
-         return null;
+         if (connection != null) {
+            // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client
+            connection.disconnect(false);
+         }
       }
       return clientId;
    }
