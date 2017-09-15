@@ -1317,7 +1317,7 @@ public class AcknowledgementTest extends JMSTestCase {
       ActiveMQJMSConnectionFactory cf2 = (ActiveMQJMSConnectionFactory) getInitialContext().lookup("/testsuitecf2");
       cf2.setBlockOnAcknowledge(true);
 
-      int messageCount = 10000;
+      int messageCount = 100;
 
       long sendT1 = send(cf1, queue1, messageCount);
       long sendT2 = send(cf2, queue2, messageCount);
