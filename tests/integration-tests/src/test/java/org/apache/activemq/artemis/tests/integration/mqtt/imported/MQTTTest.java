@@ -40,11 +40,13 @@ import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -1989,5 +1991,67 @@ public class MQTTTest extends MQTTTestSupport {
          e = mqttE;
       }
       assertTrue(e.getMessage().contains("CONNECTION_REFUSED_IDENTIFIER_REJECTED"));
+   }
+
+   @Test
+   public void testDoubleBroker() throws Exception {
+      /*
+       * Start two embedded server instances for MQTT and connect to them
+       * with the same MQTT client id. As those are two different instances
+       * connecting to them with the same client ID must succeed.
+       */
+
+      final int port1 = 1884;
+      final int port2 = 1885;
+
+      final Configuration cfg1 = createDefaultConfig(1,true);
+      cfg1.addAcceptorConfiguration("mqtt1", "tcp://localhost:" + port1 + "?protocols=MQTT");
+
+      final Configuration cfg2 = createDefaultConfig(2,true);
+      cfg2.addAcceptorConfiguration("mqtt2", "tcp://localhost:" + port2 + "?protocols=MQTT");
+
+      final ActiveMQServer server1 = createServer(cfg1);
+      server1.start();
+
+      try {
+         final ActiveMQServer server2 = createServer(cfg2);
+         server2.start ();
+         try {
+
+            // set up connections 1 and 2
+
+            final MQTT mqtt1 = createMQTTConnection("client1", true);
+            final MQTT mqtt2 = createMQTTConnection("client2", true);
+
+            mqtt1.setHost("localhost", port1);
+            mqtt2.setHost("localhost", port2);
+
+            final BlockingConnection connection1 = mqtt1.blockingConnection();
+            final BlockingConnection connection2 = mqtt2.blockingConnection();
+
+            // connect to broker 1 and 2
+
+            try {
+               connection1.connect();
+               try {
+                  connection2.connect();
+                  // we should succeed up to here
+               }
+               finally {
+                  connection2.disconnect();
+               }
+            }
+            finally {
+               connection1.disconnect();
+            }
+
+         }
+         finally {
+            server2.stop();
+         }
+      }
+      finally {
+         server1.stop();
+      }
    }
 }
