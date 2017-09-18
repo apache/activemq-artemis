@@ -23,7 +23,7 @@ import com.google.common.base.Predicate;
 public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
    enum Operation {
-      CONTAINS, EQUALS;
+      CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
    }
 
    protected String field;
@@ -77,6 +77,10 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
                return equals(field, value);
             case CONTAINS:
                return contains(field, value);
+            case GREATER_THAN:
+               return false;
+            case LESS_THAN:
+               return false;
          }
       }
       return true;
@@ -88,6 +92,81 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             return true;
       }
       return false;
+   }
+
+   public boolean matches(long field) {
+      long longValue;
+      if (operation != null) {
+
+         try {
+            longValue = Long.parseLong(value);
+         } catch (NumberFormatException ex) {
+            //cannot compare
+            return false;
+         }
+
+         switch (operation) {
+            case EQUALS:
+               return field == longValue;
+            case CONTAINS:
+               return false;
+            case LESS_THAN:
+               return field < longValue;
+            case GREATER_THAN:
+               return field > longValue;
+         }
+      }
+      return true;
+   }
+
+   public boolean matches(int field) {
+      int intValue;
+      if (operation != null) {
+
+         try {
+            intValue = Integer.parseInt(value);
+         } catch (NumberFormatException ex) {
+            //cannot compare
+            return false;
+         }
+
+         switch (operation) {
+            case EQUALS:
+               return field == intValue;
+            case CONTAINS:
+               return false;
+            case LESS_THAN:
+               return field < intValue;
+            case GREATER_THAN:
+               return field > intValue;
+         }
+      }
+      return true;
+   }
+
+   public boolean matches(float field) {
+      float floatValue;
+      if (operation != null) {
+
+         try {
+            floatValue = Float.parseFloat(value);
+         } catch (NumberFormatException ex) {
+            //cannot compare
+            return false;
+         }
+
+         switch (operation) {
+            case EQUALS:
+               return field == floatValue;
+            case CONTAINS:
+               return false;
+            case LESS_THAN:
+               return field < floatValue;
+            case GREATER_THAN:
+               return field > floatValue;
+         }
+      }
+      return true;
    }
 
    private boolean equals(Object field, Object value) {
