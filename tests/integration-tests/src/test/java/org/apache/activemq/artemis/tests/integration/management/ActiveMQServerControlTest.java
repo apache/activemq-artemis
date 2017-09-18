@@ -215,7 +215,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       serverControl.createAddress(address.toString(), "ANYCAST");
-      serverControl.createQueue(address.toString(),  "ANYCAST", name.toString(), filter, durable, -1, false, false);
+      serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), filter, durable, -1, false, false);
 
       checkResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, name, RoutingType.ANYCAST, mbeanServer);
@@ -634,7 +634,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-//      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
@@ -660,7 +660,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
-//      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
+      //      assertEquals(autoCreateJmsTopics, info.isAutoCreateAddresses());
       assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       ex = false;
@@ -1485,10 +1485,245 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testListQueuesNumericFilter() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("my_queue_two");
+      SimpleString queueName3 = new SimpleString("one_consumer_queue_three");
+      SimpleString queueName4 = new SimpleString("my_queue_four");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false, 10, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName4, RoutingType.ANYCAST));
+      server.createQueue(queueName4, RoutingType.ANYCAST, queueName4, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+
+         session.start();
+         ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
+         ClientConsumer consumer2_q1 = session.createConsumer(queueName1);
+         ClientConsumer consumer1_q2 = session.createConsumer(queueName2);
+         ClientConsumer consumer2_q2 = session.createConsumer(queueName2);
+         ClientConsumer consumer3_q2 = session.createConsumer(queueName2);
+         ClientConsumer consumer1_q3 = session.createConsumer(queueName3);
+
+         ClientProducer clientProducer = session.createProducer(queueName1);
+         ClientMessage message = session.createMessage(false);
+         for (int i = 0; i < 10; i++) {
+            clientProducer.send(message);
+         }
+
+         //consume one message
+         ClientMessage messageReceived = consumer1_q1.receive(100);
+         if (messageReceived == null) {
+            fail("should have received a message");
+         }
+         messageReceived.acknowledge();
+         session.commit();
+
+         //test with CONTAINS returns nothing for numeric field
+         String filterString = createJsonFilter("CONSUMER_COUNT", "CONTAINS", "0");
+         String queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from query", 0, array.size());
+
+         //test with LESS_THAN returns 1 queue
+         filterString = createJsonFilter("CONSUMER_COUNT", "LESS_THAN", "1");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from LESS_THAN query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName4.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with GREATER_THAN returns 2 queue
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "2");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from GREATER_THAN query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName2.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with GREATER_THAN returns 2 queue
+         filterString = createJsonFilter("CONSUMER_COUNT", "EQUALS", "3");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from EQUALS query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName2.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with MESSAGE_COUNT returns 2 queue
+         filterString = createJsonFilter("MESSAGE_COUNT", "GREATER_THAN", "5");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from MESSAGE_COUNT query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with MESSAGE_ADDED returns 1 queue
+         filterString = createJsonFilter("MESSAGES_ADDED", "GREATER_THAN", "5");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from MESSAGE_COUNT query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with DELIVERING_COUNT returns 1 queue
+         filterString = createJsonFilter("DELIVERING_COUNT", "GREATER_THAN", "5");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from DELIVERING_COUNT query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with MESSAGE_ACKED returns 1 queue
+         filterString = createJsonFilter("MESSAGES_ACKED", "GREATER_THAN", "0");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from MESSAGES_ACKED query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName1.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with MAX_CONSUMERS returns 1 queue
+         filterString = createJsonFilter("MAX_CONSUMERS", "GREATER_THAN", "9");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from MAX_CONSUMERS query", 1, array.size());
+         Assert.assertEquals("correct queue returned from query", queueName3.toString(), array.getJsonObject(0).getString("name"));
+
+         //test with MESSAGES_KILLED returns 0 queue
+         filterString = createJsonFilter("MESSAGES_KILLED", "GREATER_THAN", "0");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from MESSAGES_KILLED query", 0, array.size());
+
+      }
+
+   }
+
+   @Test
+   public void testListQueuesNumericFilterInvalid() throws Exception {
+      SimpleString queueName1 = new SimpleString("my_queue_one");
+      SimpleString queueName2 = new SimpleString("one_consumer_queue_two");
+      SimpleString queueName3 = new SimpleString("one_consumer_queue_three");
+      SimpleString queueName4 = new SimpleString("my_queue_four");
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
+      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
+      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
+      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false, 10, false, false);
+
+      server.addAddressInfo(new AddressInfo(queueName4, RoutingType.ANYCAST));
+      server.createQueue(queueName4, RoutingType.ANYCAST, queueName4, null, false, false);
+
+      // create some consumers
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+
+         session.start();
+         ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
+         ClientConsumer consumer2_q1 = session.createConsumer(queueName1);
+
+         //test with CONTAINS returns nothing for numeric field
+         String filterString = createJsonFilter("CONSUMER_COUNT", "CONTAINS", "NOT_NUMBER");
+         String queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         JsonArray array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from query", 0, array.size());
+
+         //test with LESS_THAN and not a number
+         filterString = createJsonFilter("CONSUMER_COUNT", "LESS_THAN", "NOT_NUMBER");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from LESS_THAN query", 0, array.size());
+
+         //test with GREATER_THAN and not a number
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "NOT_NUMBER");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+
+         //test with EQUALS and not number
+         filterString = createJsonFilter("CONSUMER_COUNT", "EQUALS", "NOT_NUMBER");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from EQUALS query", 0, array.size());
+
+         //test with LESS_THAN on string value returns no queue
+         filterString = createJsonFilter("name", "LESS_THAN", "my_queue");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from LESS_THAN on non numeric field", 0, array.size());
+
+         //test with GREATER_THAN on string value returns no queue
+         filterString = createJsonFilter("name", "GREATER_THAN", "my_queue");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from GREATER_THAN on non numeric field", 0, array.size());
+
+         //test with GREATER_THAN and empty string
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", " ");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+
+         //test with CONSUMER_COUNT against a float value
+         filterString = createJsonFilter("CONSUMER_COUNT", "GREATER_THAN", "0.12");
+         queuesAsJsonString = serverControl.listQueues(filterString, 1, 50);
+
+         queuesAsJsonObject = JsonUtil.readJsonObject(queuesAsJsonString);
+         array = (JsonArray) queuesAsJsonObject.get("data");
+         Assert.assertEquals("number of queues returned from GREATER_THAN query", 0, array.size());
+
+      }
+
+   }
+
+   @Test
    public void testListAddresses() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
       SimpleString queueName2 = new SimpleString("my_queue_two");
       SimpleString queueName3 = new SimpleString("other_queue_three");
+      SimpleString queueName4 = new SimpleString("other_queue_four");
 
       SimpleString addressName1 = new SimpleString("my_address_one");
       SimpleString addressName2 = new SimpleString("my_address_two");
@@ -1497,11 +1732,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ActiveMQServerControl serverControl = createManagementControl();
 
       server.addAddressInfo(new AddressInfo(addressName1, RoutingType.ANYCAST));
-      server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, null, false, false);
+      server.createQueue(addressName1, RoutingType.ANYCAST, queueName1, null, false, false);
       server.addAddressInfo(new AddressInfo(addressName2, RoutingType.ANYCAST));
-      server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, null, false, false);
+      server.createQueue(addressName2, RoutingType.ANYCAST, queueName2, null, false, false);
       server.addAddressInfo(new AddressInfo(addressName3, RoutingType.ANYCAST));
-      server.createQueue(queueName3, RoutingType.ANYCAST, queueName3, null, false, false);
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName3, null, false, false);
+      server.createQueue(addressName3, RoutingType.ANYCAST, queueName4, null, false, false);
 
       //test with CONTAINS filter
       String filterString = createJsonFilter("name", "CONTAINS", "my_address");
@@ -1536,6 +1772,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       array = (JsonArray) addressesAsJsonObject.get("data");
 
       Assert.assertEquals("number of queues returned from query", 1, array.size());
+
+      //test with QUEUE_COUNT with GREATER_THAN filter
+      filterString = createJsonFilter("QUEUE_COUNT", "GREATER_THAN", "1");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses returned from query", 1, array.size());
+      Assert.assertEquals("address name check", addressName3.toString(), array.getJsonObject(0).getString("name"));
+
+      //test with QUEUE_COUNT with LESS_THAN filter
+      filterString = createJsonFilter("QUEUE_COUNT", "LESS_THAN", "0");
+      addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
+      addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
+      array = (JsonArray) addressesAsJsonObject.get("data");
+
+      Assert.assertEquals("number of addresses returned from query", 0, array.size());
 
    }
 
