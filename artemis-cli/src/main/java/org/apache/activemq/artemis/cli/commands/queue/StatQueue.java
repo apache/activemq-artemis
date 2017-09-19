@@ -51,7 +51,7 @@ public class StatQueue extends AbstractAction {
    }
 
    public enum OPERATION {
-      CONTAINS, EQUALS
+      CONTAINS, EQUALS, GREATER_THAN, LESS_THAN
    }
 
    @Option(name = "--queueName", description = "display queue stats for queue(s) with names containing this string.")
@@ -60,7 +60,7 @@ public class StatQueue extends AbstractAction {
    @Option(name = "--field", description = "field to use in filter. Possible values NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED.")
    private String fieldName;
 
-   @Option(name = "--operation", description = "operation to use in filter. Possible values CONTAINS, EQUALS.")
+   @Option(name = "--operation", description = "operation to use in filter. Possible values CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
    private String operationName;
 
    @Option(name = "--value", description = "value to use in the filter.")
