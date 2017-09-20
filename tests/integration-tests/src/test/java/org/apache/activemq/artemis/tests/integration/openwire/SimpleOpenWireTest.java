@@ -367,6 +367,73 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       session.close();
    }
 
+   @Test
+   public void testSendReceiveDifferentEncoding() throws Exception {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      System.out.println("creating queue: " + queueName);
+      Destination dest = new ActiveMQQueue(queueName);
+
+      System.out.println("creating producer...");
+      MessageProducer producer = session.createProducer(dest);
+
+      final int num = 10;
+      final String msgBase = "MfromAMQ-";
+      for (int i = 0; i < num; i++) {
+         TextMessage msg = session.createTextMessage(msgBase + i);
+         producer.send(msg);
+         System.out.println("sent: ");
+      }
+
+      //receive loose
+      ActiveMQConnection looseConn = (ActiveMQConnection) looseFactory.createConnection();
+      try {
+         looseConn.start();
+         Session looseSession = looseConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer looseConsumer = looseSession.createConsumer(dest);
+
+         System.out.println("receiving messages...");
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = (TextMessage) looseConsumer.receive(5000);
+            System.out.println("received: " + msg);
+            String content = msg.getText();
+            System.out.println("content: " + content);
+            assertEquals(msgBase + i, content);
+         }
+
+         assertNull(looseConsumer.receive(1000));
+         looseConsumer.close();
+
+         //now reverse
+
+         MessageProducer looseProducer = looseSession.createProducer(dest);
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = looseSession.createTextMessage(msgBase + i);
+            looseProducer.send(msg);
+            System.out.println("sent: ");
+         }
+
+         MessageConsumer consumer = session.createConsumer(dest);
+         System.out.println("receiving messages...");
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = (TextMessage) consumer.receive(5000);
+            System.out.println("received: " + msg);
+            assertNotNull(msg);
+            String content = msg.getText();
+            System.out.println("content: " + content);
+            assertEquals(msgBase + i, content);
+         }
+
+         assertNull(consumer.receive(1000));
+
+         session.close();
+         looseSession.close();
+      } finally {
+         looseConn.close();
+      }
+   }
+
    //   @Test -- ignored for now
    public void testKeepAlive() throws Exception {
       connection.start();

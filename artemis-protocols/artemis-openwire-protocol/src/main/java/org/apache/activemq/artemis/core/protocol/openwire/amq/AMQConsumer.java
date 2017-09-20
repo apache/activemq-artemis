@@ -51,7 +51,6 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
-import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQConsumer {
    private AMQSession session;
@@ -186,10 +185,6 @@ public class AMQConsumer {
       return info.getConsumerId();
    }
 
-   public WireFormat getMarshaller() {
-      return this.session.getMarshaller();
-   }
-
    public void acquireCredit(int n) throws Exception {
       if (messagePullHandler != null) {
          //don't acquire any credits when the pull handler controls it!!
@@ -217,7 +212,7 @@ public class AMQConsumer {
             //so we need to remove this property too.
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
-         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
+         dispatch = session.getConverter().createMessageDispatch(reference, message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);

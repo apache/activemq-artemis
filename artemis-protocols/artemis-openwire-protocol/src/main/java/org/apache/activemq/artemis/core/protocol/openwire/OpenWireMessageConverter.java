@@ -423,10 +423,10 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       }
    }
 
-   public static MessageDispatch createMessageDispatch(MessageReference reference,
+   public MessageDispatch createMessageDispatch(MessageReference reference,
                                                        ICoreMessage message,
                                                        AMQConsumer consumer) throws IOException, JMSException {
-      ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getMarshaller(), consumer.getOpenwireDestination());
+      ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getOpenwireDestination());
 
       //we can use core message id for sequenceId
       amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
@@ -441,9 +441,8 @@ public class OpenWireMessageConverter implements MessageConverter<OpenwireMessag
       return md;
    }
 
-   private static ActiveMQMessage toAMQMessage(MessageReference reference,
+   private ActiveMQMessage toAMQMessage(MessageReference reference,
                                                ICoreMessage coreMessage,
-                                               WireFormat marshaller,
                                                ActiveMQDestination actualDestination) throws IOException {
       ActiveMQMessage amqMsg = null;
       byte coreType = coreMessage.getType();
