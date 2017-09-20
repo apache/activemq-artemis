@@ -45,7 +45,9 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    public TestName name = new TestName();
 
    protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
+   protected static final String urlStringLoose = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.tightEncodingEnabled=false";
    protected ActiveMQConnectionFactory factory;
+   protected ActiveMQConnectionFactory looseFactory;
    protected ActiveMQXAConnectionFactory xaFactory;
 
    protected ActiveMQConnection connection;
@@ -85,6 +87,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
 
    protected void createFactories() {
       factory = new ActiveMQConnectionFactory(getConnectionUrl());
+      looseFactory = new ActiveMQConnectionFactory(urlStringLoose);
       xaFactory = new ActiveMQXAConnectionFactory(getConnectionUrl());
    }
 

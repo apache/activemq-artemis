@@ -119,7 +119,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    private long maxInactivityDurationInitalDelay = 10 * 1000L;
    private boolean useKeepAlive = true;
 
-   private final OpenWireMessageConverter messageConverter;
+   private final OpenWireMessageConverter internalConverter;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
@@ -131,7 +131,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       wireFactory.setCacheEnabled(false);
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       scheduledPool = server.getScheduledPool();
-      this.messageConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
+      this.internalConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
 
       final ClusterManager clusterManager = this.server.getClusterManager();
 
@@ -140,10 +140,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       if (cc != null) {
          cc.addClusterTopologyListener(this);
       }
-   }
-
-   public OpenWireFormat getNewWireFormat() {
-      return (OpenWireFormat) wireFactory.createWireFormat();
    }
 
    @Override
@@ -582,5 +578,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          total.addAll(connection.getTemporaryDestinations());
       }
       return total;
+   }
+
+   public OpenWireMessageConverter getInternalConverter() {
+      return internalConverter;
    }
 }
