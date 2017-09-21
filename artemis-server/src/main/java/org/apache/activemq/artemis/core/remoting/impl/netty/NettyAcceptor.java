@@ -238,7 +238,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
 
-      this.protocolHandler = new ProtocolHandler(protocolMap, this, configuration, scheduledThreadPool);
+      this.protocolHandler = new ProtocolHandler(protocolMap, this, scheduledThreadPool);
 
       this.protocolsString = getProtocols(protocolMap);
 
