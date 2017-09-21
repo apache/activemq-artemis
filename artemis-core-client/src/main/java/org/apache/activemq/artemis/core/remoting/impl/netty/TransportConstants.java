@@ -251,6 +251,10 @@ public class TransportConstants {
 
    public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
 
+   public static final String STOMP_MAX_FRAME_PAYLOAD_LENGTH = "stompMaxFramePayloadLength";
+
+   public static final int DEFAULT_STOMP_MAX_FRAME_PAYLOAD_LENGTH = 65536;
+
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
@@ -294,6 +298,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
       allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID);
       allowableAcceptorKeys.add(TransportConstants.CONNECTIONS_ALLOWED);
+      allowableAcceptorKeys.add(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH);
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableAcceptorKeys.add(TransportConstants.BACKLOG_PROP_NAME);
