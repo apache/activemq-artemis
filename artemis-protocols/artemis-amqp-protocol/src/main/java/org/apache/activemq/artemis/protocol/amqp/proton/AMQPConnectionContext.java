@@ -387,13 +387,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          * */
       if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
          long nextKeepAliveTime = handler.tick(true);
-         if (nextKeepAliveTime > 0 && scheduledPool != null) {
+         if (nextKeepAliveTime != 0 && scheduledPool != null) {
             scheduledPool.schedule(new Runnable() {
                @Override
                public void run() {
-                  long rescheduleAt = (handler.tick(false) - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
-                  if (rescheduleAt > 0) {
-                     scheduledPool.schedule(this, rescheduleAt, TimeUnit.MILLISECONDS);
+                  long rescheduleAt = handler.tick(false);
+                  if (rescheduleAt != 0) {
+                     scheduledPool.schedule(this, rescheduleAt - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()), TimeUnit.MILLISECONDS);
                   }
                }
             }, (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
