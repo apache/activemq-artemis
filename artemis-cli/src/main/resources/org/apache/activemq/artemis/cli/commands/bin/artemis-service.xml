@@ -62,6 +62,7 @@
    <argument>-Dhawtio.offline="true"</argument>
    <argument>-Dhawtio.role=${role}</argument>
    <argument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</argument>
+   <argument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_URI%/etc/jolokia-access.xml</argument>
 
    <!-- Debug args: Uncomment to enable debug
    <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
