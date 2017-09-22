@@ -438,6 +438,19 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "global maximum limit for in-memory messages, in bytes")
    long getGlobalMaxSize();
 
+
+   /**
+    * Returns the  memory used by all the addresses on broker for in-memory messages
+    */
+   @Attribute(desc = "memory used by all the addresses on broker for in-memory messages")
+   long getAddressMemoryUsage();
+
+   /**
+    * Returns the memory used by all the addresses on broker as a percentage of global maximum limit
+    */
+   @Attribute(desc = "memory used by all the addresses on broker as a percentage of global maximum limit")
+   int getAddressMemoryUsagePercentage();
+
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
    boolean freezeReplication();
