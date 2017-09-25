@@ -104,6 +104,7 @@ public class Create extends InputAbstract {
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
+   public static final String ETC_JOLOKIA_ACCESS_XML = "etc/jolokia-access.xml";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    private File directory;
@@ -687,6 +688,7 @@ public class Create extends InputAbstract {
       // we want this variable to remain unchanged so that it will use the value set in the profile
       filters.remove("${artemis.instance}");
       write(ETC_BOOTSTRAP_XML, filters, false);
+      write(ETC_JOLOKIA_ACCESS_XML, filters, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
