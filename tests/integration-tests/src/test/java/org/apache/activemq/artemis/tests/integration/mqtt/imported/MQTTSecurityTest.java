@@ -22,8 +22,6 @@ import java.util.Arrays;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
-import org.jboss.logmanager.Level;
-import org.jboss.logmanager.Logger;
 import org.junit.Test;
 
 public class MQTTSecurityTest extends MQTTTestSupport {
