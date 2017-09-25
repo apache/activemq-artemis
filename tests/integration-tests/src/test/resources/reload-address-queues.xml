@@ -102,7 +102,7 @@ under the License.
             <address-full-policy>BLOCK</address-full-policy>
          </address-setting>
          
-         <address-setting match="config_#">
+         <address-setting match="config.#">
             <auto-create-queues>false</auto-create-queues>
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
@@ -120,35 +120,35 @@ under the License.
       </wildcard-addresses>
 
       <addresses>
-         <address name="config_test_queue_removal">
+         <address name="config.test.queue.removal">
             <multicast>
-               <queue name="config_test_queue_removal_queue_1"/>
-               <queue name="config_test_queue_removal_queue_2"/>
+               <queue name="config.test.queue.removal.queue.1"/>
+               <queue name="config.test.queue.removal.queue.2"/>
             </multicast>
          </address>
-         <address name="config_test_address_removal">
+         <address name="config.test.address.removal">
             <multicast>
-               <queue name="config_test_address_removal_queue"/>
+               <queue name="config.test.address.removal.queue"/>
             </multicast>
          </address>
-         <address name="config_test_address_removal_no_queue">
+         <address name="config.test.address.removal.no.queue">
             <multicast>
             </multicast>
          </address>
-         <address name="permanent_test_queue_removal">
+         <address name="permanent.test.queue.removal">
             <multicast>
-               <queue name="permanent_test_queue_removal_queue_1"/>
-               <queue name="permanent_test_queue_removal_queue_2"/>
+               <queue name="permanent.test.queue.removal.queue.1"/>
+               <queue name="permanent.test.queue.removal.queue.2"/>
             </multicast>
          </address>
-         <address name="permanent_test_address_removal">
+         <address name="permanent.test.address.removal">
             <multicast>
-               <queue name="permanent_test_address_removal_queue"/>
+               <queue name="permanent.test.address.removal.queue"/>
             </multicast>
          </address>
-         <address name="config_test_queue_change">
+         <address name="config.test.queue.change">
             <multicast>
-               <queue name="config_test_queue_change_queue" max-consumers="10" purge-on-no-consumers="false" />
+               <queue name="config.test.queue.change.queue" max-consumers="10" purge-on-no-consumers="false" />
             </multicast>
          </address>
       </addresses>
