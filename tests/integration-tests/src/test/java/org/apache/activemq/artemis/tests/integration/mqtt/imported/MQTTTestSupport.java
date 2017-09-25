@@ -28,9 +28,7 @@ import java.security.ProtectionDomain;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -41,10 +39,13 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
@@ -77,6 +78,18 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    public static final int AT_MOST_ONCE = 0;
    public static final int AT_LEAST_ONCE = 1;
    public static final int EXACTLY_ONCE = 2;
+
+   protected String noprivUser = "noprivs";
+   protected String noprivPass = "noprivs";
+
+   protected String browseUser = "browser";
+   protected String browsePass = "browser";
+
+   protected String guestUser = "guest";
+   protected String guestPass = "guest";
+
+   protected String fullUser = "user";
+   protected String fullPass = "pass";
 
    @Rule
    public TestName name = new TestName();
@@ -139,8 +152,41 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       addressSettings.setMaxSizeBytes(999999999);
       addressSettings.setAutoCreateQueues(true);
       addressSettings.setAutoCreateAddresses(true);
+      configureBrokerSecurity(server);
 
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
+   }
+
+   /**
+    * Copied from org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport#configureBrokerSecurity()
+    */
+   protected void configureBrokerSecurity(ActiveMQServer server) {
+      if (isSecurityEnabled()) {
+         ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+
+         // User additions
+         securityManager.getConfiguration().addUser(noprivUser, noprivPass);
+         securityManager.getConfiguration().addRole(noprivUser, "nothing");
+         securityManager.getConfiguration().addUser(browseUser, browsePass);
+         securityManager.getConfiguration().addRole(browseUser, "browser");
+         securityManager.getConfiguration().addUser(guestUser, guestPass);
+         securityManager.getConfiguration().addRole(guestUser, "guest");
+         securityManager.getConfiguration().addUser(fullUser, fullPass);
+         securityManager.getConfiguration().addRole(fullUser, "full");
+
+         // Configure roles
+         HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
+         HashSet<Role> value = new HashSet<>();
+         value.add(new Role("nothing", false, false, false, false, false, false, false, false));
+         value.add(new Role("browser", false, false, false, false, false, false, false, true));
+         value.add(new Role("guest", false, true, false, false, false, false, false, true));
+         value.add(new Role("full", true, true, true, true, true, true, true, true));
+         securityRepository.addMatch(getQueueName(), value);
+
+         server.getConfiguration().setSecurityEnabled(true);
+      } else {
+         server.getConfiguration().setSecurityEnabled(false);
+      }
    }
 
    public void startBroker() throws Exception {
@@ -249,6 +295,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    public boolean isSchedulerSupportEnabled() {
+      return false;
+   }
+
+   public boolean isSecurityEnabled() {
       return false;
    }
 
