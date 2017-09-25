@@ -58,6 +58,7 @@ public class StreamClassPathTest {
       openStream(Create.ETC_COMMENTED_PING_TXT);
       openStream(Create.ETC_GLOBAL_MAX_SPECIFIED_TXT);
       openStream(Create.ETC_GLOBAL_MAX_DEFAULT_TXT);
+      openStream(Create.ETC_JOLOKIA_ACCESS_XML);
 
    }
 
