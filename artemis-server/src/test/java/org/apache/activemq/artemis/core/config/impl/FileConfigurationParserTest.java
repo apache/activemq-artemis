@@ -107,13 +107,13 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    public void testWildcardConfiguration() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + "<wildcard-addresses>\n<enabled>true</enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
+      String configStr = firstPart + "<wildcard-addresses>\n<routing-enabled>true</routing-enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
       WildcardConfiguration wildCard = config.getWildcardConfiguration();
       assertEquals('/', wildCard.getDelimiter());
-      assertTrue(wildCard.isEnabled());
+      assertTrue(wildCard.isRoutingEnabled());
       assertEquals('>', wildCard.getAnyWords());
       assertEquals('*', wildCard.getSingleWord());
    }
