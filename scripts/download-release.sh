@@ -26,10 +26,10 @@ error () {
    echo ""
    echo "$@"
    echo ""
-   echo "Usage: ./download-release.sh repo-url version target"
+   echo "Usage: ./download-release.sh repo-url version [target-dir (defaults to version, must not exist)]"
    echo ""
    echo "example:"
-   echo "./download-release.sh https://repo1.maven.org/maven2 2.3.0 ./target"
+   echo "./download-release.sh https://repo1.maven.org/maven2 2.3.0"
    echo ""
    exit 64
 }
@@ -41,7 +41,7 @@ doDownload () {
 
   echo $theFile
 
-  echo "Downloading $theFile from $completeURL"
+  echo "Downloading $completeURL"
   curl $completeURL > $theFile
 
   echo "Downloading $theFile.asc"
@@ -60,25 +60,32 @@ doDownload () {
   sha512sum $theFile > $theFile.sha512
 }
 
-if [ "$#" != 3 ]; then
+if [ "$#" -lt 2 ]; then
   error "Cannot match arguments"
 fi
 
 release=$2
+target=${3-$2}
+echo "Target Directory: $target"
 
-if [ -d $3 ]; then
-  cd $3
+if [ -d $target ]; then
+  error "Directory $target already exists, stopping"
 else
-  error "Directory $3 does not exist"
+  echo "Directory $target does not exist, creating"
+  mkdir $target
+  cd $target
 fi
 
 repoURL="$1/org/apache/activemq/apache-artemis/$2"
 
-doDownload apache-artemis-$release-bin.tar.gz 
+doDownload apache-artemis-$release-bin.tar.gz
 doDownload apache-artemis-$release-bin.zip
 doDownload apache-artemis-$release-source-release.tar.gz
 doDownload apache-artemis-$release-source-release.zip
 
+echo ""
+echo "--- Download Complete for Release $2 Artifacts are in $target---"
+echo ""
 echo "Validating all MD5 checksum files"
 md5sum -c *.md5
 
