@@ -578,6 +578,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public long getAddressMemoryUsage() {
+      checkStarted();
+      clearIO();
+      try {
+         //this should not happen but if it does, return -1 to highlight it is not working
+         if (server.getPagingManager() == null) {
+            return -1L;
+         }
+         return server.getPagingManager().getGlobalSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getAddressMemoryUsagePercentage() {
+      long globalMaxSize = getGlobalMaxSize();
+      // no max size set implies 0% used
+      if (globalMaxSize <= 0) {
+         return 0;
+      }
+
+      long memoryUsed = getAddressMemoryUsage();
+      if (memoryUsed <= 0) {
+         return 0;
+      }
+
+      double result = (100D * memoryUsed) / globalMaxSize;
+      return (int) result;
+   }
+
+   @Override
    public boolean freezeReplication() {
       Activation activation = server.getActivation();
       if (activation instanceof SharedNothingLiveActivation) {

@@ -20,12 +20,14 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -1125,6 +1127,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       locator.close();
    }
 
+
    @Test
    public void testTotalMessagesAcknowledged() throws Exception {
       String random1 = RandomUtil.randomString();
@@ -1878,6 +1881,65 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testMemoryUsagePercentage() throws Exception {
+      //messages size 100K
+      final int MESSAGE_SIZE = 100000;
+      String name1 = "messageUsagePercentage.test.1";
+
+      server.stop();
+      //no globalMaxSize set
+      server.getConfiguration().setGlobalMaxSize(-1);
+      server.start();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      // check before adding messages
+      assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
+      assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+         session.createQueue(name1, RoutingType.ANYCAST, name1);
+         ClientProducer producer1 = session.createProducer(name1);
+         sendMessagesWithPredefinedSize(30, session, producer1, MESSAGE_SIZE);
+
+         //it is hard to predict an exact number so checking if it falls in a certain range: totalSizeOfMessageSent < X > totalSizeofMessageSent + 100k
+         assertTrue("Memory Usage within range ", ((30 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((30 * MESSAGE_SIZE) + 100000)));
+         // no globalMaxSize set so it should return zero
+         assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+      }
+   }
+
+   @Test
+   public void testMemoryUsage() throws Exception {
+      //messages size 100K
+      final int MESSAGE_SIZE = 100000;
+      String name1 = "messageUsage.test.1";
+      String name2 = "messageUsage.test.2";
+
+      server.stop();
+      // set to 5 MB
+      server.getConfiguration().setGlobalMaxSize(5000000);
+      server.start();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      // check before adding messages
+      assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
+      assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
+
+      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+         session.createQueue(name1, RoutingType.ANYCAST, name1);
+         session.createQueue(name2, RoutingType.ANYCAST, name2);
+         ClientProducer producer1 = session.createProducer(name1);
+         ClientProducer producer2 = session.createProducer(name2);
+         sendMessagesWithPredefinedSize(10, session, producer1, MESSAGE_SIZE);
+         sendMessagesWithPredefinedSize(10, session, producer2, MESSAGE_SIZE);
+
+         //it is hard to predict an exact number so checking if it falls in a certain range: totalSizeOfMessageSent < X > totalSizeofMessageSent + 100k
+         assertTrue("Memory Usage within range ", ((20 * MESSAGE_SIZE) < serverControl.getAddressMemoryUsage()) && (serverControl.getAddressMemoryUsage() < ((20 * MESSAGE_SIZE) + 100000)));
+         assertTrue("MemoryUsagePercentage", (40 <= serverControl.getAddressMemoryUsagePercentage()) && (42 >= serverControl.getAddressMemoryUsagePercentage()));
+      }
+   }
+
+   @Test
    public void testConnectorServiceManagement() throws Exception {
       ActiveMQServerControl managementControl = createManagementControl();
       managementControl.createConnectorService("myconn", FakeConnectorServiceFactory.class.getCanonicalName(), new HashMap<String, Object>());
@@ -1976,6 +2038,29 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return jsonFilterObject.toString();
    }
 
+   private void sendMessagesWithPredefinedSize(int numberOfMessages,
+                                               ClientSession session,
+                                               ClientProducer producer,
+                                               int messageSize) throws Exception {
+      ClientMessage message;
+      final byte[] body = new byte[messageSize];
+      ByteBuffer bb = ByteBuffer.wrap(body);
+      for (int i = 1; i <= messageSize; i++) {
+         bb.put(getSamplebyte(i));
+      }
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         message = session.createMessage(true);
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+         bodyLocal.writeBytes(body);
+
+         producer.send(message);
+         if (i % 1000 == 0) {
+            session.commit();
+         }
+      }
+      session.commit();
+   }
    // Inner classes -------------------------------------------------
 
 }
