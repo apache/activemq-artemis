@@ -15,7 +15,7 @@ messages which are sent to a *hierarchy* of addresses.
 This functionality is enabled by default. To turn it off add the following to the `broker.xml` configuration.
 
       <wildcard-addresses>
-        <enabled>false</enabled>
+        <routing-enabled>false</routing-enabled>
       </wildcard-addresses>
 
 For more information on the wild card syntax and how to configure it, take a look at [wildcard syntax](wildcard-syntax.md) chapter,

@@ -912,14 +912,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    @Deprecated
    public boolean isWildcardRoutingEnabled() {
-      return wildcardConfiguration.isEnabled();
+      return wildcardConfiguration.isRoutingEnabled();
    }
 
    @Override
    @Deprecated
    public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled) {
-      logger.info("Usage of wildcardRoutingEnabled configuration property is deprecated, please use wildCardConfiguration.enabled instead");
-      wildcardConfiguration.setEnabled(enabled);
+      logger.info("Usage of wildcardRoutingEnabled configuration property is deprecated, please use wildCardConfiguration.routingEnabled instead");
+      wildcardConfiguration.setRoutingEnabled(enabled);
       return this;
    }
 
