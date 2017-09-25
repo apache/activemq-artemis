@@ -65,7 +65,11 @@ public class XARecoveryConfig {
                            final ClientProtocolManagerFactory clientProtocolManager) {
       TransportConfiguration[] newTransportConfiguration = new TransportConfiguration[transportConfiguration.length];
       for (int i = 0; i < transportConfiguration.length; i++) {
-         newTransportConfiguration[i] = transportConfiguration[i].newTransportConfig("");
+         if (clientProtocolManager != null) {
+            newTransportConfiguration[i] = clientProtocolManager.adaptTransportConfiguration(transportConfiguration[i].newTransportConfig(""));
+         } else {
+            newTransportConfiguration[i] = transportConfiguration[i].newTransportConfig("");
+         }
       }
 
       this.transportConfiguration = newTransportConfiguration;

@@ -1504,7 +1504,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          int count = 0;
          for (TopologyMemberImpl pair : membersCopy) {
-            topologyArrayLocal[count++] = pair.getConnector();
+            Pair<TransportConfiguration, TransportConfiguration> transportConfigs = pair.getConnector();
+            topologyArrayLocal[count++] = new Pair<>(protocolManagerFactory.adaptTransportConfiguration(transportConfigs.getA()),
+                    protocolManagerFactory.adaptTransportConfiguration(transportConfigs.getB()));
          }
 
          this.topologyArray = topologyArrayLocal;
