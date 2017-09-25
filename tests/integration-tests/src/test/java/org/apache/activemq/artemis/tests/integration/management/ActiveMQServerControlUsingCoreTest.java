@@ -620,6 +620,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getAddressMemoryUsage() {
+            try {
+               return (Long) proxy.invokeOperation("getAddressMemoryUsage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
+         public int getAddressMemoryUsagePercentage() {
+            try {
+               return (Integer) proxy.invokeOperation(Integer.TYPE, "getAddressMemoryUsagePercentage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
          public boolean freezeReplication() {
 
             return false;
