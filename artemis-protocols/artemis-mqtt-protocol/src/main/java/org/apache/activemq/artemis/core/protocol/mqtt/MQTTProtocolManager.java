@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -51,6 +53,9 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
    private MQTTLogger log = MQTTLogger.LOGGER;
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
+
+   //TODO Read in a list of existing client IDs from stored Sessions.
+   private Map<String, MQTTConnection> connectedClients = new ConcurrentHashMap<>();
 
    MQTTProtocolManager(ActiveMQServer server,
                        List<BaseInterceptor> incomingInterceptors,
@@ -171,5 +176,23 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInter
 
    public void invokeOutgoing(MqttMessage mqttMessage, MQTTConnection connection) {
       super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
+   }
+
+   public boolean isClientConnected(String clientId, MQTTConnection connection) {
+      return connectedClients.get(clientId).equals(connection);
+   }
+
+   public void removeConnectedClient(String clientId) {
+      connectedClients.remove(clientId);
+   }
+
+   /**
+    * @param clientId
+    * @param connection
+    * @return the {@code MQTTConnection} that the added connection replaced or null if there was no previous entry for
+    * the {@code clientId}
+    */
+   public MQTTConnection addConnectedClient(String clientId, MQTTConnection connection) {
+      return connectedClients.put(clientId, connection);
    }
 }

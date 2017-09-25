@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.Set;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
@@ -29,7 +28,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 
 /**
  * MQTTConnectionManager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
@@ -38,9 +36,6 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 public class MQTTConnectionManager {
 
    private MQTTSession session;
-
-   //TODO Read in a list of existing client IDs from stored Sessions.
-   public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<>();
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
@@ -148,8 +143,12 @@ public class MQTTConnectionManager {
          if (session.getSessionState() != null) {
             session.getSessionState().setAttached(false);
             String clientId = session.getSessionState().getClientId();
-            if (clientId != null) {
-               CONNECTED_CLIENTS.remove(clientId);
+            /**
+             *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
+             *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
+             */
+            if (clientId != null && session.getProtocolManager().isClientConnected(clientId, session.getConnection())) {
+               session.getProtocolManager().removeConnectedClient(clientId);
             }
          }
       }
@@ -181,12 +180,13 @@ public class MQTTConnectionManager {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
             return null;
          }
-      } else if (!CONNECTED_CLIENTS.add(clientId)) {
-         // ^^^ If the client ID is not unique (i.e. it has already registered) then do not accept it.
+      } else {
+         MQTTConnection connection = session.getProtocolManager().addConnectedClient(clientId, session.getConnection());
 
-
-         // [MQTT-3.1.3-9] Return ID Rejected if server rejects the client ID
-         return null;
+         if (connection != null) {
+            // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client
+            connection.disconnect(false);
+         }
       }
       return clientId;
    }
