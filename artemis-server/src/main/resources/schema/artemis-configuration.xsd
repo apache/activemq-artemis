@@ -2940,7 +2940,14 @@
          <xsd:element maxOccurs="1" minOccurs="0" name="enabled" type="xsd:boolean">
             <xsd:annotation>
                <xsd:documentation>
-                  are wildcard addresses enabled
+                  deprecated please use routing-enabled.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="routing-enabled" type="xsd:boolean">
+            <xsd:annotation>
+               <xsd:documentation>
+                  is wildcard addresses routing enabled.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
