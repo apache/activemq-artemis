@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
@@ -48,5 +49,10 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
    @Override
    public ClientProtocolManager newProtocolManager() {
       return new ActiveMQClientProtocolManager();
+   }
+
+   @Override
+   public TransportConfiguration adaptTransportConfiguration(TransportConfiguration tc) {
+      return tc;
    }
 }
