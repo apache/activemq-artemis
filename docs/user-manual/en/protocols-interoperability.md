@@ -546,6 +546,11 @@ available from [GitHub](http://github.com/jmesnil/stomp-websocket)
 (please see its [documentation](http://jmesnil.net/stomp-websocket/doc/)
 for a complete description).
 
+The payload length of websocket frames can vary between client implementations. By default
+Apache ActiveMQ Artemis will accept frames with a payload length of 65,536. If the client
+needs to send payloads longer than this in a single frame this length can be adjusted by
+using the `stompMaxFramePayloadLength` URL parameter on the acceptor.
+
 The `stomp-websockets` example shows how to configure Apache ActiveMQ Artemis server to
 have web browsers and Java applications exchanges messages on a JMS
 topic.
