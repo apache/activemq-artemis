@@ -504,6 +504,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return;
       }
 
+      configuration.parseSystemProperties();
+
       /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       this.analyzer.clear();
 
@@ -602,8 +604,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       this.getCriticalAnalyzer().addAction(criticalAction);
-
-      configuration.parseSystemProperties();
 
       startDate = new Date();
 
