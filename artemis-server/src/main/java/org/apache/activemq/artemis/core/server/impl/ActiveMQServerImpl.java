@@ -176,6 +176,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.critical.CriticalAction;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerImpl;
+import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
 
@@ -506,104 +507,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       configuration.parseSystemProperties();
 
-      /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
-      this.analyzer.clear();
-
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
-
-      if (configuration.isCriticalAnalyzer()) {
-         this.getCriticalAnalyzer().start();
-      }
-
-      CriticalAction criticalAction = null;
-      final CriticalAnalyzerPolicy criticalAnalyzerPolicy = configuration.getCriticalAnalyzerPolicy();
-      switch (criticalAnalyzerPolicy) {
-
-         case HALT:
-            criticalAction = criticalComponent -> {
-
-               ActiveMQServerLogger.LOGGER.criticalSystemHalt(criticalComponent);
-
-               threadDump();
-
-               // on the case of a critical failure, -1 cannot simply means forever.
-               // in case graceful is -1, we will set it to 30 seconds
-               long timeout = configuration.getGracefulShutdownTimeout() < 0 ? 30000 : configuration.getGracefulShutdownTimeout();
-
-               Thread notificationSender = new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.criticalFailure(criticalComponent) : null);
-                     } catch (Throwable e) {
-                        logger.warn(e.getMessage(), e);
-                     }
-                  }
-               };
-
-               // I'm using a different thread here as we need to manage timeouts
-               notificationSender.start();
-
-               try {
-                  notificationSender.join(timeout);
-               } catch (InterruptedException ignored) {
-               }
-
-               Runtime.getRuntime().halt(70); // Linux systems will have /usr/include/sysexits.h showing 70 as internal software error
-
-            };
-            break;
-         case SHUTDOWN:
-            criticalAction = criticalComponent -> {
-
-               ActiveMQServerLogger.LOGGER.criticalSystemShutdown(criticalComponent);
-
-               threadDump();
-
-               // on the case of a critical failure, -1 cannot simply means forever.
-               // in case graceful is -1, we will set it to 30 seconds
-               long timeout = configuration.getGracefulShutdownTimeout() < 0 ? 30000 : configuration.getGracefulShutdownTimeout();
-
-               Thread notificationSender = new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.criticalFailure(criticalComponent) : null);
-                     } catch (Throwable e) {
-                        logger.warn(e.getMessage(), e);
-                     }
-                  }
-               };
-
-               // I'm using a different thread here as we need to manage timeouts
-               notificationSender.start();
-
-               try {
-                  notificationSender.join(timeout);
-               } catch (InterruptedException ignored) {
-               }
-
-               // you can't stop from the check thread,
-               // nor can use an executor
-               Thread stopThread = new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        ActiveMQServerImpl.this.stop();
-                     } catch (Throwable e) {
-                        logger.warn(e.getMessage(), e);
-                     }
-                  }
-               };
-               stopThread.start();
-            };
-            break;
-         case LOG:
-            criticalAction = ActiveMQServerLogger.LOGGER::criticalSystemLog;
-            break;
-      }
-
-      this.getCriticalAnalyzer().addAction(criticalAction);
+      initializeCriticalAnalyzer();
 
       startDate = new Date();
 
@@ -665,6 +569,94 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       } finally {
          // this avoids embedded applications using dirty contexts from startup
          OperationContextImpl.clearContext();
+      }
+   }
+
+   private void initializeCriticalAnalyzer() throws Exception {
+      /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
+      this.analyzer.clear();
+
+      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
+
+      if (configuration.isCriticalAnalyzer()) {
+         this.getCriticalAnalyzer().start();
+      }
+
+      CriticalAction criticalAction = null;
+      final CriticalAnalyzerPolicy criticalAnalyzerPolicy = configuration.getCriticalAnalyzerPolicy();
+      switch (criticalAnalyzerPolicy) {
+
+         case HALT:
+            criticalAction = criticalComponent -> {
+
+               ActiveMQServerLogger.LOGGER.criticalSystemHalt(criticalComponent);
+
+               threadDump();
+               sendCriticalNotification(criticalComponent);
+
+               Runtime.getRuntime().halt(70); // Linux systems will have /usr/include/sysexits.h showing 70 as internal software error
+
+            };
+            break;
+         case SHUTDOWN:
+            criticalAction = criticalComponent -> {
+
+               ActiveMQServerLogger.LOGGER.criticalSystemShutdown(criticalComponent);
+
+               threadDump();
+
+               // on the case of a critical failure, -1 cannot simply means forever.
+               // in case graceful is -1, we will set it to 30 seconds
+               sendCriticalNotification(criticalComponent);
+
+               // you can't stop from the check thread,
+               // nor can use an executor
+               Thread stopThread = new Thread() {
+                  @Override
+                  public void run() {
+                     try {
+                        ActiveMQServerImpl.this.stop();
+                     } catch (Throwable e) {
+                        logger.warn(e.getMessage(), e);
+                     }
+                  }
+               };
+               stopThread.start();
+            };
+            break;
+         case LOG:
+            criticalAction = criticalComponent -> {
+               sendCriticalNotification(criticalComponent);
+               ActiveMQServerLogger.LOGGER.criticalSystemLog(criticalComponent);
+            };
+            break;
+      }
+
+      this.getCriticalAnalyzer().addAction(criticalAction);
+   }
+
+   private void sendCriticalNotification(final CriticalComponent criticalComponent) {
+      // on the case of a critical failure, -1 cannot simply means forever.
+      // in case graceful is -1, we will set it to 30 seconds
+      long timeout = configuration.getGracefulShutdownTimeout() < 0 ? 30000 : configuration.getGracefulShutdownTimeout();
+
+      Thread notificationSender = new Thread() {
+         @Override
+         public void run() {
+            try {
+               callBrokerPlugins(hasBrokerPlugins() ? plugin -> plugin.criticalFailure(criticalComponent) : null);
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      };
+
+      // I'm using a different thread here as we need to manage timeouts
+      notificationSender.start();
+
+      try {
+         notificationSender.join(timeout);
+      } catch (InterruptedException ignored) {
       }
    }
 
