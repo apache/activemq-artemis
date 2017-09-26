@@ -761,6 +761,43 @@ public class ArtemisTest extends CliTestBase {
          // Header line + 0 queues
          Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 1, lines.size());
 
+         //check  queues with greater_than 19 MESSAGE_ADDED  displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGES_ADDED");
+         statQueue.setOperationName("GREATER_THAN");
+         statQueue.setValue("19");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+
+         // Header line + 1 queues
+         Assert.assertEquals("rows returned filtering by MESSAGES_ADDED", 2, lines.size());
+         String[] columns = lines.get(1).split("\\|");
+         Assert.assertEquals("queue name filtered by MESSAGES_ADDED GREATER_THAN ", "Test20", columns[2].trim());
+
+         //check queues with less_than 2 MESSAGE_ADDED displayed
+         context = new TestActionContext();
+         statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setFieldName("MESSAGES_ADDED");
+         statQueue.setOperationName("LESS_THAN");
+         statQueue.setValue("2");
+         statQueue.execute(context);
+         lines = getOutputLines(context, false);
+
+         // Header line + "at least" 2 queues
+         Assert.assertTrue("rows returned filtering by MESSAGES_ADDED LESS_THAN", 2 <= lines.size());
+
+         //walk the result returned and the specific destinations are not part of the output
+         for (String line : lines) {
+            columns = line.split("\\|");
+            Assert.assertNotEquals("ensure Test20 is not part of returned result", "Test20", columns[2].trim());
+            Assert.assertNotEquals("ensure Test1 is not part of returned result", "Test1", columns[2].trim());
+         }
+
          //check all queues containing address "Test1" are displayed using Filter field DELIVERING_COUNT
          context = new TestActionContext();
          statQueue = new StatQueue();
@@ -771,7 +808,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setValue("10");
          statQueue.execute(context);
          lines = getOutputLines(context, false);
-         String[] columns = lines.get(1).split("\\|");
+         columns = lines.get(1).split("\\|");
          // Header line + 1 queues
          Assert.assertEquals("rows returned filtering by DELIVERING_COUNT", 2, lines.size());
          Assert.assertEquals("queue name filtered by DELIVERING_COUNT ", "Test1", columns[2].trim());
