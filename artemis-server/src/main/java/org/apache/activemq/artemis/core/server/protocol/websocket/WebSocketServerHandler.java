@@ -54,10 +54,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private HttpRequest httpRequest;
    private WebSocketServerHandshaker handshaker;
    private List<String> supportedProtocols;
+   private int maxFramePayloadLength;
    private static final BinaryWebSocketEncoder BINARY_WEBSOCKET_ENCODER = new BinaryWebSocketEncoder();
 
-   public WebSocketServerHandler(List<String> supportedProtocols) {
+   public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength) {
       this.supportedProtocols = supportedProtocols;
+      this.maxFramePayloadLength = maxFramePayloadLength;
    }
 
    @Override
@@ -82,7 +84,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
       // Handshake
       String supportedProtocolsCSV = StringUtil.joinStringList(supportedProtocols, ",");
-      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV, false);
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV, false, maxFramePayloadLength);
       this.httpRequest = req;
       this.handshaker = wsFactory.newHandshaker(req);
       if (this.handshaker == null) {
