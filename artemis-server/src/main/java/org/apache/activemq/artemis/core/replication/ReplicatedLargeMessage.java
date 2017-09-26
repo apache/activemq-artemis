@@ -52,4 +52,8 @@ public interface ReplicatedLargeMessage {
     */
    void addBytes(byte[] body) throws Exception;
 
+   void setPendingRecordID(long pendingRecordID);
+
+   long getPendingRecordID();
+
 }

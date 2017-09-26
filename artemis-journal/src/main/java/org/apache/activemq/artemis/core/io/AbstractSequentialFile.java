@@ -35,8 +35,11 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 public abstract class AbstractSequentialFile implements SequentialFile {
+
+   private static final Logger logger = Logger.getLogger(AbstractSequentialFile.class);
 
    private File file;
 
@@ -267,6 +270,10 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
       @Override
       public void onError(final int errorCode, final String errorMessage) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("onError" + " code: " + errorCode + " message: " + errorMessage);
+         }
+
          final int size = delegates.size();
          for (int i = 0; i < size; i++) {
             try {

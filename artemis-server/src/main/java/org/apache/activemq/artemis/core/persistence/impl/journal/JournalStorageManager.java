@@ -145,8 +145,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       int fileSize = config.getJournalFileSize();
       // we need to correct the file size if its not a multiple of the alignement
-      if (fileSize % journalFF.getAlignment() != 0) {
-         int difference = fileSize % journalFF.getAlignment();
+      int modulus = fileSize % journalFF.getAlignment();
+      if (modulus != 0) {
+         int difference = modulus;
          int low = config.getJournalFileSize() - difference;
          int high = low + journalFF.getAlignment();
          fileSize = difference < journalFF.getAlignment() / 2 ? low : high;
@@ -271,7 +272,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeMsgId);
          }
          if (replicator != null) {
-            replicator.largeMessageDelete(largeMsgId);
+            replicator.largeMessageDelete(largeMsgId, JournalStorageManager.this);
          }
       }
       largeMessagesToDelete.clear();
@@ -374,10 +375,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       journalFF.releaseBuffer(buffer);
    }
 
-   public long storePendingLargeMessage(final long messageID) throws Exception {
+   public long storePendingLargeMessage(final long messageID, long recordID) throws Exception {
       readLock();
       try {
-         long recordID = generateID();
+         if (recordID == LargeServerMessage.NO_PENDING_ID) {
+            recordID = generateID();
+         } else {
+            //this means the large message doesn't
+            //have a pendingRecordID, but one has been
+            //generated (coming from live server) for use.
+            recordID = -recordID;
+         }
 
          messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
 
@@ -395,7 +403,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             // And the client won't be waiting for the actual file to be deleted.
             // We set a temporary record (short lived) on the journal
             // to avoid a situation where the server is restarted and pending large message stays on forever
-            largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID()));
+            largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID()));
          } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
@@ -426,7 +434,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                readLock();
                try {
                   if (replicator != null) {
-                     replicator.largeMessageDelete(largeServerMessage.getMessageID());
+                     replicator.largeMessageDelete(largeServerMessage.getMessageID(), JournalStorageManager.this);
                   }
                   file.delete();
 
@@ -474,7 +482,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          if (largeMessage.isDurable()) {
             // We store a marker on the journal that the large file is pending
-            long pendingRecordID = storePendingLargeMessage(id);
+            long pendingRecordID = storePendingLargeMessage(id, LargeServerMessage.NO_PENDING_ID);
 
             largeMessage.setPendingRecordID(pendingRecordID);
          }

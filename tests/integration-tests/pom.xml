@@ -156,12 +156,6 @@
          <artifactId>artemis-hornetq-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-features</artifactId>
-         <version>${project.version}</version>
-         <type>pom</type>
-      </dependency>
 
       <!-- MQTT Deps -->
       <dependency>

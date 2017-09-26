@@ -380,7 +380,8 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
                serverSessions.add(session);
             }
          }
-      } while (running.get() && serverSessions.size() != numberOfSessions && timeout > System.currentTimeMillis());
+      }
+      while (running.get() && serverSessions.size() != numberOfSessions && timeout > System.currentTimeMillis());
 
       System.err.println("Returning " + serverSessions.size() + " sessions");
       return serverSessions;
