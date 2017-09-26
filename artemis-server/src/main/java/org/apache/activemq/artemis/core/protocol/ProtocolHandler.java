@@ -58,8 +58,6 @@ public class ProtocolHandler {
 
    private NettyAcceptor nettyAcceptor;
 
-   private Map<String, Object> configuration;
-
    private ScheduledExecutorService scheduledThreadPool;
 
    private HttpKeepAliveRunnable httpKeepAliveRunnable;
@@ -68,11 +66,9 @@ public class ProtocolHandler {
 
    public ProtocolHandler(Map<String, ProtocolManager> protocolMap,
                           NettyAcceptor nettyAcceptor,
-                          final Map<String, Object> configuration,
                           ScheduledExecutorService scheduledThreadPool) {
       this.protocolMap = protocolMap;
       this.nettyAcceptor = nettyAcceptor;
-      this.configuration = configuration;
       this.scheduledThreadPool = scheduledThreadPool;
 
       websocketSubprotocolIds = new ArrayList<>();
@@ -115,7 +111,7 @@ public class ProtocolHandler {
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
-               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds));
+               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, TransportConstants.DEFAULT_STOMP_MAX_FRAME_PAYLOAD_LENGTH, nettyAcceptor.getConfiguration())));
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
                ctx.pipeline().remove("http-handler");
@@ -207,12 +203,12 @@ public class ProtocolHandler {
          p.addLast("http-encoder", new HttpResponseEncoder());
          //create it lazily if and when we need it
          if (httpKeepAliveRunnable == null) {
-            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, configuration);
+            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, nettyAcceptor.getConfiguration());
             httpKeepAliveRunnable = new HttpKeepAliveRunnable();
             Future<?> future = scheduledThreadPool.scheduleAtFixedRate(httpKeepAliveRunnable, httpServerScanPeriod, httpServerScanPeriod, TimeUnit.MILLISECONDS);
             httpKeepAliveRunnable.setFuture(future);
          }
-         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, configuration);
+         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, nettyAcceptor.getConfiguration());
          HttpAcceptorHandler httpHandler = new HttpAcceptorHandler(httpKeepAliveRunnable, httpResponseTime, ctx.channel());
          ctx.pipeline().addLast("http-handler", httpHandler);
          p.addLast(new ProtocolDecoder(false, true));
