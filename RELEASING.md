@@ -100,7 +100,32 @@ The file will be located under ./artemis-pom/RELEASE/
 Remove these files manually under Nexus while the repository is still open.
 
 
-### Web site update:
+## Stage the release to the dist dev area
+
+Use the closed staging repo contents to populate the the dist dev svn area
+with the official release artifacts for voting. Use the script already present
+in the repo to download the files and populate a new ${CURRENT-RELEASE} dir:
+
+```sh
+svn co https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/
+cd activemq-artemis
+./prepare-release.sh https://repository.apache.org/content/repositories/orgapacheactivemq-${NEXUS-REPO-ID} ${CURRENT-RELEASE}
+```
+Give the files a check over and commit the new dir and start a vote if all looks well. Old staged releases can be cleaned out periodically.
+
+
+## Promote artifacts to the dist release area
+
+After a successfull vote, populate the dist release area using the staged
+files from the dist dev area to allow them to mirror.
+
+```sh
+svn cp -m "add files for activemq-artemis-${CURRENT-RELEASE}" https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/${CURRENT-RELEASE} https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${CURRENT-RELEASE}
+```
+It can take up to 24hrs for there to be good mirror coverage. Mirror status can be viewed at https://www.apache.org/mirrors/.
+
+
+## Web site update:
 
 Make sure you get a copy of the website at:
 
@@ -109,18 +134,17 @@ svn co https://svn.apache.org/repos/infra/websites/production/activemq/content/a
 ```
 
 
-### Upload release
+## Cleaning older releases out of the dist release area
 
-Upload the binaries at this svn, using your apache id:
+Only the current releases should be mirrored. Older releases must be cleared:
 
 ```sh
-https://dist.apache.org/repos/dist/release/activemq
+svn rm -m "clean out older release" https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${OLD-RELEASE}
 ```
+Any links to them on the site must be updated to reference the ASF archive instead at
+https://archive.apache.org/dist/activemq/activemq-artemis/
 
-
-You may get the valid binaries from this maven central location:
-
-https://repo1.maven.org/maven2/org/apache/activemq/apache-artemis/${CURRENT-RELEASE}
+Ensure old releases are only removed after the site is updated in order to avoid broken links.
 
 
 ## Common Pittfals
