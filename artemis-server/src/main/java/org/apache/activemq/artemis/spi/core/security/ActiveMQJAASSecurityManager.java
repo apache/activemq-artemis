@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
@@ -142,7 +143,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
          try {
             rolesForSubject.addAll(localSubject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
          } catch (Exception e) {
-            logger.info("Can't find roles for the subject", e);
+            ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
          }
          if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
             Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
@@ -199,7 +200,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
             try {
                principals.add(createGroupPrincipal(role.getName(), rolePrincipalClass));
             } catch (Exception e) {
-               logger.info("Can't add role principal", e);
+               ActiveMQServerLogger.LOGGER.failedAddRolePrincipal(e);
             }
          }
       }

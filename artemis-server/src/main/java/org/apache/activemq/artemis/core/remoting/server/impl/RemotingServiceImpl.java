@@ -714,7 +714,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                               // failure detection could be affected
                               conn.flush();
                            } catch (Throwable e) {
-                              ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                              ActiveMQServerLogger.LOGGER.failedToFlushOutstandingDataFromTheConnection(e);
                            }
 
                         }

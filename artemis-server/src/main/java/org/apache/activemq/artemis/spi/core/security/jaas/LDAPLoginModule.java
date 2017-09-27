@@ -193,7 +193,7 @@ public class LDAPLoginModule implements LoginModule {
             context.close();
             context = null;
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.error(e.toString());
+            ActiveMQServerLogger.LOGGER.failedToCloseContext(e);
          }
       }
    }
@@ -576,7 +576,7 @@ public class LDAPLoginModule implements LoginModule {
 
          } catch (NamingException e) {
             closeContext();
-            ActiveMQServerLogger.LOGGER.error(e.toString());
+            ActiveMQServerLogger.LOGGER.failedToOpenContext(e);
             throw e;
          }
       }

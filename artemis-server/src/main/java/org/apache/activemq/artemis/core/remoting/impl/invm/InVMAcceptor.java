@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
@@ -170,7 +171,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
          try {
             notificationService.sendNotification(notification);
          } catch (Exception e) {
-            logger.warn("failed to send notification", e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
          }
       }
 
