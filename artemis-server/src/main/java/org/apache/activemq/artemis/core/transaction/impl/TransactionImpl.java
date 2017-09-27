@@ -378,7 +378,7 @@ public class TransactionImpl implements Transaction {
       } catch (IllegalStateException e) {
          // Something happened before and the TX didn't make to the Journal / Storage
          // We will like to execute afterRollback and clear anything pending
-         ActiveMQServerLogger.LOGGER.warn(e);
+         ActiveMQServerLogger.LOGGER.failedToPerformRollback(e);
       }
       // We want to make sure that nothing else gets done after the commit is issued
       // this will eliminate any possibility or races

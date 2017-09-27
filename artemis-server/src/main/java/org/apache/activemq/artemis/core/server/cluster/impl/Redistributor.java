@@ -131,7 +131,7 @@ public class Redistributor implements Consumer {
          boolean ok = pendingRuns.await(10000);
          return ok;
       } catch (InterruptedException e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToFlushExecutor(e);
          return false;
       }
    }
@@ -181,9 +181,7 @@ public class Redistributor implements Consumer {
                      tx.rollback();
                   } catch (Exception e2) {
                      // Nothing much we can do now
-
-                     // TODO log
-                     ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+                     ActiveMQServerLogger.LOGGER.failedToRollback(e2);
                   }
                }
             }

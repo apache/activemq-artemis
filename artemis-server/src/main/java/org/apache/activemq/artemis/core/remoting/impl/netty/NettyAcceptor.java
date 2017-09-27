@@ -613,7 +613,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          try {
             notificationService.sendNotification(notification);
          } catch (Exception e) {
-            logger.warn("failed to send notification", e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
          }
       }
 

@@ -43,7 +43,7 @@ public class TransientQueueManagerImpl implements TransientQueueManager {
             try {
                server.destroyQueue(queueName, null, false);
             } catch (ActiveMQException e) {
-               ActiveMQServerLogger.LOGGER.warn("Error on deleting queue " + queueName + ", " + e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
             }
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
