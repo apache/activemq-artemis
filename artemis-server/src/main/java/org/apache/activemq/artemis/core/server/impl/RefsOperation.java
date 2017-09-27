@@ -129,7 +129,7 @@ public class RefsOperation extends TransactionOperationAbstract {
             }
             ackedTX.commit(true);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToProcessMessageReferenceAfterRollback(e);
          }
       }
    }
@@ -171,7 +171,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          // This could happen on after commit, since the page could be deleted on file earlier by another thread
          logger.debug(e);
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToDecrementMessageReferenceCount(e);
       }
    }
 

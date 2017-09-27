@@ -57,7 +57,7 @@ public class ReloadableProperties {
                logger.debug("Load of: " + key);
             }
          } catch (IOException e) {
-            ActiveMQServerLogger.LOGGER.error("Failed to load: " + key + ", reason:" + e.getLocalizedMessage());
+            ActiveMQServerLogger.LOGGER.failedToLoadProperty(e, key.toString(), e.getLocalizedMessage());
             if (key.isDebug()) {
                logger.debug("Load of: " + key + ", failure exception" + e);
             }

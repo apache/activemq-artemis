@@ -819,7 +819,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                                            ServerSession session) {
       session.markTXFailed(t);
       if (requiresResponse) {
-         ActiveMQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
+         ActiveMQServerLogger.LOGGER.sendingUnexpectedExceptionToClient(t);
          ActiveMQException activeMQInternalErrorException = new ActiveMQInternalErrorException();
          activeMQInternalErrorException.initCause(t);
          response = new ActiveMQExceptionMessage(activeMQInternalErrorException);

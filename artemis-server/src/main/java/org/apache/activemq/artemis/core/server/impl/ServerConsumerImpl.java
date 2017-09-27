@@ -690,7 +690,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
          return true;
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToFinishDelivery(e);
          return false;
       }
    }

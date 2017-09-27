@@ -304,7 +304,7 @@ public class ManagementServiceImpl implements ManagementService {
          try {
             unregisterAcceptor(name);
          } catch (Exception e) {
-            logger.warn("Failed to unregister acceptors", e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToUnregisterAcceptors(e);
          }
       }
    }

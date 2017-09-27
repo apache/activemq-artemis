@@ -412,7 +412,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             }
          }
       } catch (NamingException e) {
-         logger.warn("Failed to process an event", e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToProcessEvent(e);
       }
    }
 
@@ -464,7 +464,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             }
          }
       } catch (NamingException e) {
-         logger.warn("Failed to process an event", e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToProcessEvent(e);
       }
    }
 
@@ -492,7 +492,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     */
    public void namingExceptionThrown(NamingExceptionEvent namingExceptionEvent) {
       context = null;
-      ActiveMQServerLogger.LOGGER.error("Caught unexpected exception.", namingExceptionEvent.getException());
+      ActiveMQServerLogger.LOGGER.caughtUnexpectedException(namingExceptionEvent.getException());
    }
 
    protected class LDAPNamespaceChangeListener implements NamespaceChangeListener, ObjectChangeListener {
