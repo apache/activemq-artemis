@@ -125,6 +125,18 @@
             <transformer-class-name>org.foo.Transformer2</transformer-class-name>
             <exclusive>false</exclusive>
          </divert>
+         <divert name="divert3">
+            <routing-name>routing-name2</routing-name>
+            <address>address2</address>
+            <forwarding-address>forwarding-address2</forwarding-address>
+            <filter string="speed &lt; 88"/>
+            <transformer>
+               <class-name>org.foo.DivertTransformer3</class-name>
+               <property key="divertTransformerKey1" value="divertTransformerValue1"/>
+               <property key="divertTransformerKey2" value="divertTransformerValue2"/>
+            </transformer>
+            <exclusive>false</exclusive>
+         </divert>
       </diverts>
       <amqp-use-core-subscription-naming>true</amqp-use-core-subscription-naming>
       <queues>
@@ -163,6 +175,17 @@
          <bridge name="bridge2">
             <queue-name>queue2</queue-name>
             <forwarding-address>bridge-forwarding-address2</forwarding-address>
+            <producer-window-size>555k</producer-window-size>
+            <discovery-group-ref discovery-group-name="dg1"/>
+         </bridge>
+         <bridge name="bridge3">
+            <queue-name>queue3</queue-name>
+            <forwarding-address>bridge-forwarding-address2</forwarding-address>
+            <transformer>
+               <class-name>org.foo.BridgeTransformer3</class-name>
+               <property key="bridgeTransformerKey1" value="bridgeTransformerValue1"/>
+               <property key="bridgeTransformerKey2" value="bridgeTransformerValue2"/>
+            </transformer>
             <producer-window-size>555k</producer-window-size>
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>

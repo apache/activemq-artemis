@@ -38,7 +38,7 @@ public class DivertConfiguration implements Serializable {
 
    private String filterString = null;
 
-   private String transformerClassName = null;
+   private TransformerConfiguration transformerConfiguration = null;
 
    private DivertConfigurationRoutingType routingType = DivertConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
 
@@ -69,8 +69,8 @@ public class DivertConfiguration implements Serializable {
       return filterString;
    }
 
-   public String getTransformerClassName() {
-      return transformerClassName;
+   public TransformerConfiguration getTransformerConfiguration() {
+      return transformerConfiguration;
    }
 
    public DivertConfigurationRoutingType getRoutingType() {
@@ -130,10 +130,10 @@ public class DivertConfiguration implements Serializable {
    }
 
    /**
-    * @param transformerClassName the transformerClassName to set
+    * @param transformerConfiguration the transformerConfiguration to set
     */
-   public DivertConfiguration setTransformerClassName(final String transformerClassName) {
-      this.transformerClassName = transformerClassName;
+   public DivertConfiguration setTransformerConfiguration(final TransformerConfiguration transformerConfiguration) {
+      this.transformerConfiguration = transformerConfiguration;
       return this;
    }
 
@@ -155,7 +155,7 @@ public class DivertConfiguration implements Serializable {
       result = prime * result + ((forwardingAddress == null) ? 0 : forwardingAddress.hashCode());
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((routingName == null) ? 0 : routingName.hashCode());
-      result = prime * result + ((transformerClassName == null) ? 0 : transformerClassName.hashCode());
+      result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
       result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
       return result;
    }
@@ -196,10 +196,10 @@ public class DivertConfiguration implements Serializable {
             return false;
       } else if (!routingName.equals(other.routingName))
          return false;
-      if (transformerClassName == null) {
-         if (other.transformerClassName != null)
+      if (transformerConfiguration == null) {
+         if (other.transformerConfiguration != null)
             return false;
-      } else if (!transformerClassName.equals(other.transformerClassName))
+      } else if (!transformerConfiguration.equals(other.transformerConfiguration))
          return false;
       if (routingType == null) {
          if (other.routingType != null)

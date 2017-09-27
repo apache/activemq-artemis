@@ -61,7 +61,9 @@ public class DivertControlTest extends ManagementTestBase {
 
       Assert.assertEquals(divertConfig.getForwardingAddress(), divertControl.getForwardingAddress());
 
-      Assert.assertEquals(divertConfig.getTransformerClassName(), divertControl.getTransformerClassName());
+      Assert.assertEquals(divertConfig.getTransformerConfiguration().getClassName(), divertControl.getTransformerClassName());
+
+      Assert.assertEquals(divertConfig.getTransformerConfiguration().getProperties(), divertControl.getTransformerProperties());
    }
 
    // Package protected ---------------------------------------------

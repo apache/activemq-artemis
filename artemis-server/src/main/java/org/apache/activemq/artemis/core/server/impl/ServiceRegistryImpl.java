@@ -30,10 +30,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
@@ -153,11 +154,11 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @Override
-   public Transformer getDivertTransformer(String name, String className) {
+   public Transformer getDivertTransformer(String name, TransformerConfiguration transformerConfiguration) {
       Transformer transformer = divertTransformers.get(name);
 
-      if (transformer == null && className != null) {
-         transformer = instantiateTransformer(className);
+      if (transformer == null && transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
+         transformer = instantiateTransformer(transformerConfiguration);
          addDivertTransformer(name, transformer);
       }
 
@@ -180,11 +181,11 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @Override
-   public Transformer getBridgeTransformer(String name, String className) {
+   public Transformer getBridgeTransformer(String name, TransformerConfiguration transformerConfiguration) {
       Transformer transformer = bridgeTransformers.get(name);
 
-      if (transformer == null && className != null) {
-         transformer = instantiateTransformer(className);
+      if (transformer == null && transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
+         transformer = instantiateTransformer(transformerConfiguration);
          addBridgeTransformer(name, transformer);
       }
 
@@ -218,14 +219,15 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       });
    }
 
-   private Transformer instantiateTransformer(final String className) {
+   private Transformer instantiateTransformer(final TransformerConfiguration transformerConfiguration) {
       Transformer transformer = null;
 
-      if (className != null) {
+      if (transformerConfiguration != null && transformerConfiguration.getClassName() != null) {
          try {
-            transformer = loadClass(className);
+            transformer = loadClass(transformerConfiguration.getClassName());
+            transformer.init(Collections.unmodifiableMap(transformerConfiguration.getProperties()));
          } catch (Exception e) {
-            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, className);
+            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerConfiguration.getClassName());
          }
       }
       return transformer;
