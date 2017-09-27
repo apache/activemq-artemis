@@ -626,8 +626,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             break;
          case LOG:
             criticalAction = criticalComponent -> {
-               sendCriticalNotification(criticalComponent);
                ActiveMQServerLogger.LOGGER.criticalSystemLog(criticalComponent);
+               threadDump();
+               sendCriticalNotification(criticalComponent);
             };
             break;
       }
