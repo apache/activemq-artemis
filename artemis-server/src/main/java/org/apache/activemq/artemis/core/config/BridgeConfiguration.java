@@ -40,7 +40,7 @@ public final class BridgeConfiguration implements Serializable {
 
    private boolean ha = false;
 
-   private String transformerClassName = null;
+   private TransformerConfiguration transformerConfiguration = null;
 
    private long retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
 
@@ -150,15 +150,15 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   public String getTransformerClassName() {
-      return transformerClassName;
+   public TransformerConfiguration getTransformerConfiguration() {
+      return transformerConfiguration;
    }
 
    /**
-    * @param transformerClassName the transformerClassName to set
+    * @param transformerConfiguration the transformerConfiguration to set
     */
-   public BridgeConfiguration setTransformerClassName(final String transformerClassName) {
-      this.transformerClassName = transformerClassName;
+   public BridgeConfiguration setTransformerConfiguration(final TransformerConfiguration transformerConfiguration) {
+      this.transformerConfiguration = transformerConfiguration;
       return this;
    }
 
@@ -373,7 +373,7 @@ public final class BridgeConfiguration implements Serializable {
       temp = Double.doubleToLongBits(retryIntervalMultiplier);
       result = prime * result + (int) (temp ^ (temp >>> 32));
       result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
-      result = prime * result + ((transformerClassName == null) ? 0 : transformerClassName.hashCode());
+      result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
       result = prime * result + (useDuplicateDetection ? 1231 : 1237);
       result = prime * result + ((user == null) ? 0 : user.hashCode());
       return result;
@@ -447,10 +447,10 @@ public final class BridgeConfiguration implements Serializable {
             return false;
       } else if (!staticConnectors.equals(other.staticConnectors))
          return false;
-      if (transformerClassName == null) {
-         if (other.transformerClassName != null)
+      if (transformerConfiguration == null) {
+         if (other.transformerConfiguration != null)
             return false;
-      } else if (!transformerClassName.equals(other.transformerClassName))
+      } else if (!transformerConfiguration.equals(other.transformerConfiguration))
          return false;
       if (useDuplicateDetection != other.useDuplicateDetection)
          return false;

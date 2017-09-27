@@ -62,8 +62,9 @@ under the License.
             <address>priceUpdates</address>
             <forwarding-address>priceForwarding</forwarding-address>
             <filter string="office='New York'"/>
-            <transformer-class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
-            </transformer-class-name>
+            <transformer>
+               <class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer</class-name>
+            </transformer>
             <exclusive>true</exclusive>
          </divert>
       </diverts>
