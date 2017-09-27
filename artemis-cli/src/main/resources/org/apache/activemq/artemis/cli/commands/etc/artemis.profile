@@ -28,7 +28,7 @@ ARTEMIS_INSTANCE_URI='${artemis.instance.uri}'
 
 
 # Java Opts
-JAVA_ARGS="${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx2G -Dhawtio.realm=activemq  -Dhawtio.offline="true" -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=file:etc/jolokia-access.xml"
+JAVA_ARGS="${java-opts} -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx2G -Dhawtio.realm=activemq  -Dhawtio.offline="true" -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_URI}/etc/jolokia-access.xml"
 
 #
 # There might be options that you only want to enable on specifc commands, like setting a JMX port
