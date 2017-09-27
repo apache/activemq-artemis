@@ -1028,6 +1028,28 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
+   void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
+                     @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
+                     @Parameter(name = "address", desc = "Address to divert from") String address,
+                     @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
+                     @Parameter(name = "exclusive", desc = "Is the divert exclusive?") boolean exclusive,
+                     @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
+                     @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
+                     @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
+   @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
+   void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
+                     @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
+                     @Parameter(name = "address", desc = "Address to divert from") String address,
+                     @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
+                     @Parameter(name = "exclusive", desc = "Is the divert exclusive?") boolean exclusive,
+                     @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
+                     @Parameter(name = "transformerPropertiesAsJSON", desc = "Configuration properties of the divert's transformer in JSON form") String transformerPropertiesAsJSON,
+                     @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
 
@@ -1040,6 +1062,48 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "forwardingAddress", desc = "Forwarding address") String forwardingAddress,
                      @Parameter(name = "filterString", desc = "Filter of the bridge") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the bridge transformer") String transformerClassName,
+                     @Parameter(name = "retryInterval", desc = "Connection retry interval") long retryInterval,
+                     @Parameter(name = "retryIntervalMultiplier", desc = "Connection retry interval multiplier") double retryIntervalMultiplier,
+                     @Parameter(name = "initialConnectAttempts", desc = "Number of initial connection attempts") int initialConnectAttempts,
+                     @Parameter(name = "reconnectAttempts", desc = "Number of reconnection attempts") int reconnectAttempts,
+                     @Parameter(name = "useDuplicateDetection", desc = "Use duplicate detection") boolean useDuplicateDetection,
+                     @Parameter(name = "confirmationWindowSize", desc = "Confirmation window size") int confirmationWindowSize,
+                     @Parameter(name = "producerWindowSize", desc = "Producer window size") int producerWindowSize,
+                     @Parameter(name = "clientFailureCheckPeriod", desc = "Period to check client failure") long clientFailureCheckPeriod,
+                     @Parameter(name = "staticConnectorNames", desc = "comma separated list of connector names or name of discovery group if 'useDiscoveryGroup' is set to true") String connectorNames,
+                     @Parameter(name = "useDiscoveryGroup", desc = "use discovery  group") boolean useDiscoveryGroup,
+                     @Parameter(name = "ha", desc = "Is it using HA") boolean ha,
+                     @Parameter(name = "user", desc = "User name") String user,
+                     @Parameter(name = "password", desc = "User password") String password) throws Exception;
+
+   @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
+   void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
+                     @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
+                     @Parameter(name = "forwardingAddress", desc = "Forwarding address") String forwardingAddress,
+                     @Parameter(name = "filterString", desc = "Filter of the bridge") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the bridge transformer") String transformerClassName,
+                     @Parameter(name = "transformerProperties", desc = "Configuration properties of the bridge transformer") Map<String, String> transformerProperties,
+                     @Parameter(name = "retryInterval", desc = "Connection retry interval") long retryInterval,
+                     @Parameter(name = "retryIntervalMultiplier", desc = "Connection retry interval multiplier") double retryIntervalMultiplier,
+                     @Parameter(name = "initialConnectAttempts", desc = "Number of initial connection attempts") int initialConnectAttempts,
+                     @Parameter(name = "reconnectAttempts", desc = "Number of reconnection attempts") int reconnectAttempts,
+                     @Parameter(name = "useDuplicateDetection", desc = "Use duplicate detection") boolean useDuplicateDetection,
+                     @Parameter(name = "confirmationWindowSize", desc = "Confirmation window size") int confirmationWindowSize,
+                     @Parameter(name = "producerWindowSize", desc = "Producer window size") int producerWindowSize,
+                     @Parameter(name = "clientFailureCheckPeriod", desc = "Period to check client failure") long clientFailureCheckPeriod,
+                     @Parameter(name = "staticConnectorNames", desc = "comma separated list of connector names or name of discovery group if 'useDiscoveryGroup' is set to true") String connectorNames,
+                     @Parameter(name = "useDiscoveryGroup", desc = "use discovery  group") boolean useDiscoveryGroup,
+                     @Parameter(name = "ha", desc = "Is it using HA") boolean ha,
+                     @Parameter(name = "user", desc = "User name") String user,
+                     @Parameter(name = "password", desc = "User password") String password) throws Exception;
+
+   @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
+   void createBridge(@Parameter(name = "name", desc = "Name of the bridge") String name,
+                     @Parameter(name = "queueName", desc = "Name of the source queue") String queueName,
+                     @Parameter(name = "forwardingAddress", desc = "Forwarding address") String forwardingAddress,
+                     @Parameter(name = "filterString", desc = "Filter of the bridge") String filterString,
+                     @Parameter(name = "transformerClassName", desc = "Class name of the bridge transformer") String transformerClassName,
+                     @Parameter(name = "transformerPropertiesAsJSON", desc = "Configuration properties of the bridge transformer in JSON form") String transformerPropertiesAsJSON,
                      @Parameter(name = "retryInterval", desc = "Connection retry interval") long retryInterval,
                      @Parameter(name = "retryIntervalMultiplier", desc = "Connection retry interval multiplier") double retryIntervalMultiplier,
                      @Parameter(name = "initialConnectAttempts", desc = "Number of initial connection attempts") int initialConnectAttempts,

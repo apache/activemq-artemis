@@ -136,7 +136,7 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
@@ -2051,7 +2051,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       SimpleString sAddress = new SimpleString(config.getAddress());
 
-      Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName(), config.getTransformerClassName());
+      Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName(), config.getTransformerConfiguration());
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 

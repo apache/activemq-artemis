@@ -1091,6 +1091,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional transformer configuration
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="min-large-message-size" type="xsd:int" default="102400" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1241,6 +1249,44 @@
          <xsd:annotation>
             <xsd:documentation>
                unique name for this bridge
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <!-- TRANSFORMER CONFIGURATION -->
+   <xsd:complexType name="transformerType">
+      <xsd:sequence>
+         <xsd:element name="class-name" type="xsd:string" maxOccurs="1" minOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional name of transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="property" type="transformerProperty" maxOccurs="unbounded" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  properties to configure the transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+
+
+   <xsd:complexType name="transformerProperty">
+      <xsd:attribute name="key" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               key for the property
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="value" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               value for the property
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
@@ -1526,6 +1572,14 @@
             <xsd:annotation>
                <xsd:documentation>
                   an optional class name of a transformer
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional transformer configuration
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

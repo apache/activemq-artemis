@@ -798,6 +798,32 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createDivert(String name,
+                                  String routingName,
+                                  String address,
+                                  String forwardingAddress,
+                                  boolean exclusive,
+                                  String filterString,
+                                  String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  String routingType) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerProperties, routingType);
+         }
+
+         @Override
+         public void createDivert(String name,
+                                  String routingName,
+                                  String address,
+                                  String forwardingAddress,
+                                  boolean exclusive,
+                                  String filterString,
+                                  String transformerClassName,
+                                  String transformerPropertiesAsJSON,
+                                  String routingType) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerPropertiesAsJSON, routingType);
+         }
+
+         @Override
          public void destroyDivert(String name) throws Exception {
             proxy.invokeOperation("destroyDivert", name);
          }
@@ -867,6 +893,52 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   String user,
                                   String password) throws Exception {
             proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
+         }
+
+         @Override
+         public void createBridge(String name,
+                                  String queueName,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  long retryInterval,
+                                  double retryIntervalMultiplier,
+                                  int initialConnectAttempts,
+                                  int reconnectAttempts,
+                                  boolean useDuplicateDetection,
+                                  int confirmationWindowSize,
+                                  int producerWindowSize,
+                                  long clientFailureCheckPeriod,
+                                  String connectorNames,
+                                  boolean useDiscovery,
+                                  boolean ha,
+                                  String user,
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, transformerProperties, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
+         }
+
+         @Override
+         public void createBridge(String name,
+                                  String queueName,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
+                                  String transformerPropertiesAsJSON,
+                                  long retryInterval,
+                                  double retryIntervalMultiplier,
+                                  int initialConnectAttempts,
+                                  int reconnectAttempts,
+                                  boolean useDuplicateDetection,
+                                  int confirmationWindowSize,
+                                  int producerWindowSize,
+                                  long clientFailureCheckPeriod,
+                                  String connectorNames,
+                                  boolean useDiscovery,
+                                  boolean ha,
+                                  String user,
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, transformerPropertiesAsJSON, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
          }
 
          @Override

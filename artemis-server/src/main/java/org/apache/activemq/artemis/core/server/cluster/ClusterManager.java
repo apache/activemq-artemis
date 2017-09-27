@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
@@ -395,7 +396,7 @@ public final class ClusterManager implements ActiveMQComponent {
          return;
       }
 
-      Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName(), config.getTransformerClassName());
+      Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName(), config.getTransformerConfiguration());
 
       Binding binding = postOffice.getBinding(new SimpleString(config.getQueueName()));
 
