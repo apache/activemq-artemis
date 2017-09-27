@@ -175,4 +175,8 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    public String getClientID() {
       return amqpConnection.getContainer();
    }
+
+   public void open() {
+      amqpConnection.open();
+   }
 }

@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ProtonHandler;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
@@ -68,6 +69,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    protected AMQPConnectionCallback connectionCallback;
    private final String containerId;
+   private final boolean isIncomingConnection;
+   private final ClientSASLFactory saslClientFactory;
    private final Map<Symbol, Object> connectionProperties = new HashMap<>();
    private final ScheduledExecutorService scheduledPool;
 
@@ -84,19 +87,28 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                                 int maxFrameSize,
                                 int channelMax,
                                 boolean useCoreSubscriptionNaming,
-                                ScheduledExecutorService scheduledPool) {
+                                ScheduledExecutorService scheduledPool,
+                                boolean isIncomingConnection,
+                                ClientSASLFactory saslClientFactory,
+                                Map<Symbol, Object> connectionProperties) {
 
       this.protocolManager = protocolManager;
       this.connectionCallback = connectionSP;
       this.useCoreSubscriptionNaming = useCoreSubscriptionNaming;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
+      this.isIncomingConnection = isIncomingConnection;
+      this.saslClientFactory = saslClientFactory;
 
-      connectionProperties.put(AmqpSupport.PRODUCT, "apache-activemq-artemis");
-      connectionProperties.put(AmqpSupport.VERSION, VersionLoader.getVersion().getFullVersion());
+      this.connectionProperties.put(AmqpSupport.PRODUCT, "apache-activemq-artemis");
+      this.connectionProperties.put(AmqpSupport.VERSION, VersionLoader.getVersion().getFullVersion());
+
+      if (connectionProperties != null) {
+         this.connectionProperties.putAll(connectionProperties);
+      }
 
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      this.handler = new ProtonHandler(protocolManager.getServer().getExecutorFactory().getExecutor());
+      this.handler = new ProtonHandler(protocolManager.getServer().getExecutorFactory().getExecutor(), isIncomingConnection);
       handler.addEventHandler(this);
       Transport transport = handler.getTransport();
       transport.setEmitFlowEventOnSend(false);
@@ -106,6 +118,17 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       transport.setChannelMax(channelMax);
       transport.setInitialRemoteMaxFrameSize(protocolManager.getInitialRemoteMaxFrameSize());
       transport.setMaxFrameSize(maxFrameSize);
+      if (!isIncomingConnection && saslClientFactory != null) {
+         handler.createClientSASL();
+      }
+   }
+
+   public boolean isIncomingConnection() {
+      return isIncomingConnection;
+   }
+
+   public ClientSASLFactory getSaslClientFactory() {
+      return saslClientFactory;
    }
 
    protected AMQPSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
@@ -232,7 +255,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return ExtCapability.getCapabilities();
    }
 
-   public void open(Map<Symbol, Object> connectionProperties) {
+   public void open() {
       handler.open(containerId, connectionProperties);
    }
 
@@ -271,56 +294,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    @Override
-   public void onInit(Connection connection) throws Exception {
-
-   }
-
-   @Override
-   public void onLocalOpen(Connection connection) throws Exception {
-
-   }
-
-   @Override
-   public void onLocalClose(Connection connection) throws Exception {
-
-   }
-
-   @Override
-   public void onFinal(Connection connection) throws Exception {
-
-   }
-
-   @Override
-   public void onInit(Session session) throws Exception {
-
-   }
-
-   @Override
-   public void onFinal(Session session) throws Exception {
-
-   }
-
-   @Override
-   public void onInit(Link link) throws Exception {
-
-   }
-
-   @Override
-   public void onLocalOpen(Link link) throws Exception {
-
-   }
-
-   @Override
-   public void onLocalClose(Link link) throws Exception {
-
-   }
-
-   @Override
-   public void onFinal(Link link) throws Exception {
-
-   }
-
-   @Override
    public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
       if (sasl) {
          // configured mech in decreasing order of preference
@@ -341,6 +314,25 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    @Override
    public void onSaslRemoteMechanismChosen(ProtonHandler handler, String mech) {
       handler.setChosenMechanism(connectionCallback.getServerSASL(mech));
+   }
+
+   @Override
+   public void onSaslMechanismsOffered(final ProtonHandler handler, final String[] mechanisms) {
+      if (saslClientFactory != null) {
+         handler.setClientMechanism(saslClientFactory.chooseMechanism(mechanisms));
+      }
+   }
+
+   @Override
+   public void onAuthFailed(final ProtonHandler protonHandler, final Connection connection) {
+      connectionCallback.close();
+      handler.close(null);
+   }
+
+   @Override
+   public void onAuthSuccess(final ProtonHandler protonHandler, final Connection connection) {
+      connection.open();
+      flush();
    }
 
    @Override
@@ -435,10 +427,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       } finally {
          unlock();
       }
-   }
-
-   @Override
-   public void onLocalClose(Session session) throws Exception {
    }
 
    @Override
