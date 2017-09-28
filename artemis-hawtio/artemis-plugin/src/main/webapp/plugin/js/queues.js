@@ -131,7 +131,7 @@ var ARTEMIS = (function(ARTEMIS) {
             },
             {
                 field: 'deliveringCount',
-                displayName: 'Deliveing Count',
+                displayName: 'Delivering Count',
                 width: '*',
                 visible: false
             },
@@ -143,7 +143,7 @@ var ARTEMIS = (function(ARTEMIS) {
             },
             {
                 field: 'directDeliver',
-                displayName: 'Deliveing Count',
+                displayName: 'Direct Deliver',
                 width: '*',
                 visible: false
             }
