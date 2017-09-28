@@ -248,9 +248,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private volatile ExecutorService threadPool;
 
-   private volatile ScheduledExecutorService scheduledPool;
+   protected volatile ScheduledExecutorService scheduledPool;
 
-   private volatile ExecutorFactory executorFactory;
+   protected volatile ExecutorFactory executorFactory;
 
    private volatile ExecutorService ioExecutorPool;
 
@@ -258,7 +258,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * This is a thread pool for io tasks only.
     * We can't use the same global executor to avoid starvations.
     */
-   private volatile ExecutorFactory ioExecutorFactory;
+   protected volatile ExecutorFactory ioExecutorFactory;
 
    private final NetworkHealthCheck networkHealthCheck = new NetworkHealthCheck(ActiveMQDefaultConfiguration.getDefaultNetworkCheckNic(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckPeriod(), ActiveMQDefaultConfiguration.getDefaultNetworkCheckTimeout());
 
@@ -318,7 +318,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final Map<String, Object> activationParams = new HashMap<>();
 
-   private final ShutdownOnCriticalErrorListener shutdownOnCriticalIO = new ShutdownOnCriticalErrorListener();
+   protected final ShutdownOnCriticalErrorListener shutdownOnCriticalIO = new ShutdownOnCriticalErrorListener();
 
    private final ActiveMQServer parentServer;
 
