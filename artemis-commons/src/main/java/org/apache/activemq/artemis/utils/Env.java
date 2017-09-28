@@ -59,11 +59,6 @@ public final class Env {
     */
    private static boolean testEnv = false;
 
-   private static final String OS = System.getProperty("os.name").toLowerCase();
-   private static final boolean IS_LINUX = OS.startsWith("linux");
-   private static final boolean IS_MAC = OS.startsWith("mac");
-   private static final boolean IS_64BIT = checkIs64bit();
-
    private Env() {
 
    }
@@ -84,30 +79,4 @@ public final class Env {
       Env.testEnv = testEnv;
    }
 
-   public static boolean isLinuxOs() {
-      return IS_LINUX == true;
-   }
-
-   public static boolean isMacOs() {
-      return IS_MAC == true;
-   }
-
-   public static boolean is64BitJvm() {
-      return IS_64BIT;
-   }
-
-   private static boolean checkIs64bit() {
-      //check the more used JVMs
-      String systemProp;
-      systemProp = System.getProperty("com.ibm.vm.bitmode");
-      if (systemProp != null) {
-         return "64".equals(systemProp);
-      }
-      systemProp = System.getProperty("sun.arch.data.model");
-      if (systemProp != null) {
-         return "64".equals(systemProp);
-      }
-      systemProp = System.getProperty("java.vm.version");
-      return systemProp != null && systemProp.contains("_64");
-   }
 }
