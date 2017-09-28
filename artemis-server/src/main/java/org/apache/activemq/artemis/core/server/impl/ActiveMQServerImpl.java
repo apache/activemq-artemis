@@ -322,8 +322,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final ActiveMQServer parentServer;
 
-
-   private final CriticalAnalyzer analyzer;
+   private CriticalAnalyzer analyzer;
 
    //todo think about moving this to the activation
    private final List<SimpleString> scaledDownNodeIDs = new ArrayList<>();
@@ -435,12 +434,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.parentServer = parentServer;
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
-
-      if (configuration.isCriticalAnalyzer()) {
-         this.analyzer = new CriticalAnalyzerImpl();
-      } else {
-         this.analyzer = EmptyCriticalAnalyzer.getInstance();
-      }
    }
 
    @Override
@@ -573,6 +566,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void initializeCriticalAnalyzer() throws Exception {
+      if (analyzer == null) {
+         if (configuration.isCriticalAnalyzer()) {
+            this.analyzer = new CriticalAnalyzerImpl();
+         } else {
+            this.analyzer = EmptyCriticalAnalyzer.getInstance();
+         }
+      }
+
       /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       this.analyzer.clear();
 

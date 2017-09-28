@@ -64,7 +64,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
    @Override
    public CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit) {
-      this.checkTimeNanoSeconds = timeout;
+      this.checkTimeNanoSeconds = unit.toNanos(timeout);
       return this;
    }
 
@@ -147,6 +147,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
                      // this means that the server has been stopped as we could acquire the semaphore... returning now
                      break;
                   }
+                  logger.trace("Checking critical analyzer");
                   check();
                }
             } catch (InterruptedException interrupted) {
