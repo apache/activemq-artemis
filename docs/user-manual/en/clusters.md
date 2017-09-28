@@ -739,10 +739,10 @@ using JMS or the core API. If you don't specify a policy then the
 default will be used which is
 `org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`.
 
-The parameter `loadBalancingPolicyClassName` can be set on the URI to
+The parameter `connectionLoadBalancingPolicyClassName` can be set on the URI to
 configure what load balancing policy to use:
 
-    tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
+    tcp://localhost:61616?connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The set of servers over which the factory load balances can be
 determined in one of two ways:
