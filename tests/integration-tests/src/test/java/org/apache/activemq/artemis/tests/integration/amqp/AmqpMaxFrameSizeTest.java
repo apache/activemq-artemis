@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -40,6 +42,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testMultipleTransfers() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
 
       String testQueueName = "ConnectionFrameSize";
       int nMsgs = 200;
