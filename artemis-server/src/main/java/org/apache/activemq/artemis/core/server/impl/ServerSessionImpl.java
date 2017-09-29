@@ -365,7 +365,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             try {
                rollback(failed, false);
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableToRollbackOnClose(e);
             }
          }
       }
@@ -378,11 +378,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          try {
             consumer.close(failed);
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToCloseConsumer(e);
             try {
                consumer.removeItself();
             } catch (Throwable e2) {
-               ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+               ActiveMQServerLogger.LOGGER.unableToRemoveConsumer(e2);
             }
          }
       }
@@ -998,7 +998,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          try {
             storageManager.deleteHeuristicCompletion(id);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToDeleteHeuristicCompletion(e);
             throw new ActiveMQXAException(XAException.XAER_RMFAIL);
          }
       } else {
@@ -1078,7 +1078,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                   // at this point we would be better on rolling back this session as a way to prevent consumers from holding their messages
                   this.rollback(false);
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.unableToRollbackOnTxTimedOut(e);
                }
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
@@ -1200,7 +1200,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             if (theTx.getState() == Transaction.State.SUSPENDED) {
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot prepare transaction, it is suspended " + xid);
             } else if (theTx.getState() == Transaction.State.PREPARED) {
-               ActiveMQServerLogger.LOGGER.info("ignoring prepare on xid as already called :" + xid);
+               ActiveMQServerLogger.LOGGER.ignoringPrepareOnXidAlreadyCalled(xid.toString());
             } else {
                theTx.prepare();
             }
@@ -1243,7 +1243,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             ActiveMQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.errorCompletingContext(e);
       }
    }
 

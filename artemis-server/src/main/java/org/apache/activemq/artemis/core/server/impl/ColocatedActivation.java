@@ -126,7 +126,7 @@ public class ColocatedActivation extends LiveActivation {
                try {
                   started = colocatedHAManager.activateBackup(backupRequestMessage.getBackupSize(), backupRequestMessage.getJournalDirectory(), backupRequestMessage.getBindingsDirectory(), backupRequestMessage.getLargeMessagesDirectory(), backupRequestMessage.getPagingDirectory(), backupRequestMessage.getNodeID());
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.failedToActivateBackup(e);
                }
                channel.send(new BackupResponseMessage(started));
             } else if (activationChannelHandler != null) {
@@ -220,7 +220,7 @@ public class ColocatedActivation extends LiveActivation {
                   }, colocatedPolicy.getBackupRequestRetryInterval(), TimeUnit.MILLISECONDS);
                }
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.failedToSendRequestToNode(e);
             }
          } else {
             nodes.clear();

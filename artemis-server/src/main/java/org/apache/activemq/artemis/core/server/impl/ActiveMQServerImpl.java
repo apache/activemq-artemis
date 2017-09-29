@@ -680,7 +680,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       try {
          activationLock.acquire();
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToAcquireLock(e);
       }
    }
 
@@ -1306,7 +1306,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                   sessions.remove(session.getName());
                }
             } catch (Throwable e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableDestroyConnectionWithSessionMetadata(e);
             }
          }
 
@@ -1319,7 +1319,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return operationsExecuted.toString();
       } finally {
          // This operation is critical for the knowledge of the admin, so we need to add info logs for later knowledge
-         ActiveMQServerLogger.LOGGER.info(operationsExecuted.toString());
+         ActiveMQServerLogger.LOGGER.onDestroyConnectionWithSessionMetadata(operationsExecuted.toString());
       }
 
    }
@@ -2165,7 +2165,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Throwable e) {
             // https://bugzilla.redhat.com/show_bug.cgi?id=1009530:
             // we won't interrupt the shutdown sequence because of a failed callback here
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToDeactiveCallback(e);
          }
       }
    }
@@ -2410,7 +2410,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       try {
          injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, shutdownOnCriticalIO));
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
       }
    }
 

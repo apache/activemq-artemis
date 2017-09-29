@@ -439,7 +439,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements LargeSe
             try {
                bodySize = file.size();
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableToCalculateFileSize(e);
             }
          }
          return bodySize;
