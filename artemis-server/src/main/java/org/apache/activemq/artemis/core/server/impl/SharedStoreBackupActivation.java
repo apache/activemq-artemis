@@ -103,7 +103,7 @@ public final class SharedStoreBackupActivation extends Activation {
                         activeMQServer.start();
                      }
                   } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.serverRestartWarning();
+                     ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
                   }
                }
             });
@@ -227,8 +227,7 @@ public final class SharedStoreBackupActivation extends Activation {
                               activeMQServer.start();
                            }
                         } catch (Exception e) {
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-                           ActiveMQServerLogger.LOGGER.serverRestartWarning();
+                           ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
                         }
                      }
                   });

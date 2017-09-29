@@ -402,7 +402,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       OperationContext ctx = pendingTokens.poll();
 
       if (ctx == null) {
-         logger.warn("Missing replication token on queue");
+         ActiveMQServerLogger.LOGGER.missingReplicationTokenOnQueue();
          return;
       }
       ctx.replicationDone();

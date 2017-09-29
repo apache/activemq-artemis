@@ -725,7 +725,7 @@ final class PageSubscriptionImpl implements PageSubscription {
             try {
                store.deletePageComplete(completeInfo.getRecordID());
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
+               ActiveMQServerLogger.LOGGER.errorDeletingPageCompleteRecord(e);
             }
             info.setCompleteInfo(null);
          }
@@ -734,7 +734,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                try {
                   store.deleteCursorAcknowledge(deleteInfo.getRecordID());
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
+                  ActiveMQServerLogger.LOGGER.errorDeletingPageCompleteRecord(e);
                }
             }
          }

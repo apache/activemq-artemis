@@ -102,7 +102,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
          }
 
          if (!file.exists()) {
-            logger.warn("File " + file + " does not exist");
+            ActiveMQServerLogger.LOGGER.fileDoesNotExist(file.toString());
          }
 
          this.lastModified = file.lastModified();

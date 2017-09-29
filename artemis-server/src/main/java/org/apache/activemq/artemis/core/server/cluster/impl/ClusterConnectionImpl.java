@@ -1484,7 +1484,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             record.close();
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e);
+         ActiveMQServerLogger.LOGGER.failedToRemoveRecord(e);
       }
    }
 
@@ -1497,7 +1497,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             record.disconnectBindings();
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToDisconnectBindings(e);
       }
    }
 
