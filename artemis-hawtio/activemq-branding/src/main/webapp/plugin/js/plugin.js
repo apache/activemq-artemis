@@ -65,6 +65,31 @@ var activemqBranding = (function (self) {
             localStorage['branding'] = 'activemq';
             location.reload();
         }
+
+        /**
+         * By default tabs are pulled from the "container" perspective, here
+         * we can define includes or excludes to customize the available tabs
+         * in hawtio.  Use "href" to match from the start of a URL and "rhref"
+         * to match a URL via regex string.
+         * 
+         * Currently we need to exclude provided diagnostics,
+         * as it exposes proprietary Oracle JVM feature, flight recorder.
+         *
+         */
+        window['Perspective']['metadata'] = {
+            container: {
+                label: "Container",
+                lastPage: "#/help",
+                topLevelTabs: {
+                    excludes: [
+                        {
+                            href: "#/diagnostics"
+                        }
+                    ]
+                }
+            }
+        };
+
     });
     return self;
 })(activemqBranding || {});
