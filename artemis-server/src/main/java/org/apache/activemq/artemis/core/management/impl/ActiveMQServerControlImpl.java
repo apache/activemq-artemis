@@ -118,9 +118,11 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.jboss.logging.Logger;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
+   private static final Logger logger = Logger.getLogger(ActiveMQServerControlImpl.class);
 
    // Attributes ----------------------------------------------------
 
@@ -2436,7 +2438,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      server.fail(true);
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            try {
+               server.fail(true);
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      };
+      t.start();
    }
 
    @Override
