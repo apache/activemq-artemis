@@ -119,12 +119,13 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
             if (address != null && !address.isEmpty()) {
                try {
-                  if (!sessionSPI.bindingQuery(address)) {
+                  if (!sessionSPI.bindingQuery(address, getRoutingType(target.getCapabilities()))) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                   }
                } catch (ActiveMQAMQPNotFoundException e) {
                   throw e;
                } catch (Exception e) {
+                  e.printStackTrace();
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
@@ -177,11 +178,13 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
    }
 
    private RoutingType getRoutingType(Symbol[] symbols) {
-      for (Symbol symbol : symbols) {
-         if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
-            return RoutingType.MULTICAST;
-         } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
-            return RoutingType.ANYCAST;
+      if (symbols != null) {
+         for (Symbol symbol : symbols) {
+            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+               return RoutingType.MULTICAST;
+            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+               return RoutingType.ANYCAST;
+            }
          }
       }
 
