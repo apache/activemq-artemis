@@ -313,14 +313,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          try {
             sub.onPageModeCleared(tx);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn("Error while cleaning paging on queue " + sub.getQueue().getName(), e);
+            ActiveMQServerLogger.LOGGER.errorCleaningPagingOnQueue(e, sub.getQueue().getName().toString());
          }
       }
 
       try {
          tx.commit();
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn("Error while cleaning page, during the commit", e);
+         ActiveMQServerLogger.LOGGER.errorCleaningPagingDuringCommit(e);
       }
    }
 

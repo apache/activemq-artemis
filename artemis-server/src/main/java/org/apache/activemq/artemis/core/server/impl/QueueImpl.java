@@ -724,7 +724,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return false;
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToFlushDeliveries(e);
          return false;
       }
    }
@@ -770,7 +770,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                cancelRedistributor();
             } catch (Exception e) {
                // nothing that could be done anyway.. just logging
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableToCancelRedistributor(e);
             }
          }
       });
@@ -1691,7 +1691,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      tx.commit();
                   }
                } catch (Exception e) {
-                  logger.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.unableToCommitTransaction(e);
                }
 
                // If empty we need to schedule depaging to make sure we would depage expired messages as well
@@ -1923,7 +1923,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          try {
             storageManager.deleteQueueStatus(pauseStatusRecord);
          } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToDeleteQueueStatus(e);
          }
       }
       this.pauseStatusRecord = recordID;
@@ -1940,7 +1940,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             pauseStatusRecord = storageManager.storeQueueStatus(this.id, QueueStatus.PAUSED);
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToPauseQueue(e);
       }
       paused = true;
    }
@@ -1953,7 +1953,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          try {
             storageManager.deleteQueueStatus(pauseStatusRecord);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToResumeQueue(e);
          }
          pauseStatusRecord = -1;
       }
@@ -2043,7 +2043,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          return ref.getMessage().getPriority();
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToGetMessagePriority(e);
          return 4; // the default one in case of failure
       }
    }
@@ -2274,7 +2274,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getGroupID();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToExtractGroupID(e);
             return null;
          }
       }
@@ -2791,7 +2791,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return false;
          }
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToCheckIfMessageExpired(e);
          return false;
       }
    }
@@ -2844,7 +2844,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          message = ref.getMessage();
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToPerformPostAcknowledge(e);
          message = null;
       }
 

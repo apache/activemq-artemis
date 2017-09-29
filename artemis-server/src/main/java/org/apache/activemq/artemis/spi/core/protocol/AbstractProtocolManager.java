@@ -40,7 +40,7 @@ public abstract class AbstractProtocolManager<P, I extends BaseInterceptor<P>, C
                   break;
                }
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.error(e);
+               ActiveMQServerLogger.LOGGER.failedToInvokeAninterceptor(e);
             }
          }
       }

@@ -235,7 +235,7 @@ public class BackupManager implements ActiveMQComponent {
                   ServerLocatorInternal localBackupLocator = backupServerLocator;
                   if (localBackupLocator == null) {
                      if (!stopping)
-                        ActiveMQServerLogger.LOGGER.error("Error announcing backup: backupServerLocator is null. " + this);
+                        ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(this.toString());
                      return;
                   }
                   if (logger.isDebugEnabled()) {

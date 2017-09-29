@@ -604,7 +604,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             storageManagerLock.writeLock().unlock();
          }
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToStartReplication(e);
          stopReplication();
          throw e;
       } finally {

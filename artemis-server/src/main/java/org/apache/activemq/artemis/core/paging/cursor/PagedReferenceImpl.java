@@ -118,7 +118,7 @@ public class PagedReferenceImpl implements PagedReference {
          try {
             messageEstimate = getMessage().getMemoryEstimate();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.errorCalculateMessageMemoryEstimate(e);
          }
       }
       return messageEstimate;
@@ -136,7 +136,7 @@ public class PagedReferenceImpl implements PagedReference {
             Message msg = getMessage();
             return msg.getScheduledDeliveryTime();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.errorCalculateScheduledDeliveryTime(e);
             return 0L;
          }
       }
