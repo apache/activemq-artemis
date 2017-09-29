@@ -17,6 +17,23 @@
 
 package org.apache.activemq.artemis.utils.critical;
 
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.commons.beanutils.Converter;
+
 public enum CriticalAnalyzerPolicy {
    HALT, SHUTDOWN, LOG;
+
+   static {
+      // for URI support on ClusterConnection
+      BeanSupport.registerConverter(new CriticalAnalyzerPolicyConverter(), CriticalAnalyzerPolicy.class);
+   }
+
+   static class CriticalAnalyzerPolicyConverter implements Converter {
+
+      @Override
+      public <T> T convert(Class<T> type, Object value) {
+         return type.cast(CriticalAnalyzerPolicy.valueOf(value.toString()));
+      }
+   }
+
 }
