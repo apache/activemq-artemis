@@ -1023,6 +1023,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
             fail(e.getMessage());
          }
       }
+      Wait.waitFor(() -> !server.isStarted());
       assertFalse(server.isStarted());
    }
 

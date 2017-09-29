@@ -941,7 +941,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public final void fail(boolean failoverOnServerShutdown) throws Exception {
-      stop(failoverOnServerShutdown, false, false, false);
+      stop(failoverOnServerShutdown, false, false, true);
    }
 
    public final void stop(boolean failoverOnServerShutdown, boolean isExit) throws Exception {

@@ -48,13 +48,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    }
 
 
-   // it doesn't make sense through the core
-   // the pool will be shutdown while a connection is being used
-   // makes no sense!
-   @Override
-   public void testForceFailover() throws Exception {
-   }
-
 
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
