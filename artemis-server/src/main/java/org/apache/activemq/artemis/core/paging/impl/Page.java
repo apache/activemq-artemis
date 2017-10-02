@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -34,7 +35,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.io.buffer.UnpooledUnsafeDirectByteBufWrapper;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -89,9 +89,6 @@ public final class Page implements Comparable<Page> {
 
    private boolean canBeMapped;
 
-   private final ActiveMQBuffer activeMQBuffer;
-   private final UnpooledUnsafeDirectByteBufWrapper unsafeByteBufWrapper;
-
    public Page(final SimpleString storeName,
                final StorageManager storageManager,
                final SequentialFileFactory factory,
@@ -104,8 +101,6 @@ public final class Page implements Comparable<Page> {
       this.storeName = storeName;
       this.canBeMapped = fileFactory instanceof NIOSequentialFileFactory || fileFactory instanceof MappedSequentialFileFactory;
       //pooled buffers to avoid allocations on hot paths
-      this.unsafeByteBufWrapper = new UnpooledUnsafeDirectByteBufWrapper();
-      this.activeMQBuffer = new ChannelBufferWrapper(this.unsafeByteBufWrapper);
    }
 
    public int getPageId() {
@@ -152,22 +147,20 @@ public final class Page implements Comparable<Page> {
          file.read(buffer);
          buffer.rewind();
          assert (buffer.limit() == fileSize) : "buffer doesn't contains the whole file";
-         this.unsafeByteBufWrapper.wrap(buffer, 0, fileSize);
-         try {
-            this.activeMQBuffer.clear();
-            this.activeMQBuffer.writerIndex(fileSize);
-            read(storage, this.activeMQBuffer, messages);
-         } finally {
-            this.unsafeByteBufWrapper.reset();
-         }
+         ChannelBufferWrapper activeMQBuffer = wrapBuffer(fileSize, buffer);
+         read(storage, activeMQBuffer, messages);
       } finally {
          this.fileFactory.releaseBuffer(buffer);
       }
    }
 
+   private ChannelBufferWrapper wrapBuffer(int fileSize, ByteBuffer buffer) {
+      ChannelBufferWrapper activeMQBuffer = new ChannelBufferWrapper(Unpooled.wrappedBuffer(buffer));
+      return activeMQBuffer;
+   }
+
    private static MappedByteBuffer mapFileForRead(File file, int fileSize) {
-      try (RandomAccessFile raf = new RandomAccessFile(file, "rw");
-           FileChannel channel = raf.getChannel()) {
+      try (RandomAccessFile raf = new RandomAccessFile(file, "rw"); FileChannel channel = raf.getChannel()) {
          return channel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize);
       } catch (Exception e) {
          throw new IllegalStateException(e);
@@ -179,13 +172,10 @@ public final class Page implements Comparable<Page> {
       //use a readonly mapped view of the file
       final int mappedSize = size.get();
       final MappedByteBuffer mappedByteBuffer = mapFileForRead(this.file.getJavaFile(), mappedSize);
-      this.unsafeByteBufWrapper.wrap(mappedByteBuffer, 0, mappedSize);
+      ChannelBufferWrapper activeMQBuffer = wrapBuffer(mappedSize, mappedByteBuffer);
       try {
-         this.activeMQBuffer.clear();
-         this.activeMQBuffer.writerIndex(mappedSize);
-         return read(storage, this.activeMQBuffer, messages);
+         return read(storage, activeMQBuffer, messages);
       } finally {
-         this.unsafeByteBufWrapper.reset();
          //unmap the file after read it to avoid GC to take care of it
          PlatformDependent.freeDirectBuffer(mappedByteBuffer);
       }
@@ -238,27 +228,23 @@ public final class Page implements Comparable<Page> {
       final int messageEncodedSize = message.getEncodeSize();
       final int bufferSize = messageEncodedSize + Page.SIZE_RECORD;
       final ByteBuffer buffer = fileFactory.newBuffer(bufferSize);
-      this.unsafeByteBufWrapper.wrap(buffer, 0, bufferSize);
-      try {
-         this.activeMQBuffer.clear();
-         this.activeMQBuffer.writeByte(Page.START_BYTE);
-         this.activeMQBuffer.writeInt(messageEncodedSize);
-         message.encode(this.activeMQBuffer);
-         this.activeMQBuffer.writeByte(Page.END_BYTE);
-         assert (this.activeMQBuffer.readableBytes() == bufferSize) : "messageEncodedSize is different from expected";
-         //buffer limit and position are the same
-         assert (buffer.remaining() == bufferSize) : "buffer position or limit are changed";
-         file.writeDirect(buffer, false);
-         if (pageCache != null) {
-            pageCache.addLiveMessage(message);
-         }
-         //lighter than addAndGet when single writer
-         numberOfMessages.lazySet(numberOfMessages.get() + 1);
-         size.lazySet(size.get() + bufferSize);
-         storageManager.pageWrite(message, pageId);
-      } finally {
-         this.unsafeByteBufWrapper.reset();
+      ChannelBufferWrapper activeMQBuffer = wrapBuffer(bufferSize, buffer);
+      activeMQBuffer.clear();
+      activeMQBuffer.writeByte(Page.START_BYTE);
+      activeMQBuffer.writeInt(messageEncodedSize);
+      message.encode(activeMQBuffer);
+      activeMQBuffer.writeByte(Page.END_BYTE);
+      assert (activeMQBuffer.readableBytes() == bufferSize) : "messageEncodedSize is different from expected";
+      //buffer limit and position are the same
+      assert (buffer.remaining() == bufferSize) : "buffer position or limit are changed";
+      file.writeDirect(buffer, false);
+      if (pageCache != null) {
+         pageCache.addLiveMessage(message);
       }
+      //lighter than addAndGet when single writer
+      numberOfMessages.lazySet(numberOfMessages.get() + 1);
+      size.lazySet(size.get() + bufferSize);
+      storageManager.pageWrite(message, pageId);
    }
 
    public void sync() throws Exception {
@@ -315,7 +301,7 @@ public final class Page implements Comparable<Page> {
 
       if (messages != null) {
          for (PagedMessage msg : messages) {
-            if (msg.getMessage() instanceof ICoreMessage &&  (msg.getMessage()).isLargeMessage()) {
+            if (msg.getMessage() instanceof ICoreMessage && (msg.getMessage()).isLargeMessage()) {
                LargeServerMessage lmsg = (LargeServerMessage) msg.getMessage();
 
                // Remember, cannot call delete directly here
