@@ -24,9 +24,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.artemis.core.io.buffer.UnpooledUnsafeDirectByteBufWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.Env;
 
@@ -36,7 +36,7 @@ final class MappedFile implements AutoCloseable {
    private final MappedByteBuffer buffer;
    private final FileChannel channel;
    private final long address;
-   private final UnpooledUnsafeDirectByteBufWrapper byteBufWrapper;
+   private final ByteBuf byteBufWrapper;
    private final ChannelBufferWrapper channelBufferWrapper;
    private int position;
    private int length;
@@ -46,7 +46,7 @@ final class MappedFile implements AutoCloseable {
       this.buffer = byteBuffer;
       this.position = position;
       this.length = length;
-      this.byteBufWrapper = new UnpooledUnsafeDirectByteBufWrapper();
+      this.byteBufWrapper = Unpooled.wrappedBuffer(buffer);
       this.channelBufferWrapper = new ChannelBufferWrapper(this.byteBufWrapper, false);
       this.address = PlatformDependent.directBufferAddress(buffer);
    }
@@ -175,13 +175,10 @@ final class MappedFile implements AutoCloseable {
     */
    public void write(EncodingSupport encodingSupport) throws IOException {
       final int encodedSize = encodingSupport.getEncodeSize();
-      this.byteBufWrapper.wrap(this.buffer, this.position, encodedSize);
-      try {
-         encodingSupport.encode(this.channelBufferWrapper);
-      } finally {
-         this.byteBufWrapper.reset();
-      }
+      this.byteBufWrapper.setIndex(this.position, this.position);
+      encodingSupport.encode(this.channelBufferWrapper);
       position += encodedSize;
+      assert (byteBufWrapper.writerIndex() == position);
       if (position > this.length) {
          this.length = position;
       }
