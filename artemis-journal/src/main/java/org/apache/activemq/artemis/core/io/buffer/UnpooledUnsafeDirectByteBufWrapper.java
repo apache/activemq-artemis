@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.netty.buffer;
+package org.apache.activemq.artemis.core.io.buffer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 
+import io.netty.buffer.AbstractReferenceCountedByteBuf;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.SwappedByteBuf;
 import io.netty.util.internal.PlatformDependent;
 
 /**
@@ -306,8 +310,9 @@ public final class UnpooledUnsafeDirectByteBufWrapper extends AbstractReferenceC
    public ByteBuf readBytes(ByteBuffer dst) {
       final int length = dst.remaining();
       checkReadableBytes(length);
-      getBytes(readerIndex, dst);
-      readerIndex += length;
+      int rIndex = readerIndex();
+      getBytes(rIndex, dst);
+      readerIndex(rIndex + length);
       return this;
    }
 
@@ -579,9 +584,9 @@ public final class UnpooledUnsafeDirectByteBufWrapper extends AbstractReferenceC
    @Override
    public ByteBuf writeZero(int length) {
       ensureWritable(length);
-      int wIndex = writerIndex;
+      int wIndex = writerIndex();
       setZero(wIndex, length);
-      writerIndex = wIndex + length;
+      writerIndex(wIndex + length);
       return this;
    }
 }

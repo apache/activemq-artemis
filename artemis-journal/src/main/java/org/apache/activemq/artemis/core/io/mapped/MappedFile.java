@@ -24,9 +24,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.UnpooledUnsafeDirectByteBufWrapper;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.io.buffer.UnpooledUnsafeDirectByteBufWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.Env;
 
