@@ -87,7 +87,7 @@
 		<bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis HornetQ protocol libraries">
+	<feature name="artemis-openwire" version="${pom.version}" description="ActiveMQ Artemis Openwire protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
 		<bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
