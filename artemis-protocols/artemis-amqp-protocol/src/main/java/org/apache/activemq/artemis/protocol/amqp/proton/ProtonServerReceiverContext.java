@@ -125,7 +125,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
                } catch (ActiveMQAMQPNotFoundException e) {
                   throw e;
                } catch (Exception e) {
-                  e.printStackTrace();
+                  log.debug(e.getMessage(), e);
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
