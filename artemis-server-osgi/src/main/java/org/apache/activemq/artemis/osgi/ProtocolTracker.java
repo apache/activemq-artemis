@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -54,6 +55,19 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
          this.protocols.put(requiredProtocol, false);
       }
       ActiveMQOsgiLogger.LOGGER.brokerConfigFound(name, Arrays.asList(requiredProtocols).toString());
+
+      //CORE is always registered as a protocol in RemoteServiceImpl
+      this.protocols.put(ActiveMQClient.DEFAULT_CORE_PROTOCOL, true);
+
+      //if no protocols are specified we need to start artemis
+      List<String> missing = getMissing();
+      if (missing.isEmpty()) {
+         try {
+            callback.start();
+         } catch (Exception e) {
+            ActiveMQOsgiLogger.LOGGER.errorStartingBroker(e, name);
+         }
+      }
    }
 
    @Override
