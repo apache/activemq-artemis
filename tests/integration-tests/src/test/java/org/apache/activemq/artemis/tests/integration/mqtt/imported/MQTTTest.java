@@ -1135,6 +1135,14 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testLinkRouteAmqpReceiveMQTT() throws Exception {
+
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId("TestClient");
+      BlockingConnection blockingConnection = mqtt.blockingConnection();
+      blockingConnection.connect();
+      Topic t = new Topic("test", QoS.AT_LEAST_ONCE);
+      blockingConnection.subscribe(new Topic[]{t});
+
       AmqpClient client = new AmqpClient(new URI(AMQP_URI), null, null);
       AmqpConnection connection = client.connect();
 
@@ -1149,13 +1157,8 @@ public class MQTTTest extends MQTTTestSupport {
          connection.close();
       }
 
-      MQTT mqtt = createMQTTConnection();
-      mqtt.setClientId("TestClient");
-      BlockingConnection blockingConnection = mqtt.blockingConnection();
       try {
-         blockingConnection.connect();
-         Topic t = new Topic("test", QoS.AT_LEAST_ONCE);
-         blockingConnection.subscribe(new Topic[] {t});
+         blockingConnection.subscribe(new Topic[]{t});
          assertNotNull(blockingConnection.receive(5, TimeUnit.SECONDS));
       } finally {
          blockingConnection.kill();
@@ -1899,7 +1902,6 @@ public class MQTTTest extends MQTTTestSupport {
          getServer().start();
          getServer().waitForActivation(10, TimeUnit.SECONDS);
       }
-
 
    }
 
