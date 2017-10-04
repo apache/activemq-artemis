@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
@@ -57,7 +56,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
-import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -70,6 +68,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
@@ -725,20 +724,18 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void addDestination(DestinationInfo info) throws Exception {
+      boolean created = false;
       ActiveMQDestination dest = info.getDestination();
-      if (dest.isQueue()) {
-         SimpleString qName = new SimpleString(dest.getPhysicalName());
-         QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
-         if (binding == null) {
-            if (dest.isTemporary()) {
-               internalSession.createQueue(qName, qName, RoutingType.ANYCAST, null, dest.isTemporary(), false);
-            } else {
-               ConnectionInfo connInfo = getState().getInfo();
-               CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-               server.getSecurityStore().check(qName, checkType, this);
-               server.checkQueueCreationLimit(getUsername());
-               server.createQueue(qName, RoutingType.ANYCAST, qName, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), null,true, false);
-            }
+
+      SimpleString qName = SimpleString.toSimpleString(dest.getPhysicalName());
+      if (server.locateQueue(qName) == null) {
+         AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(dest.getPhysicalName());
+         if (dest.isQueue() && (addressSettings.isAutoCreateQueues() || dest.isTemporary())) {
+            internalSession.createQueue(qName, qName, RoutingType.ANYCAST, null, dest.isTemporary(), !dest.isTemporary(), !dest.isTemporary());
+            created = true;
+         } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
+            internalSession.createAddress(qName, RoutingType.MULTICAST, !dest.isTemporary());
+            created = true;
          }
       }
 
@@ -748,7 +745,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          this.state.addTempDestination(info);
       }
 
-      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
+      if (created && !AdvisorySupport.isAdvisoryTopic(dest)) {
          AMQConnectionContext context = getContext();
          DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, dest);
 
