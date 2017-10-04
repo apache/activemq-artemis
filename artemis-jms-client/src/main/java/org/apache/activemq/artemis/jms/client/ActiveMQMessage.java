@@ -69,7 +69,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       Map<String, Object> jmsMessage = new HashMap<>();
 
       String deliveryMode = (Boolean) coreMessage.get("durable") ? "PERSISTENT" : "NON_PERSISTENT";
-      byte priority = (Byte) coreMessage.get("priority");
+      int priority = (Byte) coreMessage.get("priority");
       long timestamp = (Long) coreMessage.get("timestamp");
       long expiration = (Long) coreMessage.get("expiration");
 
