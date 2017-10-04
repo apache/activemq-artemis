@@ -24,9 +24,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.jms.Connection;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.Topic;
 import java.util.Map;
 
 public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
@@ -53,7 +55,90 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
             connection.close();
          }
       }
+   }
 
+   @Test
+   public void testAutoCreateSendToTopic() throws Exception {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic trash = session.createTopic("trash");
+         final MessageProducer producer = session.createProducer(trash);
+         producer.send(session.createTextMessage("foo"));
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
 
+      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
+      assertEquals(0, server.getTotalMessageCount());
+   }
+
+   @Test
+   public void testAutoCreateSendToQueue() throws Exception {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue trash = session.createQueue("trash");
+         final MessageProducer producer = session.createProducer(trash);
+         producer.send(session.createTextMessage("foo"));
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+
+      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
+      assertNotNull(server.locateQueue(new SimpleString("trash")));
+      assertEquals(1, server.getTotalMessageCount());
+   }
+
+   @Test
+   public void testAutoDelete() throws Exception {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue trash = session.createQueue("trash");
+         final MessageProducer producer = session.createProducer(trash);
+         producer.send(session.createTextMessage("foo"));
+         Assert.assertNotNull(server.locateQueue(new SimpleString("trash")));
+         MessageConsumer consumer = session.createConsumer(trash);
+         connection.start();
+         assertNotNull(consumer.receive(1000));
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+
+      assertNull(server.locateQueue(new SimpleString("trash")));
+   }
+
+   @Test
+   public void testAutoDeleteNegative() throws Exception {
+      server.getAddressSettingsRepository().addMatch("trash", new AddressSettings().setAutoDeleteQueues(false).setAutoDeleteAddresses(false));
+      Connection connection = null;
+      try {
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue trash = session.createQueue("trash");
+         final MessageProducer producer = session.createProducer(trash);
+         producer.send(session.createTextMessage("foo"));
+         Assert.assertNotNull(server.locateQueue(new SimpleString("trash")));
+         MessageConsumer consumer = session.createConsumer(trash);
+         connection.start();
+         assertNotNull(consumer.receive(1000));
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+
+      assertNotNull(server.locateQueue(new SimpleString("trash")));
+      assertNotNull(server.getAddressInfo(new SimpleString("trash")));
    }
 }

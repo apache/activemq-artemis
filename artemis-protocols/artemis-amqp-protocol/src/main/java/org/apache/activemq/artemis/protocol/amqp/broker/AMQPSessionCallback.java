@@ -264,7 +264,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), routingType, null, false, true);
+            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), routingType, null, false, true, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
@@ -289,7 +289,7 @@ public class AMQPSessionCallback implements SessionCallback {
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       } else if (routingType == RoutingType.ANYCAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
          try {
-            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true);
+            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
