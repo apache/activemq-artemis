@@ -82,7 +82,7 @@ public interface ICoreMessage extends Message {
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());
       map.put("timestamp", getTimestamp());
-      map.put("priority", (int)getPriority());
+      map.put("priority", getPriority());
 
       return map;
    }
