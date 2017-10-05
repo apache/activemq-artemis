@@ -269,6 +269,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
    }
 
+   @Override
+   public long getBufferSize() {
+      return bufferSize;
+   }
+
    /**
     * The same callback is used for Runnable executor.
     * This way we can save some memory over the pool.

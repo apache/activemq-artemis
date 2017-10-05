@@ -127,6 +127,16 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    public void flush() throws Exception {
    }
 
+   /**
+    * The max size record that can be stored in the journal
+    *
+    * @return
+    */
+   @Override
+   public long getMaxRecordSize() {
+      return sqlProvider.getMaxBlobSize();
+   }
+
    @Override
    protected void createSchema() throws SQLException {
       createTable(sqlProvider.getCreateJournalTableSQL());
