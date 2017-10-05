@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -710,6 +711,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       @Override
       public void flush() throws Exception {
 
+      }
+
+      @Override
+      public long getMaxRecordSize() {
+         return ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeAio();
       }
 
       @Override

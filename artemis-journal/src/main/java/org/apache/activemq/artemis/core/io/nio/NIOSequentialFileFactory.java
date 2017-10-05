@@ -203,4 +203,9 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
       return bytes;
    }
 
+   @Override
+   public long getBufferSize() {
+      return bufferSize;
+   }
+
 }

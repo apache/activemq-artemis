@@ -101,4 +101,6 @@ public interface SequentialFileFactory {
    SequentialFileFactory setDatasync(boolean enabled);
 
    boolean isDatasync();
+
+   long getBufferSize();
 }

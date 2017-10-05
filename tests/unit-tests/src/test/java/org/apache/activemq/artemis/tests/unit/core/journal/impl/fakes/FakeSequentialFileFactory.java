@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -67,6 +68,11 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    @Override
    public boolean isDatasync() {
       return false;
+   }
+
+   @Override
+   public long getBufferSize() {
+      return ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO;
    }
 
    @Override

@@ -41,6 +41,7 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    private boolean bufferPooling;
    //pools only the biggest one -> optimized for the common case
    private final ThreadLocal<ByteBuffer> bytesPool;
+   private final int bufferSize;
 
    private MappedSequentialFileFactory(File directory,
                                        int capacity,
@@ -57,6 +58,7 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
       } else {
          timedBuffer = null;
       }
+      this.bufferSize = bufferSize;
       this.bufferPooling = true;
       this.bytesPool = new ThreadLocal<>();
    }
@@ -103,6 +105,11 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    @Override
    public boolean isDatasync() {
       return useDataSync;
+   }
+
+   @Override
+   public long getBufferSize() {
+      return bufferSize;
    }
 
    @Override
