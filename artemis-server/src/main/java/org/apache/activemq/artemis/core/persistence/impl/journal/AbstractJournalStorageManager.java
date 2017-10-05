@@ -229,6 +229,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
 
+   @Override
    public long getMaxRecordSize() {
       return messageJournal.getMaxRecordSize();
    }

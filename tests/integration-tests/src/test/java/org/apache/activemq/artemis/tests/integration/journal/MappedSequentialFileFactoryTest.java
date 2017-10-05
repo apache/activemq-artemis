@@ -34,7 +34,7 @@ public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBa
 
    @Override
    protected SequentialFileFactory createFactory(String folder) {
-      return MappedSequentialFileFactory.unbuffered(new File(folder), 2048, null);
+      return new MappedSequentialFileFactory(new File(folder), 2048, false, 0, 0, null);
    }
 
    @Test
@@ -58,7 +58,7 @@ public class MappedSequentialFileFactoryTest extends SequentialFileFactoryTestBa
       };
 
       final AtomicInteger calls = new AtomicInteger(0);
-      final MappedSequentialFileFactory factory = MappedSequentialFileFactory.unbuffered(new File(getTestDir()), fakeEncoding.getEncodeSize(), (code, message, file) -> {
+      final MappedSequentialFileFactory factory = new MappedSequentialFileFactory(new File(getTestDir()), fakeEncoding.getEncodeSize(), false, 0, 0, (code, message, file) -> {
          new Exception("shutdown").printStackTrace();
          calls.incrementAndGet();
       });

@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
@@ -723,6 +724,16 @@ public class Create extends InputAbstract {
    }
 
    private void setupJournalType() {
+
+      if (noJournalSync && !mapped) {
+         boolean useMapped = inputBoolean("--mapped", "Since you disabled syncs, it is recommended to use the Mapped Memory Journal. Do you want to use the Memory Mapped Journal", true);
+
+         if (useMapped) {
+            mapped = true;
+            nio = false;
+            aio = false;
+         }
+      }
       int countJournalTypes = countBoolean(aio, nio, mapped);
       if (countJournalTypes > 1) {
          throw new RuntimeException("You can only select one journal type (--nio | --aio | --mapped).");
@@ -803,20 +814,34 @@ public class Create extends InputAbstract {
             System.out.println("");
             System.out.println("Auto tuning journal ...");
 
-            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, journalType);
-            long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
-            double writesPerMillisecond = (double) writes / (double) time;
+            if (mapped && noJournalSync) {
+               HashMap<String, String> syncFilter = new HashMap<>();
+               syncFilter.put("${nanoseconds}", "0");
+               syncFilter.put("${writesPerMillisecond}", "0");
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
 
-            String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
+               System.out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
 
-            HashMap<String, String> syncFilter = new HashMap<>();
-            syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
-            syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
+               filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
-            System.out.println("done! Your system can make " + writesPerMillisecondStr +
-                                  " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+            } else {
+               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType);
+               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
+               double writesPerMillisecond = (double) writes / (double) time;
 
-            filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
+               String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
+
+               HashMap<String, String> syncFilter = new HashMap<>();
+               syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
+               syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+
+               System.out.println("done! Your system can make " + writesPerMillisecondStr +
+                                     " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+
+               filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
+            }
+
 
          } catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");

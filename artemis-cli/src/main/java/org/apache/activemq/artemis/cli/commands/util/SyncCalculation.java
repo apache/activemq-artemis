@@ -50,13 +50,16 @@ public class SyncCalculation {
                                int tries,
                                boolean verbose,
                                boolean fsync,
+                               boolean syncWrites,
+                               String fileName,
+                               int maxAIO,
                                JournalType journalType) throws Exception {
-      SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks);
+      SequentialFileFactory factory = newFactory(datafolder, fsync, journalType, blockSize * blocks, maxAIO);
 
       if (verbose) {
-         System.out.println("Using " + factory.getClass().getName() + " to calculate sync times");
+         System.out.println("Using " + factory.getClass().getName() + " to calculate sync times, alignment=" + factory.getAlignment());
       }
-      SequentialFile file = factory.createSequentialFile("test.tmp");
+      SequentialFile file = factory.createSequentialFile(fileName);
 
       try {
          file.delete();
@@ -106,10 +109,14 @@ public class SyncCalculation {
                bufferBlock.position(0);
                latch.countUp();
                file.writeDirect(bufferBlock, true, callback);
-               if (!latch.await(5, TimeUnit.SECONDS)) {
-                  throw new IOException("Callback wasn't called");
+
+               if (syncWrites) {
+                  flushLatch(latch);
                }
             }
+
+            if (!syncWrites) flushLatch(latch);
+
             long end = System.currentTimeMillis();
 
             result[ntry] = (end - start);
@@ -150,6 +157,12 @@ public class SyncCalculation {
       }
    }
 
+   private static void flushLatch(ReusableLatch latch) throws InterruptedException, IOException {
+      if (!latch.await(5, TimeUnit.SECONDS)) {
+         throw new IOException("Timed out on receiving IO callback");
+      }
+   }
+
    public static long toNanos(long time, long blocks, boolean verbose) {
 
       double blocksPerMillisecond = (double) blocks / (double) (time);
@@ -169,7 +182,7 @@ public class SyncCalculation {
       return timeWait;
    }
 
-   private static SequentialFileFactory newFactory(File datafolder, boolean datasync, JournalType journalType, int fileSize) {
+   private static SequentialFileFactory newFactory(File datafolder, boolean datasync, JournalType journalType, int fileSize, int maxAIO) {
       SequentialFileFactory factory;
 
       if (journalType == JournalType.ASYNCIO && !LibaioContext.isLoaded()) {
@@ -184,12 +197,12 @@ public class SyncCalculation {
             factory.start();
             return factory;
          case ASYNCIO:
-            factory = new AIOSequentialFileFactory(datafolder, 1).setDatasync(datasync);
+            factory = new AIOSequentialFileFactory(datafolder, maxAIO).setDatasync(datasync);
             factory.start();
             ((AIOSequentialFileFactory) factory).disableBufferReuse();
             return factory;
          case MAPPED:
-            factory = MappedSequentialFileFactory.unbuffered(datafolder, fileSize, null)
+            factory = new MappedSequentialFileFactory(datafolder, fileSize, false, 0, 0, null)
                .setDatasync(datasync)
                .disableBufferReuse();
             factory.start();
