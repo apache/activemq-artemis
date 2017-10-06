@@ -122,6 +122,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private String deserializationWhiteList;
 
+   private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -880,6 +882,18 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    public String getProtocolManagerFactoryStr() {
       return protocolManagerFactoryStr;
    }
+
+   @Override
+   public int getInitialMessagePacketSize() {
+      return initialMessagePacketSize;
+   }
+
+   @Override
+   public ConnectionFactoryConfiguration setInitialMessagePacketSize(int size) {
+      this.initialMessagePacketSize = size;
+      return this;
+   }
+
 
    // Public --------------------------------------------------------
 
