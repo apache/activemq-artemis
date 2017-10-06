@@ -419,6 +419,37 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testReceiveWithJMSSelectorFilterOnJMSType() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpMessage message1 = new AmqpMessage();
+      message1.setText("msg:1");
+
+      AmqpMessage message2 = new AmqpMessage();
+      message2.setSubject("target");
+      message2.setText("msg:2");
+
+      AmqpSender sender = session.createSender(getQueueName());
+      sender.send(message1);
+      sender.send(message2);
+      sender.close();
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), "JMSType = 'target'");
+      receiver.flow(2);
+      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull("Should have read a message", received);
+      assertEquals("target", received.getSubject());
+      received.accept();
+
+      assertNull(receiver.receive(1, TimeUnit.SECONDS));
+
+      receiver.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
    public void testAdvancedLinkFlowControl() throws Exception {
       final int MSG_COUNT = 20;
 

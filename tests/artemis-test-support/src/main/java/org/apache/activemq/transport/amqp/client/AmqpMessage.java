@@ -390,6 +390,31 @@ public class AmqpMessage {
    }
 
    /**
+    * Sets the Subject property on an outbound message using the provided String
+    *
+    * @param subject the String Subject value to set.
+    */
+   public void setSubject(String subject) {
+      checkReadOnly();
+      lazyCreateProperties();
+      getWrappedMessage().setSubject(subject);
+   }
+
+   /**
+    * Return the set Subject value in String form, if there are no properties
+    * in the given message return null.
+    *
+    * @return the set Subject in String form or null if not set.
+    */
+   public String getSubject() {
+      if (message.getProperties() == null) {
+         return null;
+      }
+
+      return message.getProperties().getSubject();
+   }
+
+   /**
     * Sets the durable header on the outgoing message.
     *
     * @param durable the boolean durable value to set.

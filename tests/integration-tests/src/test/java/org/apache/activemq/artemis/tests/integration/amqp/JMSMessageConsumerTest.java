@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -28,11 +35,6 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -167,13 +169,29 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 60000)
-   public void testSelector() throws Exception {
+   public void testSelectorOnTopic() throws Exception {
+      doTestSelector(true);
+   }
+
+   @Test(timeout = 60000)
+   public void testSelectorOnQueue() throws Exception {
+      doTestSelector(false);
+   }
+
+   private void doTestSelector(boolean topic) throws Exception {
       Connection connection = createConnection();
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(getQueueName());
-         MessageProducer producer = session.createProducer(queue);
+         Destination destination = null;
+         if (topic) {
+            destination = session.createTopic(getTopicName());
+         } else {
+            destination = session.createQueue(getQueueName());
+         }
+
+         MessageProducer producer = session.createProducer(destination);
+         MessageConsumer messageConsumer = session.createConsumer(destination, "color = 'RED'");
 
          TextMessage message = session.createTextMessage();
          message.setText("msg:0");
@@ -185,7 +203,6 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          connection.start();
 
-         MessageConsumer messageConsumer = session.createConsumer(queue, "color = 'RED'");
          TextMessage m = (TextMessage) messageConsumer.receive(5000);
          assertNotNull(m);
          assertEquals("msg:1", m.getText());
@@ -195,38 +212,43 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @SuppressWarnings("rawtypes")
    @Test(timeout = 30000)
-   public void testSelectorsWithJMSType() throws Exception {
-      Connection connection = createConnection();
+   public void testSelectorsWithJMSTypeOnTopic() throws Exception {
+      doTestSelectorsWithJMSType(true);
+   }
+
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSTypeOnQueue() throws Exception {
+      doTestSelectorsWithJMSType(false);
+   }
+
+   private void doTestSelectorsWithJMSType(boolean topic) throws Exception {
+      final Connection connection = createConnection();
+      final String type = "myJMSType";
 
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         javax.jms.Queue queue = session.createQueue(getQueueName());
-         MessageProducer p = session.createProducer(queue);
-
-         TextMessage message = session.createTextMessage();
-         message.setText("text");
-         p.send(message, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
-
-         TextMessage message2 = session.createTextMessage();
-         String type = "myJMSType";
-         message2.setJMSType(type);
-         message2.setText("text + type");
-         p.send(message2, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
-
-         QueueBrowser browser = session.createBrowser(queue);
-         Enumeration enumeration = browser.getEnumeration();
-         int count = 0;
-         while (enumeration.hasMoreElements()) {
-            Message m = (Message) enumeration.nextElement();
-            assertTrue(m instanceof TextMessage);
-            count++;
+         Destination destination = null;
+         if (topic) {
+            destination = session.createTopic(getTopicName());
+         } else {
+            destination = session.createQueue(getQueueName());
          }
 
-         assertEquals(2, count);
+         MessageProducer producer = session.createProducer(destination);
+         MessageConsumer consumer = session.createConsumer(destination, "JMSType = '" + type + "'");
 
-         MessageConsumer consumer = session.createConsumer(queue, "JMSType = '" + type + "'");
+         TextMessage message1 = session.createTextMessage();
+         message1.setText("text");
+         producer.send(message1, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         TextMessage message2 = session.createTextMessage();
+         message2.setJMSType(type);
+         message2.setText("text + type");
+         producer.send(message2, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         connection.start();
+
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
          assertTrue(msg instanceof TextMessage);
@@ -237,7 +259,48 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
-   @SuppressWarnings("rawtypes")
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSCorrelationID() throws Exception {
+      Connection connection = createConnection();
+
+      final String correlationID = UUID.randomUUID().toString();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue = session.createQueue(getQueueName());
+         MessageProducer producer = session.createProducer(queue);
+
+         TextMessage message1 = session.createTextMessage();
+         message1.setText("text");
+         producer.send(message1);
+
+         TextMessage message2 = session.createTextMessage();
+         message2.setJMSCorrelationID(correlationID);
+         message2.setText("JMSCorrelationID");
+         producer.send(message2);
+
+         QueueBrowser browser = session.createBrowser(queue);
+         Enumeration<?> enumeration = browser.getEnumeration();
+         int count = 0;
+         while (enumeration.hasMoreElements()) {
+            Message m = (Message) enumeration.nextElement();
+            assertTrue(m instanceof TextMessage);
+            count++;
+         }
+
+         assertEquals(2, count);
+
+         MessageConsumer consumer = session.createConsumer(queue, "JMSCorrelationID = '" + correlationID + "'");
+         Message msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("Unexpected JMSCorrelationID value", correlationID, msg.getJMSCorrelationID());
+         assertEquals("Unexpected message content", "JMSCorrelationID", ((TextMessage) msg).getText());
+      } finally {
+         connection.close();
+      }
+   }
+
    @Test(timeout = 30000)
    public void testSelectorsWithJMSPriority() throws Exception {
       Connection connection = createConnection();
@@ -245,18 +308,18 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Queue queue = session.createQueue(getQueueName());
-         MessageProducer p = session.createProducer(queue);
+         MessageProducer producer = session.createProducer(queue);
 
          TextMessage message = session.createTextMessage();
          message.setText("hello");
-         p.send(message, DeliveryMode.PERSISTENT, 5, 0);
+         producer.send(message, DeliveryMode.PERSISTENT, 5, 0);
 
          message = session.createTextMessage();
          message.setText("hello + 9");
-         p.send(message, DeliveryMode.PERSISTENT, 9, 0);
+         producer.send(message, DeliveryMode.PERSISTENT, 9, 0);
 
          QueueBrowser browser = session.createBrowser(queue);
-         Enumeration enumeration = browser.getEnumeration();
+         Enumeration<?> enumeration = browser.getEnumeration();
          int count = 0;
          while (enumeration.hasMoreElements()) {
             Message m = (Message) enumeration.nextElement();
@@ -276,8 +339,163 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       }
    }
 
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSXGroupIDOnTopic() throws Exception {
+      doTestSelectorsWithJMSXGroupID(true);
+   }
+
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSXGroupIDOnQueue() throws Exception {
+      doTestSelectorsWithJMSXGroupID(false);
+   }
+
+   private void doTestSelectorsWithJMSXGroupID(boolean topic) throws Exception {
+
+      Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = null;
+         if (topic) {
+            destination = session.createTopic(getTopicName());
+         } else {
+            destination = session.createQueue(getQueueName());
+         }
+
+         MessageProducer producer = session.createProducer(destination);
+         MessageConsumer consumer = session.createConsumer(destination, "JMSXGroupID = '1'");
+
+         TextMessage message = session.createTextMessage();
+         message.setText("group 1 - 1");
+         message.setStringProperty("JMSXGroupID", "1");
+         message.setIntProperty("JMSXGroupSeq", 1);
+         producer.send(message);
+
+         message = session.createTextMessage();
+         message.setText("group 2");
+         message.setStringProperty("JMSXGroupID", "2");
+         producer.send(message);
+
+         message = session.createTextMessage();
+         message.setText("group 1 - 2");
+         message.setStringProperty("JMSXGroupID", "1");
+         message.setIntProperty("JMSXGroupSeq", -1);
+         producer.send(message);
+
+         connection.start();
+
+         Message msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("group 1 - 1", ((TextMessage) msg).getText());
+         msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("group 1 - 2", ((TextMessage) msg).getText());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSDeliveryOnQueue() throws Exception {
+      final Connection connection = createConnection();
+
+      String selector = "JMSDeliveryMode = 'PERSISTENT'";
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createQueue(getQueueName());
+
+         MessageProducer producer = session.createProducer(destination);
+         MessageConsumer consumer = session.createConsumer(destination, selector);
+
+         TextMessage message1 = session.createTextMessage();
+         message1.setText("non-persistent");
+         producer.send(message1, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         TextMessage message2 = session.createTextMessage();
+         message2.setText("persistent");
+         producer.send(message2, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         connection.start();
+
+         Message msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("Unexpected JMSDeliveryMode value", DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode());
+         assertEquals("Unexpected message content", "persistent", ((TextMessage) msg).getText());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSTimestampOnQueue() throws Exception {
+      final Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createQueue(getQueueName());
+
+         MessageProducer producer = session.createProducer(destination);
+
+         TextMessage message1 = session.createTextMessage();
+         message1.setText("filtered");
+         producer.send(message1, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         TextMessage message2 = session.createTextMessage();
+         message2.setText("expected");
+         producer.send(message2, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         MessageConsumer consumer = session.createConsumer(destination, "JMSTimestamp = " + message2.getJMSTimestamp());
+
+         connection.start();
+
+         Message msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("Unexpected JMSTimestamp value", message2.getJMSTimestamp(), msg.getJMSTimestamp());
+         assertEquals("Unexpected message content", "expected", ((TextMessage) msg).getText());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSelectorsWithJMSExpirationOnQueue() throws Exception {
+      final Connection connection = createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createQueue(getQueueName());
+
+         MessageProducer producer = session.createProducer(destination);
+
+         TextMessage message1 = session.createTextMessage();
+         message1.setText("filtered");
+         producer.send(message1, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+         TextMessage message2 = session.createTextMessage();
+         message2.setText("expected");
+         producer.send(message2, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, 60000);
+
+         MessageConsumer consumer = session.createConsumer(destination, "JMSExpiration = " + message2.getJMSExpiration());
+
+         connection.start();
+
+         Message msg = consumer.receive(2000);
+         assertNotNull(msg);
+         assertTrue(msg instanceof TextMessage);
+         assertEquals("Unexpected JMSExpiration value", message2.getJMSExpiration(), msg.getJMSExpiration());
+         assertEquals("Unexpected message content", "expected", ((TextMessage) msg).getText());
+      } finally {
+         connection.close();
+      }
+   }
+
    @Test(timeout = 60000)
-   public void testJMSSelectorFiltersJMSMessageID() throws Exception {
+   public void testJMSSelectorFiltersJMSMessageIDOnTopic() throws Exception {
       Connection connection = createConnection();
 
       try {
