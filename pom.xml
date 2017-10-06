@@ -90,7 +90,7 @@
       <proton.version>0.22.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.25.0</qpid.jms.version>
+      <qpid.jms.version>0.26.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
@@ -156,7 +156,7 @@
            -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=30s,duration=120s,filename=/tmp/myrecording.jfr
 
       -->
-      
+
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
@@ -430,7 +430,7 @@
              <artifactId>geronimo-ejb_3.0_spec</artifactId>
              <version>${geronimo.ejb.3.0.spec.version}</version>
              <!-- License: Apache 2.0 -->
-	      </dependency>
+         </dependency>
          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
@@ -1155,51 +1155,51 @@
    <build>
       <pluginManagement>
          <plugins>
-			<plugin>
-				<groupId>org.eclipse.m2e</groupId>
-				<artifactId>lifecycle-mapping</artifactId>
-				<version>1.0.0</version>
-				<configuration>
-					<lifecycleMappingMetadata>
-						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>org.apache.rat</groupId>
-									<artifactId>apache-rat-plugin</artifactId>
-									<versionRange>[0.12,)</versionRange>
-									<goals>
-										<goal>check</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore />
-								</action>
-							</pluginExecution>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>
-										org.apache.servicemix.tooling
-									</groupId>
-									<artifactId>
-										depends-maven-plugin
-									</artifactId>
-									<versionRange>
-										[1.2,)
-									</versionRange>
-									<goals>
-										<goal>
-											generate-depends-file
-										</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore />
-								</action>
-							</pluginExecution>
-						</pluginExecutions>
-					</lifecycleMappingMetadata>
-				</configuration>
-			</plugin>
+         <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+               <lifecycleMappingMetadata>
+                  <pluginExecutions>
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>org.apache.rat</groupId>
+                           <artifactId>apache-rat-plugin</artifactId>
+                           <versionRange>[0.12,)</versionRange>
+                           <goals>
+                              <goal>check</goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>
+                              org.apache.servicemix.tooling
+                           </groupId>
+                           <artifactId>
+                              depends-maven-plugin
+                           </artifactId>
+                           <versionRange>
+                              [1.2,)
+                           </versionRange>
+                           <goals>
+                              <goal>
+                                 generate-depends-file
+                              </goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                  </pluginExecutions>
+               </lifecycleMappingMetadata>
+            </configuration>
+         </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
@@ -1539,7 +1539,7 @@
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
                   <exclude>**/npm-shrinkwrap.json</exclude>
-                  
+
                   <!-- Build time overlay folder -->
                   <exclude>**/overlays/**</exclude>
 
