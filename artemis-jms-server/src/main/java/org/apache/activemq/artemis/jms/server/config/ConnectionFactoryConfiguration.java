@@ -185,4 +185,8 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
    String getDeserializationWhiteList();
 
    void setDeserializationWhiteList(String whiteList);
+
+   int getInitialMessagePacketSize();
+
+   ConnectionFactoryConfiguration setInitialMessagePacketSize(int size);
 }
