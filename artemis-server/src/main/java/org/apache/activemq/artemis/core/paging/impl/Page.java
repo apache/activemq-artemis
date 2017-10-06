@@ -349,7 +349,7 @@ public final class Page implements Comparable<Page> {
    protected void finalize() {
       try {
          if (file != null && file.isOpen()) {
-            file.close();
+            file.close(false);
          }
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.pageFinaliseError(e);
