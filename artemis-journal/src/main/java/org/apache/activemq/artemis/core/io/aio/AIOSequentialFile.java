@@ -97,41 +97,50 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), null);
    }
 
+
    @Override
-   public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
+   public void close() throws IOException, InterruptedException, ActiveMQException {
+      close(true);
+   }
+
+
+   @Override
+   public synchronized void close(boolean waitSync) throws IOException, InterruptedException, ActiveMQException {
       if (!opened) {
          return;
       }
 
       super.close();
 
-      final String fileName = this.getFileName();
-      try {
-         int waitCount = 0;
-         while (!pendingCallbacks.await(10, TimeUnit.SECONDS)) {
-            waitCount++;
-            if (waitCount == 1) {
-               final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
-               for (ThreadInfo threadInfo : threads) {
-                  ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
+      if (waitSync) {
+         final String fileName = this.getFileName();
+         try {
+            int waitCount = 0;
+            while (!pendingCallbacks.await(10, TimeUnit.SECONDS)) {
+               waitCount++;
+               if (waitCount == 1) {
+                  final ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
+                  for (ThreadInfo threadInfo : threads) {
+                     ActiveMQJournalLogger.LOGGER.warn(threadInfo.toString());
+                  }
+                  factory.onIOError(new IOException("Timeout on close"), "Timeout on close", this);
                }
-               factory.onIOError(new IOException("Timeout on close"), "Timeout on close", this);
+               ActiveMQJournalLogger.LOGGER.warn("waiting pending callbacks on " + fileName + " from " + (waitCount * 10) + " seconds!");
             }
-            ActiveMQJournalLogger.LOGGER.warn("waiting pending callbacks on " + fileName + " from " + (waitCount * 10) + " seconds!");
+         } catch (InterruptedException e) {
+            ActiveMQJournalLogger.LOGGER.warn("interrupted while waiting pending callbacks on " + fileName, e);
+            throw e;
+         } finally {
+
+            opened = false;
+
+            timedBuffer = null;
+
+            aioFile.close();
+
+            aioFile = null;
+
          }
-      } catch (InterruptedException e) {
-         ActiveMQJournalLogger.LOGGER.warn("interrupted while waiting pending callbacks on " + fileName, e);
-         throw e;
-      } finally {
-
-         opened = false;
-
-         timedBuffer = null;
-
-         aioFile.close();
-
-         aioFile = null;
-
       }
    }
 

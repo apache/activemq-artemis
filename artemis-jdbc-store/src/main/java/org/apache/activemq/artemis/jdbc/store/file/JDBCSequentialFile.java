@@ -281,10 +281,18 @@ public class JDBCSequentialFile implements SequentialFile {
       return readPosition;
    }
 
+
    @Override
    public void close() throws Exception {
+      close(true);
+   }
+
+   @Override
+   public void close(boolean waitOnSync) throws Exception {
       isOpen.set(false);
-      sync();
+      if (waitOnSync) {
+         sync();
+      }
       fileFactory.sequentialFileClosed(this);
    }
 
