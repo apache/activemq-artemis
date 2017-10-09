@@ -104,6 +104,16 @@ public final class FileWrapperJournal extends JournalBase {
    }
 
    /**
+    * The max size record that can be stored in the journal
+    *
+    * @return
+    */
+   @Override
+   public long getMaxRecordSize() {
+      return journal.getMaxRecordSize();
+   }
+
+   /**
     * Write the record to the current file.
     */
    private void writeRecord(JournalInternalRecord encoder,
