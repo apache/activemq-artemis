@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import java.util.Map;
+
 /**
  * A DivertControl is used to manage a divert.
  */
@@ -65,6 +67,18 @@ public interface DivertControl {
     */
    @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert")
    String getTransformerClassName();
+
+   /**
+    * Returns a map of the properties configured for the transformer.
+    */
+   @Attribute(desc = "map of key, value pairs used to configure the transformer in JSON form")
+   String getTransformerPropertiesAsJSON();
+
+   /**
+    * Returns a map of the properties configured for the transformer.
+    */
+   @Attribute(desc = "map of key, value pairs used to configure the transformer")
+   Map<String, String> getTransformerProperties() throws Exception;
 
    /**
     * Returns the routing type used by this divert.

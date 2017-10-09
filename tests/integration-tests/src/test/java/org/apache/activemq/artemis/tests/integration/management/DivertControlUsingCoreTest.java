@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
@@ -59,6 +61,16 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
          @Override
          public String getTransformerClassName() {
             return (String) proxy.retrieveAttributeValue("transformerClassName");
+         }
+
+         @Override
+         public String getTransformerPropertiesAsJSON() {
+            return (String) proxy.retrieveAttributeValue("transformerPropertiesAsJSON");
+         }
+
+         @Override
+         public Map<String, String> getTransformerProperties() {
+            return (Map<String, String>) proxy.retrieveAttributeValue("transformerProperties");
          }
 
          @Override

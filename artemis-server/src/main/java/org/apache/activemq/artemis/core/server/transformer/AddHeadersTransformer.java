@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.core.server.transformer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 
-public interface Divert extends Bindable {
+public class AddHeadersTransformer implements Transformer {
 
-   Filter getFilter();
+   private Map<SimpleString, SimpleString> headers = new HashMap<>();
 
-   boolean isExclusive();
+   @Override
+   public void init(Map<String, String> properties) {
+      properties.forEach((k,v) -> headers.put(SimpleString.toSimpleString(k), SimpleString.toSimpleString(v)));
+   }
 
-   SimpleString getUniqueName();
-
-   SimpleString getRoutingName();
-
-   Transformer getTransformer();
+   @Override
+   public Message transform(Message message) {
+      headers.forEach(message::putStringProperty);
+      return message;
+   }
 }
