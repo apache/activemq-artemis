@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -1315,7 +1316,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ICoreMessage coreMessage = message.toCore();
       LargeServerMessage lsm = getStorageManager().createLargeMessage(storageManager.generateID(), coreMessage);
 
-      byte[] body = coreMessage.getReadOnlyBodyBuffer().toByteBuffer().array();
+      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      byte[] body = new byte[buffer.readableBytes()];
+      buffer.readBytes(body);
       lsm.addBytes(body);
       lsm.releaseResources();
       lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, body.length);
