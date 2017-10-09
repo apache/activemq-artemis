@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import java.util.Map;
+
 /**
  * A BridgeControl is used to manage a Bridge.
  */
@@ -50,6 +52,18 @@ public interface BridgeControl extends ActiveMQComponentControl {
     */
    @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this bridge")
    String getTransformerClassName();
+
+   /**
+    * Returns a map of the properties configured for the transformer.
+    */
+   @Attribute(desc = "map of key, value pairs used to configure the transformer in JSON form")
+   String getTransformerPropertiesAsJSON() throws Exception;
+
+   /**
+    * Returns a map of the properties configured for the transformer.
+    */
+   @Attribute(desc = "map of key, value pairs used to configure the transformer")
+   Map<String, String> getTransformerProperties() throws Exception;
 
    /**
     * Returns any list of static connectors used by this bridge

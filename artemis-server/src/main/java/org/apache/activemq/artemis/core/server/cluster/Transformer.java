@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.cluster;
 
-import org.apache.activemq.artemis.api.core.Message;
-
-public interface Transformer {
-
-   Message transform(Message message);
+/**
+ * This is for back compatibility with package move.
+ */
+public interface Transformer extends org.apache.activemq.artemis.core.server.transformer.Transformer {
 }

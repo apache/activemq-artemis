@@ -193,7 +193,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(12999, ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupPort());
       Assert.assertEquals(23456, dc.getRefreshTimeout());
 
-      Assert.assertEquals(2, conf.getDivertConfigurations().size());
+      Assert.assertEquals(3, conf.getDivertConfigurations().size());
       for (DivertConfiguration dic : conf.getDivertConfigurations()) {
          if (dic.getName().equals("divert1")) {
             Assert.assertEquals("divert1", dic.getName());
@@ -201,20 +201,25 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("address1", dic.getAddress());
             Assert.assertEquals("forwarding-address1", dic.getForwardingAddress());
             Assert.assertEquals("speed > 88", dic.getFilterString());
-            Assert.assertEquals("org.foo.Transformer", dic.getTransformerClassName());
+            Assert.assertEquals("org.foo.Transformer", dic.getTransformerConfiguration().getClassName());
             Assert.assertEquals(true, dic.isExclusive());
-         } else {
+         } else if (dic.getName().equals("divert2")) {
             Assert.assertEquals("divert2", dic.getName());
             Assert.assertEquals("routing-name2", dic.getRoutingName());
             Assert.assertEquals("address2", dic.getAddress());
             Assert.assertEquals("forwarding-address2", dic.getForwardingAddress());
             Assert.assertEquals("speed < 88", dic.getFilterString());
-            Assert.assertEquals("org.foo.Transformer2", dic.getTransformerClassName());
+            Assert.assertEquals("org.foo.Transformer2", dic.getTransformerConfiguration().getClassName());
             Assert.assertEquals(false, dic.isExclusive());
+         } else {
+            Assert.assertEquals("divert3", dic.getName());
+            Assert.assertEquals("org.foo.DivertTransformer3", dic.getTransformerConfiguration().getClassName());
+            Assert.assertEquals("divertTransformerValue1", dic.getTransformerConfiguration().getProperties().get("divertTransformerKey1"));
+            Assert.assertEquals("divertTransformerValue2", dic.getTransformerConfiguration().getProperties().get("divertTransformerKey2"));
          }
       }
 
-      Assert.assertEquals(2, conf.getBridgeConfigurations().size());
+      Assert.assertEquals(3, conf.getBridgeConfigurations().size());
       for (BridgeConfiguration bc : conf.getBridgeConfigurations()) {
          if (bc.getName().equals("bridge1")) {
             Assert.assertEquals("bridge1", bc.getName());
@@ -224,7 +229,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             assertEquals("connection time-to-live", 370, bc.getConnectionTTL());
             Assert.assertEquals("bridge-forwarding-address1", bc.getForwardingAddress());
             Assert.assertEquals("sku > 1", bc.getFilterString());
-            Assert.assertEquals("org.foo.BridgeTransformer", bc.getTransformerClassName());
+            Assert.assertEquals("org.foo.BridgeTransformer", bc.getTransformerConfiguration().getClassName());
             Assert.assertEquals(3, bc.getRetryInterval());
             Assert.assertEquals(0.2, bc.getRetryIntervalMultiplier(), 0.0001);
             assertEquals("max retry interval", 10002, bc.getMaxRetryInterval());
@@ -234,15 +239,21 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
             Assert.assertEquals(444, bc.getProducerWindowSize());
             Assert.assertEquals(1073741824, bc.getConfirmationWindowSize());
-         } else {
+         } else if (bc.getName().equals("bridge2")) {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
             Assert.assertEquals("bridge-forwarding-address2", bc.getForwardingAddress());
             Assert.assertEquals(null, bc.getFilterString());
-            Assert.assertEquals(null, bc.getTransformerClassName());
+            Assert.assertEquals(null, bc.getTransformerConfiguration());
             Assert.assertEquals(null, bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
             Assert.assertEquals(568320, bc.getProducerWindowSize());
+         } else {
+            Assert.assertEquals("bridge3", bc.getName());
+            Assert.assertEquals("org.foo.BridgeTransformer3", bc.getTransformerConfiguration().getClassName());
+            Assert.assertEquals("bridgeTransformerValue1", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey1"));
+            Assert.assertEquals("bridgeTransformerValue2", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey2"));
+
          }
       }
 
