@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtoco
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;

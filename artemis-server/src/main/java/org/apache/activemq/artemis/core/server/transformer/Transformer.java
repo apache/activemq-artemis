@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.core.server.transformer;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import java.util.Map;
 
-public interface Divert extends Bindable {
+import org.apache.activemq.artemis.api.core.Message;
 
-   Filter getFilter();
+public interface Transformer {
 
-   boolean isExclusive();
+   default void init(Map<String, String> properties) { }
 
-   SimpleString getUniqueName();
-
-   SimpleString getRoutingName();
-
-   Transformer getTransformer();
+   Message transform(Message message);
 }

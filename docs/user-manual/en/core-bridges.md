@@ -92,7 +92,7 @@ Let's take a look at all the parameters in turn:
 
 -   `transformer-class-name`. An optional transformer-class-name can be
     specified. This is the name of a user-defined class which implements
-    the `org.apache.activemq.artemis.core.server.cluster.Transformer` interface.
+    the `org.apache.activemq.artemis.core.server.transformer.Transformer` interface.
 
     If this is specified then the transformer's `transform()` method
     will be invoked with the message before it is forwarded. This gives
