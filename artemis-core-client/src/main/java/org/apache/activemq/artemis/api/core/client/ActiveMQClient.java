@@ -163,7 +163,7 @@ public final class ActiveMQClient {
       }
 
       if (globalThreadPool != null) {
-         globalThreadPool.shutdown();
+         globalThreadPool.shutdownNow();
          try {
             if (!globalThreadPool.awaitTermination(time, unit)) {
                globalThreadPool.shutdownNow();
@@ -177,7 +177,7 @@ public final class ActiveMQClient {
       }
 
       if (globalScheduledThreadPool != null) {
-         globalScheduledThreadPool.shutdown();
+         globalScheduledThreadPool.shutdownNow();
          try {
             if (!globalScheduledThreadPool.awaitTermination(time, unit)) {
                globalScheduledThreadPool.shutdownNow();

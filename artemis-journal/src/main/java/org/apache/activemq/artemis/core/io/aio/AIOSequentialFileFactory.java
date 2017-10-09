@@ -269,10 +269,6 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
    }
 
-   @Override
-   public long getBufferSize() {
-      return bufferSize;
-   }
 
    /**
     * The same callback is used for Runnable executor.
@@ -416,6 +412,16 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       private boolean stopped = false;
 
+      private int alignedBufferSize = 0;
+
+      private int getAlignedBufferSize() {
+         if (alignedBufferSize == 0) {
+            alignedBufferSize = calculateBlockSize(bufferSize);
+         }
+
+         return alignedBufferSize;
+      }
+
       public ByteBuffer newBuffer(final int size) {
          // if a new buffer wasn't requested in 10 seconds, we clear the queue
          // This is being done this way as we don't need another Timeout Thread
@@ -433,26 +439,32 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          // if a buffer is bigger than the configured-bufferSize, we just create a new
          // buffer.
-         if (size > bufferSize) {
+         if (size > getAlignedBufferSize()) {
             return LibaioContext.newAlignedBuffer(size, getAlignment());
          } else {
             // We need to allocate buffers following the rules of the storage
             // being used (AIO/NIO)
-            int alignedSize = calculateBlockSize(size);
+            final int alignedSize;
+
+            if (size < getAlignedBufferSize()) {
+               alignedSize = getAlignedBufferSize();
+            } else {
+               alignedSize = calculateBlockSize(size);
+            }
 
             // Try getting a buffer from the queue...
             ByteBuffer buffer = reuseBuffersQueue.poll();
 
             if (buffer == null) {
                // if empty create a new one.
-               buffer = LibaioContext.newAlignedBuffer(size, getAlignment());
+               buffer = LibaioContext.newAlignedBuffer(alignedSize, getAlignment());
 
-               buffer.limit(alignedSize);
+               buffer.limit(calculateBlockSize(size));
             } else {
                clearBuffer(buffer);
 
                // set the limit of the buffer to the bufferSize being required
-               buffer.limit(alignedSize);
+               buffer.limit(calculateBlockSize(size));
             }
 
             buffer.rewind();
@@ -484,7 +496,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
                // If a buffer has any other than the configured bufferSize, the buffer
                // will be just sent to GC
-               if (buffer.capacity() == bufferSize) {
+               if (buffer.capacity() == getAlignedBufferSize()) {
                   reuseBuffersQueue.offer(buffer);
                } else {
                   releaseBuffer(buffer);

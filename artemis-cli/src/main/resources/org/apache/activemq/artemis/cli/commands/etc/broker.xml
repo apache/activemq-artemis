@@ -50,7 +50,8 @@ under the License.
 
       <journal-pool-files>-1</journal-pool-files>
 
-${ping-config.settings}${journal-buffer.settings}${connector-config.settings}
+      <journal-file-size>10M</journal-file-size>
+      ${journal-buffer.settings}${ping-config.settings}${connector-config.settings}
 
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>

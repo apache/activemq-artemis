@@ -42,7 +42,7 @@ public class MappedImportExportTest extends NIOImportExportTest {
 
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
-      return MappedSequentialFileFactory.unbuffered(getTestDirfile(), 10 * 4096, null);
+      return new MappedSequentialFileFactory(getTestDirfile(), 10 * 4096, false, 0, 0, null);
    }
 }
 

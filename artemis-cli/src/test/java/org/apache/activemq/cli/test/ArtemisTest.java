@@ -123,7 +123,7 @@ public class ArtemisTest extends CliTestBase {
    public void testSync() throws Exception {
       int writes = 2;
       int tries = 5;
-      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, JournalType.NIO);
+      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true, "file.tmp", 1, JournalType.NIO);
       System.out.println();
       System.out.println("TotalAvg = " + totalAvg);
       long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 
+import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
@@ -50,7 +51,7 @@ public class MappedJournalImplTest extends JournalImplTestUnit {
 
       file.mkdir();
 
-      return MappedSequentialFileFactory.unbuffered(getTestDirfile(), 10 * 1024, null);
+      return new MappedSequentialFileFactory(getTestDirfile(), 10 * 1024, true, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, null);
    }
 
    @Override

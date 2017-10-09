@@ -22,13 +22,13 @@ import java.text.DecimalFormat;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
 
 @Command(name = "perf-journal", description = "Calculates the journal-buffer-timeout you should use with the current data folder")
-public class PerfJournal extends LockAbstract {
+public class PerfJournal extends OptionalLocking {
 
 
    @Option(name = "--block-size", description = "The block size for each write (default 4096)")
@@ -48,6 +48,15 @@ public class PerfJournal extends LockAbstract {
 
    @Option(name = "--journal-type", description = "Journal Type to be used (default from broker.xml)")
    public String journalType = null;
+
+   @Option(name = "--sync-writes", description = "It will perform each write synchronously, like if you had a single producer")
+   public boolean syncWrites = false;
+
+   @Option(name = "--file", description = "The file name to be used (default test.tmp)")
+   public String fileName = "test.tmp";
+
+   @Option(name = "--max-aio", description = "libaio.maxAIO to be used (default: configuration::getJournalMaxIO_AIO()")
+   public int maxAIO = 0;
 
 
    @Override
@@ -74,7 +83,11 @@ public class PerfJournal extends LockAbstract {
 
       fileConfiguration.getJournalLocation().mkdirs();
 
-      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), size, writes, tries, verbose, fileConfiguration.isJournalDatasync(), fileConfiguration.getJournalType());
+      if (maxAIO <= 0) {
+         maxAIO = fileConfiguration.getJournalMaxIO_AIO();
+      }
+
+      long time = SyncCalculation.syncTest(fileConfiguration.getJournalLocation(), size, writes, tries, verbose, fileConfiguration.isJournalDatasync(), syncWrites, fileName, maxAIO, fileConfiguration.getJournalType());
 
       long nanosecondsWait = SyncCalculation.toNanos(time, writes, verbose);
       double writesPerMillisecond = (double) writes / (double) time;
