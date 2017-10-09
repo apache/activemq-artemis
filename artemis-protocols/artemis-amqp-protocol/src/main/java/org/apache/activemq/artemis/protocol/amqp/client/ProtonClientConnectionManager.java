@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
@@ -40,16 +41,19 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    private static final Logger log = Logger.getLogger(ProtonClientConnectionManager.class);
    private final AMQPClientConnectionFactory connectionFactory;
    private final Optional<EventHandler> eventHandler;
+   private final ClientSASLFactory clientSASLFactory;
 
-   public ProtonClientConnectionManager(AMQPClientConnectionFactory connectionFactory, Optional<EventHandler> eventHandler) {
+   public ProtonClientConnectionManager(AMQPClientConnectionFactory connectionFactory, Optional<EventHandler> eventHandler, ClientSASLFactory clientSASLFactory) {
       this.connectionFactory = connectionFactory;
       this.eventHandler = eventHandler;
+      this.clientSASLFactory = clientSASLFactory;
    }
 
    @Override
    public void connectionCreated(ActiveMQComponent component, Connection connection, ProtonProtocolManager protocolManager) {
-      ActiveMQProtonRemotingConnection amqpConnection = connectionFactory.createConnection(protocolManager, connection, eventHandler);
+      ActiveMQProtonRemotingConnection amqpConnection = connectionFactory.createConnection(protocolManager, connection, eventHandler, clientSASLFactory);
       connectionMap.put(connection.getID(), amqpConnection);
+      amqpConnection.open();
 
       log.info("Connection " + amqpConnection.getRemoteAddress() + " created");
    }
@@ -60,6 +64,8 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       if (connection != null) {
          log.info("Connection " + connection.getRemoteAddress() + " destroyed");
          connection.disconnect(false);
+      } else {
+         log.error("Connection with id " + connectionID + " not found in connectionDestroyed");
       }
    }
 
@@ -69,6 +75,8 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       if (connection != null) {
          log.info("Connection " + connection.getRemoteAddress() + " exception: " + me.getMessage());
          connection.fail(me);
+      } else {
+         log.error("Connection with id " + connectionID + " not found in connectionException");
       }
    }
 
@@ -78,6 +86,8 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       if (connection != null) {
          log.info("Connection " + connection.getRemoteAddress() + " ready");
          connection.getTransportConnection().fireReady(true);
+      } else {
+         log.error("Connection with id " + connectionID + " not found in connectionReadyForWrites()!");
       }
    }
 
@@ -92,6 +102,8 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       RemotingConnection connection = connectionMap.get(connectionID);
       if (connection != null) {
          connection.bufferReceived(connectionID, buffer);
+      } else {
+         log.error("Connection with id " + connectionID + " not found in bufferReceived()!");
       }
    }
 }
