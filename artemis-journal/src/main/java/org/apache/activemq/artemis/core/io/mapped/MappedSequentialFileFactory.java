@@ -17,48 +17,33 @@
 package org.apache.activemq.artemis.core.io.mapped;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import io.netty.util.internal.PlatformDependent;
+import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.utils.Env;
 
-public final class MappedSequentialFileFactory implements SequentialFileFactory {
+public final class MappedSequentialFileFactory extends AbstractSequentialFileFactory {
 
-   private final File directory;
    private int capacity;
-   private final IOCriticalErrorListener criticalErrorListener;
-   private final TimedBuffer timedBuffer;
-   private boolean useDataSync;
    private boolean bufferPooling;
    //pools only the biggest one -> optimized for the common case
    private final ThreadLocal<ByteBuffer> bytesPool;
-   private final int bufferSize;
 
-   private MappedSequentialFileFactory(File directory,
+   public MappedSequentialFileFactory(File directory,
                                        int capacity,
                                        final boolean buffered,
                                        final int bufferSize,
                                        final int bufferTimeout,
                                        IOCriticalErrorListener criticalErrorListener) {
-      this.directory = directory;
+
+      super(directory, buffered, bufferSize, bufferTimeout, 1, false, criticalErrorListener);
+
       this.capacity = capacity;
-      this.criticalErrorListener = criticalErrorListener;
-      this.useDataSync = true;
-      if (buffered && bufferTimeout > 0 && bufferSize > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, false);
-      } else {
-         timedBuffer = null;
-      }
-      this.bufferSize = bufferSize;
+      this.setDatasync(true);
       this.bufferPooling = true;
       this.bytesPool = new ThreadLocal<>();
    }
@@ -72,23 +57,9 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
       return capacity;
    }
 
-   public static MappedSequentialFileFactory buffered(File directory,
-                                                      int capacity,
-                                                      final int bufferSize,
-                                                      final int bufferTimeout,
-                                                      IOCriticalErrorListener criticalErrorListener) {
-      return new MappedSequentialFileFactory(directory, capacity, true, bufferSize, bufferTimeout, criticalErrorListener);
-   }
-
-   public static MappedSequentialFileFactory unbuffered(File directory,
-                                                        int capacity,
-                                                        IOCriticalErrorListener criticalErrorListener) {
-      return new MappedSequentialFileFactory(directory, capacity, false, 0, 0, criticalErrorListener);
-   }
-
    @Override
    public SequentialFile createSequentialFile(String fileName) {
-      final MappedSequentialFile mappedSequentialFile = new MappedSequentialFile(this, directory, new File(directory, fileName), capacity, criticalErrorListener);
+      final MappedSequentialFile mappedSequentialFile = new MappedSequentialFile(this, journalDir, new File(journalDir, fileName), capacity, critialErrorListener);
       if (this.timedBuffer == null) {
          return mappedSequentialFile;
       } else {
@@ -97,46 +68,8 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    }
 
    @Override
-   public MappedSequentialFileFactory setDatasync(boolean enabled) {
-      this.useDataSync = enabled;
-      return this;
-   }
-
-   @Override
-   public boolean isDatasync() {
-      return useDataSync;
-   }
-
-   @Override
-   public long getBufferSize() {
-      return bufferSize;
-   }
-
-   @Override
-   public int getMaxIO() {
-      return 1;
-   }
-
-   @Override
-   public List<String> listFiles(final String extension) throws Exception {
-      final FilenameFilter extensionFilter = (file, name) -> name.endsWith("." + extension);
-      final String[] fileNames = directory.list(extensionFilter);
-      if (fileNames == null) {
-         return Collections.EMPTY_LIST;
-      }
-      return Arrays.asList(fileNames);
-   }
-
-   @Override
    public boolean isSupportsCallbacks() {
       return timedBuffer != null;
-   }
-
-   @Override
-   public void onIOError(Exception exception, String message, SequentialFile file) {
-      if (criticalErrorListener != null) {
-         criticalErrorListener.onIOException(exception, message, file);
-      }
    }
 
    @Override
@@ -204,20 +137,11 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    }
 
    @Override
-   public void activateBuffer(SequentialFile file) {
-      if (timedBuffer != null) {
-         file.setTimedBuffer(timedBuffer);
-      }
+   public MappedSequentialFileFactory setDatasync(boolean enabled) {
+      super.setDatasync(enabled);
+      return this;
    }
 
-   @Override
-   public void deactivateBuffer() {
-      if (timedBuffer != null) {
-         // When moving to a new file, we need to make sure any pending buffer will be transferred to the buffer
-         timedBuffer.flush();
-         timedBuffer.setObserver(null);
-      }
-   }
 
    @Override
    public ByteBuffer wrapBuffer(final byte[] bytes) {
@@ -238,11 +162,6 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
    @Override
    public int calculateBlockSize(int bytes) {
       return bytes;
-   }
-
-   @Override
-   public File getDirectory() {
-      return this.directory;
    }
 
    @Override
@@ -276,18 +195,4 @@ public final class MappedSequentialFileFactory implements SequentialFileFactory 
       }
    }
 
-   @Override
-   public void createDirs() throws Exception {
-      boolean ok = directory.mkdirs();
-      if (!ok) {
-         throw new IOException("Failed to create directory " + directory);
-      }
-   }
-
-   @Override
-   public void flush() {
-      if (timedBuffer != null) {
-         timedBuffer.flush();
-      }
-   }
 }

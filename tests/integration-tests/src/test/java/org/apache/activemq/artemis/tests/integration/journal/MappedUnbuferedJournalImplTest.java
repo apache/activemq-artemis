@@ -20,9 +20,9 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.mapped.MappedSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 
-public class MappedJournalCompactTest extends NIOJournalCompactTest {
+public class MappedUnbuferedJournalImplTest extends JournalImplTestUnit {
 
    @Override
    protected void setup(int minFreeFiles, int fileSize, boolean sync) {
@@ -46,10 +46,16 @@ public class MappedJournalCompactTest extends NIOJournalCompactTest {
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
-      ActiveMQTestBase.deleteDirectory(file);
+      deleteDirectory(file);
 
       file.mkdir();
 
-      return new MappedSequentialFileFactory(getTestDirfile(), 60 * 1024, false, 0, 0, null);
+      return new MappedSequentialFileFactory(getTestDirfile(), 10 * 1024, false, 0, 0, null);
    }
+
+   @Override
+   protected int getAlignment() {
+      return fileFactory.getAlignment();
+   }
+
 }
