@@ -228,6 +228,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       idGenerator = new BatchingIDGenerator(0, CHECKPOINT_BATCH_SIZE, this);
    }
 
+
+   public long getMaxRecordSize() {
+      return messageJournal.getMaxRecordSize();
+   }
+
+
    /**
     * Called during initialization.  Used by implementations to setup Journals, Stores etc...
     *

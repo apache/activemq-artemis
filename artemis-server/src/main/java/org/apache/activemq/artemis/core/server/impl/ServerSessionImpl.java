@@ -1333,7 +1333,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           boolean noAutoCreateQueue) throws Exception {
 
       final Message message;
-      if ((msg.getEncodeSize() > storageManager.getMessageJournal().getMaxRecordSize()) && !msg.isLargeMessage()) {
+      if ((msg.getEncodeSize() > storageManager.getMaxRecordSize()) && !msg.isLargeMessage()) {
          message = messageToLargeMessage(msg);
       } else {
          message = msg;

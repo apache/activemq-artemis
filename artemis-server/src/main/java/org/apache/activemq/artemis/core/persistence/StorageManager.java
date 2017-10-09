@@ -65,6 +65,11 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  */
 public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
+   default long getMaxRecordSize() {
+      /** Null journal is pretty much memory */
+      return Long.MAX_VALUE;
+   }
+
    void criticalError(Throwable error);
 
    /**
