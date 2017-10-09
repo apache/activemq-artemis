@@ -52,8 +52,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
          MessageProducer producer = session.createProducer(queue);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         // Create 100Mb Message
-         int size = 1024 * 1024 * 10;
+         // Create 1MB Message
+         int size = 1024 * 1024;
          byte[] bytes = new byte[size];
          BytesMessage message = session.createBytesMessage();
          message.writeBytes(bytes);
