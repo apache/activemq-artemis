@@ -101,7 +101,7 @@ public class InVMConnector extends AbstractConnector {
 
    public static synchronized void resetThreadPool() {
       if (threadPoolExecutor != null) {
-         threadPoolExecutor.shutdown();
+         threadPoolExecutor.shutdownNow();
          threadPoolExecutor = null;
       }
    }
