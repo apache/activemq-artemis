@@ -2200,6 +2200,16 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       flushExecutor(compactorExecutor);
    }
 
+   /**
+    * The max size record that can be stored in the journal
+    *
+    * @return
+    */
+   @Override
+   public long getMaxRecordSize() {
+      return Math.min(getFileSize(), fileFactory.getBufferSize());
+   }
+
    private void flushExecutor(Executor executor) throws InterruptedException {
 
       if (executor != null) {
