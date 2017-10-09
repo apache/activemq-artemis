@@ -548,4 +548,9 @@ public class ReplicatedJournal implements Journal {
    public void replicationSyncFinished() {
       throw new UnsupportedOperationException("should never get called");
    }
+
+   @Override
+   public long getMaxRecordSize() {
+      return localJournal.getMaxRecordSize();
+   }
 }
