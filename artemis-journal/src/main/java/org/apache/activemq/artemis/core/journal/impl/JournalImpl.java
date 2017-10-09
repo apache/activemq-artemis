@@ -2207,7 +2207,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     */
    @Override
    public long getMaxRecordSize() {
-      return Math.min(getFileSize(), fileFactory.getBufferSize());
+      if (fileFactory.getBufferSize() == 0) {
+         return getFileSize();
+      } else {
+         return Math.min(getFileSize(), fileFactory.getBufferSize());
+      }
    }
 
    private void flushExecutor(Executor executor) throws InterruptedException {
