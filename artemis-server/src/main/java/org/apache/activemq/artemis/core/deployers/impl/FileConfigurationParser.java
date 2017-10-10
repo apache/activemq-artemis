@@ -1641,11 +1641,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             properties.put(key, value);
          }
       }
-      return new TransformerConfiguration().setClassName(className).setProperties(properties);
+      return new TransformerConfiguration(className).setProperties(properties);
    }
 
    private TransformerConfiguration getTransformerConfiguration(final String transformerClassName) {
-      return new TransformerConfiguration().setClassName(transformerClassName).setProperties(Collections.EMPTY_MAP);
+      return new TransformerConfiguration(transformerClassName).setProperties(Collections.EMPTY_MAP);
    }
 
    private void parseBridgeConfiguration(final Element brNode, final Configuration mainConfig) throws Exception {
