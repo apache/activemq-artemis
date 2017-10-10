@@ -81,7 +81,7 @@ public class DivertControlTest extends ManagementTestBase {
       CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
 
       divertConfig = new DivertConfiguration().setName(RandomUtil.randomString()).setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress()).setForwardingAddress(forwardQueueConfig.getAddress()).setExclusive(RandomUtil.randomBoolean()).
-         setTransformerConfiguration(new TransformerConfiguration().setClassName(AddHeadersTransformer.class.getName()));
+         setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
 
       TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
