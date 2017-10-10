@@ -24,23 +24,16 @@ public final class TransformerConfiguration implements Serializable {
 
    private static final long serialVersionUID = -1057244274380572226L;
 
-   private String className = null;
+   private final String className;
 
    private Map<String, String> properties = new HashMap<>();
 
-   public TransformerConfiguration() {
+   public TransformerConfiguration(String className) {
+      this.className = className;
    }
 
    public String getClassName() {
       return className;
-   }
-
-   /**
-    * @param className the class name to set
-    */
-   public TransformerConfiguration setClassName(final String className) {
-      this.className = className;
-      return this;
    }
 
    public Map<String, String> getProperties() {
