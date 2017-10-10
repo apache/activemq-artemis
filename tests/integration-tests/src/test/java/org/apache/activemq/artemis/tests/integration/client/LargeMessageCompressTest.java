@@ -222,7 +222,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
    // but this will make sure we can work through compressed channels on saving it to stream
    @Test
    public void testHugeStreamingSpacesCompressed() throws Exception {
-      final long messageSize = 1024L * 1024L * 1024L;
+      final long messageSize = 1024L * 1024L;
 
       System.out.println("Message size = " + messageSize);
 
@@ -237,7 +237,7 @@ public class LargeMessageCompressTest extends LargeMessageTest {
 
       ClientSession session = addClientSession(sf.createSession(false, false, false));
 
-      session.createQueue(ADDRESS, ADDRESS);
+      session.createQueue(ADDRESS, ADDRESS, null, true);
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
