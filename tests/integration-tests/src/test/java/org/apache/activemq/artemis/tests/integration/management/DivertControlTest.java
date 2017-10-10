@@ -22,8 +22,10 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.transformer.AddHeadersTransformer;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -78,7 +80,8 @@ public class DivertControlTest extends ManagementTestBase {
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
       CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
 
-      divertConfig = new DivertConfiguration().setName(RandomUtil.randomString()).setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress()).setForwardingAddress(forwardQueueConfig.getAddress()).setExclusive(RandomUtil.randomBoolean());
+      divertConfig = new DivertConfiguration().setName(RandomUtil.randomString()).setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress()).setForwardingAddress(forwardQueueConfig.getAddress()).setExclusive(RandomUtil.randomBoolean()).
+         setTransformerConfiguration(new TransformerConfiguration().setClassName(AddHeadersTransformer.class.getName()));
 
       TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
