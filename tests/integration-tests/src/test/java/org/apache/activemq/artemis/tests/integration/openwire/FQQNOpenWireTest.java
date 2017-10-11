@@ -53,9 +53,6 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class FQQNOpenWireTest extends OpenWireTestBase {
 
-   protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
-
-
    @Parameterized.Parameters(name = "{0}")
    public static Collection<Object[]> params() {
       return Arrays.asList(new Object[][]{{"OpenWire"}, {"Artemis"}});
