@@ -45,6 +45,9 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
+   protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
+   protected static final String urlStringLoose = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.tightEncodingEnabled=false";
+
    protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
