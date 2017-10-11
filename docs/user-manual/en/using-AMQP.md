@@ -52,6 +52,23 @@ We have a few examples as part of the Artemis distribution:
  
 - Java (Using the qpid JMS Client)
  * ./examples/protocols/amqp/queue
+ 
+- Interceptors
+ * ./examples/features/standard/broker-plugin
+ 
+ 
+ # Intercepting and changing messages
+ 
+ We don't recommend changing messages at the server's side for a few reasons:
+ 
+ - AMQPMessages are meant to be immutable
+ - The message won't be the original message the user sent
+ - AMQP has the possibility of signing messages. The signature would be broken.
+ - For performance reasons. We try not to re-encode (or even decode) messages.
+    
+If regardless these recommendations you still need and want to intercept and change AMQP Messages, look at the example under ./examples/features/standard/broker-plugin.
+
+This example will send AMQP Message and modify properties before they reach the journals and are sent to the consumers.
 
 
 
