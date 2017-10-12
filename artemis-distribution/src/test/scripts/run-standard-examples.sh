@@ -33,6 +33,7 @@ cd $ARTEMIS_HOME/examples/features/standard/
 cd bridge; mvn verify; cd ..
 cd bridge; mvn verify; cd ..
 cd browser; mvn verify; cd ..
+cd broker-plugin; mvn verify; cd ..
 cd client-kickoff; mvn verify; cd ..
 cd consumer-rate-limit; mvn verify; cd ..
 cd dead-letter; mvn verify; cd ..
