@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
  */
 public class JMXExample {
 
-   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
+   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi";
 
    public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
@@ -79,7 +79,11 @@ public class JMXExample {
          ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
 
          // Step 10. Create JMX Connector to connect to the server's MBeanServer
-         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXExample.JMX_URL), new HashMap());
+         HashMap env = new HashMap();
+         String[] creds = {"admin", "password"};
+         env.put(JMXConnector.CREDENTIALS, creds);
+
+         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXExample.JMX_URL), env);
 
          // Step 11. Retrieve the MBeanServerConnection
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
