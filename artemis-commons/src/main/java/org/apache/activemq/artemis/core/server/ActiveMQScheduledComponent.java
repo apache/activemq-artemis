@@ -37,6 +37,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    private static final Logger logger = Logger.getLogger(ActiveMQScheduledComponent.class);
    private ScheduledExecutorService scheduledExecutorService;
    private boolean startedOwnScheduler;
+   private long initialDelay;
    private long period;
    private long millisecondsPeriod;
    private TimeUnit timeUnit;
@@ -48,27 +49,79 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
 
    private final AtomicInteger delayed = new AtomicInteger(0);
 
+   /**
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    *
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param executor                 the {@link Executor} that execute {@link #run()} when triggered
+    * @param initialDelay             the time to delay first execution
+    * @param checkPeriod              the delay between the termination of one execution and the start of the next
+    * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    */
    public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
                                      Executor executor,
+                                     long initialDelay,
                                      long checkPeriod,
                                      TimeUnit timeUnit,
                                      boolean onDemand) {
       this.executor = executor;
       this.scheduledExecutorService = scheduledExecutorService;
+      this.initialDelay = initialDelay;
       this.period = checkPeriod;
       this.timeUnit = timeUnit;
       this.onDemand = onDemand;
    }
 
    /**
-    * This is useful for cases where we want our own scheduler executor.
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
     *
-    * @param checkPeriod
-    * @param timeUnit
-    * @param onDemand
+    * <p>
+    * The component created will have {@code initialDelay} defaulted to {@code checkPeriod}.
+    *
+    * @param scheduledExecutorService the {@link ScheduledExecutorService} that periodically trigger {@link #run()} on the configured {@code executor}
+    * @param executor                 the {@link Executor} that execute {@link #run()} when triggered
+    * @param checkPeriod              the delay between the termination of one execution and the start of the next
+    * @param timeUnit                 the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
+    * @param onDemand                 if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    */
+   public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
+                                     Executor executor,
+                                     long checkPeriod,
+                                     TimeUnit timeUnit,
+                                     boolean onDemand) {
+      this(scheduledExecutorService, executor, checkPeriod, checkPeriod, timeUnit, onDemand);
+   }
+
+   /**
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    *
+    * <p>
+    * This is useful for cases where we want our own scheduler executor: on {@link #start()} it will create a fresh new single-threaded {@link ScheduledExecutorService}
+    * using {@link #getThreadFactory()} and {@link #getThisClassLoader()}, while on {@link #stop()} it will garbage it.
+    *
+    * @param initialDelay the time to delay first execution
+    * @param checkPeriod  the delay between the termination of one execution and the start of the next
+    * @param timeUnit     the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
+    * @param onDemand     if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
+    */
+   public ActiveMQScheduledComponent(long initialDelay, long checkPeriod, TimeUnit timeUnit, boolean onDemand) {
+      this(null, null, initialDelay, checkPeriod, timeUnit, onDemand);
+   }
+
+   /**
+    * It creates a scheduled component that can trigger {@link #run()} with a fixed {@code checkPeriod} on a configured {@code executor}.
+    *
+    * <p>
+    * This is useful for cases where we want our own scheduler executor.
+    * The component created will have {@code initialDelay} defaulted to {@code checkPeriod}.
+    *
+    * @param checkPeriod the delay between the termination of one execution and the start of the next
+    * @param timeUnit    the time unit of the {@code initialDelay} and {@code checkPeriod} parameters
+    * @param onDemand    if {@code true} the task won't be scheduled on {@link #start()}, {@code false} otherwise
     */
    public ActiveMQScheduledComponent(long checkPeriod, TimeUnit timeUnit, boolean onDemand) {
-      this(null, null, checkPeriod, timeUnit, onDemand);
+      this(null, null, checkPeriod, checkPeriod, timeUnit, onDemand);
    }
 
    @Override
@@ -91,7 +144,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       this.millisecondsPeriod = timeUnit.convert(period, TimeUnit.MILLISECONDS);
 
       if (period >= 0) {
-         future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, period, period, timeUnit);
+         future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, initialDelay, period, timeUnit);
       } else {
          logger.tracef("did not start scheduled executor on %s because period was configured as %d", this, period);
       }
@@ -129,6 +182,39 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
 
    public synchronized ActiveMQScheduledComponent setPeriod(long period) {
       this.period = period;
+      restartIfNeeded();
+      return this;
+   }
+
+   public long getInitialDelay() {
+      return initialDelay;
+   }
+
+   public synchronized ActiveMQScheduledComponent setInitialDelay(long initialDelay) {
+      this.initialDelay = initialDelay;
+      restartIfNeeded();
+      return this;
+   }
+
+   /**
+    * Useful to change a running schedule and avoid multiple restarts.
+    */
+   public synchronized ActiveMQScheduledComponent setInitialDelayAndPeriod(long initialDelay, long period) {
+      this.period = period;
+      this.initialDelay = initialDelay;
+      restartIfNeeded();
+      return this;
+   }
+
+   /**
+    * Useful to change a running schedule and avoid multiple restarts.
+    */
+   public synchronized ActiveMQScheduledComponent setInitialDelayAndPeriod(long initialDelay,
+                                                                           long period,
+                                                                           TimeUnit timeUnit) {
+      this.period = period;
+      this.initialDelay = initialDelay;
+      this.timeUnit = timeUnit;
       restartIfNeeded();
       return this;
    }
