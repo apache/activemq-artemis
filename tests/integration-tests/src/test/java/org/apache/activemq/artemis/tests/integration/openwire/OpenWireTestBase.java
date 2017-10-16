@@ -104,6 +104,9 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          server.getConfiguration().putSecurityRoles("#", roles);
       }
+
+      mbeanServer = MBeanServerFactory.createMBeanServer();
+      server.setMBeanServer(mbeanServer);
       addServer(server);
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
@@ -111,8 +114,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       jmsServer.start();
 
       registerConnectionFactory();
-
-      mbeanServer = MBeanServerFactory.createMBeanServer();
       System.out.println("debug: server started");
    }
 
