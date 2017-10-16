@@ -165,4 +165,37 @@ public class ActiveMQScheduledComponentTest {
       }
    }
 
+   @Test
+   public void testUsingCustomInitialDelay() throws InterruptedException {
+      final CountDownLatch latch = new CountDownLatch(1);
+      final long initialDelayMillis = 100;
+      final long checkPeriodMillis = 100 * initialDelayMillis;
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, initialDelayMillis, checkPeriodMillis, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+      final long start = System.nanoTime();
+      local.start();
+      try {
+         final boolean triggeredBeforePeriod = latch.await(local.getPeriod(), local.getTimeUnit());
+         final long timeToFirstTrigger = TimeUnit.NANOSECONDS.convert(System.nanoTime() - start, local.getTimeUnit());
+         Assert.assertTrue("Takes too long to start", triggeredBeforePeriod);
+         Assert.assertTrue("Started too early", timeToFirstTrigger >= local.getInitialDelay());
+      } finally {
+         local.stop();
+      }
+   }
+
+   @Test
+   public void testVerifyDefaultInitialDelay() throws InterruptedException {
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+
+         }
+      };
+      Assert.assertEquals("The initial delay must be defaulted to the period", local.getPeriod(), local.getInitialDelay());
+   }
 }
