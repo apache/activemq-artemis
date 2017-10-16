@@ -82,6 +82,7 @@ public class Create extends InputAbstract {
    public static final String ETC_ARTEMIS_PROFILE = "etc/artemis.profile";
    public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
    public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
+   public static final String ETC_MANAGEMENT_XML = "etc/management.xml";
    public static final String ETC_BROKER_XML = "etc/broker.xml";
 
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
@@ -689,6 +690,7 @@ public class Create extends InputAbstract {
       // we want this variable to remain unchanged so that it will use the value set in the profile
       filters.remove("${artemis.instance}");
       write(ETC_BOOTSTRAP_XML, filters, false);
+      write(ETC_MANAGEMENT_XML, filters, false);
       write(ETC_JOLOKIA_ACCESS_XML, filters, false);
 
       context.out.println("");

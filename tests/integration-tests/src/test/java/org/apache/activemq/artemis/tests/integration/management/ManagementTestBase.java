@@ -76,6 +76,10 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
+      createMBeanServer();
+   }
+
+   protected void createMBeanServer() {
       mbeanServer = MBeanServerFactory.createMBeanServer();
    }
 

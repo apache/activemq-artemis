@@ -34,16 +34,12 @@ under the License.
      <h2>Example configuration</h2>
 
      <p>ActiveMQ Artemis exposes its managed resources by default on the platform MBeanServer.</p>
-     <p>To access this MBeanServer remotely, the Java Virtual machine must be started with system properties:
+     <p>To access this MBeanServer remotely, add the following to the management.xml configuration:
          <pre class="prettyprint">
-             <code>-Dcom.sun.management.jmxremote
-             -Dcom.sun.management.jmxremote.port=3000
-             -Dcom.sun.management.jmxremote.ssl=false
-             -Dcom.sun.management.jmxremote.authenticate=false</code>
+             <code><connector connector-port="1099" connector-host="127.0.0.1"/></code>
         </pre>
-        <p>These properties are explained in the Java <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html#gdenl">management guide</a>
-            (please note that for this example, we will disable user authentication for simplicity sake).</p>
-        <p>With these properties, ActiveMQ Artemis server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p>
+        <p>If the example does not work then try changing the host to the ip address of the machine running this example on</p>
+        <p>With these properties, ActiveMQ Artemis server will be manageable remotely using standard JMX URL on port <code>1099</code>.</p>
      </p>
 
      <h2>Example step-by-step</h2>
