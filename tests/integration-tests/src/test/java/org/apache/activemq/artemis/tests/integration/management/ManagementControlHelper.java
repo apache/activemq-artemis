@@ -96,7 +96,7 @@ public class ManagementControlHelper {
 
    // Private -------------------------------------------------------
 
-   private static Object createProxy(final ObjectName objectName,
+   public static Object createProxy(final ObjectName objectName,
                                      final Class mbeanInterface,
                                      final MBeanServer mbeanServer) {
       return MBeanServerInvocationHandler.newProxyInstance(mbeanServer, objectName, mbeanInterface, false);

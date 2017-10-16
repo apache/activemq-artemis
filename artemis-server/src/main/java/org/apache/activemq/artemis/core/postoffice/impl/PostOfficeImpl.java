@@ -442,7 +442,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // only register address if it is new
          if (result) {
             try {
-               managementService.registerAddress(addressInfo);
+               if (!addressInfo.isInternal()) {
+                  managementService.registerAddress(addressInfo);
+               }
             } catch (Exception e) {
                e.printStackTrace();
             }
