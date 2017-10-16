@@ -72,6 +72,7 @@ under the License.
                      <goal>cli</goal>
                   </goals>
                   <configuration>
+                     <debug>true</debug>
                      <ignore>${noServer}</ignore>
                      <spawn>true</spawn>
                      <testURI>tcp://localhost:61616</testURI>

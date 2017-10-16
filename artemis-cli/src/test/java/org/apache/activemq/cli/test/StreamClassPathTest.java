@@ -39,6 +39,7 @@ public class StreamClassPathTest {
       openStream(Create.ETC_ARTEMIS_PROFILE);
       openStream(Create.ETC_LOGGING_PROPERTIES);
       openStream(Create.ETC_BOOTSTRAP_XML);
+      openStream(Create.ETC_MANAGEMENT_XML);
       openStream(Create.ETC_BROKER_XML);
       openStream(Create.ETC_ARTEMIS_ROLES_PROPERTIES);
       openStream(Create.ETC_ARTEMIS_USERS_PROPERTIES);

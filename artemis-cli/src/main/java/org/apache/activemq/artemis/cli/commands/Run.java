@@ -25,10 +25,13 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
+import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
 import org.apache.activemq.artemis.cli.factory.security.SecurityManagerFactory;
 import org.apache.activemq.artemis.components.ExternalComponent;
+import org.apache.activemq.artemis.core.server.management.ManagementContext;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
+import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -43,6 +46,8 @@ public class Run extends LockAbstract {
    private static boolean embedded = false;
 
    public static final ReusableLatch latchRunning = new ReusableLatch(0);
+
+   private ManagementContext managementContext;
 
    /**
     * This will disable the System.exit at the end of the server.stop, as that means there are other things
@@ -60,6 +65,9 @@ public class Run extends LockAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
+      ManagementContextDTO managementDTO = getManagementDTO();
+      managementContext = ManagementFactory.create(managementDTO);
+
       Artemis.printBanner();
 
       BrokerDTO broker = getBrokerDTO();
@@ -70,6 +78,7 @@ public class Run extends LockAbstract {
 
       server = BrokerFactory.createServer(broker.server, security);
 
+      managementContext.start();
       server.start();
 
       if (broker.web != null) {
@@ -121,11 +130,7 @@ public class Run extends LockAbstract {
             }
             if (file.exists()) {
                try {
-                  try {
-                     server.stop(true);
-                  } catch (Exception e) {
-                     e.printStackTrace();
-                  }
+                  stop();
                   timer.cancel();
                } finally {
                   System.out.println("Server stopped!");
@@ -142,13 +147,20 @@ public class Run extends LockAbstract {
       Runtime.getRuntime().addShutdownHook(new Thread("shutdown-hook") {
          @Override
          public void run() {
-            try {
-               server.stop(true);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
+            Run.this.stop();
          }
       });
 
+   }
+
+   protected void stop() {
+      try {
+         server.stop(true);
+         if (managementContext != null) {
+            managementContext.stop();
+         }
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
    }
 }
