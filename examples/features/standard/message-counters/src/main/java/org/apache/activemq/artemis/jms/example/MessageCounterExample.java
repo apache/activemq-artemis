@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
  */
 public class MessageCounterExample {
 
-   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
+   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi";
 
    public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
@@ -75,7 +75,10 @@ public class MessageCounterExample {
 
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
          ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
-         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
+         HashMap env = new HashMap();
+         String[] creds = {"guest", "guest"};
+         env.put(JMXConnector.CREDENTIALS, creds);
+         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), env);
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
          QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, QueueControl.class, false);
 
