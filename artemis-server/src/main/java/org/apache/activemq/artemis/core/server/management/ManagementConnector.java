@@ -44,9 +44,6 @@ public class ManagementConnector implements ActiveMQComponent {
 
    @Override
    public void start() throws Exception {
-      ArtemisMBeanServerGuard guard = new ArtemisMBeanServerGuard();
-      guard.init();
-
       rmiRegistryFactory = new RmiRegistryFactory();
       rmiRegistryFactory.setPort(configuration.getConnectorPort());
       rmiRegistryFactory.init();

@@ -61,9 +61,6 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
-                     <!-- options used for JMX on the example -->
-                     <javaOptions>-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=3000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
-                     </javaOptions>
                   </configuration>
                </execution>
                <execution>
