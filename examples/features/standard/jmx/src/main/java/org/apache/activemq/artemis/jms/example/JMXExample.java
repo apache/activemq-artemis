@@ -80,7 +80,7 @@ public class JMXExample {
 
          // Step 10. Create JMX Connector to connect to the server's MBeanServer
          HashMap env = new HashMap();
-         String[] creds = {"admin", "password"};
+         String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
 
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMXExample.JMX_URL), env);
