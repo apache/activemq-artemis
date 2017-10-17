@@ -26,7 +26,7 @@
          <access method="get*" roles="view,update,amq,guest"/>
          <access method="is*" roles="view,update,amq,guest"/>
          <access method="set*" roles="update,amq,guest"/>
-         <access method="*" roles="amq,guest"/>
+         <access method="*" roles="amq, guest"/>
       </default-access>
       <role-access>
          <match domain="org.apache.activemq.apache">
