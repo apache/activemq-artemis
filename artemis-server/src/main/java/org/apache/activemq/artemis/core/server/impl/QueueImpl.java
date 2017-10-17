@@ -244,6 +244,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final ReusableLatch deliveriesInTransit = new ReusableLatch(0);
 
+   private volatile boolean caused = false;
+
    private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
    private final AtomicLong messagesAddedSnapshot = new AtomicLong(0);
@@ -593,7 +595,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
             if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
                return;
             }
@@ -613,7 +614,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
             for (MessageReference ref : refs) {
                addHead(ref, scheduling);
             }
@@ -717,6 +717,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private boolean flushDeliveriesInTransit() {
       try {
 
+         if (!deliveriesInTransit.await(100, TimeUnit.MILLISECONDS)) {
+            caused = true;
+            System.err.println("There are currently " + deliveriesInTransit.getCount() + " credits");
+         }
          if (deliveriesInTransit.await(DELIVERY_TIMEOUT)) {
             return true;
          } else {
@@ -834,8 +838,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (maxConsumers != MAX_CONSUMERS_UNLIMITED && noConsumers.get() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
-
-            flushDeliveriesInTransit();
 
             consumersChanged = true;
 
