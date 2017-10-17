@@ -779,13 +779,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createQueue(final String address, final String name, final String filterStr, final boolean durable) throws Exception {
-      createQueue(address, name, filterStr, durable, server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType().toString());
+      createQueue(address, name, filterStr, durable, server.getAddressSettingsRepository().getMatch(address == null ? name : address).getDefaultQueueRoutingType().toString());
    }
 
 
    @Override
    public void createQueue(final String address, final String name, final String filterStr, final boolean durable, final String routingType) throws Exception {
-      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address == null ? name : address);
       createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isAutoCreateAddresses());
    }
 
