@@ -243,6 +243,21 @@ the broker will proceed to publish the will message to the specified address (as
 Other subscribers to the will topic will receive the will message and can react accordingly. This feature can be useful
  in an IoT style scenario to detect errors across a potentially large scale deployment of devices.
 
+### Debug Logging
+
+Detailed protocol logging (e.g. packets in/out) can be activated via the following steps:
+
+1) Open `<ARTEMIS_INSTANCE>/etc/logging.properties` 
+2) Add `org.apache.activemq.artemis.core.protocol.mqtt` to the `loggers` list.
+3) Add this line to enable `TRACE` logging for this new logger: `logger.org.apache.activemq.artemis.core.protocol.mqtt.level=TRACE`
+4) Ensure the `level` for the `handler` you want to log the message doesn't block the `TRACE` logging. For example,
+   modify the `level` of the `CONSOLE` `handler` like so: `handler.CONSOLE.level=TRACE`
+
+The MQTT specification doesn't dictate the format of the payloads which clients publish. As far as the broker is
+concerned a payload is just just an array of bytes. However, to facilitate logging the broker will encode the payloads
+as UTF-8 strings and print them up to 256 characters. Payload logging is limited to avoid filling the logs with potentially
+hundreds of megabytes of unhelpful information.
+
 
 ### Wild card subscriptions
 
