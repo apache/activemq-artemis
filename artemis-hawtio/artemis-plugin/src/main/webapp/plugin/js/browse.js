@@ -117,12 +117,10 @@ var ARTEMIS = (function(ARTEMIS) {
           if (mbean && selection) {
              var selectedItems = $scope.gridOptions.selectedItems;
              $scope.message = "Moved " + Core.maybePlural(selectedItems.length, "message" + " to " + $scope.queueName);
-             var operation = "moveMessageTo(java.lang.String, java.lang.String)";
              angular.forEach(selectedItems, function (item, idx) {
                 var id = item.messageID;
                 if (id) {
                    var callback = (idx + 1 < selectedItems.length) ? intermediateResult : moveSuccess;
-                   jolokia.execute(mbean, operation, id, $scope.queueName, onSuccess(callback));
                    ARTEMISService.artemisConsole.moveMessage(mbean, jolokia, id, $scope.queueName, onSuccess(callback));
                 }
              });

@@ -52,7 +52,7 @@ function ArtemisConsole() {
    };
 
    this.moveMessage = function (mbean, jolokia, id, queueName,  method) {
-      jolokia.execute(mbean, "moveMessage(java.lang.String,java.lang.String)", id, queueName, method);
+      jolokia.execute(mbean, "moveMessage(long,java.lang.String)", id, queueName, method);
    };
 
    this.retryMessage = function (mbean, jolokia, id, method) {
