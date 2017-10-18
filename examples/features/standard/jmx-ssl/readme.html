@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Artemis JMX Management Example</title>
+    <title>ActiveMQ Artemis JMX SSL Management Example</title>
     <link rel="stylesheet" type="text/css" href="../../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../../common/prettify.css" />
     <script type="text/javascript" src="../../../common/prettify.js"></script>
@@ -27,9 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMX Management Example</h1>
 
-     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+     <pre>To run the example, simply type <b>mvn verify -Djavax.net.ssl.keyStore=target/server0/etc/activemq.example.keystore -Djavax.net.ssl.keyStorePassword=activemqexample -Djavax.net.ssl.trustStore=target/server0/etc/activemq.example.truststore -Djavax.net.ssl.trustStorePassword=activemqexample</b> from this directory, <br>or add <b>-PnoServer</b> if you want to start and create the server manually.</pre>
 
-     <p>This example shows how to manage ActiveMQ Artemis using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
+     <p>This example shows how to manage ActiveMQ Artemis using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX using SSL</a></p>
 
      <h2>Example configuration</h2>
 
