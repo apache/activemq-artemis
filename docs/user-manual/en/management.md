@@ -404,10 +404,38 @@ using the service url `service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi` and 
 
 You can also configure the connector using the following:
 
--  connector-host The host to expose the agent on
--  connector-port The port to expose the agent on 
--  jmx-realm The jmx realm to use for authentication, defaults to `activemq` to match the JAAS configuration.
--  object-name The object name to expose the remote connector on, default is `connector:name=rmi`
+-  connector-host 
+   
+   The host to expose the agent on
+-  connector-port 
+   
+   The port to expose the agent on 
+-  jmx-realm 
+   
+   The jmx realm to use for authentication, defaults to `activemq` to match the JAAS configuration.
+-  object-name 
+   
+   The object name to expose the remote connector on, default is `connector:name=rmi`
+-  secured 
+   
+   Whether the connector is secured using SSL
+-  key-store-path 
+   
+   The location of the keystore
+-  key-store-password 
+   
+   The keystore password
+-  key-store-provider 
+   The provider, JKS by default
+-  trust-store-path 
+   
+   The location of the truststore 
+-  trust-store-password 
+   
+   The trustore password
+-  trust-store-provider 
+   
+   The provider, JKS by default
 
 > **Note**
 >

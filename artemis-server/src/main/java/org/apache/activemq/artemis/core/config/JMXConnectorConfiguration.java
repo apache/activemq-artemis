@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import java.security.KeyStore;
+
 public class JMXConnectorConfiguration {
    private int rmiRegistryPort;
    private String connectorHost = "localhost";
@@ -27,10 +29,10 @@ public class JMXConnectorConfiguration {
    private String objectName = "connector:name=rmi";
    private String authenticatorType = "password";
    private boolean secured =  false;
-   private String keyStoreProvider;
+   private String keyStoreProvider = KeyStore.getDefaultType();
    private String keyStorePath;
    private String keyStorePassword;
-   private String trustStoreProvider;
+   private String trustStoreProvider = KeyStore.getDefaultType();
    private String trustStorePath;
    private String trustStorePassword;
 

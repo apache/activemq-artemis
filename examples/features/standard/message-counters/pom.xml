@@ -61,6 +61,7 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
+                     <javaOptions>-Djava.rmi.server.hostname=localhost</javaOptions>
                   </configuration>
                </execution>
                <execution>
