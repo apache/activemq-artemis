@@ -27,9 +27,9 @@ under the License.
       <version>2.4.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>jmx</artifactId>
+   <artifactId>jmx-ssl</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS "JMX" Example</name>
+   <name>ActiveMQ Artemis JMS "JMX over SSL" Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -83,7 +83,7 @@ under the License.
                   <goals>
                      <goal>runClient</goal>
                   </goals>
-                  <configuration>
+                  <configuration> 
                      <clientClass>org.apache.activemq.artemis.jms.example.JMXExample</clientClass>
                   </configuration>
                </execution>

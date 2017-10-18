@@ -16,7 +16,14 @@
   ~ limitations under the License.
   -->
 <management-context xmlns="http://activemq.org/schema">
-   <connector connector-port="1099" connector-host="localhost"/>
+   <connector
+         connector-port="1099"
+         connector-host="localhost"
+         secured="true"
+         key-store-path="${data.dir}/../etc/activemq.example.keystore"
+         key-store-password="activemqexample"
+         trust-store-path="${data.dir}/../etc/activemq.example.truststore"
+         trust-store-password="activemqexample"/>
    <authorisation>
       <whitelist>
          <entry domain="hawtio"/>
