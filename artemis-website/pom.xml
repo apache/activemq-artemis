@@ -82,7 +82,7 @@
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
 
       <frontend-maven-plugin-version>0.0.29</frontend-maven-plugin-version>
-      <nodeVersion>v0.10.32</nodeVersion>
+      <nodeVersion>v6.11.0</nodeVersion>
       <npmVersion>1.4.12</npmVersion>
 
    </properties>
