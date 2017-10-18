@@ -90,7 +90,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
                                      long checkPeriod,
                                      TimeUnit timeUnit,
                                      boolean onDemand) {
-      this(scheduledExecutorService, executor, checkPeriod, checkPeriod, timeUnit, onDemand);
+      this(scheduledExecutorService, executor, -1, checkPeriod, timeUnit, onDemand);
    }
 
    /**
@@ -144,7 +144,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       this.millisecondsPeriod = timeUnit.convert(period, TimeUnit.MILLISECONDS);
 
       if (period >= 0) {
-         future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, initialDelay, period, timeUnit);
+         future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, initialDelay >= 0 ? initialDelay : period, period, timeUnit);
       } else {
          logger.tracef("did not start scheduled executor on %s because period was configured as %d", this, period);
       }

@@ -79,6 +79,25 @@ public class ActiveMQScheduledComponentTest {
    }
 
    @Test
+   public void testVerifyInitialDelayChanged() {
+      final long initialDelay = 10;
+      final long period = 100;
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, initialDelay, period, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+
+         }
+      };
+      local.start();
+      final long newInitialDelay = 1000;
+      //the parameters are valid?
+      assert initialDelay != newInitialDelay && newInitialDelay != period;
+      local.setInitialDelay(newInitialDelay);
+      local.stop();
+      Assert.assertEquals("the initial dalay can't change", newInitialDelay, local.getInitialDelay());
+   }
+
+   @Test
    public void testAccumulationOwnPool() throws Exception {
       final AtomicInteger count = new AtomicInteger(0);
 
@@ -186,16 +205,5 @@ public class ActiveMQScheduledComponentTest {
       } finally {
          local.stop();
       }
-   }
-
-   @Test
-   public void testVerifyDefaultInitialDelay() throws InterruptedException {
-      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, false) {
-         @Override
-         public void run() {
-
-         }
-      };
-      Assert.assertEquals("The initial delay must be defaulted to the period", local.getPeriod(), local.getInitialDelay());
    }
 }
