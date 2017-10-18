@@ -50,6 +50,7 @@ under the License.
          <id>release</id>
          <modules>
             <module>artemis-ra-rar</module>
+	    <module>artemis-jms-bridge</module>
          </modules>
       </profile>
    </profiles>
