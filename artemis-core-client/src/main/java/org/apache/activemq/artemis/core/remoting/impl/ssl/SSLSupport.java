@@ -33,6 +33,8 @@ import java.security.SecureRandom;
 
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+
 /**
  * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis test-suite to
  * validate/verify this works because this requires a functioning PKCS#11 provider which is not available by default
@@ -48,9 +50,20 @@ public class SSLSupport {
                                           final String trustStoreProvider,
                                           final String trustStorePath,
                                           final String trustStorePassword) throws Exception {
+
+      return SSLSupport.createContext(keystoreProvider, keystorePath, keystorePassword, trustStoreProvider, trustStorePath, trustStorePassword, false);
+   }
+
+   public static SSLContext createContext(final String keystoreProvider,
+                                          final String keystorePath,
+                                          final String keystorePassword,
+                                          final String trustStoreProvider,
+                                          final String trustStorePath,
+                                          final String trustStorePassword,
+                                          final boolean trustAll) throws Exception {
       SSLContext context = SSLContext.getInstance("TLS");
       KeyManager[] keyManagers = SSLSupport.loadKeyManagers(keystoreProvider, keystorePath, keystorePassword);
-      TrustManager[] trustManagers = SSLSupport.loadTrustManager(trustStoreProvider, trustStorePath, trustStorePassword);
+      TrustManager[] trustManagers = SSLSupport.loadTrustManager(trustStoreProvider, trustStorePath, trustStorePassword, trustAll);
       context.init(keyManagers, trustManagers, new SecureRandom());
       return context;
    }
@@ -79,8 +92,12 @@ public class SSLSupport {
 
    private static TrustManager[] loadTrustManager(final String trustStoreProvider,
                                                   final String trustStorePath,
-                                                  final String trustStorePassword) throws Exception {
-      if (trustStorePath == null && (trustStoreProvider == null || !"PKCS11".equals(trustStoreProvider.toUpperCase()))) {
+                                                  final String trustStorePassword,
+                                                  final boolean trustAll) throws Exception {
+      if (trustAll) {
+         //This is useful for testing but not should be used outside of that purpose
+         return InsecureTrustManagerFactory.INSTANCE.getTrustManagers();
+      } else if (trustStorePath == null && (trustStoreProvider == null || !"PKCS11".equals(trustStoreProvider.toUpperCase()))) {
          return null;
       } else {
          TrustManagerFactory trustMgrFactory;
