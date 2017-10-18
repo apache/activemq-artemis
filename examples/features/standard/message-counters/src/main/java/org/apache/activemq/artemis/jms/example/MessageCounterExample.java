@@ -75,6 +75,7 @@ public class MessageCounterExample {
 
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
          ObjectName on = ObjectNameBuilder.DEFAULT.getQueueObjectName(SimpleString.toSimpleString(queue.getQueueName()), SimpleString.toSimpleString(queue.getQueueName()), RoutingType.ANYCAST);
+         //we dont actually need credentials as the guest login i sused but this is how its done
          HashMap env = new HashMap();
          String[] creds = {"guest", "guest"};
          env.put(JMXConnector.CREDENTIALS, creds);
