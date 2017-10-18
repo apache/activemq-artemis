@@ -221,6 +221,53 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testTwoWaySSLVerifyClientTrustAllTrue() throws Exception {
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      server.getRemotingService().stop(false);
+      server.getRemotingService().start();
+      server.getRemotingService().startAcceptors();
+
+      //Set trust all so this should work even with no trust store set
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUST_ALL_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = createSessionFactory(locator);
+      sf.close();
+   }
+
+   @Test
+   public void testTwoWaySSLVerifyClientTrustAllFalse() throws Exception {
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.getConfiguration().put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+      server.getRemotingService().stop(false);
+      server.getRemotingService().start();
+      server.getRemotingService().startAcceptors();
+
+      //Trust all defaults to false so this should fail with no trust store set
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      try {
+         ClientSessionFactory sf = createSessionFactory(locator);
+         fail("Creating a session here should fail due to no trust store being set");
+      } catch (Exception e) {
+         // ignore
+      }
+   }
+
+   @Test
    public void testTwoWaySSLWithoutClientKeyStore() throws Exception {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
