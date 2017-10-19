@@ -20,7 +20,6 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadBoolean;
@@ -55,7 +54,7 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    @Override
    public long getBodyLength() throws JMSException {
-      return message.getEndOfBodyPosition() - CoreMessage.BODY_OFFSET;
+      return message.getReadOnlyBodyBuffer().readableBytes();
    }
 
    @Override
