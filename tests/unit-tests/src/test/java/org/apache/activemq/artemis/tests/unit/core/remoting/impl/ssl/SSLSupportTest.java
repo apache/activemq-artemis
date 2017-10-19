@@ -161,4 +161,11 @@ public class SSLSupportTest extends ActiveMQTestBase {
       } catch (Exception e) {
       }
    }
+
+   @Test
+   public void testContextWithTrustAll() throws Exception {
+      //This is using a bad password but should not fail because the trust store should be ignored with
+      //the trustAll flag set to true
+      SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, "bad passord", true);
+   }
 }

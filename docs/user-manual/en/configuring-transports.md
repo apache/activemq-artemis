@@ -406,6 +406,14 @@ following additional properties:
     and 2-way SSL.
 
     Valid values are `true` or `false`. Default is `false`.
+    
+-   `trustAll`
+
+    When used on a `connector` the client will trust the provided server certificate
+    implicitly, regardless of any configured trust store.  **Warning:** This setting is
+    primarily for testing purposes only and should not be used in production.
+
+    Valid values are `true` or `false`. Default is `false`.    
 
 -   `useDefaultSslContext`
 
