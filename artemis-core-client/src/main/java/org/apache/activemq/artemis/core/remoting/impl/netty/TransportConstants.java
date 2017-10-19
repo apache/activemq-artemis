@@ -103,6 +103,8 @@ public class TransportConstants {
 
    public static final String VERIFY_HOST_PROP_NAME = "verifyHost";
 
+   public static final String TRUST_ALL_PROP_NAME = "trustAll";
+
    public static final String SNIHOST_PROP_NAME = "sniHost";
 
    public static final String BACKLOG_PROP_NAME = "backlog";
@@ -194,6 +196,8 @@ public class TransportConstants {
    public static final boolean DEFAULT_NEED_CLIENT_AUTH = false;
 
    public static final boolean DEFAULT_VERIFY_HOST = false;
+
+   public static final boolean DEFAULT_TRUST_ALL = false;
 
    public static final boolean DEFAULT_USE_DEFAULT_SSL_CONTEXT = false;
 
