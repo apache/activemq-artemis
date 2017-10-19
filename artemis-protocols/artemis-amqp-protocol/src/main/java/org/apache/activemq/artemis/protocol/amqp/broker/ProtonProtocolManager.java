@@ -43,13 +43,21 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.jboss.logging.Logger;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection> implements NotificationListener {
 
+   private static final Logger logger = Logger.getLogger(ProtonProtocolManager.class);
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
+
+   /**
+    * This property has been used by Proton to emit some debug data on System.out.
+    * if you set it to anything other than NULL it will be used on logging.info.
+    * */
+   public static final boolean PN_TRACE_FRM = System.getProperty("PN_TRACE_FRM") != null;
 
    private final List<AmqpInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<AmqpInterceptor> outgoingInterceptors = new ArrayList<>();

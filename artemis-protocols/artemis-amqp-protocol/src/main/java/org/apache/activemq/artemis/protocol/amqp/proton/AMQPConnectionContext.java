@@ -57,6 +57,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTN
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+import static org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager.PN_TRACE_FRM;
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
@@ -143,12 +144,25 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    public void inputBuffer(ByteBuf buffer) {
-      if (log.isTraceEnabled()) {
-         ByteUtil.debugFrame(log, "Buffer Received ", buffer);
+      if (PN_TRACE_FRM) {
+         debugFrame(buffer);
       }
 
       handler.inputBuffer(buffer);
    }
+
+   private static void debugFrame(ByteBuf byteIn) {
+      int location = byteIn.readerIndex();
+      // debugging
+      byte[] frame = new byte[byteIn.writerIndex()];
+      byteIn.readBytes(frame);
+
+      if (PN_TRACE_FRM) {
+         log.info("Received frame \n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+      }
+      byteIn.readerIndex(location);
+   }
+
 
    public void destroy() {
       connectionCallback.close();
