@@ -25,7 +25,6 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
-import org.jboss.logging.Logger;
 
 public class ByteUtil {
 
@@ -38,23 +37,6 @@ public class ByteUtil {
    private static final Pattern KILO = Pattern.compile(prefix + "k" + suffix, Pattern.CASE_INSENSITIVE);
    private static final Pattern MEGA = Pattern.compile(prefix + "m" + suffix, Pattern.CASE_INSENSITIVE);
    private static final Pattern GIGA = Pattern.compile(prefix + "g" + suffix, Pattern.CASE_INSENSITIVE);
-
-   public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
-      if (logger.isTraceEnabled()) {
-         int location = byteIn.readerIndex();
-         // debugging
-         byte[] frame = new byte[byteIn.writerIndex()];
-         byteIn.readBytes(frame);
-
-         try {
-            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-         }
-
-         byteIn.readerIndex(location);
-      }
-   }
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {
       StringBuffer buffer = new StringBuffer();

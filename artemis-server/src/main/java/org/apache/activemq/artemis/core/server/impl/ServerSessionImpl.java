@@ -1678,15 +1678,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       RoutingType routingType = msg.getRoutingType();
 
-         /* TODO-now: How to address here with AMQP?
-         if (originalAddress != null) {
-            if (originalAddress.toString().startsWith("anycast:")) {
-               routingType = RoutingType.ANYCAST;
-            } else if (originalAddress.toString().startsWith("multicast:")) {
-               routingType = RoutingType.MULTICAST;
-            }
-         } */
-
       Pair<SimpleString, RoutingType> art = getAddressAndRoutingType(msg.getAddressSimpleString(), routingType);
 
       // Consumer

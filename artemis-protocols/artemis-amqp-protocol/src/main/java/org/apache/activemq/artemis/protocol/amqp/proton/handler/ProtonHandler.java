@@ -47,6 +47,8 @@ import org.jboss.logging.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
+import static org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager.PN_TRACE_FRM;
+
 public class ProtonHandler extends ProtonInitializable {
 
    private static final Logger log = Logger.getLogger(ProtonHandler.class);
@@ -443,7 +445,9 @@ public class ProtonHandler extends ProtonInitializable {
             inDispatch = true;
             while ((ev = collector.peek()) != null) {
                for (EventHandler h : handlers) {
-                  if (log.isTraceEnabled()) {
+                  if (PN_TRACE_FRM) {
+                     log.info("Handling " + ev + " towards " + h);
+                  } else if (log.isTraceEnabled()) {
                      log.trace("Handling " + ev + " towards " + h);
                   }
                   try {

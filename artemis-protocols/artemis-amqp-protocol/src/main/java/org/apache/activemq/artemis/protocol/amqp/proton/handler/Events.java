@@ -17,8 +17,13 @@
 package org.apache.activemq.artemis.protocol.amqp.proton.handler;
 
 import org.apache.qpid.proton.engine.Event;
+import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager.PN_TRACE_FRM;
 
 public final class Events {
+
+   private static final Logger logger = Logger.getLogger(Events.class);
 
    public static void dispatch(Event event, EventHandler handler) throws Exception {
       switch (event.getType()) {
@@ -92,6 +97,9 @@ public final class Events {
             handler.onDelivery(event.getDelivery());
             break;
          default:
+            if (PN_TRACE_FRM) {
+               logger.info("event: " + event + " not being treated");
+            }
             break;
       }
    }
