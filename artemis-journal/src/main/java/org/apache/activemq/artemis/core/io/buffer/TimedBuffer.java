@@ -32,8 +32,11 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 public final class TimedBuffer {
+
+   private static final Logger logger = Logger.getLogger(TimedBuffer.class);
 
    private static final double MAX_TIMEOUT_ERROR_FACTOR = 1.5;
 
@@ -442,14 +445,15 @@ public final class TimedBuffer {
 
                if (++checks >= MAX_CHECKS_ON_SLEEP) {
                   if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
-                     ActiveMQJournalLogger.LOGGER.debug("LockSupport.parkNanos with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
+                     logger.debug("LockSupport.parkNanos with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
                      useSleep = false;
                   }
                }
             }
          } catch (Exception e) {
             useSleep = false;
-            ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
+            // I don't think we need to individualize a logger code here, this is unlikely to happen anyways
+            logger.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
          }
          return useSleep;
       }
