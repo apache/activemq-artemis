@@ -122,7 +122,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             // As a deployed MDB could set up multiple instances in order to process messages in parallel.
             if (sessionNr == 0 && subResponse.getConsumerCount() > 0) {
                if (!spec.isShareSubscriptions()) {
-                  throw new javax.jms.IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
+                  throw ActiveMQRALogger.LOGGER.canNotCreatedNonSharedSubscriber();
                } else if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
                   logger.debug("the mdb on destination " + queueName + " already had " +
                                                    subResponse.getConsumerCount() +
