@@ -96,7 +96,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * If this is true, a durable subscription could be shared by multiple MDB instances
     */
-   private Boolean shareSubscriptions;
+   private Boolean shareSubscriptions = false;
 
    /**
     * The user
