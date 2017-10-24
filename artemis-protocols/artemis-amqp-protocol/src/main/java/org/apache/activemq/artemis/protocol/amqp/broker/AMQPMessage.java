@@ -578,7 +578,7 @@ public class AMQPMessage extends RefCountMessage {
 
    @Override
    public Object getDuplicateProperty() {
-      return null;
+      return getObjectProperty(HDR_DUPLICATE_DETECTION_ID);
    }
 
    @Override
@@ -1079,11 +1079,6 @@ public class AMQPMessage extends RefCountMessage {
       } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
-   }
-
-   @Override
-   public SimpleString getLastValueProperty() {
-      return getSimpleStringProperty(HDR_LAST_VALUE_NAME);
    }
 
    @Override

@@ -14,29 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.integration.kafka.protocol.amqp.proton;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.serialization.ExtendedDeserializer;
+import org.apache.qpid.proton.message.Message;
 
-public interface ConnectorServiceFactory {
+public class ProtonMessageDeserializer implements ExtendedDeserializer<Message> {
 
-   ConnectorService createConnectorService(String connectorName,
-                                           Map<String, Object> configuration,
-                                           StorageManager storageManager,
-                                           PostOffice postOffice,
-                                           ScheduledExecutorService scheduledThreadPool);
-
-
-   default boolean allowExtraProperties() {
-      return false;
+   @Override
+   public void configure(Map<String, ?> configs, boolean isKey) {
    }
 
-   Set<String> getAllowableProperties();
+   @Override
+   public Message deserialize(String topic, Headers headers, byte[] bytes) {
+      if (bytes == null) return null;
+      Message message = Message.Factory.create();
+      message.decode(bytes, 0, bytes.length);
+      return message;
+   }
 
-   Set<String> getRequiredProperties();
+   @Override
+   public Message deserialize(String topic, byte[] bytes) {
+      return deserialize(topic, null, bytes);
+   }
+
+   @Override
+   public void close() {
+
+   }
+
 }

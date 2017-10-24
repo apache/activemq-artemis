@@ -94,7 +94,14 @@ public final class ConnectorsService implements ActiveMQComponent {
       if (info.getParams() != null) {
          Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams().keySet());
          if (!invalid.isEmpty()) {
-            throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException("Invalid connector keys for connector service " + info.getConnectorName() + ": " + ConfigurationHelper.stringSetToCommaListString(invalid));
+            if (factory.allowExtraProperties()) {
+               ActiveMQServerLogger.LOGGER.warn("Extra properties declared to connector service " + info.getConnectorName() + ": " +
+                  ConfigurationHelper.stringSetToCommaListString(invalid));
+            } else {
+               throw ActiveMQExceptionType.GENERIC_EXCEPTION.createException(
+                   "Invalid connector keys for connector service " + info.getConnectorName() + ": " +
+                   ConfigurationHelper.stringSetToCommaListString(invalid));
+            }
          }
       }
 

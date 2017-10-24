@@ -56,6 +56,7 @@
       <module>artemis-server-osgi</module>
       <module>artemis-hawtio</module>
       <module>integration/activemq-spring-integration</module>
+      <module>integration/activemq-kafka</module>
       <module>artemis-distribution</module>
       <module>artemis-tools</module>
       <module>tests</module>
@@ -90,6 +91,7 @@
       <proton.version>0.22.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
+      <kafka.version>0.11.0.1</kafka.version>
       <qpid.jms.version>0.26.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>

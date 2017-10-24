@@ -180,7 +180,11 @@ public interface Message {
    }
 
    default SimpleString getLastValueProperty() {
-      return null;
+      return getSimpleStringProperty(HDR_LAST_VALUE_NAME);
+   }
+
+   default Message setLastValueProperty(SimpleString simpleString) {
+      return putStringProperty(HDR_LAST_VALUE_NAME, simpleString);
    }
 
    /**
