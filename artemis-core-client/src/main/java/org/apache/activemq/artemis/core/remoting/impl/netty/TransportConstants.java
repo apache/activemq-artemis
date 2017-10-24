@@ -259,6 +259,10 @@ public class TransportConstants {
 
    public static final int DEFAULT_STOMP_MAX_FRAME_PAYLOAD_LENGTH = 65536;
 
+   public static final String HANDSHAKE_TIMEOUT = "handshake-timeout";
+
+   public static final int DEFAULT_HANDSHAKE_TIMEOUT = 10;
+
    static {
       Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
@@ -350,6 +354,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 

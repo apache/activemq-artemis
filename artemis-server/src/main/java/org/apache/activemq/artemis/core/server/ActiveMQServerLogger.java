@@ -1908,4 +1908,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224087, value = "Error announcing backup: backupServerLocator is null. {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorAnnouncingBackup(String backupManager);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224088, value = "Timeout ({0} seconds) while handshaking has occurred.", format = Message.Format.MESSAGE_FORMAT)
+   void handshakeTimeout(int timeout);
 }
