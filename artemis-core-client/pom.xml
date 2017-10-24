@@ -60,10 +60,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
-      </dependency>
-      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
@@ -75,6 +71,18 @@
       <dependency>
          <groupId>org.apache.johnzon</groupId>
          <artifactId>johnzon-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-transport-native-kqueue</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-transport-native-epoll</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-codec-http</artifactId>
       </dependency>
    </dependencies>
 
