@@ -16,10 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
---><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   
-
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">
 
       <bindings-directory>./data/bindings</bindings-directory>
@@ -29,7 +27,6 @@ under the License.
       <large-messages-directory>./data/largemessages</large-messages-directory>
 
       <paging-directory>./data/paging</paging-directory>
-
 
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.jms.example.SimpleInterceptor</class-name>
@@ -54,7 +51,7 @@ under the License.
          </security-setting>
       </security-settings>
 
-   <addresses>
+      <addresses>
          <address name="exampleQueue">
             <anycast>
                <queue name="exampleQueue"/>

@@ -44,6 +44,15 @@ under the License.
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
    </properties>
 
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <id>server</id>
@@ -157,6 +166,16 @@ under the License.
             </plugins>
          </build>
       </profile>
-
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.vladsch.flexmark</groupId>
+                  <artifactId>markdown-page-generator-plugin</artifactId>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 </project>

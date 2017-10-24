@@ -44,6 +44,7 @@ under the License.
          <id>release</id>
          <modules>
             <module>stomp</module>
+            <module>stomp-dual-authentication</module>
             <module>stomp-websockets</module>
             <module>stomp-embedded-interceptor</module>
             <module>stomp1.1</module>
@@ -55,6 +56,7 @@ under the License.
          <id>examples</id>
          <modules>
             <module>stomp</module>
+            <module>stomp-dual-authentication</module>
             <module>stomp-embedded-interceptor</module>
             <module>stomp-jms</module>
 
