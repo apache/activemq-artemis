@@ -174,6 +174,9 @@
 
       <cdi-api.version>1.2</cdi-api.version>
       <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
+
+      <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
+      <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
    </properties>
 
    <scm>
@@ -496,12 +499,14 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-epoll</artifactId>
             <version>${netty.version}</version>
+            <classifier>${netty-transport-native-epoll-classifier}</classifier>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-kqueue</artifactId>
             <version>${netty.version}</version>
+            <classifier>${netty-transport-native-kqueue-classifier}</classifier>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
