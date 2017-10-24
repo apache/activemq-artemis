@@ -38,8 +38,8 @@ function ArtemisConsole() {
       jolokia.execute(mbean, "destroyQueue(java.lang.String)", name,  method);
    };
 
-   this.purgeQueue = function (mbean, jolokia, name, method) {
-      //todo
+   this.purgeQueue = function (mbean, jolokia, method) {
+	  jolokia.execute(mbean, "removeAllMessages()", method);
    };
 
    this.browse = function (mbean, jolokia, method) {
