@@ -27,7 +27,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
- * A simple JMS example that shows how to implement and use interceptors with ActiveMQ Artemis.
+ * A simple JMS example that shows how to implement and use client-side interceptors with ActiveMQ Artemis.
  */
 public class InterceptorExample {
 

@@ -31,7 +31,7 @@ import org.apache.qpid.jms.JmsConnectionFactory;
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
  * <p>
- * Please see the readme.html for more details.
+ * Please see the readme for more details.
  */
 public class ProtonCPPExample {
 
