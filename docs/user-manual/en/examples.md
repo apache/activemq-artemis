@@ -758,6 +758,12 @@ advanced *asynchronous send acknowledgements* feature to obtain
 acknowledgement from the server that sends have been received and
 processed in a separate stream to the sent messages.
 
+Slow Consumer
+-------------
+
+The `slow-consumer` example shows you how to detect slow consumers and configure
+a slow consumer policy in Apache ActiveMQ Artemis's
+
 Spring Integration
 ------------------
 

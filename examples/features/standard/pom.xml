@@ -155,6 +155,7 @@ under the License.
             <module>security</module>
             <module>security-ldap</module>
             <module>send-acknowledgements</module>
+            <module>slow-consumer</module>
             <module>spring-integration</module>
             <module>ssl-enabled</module>
             <module>ssl-enabled-dual-authentication</module>

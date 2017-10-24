@@ -15,8 +15,8 @@ resources.
 ## Configuration required for detecting slow consumers
 
 By default the server will not detect slow consumers. If slow consumer
-detection is desired then see [queue attributes chapter](queue-attributes.md)
-for more details.
+detection is desired then see [address model chapter](address-model.md)
+for more details on the required address settings.
 
 The calculation to determine whether or not a consumer is slow only
 inspects the number of messages a particular consumer has
@@ -33,3 +33,8 @@ are a high number of queues and the `slow-consumer-check-period` is
 relatively low then there may be delays in executing some of the checks.
 However, this will not impact the accuracy of the calculations used by
 the detection algorithm. See [thread pooling](thread-pooling.md) for more details about this pool.
+
+## Example
+
+See the [examples](examples.md) chapter for an example which shows how to detect a slow consumer
+with Apache ActiveMQ Artemis.
