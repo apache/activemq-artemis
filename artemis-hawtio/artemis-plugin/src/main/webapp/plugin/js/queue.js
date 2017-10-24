@@ -119,14 +119,14 @@ var ARTEMIS = (function(ARTEMIS) {
         $scope.purgeDestination = function () {
             var selection = workspace.selection;
             var entries = selection.entries;
-            var mbean = getBrokerMBean(jolokia);
+            var mbean = selection.objectName;
             if (mbean) {
                 if (selection && jolokia && entries) {
                     var name = entries["Destination"] || entries["destinationName"] || selection.title;
                     name = name.unescapeHTML();
                     var operation = "purge()";
                     $scope.message = "Purged queue " + name;
-                    ARTEMISService.artemisConsole.purgeQueue(mbean, jolokia, name, onSuccess(deleteSuccess));
+                    ARTEMISService.artemisConsole.purgeQueue(mbean, jolokia, onSuccess(deleteSuccess));
                 }
             }
         };
