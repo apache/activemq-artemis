@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
  * Asynchronous Send Acknowledgements are an advanced feature of ActiveMQ Artemis which allow you to
  * receive acknowledgements that messages were successfully received at the server in a separate stream
  * to the stream of messages being sent to the server.
- * For more information please see the readme.html file
+ * For more information please see the readme file
  */
 public class SendAcknowledgementsExample {
 

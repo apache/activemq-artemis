@@ -29,7 +29,7 @@ import javax.naming.InitialContext;
  * This example demonstrates how ActiveMQ Artemis can be configured with a redelivery delay in the event a message
  * is redelivered.
  *
- * Please see the readme.html for more information
+ * Please see the readme for more information
  */
 public class DelayedRedeliveryExample {
 

@@ -1565,6 +1565,7 @@
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
+                  <exclude>**/footer.html</exclude>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>etc/ide-settings/**</exclude>

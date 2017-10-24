@@ -16,10 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
---><configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
-
-   
-
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core">
 
       <bindings-directory>./data/bindings</bindings-directory>
@@ -85,7 +83,7 @@ under the License.
       </security-settings>
 
       <address-settings>
-         <!-- We set a redistribution delay of zero on all jms queues and topic subscriptions
+         <!-- We set a redistribution delay of zero on everything.
          Default redistribution delay as -1 which means "disable redistribution"
          Setting it to a value > 0 means how long to wait before redistributing, if a consumer is closed
          then another one quickly recreated you might want to set it thus, to avoid unnecessary
@@ -95,10 +93,10 @@ under the License.
          </address-setting>
       </address-settings>
 
-   <addresses>
+      <addresses>
          <address name="exampleQueue">
             <anycast>
-               <queue name="jms.queue.exampleQueue"/>
+               <queue name="exampleQueue"/>
             </anycast>
          </address>
       </addresses>

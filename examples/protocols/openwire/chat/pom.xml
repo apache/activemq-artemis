@@ -56,6 +56,16 @@ under the License.
          <artifactId>slf4j-nop</artifactId>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <id>server</id>
@@ -190,6 +200,17 @@ under the License.
                         <version>${project.version}</version>
                      </dependency>
                   </dependencies>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.vladsch.flexmark</groupId>
+                  <artifactId>markdown-page-generator-plugin</artifactId>
                </plugin>
             </plugins>
          </build>

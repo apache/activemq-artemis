@@ -220,6 +220,7 @@
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
+            <exclude>**/**/*.md</exclude>
          </excludes>
       </fileSet>
       <!-- Include license and notice files -->
