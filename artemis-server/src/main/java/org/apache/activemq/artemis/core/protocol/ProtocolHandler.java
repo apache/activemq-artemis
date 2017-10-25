@@ -154,7 +154,7 @@ public class ProtocolHandler {
             return;
          }
 
-         if (handshakeTimeout > 0) {
+         if (handshakeTimeout > 0 && timeoutFuture != null) {
             timeoutFuture.cancel(true);
             timeoutFuture = null;
          }
