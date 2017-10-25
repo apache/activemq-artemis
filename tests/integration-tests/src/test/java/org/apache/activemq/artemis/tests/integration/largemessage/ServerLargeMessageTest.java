@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.largemessage;
 
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -26,10 +32,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ServerLargeMessageTest extends ActiveMQTestBase {
@@ -39,6 +50,29 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
    // Attributes ----------------------------------------------------
 
    // Static --------------------------------------------------------
+
+   String originalPath;
+
+   @Before
+   public void setupProperty() {
+      originalPath = System.getProperty("java.security.auth.login.config");
+      if (originalPath == null) {
+         URL resource = SecurityTest.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            originalPath = resource.getFile();
+            System.setProperty("java.security.auth.login.config", originalPath);
+         }
+      }
+   }
+
+   @After
+   public void clearProperty() {
+      if (originalPath == null) {
+         System.clearProperty("java.security.auth.login.config");
+      } else {
+         System.setProperty("java.security.auth.login.config", originalPath);
+      }
+   }
 
    // Constructors --------------------------------------------------
 
@@ -98,6 +132,44 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          session.commit();
 
+      } finally {
+         sf.close();
+         locator.close();
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testSendServerMessageWithValidatedUser() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.getConfiguration().setPopulateValidatedUser(true);
+
+      Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
+
+      server.start();
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      try {
+         ClientSession session = sf.createSession("first", "secret", false, true, true, false, 0);
+         ClientMessage clientMessage = session.createMessage(false);
+         clientMessage.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
+
+         session.createQueue("A", RoutingType.ANYCAST, "A");
+
+         ClientProducer prod = session.createProducer("A");
+         prod.send(clientMessage);
+         session.commit();
+         session.start();
+
+         ClientConsumer cons = session.createConsumer("A");
+         ClientMessage msg = cons.receive(5000);
+
+         assertEquals("first", msg.getValidatedUserID());
       } finally {
          sf.close();
          locator.close();
