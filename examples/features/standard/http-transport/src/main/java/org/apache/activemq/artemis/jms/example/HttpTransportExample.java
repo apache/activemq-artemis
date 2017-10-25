@@ -39,7 +39,7 @@ public class HttpTransportExample {
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:8080?http-enabled=true");
+         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:8080?httpEnabled=true");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();

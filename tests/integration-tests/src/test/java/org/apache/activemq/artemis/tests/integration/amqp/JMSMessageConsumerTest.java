@@ -444,6 +444,9 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          message1.setText("filtered");
          producer.send(message1, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
 
+         // short delay to prevent the timestamps from being the same
+         Thread.sleep(2);
+
          TextMessage message2 = session.createTextMessage();
          message2.setText("expected");
          producer.send(message2, DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
