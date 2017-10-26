@@ -82,8 +82,21 @@ public class SyncCalculation {
       //the write latencies could be taken only when writes are effectively synchronous
       final Histogram writeLatencies = (verbose && !asyncWrites) ? new Histogram(MAX_FLUSH_NANOS, 2) : null;
 
+      if (journalType == JournalType.ASYNCIO && syncWrites) {
+         System.out.println();
+         System.out.println("*******************************************************************************************");
+         System.out.println("*** Notice: The recommendation for AsyncIO journal is to not use --sync-writes          ***");
+         System.out.println("***         The measures here will be useful to understand your device                  ***");
+         System.out.println("***         however the result here won't represent the best configuration option       ***");
+         System.out.println("*******************************************************************************************");
+         System.out.println();
+      }
+
       if (verbose) {
          System.out.println("Using " + factory.getClass().getName() + " to calculate sync times, alignment=" + factory.getAlignment());
+         if (writeLatencies == null) {
+            System.out.println("*** Use --sync-writes if you want to see a histogram for each write performed ***");
+         }
       }
       SequentialFile file = factory.createSequentialFile(fileName);
       //to be sure that a process/thread crash won't leave the dataFolder with garbage files
@@ -91,12 +104,13 @@ public class SyncCalculation {
       try {
          final ByteBuffer bufferBlock = allocateAlignedBlock(blockSize, factory);
 
-         final int alignedBlockSize = bufferBlock.remaining();
+         // making sure the blockSize matches the device
+         blockSize = bufferBlock.remaining();
 
          file.delete();
          file.open();
 
-         file.fill(alignedBlockSize * blocks);
+         file.fill(blockSize * blocks);
 
          file.close();
 
@@ -156,17 +170,31 @@ public class SyncCalculation {
                System.out.println("Writes / millisecond = " + dcformat.format(writesPerMillisecond));
                System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks, verbose));
                System.out.println("**************************************************");
-               if (writeLatencies != null) {
-                  System.out.println("Write Latencies Percentile Distribution in microseconds");
-                  //print latencies in us -> (ns * 1000d)
-                  writeLatencies.outputPercentileDistribution(System.out, 1000d);
-                  writeLatencies.reset();
-               }
             }
             file.close();
+
+            if (ntry == 0 && writeLatencies != null) {
+               writeLatencies.reset(); // discarding the first one.. some warmup time
+            }
          }
 
          factory.releaseDirectBuffer(bufferBlock);
+
+         if (writeLatencies != null) {
+            System.out.println("Write Latencies Percentile Distribution in microseconds");
+            //print latencies in us -> (ns * 1000d)
+
+            System.out.println("*****************************************************************");
+            writeLatencies.outputPercentileDistribution(System.out, 1000d);
+            System.out.println();
+            System.out.println("*****************************************************************");
+            System.out.println("*** this may be useful to generate charts if you like charts: ***");
+            System.out.println("*** http://hdrhistogram.github.io/HdrHistogram/plotFiles.html ***");
+            System.out.println("*****************************************************************");
+            System.out.println();
+
+            writeLatencies.reset();
+         }
 
          long totalTime = Long.MAX_VALUE;
          for (int i = 0; i < tries; i++) {
