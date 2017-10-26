@@ -113,6 +113,7 @@
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
 
       <owasp.version>1.4.3</owasp.version>
+      <spring.version>5.0.1.RELEASE</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -318,28 +319,28 @@
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
