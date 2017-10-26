@@ -32,6 +32,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String pageStoreTableName = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
+   private String nodeManagerStoreTableName = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
+
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
    private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
@@ -41,6 +43,12 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
    private SQLProvider.Factory sqlProviderFactory;
 
    private int jdbcNetworkTimeout = ActiveMQDefaultConfiguration.getDefaultJdbcNetworkTimeout();
+
+   private long jdbcLockRenewPeriodMillis = ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis();
+
+   private long jdbcLockExpirationMillis = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
+
+   private long jdbcLockAcquisitionTimeoutMillis = ActiveMQDefaultConfiguration.getDefaultJdbcLockAcquisitionTimeoutMillis();
 
    @Override
    public StoreType getStoreType() {
@@ -73,6 +81,14 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public String getPageStoreTableName() {
       return pageStoreTableName;
+   }
+
+   public void setNodeManagerStoreTableName(String nodeManagerStoreTableName) {
+      this.nodeManagerStoreTableName = nodeManagerStoreTableName;
+   }
+
+   public String getNodeManagerStoreTableName() {
+      return nodeManagerStoreTableName;
    }
 
    public void setPageStoreTableName(String pageStoreTableName) {
@@ -134,5 +150,29 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setJdbcNetworkTimeout(int jdbcNetworkTimeout) {
       this.jdbcNetworkTimeout = jdbcNetworkTimeout;
+   }
+
+   public long getJdbcLockRenewPeriodMillis() {
+      return jdbcLockRenewPeriodMillis;
+   }
+
+   public void setJdbcLockRenewPeriodMillis(long jdbcLockRenewPeriodMillis) {
+      this.jdbcLockRenewPeriodMillis = jdbcLockRenewPeriodMillis;
+   }
+
+   public long getJdbcLockExpirationMillis() {
+      return jdbcLockExpirationMillis;
+   }
+
+   public void setJdbcLockExpirationMillis(long jdbcLockExpirationMillis) {
+      this.jdbcLockExpirationMillis = jdbcLockExpirationMillis;
+   }
+
+   public long getJdbcLockAcquisitionTimeoutMillis() {
+      return jdbcLockAcquisitionTimeoutMillis;
+   }
+
+   public void setJdbcLockAcquisitionTimeoutMillis(long jdbcLockAcquisitionTimeoutMillis) {
+      this.jdbcLockAcquisitionTimeoutMillis = jdbcLockAcquisitionTimeoutMillis;
    }
 }
