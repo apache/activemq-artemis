@@ -49,10 +49,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -136,7 +135,6 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
@@ -144,6 +142,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
@@ -151,6 +150,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
@@ -176,6 +176,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.critical.CriticalAction;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerImpl;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
@@ -456,6 +457,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       NodeManager manager;
       if (!configuration.isPersistenceEnabled()) {
          manager = new InVMNodeManager(replicatingBackup);
+      } else if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         if (replicatingBackup) {
+            throw new IllegalArgumentException("replicatingBackup is not supported yet while using JDBC persistence");
+         }
+         final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
+         manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory, shutdownOnCriticalIO);
       } else {
          manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
       }
