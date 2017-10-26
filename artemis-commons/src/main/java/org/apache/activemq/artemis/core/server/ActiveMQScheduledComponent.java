@@ -37,6 +37,8 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    private static final Logger logger = Logger.getLogger(ActiveMQScheduledComponent.class);
    private ScheduledExecutorService scheduledExecutorService;
    private boolean startedOwnScheduler;
+
+   /** initialDelay < 0 would mean no initial delay, use the period instead */
    private long initialDelay;
    private long period;
    private long millisecondsPeriod;
