@@ -202,7 +202,7 @@ public final class Topology {
             sendMemberUp(nodeId, memberInput);
             return true;
          }
-         if (uniqueEventID > currentMember.getUniqueEventID()) {
+         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getLive() == null && memberInput.getLive() != null)) {
             TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(), memberInput.getBackup());
 
             if (newMember.getLive() == null && currentMember.getLive() != null) {
@@ -219,7 +219,12 @@ public final class Topology {
                                newMember, new Exception("trace"));
             }
 
-            newMember.setUniqueEventID(uniqueEventID);
+            if (uniqueEventID > currentMember.getUniqueEventID()) {
+               newMember.setUniqueEventID(uniqueEventID);
+            } else {
+               newMember.setUniqueEventID(currentMember.getUniqueEventID());
+            }
+
             topology.remove(nodeId);
             topology.put(nodeId, newMember);
             sendMemberUp(nodeId, newMember);
