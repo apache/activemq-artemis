@@ -16,20 +16,18 @@
  */
 package org.artemis.bridge;
 
-import javax.jms.ConnectionFactory;
+import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
-public class ConnectionFactoryFactoryBean implements org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory {
+import javax.jms.Destination;
 
-   private final ConnectionFactory connectionFactory;
+public class DestinationFactoryBean implements DestinationFactory {
+   private final Destination destination;
 
-   public ConnectionFactoryFactoryBean(ConnectionFactory connectionFactory) {
-      this.connectionFactory = connectionFactory;
+   public DestinationFactoryBean(Destination destination) {
+      this.destination = destination;
    }
-   @java.lang.Override
-   public java.lang.Object createConnectionFactory() throws Exception {
-      return connectionFactory;
+   @Override
+   public Destination createDestination() throws Exception {
+      return destination;
    }
 }
