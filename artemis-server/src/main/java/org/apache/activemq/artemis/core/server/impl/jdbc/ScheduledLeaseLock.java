@@ -17,11 +17,11 @@
 
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * {@link LeaseLock} holder that allows to schedule a {@link LeaseLock#renew} task with a fixed {@link #renewPeriodMillis()} delay.
@@ -33,7 +33,7 @@ interface ScheduledLeaseLock extends ActiveMQComponent {
    long renewPeriodMillis();
 
    static ScheduledLeaseLock of(ScheduledExecutorService scheduledExecutorService,
-                                ArtemisExecutor executor,
+                                Executor executor,
                                 String lockName,
                                 LeaseLock lock,
                                 long renewPeriodMillis,

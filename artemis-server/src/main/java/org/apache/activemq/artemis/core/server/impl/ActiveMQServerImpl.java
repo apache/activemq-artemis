@@ -494,6 +494,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       configuration.parseSystemProperties();
 
+      initializeExecutorServices();
+
       startDate = new Date();
 
       state = SERVER_STATE.STARTING;
@@ -1981,9 +1983,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    synchronized boolean initialisePart1(boolean scalingDown) throws Exception {
       if (state == SERVER_STATE.STOPPED)
          return false;
-
-      // Create the pools - we have two pools - one for non scheduled - and another for scheduled
-      initializeExecutorServices();
 
       if (configuration.getJournalType() == JournalType.ASYNCIO) {
          if (!AIOSequentialFileFactory.isSupported()) {

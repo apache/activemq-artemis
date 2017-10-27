@@ -17,16 +17,16 @@
 
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 
 /**
- * Default implementation of a {@link ScheduledLeaseLock}: see {@link ScheduledLeaseLock#of(ScheduledExecutorService, ArtemisExecutor, String, LeaseLock, long, IOCriticalErrorListener)}.
+ * Default implementation of a {@link ScheduledLeaseLock}: see {@link ScheduledLeaseLock#of(ScheduledExecutorService, Executor, String, LeaseLock, long, IOCriticalErrorListener)}.
  */
 final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implements ScheduledLeaseLock {
 
@@ -39,7 +39,7 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
    private final IOCriticalErrorListener ioCriticalErrorListener;
 
    ActiveMQScheduledLeaseLock(ScheduledExecutorService scheduledExecutorService,
-                              ArtemisExecutor executor,
+                              Executor executor,
                               String lockName,
                               LeaseLock lock,
                               long renewPeriodMillis,
