@@ -77,7 +77,7 @@
       <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.5</activemq5-version>
       <apache.derby.version>10.11.1.1</apache.derby.version>
-      <commons.beanutils.version>1.9.2</commons.beanutils.version>
+      <commons.beanutils.version>1.9.3</commons.beanutils.version>
       <org.hdrhistogram.version>2.1.10</org.hdrhistogram.version>
       <commons.collections.version>3.2.2</commons.collections.version>
       <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
