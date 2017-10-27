@@ -92,7 +92,7 @@ final class ActiveMQScheduledLeaseLock extends ActiveMQScheduledComponent implem
       }
       //logic to detect slowness of DB and/or the scheduled executor service
       detectAndReportRenewSlowness(lockName, lastRenewStart, renewStart, renewPeriodMillis, lock.expirationMillis());
-      this.lastLockRenewStart = lastRenewStart;
+      this.lastLockRenewStart = renewStart;
    }
 
    private static void detectAndReportRenewSlowness(String lockName,
