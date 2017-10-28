@@ -507,6 +507,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       configuration.parseSystemProperties();
 
+      initializeExecutorServices();
+
       initializeCriticalAnalyzer();
 
       startDate = new Date();
@@ -575,13 +577,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void initializeCriticalAnalyzer() throws Exception {
       if (analyzer == null) {
          if (configuration.isCriticalAnalyzer()) {
+            // this will have its own ScheduledPool
             this.analyzer = new CriticalAnalyzerImpl();
          } else {
             this.analyzer = EmptyCriticalAnalyzer.getInstance();
          }
       }
 
-      /** Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
+      /* Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       this.analyzer.clear();
 
       this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
@@ -1181,9 +1184,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       try {
-         this.getCriticalAnalyzer().stop();
+         this.analyzer.stop();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
+      } finally {
+         this.analyzer = null;
       }
 
       if (identity != null) {
@@ -2256,9 +2261,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    synchronized boolean initialisePart1(boolean scalingDown) throws Exception {
       if (state == SERVER_STATE.STOPPED)
          return false;
-
-      // Create the pools - we have two pools - one for non scheduled - and another for scheduled
-      initializeExecutorServices();
 
       if (configuration.getJournalType() == JournalType.ASYNCIO) {
          if (!AIOSequentialFileFactory.isSupported()) {
