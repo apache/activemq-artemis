@@ -261,6 +261,42 @@ public class ConsumerTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testAutoCreateCOnConsumer() throws Throwable {
+
+      final SimpleString thisQueue = SimpleString.toSimpleString("ThisQueue");
+      if (!isNetty()) {
+         // no need to run the test, there's no AMQP support
+         return;
+      }
+
+      for (int i = 0; i < 10; i++) {
+         ConnectionFactory factorySend = createFactory(2);
+         Connection connection = factorySend.createConnection();
+
+         try {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            javax.jms.Queue queue = session.createQueue(thisQueue.toString());
+            MessageProducer producer = session.createProducer(queue);
+
+            MessageConsumer consumer = session.createConsumer(queue);
+            connection.start();
+
+            producer.send(session.createTextMessage("hello"));
+
+            Assert.assertNotNull(consumer.receive(5000));
+            consumer.close();
+            session.close();
+         } finally {
+            connection.close();
+         }
+
+         Wait.waitFor(() -> server.getAddressInfo(thisQueue) == null, 1000, 10);
+         assertNull(server.getAddressInfo(thisQueue));
+         assertEquals(0, server.getTotalMessageCount());
+      }
+   }
+
+   @Test
    public void testAutoDeleteAutoCreatedAddressAndQueue() throws Throwable {
       if (!isNetty()) {
          // no need to run the test, there's no AMQP support
