@@ -25,6 +25,10 @@ public class CriticalComponentImpl implements CriticalComponent {
    private final CriticalMeasure[] measures;
    private final CriticalAnalyzer analyzer;
 
+   public CriticalAnalyzer getCriticalAnalyzer() {
+      return analyzer;
+   }
+
    public CriticalComponentImpl(CriticalAnalyzer analyzer, int numberOfPaths) {
       if (analyzer == null) {
          analyzer = EmptyCriticalAnalyzer.getInstance();

@@ -32,9 +32,14 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.jboss.logging.Logger;
 
-public final class TimedBuffer {
+public final class TimedBuffer extends CriticalComponentImpl {
+
+   protected static final int CRITICAL_PATHS = 1;
+   protected static final int CRITICAL_PATH_FLUSH = 0;
 
    private static final Logger logger = Logger.getLogger(TimedBuffer.class);
 
@@ -99,7 +104,8 @@ public final class TimedBuffer {
 
    // Public --------------------------------------------------------
 
-   public TimedBuffer(final int size, final int timeout, final boolean logRates) {
+   public TimedBuffer(CriticalAnalyzer analyzer, final int size, final int timeout, final boolean logRates) {
+      super(analyzer, CRITICAL_PATHS);
       bufferSize = size;
 
       this.logRates = logRates;
@@ -286,38 +292,42 @@ public final class TimedBuffer {
             throw new IllegalStateException("TimedBuffer is not started");
          }
 
-         if (!delayFlush && buffer.writerIndex() > 0) {
-            int pos = buffer.writerIndex();
+         enterCritical(CRITICAL_PATH_FLUSH);
+         try {
+            if (!delayFlush && buffer.writerIndex() > 0) {
+               int pos = buffer.writerIndex();
 
-            if (logRates) {
-               bytesFlushed.addAndGet(pos);
+               if (logRates) {
+                  bytesFlushed.addAndGet(pos);
+               }
+
+               final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
+               //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
+               bufferToFlush.limit(pos);
+               //perform memcpy under the hood due to the off heap buffer
+               buffer.getBytes(0, bufferToFlush);
+
+               bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
+
+               stopSpin();
+
+               pendingSync = false;
+
+               // swap the instance as the previous callback list is being used asynchronously
+               callbacks = new ArrayList<>();
+
+               buffer.clear();
+
+               bufferLimit = 0;
+
+               flushesDone.incrementAndGet();
+
+               return pos > 0;
+            } else {
+               return false;
             }
-
-            final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
-            //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
-            bufferToFlush.limit(pos);
-            //perform memcpy under the hood due to the off heap buffer
-            buffer.getBytes(0, bufferToFlush);
-
-
-            bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
-
-            stopSpin();
-
-            pendingSync = false;
-
-            // swap the instance as the previous callback list is being used asynchronously
-            callbacks = new ArrayList<>();
-
-            buffer.clear();
-
-            bufferLimit = 0;
-
-            flushesDone.incrementAndGet();
-
-            return pos > 0;
-         } else {
-            return false;
+         } finally {
+            leaveCritical(CRITICAL_PATH_FLUSH);
          }
       }
    }
