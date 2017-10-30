@@ -66,8 +66,7 @@ This approach might be preferred if for example you only have access to the 5.x 
 
 ## Preparing
 
-1) Fetch the `artemis-jms-client-all` jar from [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.apache.activemq%22%20AND%20a%3A%22artemis-jms-client-all%22)
-   which corresponds to the version of ActiveMQ Artemis installed. Copy that jar to the `$5X_HOME/lib` directory.
+1) Copy `lib/client/artemis-jms-client-all.jar` to the `$5X_HOME/lib` directory.
 
 2) Add the bridge configuration to `activemq.xml`:
 

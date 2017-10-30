@@ -105,6 +105,15 @@
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
       </dependencySet>
+      <dependencySet>
+         <directoryMode>755</directoryMode>
+         <fileMode>644</fileMode>
+         <includes>
+            <include>org.apache.activemq:artemis-jms-client-all</include>
+         </includes>
+         <outputDirectory>lib/client</outputDirectory>
+         <unpack>false</unpack>
+      </dependencySet>
       <!-- native -->
       <dependencySet>
          <includes>
