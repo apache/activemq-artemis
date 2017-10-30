@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.utils.Env;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
 public final class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
@@ -42,7 +43,7 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    public NIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener, final int maxIO) {
-      this(journalDir, false, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
+      this(journalDir, false, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener, null);
    }
 
    public NIOSequentialFileFactory(final File journalDir, final boolean buffered, final int maxIO) {
@@ -53,7 +54,7 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final boolean buffered,
                                    final IOCriticalErrorListener listener,
                                    final int maxIO) {
-      this(journalDir, buffered, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
+      this(journalDir, buffered, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener, null);
    }
 
    public NIOSequentialFileFactory(final File journalDir,
@@ -62,7 +63,7 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates) {
-      this(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, null);
+      this(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, null, null);
    }
 
    public NIOSequentialFileFactory(final File journalDir,
@@ -71,8 +72,9 @@ public final class NIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates,
-                                   final IOCriticalErrorListener listener) {
-      super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener);
+                                   final IOCriticalErrorListener listener,
+                                   final CriticalAnalyzer analyzer) {
+      super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
       this.bufferPooling = true;
       this.bytesPool = new ThreadLocal<>();
    }
