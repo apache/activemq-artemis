@@ -39,6 +39,11 @@
      <!-- ActiveMQ Artemis artifacts -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client-all</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-boot</artifactId>
          <version>${project.version}</version>
       </dependency>
