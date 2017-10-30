@@ -284,11 +284,14 @@ public class AMQPSessionCallback implements SessionCallback {
             // The address may have been created by another thread in the mean time.  Catch and do nothing.
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
-      } else if (routingType == RoutingType.ANYCAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
-         try {
-            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
-         } catch (ActiveMQQueueExistsException e) {
-            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+      } else if (routingType == RoutingType.ANYCAST && bindingQueryResult.isAutoCreateQueues()) {
+         QueueQueryResult queueBinding = serverSession.executeQueueQuery(simpleAddress);
+         if (!queueBinding.isExists()) {
+            try {
+               serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
+            } catch (ActiveMQQueueExistsException e) {
+               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+            }
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       }
@@ -394,14 +397,16 @@ public class AMQPSessionCallback implements SessionCallback {
          message.setAddress(new SimpleString(address));
       } else {
          // Anonymous relay must set a To value
-         if (message.getAddress() == null) {
+         address = message.getAddress();
+         if (address == null) {
             rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
             return;
          }
+      }
 
-         if (!bindingQuery(message.getAddress().toString(), RoutingType.ANYCAST)) {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
-         }
+      //here check queue-autocreation
+      if (!bindingQuery(address, RoutingType.ANYCAST)) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
 
       OperationContext oldcontext = recoverContext();
