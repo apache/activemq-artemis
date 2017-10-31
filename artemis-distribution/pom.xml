@@ -164,11 +164,6 @@
            <groupId>org.apache.tomcat</groupId>
            <artifactId>tomcat-servlet-api</artifactId>
        </dependency>
-       <dependency>
-          <groupId>org.jolokia</groupId>
-          <artifactId>jolokia-war</artifactId>
-          <type>war</type>
-       </dependency>
 
        <!-- Management Console Dependencies -->
        <dependency>

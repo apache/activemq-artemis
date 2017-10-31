@@ -471,7 +471,7 @@ HTTP agent deployed as a Web Application. Jolokia is a remote
 JMX-over-HTTP bridge that exposes MBeans. For a full guide as
 to how to use it refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
 however a simple example to query the broker's version would
-be to use a browser and go to the URL [http://username:password@localhost:8161/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version]().
+be to use a browser and go to the URL [http://username:password@localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version]().
 
 This would give you back something like the following:
 
