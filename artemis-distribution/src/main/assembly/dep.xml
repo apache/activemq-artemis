@@ -135,14 +135,6 @@
          <outputDirectory>web/api</outputDirectory>
          <unpack>true</unpack>
       </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.jolokia:jolokia-war:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>jolokia.war</outputFileNameMapping>
-      </dependencySet>
       
       <!-- Management Console Dependencies -->
       <dependencySet>
