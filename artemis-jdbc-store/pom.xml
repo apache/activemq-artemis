@@ -41,22 +41,35 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
-
       <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-journal</artifactId>
+         <version>${project.version}</version>
       </dependency>
-
       <dependency>
-         <groupId>org.jboss.logmanager</groupId>
-         <artifactId>jboss-logmanager</artifactId>
-         <scope>test</scope>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
       </dependency>
 
       <!-- Database driver support -->
@@ -65,30 +78,15 @@
          <artifactId>derby</artifactId>
          <scope>test</scope>
       </dependency>
-
       <dependency>
          <groupId>org.postgresql</groupId>
          <artifactId>postgresql</artifactId>
          <scope>provided</scope>
       </dependency>
-
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
       </dependency>
-
    </dependencies>
 </project>

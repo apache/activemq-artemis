@@ -16,6 +16,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
+
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
@@ -29,8 +30,8 @@
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <karaf.version>4.0.6</karaf.version>
-     <pax.exam.version>4.9.1</pax.exam.version>
-     <paho.client.mqttv3.version>1.1.0</paho.client.mqttv3.version>
+      <pax.exam.version>4.9.1</pax.exam.version>
+      <paho.client.mqttv3.version>1.1.0</paho.client.mqttv3.version>
    </properties>
 
    <dependencies>
@@ -68,26 +69,9 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-json_1.0_spec</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.johnzon</groupId>
-         <artifactId>johnzon-core</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
          <version>${project.version}</version>
-         <exclusions>
-            <exclusion>
-               <!-- exclude JCA 1.5 spec here so geronimo dependency will be used -->
-               <groupId>org.jboss.spec.javax.resource</groupId>
-               <artifactId>jboss-connector-api_1.5_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -133,6 +117,12 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -141,12 +131,57 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-native</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-service-extensions</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-features</artifactId>
          <version>${project.version}</version>
          <type>pom</type>
       </dependency>
-
-      <!-- MQTT Deps -->
+      <dependency>
+         <groupId>org.apache.activemq.rest</groupId>
+         <artifactId>artemis-rest</artifactId>
+         <version>2.5.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-junit</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
@@ -162,14 +197,47 @@
          <version>${paho.client.mqttv3.version}</version>
       </dependency>
       <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-json_1.0_spec</artifactId>
+         <scope>test</scope>
       </dependency>
-      <!-- END MQTT Deps -->
-
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_2.0_spec</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.johnzon</groupId>
+         <artifactId>johnzon-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-buffer</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-codec-http</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-codec-mqtt</artifactId>
+         <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-handler</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-transport</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
@@ -182,10 +250,10 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-junit</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
       </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
@@ -201,23 +269,13 @@
          <version>${qpid.jms.version}</version>
       </dependency>
       <dependency>
-          <groupId>org.apache.qpid</groupId>
-          <artifactId>proton-j</artifactId>
-       </dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>proton-j</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
          <version>1.7.5</version>
-      </dependency>
-      <dependency>
-         <groupId>org.mortbay.jetty</groupId>
-         <artifactId>jetty</artifactId>
-         <version>7.0.0.pre5</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-javaee</artifactId>
-         <version>5.0.0.GA</version>
       </dependency>
 
       <!-- DB Test Deps -->
@@ -226,22 +284,9 @@
          <artifactId>derby</artifactId>
          <scope>test</scope>
       </dependency>
-
       <dependency>
          <groupId>org.postgresql</groupId>
          <artifactId>postgresql</artifactId>
-         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-client</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-         <version>1.0.1</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -269,7 +314,7 @@
          </exclusions>
       </dependency>
 
-     <!-- karaf test -->
+      <!-- karaf test -->
 
       <dependency>
          <groupId>org.ops4j.pax.exam</groupId>
@@ -294,11 +339,6 @@
          <artifactId>org.apache.karaf.shell.console</artifactId>
          <version>${karaf.version}</version>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>artemis-test-support</artifactId>
-         <version>${project.version}</version>
-      </dependency>
 
       <!-- rest test -->
       <dependency>
@@ -312,13 +352,6 @@
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq.rest</groupId>
-         <artifactId>artemis-rest</artifactId>
-         <version>2.5.0-SNAPSHOT</version>
-         <scope>compile</scope>
-      </dependency>
-
       <dependency>
          <groupId>org.codehaus.woodstox</groupId>
          <artifactId>woodstox-core-asl</artifactId>
@@ -343,6 +376,29 @@
          <version>${directory-jdbm2-version}</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-jms</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.google.guava</groupId>
+         <artifactId>guava</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
+         <version>2.6</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jgroups</groupId>
+         <artifactId>jgroups</artifactId>
+      </dependency>
    </dependencies>
 
    <build>
@@ -358,36 +414,36 @@
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-assembly-plugin</artifactId>
-               <executions>
-                  <execution>
-                     <phase>process-test-classes</phase>
-                     <id>bwlist-rest-test-war</id>
-                     <goals>
-                        <goal>single</goal>
-                     </goals>
-                     <configuration>
-                        <descriptor>src/test/resources/rest/bwlist-rest-test-asm.xml</descriptor>
-                        <finalName>rest-test-bwlist</finalName>
-                        <appendAssemblyId>false</appendAssemblyId>
-                        <outputDirectory>target/test-classes/rest/</outputDirectory>
-                     </configuration>
-                  </execution>
-                  <execution>
-                     <phase>process-test-classes</phase>
-                     <id>rest-test-war</id>
-                     <goals>
-                        <goal>single</goal>
-                     </goals>
-                     <configuration>
-                        <descriptor>src/test/resources/rest/rest-test-asm.xml</descriptor>
-                           <finalName>rest-test</finalName>
-                           <appendAssemblyId>false</appendAssemblyId>
-                           <outputDirectory>target/test-classes/rest/</outputDirectory>
-                     </configuration>
-                  </execution>
-               </executions>
-            </plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>process-test-classes</phase>
+                  <id>bwlist-rest-test-war</id>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <descriptor>src/test/resources/rest/bwlist-rest-test-asm.xml</descriptor>
+                     <finalName>rest-test-bwlist</finalName>
+                     <appendAssemblyId>false</appendAssemblyId>
+                     <outputDirectory>target/test-classes/rest/</outputDirectory>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>process-test-classes</phase>
+                  <id>rest-test-war</id>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <descriptor>src/test/resources/rest/rest-test-asm.xml</descriptor>
+                     <finalName>rest-test</finalName>
+                     <appendAssemblyId>false</appendAssemblyId>
+                     <outputDirectory>target/test-classes/rest/</outputDirectory>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
@@ -412,19 +468,19 @@
                <argLine>-Djgroups.bind_addr=::1 ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
-        <plugin>
-           <groupId>org.apache.servicemix.tooling</groupId>
-           <artifactId>depends-maven-plugin</artifactId>
-           <version>1.2</version>
-           <executions>
-              <execution>
-                 <id>generate-depends-file</id>
-                 <goals>
-                    <goal>generate-depends-file</goal>
-                 </goals>
-              </execution>
-           </executions>
-        </plugin>
+         <plugin>
+            <groupId>org.apache.servicemix.tooling</groupId>
+            <artifactId>depends-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+               <execution>
+                  <id>generate-depends-file</id>
+                  <goals>
+                     <goal>generate-depends-file</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
       </plugins>
    </build>
 
