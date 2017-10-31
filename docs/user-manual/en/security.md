@@ -748,7 +748,7 @@ Artemis comes with a web console that allows user to browse Artemis documentatio
 web access is plain HTTP. It is configured in `bootstrap.xml`:
 
     <web bind="http://localhost:8161" path="web">
-        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
+        <app url="console" war="console.war"/>
     </web>
 
 Alternatively you can edit the above configuration to enable secure access using HTTPS protocol. e.g.:
