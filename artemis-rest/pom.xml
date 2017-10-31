@@ -16,16 +16,17 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
+
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
       <version>2.5.0-SNAPSHOT</version>
    </parent>
 
-   <name>ActiveMQ Artemis REST Interface Implementation</name>
    <groupId>org.apache.activemq.rest</groupId>
    <artifactId>artemis-rest</artifactId>
    <packaging>jar</packaging>
+   <name>ActiveMQ Artemis REST Interface Implementation</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
@@ -40,7 +41,12 @@
          <artifactId>jboss-logging-processor</artifactId>
          <scope>provided</scope>
          <optional>true</optional>
-
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
       </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
@@ -53,6 +59,12 @@
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
+         <exclusions>
+            <exclusion>
+               <groupId>org.jboss.spec.javax.ws.rs</groupId>
+               <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
@@ -74,15 +86,8 @@
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
-         <artifactId>resteasy-atom-provider</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.resteasy</groupId>
          <artifactId>tjws</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -95,12 +100,48 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-annotation_1.1_spec</artifactId>
+         <artifactId>geronimo-jaxrs_2.0_spec</artifactId>
+         <version>1.0-alpha-1</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.xml.bind</groupId>
+         <artifactId>jaxb-api</artifactId>
+         <version>2.2.7</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <version>2.5</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpcore</artifactId>
+         <version>4.3.3</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.3.6</version>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

@@ -39,6 +39,12 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
          <scope>provided</scope>

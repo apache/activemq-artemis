@@ -23,6 +23,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>artemis-stomp-protocol</artifactId>
+   <packaging>bundle</packaging>
    <name>ActiveMQ Artemis STOMP Protocol</name>
 
 
@@ -33,14 +34,16 @@
    <dependencies>
       <dependency>
          <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
          <scope>provided</scope>
          <optional>true</optional>
       </dependency>
-
-      <!--
-          JBoss Logging
-      -->
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
@@ -50,7 +53,32 @@
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-journal</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-buffer</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-transport</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.osgi</groupId>
+         <artifactId>osgi.cmpn</artifactId>
+      </dependency>
    </dependencies>
-
-   <packaging>bundle</packaging>
 </project>
