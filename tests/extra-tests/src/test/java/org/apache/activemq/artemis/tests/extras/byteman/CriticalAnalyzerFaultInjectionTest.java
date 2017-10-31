@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.extras.byteman;
 
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -41,8 +42,8 @@ public class CriticalAnalyzerFaultInjectionTest extends JMSTestBase {
 
    // Critical Analyzer Settings
    private static long CHECK_PERIOD = 100;
-   private static long TIMEOUT = 3000;
-   public static long TEST_TIMEOUT = 60000;
+   private static long TIMEOUT = 1000;
+   public static long TEST_TIMEOUT = 5000;
 
    private SimpleString address = SimpleString.toSimpleString("faultInjectionTestAddress");
 
@@ -95,6 +96,7 @@ public class CriticalAnalyzerFaultInjectionTest extends JMSTestBase {
          p.setDeliveryMode(DeliveryMode.PERSISTENT);
          conn.start();
          p.send(s.createTextMessage("payload"));
+      } catch (JMSException expected) {
       } finally {
          if (conn != null) {
             conn.close();
