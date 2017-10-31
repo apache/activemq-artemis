@@ -295,14 +295,14 @@
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
-            <version>2.0.0.Alpha2</version>
+            <version>2.1.0.Final</version>
             <optional>true</optional>
             <!-- License: LGPL-->
          </dependency>
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-annotations</artifactId>
-            <version>2.0.0.Alpha1</version>
+            <version>2.1.0.Final</version>
             <scope>provided</scope>
             <optional>true</optional>
             <!-- License: Apache 2.0-->
@@ -493,6 +493,18 @@
          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
             <version>${netty.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -718,6 +730,12 @@
             <scope>test</scope>
          </dependency>
          <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-core</artifactId>
+            <version>${arquillian.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
              <groupId>org.jacoco</groupId>
              <artifactId>org.jacoco.ant</artifactId>
              <version>${version.org.jacoco}</version>
@@ -735,27 +753,23 @@
             <version>${cdi-api.version}</version>
             <scope>provided</scope>
          </dependency>
-      </dependencies>
-   </dependencyManagement>
-
-   <dependencies>
-        <!--  OSGi support -->
-        <dependency>
+         <!--  OSGi support -->
+         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>6.0.0</version>
             <scope>provided</scope>
             <!-- License: Apache 2.0 -->
-        </dependency>
-        <dependency>
+         </dependency>
+         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.cmpn</artifactId>
             <version>6.0.0</version>
             <scope>provided</scope>
             <!-- License: Apache 2.0 -->
-        </dependency>
-
-   </dependencies>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
 
    <profiles>
        <profile>

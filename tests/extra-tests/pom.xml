@@ -45,10 +45,6 @@
 
    <dependencies>
       <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.jboss.byteman</groupId>
          <artifactId>byteman</artifactId>
          <version>${byteman.version}</version>
@@ -99,10 +95,20 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
@@ -142,7 +148,12 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-cli</artifactId>
+         <artifactId>artemis-hqclient-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-service-extensions</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -150,21 +161,8 @@
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
       </dependency>
       <dependency>
-         <groupId>commons-logging</groupId>
-         <artifactId>commons-logging</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-ejb_3.0_spec</artifactId>
-      </dependency>
-      <!--this specifically for the JMS Bridge -->
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jta_1.1_spec</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.components</groupId>
-         <artifactId>geronimo-jaspi</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
@@ -173,6 +171,12 @@
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-annotations</artifactId>
          <scope>provided</scope>
          <optional>true</optional>
       </dependency>

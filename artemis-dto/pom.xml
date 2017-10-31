@@ -31,14 +31,6 @@
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-   </dependencies>
-
    <build>
       <resources>
          <resource>

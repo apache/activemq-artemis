@@ -38,29 +38,19 @@
          <version>3.3.3</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-dependency-plugin</artifactId>
-         <version>2.0</version>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-artifact</artifactId>
+         <version>3.3.3</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-project</artifactId>
+         <version>2.0.8</version>
       </dependency>
       <dependency>
          <groupId>org.eclipse.aether</groupId>
          <artifactId>aether-api</artifactId>
          <version>1.0.2.v20150114</version>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.aether</groupId>
-         <artifactId>aether-util</artifactId>
-         <version>1.0.2.v20150114</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -69,12 +59,22 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.maven.plugin-tools</groupId>
