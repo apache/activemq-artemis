@@ -87,7 +87,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS, false);
 
       timedBuffer.start();
 
@@ -155,7 +155,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS / 2, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS / 2, false);
 
       timedBuffer.start();
 
@@ -393,7 +393,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
-      final TimedBuffer timedBuffer = new TimedBuffer(bufferSize, (int) timeout, false);
+      final TimedBuffer timedBuffer = new TimedBuffer(null, bufferSize, (int) timeout, false);
       timedBuffer.start();
       try (NonBlockingObserver observer = new NonBlockingObserver(bufferSize, deviceTime)) {
          timedBuffer.setObserver(observer);
@@ -434,7 +434,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
-      final TimedBuffer timedBuffer = new TimedBuffer(bufferSize, (int) timeout, false);
+      final TimedBuffer timedBuffer = new TimedBuffer(null, bufferSize, (int) timeout, false);
       timedBuffer.start();
       try (BlockingObserver observer = new BlockingObserver(bufferSize, deviceTime)) {
          timedBuffer.setObserver(observer);
@@ -489,7 +489,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          }
       }
 
-      TimedBuffer timedBuffer = new TimedBuffer(100, TimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
+      TimedBuffer timedBuffer = new TimedBuffer(null, 100, TimedBufferTest.ONE_SECOND_IN_NANOS / 10, false);
 
       timedBuffer.start();
 

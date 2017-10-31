@@ -147,6 +147,8 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
             logger.warn(e.getMessage(), e);
          }
       }
+
+      actions.clear();
    }
 
    @Override
