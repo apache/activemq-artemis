@@ -40,7 +40,9 @@ public final class MappedSequentialFileFactory extends AbstractSequentialFileFac
                                        final int bufferTimeout,
                                        IOCriticalErrorListener criticalErrorListener) {
 
-      super(directory, buffered, bufferSize, bufferTimeout, 1, false, criticalErrorListener);
+      // at the moment we only use the critical analyzer on the timed buffer
+      // MappedSequentialFile is not using any buffering, hence we just pass in null
+      super(directory, buffered, bufferSize, bufferTimeout, 1, false, criticalErrorListener, null);
 
       this.capacity = capacity;
       this.setDatasync(true);

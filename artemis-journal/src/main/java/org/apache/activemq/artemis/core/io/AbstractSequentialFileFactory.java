@@ -33,6 +33,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.jboss.logging.Logger;
 
 /**
@@ -74,11 +76,17 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
                                            final int bufferTimeout,
                                            final int maxIO,
                                            final boolean logRates,
-                                           final IOCriticalErrorListener criticalErrorListener) {
+                                           final IOCriticalErrorListener criticalErrorListener,
+                                           CriticalAnalyzer criticalAnalyzer) {
       this.journalDir = journalDir;
 
+      if (criticalAnalyzer == null) {
+         criticalAnalyzer = EmptyCriticalAnalyzer.getInstance();
+      }
+
       if (buffered && bufferTimeout > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
+         timedBuffer = new TimedBuffer(criticalAnalyzer, bufferSize, bufferTimeout, logRates);
+         criticalAnalyzer.add(timedBuffer);
       } else {
          timedBuffer = null;
       }
