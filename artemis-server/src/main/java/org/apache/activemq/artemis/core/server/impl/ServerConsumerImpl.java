@@ -1387,4 +1387,49 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          return b;
       }
    }
+
+   @Override
+   public long getSequentialID() {
+      return sequentialID;
+   }
+
+   @Override
+   public SimpleString getQueueName() {
+      return getQueue().getName();
+   }
+
+   @Override
+   public RoutingType getQueueType() {
+      return getQueue().getRoutingType();
+   }
+
+   @Override
+   public SimpleString getQueueAddress() {
+      return getQueue().getAddress();
+   }
+
+   @Override
+   public String getSessionName() {
+      return this.session.getName();
+   }
+
+   @Override
+   public String getConnectionClientID() {
+      return this.session.getRemotingConnection().getClientID();
+   }
+
+   @Override
+   public String getConnectionProtocolName() {
+      return this.session.getRemotingConnection().getProtocolName();
+   }
+
+   @Override
+   public String getConnectionLocalAddress() {
+      return this.session.getRemotingConnection().getTransportConnection().getLocalAddress();
+   }
+
+   @Override
+   public String getConnectionRemoteAddress() {
+      return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+   }
 }

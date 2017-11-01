@@ -266,4 +266,10 @@ public class MQTTConnection implements RemotingConnection {
    public String getClientID() {
       return clientID;
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
 }
