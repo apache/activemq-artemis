@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "sequentialID";
 
    private final ActiveMQServer server;
 
@@ -45,7 +45,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    @Override
    public JsonObjectBuilder toJson(ServerConsumer consumer) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(consumer.sequentialID())).add("session", toString(session.getName())).add("clientID", toString(session.getRemotingConnection().getClientID())).add("user", toString(session.getUsername())).add("protocol", toString(session.getRemotingConnection().getProtocolName())).add("queue", toString(consumer.getQueue().getName())).add("queueType", toString(consumer.getQueue().getRoutingType()).toLowerCase()).add("address", toString(consumer.getQueue().getAddress().toString())).add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress())).add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress())).add("creationTime", new Date(consumer.getCreationTime()).toString());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sequentialID", toString(consumer.getSequentialID())).add("sessionName", toString(consumer.getSessionName())).add("connectionClientID", toString(consumer.getConnectionClientID())).add("user", toString(session.getUsername())).add("connectionProtocolName", toString(consumer.getConnectionProtocolName())).add("queueName", toString(consumer.getQueueName())).add("queueType", toString(consumer.getQueueType()).toLowerCase()).add("queueAddress", toString(consumer.getQueueAddress().toString())).add("connectionLocalAddress", toString(consumer.getConnectionLocalAddress())).add("connectionRemoteAddress", toString(consumer.getConnectionRemoteAddress())).add("creationTime", new Date(consumer.getCreationTime()).toString());
       return obj;
    }
 

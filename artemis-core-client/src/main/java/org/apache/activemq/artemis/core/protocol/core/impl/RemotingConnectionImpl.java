@@ -379,6 +379,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
    }
 
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
    private void doBufferReceived(final Packet packet) {
       if (ChannelImpl.invokeInterceptors(packet, incomingInterceptors, this) != null) {
          return;

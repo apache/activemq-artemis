@@ -39,6 +39,10 @@ public abstract class ActiveMQAbstractView<T> {
 
    private static final String FILTER_VALUE = "value";
 
+   private static final String SORT_ORDER = "sortOrder";
+
+   private static final String SORT_COLUMN = "sortColumn";
+
    protected Collection<T> collection;
 
    protected ActiveMQFilterPredicate<T> predicate;
@@ -146,6 +150,10 @@ public abstract class ActiveMQAbstractView<T> {
          predicate.setField(json.getString(FILTER_FIELD));
          predicate.setOperation(json.getString(FILTER_OPERATION));
          predicate.setValue(json.getString(FILTER_VALUE));
+         if (json.containsKey(SORT_COLUMN) && json.containsKey(SORT_ORDER)) {
+            this.sortColumn = json.getString(SORT_COLUMN);
+            this.sortOrder = json.getString(SORT_ORDER);
+         }
       }
    }
 

@@ -31,7 +31,7 @@ var ARTEMIS = (function(ARTEMIS) {
         var method = 'listProducers(java.lang.String, int, int)';
         var attributes = [
             {
-                field: 'id',
+                field: 'iD',
                 displayName: 'ID',
                 width: '*'
             },
@@ -39,22 +39,26 @@ var ARTEMIS = (function(ARTEMIS) {
                 field: 'session',
                 displayName: 'Session',
                 width: '*',
+                sortable: false,
                 cellTemplate: '<div class="ngCellText"><a ng-click="selectSession(row)">{{row.entity.session}}</a></div>'
             },
             {
                 field: 'clientID',
                 displayName: 'Client ID',
+                sortable: false,
                 width: '*'
             },
             {
                 field: 'protocol',
                 displayName: 'Protocol',
-                width: '*'
+                width: '*',
+                sortable: false
             },
             {
                 field: 'user',
                 displayName: 'User',
-                width: '*'
+                width: '*',
+                sortable: false
             },
             {
                 field: 'address',
@@ -65,12 +69,14 @@ var ARTEMIS = (function(ARTEMIS) {
             {
                 field: 'remoteAddress',
                 displayName: 'Remote Address',
-                width: '*'
+                width: '*',
+                sortable: false
             },
             {
                 field: 'localAddress',
                 displayName: 'Local Address',
-                width: '*'
+                width: '*',
+                sortable: false
             }
         ];
         $scope.filter = {
@@ -93,7 +99,7 @@ var ARTEMIS = (function(ARTEMIS) {
                 operation: "",
                 value: "",
                 sortOrder: "asc",
-                sortBy: "ID"
+                sortBy: "iD"
             }
         };
 
@@ -129,8 +135,9 @@ var ARTEMIS = (function(ARTEMIS) {
             pageSize: 100,
             currentPage: 1
         };
-        $scope.sort = {
-            fields: ["ID"],
+        $scope.sortOptions = {
+            fields: ["iD"],
+            columns: ["iD"],
             directions: ["asc"]
         };
         var refreshed = false;
@@ -170,8 +177,9 @@ var ARTEMIS = (function(ARTEMIS) {
             $scope.loadTable();
         };
         $scope.loadTable = function () {
-            $scope.filter.values.sortColumn = $scope.sort.fields[0];
-            $scope.filter.values.sortBy = $scope.sort.directions[0];
+        	$scope.filter.values.sortColumn = $scope.sortOptions.fields[0];
+            $scope.filter.values.sortBy = $scope.sortOptions.directions[0];
+	        $scope.filter.values.sortOrder = $scope.sortOptions.directions[0];
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 var filter = JSON.stringify($scope.filter.values);

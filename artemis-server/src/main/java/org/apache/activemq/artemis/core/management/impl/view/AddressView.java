@@ -17,16 +17,14 @@
 package org.apache.activemq.artemis.core.management.impl.view;
 
 import javax.json.JsonObjectBuilder;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.AddressFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-public class AddressView extends ActiveMQAbstractView<SimpleString> {
+public class AddressView extends ActiveMQAbstractView<AddressInfo> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "id";
 
    private final ActiveMQServer server;
 
@@ -42,14 +40,11 @@ public class AddressView extends ActiveMQAbstractView<SimpleString> {
    }
 
    @Override
-   public JsonObjectBuilder toJson(SimpleString addressName) {
-
-      AddressInfo address = server.getAddressInfo(addressName);
-      // the address could have been removed since the list was created
-      // if it is not there, just ignore.
+   public JsonObjectBuilder toJson(AddressInfo address) {
       if (address == null) {
          return null;
       }
+
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(address.getId())).add("name", toString(address.getName())).add("routingTypes", toString(address.getRoutingTypes()));
 
       try {

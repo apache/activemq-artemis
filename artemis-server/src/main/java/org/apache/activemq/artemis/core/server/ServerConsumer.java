@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 /**
  * A ServerConsumer
  */
-public interface ServerConsumer extends Consumer {
+public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void setlowConsumerDetection(SlowConsumerDetectionListener listener);
 
@@ -108,5 +108,3 @@ public interface ServerConsumer extends Consumer {
 
    void promptDelivery();
 }
-
-
