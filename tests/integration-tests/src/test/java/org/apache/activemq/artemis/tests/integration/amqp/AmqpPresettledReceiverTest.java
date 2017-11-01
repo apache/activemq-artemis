@@ -193,7 +193,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(0, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
@@ -229,7 +229,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
