@@ -67,6 +67,9 @@
             <include>org.apache.activemq:artemis-server</include>
             <include>org.apache.activemq:artemis-tools</include>
             <include>org.apache.activemq:artemis-service-extensions</include>
+            <include>org.apache.activemq:artemis-kafka-bridge</include>
+            <include>org.apache.activemq:artemis-kafka-amqp-protocol</include>
+            <include>org.apache.activemq:artemis-kafka-core-protocol</include>
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
 
@@ -76,6 +79,9 @@
             <include>org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec</include>
             <include>org.apache.geronimo.specs:geronimo-ejb_3.0_spec</include>
             <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec</include>
+            <include>org.apache.kafka:kafka-clients</include>
+            <include>org.xerial.snappy:snappy-java</include>
+            <include>net.jpountz.lz4:lz4</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss.logging:jboss-logging</include>
             <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>

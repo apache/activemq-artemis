@@ -46,6 +46,7 @@
 * [Client Reconnection and Session Reattachment](client-reconnection.md)
 * [Diverting and Splitting Message Flows](diverts.md)
 * [Core Bridges](core-bridges.md)
+* [Kafka Bridges](kafka-bridges.md)
 * [Duplicate Message Detection](duplicate-detection.md)
 * [Clusters](clusters.md)
 * [High Availability and Failover](ha.md)

@@ -594,11 +594,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public SimpleString getLastValueProperty() {
-      return getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
-   }
-
-   @Override
    public int getEncodeSize() {
       checkEncode();
       return buffer == null ? -1 : buffer.writerIndex();
