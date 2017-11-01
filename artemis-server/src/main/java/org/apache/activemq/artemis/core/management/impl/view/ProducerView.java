@@ -44,7 +44,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
    @Override
    public JsonObjectBuilder toJson(ServerProducer producer) {
       ServerSession session = server.getSessionByID(producer.getSessionID());
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(producer.getID())).add("session", toString(session.getName())).add("clientID", toString(session.getRemotingConnection().getClientID())).add("user", toString(session.getUsername())).add("protocol", toString(session.getRemotingConnection().getProtocolName())).add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress())).add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress())).add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress())).add("creationTime", toString(producer.getCreationTime()));
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("iD", toString(producer.getID())).add("session", toString(session.getName())).add("clientID", toString(session.getRemotingConnection().getClientID())).add("user", toString(session.getUsername())).add("protocol", toString(session.getRemotingConnection().getProtocolName())).add("address", toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress())).add("localAddress", toString(session.getRemotingConnection().getTransportConnection().getLocalAddress())).add("remoteAddress", toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress())).add("creationTime", toString(producer.getCreationTime()));
       return obj;
    }
 

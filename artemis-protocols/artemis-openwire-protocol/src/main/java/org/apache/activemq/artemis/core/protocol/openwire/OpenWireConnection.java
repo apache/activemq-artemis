@@ -1615,4 +1615,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public String getClientID() {
       return context.getClientId();
    }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return getTransportConnection().getLocalAddress();
+   }
+
 }

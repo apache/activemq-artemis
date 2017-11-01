@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -210,5 +212,59 @@ public class DummyServerConsumer implements ServerConsumer {
    @Override
    public void disconnect() {
 
+   }
+
+   @Override
+   public long getSequentialID() {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   @Override
+   public SimpleString getQueueName() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public RoutingType getQueueType() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public SimpleString getQueueAddress() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getSessionName() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getConnectionClientID() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getConnectionProtocolName() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getConnectionLocalAddress() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getConnectionRemoteAddress() {
+      // TODO Auto-generated method stub
+      return null;
    }
 }

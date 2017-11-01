@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
-   private static final String defaultSortColumn = "creationTime";
+   private static final String defaultSortColumn = "name";
 
    public SessionView() {
       super();
@@ -39,7 +39,7 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
    @Override
    public JsonObjectBuilder toJson(ServerSession session) {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(session.getName())).add("user", toString(session.getUsername())).add("creationTime", new Date(session.getCreationTime()).toString()).add("consumerCount", session.getServerConsumers().size()).add("producerCount", session.getServerProducers().size()).add("connectionID", session.getConnectionID().toString());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("name", toString(session.getName())).add("username", toString(session.getUsername())).add("creationTime", new Date(session.getCreationTime()).toString()).add("consumerCount", session.getConsumerCount()).add("producerCount", session.getProducerCount()).add("connectionID", session.getConnectionID().toString());
       return obj;
    }
 
