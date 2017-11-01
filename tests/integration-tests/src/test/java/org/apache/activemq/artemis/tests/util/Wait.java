@@ -16,54 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
-
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
  */
-public class Wait {
-
-   public static final long MAX_WAIT_MILLIS = 30 * 1000;
-   public static final int SLEEP_MILLIS = 1000;
-
-   public interface Condition {
-
-      boolean isSatisfied() throws Exception;
-   }
-
-   public interface LongCondition {
-      long getCount() throws Exception;
-   }
-
-   public static boolean waitFor(Condition condition) throws Exception {
-      return waitFor(condition, MAX_WAIT_MILLIS);
-   }
-
-   public static void assertEquals(long size, LongCondition condition) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size);
-
-      if (!result) {
-         Assert.fail(size + " != " + condition);
-      }
-   }
-
-   public static boolean waitFor(final Condition condition, final long duration) throws Exception {
-      return waitFor(condition, duration, SLEEP_MILLIS);
-   }
-
-   public static boolean waitFor(final Condition condition,
-                                 final long durationMillis,
-                                 final long sleepMillis) throws Exception {
-
-      final long expiry = System.currentTimeMillis() + durationMillis;
-      boolean conditionSatisified = condition.isSatisfied();
-      while (!conditionSatisified && System.currentTimeMillis() < expiry) {
-         TimeUnit.MILLISECONDS.sleep(sleepMillis);
-         conditionSatisified = condition.isSatisfied();
-      }
-      return conditionSatisified;
-   }
+public class Wait extends org.apache.activemq.artemis.junit.Wait {
 
 }

@@ -65,9 +65,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
             connection.disconnect(true);
          }
 
-         Wait.waitFor(amqpConnection::isClosed);
-
-         assertTrue(amqpConnection.isClosed());
+         Wait.assertTrue(amqpConnection::isClosed);
          assertEquals(AmqpSupport.CONNECTION_FORCED, amqpConnection.getConnection().getRemoteCondition().getCondition());
       } finally {
          amqpConnection.close();
@@ -267,10 +265,8 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
       connection2.getStateInspector().assertValid();
       connection2.close();
-
-      assertTrue(Wait.waitFor(() -> server.getConnectionCount() == 1));
-
+      Wait.assertEquals(1, server::getConnectionCount);
       connection1.close();
-      assertEquals(0, server.getConnectionCount());
+      Wait.assertEquals(0, server::getConnectionCount);
    }
 }
