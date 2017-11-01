@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -386,7 +387,8 @@ public class AMQPSessionCallback implements SessionCallback {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
 
-   public void serverSend(final Transaction transaction,
+   public void serverSend(final ProtonServerReceiverContext context,
+                          final Transaction transaction,
                           final Receiver receiver,
                           final Delivery delivery,
                           String address,
@@ -405,7 +407,10 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       //here check queue-autocreation
-      if (!bindingQuery(address, RoutingType.ANYCAST)) {
+      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
+
+      RoutingType routingType = context.getRoutingType(receiver);
+      if (!bindingQuery(address, routingType)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
 
