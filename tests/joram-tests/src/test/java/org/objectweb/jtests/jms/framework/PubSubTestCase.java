@@ -161,8 +161,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          subscriberTCF = null;
          subscriberSession = null;
          subscriberConnection = null;
+         super.tearDown();
       }
-
-      super.tearDown();
    }
 }
