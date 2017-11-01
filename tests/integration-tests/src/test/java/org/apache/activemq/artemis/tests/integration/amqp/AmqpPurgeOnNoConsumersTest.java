@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -76,7 +77,7 @@ public class AmqpPurgeOnNoConsumersTest extends AmqpClientTestSupport {
 
       t.join(5000);
 
-      assertEquals(0, queueView.getMessageCount());
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       connection.close();
    }
