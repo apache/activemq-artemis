@@ -241,3 +241,9 @@ Any links to them on the site must be updated to reference the ASF archive inste
 https://archive.apache.org/dist/activemq/activemq-artemis/
 
 Ensure old releases are only removed after the site is updated in order to avoid broken links.
+
+## Apache Guide
+
+For more information consult the apache guide at this address:
+
+* http://www.apache.org/dev/publishing-maven-artifacts.html
