@@ -62,12 +62,8 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       } finally {
          securityEnabled = false;
       }
-      try {
-         Wait.waitFor(remote::isActive);
-      } catch (Exception e) {
-         remote.stop();
-         throw e;
-      }
+
+      Wait.assertTrue(remote::isActive);
 
       final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
       config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(AMQP_PORT + 1));
@@ -99,14 +95,11 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       connector.createConnection();
 
       try {
-         Wait.waitFor(() -> remote.getConnectionCount() > 0);
-         assertEquals(1, remote.getConnectionCount());
-         Wait.waitFor(connectionOpened::get);
-         assertTrue("Remote connection was not opened - authentication error?", connectionOpened.get());
+         Wait.assertEquals(1, remote::getConnectionCount);
+         Wait.assertTrue(connectionOpened::get);
          lifeCycleListener.stop();
 
-         Wait.waitFor(() -> remote.getConnectionCount() == 0);
-         assertEquals(0, remote.getConnectionCount());
+         Wait.assertEquals(0, remote::getConnectionCount);
       } finally {
          lifeCycleListener.stop();
          remote.stop();

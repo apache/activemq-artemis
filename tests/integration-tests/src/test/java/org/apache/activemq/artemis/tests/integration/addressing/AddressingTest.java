@@ -240,8 +240,8 @@ public class AddressingTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueName);
       // there is a consumer now so the message should be routed
       producer.send(session.createMessage(true));
-      Wait.waitFor(() -> queue.getMessageCount() == 1);
-      assertEquals(1, queue.getMessageCount());
+      Wait.assertEquals(1, queue::getMessageCount);
+
 
       consumer.close();
       // the last consumer was closed so the queue should exist but be purged

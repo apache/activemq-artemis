@@ -59,7 +59,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       sender.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertTrue("Should be one message on Queue.", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
@@ -86,7 +86,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       connection.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertTrue("Should be one message on Queue.", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(getBrokerOpenWireConnectionURI());
       Connection jmsConnection = factory.createConnection();
@@ -119,7 +119,7 @@ public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
       sender.close();
 
       Queue queue = getProxyToQueue(getQueueName());
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       // Receive and resend with Qpid JMS client
       JmsConnectionFactory factory = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());

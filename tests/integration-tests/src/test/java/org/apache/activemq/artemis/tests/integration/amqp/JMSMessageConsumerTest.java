@@ -640,7 +640,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          connection.close();
 
          Queue queueView = getProxyToQueue(getQueueName());
-         assertTrue("Not all messages were enqueud", Wait.waitFor(() -> queueView.getMessageCount() == NUM_MESSAGES));
+         Wait.assertEquals(NUM_MESSAGES, queueView::getMessageCount);
 
          // Create a consumer and prefetch the messages
          connection = createConnection();
@@ -652,7 +652,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          consumer.close();
          connection.close();
 
-         assertTrue("Not all messages were enqueud", Wait.waitFor(() -> queueView.getMessageCount() == NUM_MESSAGES));
+         Wait.assertEquals(NUM_MESSAGES, queueView::getMessageCount);
       } finally {
          connection.close();
       }
@@ -730,7 +730,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       Queue queueView = getProxyToQueue(getQueueName());
 
       connection.close();
-      assertTrue("Not all messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+      Wait.assertEquals(0, queueView::getMessageCount);
 
       long taken = (System.currentTimeMillis() - time);
       System.out.println("Microbenchamrk ran in " + taken + " milliseconds, sending/receiving " + numMessages);
@@ -762,7 +762,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          connection.close();
          Queue queueView = getProxyToQueue(getQueueName());
 
-         assertTrue("Not all messages enqueued", Wait.waitFor(() -> queueView.getMessageCount() == numMessages));
+         Wait.assertEquals(numMessages, queueView::getMessageCount);
 
          // Now create a new connection and receive and acknowledge
          connection = createConnection();
@@ -788,7 +788,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          // Wait for Acks to be processed and message removed from queue.
          Thread.sleep(500);
 
-         assertTrue("Not all messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+         Wait.assertEquals(0, queueView::getMessageCount);
          long taken = (System.currentTimeMillis() - time) / 1000;
          System.out.println("taken = " + taken);
       } finally {
