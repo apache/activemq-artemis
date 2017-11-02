@@ -235,11 +235,11 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          assertNotNull(consumer3.receive(2000));
 
          Queue queue1 = getProxyToQueue(anycastQ1.toString());
-         assertTrue("Message not consumed on Q1", Wait.waitFor(() -> queue1.getMessageCount() == 0));
+         Wait.assertEquals(0, queue1::getMessageCount);
          Queue queue2 = getProxyToQueue(anycastQ2.toString());
-         assertTrue("Message not consumed on Q2", Wait.waitFor(() -> queue2.getMessageCount() == 0));
+         Wait.assertEquals(0, queue2::getMessageCount);
          Queue queue3 = getProxyToQueue(anycastQ3.toString());
-         assertTrue("Message not consumed on Q3", Wait.waitFor(() -> queue3.getMessageCount() == 0));
+         Wait.assertEquals(0, queue3::getMessageCount);
 
          connection.close();
          //queues are empty now

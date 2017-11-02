@@ -576,22 +576,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void initializeCriticalAnalyzer() throws Exception {
+
+      // Some tests will play crazy frequenceistop/start
+      CriticalAnalyzer analyzer = this.getCriticalAnalyzer();
       if (analyzer == null) {
          if (configuration.isCriticalAnalyzer()) {
             // this will have its own ScheduledPool
-            this.analyzer = new CriticalAnalyzerImpl();
+            analyzer = new CriticalAnalyzerImpl();
          } else {
-            this.analyzer = EmptyCriticalAnalyzer.getInstance();
+            analyzer = EmptyCriticalAnalyzer.getInstance();
          }
+
+         this.analyzer = analyzer;
       }
 
       /* Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
-      this.analyzer.clear();
+      analyzer.clear();
 
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
+      analyzer.setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
 
       if (configuration.isCriticalAnalyzer()) {
-         this.getCriticalAnalyzer().start();
+         analyzer.start();
       }
 
       CriticalAction criticalAction = null;
@@ -645,7 +650,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             break;
       }
 
-      this.getCriticalAnalyzer().addAction(criticalAction);
+      analyzer.addAction(criticalAction);
    }
 
    private void sendCriticalNotification(final CriticalComponent criticalComponent) {

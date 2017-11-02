@@ -110,7 +110,7 @@ public class AmqpBrokerReuqestedHearbeatsTest extends AmqpClientTestSupport {
 
       connection.close();
 
-      assertTrue("Connection should get cleaned up.", Wait.waitFor(() -> server.getConnectionCount() == 0));
+      Wait.assertEquals(0, server::getConnectionCount);
    }
 
    @Test(timeout = 60000)
@@ -139,6 +139,6 @@ public class AmqpBrokerReuqestedHearbeatsTest extends AmqpClientTestSupport {
 
       connection.close();
 
-      assertTrue("Connection should get cleaned up.", Wait.waitFor(() -> server.getConnectionCount() == 0));
+      Wait.assertEquals(0, server::getConnectionCount);
    }
 }
