@@ -58,8 +58,6 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
    protected final AMQPSessionCallback sessionSPI;
 
-   private RoutingType defRoutingType;
-
    /*
     The maximum number of credits we will allocate to clients.
     This number is also used by the broker when refresh client credits.
@@ -97,6 +95,8 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
 
       // We don't currently support SECOND so enforce that the answer is anlways FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+
+      RoutingType defRoutingType;
 
       if (target != null) {
          if (target.getDynamic()) {
@@ -181,15 +181,16 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       flow(amqpCredits, minCreditRefresh);
    }
 
-   public RoutingType getRoutingType(Receiver receiver) {
-      if (receiver == this.receiver) {
-         return defRoutingType;
-      }
+   public RoutingType getRoutingType(Receiver receiver, RoutingType defaultType) {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-      return target != null ? getRoutingType(target.getCapabilities()) : getRoutingType((Symbol[])null);
+      return target != null ? getRoutingType(target.getCapabilities(), defaultType) : getRoutingType((Symbol[])null, defaultType);
    }
 
    private RoutingType getRoutingType(Symbol[] symbols) {
+      return getRoutingType(symbols, null);
+   }
+
+   private RoutingType getRoutingType(Symbol[] symbols, RoutingType defaultType) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
             if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
@@ -200,7 +201,11 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
          }
       }
 
-      return sessionSPI.getDefaultRoutingType(address);
+      if (defaultType != null) {
+         return defaultType;
+      } else {
+         return sessionSPI.getDefaultRoutingType(address);
+      }
    }
 
    /*

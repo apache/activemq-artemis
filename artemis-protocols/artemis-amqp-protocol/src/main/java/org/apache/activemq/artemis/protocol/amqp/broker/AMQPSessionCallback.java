@@ -269,9 +269,11 @@ public class AMQPSessionCallback implements SessionCallback {
          queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
       }
 
-      if (queueQueryResult.getRoutingType() != routingType) {
+      // if auto-create we will return whatever type was used before
+      if (!queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
          throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
+
       return queueQueryResult;
    }
 
@@ -407,9 +409,7 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       //here check queue-autocreation
-      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-
-      RoutingType routingType = context.getRoutingType(receiver);
+      RoutingType routingType = context.getRoutingType(receiver, RoutingType.ANYCAST);
       if (!bindingQuery(address, routingType)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
