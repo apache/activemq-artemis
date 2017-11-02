@@ -58,7 +58,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
-      assertTrue("Message should have expired", Wait.waitFor(() -> queueView.getMessagesExpired() == 1));
+      Wait.assertEquals(1, queueView::getMessagesExpired);
 
       connection.close();
    }
@@ -122,7 +122,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
-      assertTrue("Message should have expired", Wait.waitFor(() -> queueView.getMessagesExpired() == 1));
+      Wait.assertEquals(1, queueView::getMessagesExpired);
 
       connection.close();
    }
@@ -157,7 +157,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
-      assertTrue("Message should have expired", Wait.waitFor(() -> queueView.getMessagesExpired() == 1));
+      Wait.assertEquals(1, queueView::getMessagesExpired);
 
       connection.close();
    }
@@ -256,7 +256,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       AmqpMessage received = receiver.receive(1, TimeUnit.SECONDS);
       assertNull(received);
 
-      assertTrue("Message should have expired", Wait.waitFor(() -> queueView.getMessagesExpired() == 1));
+      Wait.assertEquals(1, queueView::getMessagesExpired);
 
       connection.close();
    }

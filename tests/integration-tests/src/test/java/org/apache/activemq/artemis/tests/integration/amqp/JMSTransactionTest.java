@@ -53,7 +53,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       Queue queueView = getProxyToQueue(getQueueName());
 
-      assertTrue("Message didn't arrive on queue", Wait.waitFor(() -> queueView.getMessageCount() == 10));
+      Wait.assertEquals(10, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -74,7 +74,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       session.close();
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages arrived on queue", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+      Wait.assertEquals(0, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -97,7 +97,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       session.close();
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages arrived on queue", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+      Wait.assertEquals(0, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -128,7 +128,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       session.close();
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages not consumed", Wait.waitFor(() -> queueView.getMessageCount() == 0));
+      Wait.assertEquals(0, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -158,7 +158,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       session.rollback();
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages consumed", Wait.waitFor(() -> queueView.getMessageCount() == 10));
+      Wait.assertEquals(10, queueView::getMessageCount);
    }
 
    @Test(timeout = 60000)
@@ -181,7 +181,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       session.commit();
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("Messages not enqueued", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+      Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -193,9 +193,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
 
       session.rollback();
 
-      Wait.waitFor(() -> MSG_COUNT == queueView.getConsumerCount());
-
-      assertEquals(MSG_COUNT, queueView.getMessageCount());
+      Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
 
       // Consume again..check we receive all the messages.
       Set<Integer> messageNumbers = new HashSet<>();
