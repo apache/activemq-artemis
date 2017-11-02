@@ -18,7 +18,7 @@ rem under the License.
 
 setlocal
 
-if NOT "%ARTEMIS_HOME%"=="" goto CHECK_ARTEMIS_HOME
+if NOT %ARTEMIS_HOME%=="" goto CHECK_ARTEMIS_HOME
 PUSHD .
 CD %~dp0..
 set ARTEMIS_HOME="%CD%"
