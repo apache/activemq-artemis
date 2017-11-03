@@ -116,7 +116,7 @@ Sockets are being used and also use the appropriate decoders
 It is possible to limit which protocols are supported by using the
 `protocols` parameter on the Acceptor like so:
 
-        <connector name="netty">tcp://localhost:61617?protocols=CORE,AMQP</connector>
+        <acceptor name="netty">tcp://localhost:61617?protocols=CORE,AMQP</acceptor>
 
 ## Configuring Netty TCP
 
