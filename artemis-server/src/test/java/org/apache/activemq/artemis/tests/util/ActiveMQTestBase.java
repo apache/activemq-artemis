@@ -34,8 +34,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
@@ -138,6 +136,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
@@ -619,34 +618,9 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    public static String threadDump(final String msg) {
-      StringWriter str = new StringWriter();
-      PrintWriter out = new PrintWriter(str);
 
-      Map<Thread, StackTraceElement[]> stackTrace = Thread.getAllStackTraces();
+      return ThreadDumpUtil.threadDump(msg);
 
-      out.println("*******************************************************************************");
-      out.println("Complete Thread dump " + msg);
-
-      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet()) {
-         out.println("===============================================================================");
-         out.println("Thread " + el.getKey() +
-                        " name = " +
-                        el.getKey().getName() +
-                        " id = " +
-                        el.getKey().getId() +
-                        " group = " +
-                        el.getKey().getThreadGroup());
-         out.println();
-         for (StackTraceElement traceEl : el.getValue()) {
-            out.println(traceEl);
-         }
-      }
-
-      out.println("===============================================================================");
-      out.println("End Thread dump " + msg);
-      out.println("*******************************************************************************");
-
-      return str.toString();
    }
 
    /**

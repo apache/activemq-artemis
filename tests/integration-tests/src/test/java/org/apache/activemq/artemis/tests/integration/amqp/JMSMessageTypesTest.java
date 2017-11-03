@@ -63,9 +63,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.BYTES_TYPE, Base64.encodeBytes("test".getBytes()), false, fullUser, fullPass);
 
-      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
-
-      Assert.assertEquals(1, addressControl.getMessageCount());
+      Wait.assertEquals(1, addressControl::getMessageCount);
 
       Connection connection = createConnection("myClientId");
       try {
@@ -95,7 +93,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       Assert.assertEquals(1, addressControl.getQueueNames().length);
       addressControl.sendMessage(null, org.apache.activemq.artemis.api.core.Message.TEXT_TYPE, "test", false, fullUser, fullPass);
 
-      Wait.waitFor(() -> addressControl.getMessageCount() == 1);
+      Wait.assertEquals(1, addressControl::getMessageCount);
 
       Assert.assertEquals(1, addressControl.getMessageCount());
 

@@ -162,7 +162,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
       session.commit();
 
-      assertTrue("Message was not queued", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       sender.close();
       connection.close();
@@ -206,7 +206,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
@@ -238,7 +238,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
@@ -282,7 +282,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 

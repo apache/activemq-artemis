@@ -169,6 +169,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
@@ -575,22 +576,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void initializeCriticalAnalyzer() throws Exception {
+
+      // Some tests will play crazy frequenceistop/start
+      CriticalAnalyzer analyzer = this.getCriticalAnalyzer();
       if (analyzer == null) {
          if (configuration.isCriticalAnalyzer()) {
             // this will have its own ScheduledPool
-            this.analyzer = new CriticalAnalyzerImpl();
+            analyzer = new CriticalAnalyzerImpl();
          } else {
-            this.analyzer = EmptyCriticalAnalyzer.getInstance();
+            analyzer = EmptyCriticalAnalyzer.getInstance();
          }
+
+         this.analyzer = analyzer;
       }
 
       /* Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
-      this.analyzer.clear();
+      analyzer.clear();
 
-      this.getCriticalAnalyzer().setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
+      analyzer.setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
 
       if (configuration.isCriticalAnalyzer()) {
-         this.getCriticalAnalyzer().start();
+         analyzer.start();
       }
 
       CriticalAction criticalAction = null;
@@ -644,7 +650,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             break;
       }
 
-      this.getCriticalAnalyzer().addAction(criticalAction);
+      analyzer.addAction(criticalAction);
    }
 
    private void sendCriticalNotification(final CriticalComponent criticalComponent) {
@@ -925,28 +931,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void threadDump() {
-      StringWriter str = new StringWriter();
-      PrintWriter out = new PrintWriter(str);
-
-      Map<Thread, StackTraceElement[]> stackTrace = Thread.getAllStackTraces();
-
-      out.println(ActiveMQMessageBundle.BUNDLE.generatingThreadDump());
-      out.println("*******************************************************************************");
-
-      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet()) {
-         out.println("===============================================================================");
-         out.println(ActiveMQMessageBundle.BUNDLE.threadDump(el.getKey(), el.getKey().getName(), el.getKey().getId(), el.getKey().getThreadGroup()));
-         out.println();
-         for (StackTraceElement traceEl : el.getValue()) {
-            out.println(traceEl);
-         }
-      }
-
-      out.println("===============================================================================");
-      out.println(ActiveMQMessageBundle.BUNDLE.endThreadDump());
-      out.println("*******************************************************************************");
-
-      ActiveMQServerLogger.LOGGER.threadDump(str.toString());
+      ActiveMQServerLogger.LOGGER.threadDump(ThreadDumpUtil.threadDump(""));
    }
 
    @Override

@@ -1989,6 +1989,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+
    public void testCloseCOREclient() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
@@ -2044,7 +2045,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Wait.waitFor(() -> ((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
       Assert.assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
    }
-
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");

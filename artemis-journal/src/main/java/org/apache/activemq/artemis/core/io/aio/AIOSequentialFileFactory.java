@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
 
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory {
@@ -56,11 +57,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private static final String AIO_TEST_FILE = ".aio-test";
 
    public AIOSequentialFileFactory(final File journalDir, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, listener);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, listener, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
@@ -68,7 +69,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates) {
-      this(journalDir, bufferSize, bufferTimeout, maxIO, logRates, null);
+      this(journalDir, bufferSize, bufferTimeout, maxIO, logRates, null, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
@@ -76,8 +77,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates,
-                                   final IOCriticalErrorListener listener) {
-      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener);
+                                   final IOCriticalErrorListener listener,
+                                   final CriticalAnalyzer analyzer) {
+      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
       callbackPool = new CallbackCache<>(maxIO);
       if (logger.isTraceEnabled()) {
          logger.trace("New AIO File Created");
