@@ -23,8 +23,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+import org.jboss.logging.Logger;
+
 public abstract class ProcessorBase<T> {
 
+   private static final Logger logger = Logger.getLogger(ProcessorBase.class);
    private static final int STATE_NOT_RUNNING = 0;
    private static final int STATE_RUNNING = 1;
 
@@ -33,6 +36,11 @@ public abstract class ProcessorBase<T> {
    private final Executor delegate;
 
    private final ExecutorTask task = new ExecutorTask();
+
+   //it is a token that is being set on the thread that is performing the current duty cycle
+   private static final Object IN_EVENT_LOOP_TOKEN = new Object();
+
+   private final ThreadLocal<Object> inEventLoopTokenHolder = new ThreadLocal<>();
 
    // used by stateUpdater
    @SuppressWarnings("unused")
@@ -47,14 +55,19 @@ public abstract class ProcessorBase<T> {
          do {
             //if there is no thread active then we run
             if (stateUpdater.compareAndSet(ProcessorBase.this, STATE_NOT_RUNNING, STATE_RUNNING)) {
-               T task = tasks.poll();
-               //while the queue is not empty we process in order
-               while (task != null) {
-                  doTask(task);
-                  task = tasks.poll();
+               inEventLoopTokenHolder.set(IN_EVENT_LOOP_TOKEN);
+               try {
+                  T task = tasks.poll();
+                  //while the queue is not empty we process in order
+                  while (task != null) {
+                     doTask(task);
+                     task = tasks.poll();
+                  }
+               } finally {
+                  inEventLoopTokenHolder.set(null);
+                  //set state back to not running.
+                  stateUpdater.set(ProcessorBase.this, STATE_NOT_RUNNING);
                }
-               //set state back to not running.
-               stateUpdater.set(ProcessorBase.this, STATE_NOT_RUNNING);
             } else {
                return;
             }
@@ -63,6 +76,22 @@ public abstract class ProcessorBase<T> {
             //this check fixes the issue
          }
          while (!tasks.isEmpty());
+      }
+   }
+
+   /**
+    * @return {@code true} if the caller thread is the one performing the event loop duty cycle, {@code false} otherwise.
+    */
+   private boolean inEventLoop() {
+      return this.inEventLoopTokenHolder.get() == IN_EVENT_LOOP_TOKEN;
+   }
+
+   /**
+    * It prints a warn if it detects that the caller thread is {@link #inEventLoop()}.
+    */
+   private void validateBlockingCall() {
+      if (inEventLoop()) {
+         logger.warn("the current thread is not allowed to be blocked: it is performing an Artemis event loop.");
       }
    }
 
@@ -83,6 +112,7 @@ public abstract class ProcessorBase<T> {
     *          like in shutdown and failover situations.
     * */
    public final boolean flush(long timeout, TimeUnit unit) {
+      validateBlockingCall();
       if (stateUpdater.get(this) == STATE_NOT_RUNNING) {
          // quick test, most of the time it will be empty anyways
          return true;
@@ -111,7 +141,10 @@ public abstract class ProcessorBase<T> {
 
    protected void task(T command) {
       tasks.add(command);
-      startPoller();
+      //there is no need to alert the poller if already in the event loop
+      if (!inEventLoop()) {
+         startPoller();
+      }
    }
 
    protected void startPoller() {
