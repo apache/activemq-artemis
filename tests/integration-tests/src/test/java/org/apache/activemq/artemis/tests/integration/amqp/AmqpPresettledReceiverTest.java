@@ -193,7 +193,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       message.setText("Test-Message");
       sender.send(message);
 
-      Wait.assertEquals(0, queue::getMessageCount);
+      Wait.assertEquals(1, queue::getMessageCount);
 
       AmqpReceiver receiver = session.createReceiver(getQueueName(), null, false, true);
 
