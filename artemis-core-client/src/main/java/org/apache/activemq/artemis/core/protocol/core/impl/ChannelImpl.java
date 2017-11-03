@@ -397,6 +397,11 @@ public final class ChannelImpl implements Channel {
                start = now;
             }
 
+            if (closed && toWait > 0 && response == null) {
+               Throwable cause = ActiveMQClientMessageBundle.BUNDLE.connectionDestroyed();
+               throw ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause);
+            }
+
             if (response == null) {
                throw ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
             }
