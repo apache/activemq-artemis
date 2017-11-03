@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -73,7 +74,13 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
    public Map<String, Object> getParameters() {
       clearIO();
       try {
-         return configuration.getParams();
+         Map<String, Object> clone = new HashMap(configuration.getParams());
+         for (Map.Entry<String, Object> entry : clone.entrySet()) {
+            if (entry.getKey().toLowerCase().contains("password")) {
+               entry.setValue("****");
+            }
+         }
+         return clone;
       } finally {
          blockOnIO();
       }
