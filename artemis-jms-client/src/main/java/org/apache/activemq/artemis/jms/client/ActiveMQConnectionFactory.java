@@ -30,17 +30,17 @@ import javax.jms.XAConnectionFactory;
 import javax.jms.XAJMSContext;
 import javax.jms.XAQueueConnection;
 import javax.jms.XATopicConnection;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
+import javax.naming.Context;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -51,18 +51,18 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.jndi.JNDIStorable;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 
 /**
  * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
  * <p>This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
  */
-public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
+public class ActiveMQConnectionFactory extends JNDIStorable implements ConnectionFactoryOptions, Externalizable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
 
    private static final long serialVersionUID = -7554006056207377105L;
 
@@ -206,10 +206,14 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       this(DefaultConnectionProperties.DEFAULT_BROKER_URL);
    }
 
-   public ActiveMQConnectionFactory(String url) {
+   public ActiveMQConnectionFactory(String brokerURL) {
+      setBrokerURL(brokerURL);
+   }
+
+   private void setBrokerURL(String brokerURL) {
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
-         URI uri = cfParser.expandURI(url);
+         URI uri = cfParser.expandURI(brokerURL);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       } catch (Exception e) {
@@ -380,8 +384,36 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    }
 
    @Override
-   public Reference getReference() throws NamingException {
-      return new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ConnectionFactoryObjectFactory.class.getCanonicalName(), null);
+   protected void buildFromProperties(Properties props) {
+      String url = props.getProperty(Context.PROVIDER_URL);
+      if (url == null || url.isEmpty()) {
+         url = props.getProperty("brokerURL");
+      }
+      if (url != null && url.length() > 0) {
+         setBrokerURL(url);
+      }
+      if (url == null || url.isEmpty()) {
+         throw new IllegalArgumentException(Context.PROVIDER_URL + " or " + "brokerURL is required");
+      }
+      try {
+         BeanSupport.setProperties(this, props);
+      } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   @Override
+   protected void populateProperties(Properties props) {
+      try {
+         URI uri = toURI();
+         if (uri != null) {
+            props.put(Context.PROVIDER_URL, uri.toASCIIString());
+            props.put("brokerURL", uri.toASCIIString());
+         }
+         BeanSupport.getProperties(this, props);
+      } catch (IOException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public boolean isHA() {
