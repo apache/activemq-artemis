@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Topic;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-
 /**
  * ActiveMQ Artemis implementation of a JMS Topic.
  * <br>
@@ -31,44 +29,42 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    private static final long serialVersionUID = 7873614001276404156L;
    // Static --------------------------------------------------------
 
-   public static SimpleString createAddressFromName(final String name) {
-      return new SimpleString(name);
-   }
-
    // Attributes ----------------------------------------------------
 
    // Constructors --------------------------------------------------
-
-   public ActiveMQTopic(final String name) {
-      this(name, false);
+   public ActiveMQTopic() {
+      this(null);
    }
 
-   public ActiveMQTopic(final String name, boolean temporary) {
-      super(name, name, TYPE.TOPIC, null);
+   public ActiveMQTopic(final String address) {
+      this(address, false);
+   }
+
+   public ActiveMQTopic(final String address, boolean temporary) {
+      super(address, TYPE.TOPIC, null);
    }
 
    /**
     * @param address
-    * @param name
     * @param temporary
     * @param session
     */
-   protected ActiveMQTopic(String address, String name, boolean temporary, ActiveMQSession session) {
-      super(address, name, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
+   protected ActiveMQTopic(String address, boolean temporary, ActiveMQSession session) {
+      super(address, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
    }
 
    // Topic implementation ------------------------------------------
 
    @Override
    public String getTopicName() {
-      return name;
+      return getName();
    }
 
    // Public --------------------------------------------------------
 
    @Override
    public String toString() {
-      return "ActiveMQTopic[" + name + "]";
+      return "ActiveMQTopic[" + getName() + "]";
    }
 
    @Override
