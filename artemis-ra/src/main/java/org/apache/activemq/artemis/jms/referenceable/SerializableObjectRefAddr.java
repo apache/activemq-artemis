@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,16 @@
  */
 package org.apache.activemq.artemis.jms.referenceable;
 
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.Reference;
-import javax.naming.spi.ObjectFactory;
-import java.util.Hashtable;
+import javax.naming.NamingException;
 
 /**
- * A ConnectionFactoryObjectFactory.
+ * Done for back compatibility with the package/class move.
  *
- * Given a reference - reconstructs an ActiveMQRAConnectionFactory
+ * Should be removed on next major version change.
  */
-public class ConnectionFactoryObjectFactory implements ObjectFactory {
+public class SerializableObjectRefAddr extends org.apache.activemq.artemis.ra.referenceable.SerializableObjectRefAddr {
 
-   @Override
-   public Object getObjectInstance(final Object ref,
-                                   final Name name,
-                                   final Context ctx,
-                                   final Hashtable<?, ?> props) throws Exception {
-      Reference r = (Reference) ref;
-
-      byte[] bytes = (byte[]) r.get("ActiveMQ-CF").getContent();
-
-      // Deserialize
-      return SerializableObjectRefAddr.deserialize(bytes);
+   public SerializableObjectRefAddr(final String type, final Object content) throws NamingException {
+      super(type, content);
    }
 }

@@ -43,6 +43,9 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
       UNSUPPORTED_CF_PROPERTIES.add("discoveryGroupName");
       UNSUPPORTED_CF_PROPERTIES.add("incomingInterceptorList");
       UNSUPPORTED_CF_PROPERTIES.add("outgoingInterceptorList");
+      UNSUPPORTED_CF_PROPERTIES.add("user");
+      UNSUPPORTED_CF_PROPERTIES.add("userName");
+      UNSUPPORTED_CF_PROPERTIES.add("password");
 
       UNSUPPORTED_RA_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_RA_PROPERTIES.add("HA");
@@ -62,6 +65,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
       UNSUPPORTED_RA_PROPERTIES.add("useMaskedPassword");
       UNSUPPORTED_RA_PROPERTIES.add("useAutoRecovery");
       UNSUPPORTED_RA_PROPERTIES.add("useLocalTx");
+      UNSUPPORTED_RA_PROPERTIES.add("user");
       UNSUPPORTED_RA_PROPERTIES.add("userName");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelLocatorClass");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelRefName");

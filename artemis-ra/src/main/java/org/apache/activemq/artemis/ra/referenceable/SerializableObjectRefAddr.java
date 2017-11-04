@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jms.referenceable;
+package org.apache.activemq.artemis.ra.referenceable;
 
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
