@@ -29,9 +29,12 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
+   public ActiveMQTemporaryTopic() {
+      this(null, null);
+   }
 
-   protected ActiveMQTemporaryTopic(final String address, final String name, final ActiveMQSession session) {
-      super(address, name, true, session);
+   public ActiveMQTemporaryTopic(final String address, final ActiveMQSession session) {
+      super(address, true, session);
    }
 
    // Public --------------------------------------------------------
