@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
@@ -268,9 +269,11 @@ public class AMQPSessionCallback implements SessionCallback {
          queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
       }
 
-      if (queueQueryResult.getRoutingType() != routingType) {
+      // if auto-create we will return whatever type was used before
+      if (!queueQueryResult.isAutoCreated() && queueQueryResult.getRoutingType() != routingType) {
          throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
       }
+
       return queueQueryResult;
    }
 
@@ -284,11 +287,14 @@ public class AMQPSessionCallback implements SessionCallback {
             // The address may have been created by another thread in the mean time.  Catch and do nothing.
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
-      } else if (routingType == RoutingType.ANYCAST && !bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateQueues()) {
-         try {
-            serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
-         } catch (ActiveMQQueueExistsException e) {
-            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+      } else if (routingType == RoutingType.ANYCAST && bindingQueryResult.isAutoCreateQueues()) {
+         QueueQueryResult queueBinding = serverSession.executeQueueQuery(simpleAddress);
+         if (!queueBinding.isExists()) {
+            try {
+               serverSession.createQueue(simpleAddress, simpleAddress, routingType, null, false, true, true);
+            } catch (ActiveMQQueueExistsException e) {
+               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+            }
          }
          bindingQueryResult = serverSession.executeBindingQuery(simpleAddress);
       }
@@ -383,7 +389,8 @@ public class AMQPSessionCallback implements SessionCallback {
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
 
-   public void serverSend(final Transaction transaction,
+   public void serverSend(final ProtonServerReceiverContext context,
+                          final Transaction transaction,
                           final Receiver receiver,
                           final Delivery delivery,
                           String address,
@@ -394,14 +401,17 @@ public class AMQPSessionCallback implements SessionCallback {
          message.setAddress(new SimpleString(address));
       } else {
          // Anonymous relay must set a To value
-         if (message.getAddress() == null) {
+         address = message.getAddress();
+         if (address == null) {
             rejectMessage(delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
             return;
          }
+      }
 
-         if (!bindingQuery(message.getAddress().toString(), RoutingType.ANYCAST)) {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
-         }
+      //here check queue-autocreation
+      RoutingType routingType = context.getRoutingType(receiver, RoutingType.ANYCAST);
+      if (!bindingQuery(address, routingType)) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
       }
 
       OperationContext oldcontext = recoverContext();
