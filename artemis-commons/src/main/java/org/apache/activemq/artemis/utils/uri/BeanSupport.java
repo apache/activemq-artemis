@@ -19,12 +19,14 @@ package org.apache.activemq.artemis.utils.uri;
 
 import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -67,6 +69,38 @@ public class BeanSupport {
          beanUtils.populate(obj, data);
       }
       return obj;
+   }
+
+   public static <P> P setProperties(P bean, Properties properties)
+      throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+      synchronized (beanUtils) {
+         PropertyDescriptor[] descriptors = beanUtils.getPropertyUtils().getPropertyDescriptors(bean);
+         for (PropertyDescriptor descriptor : descriptors) {
+            if (descriptor.getReadMethod() != null && isWriteable(descriptor, null)) {
+               String value = properties.getProperty(descriptor.getName());
+               if (value != null) {
+                  beanUtils.setProperty(bean, descriptor.getName(), value);
+               }
+            }
+         }
+      }
+      return bean;
+   }
+
+   public static <P> Properties getProperties(P bean, Properties properties)
+      throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+      synchronized (beanUtils) {
+         PropertyDescriptor[] descriptors = beanUtils.getPropertyUtils().getPropertyDescriptors(bean);
+         for (PropertyDescriptor descriptor : descriptors) {
+            if (descriptor.getReadMethod() != null && isWriteable(descriptor, null)) {
+               String value = beanUtils.getProperty(bean, descriptor.getName());
+               if (value != null) {
+                  properties.put(descriptor.getName(), value);
+               }
+            }
+         }
+      }
+      return properties;
    }
 
    public static void setData(URI uri,

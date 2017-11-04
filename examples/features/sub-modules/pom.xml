@@ -50,7 +50,8 @@ under the License.
          <id>release</id>
          <modules>
             <module>artemis-ra-rar</module>
-	         <module>inter-broker-bridge</module>
+            <module>inter-broker-bridge</module>
+            <module>tomcat</module>
          </modules>
       </profile>
    </profiles>

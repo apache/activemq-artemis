@@ -14,30 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.converter.jms;
+package org.apache.activemq.artemis.example.tomcat.sample;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-/**
- * This is just here to avoid all the client checks we need with valid JMS destinations, protocol convertors don't need to
- * adhere to the jms. semantics.
- */
-public class ServerDestination extends ActiveMQDestination implements Queue {
-
-   public ServerDestination(String address) {
-      super(address, TYPE.DESTINATION, null);
-   }
-
-   public ServerDestination(SimpleString address) {
-      super(address, TYPE.DESTINATION, null);
-   }
-
+public class SystemOutPrintLnMessageListener implements MessageListener {
    @Override
-   public String getQueueName() throws JMSException {
-      return getName();
+   public void onMessage(Message message) {
+      System.out.println(message);
    }
 }
