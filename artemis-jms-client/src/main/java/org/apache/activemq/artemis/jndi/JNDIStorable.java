@@ -16,20 +16,18 @@
  */
 package org.apache.activemq.artemis.jndi;
 
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Properties;
+
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
 
 /**
  * Facilitates objects to be stored in JNDI as properties
- *
- * @since 1.0
  */
 public abstract class JNDIStorable implements Referenceable, Externalizable {
 
@@ -38,10 +36,8 @@ public abstract class JNDIStorable implements Referenceable, Externalizable {
     *
     * @param props
     *     The properties to use when building the new isntance.
-    *
-    * @return a new, unmodifiable, map containing any unused properties, or empty if none were.
     */
-   protected abstract Map<String, String> buildFromProperties(Map<String, String> props);
+   protected abstract void buildFromProperties(Properties props);
 
    /**
     * Initialize the instance from properties stored in JNDI
@@ -49,7 +45,7 @@ public abstract class JNDIStorable implements Referenceable, Externalizable {
     * @param props
     *     The properties to use when initializing the new instance.
     */
-   protected abstract void populateProperties(Map<String, String> props);
+   protected abstract void populateProperties(Properties props);
 
    /**
     * set the properties for this instance as retrieved from JNDI
@@ -59,8 +55,8 @@ public abstract class JNDIStorable implements Referenceable, Externalizable {
     *
     * @return a new, unmodifiable, map containing any unused properties, or empty if none were.
     */
-   public synchronized Map<String, String> setProperties(Map<String, String> props) {
-      return buildFromProperties(props);
+   synchronized void setProperties(Properties props) {
+      buildFromProperties(props);
    }
 
    /**
@@ -68,8 +64,8 @@ public abstract class JNDIStorable implements Referenceable, Externalizable {
     *
     * @return the properties
     */
-   public synchronized Map<String, String> getProperties() {
-      Map<String, String> properties = new LinkedHashMap<>();
+   synchronized Properties getProperties() {
+      Properties properties = new Properties();
       populateProperties(properties);
       return properties;
    }
@@ -87,30 +83,27 @@ public abstract class JNDIStorable implements Referenceable, Externalizable {
    }
 
    /**
-    * @see Externalizable#readExternal(ObjectInput)
+    * @param in
+    * @throws IOException
+    * @throws ClassNotFoundException
+    * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
     */
-   @SuppressWarnings("unchecked")
    @Override
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-      Map<String, String> props = (Map<String, String>) in.readObject();
+      Properties props = (Properties)in.readObject();
       if (props != null) {
          setProperties(props);
       }
    }
 
    /**
-    * @see Externalizable#writeExternal(ObjectOutput)
+    * @param out
+    * @throws IOException
+    * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
     */
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       out.writeObject(getProperties());
    }
 
-   protected String getProperty(Map<String, String> map, String key, String defaultValue) {
-      String value = map.get(key);
-      if (value != null) {
-         return value;
-      }
-      return defaultValue;
-   }
 }

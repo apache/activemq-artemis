@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.converter.jms;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 /**
@@ -27,8 +28,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
  */
 public class ServerDestination extends ActiveMQDestination implements Queue {
 
-   public ServerDestination(String name) {
-      super(name, name, TYPE.DESTINATION, null);
+   public ServerDestination(String address) {
+      super(address, TYPE.DESTINATION, null);
+   }
+
+   public ServerDestination(SimpleString address) {
+      super(address, TYPE.DESTINATION, null);
    }
 
    @Override

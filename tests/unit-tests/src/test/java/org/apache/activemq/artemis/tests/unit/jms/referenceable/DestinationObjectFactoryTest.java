@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.tests.unit.jms.referenceable;
 
 import javax.naming.Reference;
+import javax.naming.spi.ObjectFactory;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
+import org.apache.activemq.artemis.jndi.JNDIReferenceFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -42,7 +43,7 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
       Reference reference = queue.getReference();
 
-      DestinationObjectFactory factory = new DestinationObjectFactory();
+      ObjectFactory factory = new JNDIReferenceFactory();
       Object object = factory.getObjectInstance(reference, null, null, null);
       Assert.assertNotNull(object);
       Assert.assertTrue(object instanceof ActiveMQDestination);
