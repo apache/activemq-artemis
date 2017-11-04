@@ -852,7 +852,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SimpleString bindAddress = new SimpleString(realAddress);
       if (managementService != null) {
          if (bindAddress.equals(managementService.getManagementAddress())) {
-            return new BindingQueryResult(true, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+            return new BindingQueryResult(true, null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
          }
       }
 
@@ -868,7 +868,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(getAddressInfo(bindAddress) != null, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
+      AddressInfo info = getAddressInfo(bindAddress);
+
+      return new BindingQueryResult(info != null, info, names, autoCreateQeueus, autoCreateAddresses, defaultPurgeOnNoConsumers, defaultMaxConsumers);
    }
 
    @Override

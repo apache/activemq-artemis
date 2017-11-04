@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 public class BindingQueryResult {
 
@@ -34,12 +35,17 @@ public class BindingQueryResult {
 
    private int defaultMaxConsumers;
 
+   private final AddressInfo addressInfo;
+
    public BindingQueryResult(final boolean exists,
+                             final AddressInfo addressInfo,
                              final List<SimpleString> queueNames,
                              final boolean autoCreateQueues,
                              final boolean autoCreateAddresses,
                              final boolean defaultPurgeOnNoConsumers,
                              final int defaultMaxConsumers) {
+      this.addressInfo = addressInfo;
+
       this.exists = exists;
 
       this.queueNames = queueNames;
@@ -55,6 +61,10 @@ public class BindingQueryResult {
 
    public boolean isExists() {
       return exists;
+   }
+
+   public AddressInfo getAddressInfo() {
+      return addressInfo;
    }
 
    public boolean isAutoCreateQueues() {
