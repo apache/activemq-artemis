@@ -19,12 +19,16 @@ package org.apache.activemq.artemis.core.management.impl.view;
 import javax.json.JsonObjectBuilder;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.AddressFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.jboss.logging.Logger;
 
-public class AddressView extends ActiveMQAbstractView<SimpleString> {
+public class AddressView extends ActiveMQAbstractView<AddressControl> {
+
+   private static final Logger logger = Logger.getLogger(AddressView.class);
 
    private static final String defaultSortColumn = "creationTime";
 
@@ -42,17 +46,56 @@ public class AddressView extends ActiveMQAbstractView<SimpleString> {
    }
 
    @Override
-   public JsonObjectBuilder toJson(SimpleString addressName) {
+   public JsonObjectBuilder toJson(AddressControl addressControl) {
 
-      AddressInfo address = server.getAddressInfo(addressName);
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(address.getId())).add("name", toString(address.getName())).add("routingTypes", toString(address.getRoutingTypes()));
+      AddressInfo address = server.getAddressInfo(new SimpleString(addressControl.getAddress()));
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("id", toString(address.getId())).add("name", addressControl.getAddress()).add("routingTypes", toString(address.getRoutingTypes()));
 
       try {
-         obj.add("queueCount", toString(server.bindingQuery(address.getName()).getQueueNames().size()));
-         return obj;
+         obj.add("queueCount", toString(addressControl.getQueueNames().length));
       } catch (Exception e) {
-         obj.add("queueCount", 0);
+         if (logger.isDebugEnabled()) {
+            logger.debug("setting queueCount", e);
+         }
+         obj.add("queueCount", "0");
       }
+
+      try {
+         obj.add("addressMemorySize", toString(addressControl.getAddressSize()));
+      } catch (Exception e) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("setting addressMemorySize", e);
+         }
+         obj.add("addressMemorySize", "0");
+      }
+
+      try {
+         obj.add("paging", toString(addressControl.isPaging()));
+      } catch (Exception e) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("setting paging", e);
+         }
+         obj.add("paging", "false");
+      }
+
+      try {
+         obj.add("numberOfPages", toString(addressControl.getNumberOfPages()));
+      } catch (Exception e) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("setting numberOfPages", e);
+         }
+         obj.add("numberOfPages", "0");
+      }
+
+      try {
+         obj.add("numberOfBytesPerPage", toString(addressControl.getNumberOfBytesPerPage()));
+      } catch (Exception e) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("setting numberOfBytesPerPage", e);
+         }
+         obj.add("numberOfBytesPerPage", "0");
+      }
+
       return obj;
    }
 

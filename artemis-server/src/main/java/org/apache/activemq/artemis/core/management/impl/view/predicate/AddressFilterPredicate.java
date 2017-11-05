@@ -17,13 +17,14 @@
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
-public class AddressFilterPredicate extends ActiveMQFilterPredicate<SimpleString> {
+public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressControl> {
 
    enum Field {
-      ID, NAME, ROUTING_TYPES, PRODUCER_ID, QUEUE_COUNT
+      ID, NAME, ROUTING_TYPES, PRODUCER_ID, QUEUE_COUNT, ADDRESS_MEMORY_SIZE, PAGING, NUMBER_OF_PAGES, NUMBER_OF_BYTES_PER_PAGE
    }
 
    private Field f;
@@ -36,8 +37,14 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<SimpleString
    }
 
    @Override
-   public boolean apply(SimpleString addressName) {
-      AddressInfo address = server.getAddressInfo(addressName);
+   public boolean apply(AddressControl addressControl) {
+      AddressInfo address = server.getAddressInfo(new SimpleString(addressControl.getAddress()));
+
+      //should not happen but just in case...
+      if (address == null) {
+         return false;
+      }
+
       if (f == null)
          return true;
       try {
@@ -45,13 +52,21 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<SimpleString
             case ID:
                return matches(address.getId());
             case NAME:
-               return matches(address.getName());
+               return matches(addressControl.getAddress());
             case ROUTING_TYPES:
                return matchAny(address.getRoutingTypes());
             case PRODUCER_ID:
                return matches("TODO");
             case QUEUE_COUNT:
-               return matches(server.bindingQuery(address.getName()).getQueueNames().size());
+               return matches(addressControl.getQueueNames().length);
+            case ADDRESS_MEMORY_SIZE:
+               return matches(addressControl.getAddressSize());
+            case PAGING:
+               return matches(addressControl.isPaging());
+            case NUMBER_OF_PAGES:
+               return matches(addressControl.getNumberOfPages());
+            case NUMBER_OF_BYTES_PER_PAGE:
+               return matches(addressControl.getNumberOfBytesPerPage());
          }
       } catch (Exception e) {
          return false;

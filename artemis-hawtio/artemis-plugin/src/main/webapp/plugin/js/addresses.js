@@ -55,6 +55,26 @@ var ARTEMIS = (function(ARTEMIS) {
                 field: 'queueCount',
                 displayName: 'Queue Count',
                 width: '*'
+            },
+            {
+                field: 'addressMemorySize',
+                displayName: 'Memory Size',
+                width: '*'
+            },
+            {
+                field: 'paging',
+                displayName: 'Paging',
+                width: '*'
+            },
+            {
+                field: 'numberOfPages',
+                displayName: 'Number Of Pages',
+                width: '*'
+            },
+            {
+                field: 'numberOfBytesPerPage',
+                displayName: 'Bytes Per Page',
+                width: '*'
             }
         ];
         $scope.filter = {
@@ -63,6 +83,10 @@ var ARTEMIS = (function(ARTEMIS) {
                 {id: 'NAME', name: 'Name'},
                 {id: 'ROUTING_TYPES', name: 'Routing Types'},
                 {id: 'QUEUE_COUNT', name: 'Queue Count'},
+                {id: 'ADDRESS_MEMORY_SIZE', name: 'Memory Size'},
+                {id: 'PAGING', name: 'Paging'},
+                {id: 'NUMBER_OF_PAGES', name: 'Number Of Pages'},
+                {id: 'NUMBER_OF_BYTES_PER_PAGE', name: 'Bytes Per Page'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
