@@ -112,7 +112,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
             }
             //set the position to 0 to match the fill contract
             channel.position(0);
-            fileSize = size;
+            fileSize = channel.size();
          } finally {
             //return it to the factory
             this.factory.releaseBuffer(zeroPage);
