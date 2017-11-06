@@ -87,7 +87,8 @@ var ARTEMIS = (function(ARTEMIS) {
                  width: '10%'
               }
           ],
-          afterSelectionChange: afterSelectionChange
+          afterSelectionChange: afterSelectionChange,
+	  plugins: [new ngGridFlexibleHeightPlugin()],
        };
        $scope.showMessageDetails = false;
        var ignoreColumns = ["PropertiesText", "BodyPreview", "text"];

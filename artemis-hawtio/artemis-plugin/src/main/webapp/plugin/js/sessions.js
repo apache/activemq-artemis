@@ -189,6 +189,7 @@ var ARTEMIS = (function(ARTEMIS) {
             useExternalFiltering: true,
             sortInfo: $scope.sortOptions,
             useExternalSorting: true,
+	    plugins: [new ngGridFlexibleHeightPlugin()],
         };
         $scope.refresh = function () {
             refreshed = true;
