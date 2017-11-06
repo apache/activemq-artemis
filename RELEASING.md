@@ -21,7 +21,7 @@ Things to do before issuing a new release:
 5. Check the manuals have been created properly
 6. Check the javadocs are created correctly (including the diagrams)
 
-* If every thing is successful follow these next steps to build and publish artifacts to Nexus and send out a release vote.
+If everything is successful follow these next steps to build and publish artifacts to Nexus and send out a release vote.
 
 ## Key to Sign the Release
 
@@ -164,12 +164,14 @@ svn commit
 
 Old staged releases can be cleaned out periodically.
 
+
 ## Locate Release Notes
 
 1. Go to the "Releases" page for the Artemis JIRA project: https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page
 2. Click on the version being released.
 3. Click the "Release Notes" link near the top of the page.
 4. Grab the URL to put into the VOTE email.
+
 
 ## Send Email
 
@@ -210,15 +212,53 @@ Here's my +1
 ```
 
 
+## Voting process
+
+Rules for the Apache voting process are stipulated [here](https://www.apache.org/foundation/voting.html).
+
+Assuming the vote is successful send a email with a subject like `[RESULT] [VOTE] Apache ActiveMQ Artemis <version>` 
+informing the list about the voting results, e.g.:
+
+```
+Results of the Apache ActiveMQ Artemis <version> release vote.
+
+Vote passes with 2 +1 binding votes.
+
+The following votes were received:
+
+Binding:
++1 John Doe
++1 Bill Smith
+
+Non Binding:
++1 Mike Williams
+
+Thank you to everyone who contributed and took the time to review the
+release candidates and vote.
+
+I'll move forward with the getting the release out and updating the
+relevant documentation.
+
+Regards
+```
+
+
 ## Promote artifacts to the dist release area
 
 After a successful vote, populate the dist release area using the staged
-files from the dist dev area to allow them to mirror.
+files from the dist dev area to allow them to mirror. Note: this can only
+be done by a PMC member.
 
 ```sh
 svn cp -m "add files for activemq-artemis-${CURRENT-RELEASE}" https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/${CURRENT-RELEASE} https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${CURRENT-RELEASE}
 ```
-It can take up to 24hrs for there to be good mirror coverage. Mirror status can be viewed at https://www.apache.org/mirrors/.
+
+Good mirror coverage can take up to 24 hours. Mirror status can be viewed [here](https://www.apache.org/mirrors/).
+
+
+## Release the staging repo
+
+Go to https://repository.apache.org/#stagingRepositories and click the "Release" button.
 
 
 ## Web site update:
@@ -227,6 +267,63 @@ Make sure you get a copy of the website at:
 
 ```sh
 svn co https://svn.apache.org/repos/infra/websites/production/activemq/content/artemis/
+```
+
+Once the mirrors are up-to-date then update the following:
+1. Copy release-notes-<old-version>.html to release-notes-<new-version>.html.
+2. Update release-notes-<new-version>.html. Delete the existing list of bugs, features, improvements, etc. and replace it
+   with the HTML from the bottom of the release notes link you sent out with your VOTE email.
+3. Update past-releases.html. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
+   and modify the version numbers for the last release.
+4. Update download.html. Modify the block of HTML dealing with the last release so that the version numbers are for
+   the new release.
+5. Copy docs/latest to docs/<old-version>.
+6. Create docs/latest and copy these files into it:
+    1. contents of user-manual from <new-version>
+    2. book.pdf version of user-manual (generated with `gitbook pdf`)
+    3. book.epub version of user-manual (generated with `gitbook epub`)
+    4. book.mobi version of user-manual (generated with `gitbook mobi`)
+    5. hacking-guide directory from <new-version>
+    6. book.pdf version of hacking-guide (generated with `gitbook pdf`)        
+7. Copy docs/javadocs/javadoc-latest to docs/javadocs/javadoc-<old-version>.
+8. Create docs/javadocs/javadoc-latest and copy the contents of <new-release>/web/api into it.
+9. Update previous-docs.html. Copy the block of HTML dealing with the 2nd-to-last release, paste it above the original, 
+   and modify the version numbers for the last release.
+   
+Run `svn add` for all the added directories & files and then `svn commit -m "updates for <version> release"`.
+
+Note: Generating PDFs, etc. with gitbook requires the installation of [Calibre](https://calibre-ebook.com). You can
+install this manually, but it is recommended you use your platform's package management to install (e.g. `sudo apt-get install calibre`).
+
+
+## Send announcement to user list
+
+Once the website is updated then send an email with a subject like `[ANNOUNCE] ActiveMQ Artemis <version> Released` to 
+`user@activemq.apache.org` & `dev@activemq.apache.org`, e.g.:
+
+```
+I'm pleased to announce the release of ActiveMQ Artemis <version>.
+
+Downloads are now available at:
+http://activemq.apache.org/artemis/download.html
+
+For a complete list of updates:
+http://activemq.apache.org/artemis/release-notes-<version>.html
+
+I would like to highlight these improvements:
+
+- Summary of feature 1:
+<link to relevant documentation>
+
+- Summary of feature 2:
+<link to relevant documentation>
+
+- Summary of feature 3:
+<link to relevant documentation>
+
+As usual it contains a handful of bug fixes and other improvements.
+
+Many thanks for all the contributors to this release.
 ```
 
 
@@ -238,9 +335,10 @@ Only the current releases should be mirrored. Older releases must be cleared:
 svn rm -m "clean out older release" https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${OLD-RELEASE}
 ```
 Any links to them on the site must be updated to reference the ASF archive instead at
-https://archive.apache.org/dist/activemq/activemq-artemis/
+https://archive.apache.org/dist/activemq/activemq-artemis/ (this should already have been done implicitly in the previous step).
 
 Ensure old releases are only removed after the site is updated in order to avoid broken links.
+
 
 ## Apache Guide
 
