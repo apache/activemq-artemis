@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Before;
@@ -303,8 +304,9 @@ public class JmsConsumerTest extends JMSTestBase {
       SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
       conn.close();
 
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      Queue queue = server.locateQueue(queueName);
+      Wait.assertEquals(0, queue::getDeliveringCount);
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test
@@ -329,8 +331,9 @@ public class JmsConsumerTest extends JMSTestBase {
 
       // Messages should all have been acked since we set pre ack on the cf
       SimpleString queueName = new SimpleString(JmsConsumerTest.Q_NAME);
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
+      Queue queue = server.locateQueue(queueName);
+      Wait.assertEquals(0, queue::getDeliveringCount);
+      Wait.assertEquals(0, queue::getMessageCount);
    }
 
    @Test

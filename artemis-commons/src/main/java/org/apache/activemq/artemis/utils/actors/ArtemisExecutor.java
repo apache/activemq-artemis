@@ -25,7 +25,7 @@ public interface ArtemisExecutor extends Executor {
 
    /**
     * Artemis is supposed to implement this properly, however in tests or tools
-    * this can be used as a fake, doing a sipmle delegate and using the default methods implemented here.
+    * this can be used as a fake, doing a simple delegate and using the default methods implemented here.
     * @param executor
     * @return
     */
@@ -38,11 +38,16 @@ public interface ArtemisExecutor extends Executor {
       };
    }
 
-   default boolean flush() {
-      return flush(30, TimeUnit.SECONDS);
+   /** It will wait the current execution (if there is one) to finish
+    *  but will not complete any further executions */
+   default void shutdownNow() {
    }
 
-   default boolean flush(long timeout, TimeUnit unit) {
+   /**
+    * This will verify if the executor is flushed with no wait (or very minimal wait if not the {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}
+    * @return
+    */
+   default boolean isFlushed() {
       CountDownLatch latch = new CountDownLatch(1);
       Runnable runnable = new Runnable() {
          @Override
@@ -52,18 +57,10 @@ public interface ArtemisExecutor extends Executor {
       };
       execute(runnable);
       try {
-         return latch.await(timeout, unit);
+         return latch.await(100, TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {
          return false;
       }
-   }
-
-   /**
-    * This will verify if the executor is flushed with no wait (or very minimal wait if not the {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}
-    * @return
-    */
-   default boolean isFlushed() {
-      return flush(100, TimeUnit.MILLISECONDS);
    }
 
 }
