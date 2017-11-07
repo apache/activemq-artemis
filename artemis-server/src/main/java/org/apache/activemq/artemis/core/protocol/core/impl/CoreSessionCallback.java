@@ -67,7 +67,7 @@ public final class CoreSessionCallback implements SessionCallback {
       ServerSessionPacketHandler localHandler = handler;
       if (localHandler != null) {
          // We wait any pending tasks before we make this as closed
-         localHandler.flushExecutor();
+         localHandler.closeExecutors();
       }
       this.handler = null;
    }

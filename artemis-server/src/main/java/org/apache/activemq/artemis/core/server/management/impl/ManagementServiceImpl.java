@@ -257,7 +257,9 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name, routingType);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.QUEUE + name);
-      messageCounterManager.unregisterMessageCounter(name.toString());
+      if (messageCounterManager != null) {
+         messageCounterManager.unregisterMessageCounter(name.toString());
+      }
    }
 
    @Override

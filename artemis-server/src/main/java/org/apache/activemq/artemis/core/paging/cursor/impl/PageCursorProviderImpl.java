@@ -240,7 +240,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          cursor.stop();
       }
 
-      waitForFuture();
+      executor.shutdownNow();
    }
 
    private void waitForFuture() {

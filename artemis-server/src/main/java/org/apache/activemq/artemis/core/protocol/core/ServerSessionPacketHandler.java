@@ -220,7 +220,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    public void connectionFailed(final ActiveMQException exception, boolean failedOver) {
       ActiveMQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
-      flushExecutor();
+      closeExecutors();
 
       try {
          session.close(true);
@@ -248,15 +248,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       inHandler.set(null);
    }
 
-   public void flushExecutor() {
-      if (!inHandler()) {
-         packetActor.flush();
-         callExecutor.flush();
-      }
+   public void closeExecutors() {
+      packetActor.shutdownNow();
+      callExecutor.shutdownNow();
    }
 
    public void close() {
-      flushExecutor();
+      closeExecutors();
 
       channel.flushConfirmations();
 
@@ -895,8 +893,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             remotingConnection.removeFailureListener((FailureListener) closeListener);
          }
       }
-
-      flushExecutor();
    }
 
    public int transferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID) {
