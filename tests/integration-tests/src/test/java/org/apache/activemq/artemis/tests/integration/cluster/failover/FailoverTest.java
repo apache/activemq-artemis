@@ -111,7 +111,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailover() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 500;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 500L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -176,7 +178,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverConsume() throws Exception {
       locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(300).setRetryInterval(100).setAckBatchSize(0);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -237,7 +241,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
       locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -330,7 +336,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
       locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -397,11 +405,12 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(500);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 6000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 6000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
       final ClientSession session = createSession(sf1, false, false, false);
-
 
       session.createQueue(FailoverTestBase.ADDRESS, RoutingType.MULTICAST, FailoverTestBase.ADDRESS, null, true);
 
@@ -474,7 +483,9 @@ public class FailoverTest extends FailoverTestBase {
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
       locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(100);
 
-      ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      if (nodeManager instanceof InVMNodeManager) {
+         ((InVMNodeManager) nodeManager).failoverPause = 5000L;
+      }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
