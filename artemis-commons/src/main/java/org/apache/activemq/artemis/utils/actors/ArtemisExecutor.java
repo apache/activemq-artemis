@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.utils.actors;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +42,14 @@ public interface ArtemisExecutor extends Executor {
 
    /** It will wait the current execution (if there is one) to finish
     *  but will not complete any further executions */
-   default void shutdownNow() {
+   default List<Runnable> shutdownNow() {
+      return Collections.emptyList();
    }
+
+
+   default void shutdown() {
+   }
+
 
    /**
     * This will verify if the executor is flushed with no wait (or very minimal wait if not the {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}
