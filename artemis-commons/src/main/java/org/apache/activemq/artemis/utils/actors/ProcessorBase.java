@@ -17,17 +17,24 @@
 
 package org.apache.activemq.artemis.utils.actors;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 
-public abstract class ProcessorBase<T> {
+import org.jboss.logging.Logger;
 
-   private static final int STATE_NOT_RUNNING = 0;
-   private static final int STATE_RUNNING = 1;
-   private static final int STATE_FORCED_SHUTDOWN = 2;
+public abstract class ProcessorBase<T> extends HandlerBase {
+
+   private static final Logger logger = Logger.getLogger(ProcessorBase.class);
+
+   public static final int STATE_NOT_RUNNING = 0;
+   public static final int STATE_RUNNING = 1;
+   public static final int STATE_FORCED_SHUTDOWN = 2;
 
    protected final Queue<T> tasks = new ConcurrentLinkedQueue<>();
 
@@ -41,6 +48,8 @@ public abstract class ProcessorBase<T> {
 
    private volatile boolean requestedShutdown = false;
 
+   private volatile boolean started = true;
+
    private static final AtomicIntegerFieldUpdater<ProcessorBase> stateUpdater = AtomicIntegerFieldUpdater.newUpdater(ProcessorBase.class, "state");
 
    private final class ExecutorTask implements Runnable {
@@ -50,19 +59,23 @@ public abstract class ProcessorBase<T> {
          do {
             //if there is no thread active and is not already dead then we run
             if (stateUpdater.compareAndSet(ProcessorBase.this, STATE_NOT_RUNNING, STATE_RUNNING)) {
+               enter();
                try {
                   T task = tasks.poll();
                   //while the queue is not empty we process in order
-                  while (task != null) {
+                  while (task != null && !requestedShutdown) {
                      //just drain the tasks if has been requested a shutdown to help the shutdown process
-                     if (!requestedShutdown) {
-                        doTask(task);
+                     if (requestedShutdown) {
+                        tasks.add(task);
+                        break;
                      }
+                     doTask(task);
                      task = tasks.poll();
                   }
                } finally {
+                  leave();
                   //set state back to not running.
-                  stateUpdater.set(ProcessorBase.this, STATE_NOT_RUNNING);
+                  stateUpdater.compareAndSet(ProcessorBase.this, STATE_RUNNING, STATE_NOT_RUNNING);
                }
             } else {
                return;
@@ -75,31 +88,57 @@ public abstract class ProcessorBase<T> {
       }
    }
 
-   /** It will wait the current execution (if there is one) to finish
-    *  but will not complete any further executions */
-   public void shutdownNow() {
+   /**
+    * It will shutdown and wait 30 seconds for timeout.
+    */
+   public void shutdown() {
+      shutdown(30, TimeUnit.SECONDS);
+   }
+
+   public void shutdown(long timeout, TimeUnit unit) {
+      started = false;
+
+      if (!inHandler()) {
+         // if it's in handler.. we just return
+         flush(timeout, unit);
+      }
+   }
+
+   /**
+    * It will wait the current execution (if there is one) to finish
+    * but will not complete any further executions
+    */
+   public List<T> shutdownNow() {
       //alert anyone that has been requested (at least) an immediate shutdown
       requestedShutdown = true;
-      //it could take a very long time depending on the current executing task
-      do {
-         //alert the ExecutorTask (if is running) to just drain the current backlog of tasks
-         final int startState = stateUpdater.get(this);
-         if (startState == STATE_FORCED_SHUTDOWN) {
-            //another thread has completed a forced shutdown
-            return;
+      started = false;
+
+      if (inHandler()) {
+         stateUpdater.set(this, STATE_FORCED_SHUTDOWN);
+      } else {
+         //it could take a very long time depending on the current executing task
+         do {
+            //alert the ExecutorTask (if is running) to just drain the current backlog of tasks
+            final int startState = stateUpdater.get(this);
+            if (startState == STATE_FORCED_SHUTDOWN) {
+               //another thread has completed a forced shutdown
+               break;
+            }
+            if (startState == STATE_RUNNING) {
+               //wait 100 ms to avoid burning CPU while waiting and
+               //give other threads a chance to make progress
+               LockSupport.parkNanos(100_000_000L);
+            }
          }
-         if (startState == STATE_RUNNING) {
-            //wait 100 ms to avoid burning CPU while waiting and
-            //give other threads a chance to make progress
-            LockSupport.parkNanos(100_000_000L);
-         }
+         while (!stateUpdater.compareAndSet(this, STATE_NOT_RUNNING, STATE_FORCED_SHUTDOWN));
+         //this could happen just one time: the forced shutdown state is the last one and
+         //can be set by just one caller.
+         //As noted on the execute method there is a small chance that some tasks would be enqueued
       }
-      while (!stateUpdater.compareAndSet(this, STATE_NOT_RUNNING, STATE_FORCED_SHUTDOWN));
-      //this could happen just one time: the forced shutdown state is the last one and
-      //can be set by just one caller.
-      //As noted on the execute method there is a small chance that some tasks would be enqueued
+      ArrayList<T> returnList = new ArrayList<>(tasks);
       tasks.clear();
-      //we can report the killed tasks somehow: ExecutorService do the same on shutdownNow
+
+      return returnList;
    }
 
    protected abstract void doTask(T task);
@@ -112,26 +151,48 @@ public abstract class ProcessorBase<T> {
       return stateUpdater.get(this) == STATE_NOT_RUNNING;
    }
 
-   protected void task(T command) {
-      if (stateUpdater.get(this) != STATE_FORCED_SHUTDOWN) {
-         //The shutdown process could finish right after the above check: shutdownNow can drain the remaining tasks
-         tasks.add(command);
-         //cache locally the state to avoid multiple volatile loads
-         final int state = stateUpdater.get(this);
-         if (state == STATE_FORCED_SHUTDOWN) {
-            //help the GC by draining any task just submitted: it help to cover the case of a shutdownNow finished before tasks.add
-            tasks.clear();
-         } else if (state == STATE_NOT_RUNNING) {
-            //startPoller could be deleted but is maintained because is inherited
-            delegate.execute(task);
-         }
+   /**
+    * WARNING: This will only flush when all the activity is suspended.
+    * don't expect success on this call if another thread keeps feeding the queue
+    * this is only valid on situations where you are not feeding the queue,
+    * like in shutdown and failover situations.
+    */
+   public final boolean flush(long timeout, TimeUnit unit) {
+      if (stateUpdater.get(this) == STATE_NOT_RUNNING) {
+         // quick test, most of the time it will be empty anyways
+         return true;
       }
+
+      long timeLimit = System.currentTimeMillis() + unit.toMillis(timeout);
+      try {
+         while (stateUpdater.get(this) == STATE_RUNNING && timeLimit > System.currentTimeMillis()) {
+
+            if (tasks.isEmpty()) {
+               return true;
+            }
+
+            Thread.sleep(10);
+         }
+      } catch (InterruptedException e) {
+         // ignored
+      }
+
+      return stateUpdater.get(this) == STATE_NOT_RUNNING;
    }
 
-   protected void startPoller() {
-      if (stateUpdater.get(this) == STATE_NOT_RUNNING) {
-         //note that this can result in multiple tasks being queued
-         //this is not an issue as the CAS will mean that the second (and subsequent) execution is ignored
+   protected void task(T command) {
+      if (!started) {
+         logger.debug("Ordered executor has been shutdown at", new Exception("debug"));
+      }
+      //The shutdown process could finish right after the above check: shutdownNow can drain the remaining tasks
+      tasks.add(command);
+      //cache locally the state to avoid multiple volatile loads
+      final int state = stateUpdater.get(this);
+      if (state == STATE_FORCED_SHUTDOWN) {
+         //help the GC by draining any task just submitted: it help to cover the case of a shutdownNow finished before tasks.add
+         tasks.clear();
+      } else if (state == STATE_NOT_RUNNING) {
+         //startPoller could be deleted but is maintained because is inherited
          delegate.execute(task);
       }
    }
@@ -144,6 +205,10 @@ public abstract class ProcessorBase<T> {
     */
    public final int remaining() {
       return tasks.size();
+   }
+
+   public final int status() {
+      return stateUpdater.get(this);
    }
 
 }
