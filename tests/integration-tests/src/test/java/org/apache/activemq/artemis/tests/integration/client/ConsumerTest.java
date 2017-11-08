@@ -330,9 +330,9 @@ public class ConsumerTest extends ActiveMQTestBase {
          connection.close();
       }
 
-      assertNull(server.getAddressInfo(SimpleString.toSimpleString("queue")));
-      assertNull(server.locateQueue(SimpleString.toSimpleString("queue")));
-      assertEquals(0, server.getTotalMessageCount());
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("queue")) == null);
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString("queue")) == null);
+      Wait.assertEquals(0, server::getTotalMessageCount);
    }
 
    @Test

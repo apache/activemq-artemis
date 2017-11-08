@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,9 +71,75 @@ public class OrderedExecutorSanityTest {
          //from now on new tasks won't be executed
          final CountDownLatch afterDeatchExecution = new CountDownLatch(1);
          executor.execute(afterDeatchExecution::countDown);
-         Assert.assertFalse("After shutdownNow no new tasks can be executed", afterDeatchExecution.await(1, TimeUnit.SECONDS));
+         Assert.assertFalse("After shutdownNow no new tasks can be executed", afterDeatchExecution.await(100, TimeUnit.MILLISECONDS));
          //to avoid memory leaks the executor must take care of the new submitted tasks immediatly
          Assert.assertEquals("Any new task submitted after death must be collected", 0, executor.remaining());
+      } finally {
+         executorService.shutdown();
+      }
+   }
+
+
+
+   @Test
+   public void shutdownWithin() throws InterruptedException {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      try {
+         final OrderedExecutor executor = new OrderedExecutor(executorService);
+         final CountDownLatch latch = new CountDownLatch(1);
+         final AtomicInteger numberOfTasks = new AtomicInteger(0);
+         final CountDownLatch ran = new CountDownLatch(1);
+
+         executor.execute(() -> {
+            try {
+               latch.await(1, TimeUnit.MINUTES);
+               numberOfTasks.set(executor.shutdownNow().size());
+               ran.countDown();
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+         });
+
+
+         for (int i = 0; i < 100; i++) {
+            executor.execute(() -> System.out.println("Dont worry, this will never happen"));
+         }
+
+         latch.countDown();
+         ran.await(1, TimeUnit.SECONDS);
+         Assert.assertEquals(100, numberOfTasks.get());
+
+         Assert.assertEquals(ProcessorBase.STATE_FORCED_SHUTDOWN, executor.status());
+         Assert.assertEquals(0, executor.remaining());
+      } finally {
+         executorService.shutdown();
+      }
+   }
+
+
+   @Test
+   public void testMeasure() throws InterruptedException {
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      try {
+         final OrderedExecutor executor = new OrderedExecutor(executorService);
+         int MAX_LOOP = 1_000_000;
+
+         // extend the number for longer numbers
+         int runs = 10;
+
+         for (int i = 0; i < runs; i++) {
+            long start = System.nanoTime();
+            final CountDownLatch executed = new CountDownLatch(MAX_LOOP);
+            for (int l = 0; l < MAX_LOOP; l++) {
+               executor.execute(executed::countDown);
+            }
+            Assert.assertTrue(executed.await(1, TimeUnit.MINUTES));
+            long end = System.nanoTime();
+
+            long elapsed = (end - start);
+
+            System.out.println("execution " + i + " in " + TimeUnit.NANOSECONDS.toMillis(elapsed) + " milliseconds");
+         }
       } finally {
          executorService.shutdown();
       }
