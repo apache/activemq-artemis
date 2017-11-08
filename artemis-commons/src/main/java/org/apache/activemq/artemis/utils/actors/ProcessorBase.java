@@ -114,4 +114,14 @@ public abstract class ProcessorBase<T> {
       }
    }
 
+   /**
+    * Returns the remaining items to be processed.
+    * <p>
+    * This method is safe to be called by different threads and its accuracy is subject to concurrent modifications.<br>
+    * It is meant to be used only for test purposes, because of its {@code O(n)} cost.
+    */
+   public final int remaining() {
+      return tasks.size();
+   }
+
 }
