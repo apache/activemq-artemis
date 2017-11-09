@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.utils.actors;
 
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -26,6 +25,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
 import org.jboss.logging.Logger;
+import org.jctools.queues.MpscUnboundedArrayQueue;
 
 public abstract class ProcessorBase<T> extends HandlerBase {
 
@@ -34,7 +34,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    public static final int STATE_RUNNING = 1;
    public static final int STATE_FORCED_SHUTDOWN = 2;
 
-   protected final Queue<T> tasks = new ConcurrentLinkedQueue<>();
+   protected final Queue<T> tasks = new MpscUnboundedArrayQueue<>(128);
 
    private final Executor delegate;
    /**

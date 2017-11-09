@@ -1238,7 +1238,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       setStarted(false);
    }
 
-  @Override
+   @Override
    public void close(final boolean failed) {
       if (closed)
          return;

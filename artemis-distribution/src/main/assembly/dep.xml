@@ -98,6 +98,7 @@
             <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
             <include>org.apache.johnzon:johnzon-core</include>
             <include>org.hdrhistogram:HdrHistogram</include>
+            <include>org.jctools:jctools-core</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
