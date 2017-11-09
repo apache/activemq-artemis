@@ -17,11 +17,10 @@
 
 package org.apache.activemq.artemis.utils.actors;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public interface ArtemisExecutor extends Executor {
 
@@ -40,10 +39,24 @@ public interface ArtemisExecutor extends Executor {
       };
    }
 
-   /** It will wait the current execution (if there is one) to finish
-    *  but will not complete any further executions */
-   default List<Runnable> shutdownNow() {
-      return Collections.emptyList();
+   /**
+    * It will wait the current execution (if there is one) to finish
+    * but will not complete any further executions.
+    *
+    * @param onPendingTask it will be called for each pending task found
+    * @return the number of pending tasks that won't be executed
+    */
+   default int shutdownNow(Consumer<? super Runnable> onPendingTask) {
+      return 0;
+   }
+
+   /**
+    * It will wait the current execution (if there is one) to finish
+    * but will not complete any further executions
+    */
+   default int shutdownNow() {
+      return shutdownNow(t -> {
+      });
    }
 
 
