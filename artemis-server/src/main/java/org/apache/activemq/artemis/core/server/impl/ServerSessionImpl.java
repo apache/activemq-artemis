@@ -1239,17 +1239,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void waitContextCompletion() {
-      try {
-         if (!context.waitCompletion(10000)) {
-            ActiveMQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
-         }
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorCompletingContext(e);
-      }
-   }
-
-   @Override
    public void close(final boolean failed) {
       if (closed)
          return;

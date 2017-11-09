@@ -203,8 +203,6 @@ public interface ServerSession extends SecurityAuth {
 
    void close(boolean failed) throws Exception;
 
-   void waitContextCompletion() throws Exception;
-
    void setTransferring(boolean transferring);
 
    Set<ServerConsumer> getServerConsumers();
