@@ -82,7 +82,7 @@ public class OrderedExecutorSanityTest {
 
 
    @Test
-   public void shutdownWithin() throws InterruptedException {
+   public void shutdownNowOnDelegateExecutor() throws InterruptedException {
       final ExecutorService executorService = Executors.newSingleThreadExecutor();
       try {
          final OrderedExecutor executor = new OrderedExecutor(executorService);
@@ -93,7 +93,7 @@ public class OrderedExecutorSanityTest {
          executor.execute(() -> {
             try {
                latch.await(1, TimeUnit.MINUTES);
-               numberOfTasks.set(executor.shutdownNow().size());
+               numberOfTasks.set(executor.shutdownNow());
                ran.countDown();
             } catch (Exception e) {
                e.printStackTrace();
