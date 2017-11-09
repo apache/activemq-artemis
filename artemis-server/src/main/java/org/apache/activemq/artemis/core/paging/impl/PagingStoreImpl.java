@@ -352,7 +352,7 @@ public class PagingStoreImpl implements PagingStore {
 
          running = false;
 
-         flushExecutors();
+         executor.shutdownNow();
 
          if (currentPage != null) {
             currentPage.close(false);
