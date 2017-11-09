@@ -302,7 +302,7 @@ public abstract class ActiveMQTestBase extends Assert {
          //clean up pools before failing
          if (!exceptions.isEmpty()) {
             for (Exception exception : exceptions) {
-               exception.printStackTrace();
+               exception.printStackTrace(System.out);
             }
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
