@@ -67,6 +67,14 @@ public class Wait {
       assertTrue("Condition wasn't met", condition);
    }
 
+   public static void assertFalse(Condition condition) throws Exception {
+      assertTrue(() -> !condition.isSatisfied());
+   }
+
+   public static void assertFalse(String failureMessage, Condition condition) throws Exception {
+      assertTrue(failureMessage, () -> !condition.isSatisfied());
+   }
+
 
    public static void assertTrue(String failureMessage, Condition condition) throws Exception {
       boolean result = waitFor(condition);
