@@ -110,6 +110,7 @@
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
       <version.org.jacoco>0.7.9</version.org.jacoco>
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
+      <jctools.version>2.1.1</jctools.version>
 
       <owasp.version>1.4.3</owasp.version>
       <spring.version>5.0.1.RELEASE</spring.version>
@@ -544,6 +545,11 @@
             <groupId>org.apache.johnzon</groupId>
             <artifactId>johnzon-core</artifactId>
             <version>${johnzon.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>${jctools.version}</version>
          </dependency>
 
          <!--needed for the rest support-->

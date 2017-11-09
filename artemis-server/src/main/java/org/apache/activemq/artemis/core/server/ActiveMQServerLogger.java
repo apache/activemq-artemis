@@ -846,11 +846,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void ioErrorOnTX(Integer errorCode, String errorMessage);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222105, value = "Could not finish context execution in 10 seconds",
-      format = Message.Format.MESSAGE_FORMAT)
-   void errorCompletingContext(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222106, value = "Replacing incomplete LargeMessage with ID={0}", format = Message.Format.MESSAGE_FORMAT)
    void replacingIncompleteLargeMessage(Long messageID);
 

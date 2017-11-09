@@ -1245,16 +1245,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.errorClosingSessionsWhileStoppingServer(e);
          }
       }
-      if (!criticalIOError) {
-         for (ServerSession session : sessions.values()) {
-            try {
-               session.waitContextCompletion();
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingSessionsWhileStoppingServer(e);
-            }
-         }
-      }
-
    }
 
    static void stopComponent(ActiveMQComponent component) {
