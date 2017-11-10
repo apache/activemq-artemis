@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -29,6 +30,10 @@ public class StompClientConnectionV11 extends StompClientConnectionV10 {
 
    public StompClientConnectionV11(String version, String host, int port) throws IOException {
       super(version, host, port);
+   }
+
+   public StompClientConnectionV11(URI uri) throws Exception {
+      super(uri);
    }
 
    @Override
@@ -96,12 +101,16 @@ public class StompClientConnectionV11 extends StompClientConnectionV10 {
 
       frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
 
-      ClientStompFrame result = this.sendFrame(frame);
-
-      if (result == null || (!Stomp.Responses.RECEIPT.equals(result.getCommand())) || (!uuid.equals(result.getHeader(Stomp.Headers.Response.RECEIPT_ID)))) {
-         throw new IOException("Disconnect failed! " + result);
+      try {
+         if (!transport.isConnected()) {
+            ClientStompFrame result = this.sendFrame(frame);
+            if (result == null || (!Stomp.Responses.RECEIPT.equals(result.getCommand())) || (!uuid.equals(result.getHeader(Stomp.Headers.Response.RECEIPT_ID)))) {
+               throw new IOException("Disconnect failed! " + result);
+            }
+         }
+      } catch (Exception e) {
+         // Transport may have been closed
       }
-
       close();
 
       connected = false;

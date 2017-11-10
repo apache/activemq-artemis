@@ -17,11 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
+
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
@@ -29,6 +31,10 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
    public StompClientConnectionV10(String version, String host, int port) throws IOException {
       super(version, host, port);
+   }
+
+   public StompClientConnectionV10(URI uri) throws Exception {
+      super(uri);
    }
 
    @Override
