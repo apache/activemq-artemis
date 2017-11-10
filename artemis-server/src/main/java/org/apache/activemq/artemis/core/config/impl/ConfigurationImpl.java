@@ -912,14 +912,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    @Deprecated
    public boolean isWildcardRoutingEnabled() {
-      return wildcardConfiguration.isEnabled();
+      return wildcardConfiguration.isRoutingEnabled();
    }
 
    @Override
    @Deprecated
    public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled) {
-      logger.info("Usage of wildcardRoutingEnabled configuration property is deprecated, please use wildCardConfiguration.enabled instead");
-      wildcardConfiguration.setEnabled(enabled);
+      ActiveMQServerLogger.LOGGER.deprecatedWildcardRoutingEnabled();
+      wildcardConfiguration.setRoutingEnabled(enabled);
       return this;
    }
 
@@ -1513,8 +1513,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          TransportConfiguration connector = getConnectorConfigurations().get(connectorName);
 
          if (connector == null) {
-            ActiveMQServerLogger.LOGGER.warn("bridgeNoConnector(connectorName)");
-
+            ActiveMQServerLogger.LOGGER.connectionConfigurationIsNull(connectorName == null ? "null" : connectorName);
             return null;
          }
 

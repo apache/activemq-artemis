@@ -257,7 +257,9 @@ public class ManagementServiceImpl implements ManagementService {
       ObjectName objectName = objectNameBuilder.getQueueObjectName(address, name, routingType);
       unregisterFromJMX(objectName);
       unregisterFromRegistry(ResourceNames.QUEUE + name);
-      messageCounterManager.unregisterMessageCounter(name.toString());
+      if (messageCounterManager != null) {
+         messageCounterManager.unregisterMessageCounter(name.toString());
+      }
    }
 
    @Override
@@ -304,7 +306,7 @@ public class ManagementServiceImpl implements ManagementService {
          try {
             unregisterAcceptor(name);
          } catch (Exception e) {
-            logger.warn("Failed to unregister acceptors", e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToUnregisterAcceptors(e);
          }
       }
    }

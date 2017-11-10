@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
@@ -73,6 +75,18 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDuplicateQueue() throws Exception {
+      String filename = "duplicateQueue.xml";
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+      ActiveMQServer server = addServer((ActiveMQServer) deploymentManager.buildService(null, null).get("core"));
+      server.start();
+      assertEquals(0, server.locateQueue(SimpleString.toSimpleString("q")).getMaxConsumers());
+   }
+
+   @Test
    public void testParsingClusterConnectionURIs() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
@@ -93,13 +107,13 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    public void testWildcardConfiguration() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + "<wildcard-addresses>\n<enabled>true</enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
+      String configStr = firstPart + "<wildcard-addresses>\n<routing-enabled>true</routing-enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
       WildcardConfiguration wildCard = config.getWildcardConfiguration();
       assertEquals('/', wildCard.getDelimiter());
-      assertTrue(wildCard.isEnabled());
+      assertTrue(wildCard.isRoutingEnabled());
       assertEquals('>', wildCard.getAnyWords());
       assertEquals('*', wildCard.getSingleWord());
    }

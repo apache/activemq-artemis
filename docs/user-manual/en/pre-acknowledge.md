@@ -42,23 +42,14 @@ arrive soon, overriding the previous price.
 
 ## Using PRE_ACKNOWLEDGE
 
-This can be configured in a client's JNDI context environment, e.g.
-`jndi.properties`, like this:
+This can be configured by setting the boolean URL parameter `preAcknowledge`
+to `true`.
 
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connection.ConnectionFactory=tcp://localhost:61616?preAcknowledge=true
-
-Alternatively, to use pre-acknowledgement mode using the JMS API, create
-a JMS Session with the `ActiveMQSession.PRE_ACKNOWLEDGE` constant.
+Alternatively, when using the JMS API, create a JMS Session with the
+`ActiveMQSession.PRE_ACKNOWLEDGE` constant.
 
     // messages will be acknowledge on the server *before* being delivered to the client
     Session session = connection.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
-
-Or you can set pre-acknowledge directly on the
-`ActiveMQConnectionFactory` instance using the setter method.
-
-To use pre-acknowledgement mode using the core API you can set it
-directly on the `ClientSessionFactory` instance using the setter method.
 
 ## Individual Acknowledge
 
@@ -67,7 +58,7 @@ to have your own scheduling and you don't know when your message
 processing will be finished. You should prefer having one consumer per
 thread worker but this is not possible in some circumstances depending
 on how complex is your processing. For that you can use the individual
-Acknowledgement.
+acknowledgement.
 
 You basically setup Individual ACK by creating a session with the
 acknowledge mode with `ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE`.
@@ -83,4 +74,5 @@ the exception the message is individually acked.
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how to use pre-acknowledgement mode with JMS.
+See the [examples](examples.md) chapter for an example which shows how to
+use pre-acknowledgement mode with JMS.

@@ -19,9 +19,10 @@ package org.apache.activemq.artemis.utils.critical;
 
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
@@ -29,9 +30,31 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
    private final Logger logger = Logger.getLogger(CriticalAnalyzer.class);
 
-   private volatile long timeout;
+   private volatile long timeoutNanoSeconds;
 
-   private volatile long checkTime;
+   // one minute by default.. the server will change it for sure
+   private volatile long checkTimeNanoSeconds = TimeUnit.SECONDS.toNanos(60);
+
+   private final ActiveMQScheduledComponent scheduledComponent;
+
+   private final AtomicBoolean running = new AtomicBoolean(false);
+
+   public CriticalAnalyzerImpl() {
+      // this will make the scheduled component to start its own pool
+
+      /* Important: The scheduled component should have its own thread pool...
+       *  otherwise in case of a deadlock, or a starvation of the server the analyzer won't pick up any
+       *  issues and won't be able to shutdown the server or halt the VM
+       */
+      this.scheduledComponent = new ActiveMQScheduledComponent(null, null, checkTimeNanoSeconds, TimeUnit.NANOSECONDS, false) {
+         @Override
+         public void run() {
+            logger.trace("Checking critical analyzer");
+            check();
+         }
+      };
+
+   }
 
    @Override
    public void clear() {
@@ -40,10 +63,6 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    }
 
    private CopyOnWriteArrayList<CriticalAction> actions = new CopyOnWriteArrayList<>();
-
-   private Thread thread;
-
-   private final Semaphore running = new Semaphore(1);
 
    private final ConcurrentHashSet<CriticalComponent> components = new ConcurrentHashSet<>();
 
@@ -63,31 +82,35 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    }
 
    @Override
-   public CriticalAnalyzer setCheckTime(long timeout) {
-      this.checkTime = timeout;
+   public CriticalAnalyzer setCheckTime(long timeout, TimeUnit unit) {
+      this.checkTimeNanoSeconds = unit.toNanos(timeout);
+      this.scheduledComponent.setPeriod(timeout, unit);
       return this;
    }
 
    @Override
-   public long getCheckTime() {
-      if (checkTime == 0) {
-         checkTime = getTimeout() / 2;
+   public long getCheckTimeNanoSeconds() {
+      if (checkTimeNanoSeconds == 0) {
+         checkTimeNanoSeconds = getTimeout(TimeUnit.NANOSECONDS) / 2;
       }
-      return checkTime;
+      return checkTimeNanoSeconds;
    }
 
    @Override
-   public CriticalAnalyzer setTimeout(long timeout) {
-      this.timeout = timeout;
+   public CriticalAnalyzer setTimeout(long timeout, TimeUnit unit) {
+      if (checkTimeNanoSeconds <= 0) {
+         this.setCheckTime(timeout / 2, unit);
+      }
+      this.timeoutNanoSeconds = unit.toNanos(timeout);
       return this;
    }
 
    @Override
-   public long getTimeout() {
-      if (timeout == 0) {
-         timeout = TimeUnit.MINUTES.toMillis(2);
+   public long getTimeout(TimeUnit unit) {
+      if (timeoutNanoSeconds == 0) {
+         timeoutNanoSeconds = TimeUnit.MINUTES.toNanos(2);
       }
-      return timeout;
+      return unit.convert(timeoutNanoSeconds, TimeUnit.NANOSECONDS);
    }
 
    @Override
@@ -103,7 +126,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          try {
             for (CriticalComponent component : components) {
 
-               if (component.isExpired(timeout)) {
+               if (component.isExpired(timeoutNanoSeconds)) {
                   fireAction(component);
                   // no need to keep running if there's already a component failed
                   return;
@@ -117,69 +140,30 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    }
 
    private void fireAction(CriticalComponent component) {
-      for (CriticalAction action: actions) {
+      for (CriticalAction action : actions) {
          try {
             action.run(component);
          } catch (Throwable e) {
             logger.warn(e.getMessage(), e);
          }
       }
+
+      actions.clear();
    }
 
    @Override
    public void start() {
+      scheduledComponent.start();
 
-      if (!running.tryAcquire()) {
-         // already running
-         return;
-      }
-
-      // we are not using any Thread Pool or any Scheduled Executors from the ArtemisServer
-      // as that would defeat the purpose,
-      // as in any deadlocks the schedulers may be starving for something not responding fast enough
-      thread = new Thread("Artemis Critical Analyzer") {
-         @Override
-         public void run() {
-            try {
-               while (true) {
-                  if (running.tryAcquire(getCheckTime(), TimeUnit.MILLISECONDS)) {
-                     running.release();
-                     // this means that the server has been stopped as we could acquire the semaphore... returning now
-                     break;
-                  }
-                  check();
-               }
-            } catch (InterruptedException interrupted) {
-               // i will just leave on that case
-            }
-         }
-      };
-
-      thread.setDaemon(true);
-
-      thread.start();
    }
 
    @Override
    public void stop() {
-      if (!isStarted()) {
-         // already stopped, leaving
-         return;
-      }
-
-      running.release();
-
-      try {
-         if (thread != null) {
-            thread.join();
-         }
-      } catch (Throwable e) {
-         logger.warn(e.getMessage(), e);
-      }
+      scheduledComponent.stop();
    }
 
    @Override
    public boolean isStarted() {
-      return running.availablePermits() == 0;
+      return scheduledComponent.isStarted();
    }
 }

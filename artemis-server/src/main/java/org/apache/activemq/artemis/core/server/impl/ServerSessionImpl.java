@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
-
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,16 +31,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.Xid;
-
 import org.apache.activemq.artemis.Closeable;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -69,6 +68,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -92,6 +92,8 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Server side Session implementation
@@ -348,7 +350,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void doClose(final boolean failed) throws Exception {
-      callback.close(failed);
+      if (callback != null) {
+         callback.close(failed);
+      }
       synchronized (this) {
          if (!closed) {
             server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeCloseSession(this, failed) : null);
@@ -363,7 +367,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             try {
                rollback(failed, false);
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableToRollbackOnClose(e);
             }
          }
       }
@@ -376,11 +380,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          try {
             consumer.close(failed);
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToCloseConsumer(e);
             try {
                consumer.removeItself();
             } catch (Throwable e2) {
-               ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+               ActiveMQServerLogger.LOGGER.unableToRemoveConsumer(e2);
             }
          }
       }
@@ -996,7 +1000,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          try {
             storageManager.deleteHeuristicCompletion(id);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToDeleteHeuristicCompletion(e);
             throw new ActiveMQXAException(XAException.XAER_RMFAIL);
          }
       } else {
@@ -1076,7 +1080,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                   // at this point we would be better on rolling back this session as a way to prevent consumers from holding their messages
                   this.rollback(false);
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.unableToRollbackOnTxTimedOut(e);
                }
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
@@ -1198,7 +1202,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             if (theTx.getState() == Transaction.State.SUSPENDED) {
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot prepare transaction, it is suspended " + xid);
             } else if (theTx.getState() == Transaction.State.PREPARED) {
-               ActiveMQServerLogger.LOGGER.info("ignoring prepare on xid as already called :" + xid);
+               ActiveMQServerLogger.LOGGER.ignoringPrepareOnXidAlreadyCalled(xid.toString());
             } else {
                theTx.prepare();
             }
@@ -1241,7 +1245,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             ActiveMQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.errorCompletingContext(e);
       }
    }
 
@@ -1307,11 +1311,33 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
    }
 
+
+   private LargeServerMessage messageToLargeMessage(Message message) throws Exception {
+      ICoreMessage coreMessage = message.toCore();
+      LargeServerMessage lsm = getStorageManager().createLargeMessage(storageManager.generateID(), coreMessage);
+
+      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
+      byte[] body = new byte[buffer.readableBytes()];
+      buffer.readBytes(body);
+      lsm.addBytes(body);
+      lsm.releaseResources();
+      lsm.putLongProperty(Message.HDR_LARGE_BODY_SIZE, body.length);
+      return lsm;
+   }
+
+
    @Override
    public synchronized RoutingStatus send(Transaction tx,
-                                          final Message message,
+                                          Message msg,
                                           final boolean direct,
                                           boolean noAutoCreateQueue) throws Exception {
+
+      final Message message;
+      if ((msg.getEncodeSize() > storageManager.getMaxRecordSize()) && !msg.isLargeMessage()) {
+         message = messageToLargeMessage(msg);
+      } else {
+         message = msg;
+      }
 
       server.callBrokerPlugins(server.hasBrokerPlugins() ? plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue) : null);
 
@@ -1329,10 +1355,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          long id = storageManager.generateID();
          // This will re-encode the message
          message.setMessageID(id);
-      }
-
-      if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
-         message.setValidatedUserID(validatedUser);
       }
 
       SimpleString address = message.getAddressSimpleString();
@@ -1672,6 +1694,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             tx.markAsRollbackOnly(e);
          }
          throw e;
+      }
+
+      if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
+         msg.setValidatedUserID(validatedUser);
       }
 
       if (tx == null || autoCommitSends) {

@@ -404,16 +404,6 @@ public class CoreAmqpConverter {
       return new Binary(data);
    }
 
-   private static Binary getBinaryFromMessageBody(ServerJMSTextMessage message) throws JMSException {
-      Binary result = null;
-      String text = message.getText();
-      if (text != null) {
-         result = new Binary(text.getBytes(StandardCharsets.UTF_8));
-      }
-
-      return result;
-   }
-
    private static Binary getBinaryFromMessageBody(ServerJMSObjectMessage message) throws JMSException {
       message.getInnerMessage().getBodyBuffer().resetReaderIndex();
       int size = message.getInnerMessage().getBodyBuffer().readInt();

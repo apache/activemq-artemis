@@ -24,16 +24,24 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class CoreMessagePersister implements Persister<Message> {
+   public static final byte ID = 1;
 
-   public static CoreMessagePersister theInstance = new CoreMessagePersister();
+   public static CoreMessagePersister theInstance;
 
    public static CoreMessagePersister getInstance() {
+      if (theInstance == null) {
+         theInstance = new CoreMessagePersister();
+      }
       return theInstance;
    }
 
    protected CoreMessagePersister() {
    }
 
+   @Override
+   public byte getID() {
+      return ID;
+   }
 
    @Override
    public int getEncodeSize(Message record) {

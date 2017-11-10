@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.ArtemisConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -33,6 +35,7 @@ import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.jboss.logging.Logger;
 
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory {
@@ -54,11 +57,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private static final String AIO_TEST_FILE = ".aio-test";
 
    public AIOSequentialFileFactory(final File journalDir, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener, int maxIO) {
-      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, listener);
+      this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, listener, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
@@ -66,7 +69,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates) {
-      this(journalDir, bufferSize, bufferTimeout, maxIO, logRates, null);
+      this(journalDir, bufferSize, bufferTimeout, maxIO, logRates, null, null);
    }
 
    public AIOSequentialFileFactory(final File journalDir,
@@ -74,9 +77,13 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                                    final int bufferTimeout,
                                    final int maxIO,
                                    final boolean logRates,
-                                   final IOCriticalErrorListener listener) {
-      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener);
+                                   final IOCriticalErrorListener listener,
+                                   final CriticalAnalyzer analyzer) {
+      super(journalDir, true, bufferSize, bufferTimeout, maxIO, logRates, listener, analyzer);
       callbackPool = new CallbackCache<>(maxIO);
+      if (logger.isTraceEnabled()) {
+         logger.trace("New AIO File Created");
+      }
    }
 
    public AIOSequentialCallback getCallback() {
@@ -264,6 +271,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
    }
 
+
    /**
     * The same callback is used for Runnable executor.
     * This way we can save some memory over the pool.
@@ -304,7 +312,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          try {
             libaioFile.write(position, bytes, buffer, this);
          } catch (IOException e) {
-            callback.onError(-1, e.getMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
             onIOError(e, "Failed to write to file", sequentialFile);
          }
       }
@@ -337,6 +345,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       @Override
       public void onError(int errno, String message) {
+         if (logger.isDebugEnabled()) {
+            logger.trace("AIO on error issued. Error(code: " + errno + " msg: " + message + ")");
+         }
          this.error = true;
          this.errorCode = errno;
          this.errorMessage = message;
@@ -357,6 +368,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          if (error) {
             callback.onError(errorCode, errorMessage);
+            onIOError(new ActiveMQException(errorCode, errorMessage), errorMessage, null);
             errorMessage = null;
          } else {
             if (callback != null) {
@@ -385,6 +397,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                libaioContext.poll();
             } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+               onIOError(new ActiveMQException("Error on libaio poll"), e.getMessage(), null);
             }
          }
       }
@@ -400,6 +413,16 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       private final ConcurrentLinkedQueue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<>();
 
       private boolean stopped = false;
+
+      private int alignedBufferSize = 0;
+
+      private int getAlignedBufferSize() {
+         if (alignedBufferSize == 0) {
+            alignedBufferSize = calculateBlockSize(bufferSize);
+         }
+
+         return alignedBufferSize;
+      }
 
       public ByteBuffer newBuffer(final int size) {
          // if a new buffer wasn't requested in 10 seconds, we clear the queue
@@ -418,26 +441,32 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          // if a buffer is bigger than the configured-bufferSize, we just create a new
          // buffer.
-         if (size > bufferSize) {
+         if (size > getAlignedBufferSize()) {
             return LibaioContext.newAlignedBuffer(size, getAlignment());
          } else {
             // We need to allocate buffers following the rules of the storage
             // being used (AIO/NIO)
-            int alignedSize = calculateBlockSize(size);
+            final int alignedSize;
+
+            if (size < getAlignedBufferSize()) {
+               alignedSize = getAlignedBufferSize();
+            } else {
+               alignedSize = calculateBlockSize(size);
+            }
 
             // Try getting a buffer from the queue...
             ByteBuffer buffer = reuseBuffersQueue.poll();
 
             if (buffer == null) {
                // if empty create a new one.
-               buffer = LibaioContext.newAlignedBuffer(size, getAlignment());
+               buffer = LibaioContext.newAlignedBuffer(alignedSize, getAlignment());
 
-               buffer.limit(alignedSize);
+               buffer.limit(calculateBlockSize(size));
             } else {
                clearBuffer(buffer);
 
                // set the limit of the buffer to the bufferSize being required
-               buffer.limit(alignedSize);
+               buffer.limit(calculateBlockSize(size));
             }
 
             buffer.rewind();
@@ -469,7 +498,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
                // If a buffer has any other than the configured bufferSize, the buffer
                // will be just sent to GC
-               if (buffer.capacity() == bufferSize) {
+               if (buffer.capacity() == getAlignedBufferSize()) {
                   reuseBuffersQueue.offer(buffer);
                } else {
                   releaseBuffer(buffer);

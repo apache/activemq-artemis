@@ -50,6 +50,6 @@ public class MappedJournalCompactTest extends NIOJournalCompactTest {
 
       file.mkdir();
 
-      return MappedSequentialFileFactory.unbuffered(getTestDirfile(), 60 * 1024, null);
+      return new MappedSequentialFileFactory(getTestDirfile(), 60 * 1024, false, 0, 0, null);
    }
 }

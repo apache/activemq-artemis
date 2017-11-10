@@ -247,6 +247,14 @@ public interface QueueControl {
                       @Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
 
    /**
+    * Removes all the message from the queue.
+    *
+    * @return the number of removed messages
+    */
+   @Operation(desc = "Remove all the messages from the Queue (and returns the number of removed messages)", impact = MBeanOperationInfo.ACTION)
+   int removeAllMessages() throws Exception;
+
+   /**
     * Expires all the message corresponding to the specified filter.
     * <br>
     * Using {@code null} or an empty filter will expire <em>all</em> messages from this queue.

@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -64,6 +65,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.management.impl.view.AddressView;
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionView;
@@ -118,9 +120,11 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.jboss.logging.Logger;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
+   private static final Logger logger = Logger.getLogger(ActiveMQServerControlImpl.class);
 
    // Attributes ----------------------------------------------------
 
@@ -578,6 +582,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public long getAddressMemoryUsage() {
+      checkStarted();
+      clearIO();
+      try {
+         //this should not happen but if it does, return -1 to highlight it is not working
+         if (server.getPagingManager() == null) {
+            return -1L;
+         }
+         return server.getPagingManager().getGlobalSize();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getAddressMemoryUsagePercentage() {
+      long globalMaxSize = getGlobalMaxSize();
+      // no max size set implies 0% used
+      if (globalMaxSize <= 0) {
+         return 0;
+      }
+
+      long memoryUsed = getAddressMemoryUsage();
+      if (memoryUsed <= 0) {
+         return 0;
+      }
+
+      double result = (100D * memoryUsed) / globalMaxSize;
+      return (int) result;
+   }
+
+   @Override
    public boolean freezeReplication() {
       Activation activation = server.getActivation();
       if (activation instanceof SharedNothingLiveActivation) {
@@ -743,13 +779,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void createQueue(final String address, final String name, final String filterStr, final boolean durable) throws Exception {
-      createQueue(address, name, filterStr, durable, server.getAddressSettingsRepository().getMatch(address).getDefaultQueueRoutingType().toString());
+      createQueue(address, name, filterStr, durable, server.getAddressSettingsRepository().getMatch(address == null ? name : address).getDefaultQueueRoutingType().toString());
    }
 
 
    @Override
    public void createQueue(final String address, final String name, final String filterStr, final boolean durable, final String routingType) throws Exception {
-      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address == null ? name : address);
       createQueue(address, routingType, name, filterStr, durable, addressSettings.getDefaultMaxConsumers(), addressSettings.isDefaultPurgeOnNoConsumers(), addressSettings.isAutoCreateAddresses());
    }
 
@@ -1584,7 +1620,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                Set<ServerConsumer> serverConsumers = session.getServerConsumers();
                for (ServerConsumer serverConsumer : serverConsumers) {
                   if (serverConsumer.sequentialID() == Long.valueOf(ID)) {
-                     serverConsumer.close(true);
+                     serverConsumer.disconnect();
                      return true;
                   }
                }
@@ -2228,11 +2264,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String filterString,
                             final String transformerClassName,
                             final String routingType) throws Exception {
+      createDivert(name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, (String) null, routingType);
+   }
+
+   @Override
+   public void createDivert(final String name,
+                            final String routingName,
+                            final String address,
+                            final String forwardingAddress,
+                            final boolean exclusive,
+                            final String filterString,
+                            final String transformerClassName,
+                            final String transformerPropertiesAsJSON,
+                            final String routingType) throws Exception {
+      createDivert(name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, JsonUtil.readJsonProperties(transformerPropertiesAsJSON), routingType);
+   }
+
+   @Override
+   public void createDivert(final String name,
+                            final String routingName,
+                            final String address,
+                            final String forwardingAddress,
+                            final boolean exclusive,
+                            final String filterString,
+                            final String transformerClassName,
+                            final Map<String, String> transformerProperties,
+                            final String routingType) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName).setRoutingType(DivertConfigurationRoutingType.valueOf(routingType));
+         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(DivertConfigurationRoutingType.valueOf(routingType));
          server.deployDivert(config);
       } finally {
          blockOnIO();
@@ -2289,12 +2352,95 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final boolean ha,
                             final String user,
                             final String password) throws Exception {
+      createBridge(name,
+                   queueName,
+                   forwardingAddress,
+                   filterString,
+                   transformerClassName,
+                   (String) null,
+                   retryInterval,
+                   retryIntervalMultiplier,
+                   initialConnectAttempts,
+                   reconnectAttempts,
+                   useDuplicateDetection,
+                   confirmationWindowSize,
+                   producerWindowSize,
+                   clientFailureCheckPeriod,
+                   staticConnectorsOrDiscoveryGroup,
+                   useDiscoveryGroup,
+                   ha,
+                   user,
+                   password);
+   }
+
+   @Override
+   public void createBridge(final String name,
+                            final String queueName,
+                            final String forwardingAddress,
+                            final String filterString,
+                            final String transformerClassName,
+                            final String transformerPropertiesAsJSON,
+                            final long retryInterval,
+                            final double retryIntervalMultiplier,
+                            final int initialConnectAttempts,
+                            final int reconnectAttempts,
+                            final boolean useDuplicateDetection,
+                            final int confirmationWindowSize,
+                            final int producerWindowSize,
+                            final long clientFailureCheckPeriod,
+                            final String staticConnectorsOrDiscoveryGroup,
+                            boolean useDiscoveryGroup,
+                            final boolean ha,
+                            final String user,
+                            final String password) throws Exception {
+      createBridge(name,
+                   queueName,
+                   forwardingAddress,
+                   filterString,
+                   transformerClassName,
+                   JsonUtil.readJsonProperties(transformerPropertiesAsJSON),
+                   retryInterval,
+                   retryIntervalMultiplier,
+                   initialConnectAttempts,
+                   reconnectAttempts,
+                   useDuplicateDetection,
+                   confirmationWindowSize,
+                   producerWindowSize,
+                   clientFailureCheckPeriod,
+                   staticConnectorsOrDiscoveryGroup,
+                   useDiscoveryGroup,
+                   ha,
+                   user,
+                   password);
+   }
+
+   @Override
+   public void createBridge(final String name,
+                            final String queueName,
+                            final String forwardingAddress,
+                            final String filterString,
+                            final String transformerClassName,
+                            final Map<String, String> transformerProperties,
+                            final long retryInterval,
+                            final double retryIntervalMultiplier,
+                            final int initialConnectAttempts,
+                            final int reconnectAttempts,
+                            final boolean useDuplicateDetection,
+                            final int confirmationWindowSize,
+                            final int producerWindowSize,
+                            final long clientFailureCheckPeriod,
+                            final String staticConnectorsOrDiscoveryGroup,
+                            boolean useDiscoveryGroup,
+                            final boolean ha,
+                            final String user,
+                            final String password) throws Exception {
       checkStarted();
 
       clearIO();
 
       try {
-         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
+         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
@@ -2331,7 +2477,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
+         TransformerConfiguration transformerConfiguration = transformerClassName == null ? null : new TransformerConfiguration(transformerClassName);
+         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
@@ -2404,7 +2551,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      server.fail(true);
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            try {
+               server.fail(true);
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      };
+      t.start();
    }
 
    @Override

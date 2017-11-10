@@ -78,7 +78,7 @@ Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connectionFactory.myConnectionFactory=tcp://localhost:61616?roupID=Group-0
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?groupID=Group-0
 
 ## Example
 

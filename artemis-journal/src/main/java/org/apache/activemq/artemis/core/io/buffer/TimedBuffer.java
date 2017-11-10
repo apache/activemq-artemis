@@ -32,8 +32,19 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
+import org.jboss.logging.Logger;
 
-public final class TimedBuffer {
+public final class TimedBuffer extends CriticalComponentImpl {
+
+   protected static final int CRITICAL_PATHS = 1;
+   protected static final int CRITICAL_PATH_FLUSH = 0;
+
+   private static final Logger logger = Logger.getLogger(TimedBuffer.class);
+
+   private static final double MAX_TIMEOUT_ERROR_FACTOR = 1.5;
+
    // Constants -----------------------------------------------------
 
    // The number of tries on sleep before switching to spin
@@ -84,9 +95,6 @@ public final class TimedBuffer {
 
    private TimerTask logRatesTimerTask;
 
-   //used only in the timerThread do not synchronization
-   private boolean useSleep = true;
-
    // no need to be volatile as every access is synchronized
    private boolean spinning = false;
 
@@ -96,7 +104,8 @@ public final class TimedBuffer {
 
    // Public --------------------------------------------------------
 
-   public TimedBuffer(final int size, final int timeout, final boolean logRates) {
+   public TimedBuffer(CriticalAnalyzer analyzer, final int size, final int timeout, final boolean logRates) {
+      super(analyzer, CRITICAL_PATHS);
       bufferSize = size;
 
       this.logRates = logRates;
@@ -269,47 +278,56 @@ public final class TimedBuffer {
    }
 
    public void flush() {
-      flush(false);
+      flushBatch();
    }
 
    /**
-    * force means the Journal is moving to a new file. Any pending write need to be done immediately
-    * or data could be lost
+    * Attempts to flush if {@code !delayFlush} and {@code buffer} is filled by any data.
+    *
+    * @return {@code true} when are flushed any bytes, {@code false} otherwise
     */
-   public void flush(final boolean force) {
+   public boolean flushBatch() {
       synchronized (this) {
          if (!started) {
             throw new IllegalStateException("TimedBuffer is not started");
          }
 
-         if ((force || !delayFlush) && buffer.writerIndex() > 0) {
-            int pos = buffer.writerIndex();
+         enterCritical(CRITICAL_PATH_FLUSH);
+         try {
+            if (!delayFlush && buffer.writerIndex() > 0) {
+               int pos = buffer.writerIndex();
 
-            if (logRates) {
-               bytesFlushed.addAndGet(pos);
+               if (logRates) {
+                  bytesFlushed.addAndGet(pos);
+               }
+
+               final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
+               //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
+               bufferToFlush.limit(pos);
+               //perform memcpy under the hood due to the off heap buffer
+               buffer.getBytes(0, bufferToFlush);
+
+               bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
+
+               stopSpin();
+
+               pendingSync = false;
+
+               // swap the instance as the previous callback list is being used asynchronously
+               callbacks = new ArrayList<>();
+
+               buffer.clear();
+
+               bufferLimit = 0;
+
+               flushesDone.incrementAndGet();
+
+               return pos > 0;
+            } else {
+               return false;
             }
-
-            final ByteBuffer bufferToFlush = bufferObserver.newBuffer(bufferSize, pos);
-            //bufferObserver::newBuffer doesn't necessary return a buffer with limit == pos or limit == bufferSize!!
-            bufferToFlush.limit(pos);
-            //perform memcpy under the hood due to the off heap buffer
-            buffer.getBytes(0, bufferToFlush);
-
-
-            bufferObserver.flushBuffer(bufferToFlush, pendingSync, callbacks);
-
-            stopSpin();
-
-            pendingSync = false;
-
-            // swap the instance as the previous callback list is being used asynchronously
-            callbacks = new ArrayList<>();
-
-            buffer.clear();
-
-            bufferLimit = 0;
-
-            flushesDone.incrementAndGet();
+         } finally {
+            leaveCritical(CRITICAL_PATH_FLUSH);
          }
       }
    }
@@ -373,6 +391,7 @@ public final class TimedBuffer {
       @Override
       public void run() {
          long lastFlushTime = System.nanoTime();
+         boolean useSleep = true;
 
          while (!closed) {
             // We flush on the timer if there are pending syncs there and we've waited at least one
@@ -384,20 +403,24 @@ public final class TimedBuffer {
                if (useSleep) {
                   // if using sleep, we will always flush
                   lastFlushTime = System.nanoTime();
-                  flush();
+                  if (flushBatch()) {
+                     //it could wait until the timeout is expired
+                     final long timeFromTheLastFlush = System.nanoTime() - lastFlushTime;
 
-               } else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
+                     // example: Say the device took 20% of the time to write..
+                     //          We only need to wait 80% more..
+                     //          timeFromTheLastFlush would be the difference
+                     //          And if the device took more than that time, there's no need to wait at all.
+                     final long timeToSleep = timeout - timeFromTheLastFlush;
+                     if (timeToSleep > 0) {
+                        useSleep = sleepIfPossible(timeToSleep);
+                     }
+                  }
+               } else if (bufferObserver != null && System.nanoTime() - lastFlushTime > timeout) {
                   lastFlushTime = System.nanoTime();
                   // if not using flush we will spin and do the time checks manually
                   flush();
                }
-
-            }
-            //it could wait until the timeout is expired
-            final long timeFromTheLastFlush = System.nanoTime() - lastFlushTime;
-            final long timeToSleep = timeout - timeFromTheLastFlush;
-            if (timeToSleep > 0) {
-               sleepIfPossible(timeToSleep);
             }
 
             try {
@@ -413,34 +436,36 @@ public final class TimedBuffer {
       }
 
       /**
-       * We will attempt to use sleep only if the system supports nano-sleep
+       * We will attempt to use sleep only if the system supports nano-sleep.
        * we will on that case verify up to MAX_CHECKS if nano sleep is behaving well.
        * if more than 50% of the checks have failed we will cancel the sleep and just use regular spin
        */
-      private void sleepIfPossible(long nanosToSleep) {
-         if (useSleep) {
-            try {
-               final long startSleep = System.nanoTime();
-               sleep(nanosToSleep);
+      private boolean sleepIfPossible(long nanosToSleep) {
+         boolean useSleep = true;
+         try {
+            final long startSleep = System.nanoTime();
+            sleep(nanosToSleep);
+            if (checks < MAX_CHECKS_ON_SLEEP) {
                final long elapsedSleep = System.nanoTime() - startSleep;
-               if (checks < MAX_CHECKS_ON_SLEEP) {
-                  // I'm letting the real time to be up to 50% than the requested sleep.
-                  if (elapsedSleep > nanosToSleep * 1.5) {
-                     failedChecks++;
-                  }
+               // I'm letting the real time to be up to 50% than the requested sleep.
+               if (elapsedSleep > (nanosToSleep * MAX_TIMEOUT_ERROR_FACTOR)) {
+                  failedChecks++;
+               }
 
-                  if (++checks >= MAX_CHECKS_ON_SLEEP) {
-                     if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
-                        ActiveMQJournalLogger.LOGGER.debug("LockSupport.parkNanos with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
-                        useSleep = false;
-                     }
+
+               if (++checks >= MAX_CHECKS_ON_SLEEP) {
+                  if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
+                     logger.debug("LockSupport.parkNanos with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
+                     useSleep = false;
                   }
                }
-            } catch (Exception e) {
-               useSleep = false;
-               ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
             }
+         } catch (Exception e) {
+            useSleep = false;
+            // I don't think we need to individualize a logger code here, this is unlikely to happen anyways
+            logger.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
          }
+         return useSleep;
       }
 
       public void close() {

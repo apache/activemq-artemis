@@ -26,13 +26,20 @@ public class WildcardConfiguration implements Serializable {
 
    static final char DELIMITER = '.';
 
-   boolean enabled = true;
+   boolean routingEnabled = true;
 
    char singleWord = SINGLE_WORD;
 
    char anyWords = ANY_WORDS;
 
    char delimiter = DELIMITER;
+
+   String singleWordString = String.valueOf(singleWord);
+
+   String anyWordsString = String.valueOf(anyWords);
+
+   String delimiterString = String.valueOf(delimiter);
+
 
    @Override
    public boolean equals(Object o) {
@@ -41,7 +48,7 @@ public class WildcardConfiguration implements Serializable {
 
       WildcardConfiguration that = (WildcardConfiguration) o;
 
-      if (enabled != that.enabled) return false;
+      if (routingEnabled != that.routingEnabled) return false;
       if (singleWord != that.singleWord) return false;
       if (anyWords != that.anyWords) return false;
       return delimiter == that.delimiter;
@@ -50,7 +57,7 @@ public class WildcardConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = (enabled ? 1 : 0);
+      int result = (routingEnabled ? 1 : 0);
       result = 31 * result + (int) singleWord;
       result = 31 * result + (int) anyWords;
       result = 31 * result + (int) delimiter;
@@ -60,43 +67,59 @@ public class WildcardConfiguration implements Serializable {
    @Override
    public String toString() {
       return "WildcardConfiguration{" +
-              "anyWords=" + anyWords +
-              ", enabled=" + enabled +
+              "routingEnabled=" + routingEnabled +
+              ", anyWords=" + anyWords +
               ", singleWord=" + singleWord +
               ", delimiter=" + delimiter +
               '}';
    }
 
-   public boolean isEnabled() {
-      return enabled;
+   public boolean isRoutingEnabled() {
+      return routingEnabled;
    }
 
-   public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
+   public void setRoutingEnabled(boolean routingEnabled) {
+      this.routingEnabled = routingEnabled;
    }
 
    public char getAnyWords() {
       return anyWords;
    }
 
+   public String getAnyWordsString() {
+      return anyWordsString;
+   }
+
+
    public void setAnyWords(char anyWords) {
       this.anyWords = anyWords;
+      this.anyWordsString = String.valueOf(anyWords);
    }
 
    public char getDelimiter() {
       return delimiter;
    }
 
+   public String getDelimiterString() {
+      return delimiterString;
+   }
+
    public void setDelimiter(char delimiter) {
       this.delimiter = delimiter;
+      this.delimiterString = String.valueOf(delimiter);
    }
 
    public char getSingleWord() {
       return singleWord;
    }
 
+   public String getSingleWordString() {
+      return singleWordString;
+   }
+
    public void setSingleWord(char singleWord) {
       this.singleWord = singleWord;
+      this.singleWordString = String.valueOf(singleWord);
    }
 
    public String convert(String filter, WildcardConfiguration to) {

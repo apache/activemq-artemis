@@ -33,11 +33,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import org.jboss.logging.Logger;
 
 /**
  * An abstract SequentialFileFactory containing basic functionality for both AIO and NIO SequentialFactories
  */
 public abstract class AbstractSequentialFileFactory implements SequentialFileFactory {
+
+   private static final Logger logger = Logger.getLogger(AbstractSequentialFileFactory.class);
 
    // Timeout used to wait executors to shutdown
    protected static final int EXECUTOR_TIMEOUT = 60;
@@ -56,7 +61,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    protected volatile int alignment = -1;
 
-   private final IOCriticalErrorListener critialErrorListener;
+   protected final IOCriticalErrorListener critialErrorListener;
 
    /**
     * Asynchronous writes need to be done at another executor.
@@ -71,11 +76,17 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
                                            final int bufferTimeout,
                                            final int maxIO,
                                            final boolean logRates,
-                                           final IOCriticalErrorListener criticalErrorListener) {
+                                           final IOCriticalErrorListener criticalErrorListener,
+                                           CriticalAnalyzer criticalAnalyzer) {
       this.journalDir = journalDir;
 
+      if (criticalAnalyzer == null) {
+         criticalAnalyzer = EmptyCriticalAnalyzer.getInstance();
+      }
+
       if (buffered && bufferTimeout > 0) {
-         timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
+         timedBuffer = new TimedBuffer(criticalAnalyzer, bufferSize, bufferTimeout, logRates);
+         criticalAnalyzer.add(timedBuffer);
       } else {
          timedBuffer = null;
       }
@@ -83,6 +94,11 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.bufferTimeout = bufferTimeout;
       this.critialErrorListener = criticalErrorListener;
       this.maxIO = maxIO;
+   }
+
+   @Override
+   public long getBufferSize() {
+      return bufferSize;
    }
 
    @Override
@@ -161,6 +177,8 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    public void onIOError(Exception exception, String message, SequentialFile file) {
       if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
+      } else {
+         logger.warn("Critical IO Error Called.  No Critical IO Error Handler Registered");
       }
    }
 

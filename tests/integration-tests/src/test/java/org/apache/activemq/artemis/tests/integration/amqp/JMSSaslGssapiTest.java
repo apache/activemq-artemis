@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import javax.jms.Connection;
+import javax.jms.JMSSecurityException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.hadoop.minikdc.MiniKdc;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +52,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       }
    }
    MiniKdc kdc = null;
+   private final boolean debug = false;
 
    @Before
    public void setUpKerberos() throws Exception {
@@ -60,13 +63,14 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       File userKeyTab = new File("target/test.krb5.keytab");
       kdc.createPrincipal(userKeyTab, "client", "amqp/localhost");
 
-      java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
-      logger.setLevel(java.util.logging.Level.FINEST);
-      logger.addHandler(new java.util.logging.ConsoleHandler());
-      for (java.util.logging.Handler handler: logger.getHandlers()) {
-         handler.setLevel(java.util.logging.Level.FINEST);
+      if (debug) {
+         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("javax.security.sasl");
+         logger.setLevel(java.util.logging.Level.FINEST);
+         logger.addHandler(new java.util.logging.ConsoleHandler());
+         for (java.util.logging.Handler handler : logger.getHandlers()) {
+            handler.setLevel(java.util.logging.Level.FINEST);
+         }
       }
-
    }
 
    @After
@@ -146,6 +150,18 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
       } finally {
          connection.close();
+      }
+   }
+
+   @Test(timeout = 600000)
+   public void testSaslPlainConnectionDenied() throws Exception {
+
+      JmsConnectionFactory factory = new JmsConnectionFactory(new URI("amqp://localhost:" + AMQP_PORT + "?amqp.saslMechanisms=PLAIN"));
+      try {
+         factory.createConnection("plain", "secret");
+         fail("Expect sasl failure");
+      } catch (JMSSecurityException expected) {
+         assertTrue(expected.getMessage().contains("SASL"));
       }
    }
 }

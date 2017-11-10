@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
@@ -40,8 +39,8 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
+import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.GSSAPIServerSASL;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
@@ -54,6 +53,8 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.jboss.logging.Logger;
+
+import io.netty.buffer.ByteBuf;
 
 public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
@@ -96,25 +97,40 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
    public ServerSASL getServerSASL(final String mechanism) {
       ServerSASL result = null;
-      switch (mechanism) {
-         case PlainSASL.NAME:
-            result = new PlainSASL(server.getSecurityStore());
-            break;
+      if (isPermittedMechanism(mechanism)) {
+         switch (mechanism) {
+            case PlainSASL.NAME:
+               result = new PlainSASL(server.getSecurityStore());
+               break;
 
-         case AnonymousServerSASL.NAME:
-            result = new AnonymousServerSASL();
-            break;
+            case AnonymousServerSASL.NAME:
+               result = new AnonymousServerSASL();
+               break;
 
-         case GSSAPIServerSASL.NAME:
-            GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
-            gssapiServerSASL.setLoginConfigScope(manager.getSaslLoginConfigScope());
-            result = gssapiServerSASL;
-            break;
+            case GSSAPIServerSASL.NAME:
+               GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
+               gssapiServerSASL.setLoginConfigScope(manager.getSaslLoginConfigScope());
+               result = gssapiServerSASL;
+               break;
 
-         default:
-            break;
+            default:
+               break;
+         }
       }
       return result;
+   }
+
+   private boolean isPermittedMechanism(String mechanism) {
+      if (saslMechanisms == null || saslMechanisms.length == 0) {
+         return AnonymousServerSASL.NAME.equals(mechanism);
+      } else {
+         for (String candidate : saslMechanisms) {
+            if (candidate.equals(mechanism)) {
+               return true;
+            }
+         }
+      }
+      return false;
    }
 
    public boolean isSupportsAnonymous() {
@@ -244,11 +260,6 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       }
 
       return tx;
-   }
-
-   public Transaction removeTransaction(Binary txid) {
-      XidImpl xid = newXID(txid.getArray());
-      return transactions.remove(xid);
    }
 
    protected XidImpl newXID() {

@@ -222,10 +222,7 @@ Here is an example of the plugin's configuration:
     and update the broker's authorization configuration in real-time. The default value is `true`.
 
 The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value
-will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is. It's worth noting that
-since the name of queue or topic coming from LDAP will server as the "match" for the security-setting the security-setting
-may not be applied as expected to JMS destinations since Artemis always prefixes JMS destinations with "jms.queue." or
-"jms.topic." as necessary.
+will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is.
 
 ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
 [website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 7 permission
@@ -430,6 +427,17 @@ the following:
     user=password
     guest=password
 
+Passwords in `artemis-users.properties` can be hashed. Such passwords should follow the syntax `ENC(<hash>)`. Hashed
+passwords can easily be added to `artemis-users.properties` using the `user` CLI command, e.g.:
+
+
+```sh
+    ./artemis user add --username guest --password guest --role admin
+```
+
+This will use the default `org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec` to perform a "one-way" hash of
+the password and alter both the `artemis-users.properties` and `artemis-roles.properties` files with the specified values. 
+
 The `artemis-roles.properties` file consists of a list of properties of the form, `Role=UserList`, where UserList is a
 comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file
 like the following:
@@ -451,7 +459,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     tree. For example, ldap://ldapserver:10389/ou=system.
 
 -   `authentication` - specifies the authentication method used when binding to the LDAP server. Can take either of
-    the values, `simple` (username and password) or `none` (anonymous).
+    the values, `simple` (username and password), `GSSAPI` (Kerberos SASL) or `none` (anonymous).
 
 -   `connectionUsername` - the DN of the user that opens the connection to the directory server. For example,
     `uid=admin,ou=system`. Directory servers generally require clients to present username/password credentials in order
@@ -459,6 +467,9 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 
 -   `connectionPassword` - the password that matches the DN from `connectionUsername`. In the directory server,
     in the DIT, the password is normally stored as a `userPassword` attribute in the corresponding directory entry.
+
+-   `saslLoginConfigScope` - the scope in JAAS configuration (login.config) to use to obtain Kerberos initiator credentials
+    when the `authentication` method is SASL `GSSAPI`. The default value is `broker-sasl-gssapi`.
 
 -   `connectionProtocol` - currently, the only supported value is a blank string. In future, this option will allow
     you to select the Secure Socket Layer (SSL) for the connection to the directory server. This option must be set
@@ -499,7 +510,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     the `ou=Group,ou=ActiveMQ,ou=system` node.
 
 -   `roleName` - specifies the attribute type of the role entry that contains the name of the role/group (e.g. C, O,
-    OU, etc.). If you omit this option, the role search feature is effectively disabled.
+    OU, etc.). If you omit this option the full DN of the role is used.
 
 -   `roleSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `roleBase`.
     This works in a similar manner to the `userSearchMatching` option, except that it supports two substitution strings,
@@ -515,7 +526,8 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
     search filter is applied to the subtree selected by the role base, `ou=Group,ou=ActiveMQ,ou=system`, it matches all
     role entries that have a `member` attribute equal to `uid=jdoe` (the value of a `member` attribute is a DN).
 
-    This option must always be set, even if role searching is disabled, because it has no default value.
+    This option must always be set to enable role searching because it has no default value. Leaving it unset disables
+    role searching and the role information must come from `userRoleName`.
 
     If you use OpenLDAP, the syntax of the search filter is `(member:=uid=jdoe)`.
 
@@ -527,6 +539,9 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
 
     -   `true` — try to match any entry belonging to the subtree of the roleBase node (maps to
         `javax.naming.directory.SearchControls.SUBTREE_SCOPE`).
+
+-   `authenticateUser` - boolean flag to disable authentication. Useful as an optimisation when this module is used just for
+    role mapping of a Subject's existing authenticated principals; default is `false`.
 
 -   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
     should be set to `false`, or omitted; default is `false`
@@ -686,12 +701,28 @@ An example configuration scope for `login.config` that will pick up a Kerberos k
 #### Role Mapping
 
 On the server, the Kerberos authenticated Peer Principal can be added to the Subject's principal set as an Apache ActiveMQ Artemis UserPrincipal
-using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) can then be used to map
-the authenticated Kerberos Peer Principal to a [Role](#role-based-security-for-addresses).
-
-Note: the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user.
-
-    org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule optional;
+using the Apache ActiveMQ Artemis `Krb5LoginModule` login module. The [PropertiesLoginModule](#propertiesloginmodule) or
+ [LDAPLoginModule](#ldaploginmodule) can then be used to map
+the authenticated Kerberos Peer Principal to an Apache ActiveMQ Artemis [Role](#role-based-security-for-addresses). Note
+that the Kerberos Peer Principal does not exist as an Apache ActiveMQ Artemis user, only as a role member.
+ 
+    org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule required
+        ;
+    org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule optional
+        initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
+        connectionURL="ldap://localhost:1024"
+        authentication=GSSAPI
+        saslLoginConfigScope=broker-sasl-gssapi
+        connectionProtocol=s
+        userBase="ou=users,dc=example,dc=com"
+        userSearchMatching="(krb5PrincipalName={0})"
+        userSearchSubtree=true
+        authenticateUser=false
+        roleBase="ou=system"
+        roleName=cn
+        roleSearchMatching="(member={0})"
+        roleSearchSubtree=false
+        ;
 
 #### TLS Kerberos Cipher Suites
 
@@ -717,7 +748,7 @@ Artemis comes with a web console that allows user to browse Artemis documentatio
 web access is plain HTTP. It is configured in `bootstrap.xml`:
 
     <web bind="http://localhost:8161" path="web">
-        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
+        <app url="console" war="console.war"/>
     </web>
 
 Alternatively you can edit the above configuration to enable secure access using HTTPS protocol. e.g.:
@@ -773,20 +804,15 @@ A `*` means 'match-all' in a black or white list.
 
 ### Specifying black list and white list via Connection Factories
 
-To specify the white and black lists one can append properties `deserializationBlackList` and `deserializationWhiteList` respectively
-to a Connection Factory's url string. For example:
+To specify the white and black lists one can use the URL parameters
+`deserializationBlackList` and `deserializationWhiteList`. For example,
+using JMS:
 
      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0?deserializationBlackList=org.apache.pkg1,org.some.pkg2");
 
-The above statement creates a factory that has a black list contains two forbidden packages, "org.apache.pkg1" and "org.some.pkg2",
-separated by a comma.
-
-You can also set the values via ActiveMQConnectionFactory's API:
-
-    public void setDeserializationBlackList(String blackList);
-    public void setDeserializationWhiteList(String whiteList);
-
-Again the parameters are comma separated list of package/class names.
+The above statement creates a factory that has a black list contains two
+forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a
+comma.
 
 ### Specifying black list and white list via system properties
 
@@ -829,3 +855,7 @@ You need to put the black/white lists in its web.xml, as context parameters, as 
     </web-app>
 
 The param-value for each list is a comma separated string value representing the list.
+
+## Masking Passwords
+
+For details about masking passwords in broker.xml please see the [Masking Passwords](masking-passwords.md) chapter.

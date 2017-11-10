@@ -248,10 +248,10 @@ public final class JsonUtil {
       return array.build();
    }
 
-   public static JsonObject toJsonObject(Map<String, Object> map) {
+   public static JsonObject toJsonObject(Map<String, ?> map) {
       JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
       if (map != null) {
-         for (Map.Entry<String, Object> entry : map.entrySet()) {
+         for (Map.Entry<String, ?> entry : map.entrySet()) {
             addToObject(entry.getKey(), entry.getValue(), jsonObjectBuilder);
          }
       }
@@ -264,6 +264,14 @@ public final class JsonUtil {
 
    public static JsonObject readJsonObject(String jsonString) {
       return Json.createReader(new StringReader(jsonString)).readObject();
+   }
+
+   public static Map<String, String> readJsonProperties(String jsonString) {
+      Map<String, String> properties = new HashMap<>();
+      if (jsonString != null) {
+         JsonUtil.readJsonObject(jsonString).forEach((k, v) -> properties.put(k, v.toString()));
+      }
+      return properties;
    }
 
    public static Object convertJsonValue(Object jsonValue, Class desiredType) {

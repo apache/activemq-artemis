@@ -106,20 +106,6 @@ The standard Apache ActiveMQ Artemis core server uses two instances of the journ
     file has a `bindings` extension. File size is `1048576`, and it is
     located at the bindings folder.
 
--   JMS journal.
-
-    This journal instance stores all JMS related data, This is basically
-    any JMS Queues, Topics and Connection Factories and any JNDI
-    bindings for these resources.
-
-    Any JMS Resources created via the management API will be persisted
-    to this journal. Any resources configured via configuration files
-    will not. The JMS Journal will only be created if JMS is being used.
-
-    The files on this journal are prefixed as `activemq-jms`. Each file
-    has a `jms` extension. File size is `1048576`, and it is located at
-    the bindings folder.
-
 -   Message journal.
 
     This journal instance stores all message related data, including the
@@ -465,6 +451,21 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 -   `jdbc-network-timeout`
 
     The JDBC network connection timeout in milliseconds. The default value
+    is 20000 milliseconds (ie 20 seconds).
+    
+-   `jdbc-lock-acquisition-timeout`
+
+    The max allowed time in milliseconds while trying to acquire a JDBC lock. The default value
+    is 60000 milliseconds (ie 60 seconds).
+        
+-   `jdbc-lock-renew-period`
+
+    The period in milliseconds of the keep alive service of a JDBC lock. The default value
+    is 2000 milliseconds (ie 2 seconds).
+    
+-   `jdbc-lock-expiration`
+
+    The time in milliseconds a JDBC lock is considered valid without keeping it alive. The default value
     is 20000 milliseconds (ie 20 seconds).
 
 Note that some DBMS (e.g. Oracle, 30 chars) have restrictions on the size of table names, this should be taken into consideration when configuring table names for the Artemis database store, pay particular attention to the page store table name, which can be appended with a unique ID of up to 20 characters.  (for Oracle this would mean configuring a page-store-table-name of max size of 10 chars).

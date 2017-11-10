@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.broker</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>2.3.0-SNAPSHOT</version>
+      <version>2.5.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>jmx</artifactId>
@@ -61,9 +61,7 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
-                     <!-- options used for JMX on the example -->
-                     <javaOptions>-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=3000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
-                     </javaOptions>
+                     <javaOptions>-Djava.rmi.server.hostname=localhost</javaOptions>
                   </configuration>
                </execution>
                <execution>

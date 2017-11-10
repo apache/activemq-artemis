@@ -177,13 +177,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
-   private long messagesAdded;
+   private AtomicLong messagesAdded = new AtomicLong(0);
 
-   private long messagesAcknowledged;
+   private AtomicLong messagesAcknowledged = new AtomicLong(0);
 
-   private long messagesExpired;
+   private AtomicLong messagesExpired = new AtomicLong(0);
 
-   private long messagesKilled;
+   private AtomicLong messagesKilled = new AtomicLong(0);
 
    protected final AtomicInteger deliveringCount = new AtomicInteger(0);
 
@@ -243,6 +243,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final ExpiryScanner expiryScanner = new ExpiryScanner();
 
    private final ReusableLatch deliveriesInTransit = new ReusableLatch(0);
+
+   private volatile boolean caused = false;
 
    private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
@@ -593,7 +595,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
             if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
                return;
             }
@@ -613,7 +614,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       enterCritical(CRITICAL_PATH_ADD_HEAD);
       synchronized (this) {
          try {
-            flushDeliveriesInTransit();
             for (MessageReference ref : refs) {
                addHead(ref, scheduling);
             }
@@ -637,7 +637,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       directDeliver = false;
 
       if (!ref.isPaged()) {
-         messagesAdded++;
+         messagesAdded.incrementAndGet();
       }
    }
 
@@ -702,7 +702,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          synchronized (this) {
             if (!ref.isPaged()) {
-               messagesAdded++;
+               messagesAdded.incrementAndGet();
             }
          }
 
@@ -717,6 +717,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private boolean flushDeliveriesInTransit() {
       try {
 
+         if (!deliveriesInTransit.await(100, TimeUnit.MILLISECONDS)) {
+            caused = true;
+            System.err.println("There are currently " + deliveriesInTransit.getCount() + " credits");
+         }
          if (deliveriesInTransit.await(DELIVERY_TIMEOUT)) {
             return true;
          } else {
@@ -724,7 +728,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return false;
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToFlushDeliveries(e);
          return false;
       }
    }
@@ -770,7 +774,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                cancelRedistributor();
             } catch (Exception e) {
                // nothing that could be done anyway.. just logging
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.unableToCancelRedistributor(e);
             }
          }
       });
@@ -834,8 +838,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (maxConsumers != MAX_CONSUMERS_UNLIMITED && noConsumers.get() >= maxConsumers) {
                throw ActiveMQMessageBundle.BUNDLE.maxConsumerLimitReachedForQueue(address, name);
             }
-
-            flushDeliveriesInTransit();
 
             consumersChanged = true;
 
@@ -1132,11 +1134,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (reason == AckReason.EXPIRED) {
-         messagesExpired++;
+         messagesExpired.incrementAndGet();
       } else if (reason == AckReason.KILLED) {
-         messagesKilled++;
+         messagesKilled.incrementAndGet();
       } else {
-         messagesAcknowledged++;
+         messagesAcknowledged.incrementAndGet();
       }
 
       if (server != null) {
@@ -1170,11 +1172,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (reason == AckReason.EXPIRED) {
-         messagesExpired++;
+         messagesExpired.incrementAndGet();
       } else if (reason == AckReason.KILLED) {
-         messagesKilled++;
+         messagesKilled.incrementAndGet();
       } else {
-         messagesAcknowledged++;
+         messagesAcknowledged.incrementAndGet();
       }
 
       if (server != null) {
@@ -1195,7 +1197,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       // https://issues.jboss.org/browse/HORNETQ-609
       incDelivering();
 
-      messagesAcknowledged++;
+      messagesAcknowledged.incrementAndGet();
    }
 
    private RefsOperation getRefsOperation(final Transaction tx) {
@@ -1314,7 +1316,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void incrementMesssagesAdded() {
-      messagesAdded++;
+      messagesAdded.incrementAndGet();
    }
 
    @Override
@@ -1332,25 +1334,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public long getMessagesAdded() {
       if (pageSubscription != null) {
-         return messagesAdded + pageSubscription.getCounter().getValueAdded();
+         return messagesAdded.get() + pageSubscription.getCounter().getValueAdded();
       } else {
-         return messagesAdded;
+         return messagesAdded.get();
       }
    }
 
    @Override
    public long getMessagesAcknowledged() {
-      return messagesAcknowledged;
+      return messagesAcknowledged.get();
    }
 
    @Override
    public long getMessagesExpired() {
-      return messagesExpired;
+      return messagesExpired.get();
    }
 
    @Override
    public long getMessagesKilled() {
-      return messagesKilled;
+      return messagesKilled.get();
    }
 
    @Override
@@ -1691,7 +1693,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      tx.commit();
                   }
                } catch (Exception e) {
-                  logger.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.unableToCommitTransaction(e);
                }
 
                // If empty we need to schedule depaging to make sure we would depage expired messages as well
@@ -1923,7 +1925,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          try {
             storageManager.deleteQueueStatus(pauseStatusRecord);
          } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToDeleteQueueStatus(e);
          }
       }
       this.pauseStatusRecord = recordID;
@@ -1940,7 +1942,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             pauseStatusRecord = storageManager.storeQueueStatus(this.id, QueueStatus.PAUSED);
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToPauseQueue(e);
       }
       paused = true;
    }
@@ -1953,7 +1955,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          try {
             storageManager.deleteQueueStatus(pauseStatusRecord);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToResumeQueue(e);
          }
          pauseStatusRecord = -1;
       }
@@ -2043,7 +2045,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          return ref.getMessage().getPriority();
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToGetMessagePriority(e);
          return 4; // the default one in case of failure
       }
    }
@@ -2057,7 +2059,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          internalAddTail(ref);
 
          if (!ref.isPaged()) {
-            messagesAdded++;
+            messagesAdded.incrementAndGet();
          }
 
          if (added++ > MAX_DELIVERIES_IN_LOOP) {
@@ -2274,7 +2276,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getGroupID();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.unableToExtractGroupID(e);
             return null;
          }
       }
@@ -2734,7 +2736,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   groups.put(groupID, consumer);
                }
 
-               messagesAdded++;
+               messagesAdded.incrementAndGet();
 
                deliveriesInTransit.countUp();
                proceedDeliver(consumer, ref);
@@ -2791,7 +2793,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return false;
          }
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToCheckIfMessageExpired(e);
          return false;
       }
    }
@@ -2844,7 +2846,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          message = ref.getMessage();
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToPerformPostAcknowledge(e);
          message = null;
       }
 
@@ -2911,22 +2913,22 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void resetMessagesAdded() {
-      messagesAdded = 0;
+      messagesAdded.set(0);
    }
 
    @Override
    public synchronized void resetMessagesAcknowledged() {
-      messagesAcknowledged = 0;
+      messagesAcknowledged.set(0);
    }
 
    @Override
    public synchronized void resetMessagesExpired() {
-      messagesExpired = 0;
+      messagesExpired.set(0);
    }
 
    @Override
    public synchronized void resetMessagesKilled() {
-      messagesKilled = 0;
+      messagesKilled.set(0);
    }
 
    @Override

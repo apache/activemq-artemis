@@ -279,4 +279,10 @@ public interface Journal extends ActiveMQComponent {
     * It will make sure there are no more pending operations on the Executors.
     * */
    void flush() throws Exception;
+
+   /**
+    * The max size record that can be stored in the journal
+    * @return
+    */
+   long getMaxRecordSize();
 }

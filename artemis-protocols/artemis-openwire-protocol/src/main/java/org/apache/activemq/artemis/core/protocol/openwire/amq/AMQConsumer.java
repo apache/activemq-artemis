@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.reader.MessageUtil;
@@ -50,7 +51,6 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
-import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQConsumer {
    private AMQSession session;
@@ -82,10 +82,13 @@ public class AMQConsumer {
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
       SimpleString selector = info.getSelector() == null ? null : new SimpleString(info.getSelector());
+      boolean preAck = false;
       if (info.isNoLocal()) {
          if (!AdvisorySupport.isAdvisoryTopic(openwireDestination)) {
             //tell the connection to add the property
             this.session.getConnection().setNoLocal(true);
+         } else {
+            preAck = true;
          }
          String noLocalSelector = MessageUtil.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + this.getId().getConnectionId() + "'";
          if (selector == null) {
@@ -95,31 +98,24 @@ public class AMQConsumer {
          }
       }
 
-      String physicalName = session.convertWildcard(openwireDestination.getPhysicalName());
-
-      SimpleString address;
+      SimpleString destinationName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
 
       if (openwireDestination.isTopic()) {
-         if (openwireDestination.isTemporary()) {
-            address = new SimpleString(physicalName);
-         } else {
-            address = new SimpleString(physicalName);
-         }
-
-         SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), physicalName, info.getSubscriptionName(), selector, address);
+         SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), destinationName.toString(), info.getSubscriptionName(), selector, destinationName);
 
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
+         //only advisory topic consumers need this.
+         ((ServerConsumerImpl)serverConsumer).setPreAcknowledge(preAck);
       } else {
-         SimpleString queueName = new SimpleString(session.convertWildcard(openwireDestination.getPhysicalName()));
          try {
-            session.getCoreServer().createQueue(queueName, RoutingType.ANYCAST, queueName, null, true, false);
+            session.getCoreServer().createQueue(destinationName, RoutingType.ANYCAST, destinationName, null, true, false);
          } catch (ActiveMQQueueExistsException e) {
             // ignore
          }
-         serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
+         serverConsumer = session.getCoreSession().createConsumer(nativeId, destinationName, selector, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
-         AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(queueName.toString());
+         AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(destinationName.toString());
          if (addrSettings != null) {
             //see PolicyEntry
             if (info.getPrefetchSize() != 0 && addrSettings.getQueuePrefetch() == 0) {
@@ -130,7 +126,6 @@ public class AMQConsumer {
                session.getConnection().dispatch(cc);
             }
          }
-
       }
 
       serverConsumer.setProtocolData(this);
@@ -190,10 +185,6 @@ public class AMQConsumer {
       return info.getConsumerId();
    }
 
-   public WireFormat getMarshaller() {
-      return this.session.getMarshaller();
-   }
-
    public void acquireCredit(int n) throws Exception {
       if (messagePullHandler != null) {
          //don't acquire any credits when the pull handler controls it!!
@@ -221,7 +212,7 @@ public class AMQConsumer {
             //so we need to remove this property too.
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
-         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
+         dispatch = session.getConverter().createMessageDispatch(reference, message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);

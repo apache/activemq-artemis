@@ -271,6 +271,11 @@ public class SendAckFailTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void updateQueueBinding(long tx, Binding binding) throws Exception {
+         manager.updateQueueBinding(tx, binding);
+      }
+
+      @Override
       public boolean isStarted() {
          return manager.isStarted();
       }

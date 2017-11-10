@@ -12,7 +12,7 @@ are only interested by the latest value for a particular stock.
 
 Last-value queues are defined in the address-setting configuration:
 
-    <address-setting match="jms.queue.lastValueQueue">
+    <address-setting match="lastValueQueue">
        <last-value-queue>true</last-value-queue>
     </address-setting>
 

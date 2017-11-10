@@ -45,6 +45,9 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
+   protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
+   protected static final String urlStringLoose = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.tightEncodingEnabled=false";
+
    protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
@@ -101,6 +104,9 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          server.getConfiguration().putSecurityRoles("#", roles);
       }
+
+      mbeanServer = MBeanServerFactory.createMBeanServer();
+      server.setMBeanServer(mbeanServer);
       addServer(server);
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
@@ -108,8 +114,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       jmsServer.start();
 
       registerConnectionFactory();
-
-      mbeanServer = MBeanServerFactory.createMBeanServer();
       System.out.println("debug: server started");
    }
 

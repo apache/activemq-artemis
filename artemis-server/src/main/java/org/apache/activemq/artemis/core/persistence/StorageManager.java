@@ -65,6 +65,11 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  */
 public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
+   default long getMaxRecordSize() {
+      /** Null journal is pretty much memory */
+      return Long.MAX_VALUE;
+   }
+
    void criticalError(Throwable error);
 
    /**
@@ -282,6 +287,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    // BindingsImpl related operations
 
    void addQueueBinding(long tx, Binding binding) throws Exception;
+
+   void updateQueueBinding(long tx, Binding binding) throws Exception;
 
    void deleteQueueBinding(long tx, long queueBindingID) throws Exception;
 

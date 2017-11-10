@@ -77,12 +77,12 @@ public interface ICoreMessage extends Message {
          map.put("userID", "ID:" + userID.toString());
       }
 
-      map.put("address", getAddress());
+      map.put("address", getAddress() == null ? "" : getAddress());
       map.put("type", getType());
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());
       map.put("timestamp", getTimestamp());
-      map.put("priority", (int)getPriority());
+      map.put("priority", getPriority());
 
       return map;
    }

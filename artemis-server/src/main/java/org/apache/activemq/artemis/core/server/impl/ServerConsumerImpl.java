@@ -137,7 +137,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final SessionCallback callback;
 
-   private final boolean preAcknowledge;
+   private boolean preAcknowledge;
 
    private final ManagementService managementService;
 
@@ -607,8 +607,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       boolean performACK = lastConsumedAsDelivered;
 
       try {
-         if (largeMessageDeliverer != null) {
-            largeMessageDeliverer.finish();
+         LargeMessageDeliverer pendingLargeMessageDeliverer = largeMessageDeliverer;
+         if (pendingLargeMessageDeliverer != null) {
+            pendingLargeMessageDeliverer.finish();
          }
       } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.errorResttingLargeMessage(e, largeMessageDeliverer);
@@ -690,7 +691,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
          return true;
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.failedToFinishDelivery(e);
          return false;
       }
    }
@@ -1138,6 +1139,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
       }
    };
+
+   public void setPreAcknowledge(boolean preAcknowledge) {
+      this.preAcknowledge = preAcknowledge;
+   }
 
    /**
     * Internal encapsulation of the logic on sending LargeMessages.

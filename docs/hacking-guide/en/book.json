@@ -5,8 +5,8 @@
     "githubHost": "https://github.com/",
     "gitbook": "3.x.x",
     "links": {
-        "home": "http://activemq.apache.org/",
-        "issues": "http://activemq.apache.org/",
+        "home": "http://activemq.apache.org/artemis",
+        "issues": "https://issues.apache.org/jira/browse/ARTEMIS",
         "contribute": "http://activemq.apache.org/contributing.html"
     }
 }

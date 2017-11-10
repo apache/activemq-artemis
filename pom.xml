@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.3.0-SNAPSHOT</version>
+   <version>2.5.0-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -77,7 +77,8 @@
       <commons.lang.version>3.0</commons.lang.version>
       <activemq5-version>5.14.5</activemq5-version>
       <apache.derby.version>10.11.1.1</apache.derby.version>
-      <commons.beanutils.version>1.9.2</commons.beanutils.version>
+      <commons.beanutils.version>1.9.3</commons.beanutils.version>
+      <org.hdrhistogram.version>2.1.10</org.hdrhistogram.version>
       <commons.collections.version>3.2.2</commons.collections.version>
       <fuse.mqtt.client.version>1.14</fuse.mqtt.client.version>
       <guava.version>19.0</guava.version>
@@ -86,11 +87,11 @@
       <jgroups.version>3.6.13.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <mockito.version>2.8.47</mockito.version>
-      <netty.version>4.1.14.Final</netty.version>
-      <proton.version>0.20.0</proton.version>
+      <netty.version>4.1.16.Final</netty.version>
+      <proton.version>0.23.0</proton.version>
       <resteasy.version>3.0.19.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>0.24.0</qpid.jms.version>
+      <qpid.jms.version>0.27.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
       <javax.inject.version>1</javax.inject.version>
@@ -111,6 +112,7 @@
       <version.org.jacoco.plugin>0.7.9</version.org.jacoco.plugin>
 
       <owasp.version>1.4.3</owasp.version>
+      <spring.version>5.0.1.RELEASE</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -155,7 +157,7 @@
            -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=30s,duration=120s,filename=/tmp/myrecording.jfr
 
       -->
-      
+
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
          -Djava.library.path="${activemq.basedir}/artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
@@ -173,6 +175,9 @@
 
       <cdi-api.version>1.2</cdi-api.version>
       <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
+
+      <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
+      <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
    </properties>
 
    <scm>
@@ -313,28 +318,28 @@
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>3.1.4.RELEASE</version>
+            <version>${spring.version}</version>
             <scope>compile</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -429,7 +434,7 @@
              <artifactId>geronimo-ejb_3.0_spec</artifactId>
              <version>${geronimo.ejb.3.0.spec.version}</version>
              <!-- License: Apache 2.0 -->
-	      </dependency>
+         </dependency>
          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
@@ -470,6 +475,44 @@
          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>${netty.version}</version>
+            <classifier>${netty-transport-native-epoll-classifier}</classifier>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+            <version>${netty.version}</version>
+            <classifier>${netty-transport-native-kqueue-classifier}</classifier>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
@@ -592,13 +635,6 @@
             <artifactId>tomcat-servlet-api</artifactId>
             <version>8.5.5</version>
          </dependency>
-        <dependency>
-           <groupId>org.jolokia</groupId>
-           <artifactId>jolokia-war</artifactId>
-           <type>war</type>
-           <version>1.3.5</version>
-           <!-- License: Apache 2.0 -->
-        </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
          <dependency>
@@ -622,6 +658,15 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
             <!-- License: Apache 2.0 -->
+         </dependency>
+
+         <!-- needed by SyncCalculation -->
+         <!-- https://mvnrepository.com/artifact/org.hdrhistogram/HdrHistogram -->
+         <dependency>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
+            <version>${org.hdrhistogram.version}</version>
+            <!-- License: Public Domain -->
          </dependency>
 
          <dependency>
@@ -826,6 +871,7 @@
             <module>artemis-core-client</module>
             <module>artemis-server</module>
             <module>artemis-jms-client</module>
+            <module>artemis-jms-client-all</module>
             <module>artemis-jms-server</module>
             <module>artemis-native</module>
             <module>artemis-journal</module>
@@ -1154,51 +1200,51 @@
    <build>
       <pluginManagement>
          <plugins>
-			<plugin>
-				<groupId>org.eclipse.m2e</groupId>
-				<artifactId>lifecycle-mapping</artifactId>
-				<version>1.0.0</version>
-				<configuration>
-					<lifecycleMappingMetadata>
-						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>org.apache.rat</groupId>
-									<artifactId>apache-rat-plugin</artifactId>
-									<versionRange>[0.12,)</versionRange>
-									<goals>
-										<goal>check</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore />
-								</action>
-							</pluginExecution>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>
-										org.apache.servicemix.tooling
-									</groupId>
-									<artifactId>
-										depends-maven-plugin
-									</artifactId>
-									<versionRange>
-										[1.2,)
-									</versionRange>
-									<goals>
-										<goal>
-											generate-depends-file
-										</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore />
-								</action>
-							</pluginExecution>
-						</pluginExecutions>
-					</lifecycleMappingMetadata>
-				</configuration>
-			</plugin>
+         <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+               <lifecycleMappingMetadata>
+                  <pluginExecutions>
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>org.apache.rat</groupId>
+                           <artifactId>apache-rat-plugin</artifactId>
+                           <versionRange>[0.12,)</versionRange>
+                           <goals>
+                              <goal>check</goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                     <pluginExecution>
+                        <pluginExecutionFilter>
+                           <groupId>
+                              org.apache.servicemix.tooling
+                           </groupId>
+                           <artifactId>
+                              depends-maven-plugin
+                           </artifactId>
+                           <versionRange>
+                              [1.2,)
+                           </versionRange>
+                           <goals>
+                              <goal>
+                                 generate-depends-file
+                              </goal>
+                           </goals>
+                        </pluginExecutionFilter>
+                        <action>
+                           <ignore />
+                        </action>
+                     </pluginExecution>
+                  </pluginExecutions>
+               </lifecycleMappingMetadata>
+            </configuration>
+         </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
@@ -1538,7 +1584,7 @@
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
                   <exclude>**/npm-shrinkwrap.json</exclude>
-                  
+
                   <!-- Build time overlay folder -->
                   <exclude>**/overlays/**</exclude>
 

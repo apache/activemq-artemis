@@ -170,7 +170,7 @@ Let's take a brief look at these:
 ### Java Message Service (JMS)
 
 [JMS](http://en.wikipedia.org/wiki/Java_Message_Service) is part of
-Oracle's JEE specification. It's a Java API that encapsulates both message
+Oracle's Java EE specification. It's a Java API that encapsulates both message
 queue and publish-subscribe messaging patterns. JMS is a lowest common
 denominator specification - i.e. it was created to encapsulate common
 functionality of the already existing messaging systems that were

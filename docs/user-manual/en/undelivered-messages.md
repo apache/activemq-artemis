@@ -36,7 +36,7 @@ consuming valuable CPU and network resources.
 Delayed redelivery is defined in the address-setting configuration:
 
     <!-- delay redelivery of messages for 5s -->
-    <address-setting match="jms.queue.exampleQueue">
+    <address-setting match="exampleQueue">
     <!-- default is 1.0 -->
     <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
     <!-- default is 0 (no delay) -->
@@ -104,8 +104,8 @@ Dead letter address is defined in the address-setting configuration:
 
     <!-- undelivered messages in exampleQueue will be sent to the dead letter address
     deadLetterQueue after 3 unsuccessful delivery attempts -->
-    <address-setting match="jms.queue.exampleQueue">
-    <dead-letter-address>jms.queue.deadLetterQueue</dead-letter-address>
+    <address-setting match="exampleQueue">
+    <dead-letter-address>deadLetterQueue</dead-letter-address>
     <max-delivery-attempts>3</max-delivery-attempts>
     </address-setting>
 

@@ -90,6 +90,7 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
@@ -158,11 +159,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private final boolean direct;
 
-   //marker instance used to recognize if a thread is performing a packet handling
-   private static final Object DUMMY = Boolean.TRUE;
-
-   //a thread that has its thread-local map populated with DUMMY is performing a packet handling
-   private static final ThreadLocal<Object> inHandler = new ThreadLocal<>();
 
    public ServerSessionPacketHandler(final ActiveMQServer server,
                                      final CoreProtocolManager manager,
@@ -219,7 +215,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    public void connectionFailed(final ActiveMQException exception, boolean failedOver) {
       ActiveMQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
-      flushExecutor();
+      closeExecutors();
 
       try {
          session.close(true);
@@ -230,32 +226,13 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       ActiveMQServerLogger.LOGGER.clearingUpSession(session.getName());
    }
 
-   private static void onStartMessagePacketHandler() {
-      assert inHandler.get() == null : "recursion on packet handling is not supported";
-      inHandler.set(DUMMY);
-   }
-
-   private static boolean inHandler() {
-      final Object dummy = inHandler.get();
-      //sanity check: can't exist a thread using a marker different from DUMMY
-      assert ((dummy != null && dummy == DUMMY) || dummy == null) : "wrong marker";
-      return dummy != null;
-   }
-
-   private static void onExitMessagePacketHandler() {
-      assert inHandler.get() != null : "marker not set";
-      inHandler.set(null);
-   }
-
-   public void flushExecutor() {
-      if (!inHandler()) {
-         packetActor.flush();
-         callExecutor.flush();
-      }
+   public void closeExecutors() {
+      packetActor.shutdown();
+      callExecutor.shutdown();
    }
 
    public void close() {
-      flushExecutor();
+      closeExecutors();
 
       channel.flushConfirmations();
 
@@ -281,33 +258,28 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       if (logger.isTraceEnabled()) {
          logger.trace("ServerSessionPacketHandler::handlePacket," + packet);
       }
-      onStartMessagePacketHandler();
-      try {
-         final byte type = packet.getType();
-         switch (type) {
-            case SESS_SEND: {
-               onSessionSend(packet);
-               break;
-            }
-            case SESS_ACKNOWLEDGE: {
-               onSessionAcknowledge(packet);
-               break;
-            }
-            case SESS_PRODUCER_REQUEST_CREDITS: {
-               onSessionRequestProducerCredits(packet);
-               break;
-            }
-            case SESS_FLOWTOKEN: {
-               onSessionConsumerFlowCredit(packet);
-               break;
-            }
-            default:
-               // separating a method for everything else as JIT was faster this way
-               slowPacketHandler(packet);
-               break;
+      final byte type = packet.getType();
+      switch (type) {
+         case SESS_SEND: {
+            onSessionSend(packet);
+            break;
          }
-      } finally {
-         onExitMessagePacketHandler();
+         case SESS_ACKNOWLEDGE: {
+            onSessionAcknowledge(packet);
+            break;
+         }
+         case SESS_PRODUCER_REQUEST_CREDITS: {
+            onSessionRequestProducerCredits(packet);
+            break;
+         }
+         case SESS_FLOWTOKEN: {
+            onSessionConsumerFlowCredit(packet);
+            break;
+         }
+         default:
+            // separating a method for everything else as JIT was faster this way
+            slowPacketHandler(packet);
+            break;
       }
    }
 
@@ -445,7 +417,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      if (!queueNames.isEmpty()) {
                         final List<SimpleString> convertedQueueNames = request.convertQueueNames(clientVersion, queueNames);
                         if (convertedQueueNames != queueNames) {
-                           result = new BindingQueryResult(result.isExists(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
+                           result = new BindingQueryResult(result.isExists(), result.getAddressInfo(), convertedQueueNames, result.isAutoCreateQueues(), result.isAutoCreateAddresses(), result.isDefaultPurgeOnNoConsumers(), result.getDefaultMaxConsumers());
                         }
                      }
                   }
@@ -686,7 +658,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionSendMessage message = (SessionSendMessage) packet;
             requiresResponse = message.isRequiresResponse();
-            this.session.send(message.getMessage(), this.direct);
+            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage()), this.direct);
             if (requiresResponse) {
                response = new NullResponseMessage();
             }
@@ -818,7 +790,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                                                            ServerSession session) {
       session.markTXFailed(t);
       if (requiresResponse) {
-         ActiveMQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
+         ActiveMQServerLogger.LOGGER.sendingUnexpectedExceptionToClient(t);
          ActiveMQException activeMQInternalErrorException = new ActiveMQInternalErrorException();
          activeMQInternalErrorException.initCause(t);
          response = new ActiveMQExceptionMessage(activeMQInternalErrorException);
@@ -894,8 +866,6 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             remotingConnection.removeFailureListener((FailureListener) closeListener);
          }
       }
-
-      flushExecutor();
    }
 
    public int transferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID) {

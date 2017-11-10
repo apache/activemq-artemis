@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -38,6 +39,7 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ConnectionCreator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpAcceptorHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpKeepAliveRunnable;
@@ -58,8 +60,6 @@ public class ProtocolHandler {
 
    private NettyAcceptor nettyAcceptor;
 
-   private Map<String, Object> configuration;
-
    private ScheduledExecutorService scheduledThreadPool;
 
    private HttpKeepAliveRunnable httpKeepAliveRunnable;
@@ -68,11 +68,9 @@ public class ProtocolHandler {
 
    public ProtocolHandler(Map<String, ProtocolManager> protocolMap,
                           NettyAcceptor nettyAcceptor,
-                          final Map<String, Object> configuration,
                           ScheduledExecutorService scheduledThreadPool) {
       this.protocolMap = protocolMap;
       this.nettyAcceptor = nettyAcceptor;
-      this.configuration = configuration;
       this.scheduledThreadPool = scheduledThreadPool;
 
       websocketSubprotocolIds = new ArrayList<>();
@@ -103,9 +101,25 @@ public class ProtocolHandler {
 
       private final boolean httpEnabled;
 
+      private ScheduledFuture timeoutFuture;
+
+      private int handshakeTimeout;
+
+
       ProtocolDecoder(boolean http, boolean httpEnabled) {
          this.http = http;
          this.httpEnabled = httpEnabled;
+         this.handshakeTimeout = ConfigurationHelper.getIntProperty(TransportConstants.HANDSHAKE_TIMEOUT, TransportConstants.DEFAULT_HANDSHAKE_TIMEOUT, nettyAcceptor.getConfiguration());
+      }
+
+      @Override
+      public void channelActive(ChannelHandlerContext ctx) throws Exception {
+         if (handshakeTimeout > 0) {
+            timeoutFuture = scheduledThreadPool.schedule( () -> {
+               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout);
+               ctx.channel().close();
+            }, handshakeTimeout, TimeUnit.SECONDS);
+         }
       }
 
       @Override
@@ -115,7 +129,7 @@ public class ProtocolHandler {
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
-               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds));
+               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, TransportConstants.DEFAULT_STOMP_MAX_FRAME_PAYLOAD_LENGTH, nettyAcceptor.getConfiguration())));
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
                ctx.pipeline().remove("http-handler");
@@ -138,6 +152,11 @@ public class ProtocolHandler {
          // Will use the first N bytes to detect a protocol depending on the protocol.
          if (in.readableBytes() < 8) {
             return;
+         }
+
+         if (handshakeTimeout > 0 && timeoutFuture != null) {
+            timeoutFuture.cancel(true);
+            timeoutFuture = null;
          }
 
          final int magic1 = in.getUnsignedByte(in.readerIndex());
@@ -207,12 +226,12 @@ public class ProtocolHandler {
          p.addLast("http-encoder", new HttpResponseEncoder());
          //create it lazily if and when we need it
          if (httpKeepAliveRunnable == null) {
-            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, configuration);
+            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, nettyAcceptor.getConfiguration());
             httpKeepAliveRunnable = new HttpKeepAliveRunnable();
             Future<?> future = scheduledThreadPool.scheduleAtFixedRate(httpKeepAliveRunnable, httpServerScanPeriod, httpServerScanPeriod, TimeUnit.MILLISECONDS);
             httpKeepAliveRunnable.setFuture(future);
          }
-         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, configuration);
+         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, nettyAcceptor.getConfiguration());
          HttpAcceptorHandler httpHandler = new HttpAcceptorHandler(httpKeepAliveRunnable, httpResponseTime, ctx.channel());
          ctx.pipeline().addLast("http-handler", httpHandler);
          p.addLast(new ProtocolDecoder(false, true));

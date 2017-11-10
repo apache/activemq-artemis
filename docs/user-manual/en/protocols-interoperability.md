@@ -243,6 +243,21 @@ the broker will proceed to publish the will message to the specified address (as
 Other subscribers to the will topic will receive the will message and can react accordingly. This feature can be useful
  in an IoT style scenario to detect errors across a potentially large scale deployment of devices.
 
+### Debug Logging
+
+Detailed protocol logging (e.g. packets in/out) can be activated via the following steps:
+
+1) Open `<ARTEMIS_INSTANCE>/etc/logging.properties` 
+2) Add `org.apache.activemq.artemis.core.protocol.mqtt` to the `loggers` list.
+3) Add this line to enable `TRACE` logging for this new logger: `logger.org.apache.activemq.artemis.core.protocol.mqtt.level=TRACE`
+4) Ensure the `level` for the `handler` you want to log the message doesn't block the `TRACE` logging. For example,
+   modify the `level` of the `CONSOLE` `handler` like so: `handler.CONSOLE.level=TRACE`
+
+The MQTT specification doesn't dictate the format of the payloads which clients publish. As far as the broker is
+concerned a payload is just just an array of bytes. However, to facilitate logging the broker will encode the payloads
+as UTF-8 strings and print them up to 256 characters. Payload logging is limited to avoid filling the logs with potentially
+hundreds of megabytes of unhelpful information.
+
 
 ### Wild card subscriptions
 
@@ -355,7 +370,7 @@ However if STOMP clients exit without sending a DISCONNECT frame or if
 they crash the server will have no way of knowing immediately whether
 the client is still alive or not. STOMP connections therefore default to
 a connection-ttl value of 1 minute (see chapter on
-[connection-ttl](#connection-ttl) for more information. This value can
+[connection-ttl](connection-ttl.md) for more information. This value can
 be overridden using the `connection-ttl-override` property or if you
 need a specific connectionTtl for your stomp connections without
 affecting the broker-wide `connection-ttl-override` setting, you can
@@ -524,7 +539,7 @@ message to a normal message, before sending it to the client.
 If a large message is compressed, the server will uncompressed it before
 sending it to stomp clients. The default value of
 `stompMinLargeMessageSize` is the same as the default value of
-[min-large-message-size](#large-messages.core.config).
+[min-large-message-size](large-messages.md#Configuring-Parameters).
 
 ### Stomp Over Web Sockets
 
@@ -545,6 +560,11 @@ A companion JavaScript library to ease client-side development is
 available from [GitHub](http://github.com/jmesnil/stomp-websocket)
 (please see its [documentation](http://jmesnil.net/stomp-websocket/doc/)
 for a complete description).
+
+The payload length of websocket frames can vary between client implementations. By default
+Apache ActiveMQ Artemis will accept frames with a payload length of 65,536. If the client
+needs to send payloads longer than this in a single frame this length can be adjusted by
+using the `stompMaxFramePayloadLength` URL parameter on the acceptor.
 
 The `stomp-websockets` example shows how to configure Apache ActiveMQ Artemis server to
 have web browsers and Java applications exchanges messages on a JMS

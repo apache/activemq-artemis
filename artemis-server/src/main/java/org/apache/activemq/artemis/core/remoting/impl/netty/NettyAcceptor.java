@@ -50,11 +50,13 @@ import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.local.LocalAddress;
@@ -238,7 +240,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
       useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
 
-      this.protocolHandler = new ProtocolHandler(protocolMap, this, configuration, scheduledThreadPool);
+      this.protocolHandler = new ProtocolHandler(protocolMap, this, scheduledThreadPool);
 
       this.protocolsString = getProtocols(protocolMap);
 
@@ -611,7 +613,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          try {
             notificationService.sendNotification(notification);
          } catch (Exception e) {
-            logger.warn("failed to send notification", e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
          }
       }
 

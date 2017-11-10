@@ -24,6 +24,9 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class AddressInfo {
 
+   //from openwire
+   public static final SimpleString ADVISORY_TOPIC = new SimpleString("ActiveMQ.Advisory.");
+
    private long id;
 
    private final SimpleString name;
@@ -33,8 +36,7 @@ public class AddressInfo {
    private Set<RoutingType> routingTypes;
 
    public AddressInfo(SimpleString name) {
-      this.name = name;
-      routingTypes = new HashSet<>();
+      this(name, new HashSet<>());
    }
 
    /**
@@ -127,4 +129,7 @@ public class AddressInfo {
       return buff.toString();
    }
 
+   public boolean isInternal() {
+      return this.name.startsWith(ADVISORY_TOPIC);
+   }
 }

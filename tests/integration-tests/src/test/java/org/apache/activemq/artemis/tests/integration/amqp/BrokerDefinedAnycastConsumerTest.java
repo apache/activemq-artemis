@@ -40,6 +40,11 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
    SimpleString queue1 = new SimpleString("queue1");
    SimpleString queue2 = new SimpleString("queue2");
 
+   @Override
+   protected boolean isAutoCreateQueues() {
+      return false;
+   }
+
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
@@ -187,6 +192,8 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
 
    @Test(timeout = 60000)
    public void testConsumeWhenNoAddressCreatedAutoCreate() throws Exception {
+      // This test needs auto-create.. for that just clear the settings and use defaults
+      server.getAddressSettingsRepository().clear();
       AddressSettings settings = new AddressSettings();
       settings.setAutoCreateAddresses(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), settings);

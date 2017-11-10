@@ -66,16 +66,6 @@ messaging server and a number of protocol managers that provide support for
 the various protocol mentioned earlier.  Protocol managers are plugable
 if you 
 
-The role of the JMS Service is to deploy any JMS Queue, Topic and
-ConnectionFactory instances from any server side JMS
-configuration. It also provides a simple management API for
-creating and destroying Queues and Topics
-which can be accessed via JMX or the connection. It is a separate
-service to the ActiveMQ Artemis core server, since the core server is JMS
-agnostic. If you don't want to deploy any JMS Queue or Topic via
-server side XML configuration and don't require a JMS management
-API on the server side then you can disable this service.
-
 The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
 for bootstrapping the Broker.
 

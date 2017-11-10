@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
@@ -81,6 +82,7 @@ public class Create extends InputAbstract {
    public static final String ETC_ARTEMIS_PROFILE = "etc/artemis.profile";
    public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
    public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
+   public static final String ETC_MANAGEMENT_XML = "etc/management.xml";
    public static final String ETC_BROKER_XML = "etc/broker.xml";
 
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
@@ -104,6 +106,7 @@ public class Create extends InputAbstract {
 
    public static final String ETC_GLOBAL_MAX_SPECIFIED_TXT = "etc/global-max-specified.txt";
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
+   public static final String ETC_JOLOKIA_ACCESS_XML = "etc/jolokia-access.xml";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    private File directory;
@@ -687,6 +690,8 @@ public class Create extends InputAbstract {
       // we want this variable to remain unchanged so that it will use the value set in the profile
       filters.remove("${artemis.instance}");
       write(ETC_BOOTSTRAP_XML, filters, false);
+      write(ETC_MANAGEMENT_XML, filters, false);
+      write(ETC_JOLOKIA_ACCESS_XML, filters, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
@@ -721,6 +726,16 @@ public class Create extends InputAbstract {
    }
 
    private void setupJournalType() {
+
+      if (noJournalSync && !mapped) {
+         boolean useMapped = inputBoolean("--mapped", "Since you disabled syncs, it is recommended to use the Mapped Memory Journal. Do you want to use the Memory Mapped Journal", true);
+
+         if (useMapped) {
+            mapped = true;
+            nio = false;
+            aio = false;
+         }
+      }
       int countJournalTypes = countBoolean(aio, nio, mapped);
       if (countJournalTypes > 1) {
          throw new RuntimeException("You can only select one journal type (--nio | --aio | --mapped).");
@@ -801,20 +816,34 @@ public class Create extends InputAbstract {
             System.out.println("");
             System.out.println("Auto tuning journal ...");
 
-            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, journalType);
-            long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
-            double writesPerMillisecond = (double) writes / (double) time;
+            if (mapped && noJournalSync) {
+               HashMap<String, String> syncFilter = new HashMap<>();
+               syncFilter.put("${nanoseconds}", "0");
+               syncFilter.put("${writesPerMillisecond}", "0");
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
 
-            String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
+               System.out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
 
-            HashMap<String, String> syncFilter = new HashMap<>();
-            syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
-            syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
+               filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
-            System.out.println("done! Your system can make " + writesPerMillisecondStr +
-                                  " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+            } else {
+               long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, !noJournalSync, false, "journal-test.tmp", ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), journalType);
+               long nanoseconds = SyncCalculation.toNanos(time, writes, verbose);
+               double writesPerMillisecond = (double) writes / (double) time;
 
-            filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
+               String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
+
+               HashMap<String, String> syncFilter = new HashMap<>();
+               syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
+               syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+
+               System.out.println("done! Your system can make " + writesPerMillisecondStr +
+                                     " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+
+               filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
+            }
+
 
          } catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");

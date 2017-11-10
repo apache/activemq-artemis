@@ -24,7 +24,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 
 /**
@@ -87,24 +88,24 @@ public interface ServiceRegistry {
    List<BaseInterceptor> getOutgoingInterceptors(List<String> classNames);
 
    /**
-    * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a divert
+    * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for a divert
     *
     * @param name      the name of divert for which the transformer will be used
-    * @param className the fully qualified name of the transformer implementation (can be null)
+    * @param transformerConfiguration the transformer configuration
     * @return
     */
-   Transformer getDivertTransformer(String name, String className);
+   Transformer getDivertTransformer(String name, TransformerConfiguration transformerConfiguration);
 
    void addDivertTransformer(String name, Transformer transformer);
 
    /**
-    * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a bridge
+    * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for a bridge
     *
     * @param name      the name of bridge for which the transformer will be used
-    * @param className the fully qualified name of the transformer implementation (can be null)
+    * @param transformerConfiguration the transformer configuration
     * @return
     */
-   Transformer getBridgeTransformer(String name, String className);
+   Transformer getBridgeTransformer(String name, TransformerConfiguration transformerConfiguration);
 
    void addBridgeTransformer(String name, Transformer transformer);
 

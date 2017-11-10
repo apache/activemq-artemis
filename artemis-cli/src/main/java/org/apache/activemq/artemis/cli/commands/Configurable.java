@@ -27,9 +27,11 @@ import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
+import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 
@@ -116,6 +118,11 @@ public abstract class Configurable extends ActionAbstract {
       return brokerDTO;
    }
 
+   protected ManagementContextDTO getManagementDTO() throws Exception {
+      String configuration = getManagementConfiguration();
+      return ManagementFactory.createJmxAclConfiguration(configuration, getBrokerHome(), getBrokerInstance(), getBrokerURIInstance());
+   }
+
    protected String getConfiguration() {
       if (configuration == null) {
          File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "bootstrap.xml");
@@ -126,6 +133,16 @@ public abstract class Configurable extends ActionAbstract {
 
          ActiveMQBootstrapLogger.LOGGER.usingBrokerConfig(configuration);
       }
+
+      return configuration;
+   }
+
+   protected String getManagementConfiguration() {
+      File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "management.xml");
+      String configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
+
+      // To support Windows paths as explained above.
+      configuration = configuration.replace("\\", "/");
 
       return configuration;
    }

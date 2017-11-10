@@ -54,7 +54,6 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
-import org.apache.activemq.wireformat.WireFormat;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
@@ -104,7 +103,7 @@ public class AMQSession implements SessionCallback {
    }
 
    public OpenWireMessageConverter getConverter() {
-      return converter;
+      return protocolManager.getInternalConverter();
    }
 
    public void initialize() {
@@ -436,11 +435,11 @@ public class AMQSession implements SessionCallback {
    public ActiveMQServer getCoreServer() {
       return this.server;
    }
-
+/*
    public WireFormat getMarshaller() {
       return this.connection.getMarshaller();
    }
-
+*/
    public ConnectionInfo getConnectionInfo() {
       return this.connInfo;
    }

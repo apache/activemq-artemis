@@ -228,6 +228,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       idGenerator = new BatchingIDGenerator(0, CHECKPOINT_BATCH_SIZE, this);
    }
 
+
+   @Override
+   public long getMaxRecordSize() {
+      return messageJournal.getMaxRecordSize();
+   }
+
+
    /**
     * Called during initialization.  Used by implementations to setup Journals, Stores etc...
     *
@@ -1221,7 +1228,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    // BindingsImpl operations
 
    @Override
+   public void updateQueueBinding(long tx, Binding binding) throws Exception {
+      internalQueueBinding(true, tx, binding);
+   }
+
+   @Override
    public void addQueueBinding(final long tx, final Binding binding) throws Exception {
+      internalQueueBinding(false, tx, binding);
+   }
+
+   private void internalQueueBinding(boolean update, final long tx, final Binding binding) throws Exception {
       Queue queue = (Queue) binding.getBindable();
 
       Filter filter = queue.getFilter();
@@ -1232,7 +1248,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       readLock();
       try {
-         bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+         if (update) {
+            bindingsJournal.appendUpdateRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+         } else {
+            bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
+         }
       } finally {
          readUnLock();
       }
@@ -1402,7 +1422,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          if (rec == JournalRecordIds.QUEUE_BINDING_RECORD) {
             PersistentQueueBindingEncoding bindingEncoding = newQueueBindingEncoding(id, buffer);
-            queueBindingInfos.add(bindingEncoding);
             mapBindings.put(bindingEncoding.getId(), bindingEncoding);
          } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
             idGenerator.loadState(record.id, buffer);
@@ -1425,13 +1444,17 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                queueBindingEncoding.addQueueStatusEncoding(statusEncoding);
             } else {
                // unlikely to happen, so I didn't bother about the Logger method
-               logger.info("There is no queue with ID " + statusEncoding.queueID + ", deleting record " + statusEncoding.getId());
+               ActiveMQServerLogger.LOGGER.infoNoQueueWithID(statusEncoding.queueID, statusEncoding.getId());
                this.deleteQueueStatus(statusEncoding.getId());
             }
          } else {
             // unlikely to happen
-            logger.warn("Invalid record type " + rec, new Exception("invalid record type " + rec));
+            ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
          }
+      }
+
+      for (PersistentQueueBindingEncoding queue : mapBindings.values()) {
+         queueBindingInfos.add(queue);
       }
 
       mapBindings.clear(); // just to give a hand to GC

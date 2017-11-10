@@ -69,7 +69,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
             }
          }
       } catch (Throwable e) {
-         logger.warn("Error while sincing data on largeMessageInSync::" + mainLM);
+         ActiveMQServerLogger.LOGGER.errorWhileSyncingData(mainLM.toString(), e);
       }
 
       if (logger.isTraceEnabled()) {

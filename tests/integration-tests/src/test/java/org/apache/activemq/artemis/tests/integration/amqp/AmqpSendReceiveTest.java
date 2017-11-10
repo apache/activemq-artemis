@@ -16,19 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.Topic;
-
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -48,6 +35,18 @@ import org.jgroups.util.UUID;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jms.Topic;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.activemq.transport.amqp.AmqpSupport.contains;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
@@ -419,6 +418,37 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testReceiveWithJMSSelectorFilterOnJMSType() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      AmqpMessage message1 = new AmqpMessage();
+      message1.setText("msg:1");
+
+      AmqpMessage message2 = new AmqpMessage();
+      message2.setSubject("target");
+      message2.setText("msg:2");
+
+      AmqpSender sender = session.createSender(getQueueName());
+      sender.send(message1);
+      sender.send(message2);
+      sender.close();
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName(), "JMSType = 'target'");
+      receiver.flow(2);
+      AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull("Should have read a message", received);
+      assertEquals("target", received.getSubject());
+      received.accept();
+
+      assertNull(receiver.receive(1, TimeUnit.SECONDS));
+
+      receiver.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
    public void testAdvancedLinkFlowControl() throws Exception {
       final int MSG_COUNT = 20;
 
@@ -672,7 +702,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message1.setMessageId("ID:Message:1");
       sender.send(message1);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
       receiver1.flow(1);
       message1 = receiver1.receive(50, TimeUnit.SECONDS);
       assertNotNull("Should have read a message", message1);
@@ -686,7 +716,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       message2.setMessageId("ID:Message:2");
       sender.send(message2);
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queue.getMessageCount() == 1));
+      Wait.assertEquals(1, queue::getMessageCount);
       receiver1.flow(1);
       message2 = receiver1.receive(50, TimeUnit.SECONDS);
       assertNotNull("Should have read a message", message2);
@@ -740,7 +770,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       sender.send(message);
       connection.close();
 
-      assertTrue("Message did not arrive", Wait.waitFor(() -> queueView1.getMessageCount() == 1));
+      Wait.assertEquals(1, queueView1::getMessageCount);
 
       // Restart the server and the Queue should be empty
       server.stop();
@@ -753,9 +783,9 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       final Queue queueView2 = getProxyToQueue(getQueueName());
       if (durable) {
-         assertTrue("Message should not have returned", Wait.waitFor(() -> queueView2.getMessageCount() == 1));
+         Wait.assertTrue("Message should not have returned", () -> queueView2.getMessageCount() == 1);
       } else {
-         assertTrue("Message should have been restored", Wait.waitFor(() -> queueView2.getMessageCount() == 0));
+         Wait.assertTrue("Message should have been restored", () -> queueView2.getMessageCount() == 0);
       }
 
       receiver.flow(1);
@@ -811,13 +841,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          pendingAck.accept();
       }
 
-      assertTrue("Should be no inflight messages: " + destinationView.getDeliveringCount(), Wait.waitFor(new Wait.Condition() {
-
-         @Override
-         public boolean isSatisfied() throws Exception {
-            return destinationView.getDeliveringCount() == 0;
-         }
-      }));
+      Wait.assertEquals(0, destinationView::getDeliveringCount);
 
       sender.close();
       receiver.close();
@@ -1084,7 +1108,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       assertTrue("did not read all messages, waiting on: " + done.getCount(), done.await(10, TimeUnit.SECONDS));
       assertFalse("should not be any errors on receive", error.get());
-      assertTrue("Should be no inflight messages.", Wait.waitFor(() -> queueView.getDeliveringCount() == 0));
+      Wait.assertEquals(0, queueView::getDeliveringCount);
 
       sender.close();
       receiver.close();

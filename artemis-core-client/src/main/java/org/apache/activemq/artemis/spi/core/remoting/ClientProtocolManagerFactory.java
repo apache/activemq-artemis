@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
 public interface ClientProtocolManagerFactory {
@@ -25,4 +26,13 @@ public interface ClientProtocolManagerFactory {
    void setLocator(ServerLocator locator);
 
    ServerLocator getLocator();
+
+   /**
+    * Adapt the transport configuration passed in parameter and return an adapted one that is suitable to use with ClientProtocolManager
+    * created by this factory.
+    *
+    * @param tc the original TransportConfiguration
+    * @return the adapted TransportConfiguration
+    */
+   TransportConfiguration adaptTransportConfiguration(TransportConfiguration tc);
 }

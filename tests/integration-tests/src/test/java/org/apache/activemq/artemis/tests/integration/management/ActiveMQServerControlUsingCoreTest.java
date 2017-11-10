@@ -48,13 +48,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    }
 
 
-   // it doesn't make sense through the core
-   // the pool will be shutdown while a connection is being used
-   // makes no sense!
-   @Override
-   public void testForceFailover() throws Exception {
-   }
-
 
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
@@ -620,6 +613,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getAddressMemoryUsage() {
+            try {
+               return (Long) proxy.invokeOperation("getAddressMemoryUsage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
+         public int getAddressMemoryUsagePercentage() {
+            try {
+               return (Integer) proxy.invokeOperation(Integer.TYPE, "getAddressMemoryUsagePercentage");
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+            return 0;
+         }
+
+         @Override
          public boolean freezeReplication() {
 
             return false;
@@ -785,6 +798,32 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createDivert(String name,
+                                  String routingName,
+                                  String address,
+                                  String forwardingAddress,
+                                  boolean exclusive,
+                                  String filterString,
+                                  String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  String routingType) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerProperties, routingType);
+         }
+
+         @Override
+         public void createDivert(String name,
+                                  String routingName,
+                                  String address,
+                                  String forwardingAddress,
+                                  boolean exclusive,
+                                  String filterString,
+                                  String transformerClassName,
+                                  String transformerPropertiesAsJSON,
+                                  String routingType) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName, transformerPropertiesAsJSON, routingType);
+         }
+
+         @Override
          public void destroyDivert(String name) throws Exception {
             proxy.invokeOperation("destroyDivert", name);
          }
@@ -862,6 +901,52 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   String forwardingAddress,
                                   String filterString,
                                   String transformerClassName,
+                                  Map<String, String> transformerProperties,
+                                  long retryInterval,
+                                  double retryIntervalMultiplier,
+                                  int initialConnectAttempts,
+                                  int reconnectAttempts,
+                                  boolean useDuplicateDetection,
+                                  int confirmationWindowSize,
+                                  int producerWindowSize,
+                                  long clientFailureCheckPeriod,
+                                  String connectorNames,
+                                  boolean useDiscovery,
+                                  boolean ha,
+                                  String user,
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, transformerProperties, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
+         }
+
+         @Override
+         public void createBridge(String name,
+                                  String queueName,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
+                                  String transformerPropertiesAsJSON,
+                                  long retryInterval,
+                                  double retryIntervalMultiplier,
+                                  int initialConnectAttempts,
+                                  int reconnectAttempts,
+                                  boolean useDuplicateDetection,
+                                  int confirmationWindowSize,
+                                  int producerWindowSize,
+                                  long clientFailureCheckPeriod,
+                                  String connectorNames,
+                                  boolean useDiscovery,
+                                  boolean ha,
+                                  String user,
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, transformerPropertiesAsJSON, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
+         }
+
+         @Override
+         public void createBridge(String name,
+                                  String queueName,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
                                   long retryInterval,
                                   double retryIntervalMultiplier,
                                   int initialConnectAttempts,
@@ -916,36 +1001,35 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public String listSessions(@Parameter(name = "Filter String") String filter,
                                     @Parameter(name = "Page Number") int page,
                                     @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listSessions", filter, page, pageSize);
          }
 
          @Override
          public String listConsumers(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listConsumers", options, page, pageSize);
          }
-
 
          @Override
          public String listProducers(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listProducers", options, page, pageSize);
          }
 
          @Override
          public String listAddresses(@Parameter(name = "Options") String options,
                                      @Parameter(name = "Page Number") int page,
                                      @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listAddresses", options, page, pageSize);
          }
 
          @Override
          public String listQueues(@Parameter(name = "Options") String options,
                                   @Parameter(name = "Page Number") int page,
                                   @Parameter(name = "Page Size") int pageSize) throws Exception {
-            return null;
+            return (String) proxy.invokeOperation("listQueues", options, page, pageSize);
          }
       };
    }

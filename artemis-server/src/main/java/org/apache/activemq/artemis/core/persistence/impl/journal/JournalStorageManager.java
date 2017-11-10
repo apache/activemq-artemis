@@ -71,19 +71,19 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
 
-   private SequentialFileFactory journalFF;
+   protected SequentialFileFactory journalFF;
 
-   private SequentialFileFactory bindingsFF;
+   protected SequentialFileFactory bindingsFF;
 
    SequentialFileFactory largeMessagesFactory;
 
-   private Journal originalMessageJournal;
+   protected Journal originalMessageJournal;
 
-   private Journal originalBindingsJournal;
+   protected Journal originalBindingsJournal;
 
    protected String largeMessagesDirectory;
 
-   private ReplicationManager replicator;
+   protected ReplicationManager replicator;
 
    public JournalStorageManager(final Configuration config,
                                 final CriticalAnalyzer analyzer,
@@ -124,7 +124,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener, config.getJournalMaxIO_NIO());
       bindingsFF.setDatasync(config.isJournalDatasync());
 
-      Journal localBindings = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), config.getJournalFileOpenTimeout(), bindingsFF, "activemq-bindings", "bindings", 1, 0);
+      Journal localBindings = new JournalImpl(ioExecutors, 1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), config.getJournalFileOpenTimeout(), bindingsFF, "activemq-bindings", "bindings", 1, 0, criticalErrorListener);
 
       bindingsJournal = localBindings;
       originalBindingsJournal = localBindings;
@@ -133,15 +133,15 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          case NIO:
             ActiveMQServerLogger.LOGGER.journalUseNIO();
-            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener, getCriticalAnalyzer());
             break;
          case ASYNCIO:
             ActiveMQServerLogger.LOGGER.journalUseAIO();
-            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
+            journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener, getCriticalAnalyzer());
             break;
          case MAPPED:
             ActiveMQServerLogger.LOGGER.journalUseMAPPED();
-            journalFF = MappedSequentialFileFactory.buffered(config.getJournalLocation(), config.getJournalFileSize(), config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), criticalErrorListener);
+            journalFF = new MappedSequentialFileFactory(config.getJournalLocation(), config.getJournalFileSize(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), criticalErrorListener);
             break;
          default:
             throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
@@ -160,7 +160,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          fileSize = difference < journalFF.getAlignment() / 2 ? low : high;
          ActiveMQServerLogger.LOGGER.invalidJournalFileSize(config.getJournalFileSize(), fileSize, journalFF.getAlignment());
       }
-      Journal localMessage = new JournalImpl(ioExecutors, fileSize, config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0);
+      Journal localMessage = createMessageJournal(config, criticalErrorListener, fileSize);
 
       messageJournal = localMessage;
       originalMessageJournal = localMessage;
@@ -174,6 +174,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       } else {
          pageMaxConcurrentIO = null;
       }
+   }
+
+   protected Journal createMessageJournal(Configuration config,
+                                        IOCriticalErrorListener criticalErrorListener,
+                                        int fileSize) {
+      return new JournalImpl(ioExecutors, fileSize, config.getJournalMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), config.getJournalFileOpenTimeout(), journalFF, "activemq-data", "amq", journalFF.getMaxIO(), 0, criticalErrorListener);
    }
 
    // Life Cycle Handlers
@@ -604,7 +610,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             storageManagerLock.writeLock().unlock();
          }
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.unableToStartReplication(e);
          stopReplication();
          throw e;
       } finally {

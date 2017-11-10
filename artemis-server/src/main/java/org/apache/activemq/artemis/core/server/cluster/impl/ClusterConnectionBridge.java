@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtoco
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -166,7 +166,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       Set<SimpleString> propNames = new HashSet<>(messageCopy.getPropertyNames());
 
-      byte[] queueIds = message.getBytesProperty(idsHeaderName);
+      byte[] queueIds = message.getExtraBytesProperty(idsHeaderName);
 
       if (queueIds == null) {
          // Sanity check only
@@ -180,7 +180,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          }
       }
 
-      messageCopy.putBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
+      messageCopy.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, queueIds);
 
       messageCopy = super.beforeForward(messageCopy);
 

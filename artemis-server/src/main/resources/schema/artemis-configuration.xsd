@@ -1262,6 +1262,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional transformer configuration
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="min-large-message-size" type="xsd:string" default="102400" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1417,6 +1425,44 @@
          </xsd:annotation>
       </xsd:attribute>
    </xsd:complexType>
+
+   <!-- TRANSFORMER CONFIGURATION -->
+   <xsd:complexType name="transformerType">
+      <xsd:sequence>
+         <xsd:element name="class-name" type="xsd:string" maxOccurs="1" minOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional name of transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="property" type="transformerProperty" maxOccurs="unbounded" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  properties to configure the transformer class
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   
+   
+    <xsd:complexType name="transformerProperty">
+       <xsd:attribute name="key" type="xsd:string" use="required">
+          <xsd:annotation>
+             <xsd:documentation>
+                key for the property
+             </xsd:documentation>
+          </xsd:annotation>
+       </xsd:attribute>
+       <xsd:attribute name="value" type="xsd:string" use="required">
+          <xsd:annotation>
+             <xsd:documentation>
+                value for the property
+             </xsd:documentation>
+          </xsd:annotation>
+       </xsd:attribute>
+    </xsd:complexType>
 
 
    <!-- CLUSTER CONNECTION CONFIGURATION -->
@@ -1704,6 +1750,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  optional transformer configuration
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="exclusive" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1827,6 +1881,27 @@
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC network connection timeout in milliseconds.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-lock-acquisition-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The max allowed time in milliseconds while trying to acquire a JDBC lock.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-lock-renew-period" type="xsd:int" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The period in milliseconds of the keep alive service of a JDBC lock.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="jdbc-lock-expiration" type="xsd:int" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The time in milliseconds a JDBC lock is considered valid without keeping it alive.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2940,7 +3015,14 @@
          <xsd:element maxOccurs="1" minOccurs="0" name="enabled" type="xsd:boolean">
             <xsd:annotation>
                <xsd:documentation>
-                  are wildcard addresses enabled
+                  deprecated please use routing-enabled.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="routing-enabled" type="xsd:boolean">
+            <xsd:annotation>
+               <xsd:documentation>
+                  is wildcard addresses routing enabled.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

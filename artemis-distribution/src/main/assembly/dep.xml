@@ -97,11 +97,21 @@
             <include>org.jgroups:jgroups</include>
             <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
             <include>org.apache.johnzon:johnzon-core</include>
+            <include>org.hdrhistogram:HdrHistogram</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
          </excludes-->
          <outputDirectory>lib</outputDirectory>
+         <unpack>false</unpack>
+      </dependencySet>
+      <dependencySet>
+         <directoryMode>755</directoryMode>
+         <fileMode>644</fileMode>
+         <includes>
+            <include>org.apache.activemq:artemis-jms-client-all</include>
+         </includes>
+         <outputDirectory>lib/client</outputDirectory>
          <unpack>false</unpack>
       </dependencySet>
       <!-- native -->
@@ -133,14 +143,6 @@
          </includes>
          <outputDirectory>web/api</outputDirectory>
          <unpack>true</unpack>
-      </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.jolokia:jolokia-war:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>jolokia.war</outputFileNameMapping>
       </dependencySet>
       
       <!-- Management Console Dependencies -->

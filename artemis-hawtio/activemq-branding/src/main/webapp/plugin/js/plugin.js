@@ -59,10 +59,39 @@ var activemqBranding = (function (self) {
 
     self.module = angular.module(self.pluginName, ['hawtioCore']);
     self.module.run(function (branding) {
-        self.log.debug("ActivMQ theme loaded");
-    });
+        self.log.info("ActiveMQ theme loaded");
+        if (localStorage['theme'] != 'activemq' || localStorage['branding'] != 'activemq') {
+            localStorage['theme'] = 'activemq';
+            localStorage['branding'] = 'activemq';
+            location.reload();
+        }
 
-    hawtioPluginLoader.addModule(self.pluginName);
+        /**
+         * By default tabs are pulled from the "container" perspective, here
+         * we can define includes or excludes to customize the available tabs
+         * in hawtio.  Use "href" to match from the start of a URL and "rhref"
+         * to match a URL via regex string.
+         * 
+         * Currently we need to exclude provided diagnostics,
+         * as it exposes proprietary Oracle JVM feature, flight recorder.
+         *
+         */
+        window['Perspective']['metadata'] = {
+            container: {
+                label: "Container",
+                lastPage: "#/help",
+                topLevelTabs: {
+                    excludes: [
+                        {
+                            href: "#/diagnostics"
+                        }
+                    ]
+                }
+            }
+        };
+
+    });
     return self;
 })(activemqBranding || {});
 
+hawtioPluginLoader.addModule(activemqBranding.pluginName);

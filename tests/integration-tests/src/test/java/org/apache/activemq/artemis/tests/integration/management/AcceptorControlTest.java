@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
@@ -50,6 +51,7 @@ public class AcceptorControlTest extends ManagementTestBase {
    @Test
    public void testAttributes() throws Exception {
       TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
+      acceptorConfig.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "password");
 
       Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
@@ -60,6 +62,8 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       Assert.assertEquals(acceptorConfig.getName(), acceptorControl.getName());
       Assert.assertEquals(acceptorConfig.getFactoryClassName(), acceptorControl.getFactoryClassName());
+      Assert.assertNotEquals(acceptorConfig.getParams().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      Assert.assertEquals("****", acceptorControl.getParameters().get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
    }
 
    @Test

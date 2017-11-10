@@ -10,10 +10,9 @@ Server Configuration
 broker.xml
 --------------------------
 
-This is the main core server configuration file which contains to elements
-'core' and 'jms'.
-The 'core' element contains the main server configuration while the 'jms'
-element is used by the server side JMS service to load JMS Queues, Topics
+This is the main core server configuration file which contains the 'core'
+element.
+The 'core' element contains the main server configuration.
 
 # System properties
 
@@ -75,7 +74,7 @@ Name | Description
 [journal-compact-percentage](persistence.md)                                        |  The percentage of live data on which we consider compacting the journal. Default=30
 [journal-directory](persistence.md)                                                 |  the directory to store the journal files in. Default=data/journal
 [journal-file-size](persistence.md)                                                 |  the size (in bytes) of each journal file. Default=10485760 (10 MB)
-[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO and 1 for NIO, ignored for MAPPED.
+[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 4096 for AIO and 1 for NIO, ignored for MAPPED.
 [journal-min-files](persistence.md#configuring.message.journal.journal-min-files)     |  how many journal files to pre-create. Default=2
 [journal-pool-files](persistence.md#configuring.message.journal.journal-pool-files)     |  The upper theshold of the journal file pool,-1 (default) means no Limit. The system will create as many files as needed however when reclaiming files it will shrink back to the `journal-pool-files`
 [journal-sync-non-transactional](persistence.md)                                      |  if true wait for non transaction data to be synced to the journal before returning response to client. Default=true
@@ -83,9 +82,9 @@ Name | Description
 [journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
 [journal-datasync](persistence.md)                                                        |  It will use msync/fsync on journal operations. Default=true.
 [large-messages-directory](large-messages.md "Configuring the server")          |  the directory to store large messages. Default=data/largemessages
-[management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it. Default=jms.queue.activemq.management
+[management-address](management.md "Configuring Core Management")   |  the name of the management address to send management messages to. Default=activemq.management
 [management-notification-address](management.md "Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications
-[mask-password](configuration-index.md "Using Masked Passwords in Configuration Files")  |  This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. Default=false
+[mask-password](masking-passwords.md "Masking Passwords")  |  This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. Default=false
 [max-saved-replicated-journals-size](ha.md#data-replication)                                                                |    This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. -1 Means no Limit, 0 don't keep a copy at all, Default=2
 [max-disk-usage](paging.md#max-disk-usage) | The max percentage of data we should use from disks. The System will block while the disk is full. Default=100
 [memory-measure-interval](perf-tuning.md)                                                             |  frequency to sample JVM memory in ms (or -1 to disable memory sampling). Default=-1
@@ -95,6 +94,7 @@ Name | Description
 [message-counter-sample-period](management.md "Configuring Message Counters")                 |  the sample period (in ms) to use for message counters. Default=10000
 [message-expiry-scan-period](message-expiry.md "Configuring The Expiry Reaper Thread")          |  how often (in ms) to scan for expired messages. Default=30000
 [message-expiry-thread-priority](message-expiry.md "Configuring The Expiry Reaper Thread")      |  the priority of the thread expiring messages. Default=3
+[password-codec](masking-passwords.md "Masking Passwords")                                      |  the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. Default=empty
 [page-max-concurrent-io](paging.md "Paging Mode")                                               |  The max number of concurrent reads allowed on paging. Default=5
 [paging-directory](paging.md "Configuration")                                                   |  the directory to store paged messages in. Default=data/paging
 [persist-delivery-count-before-delivery](undelivered-messages.md "Delivery Count Persistence")  |  True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. Default=false
@@ -113,7 +113,7 @@ system-property-prefix | Prefix for replacing configuration settings using Bean 
 [transaction-timeout](transaction-config.md "Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000
 [transaction-timeout-scan-period](transaction-config.md "Resource Manager Configuration")  |  how often (in ms) to scan for timeout transactions. Default=1000
 [wild-card-routing-enabled](wildcard-routing.md "Routing Messages With Wild Cards")        |  true means that the server supports wild card routing. Default=true
-[network-check-NIC](network-isolation.md) | The network internet card to be used on InetAddress.isReacheable
+[network-check-NIC](network-isolation.md) | The NIC (Network Interface Controller) to be used on InetAddress.isReacheable
 [network-check-URL](network-isolation.md) | The list of http URIs to be used to validate the network
 [network-check-list](network-isolation.md) | The list of pings to be used on ping or InetAddress.isReacheable
 [network-check-ping-command](network-isolation.md) | The command used to oping IPV4 addresses
@@ -256,283 +256,3 @@ Name | Description
 [permission.type ](security.md "Role based security for addresses")                     |  the type of permission
 [permission.roles ](security.md "Role based security for addresses")                    |  a comma-separated list of roles to apply the permission to
 
-----------------------------
-
-##The jms configuration
-
-Name | Type | Description
-:--- | :--- | :---
-[queue](using-jms.md "JMS Server Configuration")                  | Queue     |   a queue
-[queue.name (attribute)](using-jms.md "JMS Server Configuration") | String    |   unique name of the queue
-[queue.durable](using-jms.md "JMS Server Configuration")          | Boolean   |   is the queue durable?. Default=true
-[queue.filter](using-jms.md "JMS Server Configuration")           | String    |   optional filter expression for the queue
-[topic](using-jms.md "JMS Server Configuration")                  | Topic     |   a topic
-[topic.name (attribute)](using-jms.md "JMS Server Configuration") | String    |   unique name of the topic
-
-
-Using Masked Passwords in Configuration Files
----------------------------------------------
-
-By default all passwords in Apache ActiveMQ Artemis server's configuration files are in
-plain text form. This usually poses no security issues as those files
-should be well protected from unauthorized accessing. However, in some
-circumstances a user doesn't want to expose its passwords to more eyes
-than necessary.
-
-Apache ActiveMQ Artemis can be configured to use 'masked' passwords in its
-configuration files. A masked password is an obscure string
-representation of a real password. To mask a password a user will use an
-'encoder'. The encoder takes in the real password and outputs the masked
-version. A user can then replace the real password in the configuration
-files with the new masked password. When Apache ActiveMQ Artemis loads a masked
-password, it uses a suitable 'decoder' to decode it into real password.
-
-Apache ActiveMQ Artemis provides a default password encoder and decoder. Optionally
-users can use or implement their own encoder and decoder for masking the
-passwords.
-
-### Password Masking in Server Configuration File
-
-#### The password masking property
-
-The server configuration file has a property that defines the default
-masking behaviors over the entire file scope.
-
-`mask-password`: this boolean type property indicates if a password
-should be masked or not. Set it to "true" if you want your passwords
-masked. The default value is "false".
-
-#### Specific masking behaviors
-
-##### cluster-password
-
-The nature of the value of cluster-password is subject to the value of
-property 'mask-password'. If it is true the cluster-password is masked.
-
-##### Passwords in connectors and acceptors
-
-In the server configuration, Connectors and Acceptors sometimes needs to
-specify passwords. For example if a users wants to use an SSL-enabled
-NettyAcceptor, it can specify a key-store-password and a
-trust-store-password. Because Acceptors and Connectors are pluggable
-implementations, each transport will have different password masking
-needs.
-
-When a Connector or Acceptor configuration is initialised, Apache ActiveMQ Artemis will
-add the "mask-password" and "password-codec" values to the Connector or
-Acceptors params using the keys `activemq.usemaskedpassword` and
-`activemq.passwordcodec` respectively. The Netty and InVM
-implementations will use these as needed and any other implementations
-will have access to these to use if they so wish.
-
-##### Passwords in Core Bridge configurations
-
-Core Bridges are configured in the server configuration file and so the
-masking of its 'password' properties follows the same rules as that of
-'cluster-password'.
-
-#### Examples
-
-The following table summarizes the relations among the above-mentioned
-properties
-
-  mask-password  | cluster-password  | acceptor/connector passwords |  bridge password
-  :------------- | :---------------- | :--------------------------- | :---------------
-  absent   |       plain text     |    plain text       |              plain text
-  false    |       plain text     |    plain text       |              plain text
-  true     |       masked         |    masked           |              masked
-
-Examples
-
-Note: In the following examples if related attributed or properties are
-absent, it means they are not specified in the configure file.
-
-example 1
-
-```xml
-<cluster-password>bbc</cluster-password>
-```
-
-This indicates the cluster password is a plain text value ("bbc").
-
-example 2
-
-```xml
-<mask-password>true</mask-password>
-<cluster-password>80cf731af62c290</cluster-password>
-```
-
-This indicates the cluster password is a masked value and Apache ActiveMQ Artemis will
-use its built-in decoder to decode it. All other passwords in the
-configuration file, Connectors, Acceptors and Bridges, will also use
-masked passwords.
-
-### JMS Bridge password masking
-
-The JMS Bridges are configured and deployed as separate beans so they
-need separate configuration to control the password masking. A JMS
-Bridge has two password parameters in its constructor, SourcePassword
-and TargetPassword. It uses the following two optional properties to
-control their masking:
-
-`useMaskedPassword` -- If set to "true" the passwords are masked.
-Default is false.
-
-`passwordCodec` -- Class name and its parameters for the Decoder used to
-decode the masked password. Ignored if `useMaskedPassword` is false. The
-format of this property is a full qualified class name optionally
-followed by key/value pairs, separated by semi-colons. For example:
-
-```xml
-<property name="useMaskedPassword">true</property>
-<property name="passwordCodec">com.foo.FooDecoder;key=value</property>
-```
-
-Apache ActiveMQ Artemis will load this property and initialize the class with a
-parameter map containing the "key"-\>"value" pair. If `passwordCodec` is
-not specified, the built-in decoder is used.
-
-### Masking passwords in ActiveMQ Artemis ResourceAdapters and MDB activation configurations
-
-Both ra.xml and MDB activation configuration have a 'password' property
-that can be masked. They are controlled by the following two optional
-Resource Adapter properties in ra.xml:
-
-`UseMaskedPassword` -- If setting to "true" the passwords are masked.
-Default is false.
-
-`PasswordCodec` -- Class name and its parameters for the Decoder used to
-decode the masked password. Ignored if UseMaskedPassword is false. The
-format of this property is a full qualified class name optionally
-followed by key/value pairs. It is the same format as that for JMS
-Bridges. Example:
-
-```xml
-<config-property>
-  <config-property-name>UseMaskedPassword</config-property-name>
-  <config-property-type>boolean</config-property-type>
-  <config-property-value>true</config-property-value>
-</config-property>
-<config-property>
-  <config-property-name>PasswordCodec</config-property-name>
-  <config-property-type>java.lang.String</config-property-type>
-  <config-property-value>com.foo.ADecoder;key=helloworld</config-property-value>
-</config-property>
-```
-
-With this configuration, both passwords in ra.xml and all of its MDBs
-will have to be in masked form.
-
-### Masking passwords in artemis-users.properties
-
-Apache ActiveMQ Artemis's built-in security manager uses plain properties files
-where the user passwords are specified in hash forms by default. 
-
-Please use Artemis CLI command to add a password. For example
-
-```sh
-    ./artemis user add --username guest --password guest --role admin
-```
-
-### Choosing a decoder for password masking
-
-As described in the previous sections, all password masking requires a
-decoder. A decoder uses an algorithm to convert a masked password into
-its original clear text form in order to be used in various security
-operations. The algorithm used for decoding must match that for
-encoding. Otherwise the decoding may not be successful.
-
-For user's convenience Apache ActiveMQ Artemis provides a default built-in Decoder.
-However a user can if they so wish implement their own.
-
-#### The built-in Decoder
-
-Whenever no decoder is specified in the configuration file, the built-in
-decoder is used. The class name for the built-in decoder is
-org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec. It has both
-encoding and decoding capabilities. It uses java.crypto.Cipher utilities
-to encrypt (encode) a plaintext password and decrypt a mask string using
-same algorithm. Using this decoder/encoder is pretty straightforward. To
-get a mask for a password, just run the main class at org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec.
-
-An easy way to do it is through activemq-tools-<VERSION>-jar-with-dependencies.jar since it has all the dependencies:
-
-```sh
-    java -cp artemis-tools-1.0.0-jar-with-dependencies.jar org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec "your plaintext password"
-```
-
-If you don't want to use the jar-with-dependencies, make sure the classpath is correct. You'll get something like
-
-```
-    Encoded password: 80cf731af62c290
-```
-
-Just copy "80cf731af62c290" and replace your plaintext password with it.
-
-#### Using a custom decoder
-
-It is possible to use a custom decoder rather than the built-in one.
-Simply make sure the decoder is in Apache ActiveMQ Artemis's classpath. The custom decoder
-can also be service loaded rather than class loaded, if the decoder's service provider is installed in the classpath.
-Then configure the server to use it as follows:
-
-```xml
-    <password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
-```
-
-If your decoder needs params passed to it you can do this via key/value
-pairs when configuring. For instance if your decoder needs say a
-"key-location" parameter, you can define like so:
-
-```xml
-    <password-codec>com.foo.NewDecoder;key-location=/some/url/to/keyfile</password-codec>
-```
-
-Then configure your cluster-password like this:
-
-```xml
-    <mask-password>true</mask-password>
-    <cluster-password>masked_password</cluster-password>
-```
-
-When Apache ActiveMQ Artemis reads the cluster-password it will initialize the
-NewDecoder and use it to decode "mask\_password". It also process all
-passwords using the new defined decoder.
-
-#### Implementing your own codecs
-
-To use a different decoder than the built-in one, you either pick one
-from existing libraries or you implement it yourself. All decoders must
-implement the `org.apache.activemq.artemis.utils.SensitiveDataCodec<T>`
-interface:
-
-``` java
-public interface SensitiveDataCodec<T>
-{
-   T decode(Object mask) throws Exception;
-
-   void init(Map<String, String> params);
-}
-```
-
-This is a generic type interface but normally for a password you just
-need String type. So a new decoder would be defined like
-
-```java
-public class MyNewDecoder implements SensitiveDataCodec<String>
-{
-   public String decode(Object mask) throws Exception
-   {
-      //decode the mask into clear text password
-      return "the password";
-   }
-
-   public void init(Map<String, String> params)
-   {
-      //initialization done here. It is called right after the decoder has been created.
-   }
-}
-```
-
-Last but not least, once you get your own decoder, please add it to the
-classpath. Otherwise Apache ActiveMQ Artemis will fail to load it!

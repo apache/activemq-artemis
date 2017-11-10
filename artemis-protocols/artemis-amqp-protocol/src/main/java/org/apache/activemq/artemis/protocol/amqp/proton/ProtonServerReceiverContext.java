@@ -96,14 +96,17 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       // We don't currently support SECOND so enforce that the answer is anlways FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
+      RoutingType defRoutingType;
+
       if (target != null) {
          if (target.getDynamic()) {
+            defRoutingType = getRoutingType(target.getCapabilities());
             // if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
             address = sessionSPI.tempQueueName();
 
             try {
-               sessionSPI.createTemporaryQueue(address, getRoutingType(target.getCapabilities()));
+               sessionSPI.createTemporaryQueue(address, defRoutingType);
             } catch (ActiveMQSecurityException e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(e.getMessage());
             } catch (Exception e) {
@@ -118,13 +121,15 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             address = target.getAddress();
 
             if (address != null && !address.isEmpty()) {
+               defRoutingType = getRoutingType(target.getCapabilities());
                try {
-                  if (!sessionSPI.bindingQuery(address)) {
+                  if (!sessionSPI.bindingQuery(address, defRoutingType)) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                   }
                } catch (ActiveMQAMQPNotFoundException e) {
                   throw e;
                } catch (Exception e) {
+                  log.debug(e.getMessage(), e);
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
@@ -176,16 +181,31 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
       flow(amqpCredits, minCreditRefresh);
    }
 
+   public RoutingType getRoutingType(Receiver receiver, RoutingType defaultType) {
+      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
+      return target != null ? getRoutingType(target.getCapabilities(), defaultType) : getRoutingType((Symbol[])null, defaultType);
+   }
+
    private RoutingType getRoutingType(Symbol[] symbols) {
-      for (Symbol symbol : symbols) {
-         if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
-            return RoutingType.MULTICAST;
-         } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
-            return RoutingType.ANYCAST;
+      return getRoutingType(symbols, null);
+   }
+
+   private RoutingType getRoutingType(Symbol[] symbols, RoutingType defaultType) {
+      if (symbols != null) {
+         for (Symbol symbol : symbols) {
+            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+               return RoutingType.MULTICAST;
+            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+               return RoutingType.ANYCAST;
+            }
          }
       }
 
-      return sessionSPI.getDefaultRoutingType(address);
+      if (defaultType != null) {
+         return defaultType;
+      } else {
+         return sessionSPI.getDefaultRoutingType(address);
+      }
    }
 
    /*
@@ -220,7 +240,7 @@ public class ProtonServerReceiverContext extends ProtonInitializable implements 
             tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
          }
 
-         sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), data);
+         sessionSPI.serverSend(this, tx, receiver, delivery, address, delivery.getMessageFormat(), data);
 
          flow(amqpCredits, minCreditRefresh);
       } catch (Exception e) {

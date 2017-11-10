@@ -144,7 +144,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       }
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("All messages should arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+      Wait.assertTrue("All messages should arrive", () -> queueView.getMessageCount() == MSG_COUNT);
 
       sender.close();
 
@@ -174,7 +174,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       }
 
       Queue queueView = getProxyToQueue(getQueueName());
-      assertTrue("All messages should arrive", Wait.waitFor(() -> queueView.getMessageCount() == MSG_COUNT));
+      Wait.assertTrue("All messages should arrive", () -> queueView.getMessageCount() == MSG_COUNT);
 
       sender.close();
       connection.close();

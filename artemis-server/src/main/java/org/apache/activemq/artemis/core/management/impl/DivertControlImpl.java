@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.core.management.impl;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -92,7 +95,22 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
    public String getTransformerClassName() {
       clearIO();
       try {
-         return configuration.getTransformerClassName();
+         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getClassName();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String getTransformerPropertiesAsJSON() {
+      return JsonUtil.toJsonObject(getTransformerProperties()).toString();
+   }
+
+   @Override
+   public Map<String, String> getTransformerProperties() {
+      clearIO();
+      try {
+         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getProperties();
       } finally {
          blockOnIO();
       }

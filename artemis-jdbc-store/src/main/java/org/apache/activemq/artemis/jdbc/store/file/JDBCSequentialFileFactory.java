@@ -121,6 +121,11 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    @Override
+   public long getBufferSize() {
+      return dbDriver.getMaxSize();
+   }
+
+   @Override
    public synchronized void start() {
       try {
          if (!started) {

@@ -79,6 +79,25 @@ public class ActiveMQScheduledComponentTest {
    }
 
    @Test
+   public void testVerifyInitialDelayChanged() {
+      final long initialDelay = 10;
+      final long period = 100;
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, initialDelay, period, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+
+         }
+      };
+      local.start();
+      final long newInitialDelay = 1000;
+      //the parameters are valid?
+      assert initialDelay != newInitialDelay && newInitialDelay != period;
+      local.setInitialDelay(newInitialDelay);
+      local.stop();
+      Assert.assertEquals("the initial dalay can't change", newInitialDelay, local.getInitialDelay());
+   }
+
+   @Test
    public void testAccumulationOwnPool() throws Exception {
       final AtomicInteger count = new AtomicInteger(0);
 
@@ -165,4 +184,26 @@ public class ActiveMQScheduledComponentTest {
       }
    }
 
+   @Test
+   public void testUsingCustomInitialDelay() throws InterruptedException {
+      final CountDownLatch latch = new CountDownLatch(1);
+      final long initialDelayMillis = 100;
+      final long checkPeriodMillis = 100 * initialDelayMillis;
+      final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, initialDelayMillis, checkPeriodMillis, TimeUnit.MILLISECONDS, false) {
+         @Override
+         public void run() {
+            latch.countDown();
+         }
+      };
+      final long start = System.nanoTime();
+      local.start();
+      try {
+         final boolean triggeredBeforePeriod = latch.await(local.getPeriod(), local.getTimeUnit());
+         final long timeToFirstTrigger = TimeUnit.NANOSECONDS.convert(System.nanoTime() - start, local.getTimeUnit());
+         Assert.assertTrue("Takes too long to start", triggeredBeforePeriod);
+         Assert.assertTrue("Started too early", timeToFirstTrigger >= local.getInitialDelay());
+      } finally {
+         local.stop();
+      }
+   }
 }

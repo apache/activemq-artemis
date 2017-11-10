@@ -185,7 +185,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
-
       HashMap<String, Object> amqpParams = new HashMap<>();
       configureAMQPAcceptorParameters(amqpParams);
 

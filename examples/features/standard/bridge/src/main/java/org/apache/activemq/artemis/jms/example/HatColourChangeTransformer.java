@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.jms.example;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 
 public class HatColourChangeTransformer implements Transformer {
 

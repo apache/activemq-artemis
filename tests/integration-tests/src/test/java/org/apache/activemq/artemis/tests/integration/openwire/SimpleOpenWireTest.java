@@ -60,6 +60,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -364,6 +365,73 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       assertNull(consumer.receive(1000));
 
       session.close();
+   }
+
+   @Test
+   public void testSendReceiveDifferentEncoding() throws Exception {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      System.out.println("creating queue: " + queueName);
+      Destination dest = new ActiveMQQueue(queueName);
+
+      System.out.println("creating producer...");
+      MessageProducer producer = session.createProducer(dest);
+
+      final int num = 10;
+      final String msgBase = "MfromAMQ-";
+      for (int i = 0; i < num; i++) {
+         TextMessage msg = session.createTextMessage(msgBase + i);
+         producer.send(msg);
+         System.out.println("sent: ");
+      }
+
+      //receive loose
+      ActiveMQConnection looseConn = (ActiveMQConnection) looseFactory.createConnection();
+      try {
+         looseConn.start();
+         Session looseSession = looseConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer looseConsumer = looseSession.createConsumer(dest);
+
+         System.out.println("receiving messages...");
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = (TextMessage) looseConsumer.receive(5000);
+            System.out.println("received: " + msg);
+            String content = msg.getText();
+            System.out.println("content: " + content);
+            assertEquals(msgBase + i, content);
+         }
+
+         assertNull(looseConsumer.receive(1000));
+         looseConsumer.close();
+
+         //now reverse
+
+         MessageProducer looseProducer = looseSession.createProducer(dest);
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = looseSession.createTextMessage(msgBase + i);
+            looseProducer.send(msg);
+            System.out.println("sent: ");
+         }
+
+         MessageConsumer consumer = session.createConsumer(dest);
+         System.out.println("receiving messages...");
+         for (int i = 0; i < num; i++) {
+            TextMessage msg = (TextMessage) consumer.receive(5000);
+            System.out.println("received: " + msg);
+            assertNotNull(msg);
+            String content = msg.getText();
+            System.out.println("content: " + content);
+            assertEquals(msgBase + i, content);
+         }
+
+         assertNull(consumer.receive(1000));
+
+         session.close();
+         looseSession.close();
+      } finally {
+         looseConn.close();
+      }
    }
 
    //   @Test -- ignored for now
@@ -1583,6 +1651,46 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       XidImpl xid1 = new XidImpl(xid);
       Transaction transaction = server.getResourceManager().getTransaction(xid1);
       assertNull(transaction);
+   }
+
+   @Test
+   public void testTempQueueLeak() throws Exception {
+      final Connection[] connections = new Connection[20];
+
+      try {
+         for (int i = 0; i < connections.length; i++) {
+            connections[i] = factory.createConnection();
+            connections[i].start();
+         }
+
+         Session session = connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         for (int i = 0; i < connections.length; i++) {
+            TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+            temporaryQueue.delete();
+         }
+
+         Object[] addressResources = server.getManagementService().getResources(AddressControl.class);
+
+         for (Object addressResource : addressResources) {
+
+            if (((AddressControl) addressResource).getAddress().equals("ActiveMQ.Advisory.TempQueue")) {
+               AddressControl addressControl = (AddressControl) addressResource;
+               Wait.waitFor(() -> addressControl.getMessageCount() == 0);
+               assertNotNull("addressControl for temp advisory", addressControl);
+               assertEquals(0, addressControl.getMessageCount());
+            }
+         }
+
+
+         //sleep a bit to allow message count to go down.
+      } finally {
+         for (Connection conn : connections) {
+            if (conn != null) {
+               conn.close();
+            }
+         }
+      }
    }
 
    private void checkQueueEmpty(String qName) {
