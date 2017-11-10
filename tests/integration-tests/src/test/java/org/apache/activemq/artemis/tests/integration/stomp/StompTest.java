@@ -23,6 +23,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.TextMessage;
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,7 +67,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class StompTest extends StompTestBase {
 
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -76,7 +80,7 @@ public class StompTest extends StompTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
    }
 
    @Override
@@ -94,6 +98,7 @@ public class StompTest extends StompTestBase {
          }
       } finally {
          super.tearDown();
+         conn.closeTransport();
       }
    }
 
@@ -101,8 +106,10 @@ public class StompTest extends StompTestBase {
    public void testConnectionTTL() throws Exception {
       int port = 61614;
 
+      URI uri = createStompClientUri(scheme, hostname, port);
+
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000").start();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect("brianm", "wombats");
 
       Thread.sleep(5000);
@@ -255,33 +262,6 @@ public class StompTest extends StompTestBase {
 
       assertEquals(stompPayload, new String(mqttPayload, "UTF-8"));
       clientProvider.disconnect();
-   }
-
-   @Test
-   public void testSendReceiveLargeMessage() throws Exception {
-      String address = "testLargeMessageAddress";
-      server.getActiveMQServer().createQueue(SimpleString.toSimpleString(address), RoutingType.ANYCAST, SimpleString.toSimpleString(address), null, true, false);
-
-      // STOMP default is UTF-8 == 1 byte per char.
-      int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
-      StringBuilder b = new StringBuilder(largeMessageStringSize);
-      for (int i = 0; i < largeMessageStringSize; i++) {
-         b.append('t');
-      }
-      String payload =  b.toString();
-
-      // Set up STOMP subscription
-      conn.connect(defUser, defPass);
-      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO, null, null, address, true);
-
-      // Send Large Message
-      System.out.println("Sending Message Size: " + largeMessageStringSize);
-      send(conn, address, null, payload);
-
-      // Receive STOMP Message
-      ClientStompFrame frame = conn.receiveFrame();
-      System.out.println(frame.getBody().length());
-      assertTrue(frame.getBody().equals(payload));
    }
 
    @Test
@@ -936,10 +916,10 @@ public class StompTest extends StompTestBase {
       if (sendDisconnect) {
          conn.disconnect();
          conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+         conn = StompClientConnectionFactory.createClientConnection(uri);
       } else {
          conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+         conn = StompClientConnectionFactory.createClientConnection(uri);
       }
 
       // message should be received since message was not acknowledged
@@ -953,7 +933,7 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
       conn.destroy();
 
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
 
       // now let's make sure we don't see the message again
 
@@ -1219,7 +1199,7 @@ public class StompTest extends StompTestBase {
       sendJmsMessage(getName(), topic);
 
       conn.destroy();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass, "myclientid");
 
       subscribeTopic(conn, null, null, getName());
@@ -1257,7 +1237,7 @@ public class StompTest extends StompTestBase {
       assertNotNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
 
       conn.destroy();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
 
       conn.connect(defUser, defPass, "myclientid");
       unsubscribe(conn, getName(), getTopicPrefix() + getTopicName(), false, true);
@@ -1302,7 +1282,7 @@ public class StompTest extends StompTestBase {
       conn.destroy();
 
       // connect again
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       // send a receipted message to the topic
@@ -1441,12 +1421,15 @@ public class StompTest extends StompTestBase {
 
    public void testPrefix(final String prefix, final RoutingType routingType, final boolean send) throws Exception {
       int port = 61614;
+
+      URI uri = createStompClientUri(scheme, hostname, port);
+
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
       String param = routingType.toString();
       String urlParam = param.toLowerCase() + "Prefix";
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       // since this queue doesn't exist the broker should create a new address using the routing type matching the prefix
@@ -1496,11 +1479,14 @@ public class StompTest extends StompTestBase {
 
    public void testPrefixedSendAndRecieve(final String prefix, RoutingType routingType) throws Exception {
       int port = 61614;
+
+      URI uri = createStompClientUri(scheme, hostname, port);
+
       final String ADDRESS = UUID.randomUUID().toString();
       final String PREFIXED_ADDRESS = prefix + ADDRESS;
       String urlParam = routingType.toString().toLowerCase() + "Prefix";
       server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://" + hostname + ":" + port + "?protocols=" + StompProtocolManagerFactory.STOMP_PROTOCOL_NAME + "&" + urlParam + "=" + prefix).start();
-      conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
       String uuid = UUID.randomUUID().toString();
 

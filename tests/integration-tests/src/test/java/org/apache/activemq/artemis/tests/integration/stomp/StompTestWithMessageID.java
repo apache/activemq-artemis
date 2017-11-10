@@ -38,7 +38,7 @@ public class StompTestWithMessageID extends StompTestBase {
 
    @Test
    public void testEnableMessageID() throws Exception {
-      StompClientConnection conn = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
+      StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
 
       ClientStompFrame frame = conn.createFrame("SEND");
@@ -74,5 +74,7 @@ public class StompTestWithMessageID extends StompTestBase {
 
       message = (TextMessage) consumer.receive(2000);
       Assert.assertNull(message);
+
+      conn.disconnect();
    }
 }
